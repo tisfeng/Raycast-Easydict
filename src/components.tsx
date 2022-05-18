@@ -12,7 +12,7 @@ export function ActionFeedback() {
         <Action.OpenInBrowser
             icon={Icon.QuestionMark}
             title="Feedback"
-            url="https://github.com/Haojen/raycast-Parrot"
+            url="https://github.com/Haojen/raycast-eudic"
         />
     )
 }

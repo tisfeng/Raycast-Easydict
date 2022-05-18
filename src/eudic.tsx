@@ -132,7 +132,7 @@ export default function () {
                         <Action.OpenInBrowser
                             title="Help"
                             icon={Icon.QuestionMark}
-                            url="https://github.com/Haojen/raycast-Parrot#error-code-information"
+                            url="https://github.com/Haojen/raycast-eudic#error-code-information"
                         />
                     </ActionPanel>
                 }

@@ -1,24 +1,22 @@
 {
     "$schema": "https://www.raycast.com/schemas/extension.json",
-    "name": "parrot-translate",
-    "title": "Parrot Translate",
-    "description": "Powerful and Easy to use translation, Support TTS and lowerCamelCase/ALL_UPPERCASE Copy mode, and more",
-    "icon": "parrot-icon.png",
-    "author": "Haojen",
+    "name": "eudic-query",
+    "title": "eudic Query",
+    "description": "Easy to use Eudic to query words",
+    "icon": "eudic-icon.png",
+    "author": "tisfeng",
     "license": "MIT",
     "commands": [
         {
-            "name": "parrot",
-            "title": "Translate",
-            "subtitle": "Parrot",
-            "description": "Powerful and Easy to use translation, Support TTS and lowerCamelCase/ALL_UPPERCASE Copy mode, and more",
+            "name": "eudic",
+            "title": "Query Eudic",
+            "subtitle": "eudic",
+            "description": "Easy to use Eudic to query words",
             "mode": "view"
         }
     ],
     "categories": [
-        "Documentation",
-        "Web",
-        "Developer Tools"
+        "Productivity"
     ],
     "preferences": [
         {
