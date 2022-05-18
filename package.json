@@ -1,8 +1,8 @@
 {
     "$schema": "https://www.raycast.com/schemas/extension.json",
     "name": "eudic-query",
-    "title": "eudic Query",
-    "description": "Easy to use Eudic to query words",
+    "title": "Eudic Query",
+    "description": "Easy to query words with Eudic.",
     "icon": "eudic-icon.png",
     "author": "tisfeng",
     "license": "MIT",
@@ -10,8 +10,8 @@
         {
             "name": "eudic",
             "title": "Query Eudic",
-            "subtitle": "eudic",
-            "description": "Easy to use Eudic to query words",
+            "subtitle": "Eudic Dictionary",
+            "description": "Easy to query words with Eudic.",
             "mode": "view"
         }
     ],
