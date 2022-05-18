@@ -9,7 +9,7 @@
     "commands": [
         {
             "name": "eudic",
-            "title": "Eudic look up",
+            "title": "Look up",
             "subtitle": "Eudic Dictionary",
             "description": "Easy to look up words with Eudic.",
             "mode": "view"

@@ -101,6 +101,12 @@ export default function () {
             [2 as number]: { sectionTitle: undefined, dotColor: Color.Yellow },
             [3 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
         }
+ 
+        // console.log(JSON.stringify(translateResultState))
+        // translateResultState?.map((item, index) => {
+        //     console.log(`item: ${JSON.stringify(item)}`)
+        // })
+
         if (fetchResultStateCode === "0") {
             return (
                 <Fragment>
@@ -117,6 +123,7 @@ export default function () {
                                             subtitle={item?.subtitle}
                                             accessoryTitle={item.phonetic}
                                             actions={
+                                                
                                                 <ListActionPanel
                                                     queryText={inputState}
                                                     copyMode={copyModeState}
