@@ -1,9 +1,19 @@
 import { Component } from "react"
-import { exec } from "child_process"
+import { exec, execFile } from "child_process"
 import { COPY_TYPE, LANGUAGE_LIST } from "./consts"
 import { reformatCopyTextArray, truncate } from "./shared.func"
 import { IActionCopyListSection, IListItemActionPanelItem, IPreferences } from "./types"
-import { Action, ActionPanel, Clipboard, getPreferenceValues, Icon, Keyboard } from "@raycast/api"
+import {
+    Action,
+    ActionPanel,
+    Clipboard,
+    getApplications,
+    getPreferenceValues,
+    Icon,
+    Keyboard,
+    showToast,
+    Toast,
+} from "@raycast/api"
 
 const preferences: IPreferences = getPreferenceValues()
 
@@ -92,6 +102,22 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
         return `https://translate.google.com/?sl=${from}&tl=${to}&text=${text}&op=translate`
     }
 
+    openInEudic = (queryText?: string) => {
+        getApplications().then((applications) => {
+            const isInstalledEudic = applications.find((app) => ((app.bundleId as string) || "").indexOf("eudic") != -1)
+            if (isInstalledEudic) {
+                // open in eudic and query
+                const url = `eudic://dict/${queryText}`
+                execFile(`open`, [url])
+            } else {
+                showToast({
+                    title: "Eudic is not installed.",
+                    style: Toast.Style.Failure,
+                })
+            }
+        })
+    }
+
     render() {
         return (
             <ActionPanel>
@@ -100,6 +126,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
                     <Action
                         title="Play Query Text Sound"
                         icon={Icon.Message}
+                        shortcut={{ modifiers: ["cmd"], key: "s" }}
                         onAction={() =>
                             this.onPlaySound(this.props?.queryText, this.props.currentFromLanguage?.languageId)
                         }
@@ -112,11 +139,19 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
                         }
                     />
                 </ActionPanel.Section>
+
+                <ActionPanel.Section title="Open in">
+                    <Action
+                        title="Search Query Text in Eudic"
+                        icon={Icon.MagnifyingGlass}
+                        shortcut={{ modifiers: ["cmd"], key: "e" }}
+                        onAction={() => this.openInEudic(this.props.queryText)}
+                    />
+                </ActionPanel.Section>
+
                 <ActionPanel.Section title="Target Language">
                     {LANGUAGE_LIST.map((region) => {
                         const isCurrentFromLanguage = this.props.currentFromLanguage?.languageId === region.languageId
-                        // const isCurrentTargetLanguage =
-                        //     this.props.currentTargetLanguage?.languageId === region.languageId
                         if (isCurrentFromLanguage) return null
 
                         return (
