@@ -119,9 +119,9 @@ export default function () {
         console.log("inputState", inputState);
       });
     } else {
-        updateLoadingState(true);
-        clearTimeout(delayUpdateTargetLanguageTimer);
-        translate("auto", translateTargetLanguage.languageId);
+      updateLoadingState(true);
+      clearTimeout(delayUpdateTargetLanguageTimer);
+      translate("auto", translateTargetLanguage.languageId);
     }
   }, [inputState]);
 
@@ -134,10 +134,10 @@ export default function () {
       [3 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
     };
 
-    console.log(JSON.stringify(translateResultState))
+    console.log(JSON.stringify(translateResultState));
     translateResultState?.map((item, index) => {
-        console.log(`item: ${index}  ${JSON.stringify(item)}`)
-    })
+      console.log(`item: ${index}  ${JSON.stringify(item)}`);
+    });
 
     if (fetchResultStateCode === "0") {
       return (
