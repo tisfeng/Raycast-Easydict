@@ -89,16 +89,15 @@ export function ActionCopyListSection(props: IActionCopyListSection) {
 export class ListActionPanel extends Component<IListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
     if (language && text) {
-      const voiceIndex = 0;
-
-      for (const LANG of LANGUAGE_LIST) {
-        if (language === LANG.languageId) {
-          const sayCommand = `say -v ${
-            LANG.languageVoice[voiceIndex]
-          } ${truncate(text)}`;
-          LANG.languageVoice.length > 0 && exec(sayCommand);
+        const voiceIndex = 0;
+        for (const LANG of LANGUAGE_LIST) {
+          if (language === LANG.languageId) {
+            const sayCommand = `say -v ${
+              LANG.languageVoice[voiceIndex]
+            } ${truncate(text)}`;
+            LANG.languageVoice.length > 0 && exec(sayCommand);
+          }
         }
-      }
     }
   }
 
@@ -150,7 +149,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             content={this.props.copyText || ""}
           />
         </ActionPanel.Section>
-        
 
         {/* <ActionCopyListSection
           copyText={this.props.copyText}

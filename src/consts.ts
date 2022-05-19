@@ -17,9 +17,9 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
         languageId: "en",
         languageTitle: "English",
         languageVoice: [
+            "Samantha",
             "Alex",
             "Fred",
-            "Samantha",
             "Victoria",
             "Daniel",
             "Karen",
