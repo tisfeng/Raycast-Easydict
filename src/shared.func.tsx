@@ -2,7 +2,7 @@ import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
 import { getPreferenceValues } from "@raycast/api";
-import { COPY_TYPE, LANGUAGE_LIST } from "./consts";
+import { LANGUAGE_LIST } from "./consts";
 
 import {
   ILanguageListItem,

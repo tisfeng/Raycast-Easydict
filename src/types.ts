@@ -1,5 +1,3 @@
-import { COPY_TYPE } from "./consts";
-
 export interface ITranslateResult {
   l: string;
   query: string;
@@ -46,7 +44,6 @@ export interface IPreferences {
 export interface IListItemActionPanelItem {
   copyText?: string;
   queryText?: string;
-  copyMode: COPY_TYPE;
   currentFromLanguage?: ILanguageListItem;
   currentTargetLanguage?: ILanguageListItem;
   onLanguageUpdate: (language: ILanguageListItem) => void;
@@ -55,12 +52,6 @@ export interface IListItemActionPanelItem {
 export interface IReformatTranslateResult {
   title: string;
   value: string;
-}
-
-export interface IActionCopyListSection {
-  copyText?: string;
-  copyMode: COPY_TYPE;
-  autoPasteText?: string;
 }
 
 export interface ILanguageListItem {

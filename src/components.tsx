@@ -1,12 +1,8 @@
 import { Component } from "react";
 import { exec, execFile } from "child_process";
-import { COPY_TYPE, LANGUAGE_LIST } from "./consts";
-import { reformatCopyTextArray, truncate } from "./shared.func";
-import {
-  IActionCopyListSection,
-  IListItemActionPanelItem,
-  IPreferences,
-} from "./types";
+import { LANGUAGE_LIST } from "./consts";
+import { truncate } from "./shared.func";
+import { IListItemActionPanelItem, IPreferences } from "./types";
 import {
   Action,
   ActionPanel,
@@ -14,7 +10,6 @@ import {
   getApplications,
   getPreferenceValues,
   Icon,
-  Keyboard,
   showToast,
   Toast,
 } from "@raycast/api";
@@ -28,61 +23,6 @@ export function ActionFeedback() {
       title="Feedback"
       url="https://github.com/Haojen/raycast-Parrot"
     />
-  );
-}
-
-export function ActionCopyListSection(props: IActionCopyListSection) {
-  if (!props.copyText) {
-    return null;
-  }
-
-  const SEPARATOR = "；";
-  const copyTextArray = props.copyText.split(SEPARATOR);
-  copyTextArray.length > 1 && copyTextArray.push(props.copyText);
-  // const finalTextArray = reformatCopyTextArray(copyTextArray, 4)
-  const finalTextArray = [props.copyText];
-
-  console.log("props.copyText", JSON.stringify(props.copyText));
-
-  const shortcutKeyEquivalent: Keyboard.KeyEquivalent[] = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-  ];
-
-  function changeTextCopyStyle(text: string): string {
-    return text;
-  }
-
-  console.log("copytext", JSON.stringify(props.copyText));
-  console.log("finalTextArray", JSON.stringify(finalTextArray));
-
-  return (
-    <ActionPanel.Section>
-      {finalTextArray.map((textItem, key) => {
-        console.log("key", key);
-        console.log("textItem", JSON.stringify(textItem));
-        return (
-          <Action.CopyToClipboard
-            onCopy={() =>
-              preferences.isAutomaticPaste &&
-              Clipboard.paste(props.copyText || "")
-            }
-            shortcut={{ modifiers: ["cmd"], key: "enter" }}
-            title={`Copy ${props.copyText}`}
-            content={props.copyText || ""}
-            key={key}
-          />
-        );
-      })}
-    </ActionPanel.Section>
   );
 }
 
@@ -136,7 +76,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
         <ActionPanel.Section>
           <Action
             icon={Icon.MagnifyingGlass}
-            title="Look up Query Text in Eudic"
+            title="Look up in Eudic"
             onAction={() => this.openInEudic(this.props.queryText)}
           />
           <Action.CopyToClipboard
@@ -144,16 +84,10 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
               preferences.isAutomaticPaste &&
               Clipboard.paste(this.props.copyText || "")
             }
-            // shortcut={{ modifiers: ["cmd"], key: "enter" }}
             title={`Copy  ${this.props.copyText}`}
             content={this.props.copyText || ""}
           />
         </ActionPanel.Section>
-
-        {/* <ActionCopyListSection
-          copyText={this.props.copyText}
-          copyMode={this.props.copyMode}
-        /> */}
 
         <ActionPanel.Section title="Play Sound">
           <Action
@@ -176,15 +110,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
                 this.props.currentTargetLanguage?.languageId
               )
             }
-          />
-        </ActionPanel.Section>
-
-        <ActionPanel.Section title="Open in">
-          <Action
-            title="Search Query Text in Eudic"
-            icon={Icon.MagnifyingGlass}
-            shortcut={{ modifiers: ["cmd"], key: "e" }}
-            onAction={() => this.openInEudic(this.props.queryText)}
           />
         </ActionPanel.Section>
 

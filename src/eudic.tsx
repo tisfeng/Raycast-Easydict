@@ -1,4 +1,3 @@
-import { COPY_TYPE } from "./consts";
 import { Fragment, useEffect, useState } from "react";
 import { ActionFeedback, ListActionPanel } from "./components";
 import {
@@ -20,8 +19,6 @@ import {
   requestYoudaoAPI,
   getItemFromLanguageList,
   reformatTranslateResult,
-  removeDetectCopyModeSymbol,
-  detectIsUppercaseCopyOrLowerCaseCopy,
 } from "./shared.func";
 
 let fetchResultStateCode = "-1";
@@ -69,10 +66,6 @@ export default function () {
   const [currentTargetLanguage, setCurrentTargetLanguage] =
     useState<ILanguageListItem>(defaultLanguage1);
 
-  const [copyModeState, updateCopyModeState] = useState<COPY_TYPE>(
-    COPY_TYPE.Normal
-  );
-
   function translate(fromLanguage: string, targetLanguage: string) {
     requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
@@ -108,15 +101,11 @@ export default function () {
   }
 
   useEffect(() => {
-    // if (!inputState) return // Prevent when first mounted run
-
     if (!inputState) {
       Clipboard.readText().then((text) => {
         if (text) {
           updateInputState(text);
         }
-        console.log("clipboard read text", text);
-        console.log("inputState", inputState);
       });
     } else {
       updateLoadingState(true);
@@ -134,10 +123,10 @@ export default function () {
       [3 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
     };
 
-    console.log(JSON.stringify(translateResultState));
-    translateResultState?.map((item, index) => {
-      console.log(`item: ${index}  ${JSON.stringify(item)}`);
-    });
+    // const result = JSON.stringify(translateResultState);
+    // console.log(JSON.stringify(translateResultState));
+    // Clipboard.copy(result);
+    // console.log(JSON.stringify(translateResultState, null, 4));
 
     if (fetchResultStateCode === "0") {
       return (
@@ -155,12 +144,11 @@ export default function () {
                         tintColor: sectionInfoMap[idx].dotColor,
                       }}
                       title={item.title}
-                      subtitle={item?.subtitle}
+                      subtitle={item.subtitle}
                       accessoryTitle={item.phonetic}
                       actions={
                         <ListActionPanel
                           queryText={inputState}
-                          copyMode={copyModeState}
                           copyText={item?.subtitle || item.title}
                           currentFromLanguage={currentFromLanguageState}
                           currentTargetLanguage={currentTargetLanguage}
@@ -205,18 +193,9 @@ export default function () {
     const text = queryText.trim();
     if (text.length > 0) {
       delayFetchTranslateAPITimer = setTimeout(() => {
-        updateCopyModeState(() => {
-          const freshCopyModeState = detectIsUppercaseCopyOrLowerCaseCopy(text);
+        updateInputState(text);
+      }, delayRequestTime);
 
-          const freshInputValue = removeDetectCopyModeSymbol(
-            text,
-            freshCopyModeState
-          );
-          updateInputState(freshInputValue);
-
-          return freshCopyModeState;
-        });
-      }, 800);
       return;
     }
 
