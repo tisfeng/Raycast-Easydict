@@ -8,6 +8,7 @@ import {
   getPreferenceValues,
   Icon,
   List,
+  LocalStorage,
 } from "@raycast/api";
 import {
   ILanguageListItem,
@@ -24,6 +25,8 @@ import {
 let fetchResultStateCode = "-1";
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
+
+const clipboardQueryDuration = 60 * 1000;
 
 export default function () {
   const [inputState, updateInputState] = useState<string>();
@@ -100,22 +103,52 @@ export default function () {
     });
   }
 
+  // function: save last Clipboard text and timestamp
+  function saveQueryClipboardRecord(text: string) {
+    LocalStorage.setItem(text, new Date().getTime());
+    console.log("save", text, new Date().getTime());
+  }
+
   useEffect(() => {
-    if (!inputState) {
-      if (preferences.isAutomaticQueryClipboard) {
-        Clipboard.readText().then((text) => {
-          if (text) {
-            updateInputState(text);
-          }
-        });
-      } else {
-        return;
-      }
-    } else {
+    console.log("inputState: ", inputState);
+
+    if (inputState) {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
       translate("auto", translateTargetLanguage.languageId);
+      return;
     }
+
+    if (!inputState) {
+      console.log("inputState 2: ", inputState);
+
+      Clipboard.readText().then((text) => {
+        if (text) {
+          console.log("text: ", text);
+
+          LocalStorage.getItem<number>(text!).then((timestamp) => {
+            console.log(text, "lastRecordTime: ", timestamp);
+            if (!timestamp) {
+              updateInputState(text);
+              saveQueryClipboardRecord(text);
+            } else {
+              if (new Date().getTime() - timestamp > clipboardQueryDuration) {
+                updateInputState(text);
+                saveQueryClipboardRecord(text);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // if (preferences.isAutomaticQueryClipboard) {
+    //   Clipboard.readText().then((text) => {
+    //     if (text) {
+    //       updateInputState(text);
+    //     }
+    //   });
+    // }
   }, [inputState]);
 
   function ListDetail() {
