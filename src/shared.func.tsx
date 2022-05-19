@@ -12,7 +12,7 @@ import {
     ITranslateResult,
 } from "./types"
 
-export function truncate(string: string, length = 16, separator = "..") {
+export function truncate(string: string, length = 40, separator = "..") {
     if (string.length <= length) return string
 
     return string.substring(0, length) + separator
