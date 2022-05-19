@@ -37,6 +37,7 @@ export interface IPreferences {
   lang2: string;
   appId: string;
   appKey: string;
+  isAutomaticQueryClipboard: boolean;
   isAutomaticPaste: boolean;
   delayFetchTranslateAPITime: string;
 }

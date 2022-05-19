@@ -271,13 +271,21 @@
       "placeholder": "Range 50-600ms, default 400ms"
     },
     {
-      "title": "Others",
+      "title": "Preference",
+      "name": "isAutomaticQueryClipboard",
+      "type": "checkbox",
+      "label": "Automatic Query Clipboard",
+      "required": false,
+      "default": true,
+      "description": "When you first enter, automatic Query clipboard text"
+    },
+    {
       "name": "isAutomaticPaste",
       "type": "checkbox",
       "label": "Automatic Paste",
       "required": false,
-      "default": true,
-      "description": "When you copy automatic paste to focus"
+      "default": false,
+      "description": "When you copy, automatic paste to focus"
     }
   ],
   "dependencies": {

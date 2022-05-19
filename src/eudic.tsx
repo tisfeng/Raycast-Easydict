@@ -102,11 +102,15 @@ export default function () {
 
   useEffect(() => {
     if (!inputState) {
-      Clipboard.readText().then((text) => {
-        if (text) {
-          updateInputState(text);
-        }
-      });
+      if (preferences.isAutomaticQueryClipboard) {
+        Clipboard.readText().then((text) => {
+          if (text) {
+            updateInputState(text);
+          }
+        });
+      } else {
+        return;
+      }
     } else {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
@@ -186,6 +190,7 @@ export default function () {
       />
     );
   }
+
   function onInputChangeEvt(queryText: string) {
     updateLoadingState(false);
     clearTimeout(delayFetchTranslateAPITimer);
@@ -195,10 +200,8 @@ export default function () {
       delayFetchTranslateAPITimer = setTimeout(() => {
         updateInputState(text);
       }, delayRequestTime);
-
       return;
     }
-
     updateTranslateResultState([]);
   }
 
