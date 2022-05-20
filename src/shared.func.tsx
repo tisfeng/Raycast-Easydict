@@ -2,7 +2,7 @@ import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
 import { Clipboard, getPreferenceValues } from "@raycast/api";
-import { LANGUAGE_LIST } from "./consts";
+import { LANGUAGE_LIST, SectionType } from "./consts";
 
 import {
   ILanguageListItem,
@@ -62,7 +62,7 @@ export function reformatTranslateResult(
   // Clipboard.copy(result);
 
   reformatData.push({
-    type: "Translation",
+    type: SectionType.Translation,
     children: data.translation?.map((text, idx) => {
       const examTypes = data.basic?.exam_type;
       return {
@@ -82,7 +82,7 @@ export function reformatTranslateResult(
   }
 
   reformatData.push({
-    type: "Detail",
+    type: SectionType.Detail,
     children: data.basic?.explains?.map((text, idx) => {
       return { title: text, key: text + idx };
     }),
@@ -96,7 +96,7 @@ export function reformatTranslateResult(
   const wfsText = wfs?.join("   ") || "";
   if (wfsText.length > 0) {
     reformatData.push({
-      type: "Wfs",
+      type: SectionType.Wfs,
       children: [
         {
           title: "",
@@ -108,7 +108,7 @@ export function reformatTranslateResult(
   }
 
   reformatData.push({
-    type: "Web Results",
+    type: SectionType.WebResults,
     children: data.web?.map((webResultItem, idx) => {
       return {
         title: webResultItem.key,

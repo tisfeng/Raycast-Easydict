@@ -1,3 +1,5 @@
+import { SectionType } from "./consts";
+
 export interface ITranslateResult {
   l: string;
   query: string;
@@ -9,7 +11,7 @@ export interface ITranslateResult {
 }
 
 export interface ITranslateReformatResult {
-  type?: string;
+  type: SectionType;
   children?: ITranslateReformatResultItem[];
 }
 
@@ -31,7 +33,7 @@ export interface ITranslateResultBasicItem {
   "us-phonetic": string;
   "uk-phonetic": string;
   exam_type?: string[];
-  wfs?: ITranslateResultBasicWfsItem[]
+  wfs?: ITranslateResultBasicWfsItem[];
 }
 
 export interface ITranslateResultBasicWfsItem {

@@ -6,6 +6,13 @@ export enum COPY_TYPE {
   LowercaseCamelCase,
 }
 
+export enum SectionType {
+  Translation,
+  Detail,
+  Wfs,
+  WebResults,
+}
+
 export const LANGUAGE_LIST: ILanguageListItem[] = [
   {
     languageId: "zh-CHS",

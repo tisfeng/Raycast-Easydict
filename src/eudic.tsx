@@ -7,6 +7,7 @@ import {
   Color,
   getPreferenceValues,
   Icon,
+  Image,
   List,
   LocalStorage,
 } from "@raycast/api";
@@ -14,6 +15,7 @@ import {
   ILanguageListItem,
   IPreferences,
   ITranslateReformatResult,
+  ITranslateReformatResultItem,
   ITranslateResult,
 } from "./types";
 import {
@@ -21,6 +23,7 @@ import {
   getItemFromLanguageList,
   reformatTranslateResult,
 } from "./shared.func";
+import { SectionType } from "./consts";
 
 let fetchResultStateCode = "-1";
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -143,16 +146,60 @@ export default function () {
     }
   }, [inputState]);
 
+  // function: Returns the corresponding ImageLike based on the SectionType type
+  function getSectionIcon(sectionType: SectionType): Image.ImageLike {
+    let dotColor: Color = Color.PrimaryText;
+    switch (sectionType) {
+      case SectionType.Translation: {
+        dotColor = Color.Red;
+        break;
+      }
+      case SectionType.Detail: {
+        dotColor = Color.Blue;
+        break;
+      }
+      case SectionType.WebResults: {
+        dotColor = Color.Yellow;
+        break;
+      }
+    }
+    let sectionIcon: Image.ImageLike = {
+      source: Icon.Dot,
+      tintColor: dotColor,
+    };
+    if (sectionType === SectionType.Wfs) {
+      sectionIcon = Icon.Text;
+    }
+    return sectionIcon;
+  }
+
+  // function: return List.Item.Accessory[] based on the SectionType type
+  function getSectionAccessories(
+    sectionType: SectionType,
+    item: ITranslateReformatResultItem
+  ): List.Item.Accessory[] {
+    let wordExamTypeAccessory: List.Item.Accessory[] = [];
+    let pronunciationAccessory: List.Item.Accessory[] = [];
+    let wordAccessories = wordExamTypeAccessory.concat(pronunciationAccessory);
+    if (sectionType === SectionType.Translation) {
+      if (item.subtitle) {
+        wordExamTypeAccessory = [{ icon: Icon.Star }, { text: item.subtitle }];
+      }
+      if (item.phonetic) {
+        pronunciationAccessory = [
+          { icon: Icon.SpeakerArrowUp },
+          { text: item.phonetic },
+        ];
+      }
+      wordAccessories = wordExamTypeAccessory
+        .concat([{ text: "    " }])
+        .concat(pronunciationAccessory);
+    }
+    return wordAccessories;
+  }
+
   function ListDetail() {
     if (fetchResultStateCode === "-1") return null;
-    const sectionInfoMap = {
-      [0 as number]: { sectionTitle: "Translation", dotColor: Color.Red },
-      [1 as number]: { sectionTitle: "Detail", dotColor: Color.Blue },
-      [2 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
-      [3 as number]: { sectionTitle: undefined, dotColor: Color.Yellow },
-      [4 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
-    };
-
     // const result = JSON.stringify(translateResultState);
     // console.log(JSON.stringify(translateResultState));
     // Clipboard.copy(result);
@@ -162,43 +209,17 @@ export default function () {
       return (
         <Fragment>
           {translateResultState?.map((result, idx) => {
-            idx = idx >= 3 ? 3 : idx;
+            const sectionTitle = idx < 2 ? SectionType[result.type] : undefined;
             return (
-              <List.Section key={idx} title={sectionInfoMap[idx].sectionTitle}>
+              <List.Section key={idx} title={sectionTitle}>
                 {result.children?.map((item) => {
-                  let wordExamTypeAccessory: List.Item.Accessory[] = [];
-                  let pronunciationAccessory: List.Item.Accessory[] = [];
-                  let wordAccessory = wordExamTypeAccessory.concat(
-                    pronunciationAccessory
-                  );
-                  if (idx == 0) {
-                    if (item.subtitle) {
-                      wordExamTypeAccessory = [
-                        { icon: Icon.Star },
-                        { text: item.subtitle },
-                      ];
-                    }
-                    if (item.phonetic) {
-                      pronunciationAccessory = [
-                        { icon: Icon.SpeakerArrowUp },
-                        { text: item.phonetic },
-                      ];
-                    }
-                    wordAccessory = wordExamTypeAccessory
-                      .concat([{ text: "    " }])
-                      .concat(pronunciationAccessory);
-                  }
-
                   return (
                     <List.Item
                       key={item.key}
-                      icon={{
-                        source: Icon.Dot,
-                        tintColor: sectionInfoMap[idx].dotColor,
-                      }}
+                      icon={getSectionIcon(result.type)}
                       title={item.title}
                       subtitle={idx == 0 ? "" : item.subtitle}
-                      accessories={wordAccessory}
+                      accessories={getSectionAccessories(result.type, item)}
                       actions={
                         <ListActionPanel
                           queryText={inputState}
