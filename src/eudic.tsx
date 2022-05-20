@@ -73,6 +73,9 @@ export default function () {
   function translate(fromLanguage: string, targetLanguage: string) {
     requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
+      // const result = JSON.stringify(resData);
+      // console.log(JSON.stringify(resData));
+      // Clipboard.copy(result);
 
       const [from, to] = resData.l.split("2"); // from2to
 
@@ -162,6 +165,29 @@ export default function () {
             return (
               <List.Section key={idx} title={sectionInfoMap[idx].sectionTitle}>
                 {result.children?.map((item) => {
+                  let wordExamTypeAccessory: List.Item.Accessory[] = [];
+                  let pronunciationAccessory: List.Item.Accessory[] = [];
+                  let wordAccessory = wordExamTypeAccessory.concat(
+                    pronunciationAccessory
+                  );
+                  if (idx == 0) {
+                    if (item.subtitle) {
+                      wordExamTypeAccessory = [
+                        { icon: Icon.Star },
+                        { text: item.subtitle },
+                      ];
+                    }
+                    if (item.phonetic) {
+                      pronunciationAccessory = [
+                        { icon: Icon.SpeakerArrowUp },
+                        { text: item.phonetic },
+                      ];
+                    }
+                    wordAccessory = wordExamTypeAccessory
+                      .concat([{ text: "    " }])
+                      .concat(pronunciationAccessory);
+                  }
+
                   return (
                     <List.Item
                       key={item.key}
@@ -170,8 +196,8 @@ export default function () {
                         tintColor: sectionInfoMap[idx].dotColor,
                       }}
                       title={item.title}
-                      subtitle={item.subtitle}
-                      accessoryTitle={item.phonetic}
+                      subtitle={idx == 0 ? "" : item.subtitle}
+                      accessories={wordAccessory}
                       actions={
                         <ListActionPanel
                           queryText={inputState}

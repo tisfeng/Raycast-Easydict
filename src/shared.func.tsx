@@ -1,7 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
-import { getPreferenceValues } from "@raycast/api";
+import { Clipboard, getPreferenceValues } from "@raycast/api";
 import { LANGUAGE_LIST } from "./consts";
 
 import {
@@ -57,12 +57,19 @@ export function reformatTranslateResult(
 ): ITranslateReformatResult[] {
   const reformatData: ITranslateReformatResult[] = [];
 
+  // const result = JSON.stringify(data);
+  // console.log(JSON.stringify(data));
+  // Clipboard.copy(result);
+
   reformatData.push({
+    type: "Translation",
     children: data.translation?.map((text, idx) => {
+      const examTypes = data.basic?.exam_type;
       return {
         title: text,
         key: text + idx,
         phonetic: data.basic?.phonetic,
+        subtitle: `${examTypes?.join("  ") || ""}`,
       };
     }),
   });
@@ -75,13 +82,14 @@ export function reformatTranslateResult(
   }
 
   reformatData.push({
+    type: "Detail",
     children: data.basic?.explains?.map((text, idx) => {
       return { title: text, key: text + idx };
     }),
   });
 
   reformatData.push({
-    type: "Other Results",
+    type: "Web Results",
     children: data.web?.map((webResultItem, idx) => {
       return {
         title: webResultItem.key,

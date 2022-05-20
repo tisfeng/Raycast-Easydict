@@ -30,6 +30,7 @@ export interface ITranslateResultBasicItem {
   phonetic?: string;
   "us-phonetic": string;
   "uk-phonetic": string;
+  exam_type?: string[];
 }
 
 export interface IPreferences {
