@@ -32,9 +32,11 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
       const voiceIndex = 0;
       for (const LANG of LANGUAGE_LIST) {
         if (language === LANG.languageId) {
-          const sayCommand = `say -v ${
-            LANG.languageVoice[voiceIndex]
-          } ${truncate(text)}`;
+          const escapeText = truncate(text)
+            .replace(/'/g, " ")
+            .replace(/"/g, " ");
+          const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${escapeText}'`;
+          console.log(sayCommand);
           LANG.languageVoice.length > 0 && exec(sayCommand);
         }
       }
@@ -76,7 +78,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
         <ActionPanel.Section>
           <Action
             icon={Icon.MagnifyingGlass}
-            title="Look up in Eudic"
+            title="Open in Eudic"
             onAction={() => this.openInEudic(this.props.queryText)}
           />
           <Action.CopyToClipboard
