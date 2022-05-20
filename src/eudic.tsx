@@ -26,7 +26,8 @@ let fetchResultStateCode = "-1";
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
-const clipboardQueryDuration = 60 * 1000;
+// Time interval for automatic query of the same clipboard word.
+const clipboardQueryDuration = 5 * 1000;
 
 export default function () {
   const [inputState, updateInputState] = useState<string>();
@@ -121,34 +122,22 @@ export default function () {
 
     if (!inputState) {
       console.log("inputState 2: ", inputState);
-
       Clipboard.readText().then((text) => {
         if (text) {
           console.log("text: ", text);
-
           LocalStorage.getItem<number>(text!).then((timestamp) => {
             console.log(text, "lastRecordTime: ", timestamp);
-            if (!timestamp) {
+            if (
+              !timestamp ||
+              new Date().getTime() - timestamp > clipboardQueryDuration
+            ) {
               updateInputState(text);
               saveQueryClipboardRecord(text);
-            } else {
-              if (new Date().getTime() - timestamp > clipboardQueryDuration) {
-                updateInputState(text);
-                saveQueryClipboardRecord(text);
-              }
             }
           });
         }
       });
     }
-
-    // if (preferences.isAutomaticQueryClipboard) {
-    //   Clipboard.readText().then((text) => {
-    //     if (text) {
-    //       updateInputState(text);
-    //     }
-    //   });
-    // }
   }, [inputState]);
 
   function ListDetail() {

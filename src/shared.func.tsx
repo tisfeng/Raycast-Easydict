@@ -12,7 +12,7 @@ import {
   ITranslateResult,
 } from "./types";
 
-export function truncate(string: string, length = 40, separator = "..") {
+export function truncate(string: string, length = 40, separator = "...") {
   if (string.length <= length) return string;
 
   return string.substring(0, length) + separator;
@@ -130,33 +130,6 @@ export function requestYoudaoAPI(
       to: targetLanguage,
     })
   );
-}
-
-export function detectIsUppercaseCopyOrLowerCaseCopy(
-  queryText = ""
-): COPY_TYPE {
-  const isFirstRightArrow = queryText[0] === ">";
-  const isSecondRightArrow = queryText[1] === ">";
-
-  if (isFirstRightArrow && isSecondRightArrow) return COPY_TYPE.Uppercase;
-
-  if (isFirstRightArrow) return COPY_TYPE.LowercaseCamelCase;
-
-  return COPY_TYPE.Normal;
-}
-
-export function removeDetectCopyModeSymbol(
-  queryText: string,
-  copyMode: COPY_TYPE
-): string {
-  if (copyMode === COPY_TYPE.LowercaseCamelCase) {
-    return queryText.substring(1, queryText.length).trim();
-  }
-  if (copyMode === COPY_TYPE.Uppercase) {
-    return queryText.substring(2, queryText.length).trim();
-  }
-
-  return queryText;
 }
 
 export function useSymbolSegmentationArrayText(textArray: string[]): string {
