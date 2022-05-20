@@ -31,8 +31,17 @@ export interface ITranslateResultBasicItem {
   "us-phonetic": string;
   "uk-phonetic": string;
   exam_type?: string[];
+  wfs?: ITranslateResultBasicWfsItem[]
 }
 
+export interface ITranslateResultBasicWfsItem {
+  wf?: ITranslateResultBasicWfItem;
+}
+
+export interface ITranslateResultBasicWfItem {
+  name: string;
+  value: string;
+}
 export interface IPreferences {
   lang1: string;
   lang2: string;

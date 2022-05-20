@@ -146,10 +146,11 @@ export default function () {
   function ListDetail() {
     if (fetchResultStateCode === "-1") return null;
     const sectionInfoMap = {
-      [0 as number]: { sectionTitle: "Translate", dotColor: Color.Red },
+      [0 as number]: { sectionTitle: "Translation", dotColor: Color.Red },
       [1 as number]: { sectionTitle: "Detail", dotColor: Color.Blue },
-      [2 as number]: { sectionTitle: undefined, dotColor: Color.Yellow },
-      [3 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
+      [2 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
+      [3 as number]: { sectionTitle: undefined, dotColor: Color.Yellow },
+      [4 as number]: { sectionTitle: undefined, dotColor: Color.PrimaryText },
     };
 
     // const result = JSON.stringify(translateResultState);

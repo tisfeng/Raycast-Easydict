@@ -88,6 +88,25 @@ export function reformatTranslateResult(
     }),
   });
 
+  const wfs = data.basic?.wfs?.map((wfItem, idx) => {
+    return wfItem.wf?.name + " " + wfItem.wf?.value;
+  });
+
+  // [ 复数 goods   比较级 better   最高级 best ]
+  const wfsText = wfs?.join("   ") || "";
+  if (wfsText.length > 0) {
+    reformatData.push({
+      type: "Wfs",
+      children: [
+        {
+          title: "",
+          key: wfsText,
+          subtitle: `[ ${wfsText} ]`,
+        },
+      ],
+    });
+  }
+
   reformatData.push({
     type: "Web Results",
     children: data.web?.map((webResultItem, idx) => {
