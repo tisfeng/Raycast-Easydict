@@ -77,10 +77,8 @@ export default function () {
     requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
 
-      console.log(
-        "fromLanguage 0: " + fromLanguage,
-        "targetLanguage: " + targetLanguage
-      );
+      console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
+
       // const result = JSON.stringify(resData);
       // console.log(JSON.stringify(resData));
       // Clipboard.copy(result);
@@ -97,7 +95,7 @@ export default function () {
           setCurrentTargetLanguage(defaultLanguage1);
         }
 
-        console.log("from===to: " + from + target);
+        console.log(`from===to: ${from} -> ${target}`);
         translate(from, target);
         return;
       }
@@ -123,16 +121,39 @@ export default function () {
     console.log("save", text, new Date().getTime());
   }
 
+  // function: check input text is Chinese or not
+  function isChinese(text: string) {
+    return /^[\u4e00-\u9fa5]+$/.test(text);
+  }
+
+  // function: check text is English or not
+  function isEnglish(text: string) {
+    return /^[a-zA-Z]+$/.test(text);
+  }
+
+  // function: return fromLanguage base on input text language type
+  function getFromLanguage(text: string) {
+    let fromLanguage = "auto";
+    if (isEnglish(text)) {
+      fromLanguage = "en";
+    } else if (isChinese(text)) {
+      fromLanguage = "zh-CHS";
+    }
+    console.log("fromLanguage -->: ", fromLanguage);
+
+    return fromLanguage;
+  }
+
   useEffect(() => {
-    console.log("inputState: ", inputState);
+    console.log("inputState: ", inputState, isEnglish(inputState!));
 
     if (inputState) {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
-      console.log(
-        "useEffect==>: " + "auto" + translateTargetLanguage.languageId
+      translate(
+        getFromLanguage(inputState),
+        translateTargetLanguage.languageId
       );
-      translate("auto", translateTargetLanguage.languageId);
       return;
     }
 
@@ -210,10 +231,21 @@ export default function () {
         ];
       }
       wordAccessories = wordExamTypeAccessory
-        .concat([{ text: "    " }])
+        .concat([{ text: "   " }])
         .concat(pronunciationAccessory);
     }
     return wordAccessories;
+  }
+
+  // function: return copyText based on the SectionType type
+  function getItemCopyText(
+    sectionType: SectionType,
+    item: ITranslateReformatResultItem
+  ) {
+    let copyText: string = item.title + item.subtitle;
+    if (sectionType === SectionType.Wfs) {
+      copyText = item.title;
+    }
   }
 
   function ListDetail() {
@@ -247,10 +279,11 @@ export default function () {
                           onLanguageUpdate={(value) => {
                             setCurrentTargetLanguage(value);
                             updateTranslateTargetLanguage(value);
-                            console.log(
-                              "onLanguageUpdate: " + "auto" + value.languageId
+
+                            translate(
+                              getFromLanguage(inputState!),
+                              value.languageId
                             );
-                            translate("auto", value.languageId);
                           }}
                         />
                       }
