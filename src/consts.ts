@@ -39,12 +39,12 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
   },
   {
     languageId: "ja",
-    languageTitle: "Japan",
+    languageTitle: "Japanese",
     languageVoice: ["Kyoko"],
   },
   {
     languageId: "ko",
-    languageTitle: "Korea",
+    languageTitle: "Korean",
     languageVoice: ["Yuna"],
   },
   {
@@ -95,7 +95,7 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
   },
   {
     languageId: "id",
-    languageTitle: "Indonesia",
+    languageTitle: "Indonesian",
     languageVoice: ["Damayanti"],
   },
   {
