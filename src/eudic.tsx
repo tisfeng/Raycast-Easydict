@@ -76,6 +76,11 @@ export default function () {
   function translate(fromLanguage: string, targetLanguage: string) {
     requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
+
+      console.log(
+        "fromLanguage 0: " + fromLanguage,
+        "targetLanguage: " + targetLanguage
+      );
       // const result = JSON.stringify(resData);
       // console.log(JSON.stringify(resData));
       // Clipboard.copy(result);
@@ -92,12 +97,14 @@ export default function () {
           setCurrentTargetLanguage(defaultLanguage1);
         }
 
+        console.log("from===to: " + from + target);
         translate(from, target);
         return;
       }
 
       if (res.data.errorCode === "207") {
         delayUpdateTargetLanguageTimer = setTimeout(() => {
+          console.log("207: " + from + to);
           translate(from, to);
         }, delayRequestTime);
         return;
@@ -122,6 +129,9 @@ export default function () {
     if (inputState) {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
+      console.log(
+        "useEffect==>: " + "auto" + translateTargetLanguage.languageId
+      );
       translate("auto", translateTargetLanguage.languageId);
       return;
     }
@@ -183,11 +193,19 @@ export default function () {
     let wordAccessories = wordExamTypeAccessory.concat(pronunciationAccessory);
     if (sectionType === SectionType.Translation) {
       if (item.subtitle) {
-        wordExamTypeAccessory = [{ icon: Icon.Star }, { text: item.subtitle }];
+        wordExamTypeAccessory = [
+          { icon: { source: Icon.Star, tintColor: Color.SecondaryText } },
+          { text: item.subtitle },
+        ];
       }
       if (item.phonetic) {
         pronunciationAccessory = [
-          { icon: Icon.SpeakerArrowUp },
+          {
+            icon: {
+              source: "speak.png",
+              tintColor: "gray", //"#696969",
+            },
+          },
           { text: item.phonetic },
         ];
       }
@@ -229,6 +247,9 @@ export default function () {
                           onLanguageUpdate={(value) => {
                             setCurrentTargetLanguage(value);
                             updateTranslateTargetLanguage(value);
+                            console.log(
+                              "onLanguageUpdate: " + "auto" + value.languageId
+                            );
                             translate("auto", value.languageId);
                           }}
                         />

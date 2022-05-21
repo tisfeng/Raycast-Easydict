@@ -57,8 +57,8 @@ export function reformatTranslateResult(
 ): ITranslateReformatResult[] {
   const reformatData: ITranslateReformatResult[] = [];
 
-  // const result = JSON.stringify(data);
-  // console.log(JSON.stringify(data));
+  const result = JSON.stringify(data);
+  console.log(JSON.stringify(data));
   // Clipboard.copy(result);
 
   reformatData.push({
