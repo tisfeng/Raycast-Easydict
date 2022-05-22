@@ -39,6 +39,7 @@ export default function () {
   const preferences: IPreferences = getPreferenceValues();
   const defaultLanguage1 = getItemFromLanguageList(preferences.lang1);
   const defaultLanguage2 = getItemFromLanguageList(preferences.lang2);
+  const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
   let delayRequestTime =
     parseInt(preferences.delayFetchTranslateAPITime) || 400;
@@ -66,12 +67,17 @@ export default function () {
   const [translateResultState, updateTranslateResultState] =
     useState<ITranslateReformatResult[]>();
 
+  // the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
   const [currentFromLanguageState, updateCurrentFromLanguageState] =
     useState<ILanguageListItem>();
-  const [translateTargetLanguage, updateTranslateTargetLanguage] =
+
+  // default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
+  const [autoSelectedTargetLanguage, updateAutoSelectedTargetLanguage] =
     useState<ILanguageListItem>(defaultLanguage1);
-  const [currentTargetLanguage, setCurrentTargetLanguage] =
-    useState<ILanguageListItem>(defaultLanguage1);
+
+  // the user selected translation language, for display, can be changed manually. default autoSelectedTargetLanguage is the autoSelectedTargetLanguage.
+  const [userSelectedTargetLanguage, updateUserSelectedTargetLanguage] =
+    useState<ILanguageListItem>(autoSelectedTargetLanguage);
 
   function translate(fromLanguage: string, targetLanguage: string) {
     requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
@@ -84,20 +90,10 @@ export default function () {
       // Clipboard.copy(result);
 
       const [from, to] = resData.l.split("2"); // from2to
-      console.log(`from: ${from}, to: ${to}`);
+      console.log(`--> from: ${from}, to: ${to}`);
 
       if (from === to) {
-        let target: string;
-        if (from === preferences.lang1) {
-          target = defaultLanguage2.languageId;
-          setCurrentTargetLanguage(defaultLanguage2);
-        } else {
-          target = defaultLanguage1.languageId;
-          setCurrentTargetLanguage(defaultLanguage1);
-        }
-
-        console.log(`from===to: ${from} -> ${target}`);
-        translate(from, target);
+        translate(from, getAutoSelectedTargetLanguageId(from));
         return;
       }
 
@@ -161,18 +157,18 @@ export default function () {
   }
 
   // function: get the language type represented by the string, priority to use English and Chinese, and then auto
-  function getTextLanguageId(text: string) {
+  function getInputTextLanguageId(inputText: string) {
     let fromLanguageId = "auto";
     const englishLanguageId = "en";
     const chineseLanguageId = "zh-CHS";
     if (
-      isEnglishOrNumber(text) &&
+      isEnglishOrNumber(inputText) &&
       (defaultLanguage1.languageId === englishLanguageId ||
         defaultLanguage2.languageId === englishLanguageId)
     ) {
       fromLanguageId = englishLanguageId;
     } else if (
-      isContainChinese(text) &&
+      isContainChinese(inputText) &&
       (defaultLanguage1.languageId === chineseLanguageId ||
         defaultLanguage2.languageId === chineseLanguageId)
     ) {
@@ -181,6 +177,24 @@ export default function () {
 
     console.log("fromLanguage-->:", fromLanguageId);
     return fromLanguageId;
+  }
+
+  // function: return and update the autoSelectedTargetLanguage according to the languageId
+  function getAutoSelectedTargetLanguageId(accordingLanguageId: string) {
+    let targetLanguageId = "auto";
+    if (accordingLanguageId === defaultLanguage1.languageId) {
+      targetLanguageId = defaultLanguage2.languageId;
+    } else if (accordingLanguageId === defaultLanguage2.languageId) {
+      targetLanguageId = defaultLanguage1.languageId;
+    }
+
+    const targetLanguage = getItemFromLanguageList(targetLanguageId);
+    updateAutoSelectedTargetLanguage(targetLanguage);
+
+    console.log(
+      `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.languageId}`
+    );
+    return targetLanguage.languageId;
   }
 
   useEffect(() => {
@@ -192,11 +206,19 @@ export default function () {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
 
-      const currentLanguageId = getTextLanguageId(inputState);
+      const currentLanguageId = getInputTextLanguageId(inputState);
       updateCurrentFromLanguageState(
         getItemFromLanguageList(currentLanguageId)
       );
-      translate(currentLanguageId, translateTargetLanguage.languageId);
+
+      // priority to use user selected target language
+      let tartgetLanguageId = userSelectedTargetLanguage.languageId;
+      // if conflict, use auto selected target language
+      if (currentLanguageId === tartgetLanguageId) {
+        tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
+      }
+
+      translate(currentLanguageId, tartgetLanguageId);
       return;
     }
 
@@ -319,10 +341,10 @@ export default function () {
                           queryText={inputState}
                           copyText={item?.subtitle || item.title}
                           currentFromLanguage={currentFromLanguageState}
-                          currentTargetLanguage={currentTargetLanguage}
+                          currentTargetLanguage={autoSelectedTargetLanguage}
                           onLanguageUpdate={(value) => {
-                            setCurrentTargetLanguage(value);
-                            updateTranslateTargetLanguage(value);
+                            updateAutoSelectedTargetLanguage(value);
+                            updateUserSelectedTargetLanguage(value);
 
                             translate(
                               currentFromLanguageState!.languageId,
