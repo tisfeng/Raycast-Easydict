@@ -30,10 +30,14 @@ let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
 // Time interval for automatic query of the same clipboard word.
-const clipboardQueryDuration = 5 * 1000;
+const clipboardQueryInterval = 5 * 1000;
 
 export default function () {
-  const [inputState, updateInputState] = useState<string>();
+  // use to display input text
+  const [inputText, updateInputText] = useState<string>();
+  // searchText = inputText.trim(), avoid frequent request API
+  const [searchText, updateSearchText] = useState<string>();
+
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
 
   const preferences: IPreferences = getPreferenceValues();
@@ -75,12 +79,12 @@ export default function () {
   const [autoSelectedTargetLanguage, updateAutoSelectedTargetLanguage] =
     useState<ILanguageListItem>(defaultLanguage1);
 
-  // the user selected translation language, for display, can be changed manually. default autoSelectedTargetLanguage is the autoSelectedTargetLanguage.
+  // the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
   const [userSelectedTargetLanguage, updateUserSelectedTargetLanguage] =
     useState<ILanguageListItem>(autoSelectedTargetLanguage);
 
   function translate(fromLanguage: string, targetLanguage: string) {
-    requestYoudaoAPI(inputState!, fromLanguage, targetLanguage).then((res) => {
+    requestYoudaoAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
 
       console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
@@ -197,16 +201,29 @@ export default function () {
     return targetLanguage.languageId;
   }
 
+  // function: query the clipboard text from LocalStorage
+  async function queryClipboardText() {
+    let text = await Clipboard.readText();
+    console.log("query clipboard text: " + text);
+    if (text) {
+      const timestamp = await LocalStorage.getItem<number>(text);
+      const now = new Date().getTime();
+      console.log(`timestamp: ${timestamp}, now: ${now}`);
+      if (!timestamp || now - timestamp > clipboardQueryInterval) {
+        text = text.trim();
+        saveQueryClipboardRecord(text);
+        updateSearchText(text);
+        updateInputText(text);
+      }
+    }
+  }
+
   useEffect(() => {
-    console.log("inputState:", inputState);
-
-    if (inputState) {
-      console.log("inputState 1:", inputState);
-
+    if (searchText) {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
 
-      const currentLanguageId = getInputTextLanguageId(inputState);
+      const currentLanguageId = getInputTextLanguageId(searchText);
       updateCurrentFromLanguageState(
         getItemFromLanguageList(currentLanguageId)
       );
@@ -217,31 +234,14 @@ export default function () {
       if (currentLanguageId === tartgetLanguageId) {
         tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
       }
-
       translate(currentLanguageId, tartgetLanguageId);
       return;
     }
 
-    if (!inputState) {
-      console.log("inputState 2:", inputState);
-
-      Clipboard.readText().then((text) => {
-        if (text) {
-          console.log("Clipboard text:", text);
-          LocalStorage.getItem<number>(text!).then((timestamp) => {
-            // console.log(text, "lastRecordTime: ", timestamp);
-            if (
-              !timestamp ||
-              new Date().getTime() - timestamp > clipboardQueryDuration
-            ) {
-              updateInputState(text);
-              saveQueryClipboardRecord(text);
-            }
-          });
-        }
-      });
+    if (!searchText) {
+      queryClipboardText();
     }
-  }, [inputState]);
+  }, [searchText]);
 
   // function: Returns the corresponding ImageLike based on the SectionType type
   function getSectionIcon(sectionType: SectionType): Image.ImageLike {
@@ -338,7 +338,7 @@ export default function () {
                       accessories={getSectionAccessories(result.type, item)}
                       actions={
                         <ListActionPanel
-                          queryText={inputState}
+                          queryText={searchText}
                           copyText={item?.subtitle || item.title}
                           currentFromLanguage={currentFromLanguageState}
                           currentTargetLanguage={autoSelectedTargetLanguage}
@@ -381,26 +381,32 @@ export default function () {
     );
   }
 
-  function onInputChangeEvt(queryText: string) {
-    updateLoadingState(false);
-    clearTimeout(delayFetchTranslateAPITimer);
+  function onInputChangeEvent(text: string) {
+    updateInputText(text);
 
-    const text = queryText.trim();
-    if (text.length > 0) {
-      delayFetchTranslateAPITimer = setTimeout(() => {
-        updateInputState(text);
-      }, delayRequestTime);
+    const trimText = text.trim();
+    if (trimText.length == 0) {
+      updateLoadingState(false);
+      updateTranslateResultState([]);
       return;
     }
-    updateTranslateResultState([]);
+
+    clearTimeout(delayFetchTranslateAPITimer);
+    // start delay timer for fetch translate API
+    if (trimText.length > 0 && trimText !== searchText) {
+      delayFetchTranslateAPITimer = setTimeout(() => {
+        console.log("trimText:", trimText);
+        updateSearchText(trimText);
+      }, delayRequestTime);
+    }
   }
 
   return (
     <List
       isLoading={isLoadingState}
       searchBarPlaceholder={"Look up words"}
-      searchText={inputState}
-      onSearchTextChange={onInputChangeEvt}
+      searchText={inputText}
+      onSearchTextChange={onInputChangeEvent}
       actions={
         <ActionPanel>
           <ActionFeedback />

@@ -1,7 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
-import { Clipboard, getPreferenceValues } from "@raycast/api";
+import { getPreferenceValues } from "@raycast/api";
 import { LANGUAGE_LIST, SectionType } from "./consts";
 
 import {
@@ -14,7 +14,6 @@ import {
 
 export function truncate(string: string, length = 40, separator = "...") {
   if (string.length <= length) return string;
-
   return string.substring(0, length) + separator;
 }
 
