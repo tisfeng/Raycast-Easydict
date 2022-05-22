@@ -21,6 +21,12 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
     languageTitle: "Chinese-Simplified",
   },
   {
+    languageId: "zh-CHT",
+    googleLanguageId: "zh-TW",
+    languageVoice: ["Ting-Ting"],
+    languageTitle: "Chinese-Traditional",
+  },
+  {
     languageId: "en",
     languageTitle: "English",
     languageVoice: [

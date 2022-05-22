@@ -27,12 +27,16 @@
       "description": "Select you first language",
       "data": [
         {
+          "title": "Chinese-Simplified",
+          "value": "zh-CHS"
+        },
+        {
           "title": "English",
           "value": "en"
         },
         {
-          "title": "Chinese-Simplified",
-          "value": "zh-CHS"
+          "title": "Chinese-Traditional",
+          "value": "zh-CHT"
         },
         {
           "title": "Japanese",
@@ -140,12 +144,16 @@
       "description": "Select you second language",
       "data": [
         {
+          "title": "English",
+          "value": "en"
+        },
+        {
           "title": "Chinese-Simplified",
           "value": "zh-CHS"
         },
         {
-          "title": "English",
-          "value": "en"
+          "title": "Chinese-Traditional",
+          "value": "zh-CHT"
         },
         {
           "title": "Japanese",
