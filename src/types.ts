@@ -21,6 +21,7 @@ export interface ITranslateReformatResultItem {
   copyText: string;
   subtitle?: string;
   phonetic?: string;
+  examTypes?: string[];
 }
 
 export interface ITranslateResultWebItem {

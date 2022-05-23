@@ -59,13 +59,12 @@ export function reformatTranslateResult(
   reformatData.push({
     type: SectionType.Translation,
     children: data.translation?.map((text, idx) => {
-      const examTypes = data.basic?.exam_type;
       return {
         title: text,
         key: text + idx,
-        phonetic: data.basic?.phonetic,
-        subtitle: examTypes?.join("  "),
         copyText: text,
+        phonetic: data.basic?.phonetic,
+        examTypes: data.basic?.exam_type,
       };
     }),
   });

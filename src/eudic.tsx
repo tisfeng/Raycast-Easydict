@@ -94,8 +94,6 @@ export default function () {
       // Clipboard.copy(result);
 
       const [from, to] = resData.l.split("2"); // from2to
-      console.log(`--> from: ${from}, to: ${to}`);
-
       if (from === to) {
         translate(from, getAutoSelectedTargetLanguageId(from));
         return;
@@ -281,18 +279,19 @@ export default function () {
     sectionType: SectionType,
     item: ITranslateReformatResultItem
   ): List.Item.Accessory[] {
-    let wordExamTypeAccessory: any[] = [];
-    let pronunciationAccessory: string | ConcatArray<any> = [];
-    let wordAccessories = wordExamTypeAccessory.concat(pronunciationAccessory);
+    let wordExamTypeAccessory = [];
+    let pronunciationAccessory = [];
+    let wordAccessories: any[] = [];
     if (sectionType === SectionType.Translation) {
-      if (item.subtitle) {
+      if (item.examTypes) {
         wordExamTypeAccessory = [
           {
             icon: { source: Icon.Star, tintColor: Color.SecondaryText },
             tooltip: "Included exam types",
           },
-          { text: item.subtitle },
+          { text: item.examTypes?.join("  ") },
         ];
+        wordAccessories = [...wordExamTypeAccessory];
       }
       if (item.phonetic) {
         pronunciationAccessory = [
@@ -305,11 +304,11 @@ export default function () {
           },
           { text: item.phonetic },
         ];
-      }
-      if (pronunciationAccessory.length) {
-        wordAccessories = wordExamTypeAccessory
-          .concat([{ text: " " }])
-          .concat(pronunciationAccessory);
+        wordAccessories = [
+          ...wordAccessories,
+          { text: " " },
+          ...pronunciationAccessory,
+        ];
       }
     }
     return wordAccessories;
@@ -325,18 +324,19 @@ export default function () {
     if (fetchResultStateCode === "0") {
       return (
         <Fragment>
-          {translateResultState?.map((result, idx) => {
-            const sectionTitle = idx < 2 ? SectionType[result.type] : undefined;
+          {translateResultState?.map((resultItem, idx) => {
+            const sectionTitle =
+              idx < 2 ? SectionType[resultItem.type] : undefined;
             return (
               <List.Section key={idx} title={sectionTitle}>
-                {result.children?.map((item) => {
+                {resultItem.children?.map((item) => {
                   return (
                     <List.Item
                       key={item.key}
-                      icon={getListItemIcon(result.type)}
+                      icon={getListItemIcon(resultItem.type)}
                       title={item.title}
-                      subtitle={idx == 0 ? "" : item.subtitle}
-                      accessories={getWordAccessories(result.type, item)}
+                      subtitle={item.subtitle}
+                      accessories={getWordAccessories(resultItem.type, item)}
                       actions={
                         <ListActionPanel
                           queryText={searchText}
