@@ -161,7 +161,7 @@ export default function () {
   }
 
   // function: get the language type represented by the string, priority to use English and Chinese, and then auto
-  function getInputTextLanguageId(inputText: string) {
+  function getInputTextLanguageId(inputText: string): string {
     let fromLanguageId = "auto";
     const englishLanguageId = "en";
     const chineseLanguageId = "zh-CHS";
@@ -184,7 +184,9 @@ export default function () {
   }
 
   // function: return and update the autoSelectedTargetLanguage according to the languageId
-  function getAutoSelectedTargetLanguageId(accordingLanguageId: string) {
+  function getAutoSelectedTargetLanguageId(
+    accordingLanguageId: string
+  ): string {
     let targetLanguageId = "auto";
     if (accordingLanguageId === defaultLanguage1.languageId) {
       targetLanguageId = defaultLanguage2.languageId;
@@ -296,22 +298,13 @@ export default function () {
           { text: item.phonetic },
         ];
       }
-      wordAccessories = wordExamTypeAccessory
-        .concat([{ text: "   " }])
-        .concat(pronunciationAccessory);
+      if (pronunciationAccessory.length) {
+        wordAccessories = wordExamTypeAccessory
+          .concat([{ text: "   " }])
+          .concat(pronunciationAccessory);
+      }
     }
     return wordAccessories;
-  }
-
-  // function: return copyText based on the SectionType type
-  function getItemCopyText(
-    sectionType: SectionType,
-    item: ITranslateReformatResultItem
-  ) {
-    let copyText: string = item.title + item.subtitle;
-    if (sectionType === SectionType.Wfs) {
-      copyText = item.title;
-    }
   }
 
   function ListDetail() {
@@ -339,7 +332,7 @@ export default function () {
                       actions={
                         <ListActionPanel
                           queryText={searchText}
-                          copyText={item?.subtitle || item.title}
+                          copyText={item.copyText}
                           currentFromLanguage={currentFromLanguageState}
                           currentTargetLanguage={autoSelectedTargetLanguage}
                           onLanguageUpdate={(value) => {
@@ -392,6 +385,7 @@ export default function () {
     }
 
     clearTimeout(delayFetchTranslateAPITimer);
+
     // start delay timer for fetch translate API
     if (trimText.length > 0 && trimText !== searchText) {
       delayFetchTranslateAPITimer = setTimeout(() => {

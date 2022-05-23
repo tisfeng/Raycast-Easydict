@@ -64,7 +64,8 @@ export function reformatTranslateResult(
         title: text,
         key: text + idx,
         phonetic: data.basic?.phonetic,
-        subtitle: `${examTypes?.join("  ") || ""}`,
+        subtitle: examTypes?.join("  "),
+        copyText: text,
       };
     }),
   });
@@ -79,7 +80,7 @@ export function reformatTranslateResult(
   reformatData.push({
     type: SectionType.Detail,
     children: data.basic?.explains?.map((text, idx) => {
-      return { title: text, key: text + idx };
+      return { title: text, key: text + idx, copyText: text };
     }),
   });
 
@@ -97,6 +98,7 @@ export function reformatTranslateResult(
           title: "",
           key: wfsText,
           subtitle: `[ ${wfsText} ]`,
+          copyText: wfsText,
         },
       ],
     });
@@ -105,10 +107,15 @@ export function reformatTranslateResult(
   reformatData.push({
     type: SectionType.WebResults,
     children: data.web?.map((webResultItem, idx) => {
+      const webResultKey = webResultItem.key;
+      const webResultVaule = useSymbolSegmentationArrayText(
+        webResultItem.value
+      );
       return {
-        title: webResultItem.key,
+        title: webResultKey,
         key: webResultItem.key + idx,
-        subtitle: useSymbolSegmentationArrayText(webResultItem.value),
+        subtitle: webResultVaule,
+        copyText: `${webResultKey}  ${webResultVaule}`,
       };
     }),
   });

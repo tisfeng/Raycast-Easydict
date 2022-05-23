@@ -17,9 +17,10 @@ export interface ITranslateReformatResult {
 
 export interface ITranslateReformatResultItem {
   key: string;
-  phonetic?: string;
   title: string;
+  copyText: string;
   subtitle?: string;
+  phonetic?: string;
 }
 
 export interface ITranslateResultWebItem {
