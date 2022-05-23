@@ -289,8 +289,8 @@ export default function () {
         pronunciationAccessory = [
           {
             icon: {
-              source: "speak.png",
-              tintColor: "gray",
+              source: { light: "speak.png", dark: "speak.png" },
+              tintColor: { light: "gray", dark: "lightgray" },
             },
           },
           { text: item.phonetic },
