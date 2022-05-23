@@ -246,7 +246,7 @@ export default function () {
   }, [searchText]);
 
   // function: Returns the corresponding ImageLike based on the SectionType type
-  function getSectionIcon(sectionType: SectionType): Image.ImageLike {
+  function getListItemIcon(sectionType: SectionType): Image.ImageLike {
     let dotColor: Color.ColorLike = Color.PrimaryText;
     switch (sectionType) {
       case SectionType.Translation: {
@@ -266,28 +266,31 @@ export default function () {
         break;
       }
     }
-    let sectionIcon: Image.ImageLike = {
+    let itemIcon: Image.ImageLike = {
       source: Icon.Dot,
       tintColor: dotColor,
     };
     if (sectionType === SectionType.Wfs) {
-      sectionIcon = Icon.Text;
+      itemIcon = Icon.Text;
     }
-    return sectionIcon;
+    return itemIcon;
   }
 
   // function: return List.Item.Accessory[] based on the SectionType type
-  function getSectionAccessories(
+  function getWordAccessories(
     sectionType: SectionType,
     item: ITranslateReformatResultItem
   ): List.Item.Accessory[] {
-    let wordExamTypeAccessory: List.Item.Accessory[] = [];
-    let pronunciationAccessory: List.Item.Accessory[] = [];
+    let wordExamTypeAccessory: any[] = [];
+    let pronunciationAccessory: string | ConcatArray<any> = [];
     let wordAccessories = wordExamTypeAccessory.concat(pronunciationAccessory);
     if (sectionType === SectionType.Translation) {
       if (item.subtitle) {
         wordExamTypeAccessory = [
-          { icon: { source: Icon.Star, tintColor: Color.SecondaryText } },
+          {
+            icon: { source: Icon.Star, tintColor: Color.SecondaryText },
+            tooltip: "Included exam types",
+          },
           { text: item.subtitle },
         ];
       }
@@ -298,13 +301,14 @@ export default function () {
               source: { light: "speak.png", dark: "speak.png" },
               tintColor: { light: "gray", dark: "lightgray" },
             },
+            tooltip: "Pronunciation",
           },
           { text: item.phonetic },
         ];
       }
       if (pronunciationAccessory.length) {
         wordAccessories = wordExamTypeAccessory
-          .concat([{ text: "   " }])
+          .concat([{ text: " " }])
           .concat(pronunciationAccessory);
       }
     }
@@ -329,10 +333,10 @@ export default function () {
                   return (
                     <List.Item
                       key={item.key}
-                      icon={getSectionIcon(result.type)}
+                      icon={getListItemIcon(result.type)}
                       title={item.title}
                       subtitle={idx == 0 ? "" : item.subtitle}
-                      accessories={getSectionAccessories(result.type, item)}
+                      accessories={getWordAccessories(result.type, item)}
                       actions={
                         <ListActionPanel
                           queryText={searchText}
@@ -342,7 +346,6 @@ export default function () {
                           onLanguageUpdate={(value) => {
                             updateAutoSelectedTargetLanguage(value);
                             updateUserSelectedTargetLanguage(value);
-
                             translate(
                               currentFromLanguageState!.languageId,
                               value.languageId
