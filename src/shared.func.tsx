@@ -90,7 +90,7 @@ export function reformatTranslateResult(
 
   // [ 复数 goods   比较级 better   最高级 best ]
   const wfsText = wfs?.join("   ") || "";
-  if (wfsText.length > 0) {
+  if (wfsText.length) {
     reformatData.push({
       type: SectionType.Wfs,
       children: [
@@ -104,24 +104,30 @@ export function reformatTranslateResult(
     });
   }
 
-  reformatData.push({
-    type: SectionType.WebResults,
-    children: data.web?.map((webResultItem, idx) => {
-      const webResultKey = webResultItem.key;
-      const webResultVaule = useSymbolSegmentationArrayText(
-        webResultItem.value
-      );
-      return {
-        title: webResultKey,
-        key: webResultItem.key + idx,
-        subtitle: webResultVaule,
-        copyText: `${webResultKey}  ${webResultVaule}`,
-      };
-    }),
+  // good  好的；善；良好
+  const webResults = data.web?.map((webResultItem, idx) => {
+    const webResultKey = webResultItem.key;
+    const webResultVaule = useSymbolSegmentationArrayText(webResultItem.value);
+    return {
+      type: idx === 0 ? SectionType.WebTranslation : SectionType.WebPhrase,
+      children: [
+        {
+          title: webResultKey,
+          key: webResultKey,
+          subtitle: webResultVaule,
+          copyText: `${webResultKey} ${webResultVaule}`,
+        },
+      ],
+    };
+  });
+
+  webResults?.map((webResultItem) => {
+    reformatData.push(webResultItem);
   });
 
   return reformatData;
 }
+
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
 export function requestYoudaoAPI(
   queryText: string,

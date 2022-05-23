@@ -10,7 +10,8 @@ export enum SectionType {
   Translation,
   Detail,
   Wfs,
-  WebResults,
+  WebTranslation,
+  WebPhrase,
 }
 
 export const LANGUAGE_LIST: ILanguageListItem[] = [

@@ -247,7 +247,7 @@ export default function () {
 
   // function: Returns the corresponding ImageLike based on the SectionType type
   function getSectionIcon(sectionType: SectionType): Image.ImageLike {
-    let dotColor: Color = Color.PrimaryText;
+    let dotColor: Color.ColorLike = Color.PrimaryText;
     switch (sectionType) {
       case SectionType.Translation: {
         dotColor = Color.Red;
@@ -257,8 +257,12 @@ export default function () {
         dotColor = Color.Blue;
         break;
       }
-      case SectionType.WebResults: {
+      case SectionType.WebTranslation: {
         dotColor = Color.Yellow;
+        break;
+      }
+      case SectionType.WebPhrase: {
+        dotColor = "teal"; //{ light: "#00B0FF", dark: "#0081EA" };
         break;
       }
     }
