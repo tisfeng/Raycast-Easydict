@@ -46,12 +46,12 @@ export default function () {
   const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
   let delayRequestTime =
-    parseInt(preferences.delayFetchTranslateAPITime) || 400;
+    parseInt(preferences.delayFetchTranslateAPITime) || 600;
 
-  if (delayRequestTime < 50) {
-    delayRequestTime = 50;
-  } else if (delayRequestTime > 600) {
-    delayRequestTime = 600;
+  if (delayRequestTime < 400) {
+    delayRequestTime = 400;
+  } else if (delayRequestTime > 1000) {
+    delayRequestTime = 1000;
   }
 
   if (defaultLanguage1.languageId === defaultLanguage2.languageId) {
