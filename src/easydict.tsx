@@ -41,8 +41,8 @@ export default function () {
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
 
   const preferences: IPreferences = getPreferenceValues();
-  const defaultLanguage1 = getItemFromLanguageList(preferences.lang1);
-  const defaultLanguage2 = getItemFromLanguageList(preferences.lang2);
+  const defaultLanguage1 = getItemFromLanguageList(preferences.language1);
+  const defaultLanguage2 = getItemFromLanguageList(preferences.language2);
   const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
   let delayRequestTime =
@@ -407,7 +407,7 @@ export default function () {
   return (
     <List
       isLoading={isLoadingState}
-      searchBarPlaceholder={"Look up words"}
+      searchBarPlaceholder={"Look up words or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChangeEvent}
       actions={

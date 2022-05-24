@@ -1,17 +1,17 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "eudic-dictionary",
-  "title": "Eudic Dictionary",
-  "description": "Easy to look up words with Eudic.",
+  "name": "easy-dict",
+  "title": "Easy Dictionary",
+  "description": "Easy to look up words or translate text.",
   "icon": "eudic-icon.png",
   "author": "tisfeng",
   "license": "MIT",
   "commands": [
     {
-      "name": "eudic",
-      "title": "Look up",
-      "subtitle": "Eudic Dictionary",
-      "description": "Easy to look up words with Eudic.",
+      "name": "easydict",
+      "title": "Look up Words",
+      "subtitle": "Easy Dictionary",
+      "description": "Easy to look up words or translate text.",
       "mode": "view"
     }
   ],
@@ -20,7 +20,7 @@
   ],
   "preferences": [
     {
-      "name": "lang1",
+      "name": "language1",
       "type": "dropdown",
       "required": true,
       "title": "First Language",
@@ -137,7 +137,7 @@
       ]
     },
     {
-      "name": "lang2",
+      "name": "language2",
       "type": "dropdown",
       "required": true,
       "title": "Second Language",

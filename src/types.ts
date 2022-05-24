@@ -47,8 +47,8 @@ export interface ITranslateResultBasicWfItem {
   value: string;
 }
 export interface IPreferences {
-  lang1: string;
-  lang2: string;
+  language1: string;
+  language2: string;
   appId: string;
   appKey: string;
   isAutomaticQueryClipboard: boolean;
