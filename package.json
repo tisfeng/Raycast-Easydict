@@ -24,7 +24,7 @@
       "type": "dropdown",
       "required": true,
       "title": "First Language",
-      "description": "Select you first language",
+      "description": "Select the first language you want to translate",
       "data": [
         {
           "title": "Chinese-Simplified",
@@ -141,7 +141,7 @@
       "type": "dropdown",
       "required": true,
       "title": "Second Language",
-      "description": "Select you second language",
+      "description": "Select the second language you want to translate",
       "data": [
         {
           "title": "English",

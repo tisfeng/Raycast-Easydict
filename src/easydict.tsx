@@ -287,7 +287,7 @@ export default function () {
         wordExamTypeAccessory = [
           {
             icon: { source: Icon.Star, tintColor: Color.SecondaryText },
-            tooltip: "Included exam types",
+            tooltip: "Word included in the types of exam",
           },
           { text: item.examTypes?.join("  ") },
         ];
