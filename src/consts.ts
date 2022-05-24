@@ -7,11 +7,11 @@ export enum COPY_TYPE {
 }
 
 export enum SectionType {
-  Translation,
-  Detail,
-  Wfs,
-  WebTranslation,
-  WebPhrase,
+  Translation = "Translation",
+  Detail = "Detail",
+  Wfs = "Forms and Tenses",
+  WebTranslation = "Web Translation",
+  WebPhrase = "Web Phrase",
 }
 
 export const LANGUAGE_LIST: ILanguageListItem[] = [

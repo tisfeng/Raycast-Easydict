@@ -90,7 +90,7 @@ export default function () {
       console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
 
       const result = JSON.stringify(resData);
-      console.log("translate result: ", result);
+      console.log("result: ", result);
       // Clipboard.copy(result);
 
       const [from, to] = resData.l.split("2"); // from2to
@@ -325,15 +325,18 @@ export default function () {
       return (
         <Fragment>
           {translateResultState?.map((resultItem, idx) => {
-            const sectionTitle =
-              idx < 2 ? SectionType[resultItem.type] : undefined;
+            const sectionTitle = idx < 2 ? resultItem.type : undefined;
+            const itemTooltip = idx >= 2 ? resultItem.type : "";
             return (
               <List.Section key={idx} title={sectionTitle}>
                 {resultItem.children?.map((item) => {
                   return (
                     <List.Item
                       key={item.key}
-                      icon={getListItemIcon(resultItem.type)}
+                      icon={{
+                        value: getListItemIcon(resultItem.type),
+                        tooltip: itemTooltip,
+                      }}
                       title={item.title}
                       subtitle={item.subtitle}
                       accessories={getWordAccessories(resultItem.type, item)}
@@ -396,7 +399,6 @@ export default function () {
     // start delay timer for fetch translate API
     if (trimText.length > 0 && trimText !== searchText) {
       delayFetchTranslateAPITimer = setTimeout(() => {
-        console.log("trimText:", trimText);
         updateSearchText(trimText);
       }, delayRequestTime);
     }
