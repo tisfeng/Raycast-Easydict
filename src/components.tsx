@@ -112,6 +112,15 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             }
           />
         </ActionPanel.Section>
+
+        <ActionPanel.Section title="Open In Browser">
+          <Action.OpenInBrowser
+            icon={Icon.Link}
+            title="See Google Translate Results"
+            url={this.getGoogleTranslateURL()}
+          />
+          <ActionFeedback />
+        </ActionPanel.Section>
         {preferences.isDisplayTargetTranslationLanguage && (
           <ActionPanel.Section title="Target Language">
             {LANGUAGE_LIST.map((region) => {
@@ -136,14 +145,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             })}
           </ActionPanel.Section>
         )}
-        <ActionPanel.Section title="Others">
-          <ActionFeedback />
-          <Action.OpenInBrowser
-            icon={Icon.Link}
-            title="See Google Translate Results"
-            url={this.getGoogleTranslateURL()}
-          />
-        </ActionPanel.Section>
       </ActionPanel>
     );
   }
