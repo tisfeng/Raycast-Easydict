@@ -82,10 +82,9 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             onAction={() => this.openInEudic(this.props.queryText)}
           />
           <Action.CopyToClipboard
-            onCopy={() =>
-              preferences.isAutomaticPaste &&
-              Clipboard.paste(this.props.copyText || "")
-            }
+            onCopy={() => {
+              console.log("copy: ", this.props.copyText);
+            }}
             title={`Copy  ${this.props.copyText}`}
             content={this.props.copyText || ""}
           />

@@ -277,14 +277,6 @@
       "required": false,
       "description": "When you first enter, automatic query clipboard text",
       "default": true
-    },
-    {
-      "name": "isAutomaticPaste",
-      "type": "checkbox",
-      "label": "Automatic Paste",
-      "required": false,
-      "description": "When you copy, automatic paste to focus",
-      "default": false
     }
   ],
   "dependencies": {
