@@ -270,16 +270,6 @@
       "default": "MIbu7DGsOPdbatL9KmgycGx0qDOzQWCM"
     },
     {
-      "title": "Delay Fetch Translate API Time",
-      "name": "delayFetchTranslateAPITime",
-      "type": "textfield",
-      "required": false,
-      "description": "The time to start look up after entering words",
-      "default": "600",
-      "placeholder": "Range 400-1000ms, default 600ms"
-    },
-
-    {
       "title": "Others",
       "name": "isAutomaticQueryClipboard",
       "type": "checkbox",

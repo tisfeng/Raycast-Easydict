@@ -42,16 +42,10 @@ export default function () {
   const defaultLanguage2 = getItemFromLanguageList(preferences.language2);
   const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
-  let delayRequestTime =
-    parseInt(preferences.delayFetchTranslateAPITime) || 600;
+  // Delay the time to call the query API. The API has frequency limit.
+  const delayRequestTime = 600;
 
-  if (delayRequestTime < 400) {
-    delayRequestTime = 400;
-  } else if (delayRequestTime > 1000) {
-    delayRequestTime = 1000;
-  }
-
-  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. default 10min
+  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
   const clipboardQueryInterval = 60 * 1000;
 
   if (defaultLanguage1.languageId === defaultLanguage2.languageId) {
