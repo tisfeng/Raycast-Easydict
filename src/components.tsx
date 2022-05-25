@@ -51,7 +51,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
       this.props.currentTargetLanguage?.googleLanguageId ||
       this.props.currentTargetLanguage?.languageId;
     const text = encodeURI(this.props.queryText!);
-    return `https://translate.google.com/?sl=${from}&tl=${to}&text=${text}&op=translate`;
+    return `https://translate.google.cn/?sl=${from}&tl=${to}&text=${text}&op=translate`;
   }
 
   openInEudic = (queryText?: string) => {
