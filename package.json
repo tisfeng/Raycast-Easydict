@@ -9,7 +9,7 @@
   "commands": [
     {
       "name": "easydict",
-      "title": "Look up Words",
+      "title": "Search Word",
       "subtitle": "Easy Dictionary",
       "description": "Easy to look up words or translate text.",
       "mode": "view"

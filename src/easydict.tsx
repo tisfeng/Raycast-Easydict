@@ -408,7 +408,7 @@ export default function () {
   return (
     <List
       isLoading={isLoadingState}
-      searchBarPlaceholder={"Look up words or translate text..."}
+      searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChangeEvent}
       actions={
@@ -419,7 +419,7 @@ export default function () {
     >
       <List.EmptyView
         icon={Icon.TextDocument}
-        title="Type something to look up."
+        title="Type a word to look up or translate"
       />
       <ListDetail />
     </List>
