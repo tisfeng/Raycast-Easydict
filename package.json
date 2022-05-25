@@ -277,6 +277,14 @@
       "required": false,
       "description": "When you first enter, automatic query clipboard text",
       "default": true
+    },
+    {
+      "name": "isDisplayTargetTranslationLanguage",
+      "type": "checkbox",
+      "label": "Display Target Translation Language",
+      "required": false,
+      "description": "Display the target translation language in action panel",
+      "default": false
     }
   ],
   "dependencies": {

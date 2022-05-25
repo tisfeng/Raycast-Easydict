@@ -89,7 +89,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             content={this.props.copyText || ""}
           />
         </ActionPanel.Section>
-
         <ActionPanel.Section title="Play Sound">
           <Action
             title="Play Query Text Sound"
@@ -113,29 +112,30 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             }
           />
         </ActionPanel.Section>
+        {preferences.isDisplayTargetTranslationLanguage && (
+          <ActionPanel.Section title="Target Language">
+            {LANGUAGE_LIST.map((region) => {
+              if (
+                this.props.currentFromLanguage?.languageId === region.languageId
+              )
+                return null;
 
-        <ActionPanel.Section title="Target Language">
-          {LANGUAGE_LIST.map((region) => {
-            if (
-              this.props.currentFromLanguage?.languageId === region.languageId
-            )
-              return null;
-
-            return (
-              <Action
-                key={region.languageId}
-                title={region.languageTitle}
-                onAction={() => this.props.onLanguageUpdate(region)}
-                icon={
-                  this.props.currentTargetLanguage?.languageId ===
-                  region.languageId
-                    ? Icon.ArrowRight
-                    : Icon.Globe
-                }
-              />
-            );
-          })}
-        </ActionPanel.Section>
+              return (
+                <Action
+                  key={region.languageId}
+                  title={region.languageTitle}
+                  onAction={() => this.props.onLanguageUpdate(region)}
+                  icon={
+                    this.props.currentTargetLanguage?.languageId ===
+                    region.languageId
+                      ? Icon.ArrowRight
+                      : Icon.Globe
+                  }
+                />
+              );
+            })}
+          </ActionPanel.Section>
+        )}
         <ActionPanel.Section title="Others">
           <ActionFeedback />
           <Action.OpenInBrowser

@@ -52,9 +52,7 @@ export interface IPreferences {
   appId: string;
   appKey: string;
   isAutomaticQueryClipboard: boolean;
-  isAutomaticPaste: boolean;
-  delayFetchTranslateAPITime: string;
-  clipboardQueryInterval: string;
+  isDisplayTargetTranslationLanguage: boolean;
 }
 
 export interface IListItemActionPanelItem {
