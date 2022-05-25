@@ -51,9 +51,8 @@ export default function () {
     delayRequestTime = 1000;
   }
 
-  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word.
-  const clipboardQueryInterval =
-    (parseInt(preferences.clipboardQueryInterval) || 60) * 1000;
+  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. default 10min
+  const clipboardQueryInterval = 60 * 1000;
 
   if (defaultLanguage1.languageId === defaultLanguage2.languageId) {
     return (

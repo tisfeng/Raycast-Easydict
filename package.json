@@ -278,15 +278,9 @@
       "default": "600",
       "placeholder": "Range 400-1000ms, default 600ms"
     },
+
     {
-      "title": "Time interval for Querying same clipboard text",
-      "name": "clipboardQueryInterval",
-      "type": "textfield",
-      "required": false,
-      "description": "Need enable Automatic Query Clipboard",
-      "default": "600"
-    },
-    {
+      "title": "Others",
       "name": "isAutomaticQueryClipboard",
       "type": "checkbox",
       "label": "Automatic Query Clipboard",
@@ -295,7 +289,6 @@
       "default": true
     },
     {
-      "title": "Others",
       "name": "isAutomaticPaste",
       "type": "checkbox",
       "label": "Automatic Paste",
