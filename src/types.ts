@@ -54,6 +54,7 @@ export interface IPreferences {
   isAutomaticQueryClipboard: boolean;
   isAutomaticPaste: boolean;
   delayFetchTranslateAPITime: string;
+  clipboardQueryInterval: string;
 }
 
 export interface IListItemActionPanelItem {

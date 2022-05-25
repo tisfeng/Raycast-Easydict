@@ -29,9 +29,6 @@ let fetchResultStateCode = "-1";
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
-// Time interval for automatic query of the same clipboard word.
-const clipboardQueryInterval = 5 * 1000;
-
 export default function () {
   // use to display input text
   const [inputText, updateInputText] = useState<string>();
@@ -53,6 +50,10 @@ export default function () {
   } else if (delayRequestTime > 1000) {
     delayRequestTime = 1000;
   }
+
+  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word.
+  const clipboardQueryInterval =
+    (parseInt(preferences.clipboardQueryInterval) || 60) * 1000;
 
   if (defaultLanguage1.languageId === defaultLanguage2.languageId) {
     return (

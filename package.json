@@ -274,20 +274,29 @@
       "name": "delayFetchTranslateAPITime",
       "type": "textfield",
       "required": false,
+      "description": "Look up the word time interval",
       "default": "600",
-      "description": "Delay fetch translate API",
       "placeholder": "Range 400-1000ms, default 600ms"
     },
     {
-      "title": "Preference",
+      "title": "Query Clipboard",
       "name": "isAutomaticQueryClipboard",
       "type": "checkbox",
       "label": "Automatic Query Clipboard",
       "required": false,
       "default": true,
-      "description": "When you first enter, automatic Query clipboard text"
+      "description": "When you first enter, automatic query clipboard text"
     },
     {
+      "title": "Time interval for Querying same clipboard text",
+      "name": "clipboardQueryInterval",
+      "type": "textfield",
+      "required": false,
+      "default": "600",
+      "description": "Need enable Automatic Query Clipboard"
+    },
+    {
+      "title": "Others",
       "name": "isAutomaticPaste",
       "type": "checkbox",
       "label": "Automatic Paste",
