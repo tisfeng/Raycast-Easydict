@@ -24,7 +24,7 @@
       "type": "dropdown",
       "required": true,
       "title": "First Language",
-      "description": "Select the first language you want to translate",
+      "description": "Select the first language you want to translate into",
       "data": [
         {
           "title": "Chinese-Simplified",
@@ -141,7 +141,7 @@
       "type": "dropdown",
       "required": true,
       "title": "Second Language",
-      "description": "Select the second language you want to translate",
+      "description": "Select the second language you want to translate into",
       "data": [
         {
           "title": "English",
@@ -274,26 +274,25 @@
       "name": "delayFetchTranslateAPITime",
       "type": "textfield",
       "required": false,
-      "description": "Look up the word time interval",
+      "description": "The time to start look up after entering words",
       "default": "600",
       "placeholder": "Range 400-1000ms, default 600ms"
-    },
-    {
-      "title": "Query Clipboard",
-      "name": "isAutomaticQueryClipboard",
-      "type": "checkbox",
-      "label": "Automatic Query Clipboard",
-      "required": false,
-      "default": true,
-      "description": "When you first enter, automatic query clipboard text"
     },
     {
       "title": "Time interval for Querying same clipboard text",
       "name": "clipboardQueryInterval",
       "type": "textfield",
       "required": false,
-      "default": "600",
-      "description": "Need enable Automatic Query Clipboard"
+      "description": "Need enable Automatic Query Clipboard",
+      "default": "600"
+    },
+    {
+      "name": "isAutomaticQueryClipboard",
+      "type": "checkbox",
+      "label": "Automatic Query Clipboard",
+      "required": false,
+      "description": "When you first enter, automatic query clipboard text",
+      "default": true
     },
     {
       "title": "Others",
@@ -301,8 +300,8 @@
       "type": "checkbox",
       "label": "Automatic Paste",
       "required": false,
-      "default": false,
-      "description": "When you copy, automatic paste to focus"
+      "description": "When you copy, automatic paste to focus",
+      "default": false
     }
   ],
   "dependencies": {
