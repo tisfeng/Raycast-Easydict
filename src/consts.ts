@@ -7,7 +7,7 @@ export enum COPY_TYPE {
 }
 
 export enum SectionType {
-  Translation = "Translation",
+  Translation = "Translate",
   Detail = "Details",
   Wfs = "Forms and Tenses",
   WebTranslation = "Web Translation",

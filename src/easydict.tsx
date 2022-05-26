@@ -1,10 +1,16 @@
 import { Fragment, useEffect, useState } from "react";
-import { ActionFeedback, ListActionPanel, playSoundIcon } from "./components";
+import {
+  ActionFeedback,
+  eudicBundleId,
+  ListActionPanel,
+  playSoundIcon,
+} from "./components";
 import {
   Action,
   ActionPanel,
   Clipboard,
   Color,
+  getApplications,
   getPreferenceValues,
   Icon,
   Image,
@@ -36,6 +42,8 @@ export default function () {
   const [searchText, updateSearchText] = useState<string>();
 
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
+
+  const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
 
   const preferences: IPreferences = getPreferenceValues();
   const defaultLanguage1 = getItemFromLanguageList(preferences.language1);
@@ -195,6 +203,36 @@ export default function () {
     return targetLanguage.languageId;
   }
 
+  async function traverseAllInstalledApplications() {
+    const installedApplications = await getApplications();
+    LocalStorage.setItem(eudicBundleId, false);
+    updateIsInstalledEudic(false);
+
+    for (const application of installedApplications) {
+      console.log(application.bundleId);
+      if (application.bundleId === eudicBundleId) {
+        updateIsInstalledEudic(true);
+        LocalStorage.setItem(eudicBundleId, true);
+
+        console.log("isInstalledEudic: true");
+      }
+    }
+  }
+
+  function checkIsInstalledEudic() {
+    LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
+      console.log("is install: ", isInstalledEudic);
+
+      if (isInstalledEudic == true) {
+        updateIsInstalledEudic(true);
+      } else if (isInstalledEudic == false) {
+        updateIsInstalledEudic(false);
+      } else {
+        traverseAllInstalledApplications();
+      }
+    });
+  }
+
   // function: query the clipboard text from LocalStorage
   async function queryClipboardText() {
     let text = await Clipboard.readText();
@@ -229,6 +267,9 @@ export default function () {
         tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
       }
       translate(currentLanguageId, tartgetLanguageId);
+
+      checkIsInstalledEudic();
+
       return;
     }
 
@@ -333,6 +374,7 @@ export default function () {
                       accessories={getWordAccessories(resultItem.type, item)}
                       actions={
                         <ListActionPanel
+                          isInstalledEudic={isInstalledEudic}
                           queryText={searchText}
                           copyText={item.copyText}
                           currentFromLanguage={currentFromLanguageState}

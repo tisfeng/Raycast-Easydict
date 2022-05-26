@@ -56,6 +56,7 @@ export interface IPreferences {
 }
 
 export interface IListItemActionPanelItem {
+  isInstalledEudic: Boolean;
   copyText?: string;
   queryText?: string;
   currentFromLanguage?: ILanguageListItem;

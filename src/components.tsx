@@ -6,14 +6,16 @@ import { IListItemActionPanelItem, IPreferences } from "./types";
 import {
   Action,
   ActionPanel,
-  getApplications,
   getPreferenceValues,
   Icon,
+  LocalStorage,
   showToast,
   Toast,
 } from "@raycast/api";
 
 const preferences: IPreferences = getPreferenceValues();
+
+export const eudicBundleId = "com.eusoft.freeeudic";
 
 export function playSoundIcon(lightTintColor: string) {
   return {
@@ -61,20 +63,18 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
   }
 
   openInEudic = (queryText?: string) => {
-    getApplications().then((applications) => {
-      const isInstalledEudic = applications.find(
-        (app) => ((app.bundleId as string) || "").indexOf("eudic") != -1
-      );
-      if (isInstalledEudic) {
-        // open in eudic and query
-        const url = `eudic://dict/${queryText}`;
-        execFile(`open`, [url]);
-      } else {
+    const url = `eudic://dict/${queryText}`;
+    execFile("open", [url], (error, stdout, stderr) => {
+      if (error) {
+        console.log("error:", error);
+        LocalStorage.removeItem(eudicBundleId);
+
         showToast({
           title: "Eudic is not installed.",
           style: Toast.Style.Failure,
         });
       }
+      console.log(stdout);
     });
   };
 
@@ -82,11 +82,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
     return (
       <ActionPanel>
         <ActionPanel.Section>
-          <Action
-            icon={Icon.MagnifyingGlass}
-            title="Open in Eudic"
-            onAction={() => this.openInEudic(this.props.queryText)}
-          />
           <Action.CopyToClipboard
             onCopy={() => {
               console.log("copy: ", this.props.copyText);
@@ -94,9 +89,16 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             title={`Copy  ${this.props.copyText}`}
             content={this.props.copyText || ""}
           />
+          {this.props.isInstalledEudic && (
+            <Action
+              icon={Icon.MagnifyingGlass}
+              title="Open in Eudic"
+              onAction={() => this.openInEudic(this.props.queryText)}
+            />
+          )}
         </ActionPanel.Section>
 
-        <ActionPanel.Section title="Open In Browser">
+        <ActionPanel.Section title="Online Translation">
           <Action.OpenInBrowser
             icon={Icon.Link}
             title="See Eudic Translate Results"
