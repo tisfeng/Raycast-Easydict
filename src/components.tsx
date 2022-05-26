@@ -6,7 +6,6 @@ import { IListItemActionPanelItem, IPreferences } from "./types";
 import {
   Action,
   ActionPanel,
-  Clipboard,
   getApplications,
   getPreferenceValues,
   Icon,
@@ -15,6 +14,13 @@ import {
 } from "@raycast/api";
 
 const preferences: IPreferences = getPreferenceValues();
+
+export function playSoundIcon(lightTintColor: string) {
+  return {
+    source: { light: "speak.png", dark: "speak.png" },
+    tintColor: { light: lightTintColor, dark: "lightgray" },
+  };
+}
 
 export function ActionFeedback() {
   return (
@@ -108,7 +114,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
         <ActionPanel.Section title="Play Sound">
           <Action
             title="Play Query Text Sound"
-            icon={Icon.Message}
+            icon={playSoundIcon("black")}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
             onAction={() =>
               this.onPlaySound(
@@ -119,7 +125,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
           />
           <Action
             title="Play Result Text Sound"
-            icon={Icon.Message}
+            icon={playSoundIcon("black")}
             onAction={() =>
               this.onPlaySound(
                 this.props.copyText,

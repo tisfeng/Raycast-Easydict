@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import { ActionFeedback, ListActionPanel } from "./components";
+import { ActionFeedback, ListActionPanel, playSoundIcon } from "./components";
 import {
   Action,
   ActionPanel,
@@ -290,10 +290,7 @@ export default function () {
       if (item.phonetic) {
         pronunciationAccessory = [
           {
-            icon: {
-              source: { light: "speak.png", dark: "speak.png" },
-              tintColor: { light: "gray", dark: "lightgray" },
-            },
+            icon: playSoundIcon("gray"),
             tooltip: "Pronunciation",
           },
           { text: item.phonetic },
