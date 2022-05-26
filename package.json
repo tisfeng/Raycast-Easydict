@@ -257,18 +257,18 @@
     },
     {
       "name": "appId",
-      "type": "textfield",
+      "type": "password",
       "required": false,
       "title": "App ID",
-      "description": "Your App ID",
+      "description": "Your Youdao App ID",
       "default": "0d68776be7e9be0b"
     },
     {
       "name": "appKey",
-      "type": "textfield",
+      "type": "password",
       "required": false,
       "title": "App Key",
-      "description": "Your App Key",
+      "description": "Your Youdao App Key",
       "default": "MIbu7DGsOPdbatL9KmgycGx0qDOzQWCM"
     },
     {
