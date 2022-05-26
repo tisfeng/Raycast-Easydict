@@ -89,6 +89,23 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             content={this.props.copyText || ""}
           />
         </ActionPanel.Section>
+
+        <ActionPanel.Section title="Open In Browser">
+          <Action.OpenInBrowser
+            icon={Icon.Link}
+            title="See Youdao Translate Results"
+            url={`https://www.youdao.com/w/eng/${encodeURI(
+              this.props.queryText!
+            )}`}
+          />
+          <Action.OpenInBrowser
+            icon={Icon.Link}
+            title="See Google Translate Results"
+            url={this.getGoogleTranslateURL()}
+          />
+          <ActionFeedback />
+        </ActionPanel.Section>
+
         <ActionPanel.Section title="Play Sound">
           <Action
             title="Play Query Text Sound"
@@ -113,14 +130,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
           />
         </ActionPanel.Section>
 
-        <ActionPanel.Section title="Open In Browser">
-          <Action.OpenInBrowser
-            icon={Icon.Link}
-            title="See Google Translate Results"
-            url={this.getGoogleTranslateURL()}
-          />
-          <ActionFeedback />
-        </ActionPanel.Section>
         {preferences.isDisplayTargetTranslationLanguage && (
           <ActionPanel.Section title="Target Language">
             {LANGUAGE_LIST.map((region) => {
