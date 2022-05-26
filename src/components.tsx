@@ -99,6 +99,13 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
         <ActionPanel.Section title="Open In Browser">
           <Action.OpenInBrowser
             icon={Icon.Link}
+            title="See Eudic Translate Results"
+            url={`https://dict.eudic.net/dicts/en/${encodeURI(
+              this.props.queryText!
+            )}`}
+          />
+          <Action.OpenInBrowser
+            icon={Icon.Link}
             title="See Youdao Translate Results"
             url={`https://www.youdao.com/w/eng/${encodeURI(
               this.props.queryText!
