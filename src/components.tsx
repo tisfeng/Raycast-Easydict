@@ -103,7 +103,6 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             title="See Google Translate Results"
             url={this.getGoogleTranslateURL()}
           />
-          <ActionFeedback />
         </ActionPanel.Section>
 
         <ActionPanel.Section title="Play Sound">
@@ -154,6 +153,10 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
             })}
           </ActionPanel.Section>
         )}
+
+        <ActionPanel.Section title="Help">
+          <ActionFeedback />
+        </ActionPanel.Section>
       </ActionPanel>
     );
   }
