@@ -8,8 +8,8 @@ import {
   ILanguageListItem,
   IPreferences,
   IReformatTranslateResult,
-  ITranslateReformatResult,
-  ITranslateResult,
+  YoudaoTranslateReformatResult,
+  YoudaoTranslateResult,
 } from "./types";
 
 export function truncate(string: string, length = 40, separator = "...") {
@@ -31,30 +31,10 @@ export function getItemFromLanguageList(value: string): ILanguageListItem {
   };
 }
 
-export function reformatCopyTextArray(
-  data: string[],
-  limitResultAmount = 10
-): IReformatTranslateResult[] {
-  const dataLength = data?.length - 1;
-  let finalData: string[] = data;
-  if (limitResultAmount > 0 && dataLength >= limitResultAmount) {
-    finalData = data.slice(0, limitResultAmount - 1);
-    finalData.push(data[dataLength]);
-  }
-
-  const finalDataLength = finalData.length - 1;
-  return finalData.map((text, idx) => {
-    return {
-      title: finalDataLength === idx && idx > 0 ? "All" : truncate(text),
-      value: text,
-    };
-  });
-}
-
 export function reformatTranslateResult(
-  data: ITranslateResult
-): ITranslateReformatResult[] {
-  const reformatData: ITranslateReformatResult[] = [];
+  data: YoudaoTranslateResult
+): YoudaoTranslateReformatResult[] {
+  const reformatData: YoudaoTranslateReformatResult[] = [];
 
   reformatData.push({
     type: SectionType.Translation,

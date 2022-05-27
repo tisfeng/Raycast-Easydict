@@ -21,9 +21,9 @@ import {
   IBaiduTranslateResult,
   ILanguageListItem,
   IPreferences,
-  ITranslateReformatResult,
-  ITranslateReformatResultItem,
-  ITranslateResult,
+  YoudaoTranslateReformatResult,
+  YoudaoTranslateReformatResultItem,
+  YoudaoTranslateResult,
 } from "./types";
 import {
   requestYoudaoAPI,
@@ -72,7 +72,7 @@ export default function () {
   }
 
   const [translateResultState, updateTranslateResultState] =
-    useState<ITranslateReformatResult[]>();
+    useState<YoudaoTranslateReformatResult[]>();
 
   // the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
   const [currentFromLanguageState, updateCurrentFromLanguageState] =
@@ -97,7 +97,7 @@ export default function () {
     });
 
     requestYoudaoAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
-      const resData: ITranslateResult = res.data;
+      const resData: YoudaoTranslateResult = res.data;
 
       console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
 
@@ -322,7 +322,7 @@ export default function () {
   // function: return List.Item.Accessory[] based on the SectionType type
   function getWordAccessories(
     sectionType: SectionType,
-    item: ITranslateReformatResultItem
+    item: YoudaoTranslateReformatResultItem
   ): List.Item.Accessory[] {
     let wordExamTypeAccessory = [];
     let pronunciationAccessory = [];

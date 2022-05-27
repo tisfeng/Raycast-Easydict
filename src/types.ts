@@ -1,21 +1,21 @@
 import { SectionType } from "./consts";
 
-export interface ITranslateResult {
+export interface YoudaoTranslateResult {
   l: string;
   query: string;
   returnPhrase: [];
   errorCode: string;
   translation: string[];
-  web?: ITranslateResultWebItem[];
-  basic?: ITranslateResultBasicItem;
+  web?: YoudaoTranslateResultWebItem[];
+  basic?: YoudaoTranslateResultBasicItem;
 }
 
-export interface ITranslateReformatResult {
+export interface YoudaoTranslateReformatResult {
   type: SectionType;
-  children?: ITranslateReformatResultItem[];
+  children?: YoudaoTranslateReformatResultItem[];
 }
 
-export interface ITranslateReformatResultItem {
+export interface YoudaoTranslateReformatResultItem {
   key: string;
   title: string;
   copyText: string;
@@ -24,25 +24,25 @@ export interface ITranslateReformatResultItem {
   examTypes?: string[];
 }
 
-export interface ITranslateResultWebItem {
+export interface YoudaoTranslateResultWebItem {
   key: string;
   value: string[];
 }
 
-export interface ITranslateResultBasicItem {
+export interface YoudaoTranslateResultBasicItem {
   explains: string[];
   phonetic?: string;
   "us-phonetic": string;
   "uk-phonetic": string;
   exam_type?: string[];
-  wfs?: ITranslateResultBasicWfsItem[];
+  wfs?: YoudaoTranslateResultBasicWfsItem[];
 }
 
-export interface ITranslateResultBasicWfsItem {
-  wf?: ITranslateResultBasicWfItem;
+export interface YoudaoTranslateResultBasicWfsItem {
+  wf?: YoudaoTranslateResultBasicWfItem;
 }
 
-export interface ITranslateResultBasicWfItem {
+export interface YoudaoTranslateResultBasicWfItem {
   name: string;
   value: string;
 }
@@ -62,11 +62,6 @@ export interface IListItemActionPanelItem {
   currentFromLanguage?: ILanguageListItem;
   currentTargetLanguage?: ILanguageListItem;
   onLanguageUpdate: (language: ILanguageListItem) => void;
-}
-
-export interface IReformatTranslateResult {
-  title: string;
-  value: string;
 }
 
 export interface ILanguageListItem {
