@@ -14,10 +14,18 @@ export enum SectionType {
   WebPhrase = "Web Phrase",
 }
 
+export enum TranslationType {
+  Youdao = "有道翻译",
+  Baidu = "百度翻译",
+  Caiyun = "彩云小译",
+}
+
 export const LANGUAGE_LIST: ILanguageListItem[] = [
   {
     languageId: "zh-CHS",
     baiduLanguageId: "zh",
+    caiyunLanguageId: "zh",
+
     googleLanguageId: "zh-CN",
     languageVoice: ["Ting-Ting"],
     languageTitle: "Chinese-Simplified",
@@ -32,6 +40,7 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
   {
     languageId: "en",
     baiduLanguageId: "en",
+    caiyunLanguageId: "en",
     languageTitle: "English",
     languageVoice: [
       "Samantha",
@@ -49,6 +58,7 @@ export const LANGUAGE_LIST: ILanguageListItem[] = [
   },
   {
     languageId: "ja",
+    caiyunLanguageId: "jp",
     languageTitle: "Japanese",
     languageVoice: ["Kyoko"],
   },

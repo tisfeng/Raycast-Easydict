@@ -30,8 +30,10 @@ import {
   getItemFromLanguageList,
   reformatTranslateResult,
   requestBaiduAPI,
+  requestAllTranslateAPI,
 } from "./shared.func";
 import { SectionType } from "./consts";
+import axios from "axios";
 
 let fetchResultStateCode = "-1";
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -87,43 +89,40 @@ export default function () {
     useState<ILanguageListItem>(autoSelectedTargetLanguage);
 
   function translate(fromLanguage: string, targetLanguage: string) {
-    // requestBaiduAPI(searchText!, fromLanguage, targetLanguage);
+    requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
+      axios.spread((youdaoResult: any, baiduResult: any, caiyunResult: any) => {
+        const resData: YoudaoTranslateResult = youdaoResult.data;
 
-    requestBaiduAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
-      const resData: IBaiduTranslateResult = res.data;
-      const result = JSON.stringify(resData);
-      console.log("baidu result: ", result);
-      Clipboard.copy(result);
-    });
+        console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
 
-    requestYoudaoAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
-      const resData: YoudaoTranslateResult = res.data;
+        const result = JSON.stringify(resData);
+        console.log("result: ", result);
 
-      console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
+        const [from, to] = resData.l.split("2"); // from2to
+        if (from === to) {
+          translate(from, getAutoSelectedTargetLanguageId(from));
+          return;
+        }
 
-      const result = JSON.stringify(resData);
-      console.log("result: ", result);
-      // Clipboard.copy(result);
+        if (youdaoResult.data.errorCode === "207") {
+          delayUpdateTargetLanguageTimer = setTimeout(() => {
+            console.log("--> 207: " + from + to);
+            translate(from, to);
+          }, delayRequestTime);
+          return;
+        }
 
-      const [from, to] = resData.l.split("2"); // from2to
-      if (from === to) {
-        translate(from, getAutoSelectedTargetLanguageId(from));
-        return;
-      }
+        updateLoadingState(false);
+        fetchResultStateCode = youdaoResult.data.errorCode;
+        updateTranslateResultState(reformatTranslateResult(resData));
+        updateCurrentFromLanguageState(getItemFromLanguageList(from));
 
-      if (res.data.errorCode === "207") {
-        delayUpdateTargetLanguageTimer = setTimeout(() => {
-          console.log("--> 207: " + from + to);
-          translate(from, to);
-        }, delayRequestTime);
-        return;
-      }
+        const baiduData: IBaiduTranslateResult = baiduResult.data;
+        console.log("baidu result: ", JSON.stringify(baiduData));
 
-      updateLoadingState(false);
-      fetchResultStateCode = res.data.errorCode;
-      updateTranslateResultState(reformatTranslateResult(resData));
-      updateCurrentFromLanguageState(getItemFromLanguageList(from));
-    });
+        console.log("caiyun: ", JSON.stringify(caiyunResult.data));
+      })
+    );
   }
 
   // function: save last Clipboard text and timestamp

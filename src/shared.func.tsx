@@ -7,7 +7,6 @@ import { LANGUAGE_LIST, SectionType } from "./consts";
 import {
   ILanguageListItem,
   IPreferences,
-  IReformatTranslateResult,
   YoudaoTranslateReformatResult,
   YoudaoTranslateResult,
 } from "./types";
@@ -156,34 +155,64 @@ export function requestBaiduAPI(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<any> {
-  const preferences: IPreferences = getPreferenceValues();
   const APP_ID = "20220428001194113";
   const APP_KEY = "kiaee1BtT9d2MGJUdAMi";
-
   const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
   const md5Content = APP_ID + queryText + salt + APP_KEY;
   const sign = md5.update(md5Content).digest("hex");
-
   const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
   const from = getItemFromLanguageList(fromLanguage).baiduLanguageId;
   const to = getItemFromLanguageList(targetLanguage).baiduLanguageId;
 
-  let url =
+  const url =
     apiServer +
     `?q=${encodeURI(
       queryText
     )}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
   return axios.get(url);
+}
 
-  const params = {
-    q: encodeURI(queryText),
-    from: from,
-    to: to,
-    salt: salt,
-    appid: APP_ID,
-    sign: sign,
-  };
-  return axios.get(url, { params });
+// 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#%E7%94%B3%E8%AF%B7%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C
+export function requestCaiyunAPI(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<any> {
+  const token = "izz99g9m50n4hpi71oke";
+  const url = "https://api.interpreter.caiyunai.com/v1/translator";
+
+  const from = getItemFromLanguageList(fromLanguage).caiyunLanguageId || "auto";
+  const to = getItemFromLanguageList(targetLanguage).caiyunLanguageId;
+  const trans_type = `${from}2${to}`; // "auto2xx";
+  console.log("caiyun trans_type: ", trans_type);
+
+  return axios.post(
+    url,
+    {
+      source: queryText,
+      trans_type,
+      detect: from === "auto",
+    },
+    {
+      headers: {
+        "content-type": "application/json",
+        "x-authorization": "token " + token,
+      },
+    }
+  );
+}
+
+// 并发请求多个翻译接口
+export function requestAllTranslateAPI(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<any> {
+  return axios.all([
+    requestYoudaoAPI(queryText, fromLanguage, targetLanguage),
+    requestBaiduAPI(queryText, fromLanguage, targetLanguage),
+    requestCaiyunAPI(queryText, fromLanguage, targetLanguage),
+  ]);
 }

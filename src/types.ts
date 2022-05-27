@@ -1,4 +1,4 @@
-import { SectionType } from "./consts";
+import { SectionType, TranslationType } from "./consts";
 
 export interface YoudaoTranslateResult {
   l: string;
@@ -66,7 +66,25 @@ export interface IListItemActionPanelItem {
 
 export interface ILanguageListItem {
   languageId: string;
+  baiduLanguageId?: string;
   languageTitle: string;
   languageVoice: string[];
   googleLanguageId?: string;
+}
+
+
+export interface TranslateResult {
+  from: string;
+  to: string;
+  query: string;
+  returnPhrase: [];
+  errorCode: string;
+  translation: ITranslateResulTranslation[];
+  web?: YoudaoTranslateResultWebItem[];
+  basic?: YoudaoTranslateResultBasicItem;
+}
+
+export interface ITranslateResulTranslation {
+  type: TranslationType;
+  translationText: string;
 }
