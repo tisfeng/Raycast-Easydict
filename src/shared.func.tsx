@@ -169,3 +169,41 @@ export function requestYoudaoAPI(
 export function useSymbolSegmentationArrayText(textArray: string[]): string {
   return textArray.join("；");
 }
+
+// 百度翻译API https://fanyi-api.baidu.com/doc/21
+export function requestBaiduAPI(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<any> {
+  const preferences: IPreferences = getPreferenceValues();
+  const APP_ID = "20220428001194113";
+  const APP_KEY = "kiaee1BtT9d2MGJUdAMi";
+
+  const md5 = crypto.createHash("md5");
+  const salt = Math.round(new Date().getTime() / 1000);
+  const md5Content = APP_ID + queryText + salt + APP_KEY;
+  const sign = md5.update(md5Content).digest("hex");
+
+  const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
+
+  const from = getItemFromLanguageList(fromLanguage).baiduLanguageId;
+  const to = getItemFromLanguageList(targetLanguage).baiduLanguageId;
+
+  let url =
+    apiServer +
+    `?q=${encodeURI(
+      queryText
+    )}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
+  return axios.get(url);
+
+  const params = {
+    q: encodeURI(queryText),
+    from: from,
+    to: to,
+    salt: salt,
+    appid: APP_ID,
+    sign: sign,
+  };
+  return axios.get(url, { params });
+}

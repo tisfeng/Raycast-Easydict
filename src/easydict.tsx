@@ -18,6 +18,7 @@ import {
   LocalStorage,
 } from "@raycast/api";
 import {
+  IBaiduTranslateResult,
   ILanguageListItem,
   IPreferences,
   ITranslateReformatResult,
@@ -28,6 +29,7 @@ import {
   requestYoudaoAPI,
   getItemFromLanguageList,
   reformatTranslateResult,
+  requestBaiduAPI,
 } from "./shared.func";
 import { SectionType } from "./consts";
 
@@ -48,7 +50,6 @@ export default function () {
   const preferences: IPreferences = getPreferenceValues();
   const defaultLanguage1 = getItemFromLanguageList(preferences.language1);
   const defaultLanguage2 = getItemFromLanguageList(preferences.language2);
-  const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
   // Delay the time to call the query API. The API has frequency limit.
   const delayRequestTime = 600;
@@ -86,6 +87,15 @@ export default function () {
     useState<ILanguageListItem>(autoSelectedTargetLanguage);
 
   function translate(fromLanguage: string, targetLanguage: string) {
+    // requestBaiduAPI(searchText!, fromLanguage, targetLanguage);
+
+    requestBaiduAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
+      const resData: IBaiduTranslateResult = res.data;
+      const result = JSON.stringify(resData);
+      console.log("baidu result: ", result);
+      Clipboard.copy(result);
+    });
+
     requestYoudaoAPI(searchText!, fromLanguage, targetLanguage).then((res) => {
       const resData: ITranslateResult = res.data;
 

@@ -17,18 +17,21 @@ export enum SectionType {
 export const LANGUAGE_LIST: ILanguageListItem[] = [
   {
     languageId: "zh-CHS",
+    baiduLanguageId: "zh",
     googleLanguageId: "zh-CN",
     languageVoice: ["Ting-Ting"],
     languageTitle: "Chinese-Simplified",
   },
   {
     languageId: "zh-CHT",
+    baiduLanguageId: "cht",
     googleLanguageId: "zh-TW",
     languageVoice: ["Ting-Ting"],
     languageTitle: "Chinese-Traditional",
   },
   {
     languageId: "en",
+    baiduLanguageId: "en",
     languageTitle: "English",
     languageVoice: [
       "Samantha",
