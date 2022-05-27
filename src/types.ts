@@ -67,9 +67,28 @@ export interface IListItemActionPanelItem {
 export interface ILanguageListItem {
   languageId: string;
   baiduLanguageId?: string;
+  caiyunLanguageId?: string;
   languageTitle: string;
   languageVoice: string[];
   googleLanguageId?: string;
+}
+
+
+export interface BaiduTranslateResult {
+  from: string;
+  to: string;
+  trans_result: BaiduTranslateItem[]
+}
+export interface BaiduTranslateItem {
+  src: string;
+  dst: string;
+}
+
+
+export interface CaiyunTranslateResult {
+  rc: string;
+  target: string;
+  confidence: number;
 }
 
 
@@ -79,12 +98,12 @@ export interface TranslateResult {
   query: string;
   returnPhrase: [];
   errorCode: string;
-  translation: ITranslateResulTranslation[];
+  translation: TranslateResultItem[];
   web?: YoudaoTranslateResultWebItem[];
   basic?: YoudaoTranslateResultBasicItem;
 }
 
-export interface ITranslateResulTranslation {
+export interface TranslateResultItem {
   type: TranslationType;
   translationText: string;
 }

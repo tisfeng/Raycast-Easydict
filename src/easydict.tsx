@@ -18,9 +18,11 @@ import {
   LocalStorage,
 } from "@raycast/api";
 import {
-  IBaiduTranslateResult,
+  BaiduTranslateResult,
+  CaiyunTranslateResult,
   ILanguageListItem,
   IPreferences,
+  TranslateResult,
   YoudaoTranslateReformatResult,
   YoudaoTranslateReformatResultItem,
   YoudaoTranslateResult,
@@ -74,6 +76,9 @@ export default function () {
   }
 
   const [translateResultState, updateTranslateResultState] =
+    useState<TranslateResult[]>();
+
+  const [youdaoTranslateResultState, updateYoudaoTranslateResultState] =
     useState<YoudaoTranslateReformatResult[]>();
 
   // the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
@@ -90,21 +95,40 @@ export default function () {
 
   function translate(fromLanguage: string, targetLanguage: string) {
     requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
-      axios.spread((youdaoResult: any, baiduResult: any, caiyunResult: any) => {
-        const resData: YoudaoTranslateResult = youdaoResult.data;
+      axios.spread((youdaoRes: any, baiduRes: any, caiyunRes: any) => {
+        const baiduResult: BaiduTranslateResult = baiduRes.data;
+        const baiduResultText = baiduResult.trans_result
+          .map((item) => {
+            return item.dst;
+          })
+          .join(" ");
+        console.log("baidu result: ", JSON.stringify(baiduResult));
+
+        const caiyunResult: CaiyunTranslateResult = caiyunRes.data;
+        const caiyunResultText = caiyunResult.target;
+        console.log("caiyun: ", JSON.stringify(caiyunRes.data));
+
+        // const result: TranslateResult = youdaoResult.map((resultItem) => {
+        //   return {};
+        // });
+
+        const youdaoTranslateResult: YoudaoTranslateResult = youdaoRes.data;
+
+        youdaoTranslateResult.translation.push(
+          baiduResultText,
+          caiyunResultText
+        );
 
         console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
+        console.log("result: ", JSON.stringify(youdaoTranslateResult));
 
-        const result = JSON.stringify(resData);
-        console.log("result: ", result);
-
-        const [from, to] = resData.l.split("2"); // from2to
+        const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
           translate(from, getAutoSelectedTargetLanguageId(from));
           return;
         }
 
-        if (youdaoResult.data.errorCode === "207") {
+        if (youdaoRes.data.errorCode === "207") {
           delayUpdateTargetLanguageTimer = setTimeout(() => {
             console.log("--> 207: " + from + to);
             translate(from, to);
@@ -113,14 +137,14 @@ export default function () {
         }
 
         updateLoadingState(false);
-        fetchResultStateCode = youdaoResult.data.errorCode;
-        updateTranslateResultState(reformatTranslateResult(resData));
+        fetchResultStateCode = youdaoRes.data.errorCode;
+        const youdaoResult: YoudaoTranslateReformatResult[] =
+          reformatTranslateResult(youdaoTranslateResult);
+
+        updateYoudaoTranslateResultState(
+          reformatTranslateResult(youdaoTranslateResult)
+        );
         updateCurrentFromLanguageState(getItemFromLanguageList(from));
-
-        const baiduData: IBaiduTranslateResult = baiduResult.data;
-        console.log("baidu result: ", JSON.stringify(baiduData));
-
-        console.log("caiyun: ", JSON.stringify(caiyunResult.data));
       })
     );
   }
@@ -365,7 +389,7 @@ export default function () {
     if (fetchResultStateCode === "0") {
       return (
         <Fragment>
-          {translateResultState?.map((resultItem, idx) => {
+          {youdaoTranslateResultState?.map((resultItem, idx) => {
             const sectionTitle = idx < 2 ? resultItem.type : undefined;
             const itemTooltip = idx >= 2 ? resultItem.type : "";
             return (
@@ -433,7 +457,7 @@ export default function () {
     const trimText = text.trim();
     if (trimText.length == 0) {
       updateLoadingState(false);
-      updateTranslateResultState([]);
+      updateYoudaoTranslateResultState([]);
       return;
     }
 
