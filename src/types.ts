@@ -6,15 +6,28 @@ export interface YoudaoTranslateResult {
   returnPhrase: [];
   errorCode: string;
   translation: string[];
-  web?: YoudaoTranslateResultWebItem[];
+  web?: TranslateResultKeyValueItem[];
   basic?: YoudaoTranslateResultBasicItem;
+  isWord: boolean,
+}
+export interface YoudaoTranslateResultBasicItem {
+  explains: string[];
+  phonetic?: string;
+  exam_type?: string[];
+  wfs?: YoudaoTranslateResultBasicFormsItem[];
+}
+export interface YoudaoTranslateResultBasicFormsItem {
+  wf?: YoudaoTranslateResultBasicFormItem;
+}
+export interface YoudaoTranslateResultBasicFormItem {
+  name: string;
+  value: string;
 }
 
 export interface YoudaoTranslateReformatResult {
   type: SectionType;
   children?: YoudaoTranslateReformatResultItem[];
 }
-
 export interface YoudaoTranslateReformatResultItem {
   key: string;
   title: string;
@@ -24,28 +37,7 @@ export interface YoudaoTranslateReformatResultItem {
   examTypes?: string[];
 }
 
-export interface YoudaoTranslateResultWebItem {
-  key: string;
-  value: string[];
-}
 
-export interface YoudaoTranslateResultBasicItem {
-  explains: string[];
-  phonetic?: string;
-  "us-phonetic": string;
-  "uk-phonetic": string;
-  exam_type?: string[];
-  wfs?: YoudaoTranslateResultBasicWfsItem[];
-}
-
-export interface YoudaoTranslateResultBasicWfsItem {
-  wf?: YoudaoTranslateResultBasicWfItem;
-}
-
-export interface YoudaoTranslateResultBasicWfItem {
-  name: string;
-  value: string;
-}
 export interface IPreferences {
   language1: string;
   language2: string;
@@ -55,16 +47,16 @@ export interface IPreferences {
   isDisplayTargetTranslationLanguage: boolean;
 }
 
-export interface IListItemActionPanelItem {
+export interface ListItemActionPanelItem {
   isInstalledEudic: Boolean;
   copyText?: string;
   queryText?: string;
-  currentFromLanguage?: ILanguageListItem;
-  currentTargetLanguage?: ILanguageListItem;
-  onLanguageUpdate: (language: ILanguageListItem) => void;
+  currentFromLanguage?: LanguageItem;
+  currentTargetLanguage?: LanguageItem;
+  onLanguageUpdate: (language: LanguageItem) => void;
 }
 
-export interface ILanguageListItem {
+export interface LanguageItem {
   languageId: string;
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
@@ -92,18 +84,49 @@ export interface CaiyunTranslateResult {
 }
 
 
-export interface TranslateResult {
-  from: string;
-  to: string;
-  query: string;
-  returnPhrase: [];
-  errorCode: string;
-  translation: TranslateResultItem[];
-  web?: YoudaoTranslateResultWebItem[];
-  basic?: YoudaoTranslateResultBasicItem;
+export interface TranslateSourceResult {
+  youdaoResult: YoudaoTranslateResult,
+  baiduResult: BaiduTranslateResult,
+  caiyunResult: CaiyunTranslateResult,
 }
 
-export interface TranslateResultItem {
+export interface TranslateReformatResult {
+  queryTextInfo: QueryTextInfo;
+  translations: TranslationItem[];
+  details?: string[];
+  forms?: YoudaoTranslateResultBasicFormsItem[];
+  webTranslation?: TranslateResultKeyValueItem;
+  webPhrases?: TranslateResultKeyValueItem[];
+}
+
+export interface QueryTextInfo {
+  query: string;
+  phonetic?: string;
+  from: string;
+  to: string;
+  isWord: boolean;
+  examTypes?: string[];
+}
+export interface TranslationItem {
   type: TranslationType;
-  translationText: string;
+  text: string;
+}
+export interface TranslateResultKeyValueItem {
+  key: string;
+  value: string[];
+}
+
+export interface TranslateDisplayResult {
+  type: SectionType | TranslationType;
+  sectionTitle?: SectionType | TranslationType;
+  items?: TranslateDisplayItem[];
+}
+export interface TranslateDisplayItem {
+  key: string;
+  title: string;
+  copyText: string;
+  subtitle?: string;
+  phonetic?: string;
+  examTypes?: string[];
+  translationType?: TranslationType;
 }

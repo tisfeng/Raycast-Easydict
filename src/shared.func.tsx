@@ -2,11 +2,16 @@ import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
 import { getPreferenceValues } from "@raycast/api";
-import { LANGUAGE_LIST, SectionType } from "./consts";
+import { LANGUAGE_LIST, SectionType, TranslationType } from "./consts";
 
 import {
-  ILanguageListItem,
+  LanguageItem,
   IPreferences,
+  QueryTextInfo,
+  TranslateDisplayResult,
+  TranslateReformatResult,
+  TranslateSourceResult,
+  TranslationItem,
   YoudaoTranslateReformatResult,
   YoudaoTranslateResult,
 } from "./types";
@@ -16,7 +21,7 @@ export function truncate(string: string, length = 40, separator = "...") {
   return string.substring(0, length) + separator;
 }
 
-export function getItemFromLanguageList(value: string): ILanguageListItem {
+export function getItemFromLanguageList(value: string): LanguageItem {
   for (const langItem of LANGUAGE_LIST) {
     if (langItem.languageId === value) {
       return langItem;
@@ -30,7 +35,7 @@ export function getItemFromLanguageList(value: string): ILanguageListItem {
   };
 }
 
-export function reformatTranslateResult(
+export function reformatYoudaoTranslateResult(
   data: YoudaoTranslateResult
 ): YoudaoTranslateReformatResult[] {
   const reformatData: YoudaoTranslateReformatResult[] = [];
@@ -70,7 +75,7 @@ export function reformatTranslateResult(
   const wfsText = wfs?.join("   ") || "";
   if (wfsText.length) {
     reformatData.push({
-      type: SectionType.Wfs,
+      type: SectionType.Forms,
       children: [
         {
           title: "",
@@ -129,9 +134,10 @@ export function requestYoudaoAPI(
   const sha256Content =
     APP_ID + truncate(queryText) + salt + timestamp + APP_KEY;
   const sign = sha256.update(sha256Content).digest("hex");
+  const url = "https://openapi.youdao.com/api";
 
   return axios.post(
-    "https://openapi.youdao.com/api",
+    url,
     querystring.stringify({
       sign,
       salt,
@@ -166,11 +172,11 @@ export function requestBaiduAPI(
   const from = getItemFromLanguageList(fromLanguage).baiduLanguageId;
   const to = getItemFromLanguageList(targetLanguage).baiduLanguageId;
 
+  let encodeQueryText = encodeURIComponent(queryText);
+
   const url =
     apiServer +
-    `?q=${encodeURI(
-      queryText
-    )}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
+    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
   return axios.get(url);
 }
 
@@ -215,4 +221,170 @@ export function requestAllTranslateAPI(
     requestBaiduAPI(queryText, fromLanguage, targetLanguage),
     requestCaiyunAPI(queryText, fromLanguage, targetLanguage),
   ]);
+}
+
+export function reformatTranslateResult(
+  src: TranslateSourceResult
+): TranslateReformatResult {
+  let translations: TranslationItem[] = [];
+
+  const youdaoTranslations = src.youdaoResult.translation.map(
+    (translationText) => {
+      return { type: TranslationType.Youdao, text: translationText };
+    }
+  );
+
+  translations.push(...youdaoTranslations);
+
+  const baiduTranslation = src.baiduResult.trans_result
+    .map((item) => {
+      return item.dst;
+    })
+    .join(" ");
+
+  translations.push({ type: TranslationType.Baidu, text: baiduTranslation });
+
+  translations.push({
+    type: TranslationType.Caiyun,
+    text: src.caiyunResult.target,
+  });
+
+  const [from, to] = src.youdaoResult.l.split("2"); // from2to
+  const queryTextInfo: QueryTextInfo = {
+    query: src.youdaoResult.query,
+    phonetic: src.youdaoResult.basic?.phonetic,
+    from: from,
+    to: to,
+    isWord: src.youdaoResult.isWord,
+    examTypes: src.youdaoResult.basic?.exam_type,
+  };
+
+  let webTranslation;
+  if (src.youdaoResult.web) {
+    webTranslation = src.youdaoResult.web[0];
+  }
+  const webPhrases = src.youdaoResult.web?.slice(1);
+
+  return {
+    queryTextInfo: queryTextInfo,
+    translations: translations,
+    details: src.youdaoResult.basic?.explains,
+    forms: src.youdaoResult.basic?.wfs,
+    webTranslation: webTranslation,
+    webPhrases: webPhrases,
+  };
+}
+
+export function reformatTranslateDisplayResult(
+  reformatResult: TranslateReformatResult
+): TranslateDisplayResult[] {
+  let displayResult: Array<TranslateDisplayResult> = [];
+  const isWord = reformatResult.queryTextInfo.isWord;
+
+  for (const [i, translation] of reformatResult.translations.entries()) {
+    let sectionTitle;
+    if (i === 0) {
+      sectionTitle = SectionType.Translation;
+    }
+    if (!isWord) {
+      sectionTitle = translation.type;
+    }
+
+    displayResult.push({
+      type: sectionTitle || SectionType.Translation,
+      sectionTitle: sectionTitle,
+      items: [
+        {
+          key: translation.text + i,
+          title: translation.text,
+          copyText: translation.text,
+          phonetic: reformatResult.queryTextInfo.phonetic,
+          examTypes: reformatResult.queryTextInfo.examTypes,
+        },
+      ],
+    });
+    if (
+      isWord ||
+      (reformatResult.details &&
+        reformatResult.webPhrases &&
+        reformatResult.webTranslation)
+    ) {
+      break;
+    }
+  }
+
+  reformatResult.details?.forEach((detail, i) => {
+    let sectionTitle;
+    if (i === 0) {
+      sectionTitle = SectionType.Detail;
+    }
+
+    displayResult.push({
+      type: SectionType.Detail,
+      sectionTitle: sectionTitle,
+      items: [
+        {
+          key: detail + i,
+          title: detail,
+          copyText: detail,
+        },
+      ],
+    });
+  });
+
+  const wfs = reformatResult.forms?.map((wfItem, idx) => {
+    return wfItem.wf?.name + " " + wfItem.wf?.value;
+  });
+
+  // [ 复数 goods   比较级 better   最高级 best ]
+  const wfsText = wfs?.join("   ") || "";
+  if (wfsText.length) {
+    displayResult.push({
+      type: SectionType.Forms,
+      items: [
+        {
+          key: wfsText,
+          title: "",
+          subtitle: `[ ${wfsText} ]`,
+          copyText: wfsText,
+        },
+      ],
+    });
+  }
+
+  if (reformatResult.webTranslation) {
+    const webResultKey = reformatResult.webTranslation?.key;
+    const webResultValue = reformatResult.webTranslation.value.join("；");
+    displayResult.push({
+      type: SectionType.WebTranslation,
+      items: [
+        {
+          key: webResultKey,
+          title: webResultKey,
+          subtitle: webResultValue,
+          copyText: `${webResultKey} ${webResultValue}`,
+        },
+      ],
+    });
+  }
+
+  reformatResult.webPhrases?.forEach((phrase, i) => {
+    const phraseKey = phrase.key;
+    const phraseValue = phrase.value.join("；");
+    displayResult.push({
+      type: SectionType.WebPhrase,
+      items: [
+        {
+          key: phraseKey + i,
+          title: phraseKey,
+          subtitle: phraseValue,
+          copyText: `${phraseKey} ${phraseValue}`,
+        },
+      ],
+    });
+  });
+
+  console.log("displayResult: ", JSON.stringify(displayResult));
+
+  return displayResult;
 }

@@ -20,21 +20,22 @@ import {
 import {
   BaiduTranslateResult,
   CaiyunTranslateResult,
-  ILanguageListItem,
+  LanguageItem,
   IPreferences,
-  TranslateResult,
+  TranslateSourceResult,
+  TranslateDisplayResult,
   YoudaoTranslateReformatResult,
   YoudaoTranslateReformatResultItem,
   YoudaoTranslateResult,
 } from "./types";
 import {
-  requestYoudaoAPI,
   getItemFromLanguageList,
-  reformatTranslateResult,
-  requestBaiduAPI,
+  reformatYoudaoTranslateResult,
   requestAllTranslateAPI,
+  reformatTranslateResult,
+  reformatTranslateDisplayResult,
 } from "./shared.func";
-import { SectionType } from "./consts";
+import { SectionType, TranslationType } from "./consts";
 import axios from "axios";
 
 let fetchResultStateCode = "-1";
@@ -75,52 +76,50 @@ export default function () {
     );
   }
 
-  const [translateResultState, updateTranslateResultState] =
-    useState<TranslateResult[]>();
+  const [translateDisplayResult, updateTranslateDisplayResult] =
+    useState<TranslateDisplayResult[]>();
 
   const [youdaoTranslateResultState, updateYoudaoTranslateResultState] =
     useState<YoudaoTranslateReformatResult[]>();
 
-  // the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
+  /**
+     the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
+     */
   const [currentFromLanguageState, updateCurrentFromLanguageState] =
-    useState<ILanguageListItem>();
+    useState<LanguageItem>();
 
-  // default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
+  /*
+    default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
+    */
   const [autoSelectedTargetLanguage, updateAutoSelectedTargetLanguage] =
-    useState<ILanguageListItem>(defaultLanguage1);
+    useState<LanguageItem>(defaultLanguage1);
 
-  // the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
+  /*
+    the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
+    */
   const [userSelectedTargetLanguage, updateUserSelectedTargetLanguage] =
-    useState<ILanguageListItem>(autoSelectedTargetLanguage);
+    useState<LanguageItem>(autoSelectedTargetLanguage);
 
   function translate(fromLanguage: string, targetLanguage: string) {
     requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
       axios.spread((youdaoRes: any, baiduRes: any, caiyunRes: any) => {
-        const baiduResult: BaiduTranslateResult = baiduRes.data;
-        const baiduResultText = baiduResult.trans_result
-          .map((item) => {
-            return item.dst;
-          })
-          .join(" ");
-        console.log("baidu result: ", JSON.stringify(baiduResult));
-
-        const caiyunResult: CaiyunTranslateResult = caiyunRes.data;
-        const caiyunResultText = caiyunResult.target;
-        console.log("caiyun: ", JSON.stringify(caiyunRes.data));
-
-        // const result: TranslateResult = youdaoResult.map((resultItem) => {
-        //   return {};
-        // });
-
         const youdaoTranslateResult: YoudaoTranslateResult = youdaoRes.data;
-
-        youdaoTranslateResult.translation.push(
-          baiduResultText,
-          caiyunResultText
-        );
-
         console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
-        console.log("result: ", JSON.stringify(youdaoTranslateResult));
+        console.log("youdao result: ", JSON.stringify(youdaoTranslateResult));
+
+        const baiduTranslateResult: BaiduTranslateResult = baiduRes.data;
+        console.log("baidu result: ", JSON.stringify(baiduTranslateResult));
+
+        const caiyunTranslateResult: CaiyunTranslateResult = caiyunRes.data;
+        console.log("caiyun result: ", JSON.stringify(caiyunRes.data));
+
+        const sourceResult: TranslateSourceResult = {
+          youdaoResult: youdaoTranslateResult,
+          baiduResult: baiduTranslateResult,
+          caiyunResult: caiyunTranslateResult,
+        };
+        const reformatResult = reformatTranslateResult(sourceResult);
+        console.log("reformatResult: ", JSON.stringify(reformatResult));
 
         const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
@@ -128,21 +127,43 @@ export default function () {
           return;
         }
 
-        if (youdaoRes.data.errorCode === "207") {
+        if (
+          youdaoRes.data.errorCode === "207" ||
+          baiduRes.data.errorCode === "54003"
+        ) {
           delayUpdateTargetLanguageTimer = setTimeout(() => {
-            console.log("--> 207: " + from + to);
+            console.log(
+              "--> error_code: ",
+              youdaoRes.data.error_code || baiduRes.data.error_code
+            );
             translate(from, to);
           }, delayRequestTime);
           return;
         }
 
+        const displayResult = reformatTranslateDisplayResult(reformatResult);
+        updateTranslateDisplayResult(displayResult);
+
+        const baiduResultText = baiduTranslateResult.trans_result
+          .map((item) => {
+            return item.dst;
+          })
+          .join(" ");
+
+        const caiyunResultText = caiyunTranslateResult.target;
+
+        youdaoTranslateResult.translation.push(
+          baiduResultText,
+          caiyunResultText
+        );
+
         updateLoadingState(false);
         fetchResultStateCode = youdaoRes.data.errorCode;
         const youdaoResult: YoudaoTranslateReformatResult[] =
-          reformatTranslateResult(youdaoTranslateResult);
+          reformatYoudaoTranslateResult(youdaoTranslateResult);
 
         updateYoudaoTranslateResultState(
-          reformatTranslateResult(youdaoTranslateResult)
+          reformatYoudaoTranslateResult(youdaoTranslateResult)
         );
         updateCurrentFromLanguageState(getItemFromLanguageList(from));
       })
@@ -300,7 +321,6 @@ export default function () {
         tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
       }
       translate(currentLanguageId, tartgetLanguageId);
-
       checkIsInstalledEudic();
 
       return;
@@ -312,18 +332,33 @@ export default function () {
   }, [searchText]);
 
   // function: Returns the corresponding ImageLike based on the SectionType type
-  function getListItemIcon(sectionType: SectionType): Image.ImageLike {
+  function getListItemIcon(
+    sectionType: SectionType | TranslationType
+  ): Image.ImageLike {
     let dotColor: Color.ColorLike = Color.PrimaryText;
     switch (sectionType) {
+      case TranslationType.Youdao: {
+        dotColor = Color.Red;
+        break;
+      }
+      case TranslationType.Baidu: {
+        dotColor = Color.Blue;
+        break;
+      }
+      case TranslationType.Caiyun: {
+        dotColor = Color.Yellow;
+        break;
+      }
+
       case SectionType.Translation: {
         dotColor = Color.Red;
         break;
       }
-      case SectionType.Detail: {
+      case SectionType.Detail || TranslationType.Baidu: {
         dotColor = Color.Blue;
         break;
       }
-      case SectionType.WebTranslation: {
+      case SectionType.WebTranslation || TranslationType.Caiyun: {
         dotColor = Color.Yellow;
         break;
       }
@@ -332,11 +367,12 @@ export default function () {
         break;
       }
     }
+
     let itemIcon: Image.ImageLike = {
       source: Icon.Dot,
       tintColor: dotColor,
     };
-    if (sectionType === SectionType.Wfs) {
+    if (sectionType === SectionType.Forms) {
       itemIcon = Icon.Text;
     }
     return itemIcon;
@@ -344,7 +380,7 @@ export default function () {
 
   // function: return List.Item.Accessory[] based on the SectionType type
   function getWordAccessories(
-    sectionType: SectionType,
+    sectionType: string,
     item: YoudaoTranslateReformatResultItem
   ): List.Item.Accessory[] {
     let wordExamTypeAccessory = [];
@@ -389,12 +425,11 @@ export default function () {
     if (fetchResultStateCode === "0") {
       return (
         <Fragment>
-          {youdaoTranslateResultState?.map((resultItem, idx) => {
-            const sectionTitle = idx < 2 ? resultItem.type : undefined;
+          {translateDisplayResult?.map((resultItem, idx) => {
             const itemTooltip = idx >= 2 ? resultItem.type : "";
             return (
-              <List.Section key={idx} title={sectionTitle}>
-                {resultItem.children?.map((item) => {
+              <List.Section key={idx} title={resultItem.sectionTitle}>
+                {resultItem.items?.map((item) => {
                   return (
                     <List.Item
                       key={item.key}

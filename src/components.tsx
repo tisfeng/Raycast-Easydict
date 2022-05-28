@@ -2,7 +2,7 @@ import { Component } from "react";
 import { exec, execFile } from "child_process";
 import { LANGUAGE_LIST } from "./consts";
 import { truncate } from "./shared.func";
-import { IListItemActionPanelItem, IPreferences } from "./types";
+import { ListItemActionPanelItem, IPreferences } from "./types";
 import {
   Action,
   ActionPanel,
@@ -34,7 +34,7 @@ export function ActionFeedback() {
   );
 }
 
-export class ListActionPanel extends Component<IListItemActionPanelItem> {
+export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
     if (language && text) {
       const voiceIndex = 0;
@@ -98,7 +98,7 @@ export class ListActionPanel extends Component<IListItemActionPanelItem> {
           )}
         </ActionPanel.Section>
 
-        <ActionPanel.Section title="Online Translation">
+        <ActionPanel.Section title="Translate Query Text Online">
           <Action.OpenInBrowser
             icon={Icon.Link}
             title="See Eudic Translate Results"

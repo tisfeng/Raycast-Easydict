@@ -1,26 +1,21 @@
-import { ILanguageListItem } from "./types";
-
-export enum COPY_TYPE {
-  Normal,
-  Uppercase,
-  LowercaseCamelCase,
-}
+import { LanguageItem } from "./types";
 
 export enum SectionType {
   Translation = "Translate",
   Detail = "Details",
-  Wfs = "Forms and Tenses",
+  Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",
 }
 
 export enum TranslationType {
+  YoudaoDict = "有道词典",
   Youdao = "有道翻译",
   Baidu = "百度翻译",
   Caiyun = "彩云小译",
 }
 
-export const LANGUAGE_LIST: ILanguageListItem[] = [
+export const LANGUAGE_LIST: LanguageItem[] = [
   {
     languageId: "zh-CHS",
     baiduLanguageId: "zh",
