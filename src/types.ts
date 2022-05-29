@@ -125,6 +125,7 @@ export interface TranslateDisplayItem {
   key: string;
   title: string;
   copyText: string;
+  tooltip?: string;
   subtitle?: string;
   phonetic?: string;
   examTypes?: string[];

@@ -342,11 +342,11 @@ export default function () {
         break;
       }
       case TranslationType.Baidu: {
-        dotColor = Color.Blue;
+        dotColor = "#4169E1";
         break;
       }
       case TranslationType.Caiyun: {
-        dotColor = Color.Yellow;
+        dotColor = Color.Green;
         break;
       }
 
@@ -417,16 +417,10 @@ export default function () {
 
   function ListDetail() {
     if (fetchResultStateCode === "-1") return null;
-    // const result = JSON.stringify(translateResultState);
-    // console.log(JSON.stringify(translateResultState));
-    // Clipboard.copy(result);
-    // console.log(JSON.stringify(translateResultState, null, 4));
-
     if (fetchResultStateCode === "0") {
       return (
         <Fragment>
           {translateDisplayResult?.map((resultItem, idx) => {
-            const itemTooltip = idx >= 2 ? resultItem.type : "";
             return (
               <List.Section key={idx} title={resultItem.sectionTitle}>
                 {resultItem.items?.map((item) => {
@@ -435,7 +429,7 @@ export default function () {
                       key={item.key}
                       icon={{
                         value: getListItemIcon(resultItem.type),
-                        tooltip: itemTooltip,
+                        tooltip: item.tooltip || "",
                       }}
                       title={item.title}
                       subtitle={item.subtitle}
@@ -469,7 +463,7 @@ export default function () {
 
     return (
       <List.Item
-        title={`Sorry, it seems that there is something wrong with the request service.`}
+        title={`Sorry, network request service error.`}
         accessories={[{ text: `Error code: ${fetchResultStateCode}` }]}
         icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
         actions={

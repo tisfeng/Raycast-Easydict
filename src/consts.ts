@@ -2,6 +2,7 @@ import { LanguageItem } from "./types";
 
 export enum SectionType {
   Translation = "Translate",
+  Explains = "Explains",
   Detail = "Details",
   Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
@@ -9,10 +10,9 @@ export enum SectionType {
 }
 
 export enum TranslationType {
-  YoudaoDict = "有道词典",
-  Youdao = "有道翻译",
-  Baidu = "百度翻译",
-  Caiyun = "彩云小译",
+  Youdao = "Youdao Translate",
+  Baidu = "Baidu Translate",
+  Caiyun = "Caiyun Translate",
 }
 
 export const LANGUAGE_LIST: LanguageItem[] = [

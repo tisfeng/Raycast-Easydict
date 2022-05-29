@@ -98,7 +98,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           )}
         </ActionPanel.Section>
 
-        <ActionPanel.Section title="Translate Query Text Online">
+        <ActionPanel.Section title="Search Query Text Online">
           <Action.OpenInBrowser
             icon={Icon.Link}
             title="See Eudic Translate Results"
@@ -169,7 +169,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           </ActionPanel.Section>
         )}
 
-        <ActionPanel.Section title="Help">
+        <ActionPanel.Section>
           <ActionFeedback />
         </ActionPanel.Section>
       </ActionPanel>

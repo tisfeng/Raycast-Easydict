@@ -297,6 +297,7 @@ export function reformatTranslateDisplayResult(
         {
           key: translation.text + i,
           title: translation.text,
+          tooltip: translation.type,
           copyText: translation.text,
           phonetic: reformatResult.queryTextInfo.phonetic,
           examTypes: reformatResult.queryTextInfo.examTypes,
@@ -305,9 +306,8 @@ export function reformatTranslateDisplayResult(
     });
     if (
       isWord ||
-      (reformatResult.details &&
-        reformatResult.webPhrases &&
-        reformatResult.webTranslation)
+      reformatResult.details?.length ||
+      reformatResult.webPhrases?.length
     ) {
       break;
     }
@@ -326,6 +326,7 @@ export function reformatTranslateDisplayResult(
         {
           key: detail + i,
           title: detail,
+          tooltip: SectionType.Explains,
           copyText: detail,
         },
       ],
@@ -345,6 +346,7 @@ export function reformatTranslateDisplayResult(
         {
           key: wfsText,
           title: "",
+          tooltip: SectionType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
         },
@@ -361,6 +363,7 @@ export function reformatTranslateDisplayResult(
         {
           key: webResultKey,
           title: webResultKey,
+          tooltip: SectionType.WebTranslation,
           subtitle: webResultValue,
           copyText: `${webResultKey} ${webResultValue}`,
         },
@@ -377,6 +380,7 @@ export function reformatTranslateDisplayResult(
         {
           key: phraseKey + i,
           title: phraseKey,
+          tooltip: SectionType.WebPhrase,
           subtitle: phraseValue,
           copyText: `${phraseKey} ${phraseValue}`,
         },
