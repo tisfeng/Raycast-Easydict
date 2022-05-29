@@ -8,7 +8,7 @@ export interface YoudaoTranslateResult {
   translation: string[];
   web?: TranslateResultKeyValueItem[];
   basic?: YoudaoTranslateResultBasicItem;
-  isWord: boolean,
+  isWord: boolean;
 }
 export interface YoudaoTranslateResultBasicItem {
   explains: string[];
@@ -37,7 +37,6 @@ export interface YoudaoTranslateReformatResultItem {
   examTypes?: string[];
 }
 
-
 export interface IPreferences {
   language1: string;
   language2: string;
@@ -65,17 +64,15 @@ export interface LanguageItem {
   googleLanguageId?: string;
 }
 
-
 export interface BaiduTranslateResult {
   from: string;
   to: string;
-  trans_result: BaiduTranslateItem[]
+  trans_result: BaiduTranslateItem[];
 }
 export interface BaiduTranslateItem {
   src: string;
   dst: string;
 }
-
 
 export interface CaiyunTranslateResult {
   rc: string;
@@ -83,11 +80,10 @@ export interface CaiyunTranslateResult {
   confidence: number;
 }
 
-
 export interface TranslateSourceResult {
-  youdaoResult: YoudaoTranslateResult,
-  baiduResult: BaiduTranslateResult,
-  caiyunResult: CaiyunTranslateResult,
+  youdaoResult: YoudaoTranslateResult;
+  baiduResult: BaiduTranslateResult;
+  caiyunResult: CaiyunTranslateResult;
 }
 
 export interface TranslateReformatResult {
