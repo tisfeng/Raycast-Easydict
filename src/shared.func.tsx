@@ -15,6 +15,7 @@ import {
   YoudaoTranslateReformatResult,
   YoudaoTranslateResult,
 } from "./types";
+import { resolve } from "path";
 
 export function truncate(string: string, length = 40, separator = "...") {
   if (string.length <= length) return string;
@@ -24,7 +25,6 @@ export function truncate(string: string, length = 40, separator = "...") {
 function isPreferredChinese(): boolean {
   const lanuguageIdPrefix = "zh";
   const preferences: IPreferences = getPreferenceValues();
-  console.log("preferences: ", JSON.stringify(preferences));
   if (
     preferences.language1.startsWith(lanuguageIdPrefix) ||
     preferences.language2.startsWith(lanuguageIdPrefix)
@@ -150,6 +150,8 @@ export function requestYoudaoAPI(
   const sign = sha256.update(sha256Content).digest("hex");
   const url = "https://openapi.youdao.com/api";
 
+  console.log("requestYoudaoAPI: ");
+
   return axios.post(
     url,
     querystring.stringify({
@@ -191,6 +193,9 @@ export function requestBaiduAPI(
   const url =
     apiServer +
     `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
+
+  console.log("requestBaiduAPI: ", url);
+
   return axios.get(url);
 }
 
@@ -206,7 +211,13 @@ export function requestCaiyunAPI(
   const from = getItemFromLanguageList(fromLanguage).caiyunLanguageId || "auto";
   const to = getItemFromLanguageList(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
-  console.log("caiyun trans_type: ", trans_type);
+  console.log("requestCaiyunAPI: ", trans_type);
+
+  // Note that Caiyun Xiaoyi only supports these types of translation at present.
+  const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
+  if (!supportedTranslatType.includes(trans_type)) {
+    return Promise.resolve(null);
+  }
 
   return axios.post(
     url,
@@ -268,12 +279,14 @@ export function reformatTranslateResult(
     text: baiduTranslation,
   });
 
-  translations.push({
-    type: isPreferredChinese()
-      ? TranslationType.CaiyunZh
-      : TranslationType.Caiyun,
-    text: src.caiyunResult.target,
-  });
+  if (src.caiyunResult) {
+    translations.push({
+      type: isPreferredChinese()
+        ? TranslationType.CaiyunZh
+        : TranslationType.Caiyun,
+      text: src.caiyunResult?.target,
+    });
+  }
 
   const [from, to] = src.youdaoResult.l.split("2"); // from2to
   const queryTextInfo: QueryTextInfo = {

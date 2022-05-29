@@ -19,7 +19,30 @@ export enum TranslationType {
   CaiyunZh = "彩云小译",
 }
 
+// https://fanyi-api.baidu.com/doc/21
+export enum BaiduRequestErrorCode {
+  Success = "52000",
+  AccessFrequencyLimited = "54003",
+  InsufficientAccountBalance = "54004",
+  TargetLanguageNotSupported = "58001",
+}
+
+export enum YoudaoRequestErrorCode {
+  Success = "0",
+  AccessFrequencyLimited = "207",
+  InsufficientAccountBalance = "401",
+  TargetLanguageNotSupported = "102",
+}
+
 export const LANGUAGE_LIST: LanguageItem[] = [
+  {
+    languageId: "auto",
+    baiduLanguageId: "auto",
+    caiyunLanguageId: "auto",
+    googleLanguageId: "auto",
+    languageTitle: "Auto Language",
+    languageVoice: ["Ting-Ting"],
+  },
   {
     languageId: "zh-CHS",
     baiduLanguageId: "zh",
@@ -175,31 +198,5 @@ export const LANGUAGE_LIST: LanguageItem[] = [
     baiduLanguageId: "cs",
     languageTitle: "Czech",
     languageVoice: ["Zuzana"],
-  },
-
-  {
-    languageId: "he",
-    baiduLanguageId: "heb",
-    googleLanguageId: "iw",
-    languageTitle: "Hebrew",
-    languageVoice: ["Carmit"],
-  },
-  {
-    languageId: "id",
-    baiduLanguageId: "id",
-    languageTitle: "Indonesian",
-    languageVoice: ["Damayanti"],
-  },
-  {
-    languageId: "hi",
-    baiduLanguageId: "hi",
-    languageTitle: "Hindi",
-    languageVoice: ["Lekha"],
-  },
-  {
-    languageId: "tr",
-    baiduLanguageId: "tr",
-    languageTitle: "Turkish",
-    languageVoice: ["Yelda"],
   },
 ];

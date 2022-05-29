@@ -83,7 +83,7 @@ export interface CaiyunTranslateResult {
 export interface TranslateSourceResult {
   youdaoResult: YoudaoTranslateResult;
   baiduResult: BaiduTranslateResult;
-  caiyunResult: CaiyunTranslateResult;
+  caiyunResult?: CaiyunTranslateResult;
 }
 
 export interface TranslateReformatResult {
