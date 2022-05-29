@@ -119,7 +119,7 @@ export interface TranslateResultKeyValueItem {
 
 export interface TranslateDisplayResult {
   type: SectionType | TranslationType;
-  sectionTitle?: SectionType | TranslationType;
+  sectionTitle?: SectionType | TranslationType | string;
   items?: TranslateDisplayItem[];
 }
 export interface TranslateDisplayItem {

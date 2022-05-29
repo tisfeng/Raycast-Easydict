@@ -256,9 +256,7 @@ export function reformatTranslateResult(
   const youdaoTranslations = src.youdaoResult.translation.map(
     (translationText) => {
       return {
-        type: isPreferredChinese()
-          ? TranslationType.YoudaoZh
-          : TranslationType.Youdao,
+        type: TranslationType.Youdao,
         text: translationText,
       };
     }
@@ -273,17 +271,13 @@ export function reformatTranslateResult(
     .join(" ");
 
   translations.push({
-    type: isPreferredChinese()
-      ? TranslationType.BaiduZh
-      : TranslationType.Baidu,
+    type: TranslationType.Baidu,
     text: baiduTranslation,
   });
 
   if (src.caiyunResult) {
     translations.push({
-      type: isPreferredChinese()
-        ? TranslationType.CaiyunZh
-        : TranslationType.Caiyun,
+      type: TranslationType.Caiyun,
       text: src.caiyunResult?.target,
     });
   }
@@ -320,34 +314,48 @@ export function reformatTranslateDisplayResult(
   let displayResult: Array<TranslateDisplayResult> = [];
   const isWord = reformatResult.queryTextInfo.isWord;
 
+  const isShowOnlyOneTranslation =
+    isWord ||
+    (reformatResult.details?.length && reformatResult.webPhrases?.length);
+
+  const sectionTitleMap = new Map([
+    [TranslationType.Youdao, "有道翻译"],
+    [TranslationType.Baidu, "百度翻译"],
+    [TranslationType.Caiyun, "彩云小译"],
+  ]);
+
   for (const [i, translation] of reformatResult.translations.entries()) {
-    let sectionTitle;
-    if (i === 0) {
-      sectionTitle = SectionType.Translation;
-    }
-    if (!isWord) {
-      sectionTitle = translation.type;
+    let sectionType = isShowOnlyOneTranslation
+      ? SectionType.Translation
+      : translation.type;
+    let sectionTitle: any = isShowOnlyOneTranslation
+      ? SectionType.Translation
+      : translation.type;
+    let tooltip: string = translation.type;
+
+    if (!isShowOnlyOneTranslation) {
+      if (isPreferredChinese()) {
+        sectionTitle = sectionTitleMap.get(sectionTitle as TranslationType);
+      }
+      tooltip = "";
     }
 
     displayResult.push({
-      type: sectionTitle || SectionType.Translation,
+      type: sectionType,
       sectionTitle: sectionTitle,
       items: [
         {
           key: translation.text + i,
           title: translation.text,
-          tooltip: translation.type,
+          tooltip: tooltip,
           copyText: translation.text,
           phonetic: reformatResult.queryTextInfo.phonetic,
           examTypes: reformatResult.queryTextInfo.examTypes,
         },
       ],
     });
-    if (
-      isWord ||
-      reformatResult.details?.length ||
-      reformatResult.webPhrases?.length
-    ) {
+
+    if (isShowOnlyOneTranslation) {
       break;
     }
   }

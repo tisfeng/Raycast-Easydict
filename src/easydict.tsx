@@ -348,18 +348,15 @@ export default function () {
   ): Image.ImageLike {
     let dotColor: Color.ColorLike = Color.PrimaryText;
     switch (sectionType) {
-      case TranslationType.Youdao:
-      case TranslationType.YoudaoZh: {
+      case TranslationType.Youdao: {
         dotColor = Color.Red;
         break;
       }
-      case TranslationType.Baidu:
-      case TranslationType.BaiduZh: {
+      case TranslationType.Baidu: {
         dotColor = "#4169E1";
         break;
       }
-      case TranslationType.Caiyun:
-      case TranslationType.CaiyunZh: {
+      case TranslationType.Caiyun: {
         dotColor = Color.Green;
         break;
       }
@@ -394,7 +391,7 @@ export default function () {
 
   // function: return List.Item.Accessory[] based on the SectionType type
   function getWordAccessories(
-    sectionType: string,
+    sectionType: SectionType | TranslationType,
     item: YoudaoTranslateReformatResultItem
   ): List.Item.Accessory[] {
     let wordExamTypeAccessory = [];

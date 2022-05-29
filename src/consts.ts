@@ -13,10 +13,6 @@ export enum TranslationType {
   Youdao = "Youdao Translate",
   Baidu = "Baidu Translate",
   Caiyun = "Caiyun Translate",
-
-  YoudaoZh = "有道翻译",
-  BaiduZh = "百度翻译",
-  CaiyunZh = "彩云小译",
 }
 
 // https://fanyi-api.baidu.com/doc/21
