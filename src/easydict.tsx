@@ -337,15 +337,18 @@ export default function () {
   ): Image.ImageLike {
     let dotColor: Color.ColorLike = Color.PrimaryText;
     switch (sectionType) {
-      case TranslationType.Youdao: {
+      case TranslationType.Youdao:
+      case TranslationType.YoudaoZh: {
         dotColor = Color.Red;
         break;
       }
-      case TranslationType.Baidu: {
+      case TranslationType.Baidu:
+      case TranslationType.BaiduZh: {
         dotColor = "#4169E1";
         break;
       }
-      case TranslationType.Caiyun: {
+      case TranslationType.Caiyun:
+      case TranslationType.CaiyunZh: {
         dotColor = Color.Green;
         break;
       }

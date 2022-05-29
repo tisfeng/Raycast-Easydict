@@ -21,6 +21,20 @@ export function truncate(string: string, length = 40, separator = "...") {
   return string.substring(0, length) + separator;
 }
 
+function isPreferredChinese(): boolean {
+  const lanuguageIdPrefix = "zh";
+  const preferences: IPreferences = getPreferenceValues();
+  console.log("preferences: ", JSON.stringify(preferences));
+  if (
+    preferences.language1.startsWith(lanuguageIdPrefix) ||
+    preferences.language2.startsWith(lanuguageIdPrefix)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export function getItemFromLanguageList(value: string): LanguageItem {
   for (const langItem of LANGUAGE_LIST) {
     if (langItem.languageId === value) {
@@ -230,7 +244,12 @@ export function reformatTranslateResult(
 
   const youdaoTranslations = src.youdaoResult.translation.map(
     (translationText) => {
-      return { type: TranslationType.Youdao, text: translationText };
+      return {
+        type: isPreferredChinese()
+          ? TranslationType.YoudaoZh
+          : TranslationType.Youdao,
+        text: translationText,
+      };
     }
   );
 
@@ -242,10 +261,17 @@ export function reformatTranslateResult(
     })
     .join(" ");
 
-  translations.push({ type: TranslationType.Baidu, text: baiduTranslation });
+  translations.push({
+    type: isPreferredChinese()
+      ? TranslationType.BaiduZh
+      : TranslationType.Baidu,
+    text: baiduTranslation,
+  });
 
   translations.push({
-    type: TranslationType.Caiyun,
+    type: isPreferredChinese()
+      ? TranslationType.CaiyunZh
+      : TranslationType.Caiyun,
     text: src.caiyunResult.target,
   });
 

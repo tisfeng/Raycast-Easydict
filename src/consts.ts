@@ -13,6 +13,10 @@ export enum TranslationType {
   Youdao = "Youdao Translate",
   Baidu = "Baidu Translate",
   Caiyun = "Caiyun Translate",
+
+  YoudaoZh = "有道翻译",
+  BaiduZh = "百度翻译",
+  CaiyunZh = "彩云小译",
 }
 
 export const LANGUAGE_LIST: LanguageItem[] = [
@@ -53,7 +57,7 @@ export const LANGUAGE_LIST: LanguageItem[] = [
   },
   {
     languageId: "ja",
-    caiyunLanguageId: "jp",
+    caiyunLanguageId: "ja",
     languageTitle: "Japanese",
     languageVoice: ["Kyoko"],
   },
