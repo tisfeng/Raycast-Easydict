@@ -20,14 +20,14 @@ export enum TranslationType {
 }
 
 // https://fanyi-api.baidu.com/doc/21
-export enum BaiduRequestErrorCode {
+export enum BaiduRequestStateCode {
   Success = "52000",
   AccessFrequencyLimited = "54003",
   InsufficientAccountBalance = "54004",
   TargetLanguageNotSupported = "58001",
 }
 
-export enum YoudaoRequestErrorCode {
+export enum YoudaoRequestStateCode {
   Success = "0",
   AccessFrequencyLimited = "207",
   InsufficientAccountBalance = "401",

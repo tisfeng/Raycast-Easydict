@@ -213,7 +213,7 @@ export function requestCaiyunAPI(
   const trans_type = `${from}2${to}`; // "auto2xx";
   console.log("requestCaiyunAPI: ", trans_type);
 
-  // Note that Caiyun Xiaoyi only supports these types of translation at present.
+  // Note that Caiyun Xiaoyi only supports these types of translation at present, ["zh2en", "zh2ja", "en2zh", "ja2zh"]
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
     return Promise.resolve(null);
