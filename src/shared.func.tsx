@@ -12,8 +12,6 @@ import {
   TranslateReformatResult,
   TranslateSourceResult,
   TranslationItem,
-  YoudaoTranslateReformatResult,
-  YoudaoTranslateResult,
 } from "./types";
 
 export function truncate(string: string, length = 40, separator = "...") {
@@ -47,82 +45,6 @@ export function getItemFromLanguageList(value: string): LanguageItem {
   };
 }
 
-export function reformatYoudaoTranslateResult(
-  data: YoudaoTranslateResult
-): YoudaoTranslateReformatResult[] {
-  const reformatData: YoudaoTranslateReformatResult[] = [];
-
-  reformatData.push({
-    type: SectionType.Translation,
-    children: data.translation?.map((text, idx) => {
-      return {
-        title: text,
-        key: text + idx,
-        copyText: text,
-        phonetic: data.basic?.phonetic,
-        examTypes: data.basic?.exam_type,
-      };
-    }),
-  });
-
-  // Delete repeated text item
-  // 在有道结果中 Translation 目前观测虽然是数组，但只会返回length为1的结果，而且重复只是和explains[0]。
-  if (data.basic?.explains && data?.translation) {
-    data.basic?.explains[0] === data?.translation[0] &&
-      data.basic.explains.shift();
-  }
-
-  reformatData.push({
-    type: SectionType.Detail,
-    children: data.basic?.explains?.map((text, idx) => {
-      return { title: text, key: text + idx, copyText: text };
-    }),
-  });
-
-  const wfs = data.basic?.wfs?.map((wfItem, idx) => {
-    return wfItem.wf?.name + " " + wfItem.wf?.value;
-  });
-
-  // [ 复数 goods   比较级 better   最高级 best ]
-  const wfsText = wfs?.join("   ") || "";
-  if (wfsText.length) {
-    reformatData.push({
-      type: SectionType.Forms,
-      children: [
-        {
-          title: "",
-          key: wfsText,
-          subtitle: `[ ${wfsText} ]`,
-          copyText: wfsText,
-        },
-      ],
-    });
-  }
-
-  // good  好的；善；良好
-  const webResults = data.web?.map((webResultItem, idx) => {
-    const webResultKey = webResultItem.key;
-    const webResultVaule = useSymbolSegmentationArrayText(webResultItem.value);
-    return {
-      type: idx === 0 ? SectionType.WebTranslation : SectionType.WebPhrase,
-      children: [
-        {
-          title: webResultKey,
-          key: webResultKey,
-          subtitle: webResultVaule,
-          copyText: `${webResultKey} ${webResultVaule}`,
-        },
-      ],
-    };
-  });
-
-  webResults?.map((webResultItem) => {
-    reformatData.push(webResultItem);
-  });
-
-  return reformatData;
-}
-
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
 export function requestYoudaoAPI(
   queryText: string,
@@ -147,8 +69,6 @@ export function requestYoudaoAPI(
     APP_ID + truncate(queryText) + salt + timestamp + APP_KEY;
   const sign = sha256.update(sha256Content).digest("hex");
   const url = "https://openapi.youdao.com/api";
-
-  console.log("requestYoudaoAPI: ");
 
   return axios.post(
     url,
@@ -192,8 +112,6 @@ export function requestBaiduAPI(
     apiServer +
     `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
 
-  console.log("requestBaiduAPI: ", url);
-
   return axios.get(url);
 }
 
@@ -209,7 +127,7 @@ export function requestCaiyunAPI(
   const from = getItemFromLanguageList(fromLanguage).caiyunLanguageId || "auto";
   const to = getItemFromLanguageList(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
-  console.log("requestCaiyunAPI: ", trans_type);
+  // console.log("requestCaiyunAPI: ", trans_type);
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present, ["zh2en", "zh2ja", "en2zh", "ja2zh"]
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
@@ -312,10 +230,6 @@ export function reformatTranslateDisplayResult(
   let displayResult: Array<TranslateDisplayResult> = [];
 
   // console.log("reformatResult: ", JSON.stringify(reformatResult));
-  console.log("details: ", reformatResult.explanations);
-  console.log("forms: ", reformatResult.forms);
-  console.log("webTranslation: ", reformatResult.webTranslation);
-  console.log("webPhrases: ", reformatResult.webPhrases);
 
   const isShowMultipleTranslations =
     !reformatResult.explanations &&
@@ -456,7 +370,7 @@ export function reformatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   });
 
-  console.log("displayResult: ", JSON.stringify(displayResult));
+  // console.log("displayResult: ", JSON.stringify(displayResult));
 
   return displayResult;
 }

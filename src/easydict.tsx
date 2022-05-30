@@ -107,10 +107,8 @@ export default function () {
         // success return code: 0 undefined null
 
         const youdaoErrorCode = youdaoRes.data.errorCode;
-        console.log("youdao error code: ", youdaoErrorCode);
-
         const baiduErrorCode = baiduRes.data.error_code;
-        console.log("baidu error code: ", baiduErrorCode);
+        console.log("error code: ", youdaoErrorCode, baiduErrorCode);
 
         if (
           youdaoErrorCode ===
@@ -135,23 +133,28 @@ export default function () {
             errorInfo: getBaiduErrorInfo(baiduErrorCode),
           };
         }
-        console.log(
-          "requestResultState translate: ",
-          JSON.stringify(requestResultState)
-        );
 
         let youdaoTranslateResult = youdaoRes.data;
         let baiduTranslateResult = baiduRes.data;
         let caiyunTranslateResult = undefined;
 
+        console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
+        console.log(
+          "youdao result: ",
+          JSON.stringify(youdaoTranslateResult, null, 4)
+        );
+        console.log(
+          "baidu result: ",
+          JSON.stringify(baiduTranslateResult, null, 4)
+        );
+
         if (caiyunRes) {
           caiyunTranslateResult = caiyunRes.data;
-          console.log("caiyun result: ", JSON.stringify(caiyunRes.data));
+          console.log(
+            "caiyun result: ",
+            JSON.stringify(caiyunRes.data, null, 4)
+          );
         }
-
-        console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
-        console.log("youdao result: ", JSON.stringify(youdaoTranslateResult));
-        console.log("baidu result: ", JSON.stringify(baiduTranslateResult));
 
         const sourceResult: TranslateSourceResult = {
           youdaoResult: youdaoTranslateResult,
@@ -159,7 +162,6 @@ export default function () {
           caiyunResult: caiyunTranslateResult,
         };
         const reformatResult = reformatTranslateResult(sourceResult);
-        console.log("reformatResult: ", JSON.stringify(reformatResult));
 
         const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
@@ -422,10 +424,6 @@ export default function () {
   }
 
   function ListDetail() {
-    console.log(
-      "requestResultState ListDetail: ",
-      JSON.stringify(requestResultState)
-    );
     if (!requestResultState) return null;
 
     const isYoudaoRequestError =
