@@ -108,8 +108,6 @@ export default function () {
         const youdaoErrorCode = youdaoRes.data.errorCode;
         const baiduErrorCode = baiduRes.data.error_code;
         console.log("error code: ", youdaoErrorCode, baiduErrorCode);
-        console.log("youdaoRes: ", youdaoRes.data);
-        console.log("baiduRes: ", baiduRes.data);
 
         if (
           youdaoErrorCode ===
@@ -130,11 +128,15 @@ export default function () {
           errorInfo: getYoudaoErrorInfo(youdaoErrorCode),
         };
         if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
+          console.log("youdaoRes: ", youdaoRes.data);
+
           displayRequestErrorInfo();
           return;
         }
 
         if (baiduErrorCode) {
+          console.log("baiduRes: ", baiduRes.data);
+
           requestResultState = {
             type: TranslationType.Baidu,
             errorInfo: {

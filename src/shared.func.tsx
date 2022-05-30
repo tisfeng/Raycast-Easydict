@@ -59,14 +59,14 @@ export function requestYoudaoAPI(
   }
 
   const preferences: Preferences = getPreferenceValues();
-  const AppId = preferences.youdaoAppId;
-  const AppSecret = preferences.youdaoAppSecret;
+  const appId = preferences.youdaoAppId;
+  const appSecret = preferences.youdaoAppSecret;
 
   const sha256 = crypto.createHash("sha256");
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const sha256Content =
-    AppId + truncate(queryText) + salt + timestamp + AppSecret;
+    appId + truncate(queryText) + salt + timestamp + appSecret;
   const sign = sha256.update(sha256Content).digest("hex");
   const url = "https://openapi.youdao.com/api";
 
@@ -78,7 +78,7 @@ export function requestYoudaoAPI(
       from: fromLanguage,
       signType: "v3",
       q: queryText,
-      appKey: AppId,
+      appKey: appId,
       curtime: timestamp,
       to: targetLanguage,
     })
@@ -96,12 +96,12 @@ export function requestBaiduAPI(
   targetLanguage: string
 ): Promise<any> {
   const preferences: Preferences = getPreferenceValues();
-  const AppId = preferences.baiduAppId;
-  const AppSecret = preferences.baiduAppSecret;
+  const appId = preferences.baiduAppId;
+  const appSecret = preferences.baiduAppSecret;
 
   const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
-  const md5Content = AppId + queryText + salt + AppSecret;
+  const md5Content = appId + queryText + salt + appSecret;
   const sign = md5.update(md5Content).digest("hex");
   const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
@@ -112,30 +112,28 @@ export function requestBaiduAPI(
 
   const url =
     apiServer +
-    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${AppId}&salt=${salt}&sign=${sign}`;
+    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${appId}&salt=${salt}&sign=${sign}`;
 
   return axios.get(url);
 }
 
-// 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#%E7%94%B3%E8%AF%B7%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C
+// 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
 export function requestCaiyunAPI(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
 ): Promise<any> {
   const preferences: Preferences = getPreferenceValues();
-  const AppToken = preferences.caiyunAppToken;
+  const appToken = preferences.caiyunAppToken;
 
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-
   const from = getItemFromLanguageList(fromLanguage).caiyunLanguageId || "auto";
   const to = getItemFromLanguageList(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
-  // console.log("requestCaiyunAPI: ", trans_type);
 
-  // Note that Caiyun Xiaoyi only supports these types of translation at present, ["zh2en", "zh2ja", "en2zh", "ja2zh"]
+  // Note that Caiyun Xiaoyi only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
-  if (!supportedTranslatType.includes(trans_type)) {
+  if (!supportedTranslatType.includes(trans_type) || !appToken.length) {
     return Promise.resolve(null);
   }
 
@@ -149,7 +147,7 @@ export function requestCaiyunAPI(
     {
       headers: {
         "content-type": "application/json",
-        "x-authorization": "token " + AppToken,
+        "x-authorization": "token " + appToken,
       },
     }
   );
