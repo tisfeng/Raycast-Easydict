@@ -113,13 +113,13 @@ export default function () {
         console.log("baidu error code: ", baiduErrorCode);
 
         if (
-          youdaoRes.data.errorCode ===
+          youdaoErrorCode ===
             YoudaoRequestStateCode.AccessFrequencyLimited.toString() ||
-          baiduRes.data.errorCode ===
+          baiduErrorCode ===
             BaiduRequestStateCode.AccessFrequencyLimited.toString()
         ) {
           delayUpdateTargetLanguageTimer = setTimeout(() => {
-            console.log("--> error_code: ", youdaoErrorCode || baiduErrorCode);
+            console.log("--> error_code: ", baiduErrorCode);
             translate(fromLanguage, targetLanguage);
           }, delayRequestTime);
           return;

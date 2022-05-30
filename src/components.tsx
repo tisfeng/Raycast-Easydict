@@ -40,9 +40,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
       const voiceIndex = 0;
       for (const LANG of LANGUAGE_LIST) {
         if (language === LANG.youdaoLanguageId) {
-          const escapeText = truncate(text)
-            .replace(/'/g, " ")
-            .replace(/"/g, " ");
+          const escapeText = truncate(text).replace(/"/g, " ");
           const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${escapeText}'`;
           console.log(sayCommand);
           LANG.languageVoice.length > 0 && exec(sayCommand);
