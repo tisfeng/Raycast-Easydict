@@ -1,46 +1,48 @@
 import { Fragment, useEffect, useState } from "react";
 import {
   ActionFeedback,
-  eudicBundleId,
+  getListItemIcon,
+  getWordAccessories,
   ListActionPanel,
-  playSoundIcon,
 } from "./components";
 import {
   Action,
   ActionPanel,
   Clipboard,
   Color,
-  getApplications,
-  getPreferenceValues,
   Icon,
-  Image,
   List,
   LocalStorage,
 } from "@raycast/api";
 import {
   LanguageItem,
-  Preferences,
   TranslateSourceResult,
   TranslateDisplayResult,
-  YoudaoTranslateReformatResultItem,
   RequestResultState,
 } from "./types";
 import {
-  getItemFromLanguageList,
-  requestAllTranslateAPI,
-  reformatTranslateResult,
-  reformatTranslateDisplayResult,
-} from "./shared.func";
-import {
   BaiduRequestStateCode,
-  getBaiduErrorInfo,
   getYoudaoErrorInfo,
   requestStateCodeLinkMap,
-  SectionType,
   TranslationType,
   YoudaoRequestStateCode,
 } from "./consts";
 import axios from "axios";
+import {
+  checkIsInstalledEudic,
+  clipboardQueryInterval,
+  defaultLanguage1,
+  defaultLanguage2,
+  getAutoSelectedTargetLanguageId,
+  getInputTextLanguageId,
+  getItemFromLanguageList,
+  saveQueryClipboardRecord,
+} from "./utils";
+import { requestAllTranslateAPI } from "./request";
+import {
+  reformatTranslateDisplayResult,
+  reformatTranslateResult,
+} from "./dataFormat";
 
 let requestResultState: RequestResultState;
 
@@ -56,15 +58,8 @@ export default function () {
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
   const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
 
-  const preferences: Preferences = getPreferenceValues();
-  const defaultLanguage1 = getItemFromLanguageList(preferences.language1);
-  const defaultLanguage2 = getItemFromLanguageList(preferences.language2);
-
   // Delay the time to call the query API. The API has frequency limit.
   const delayRequestTime = 600;
-
-  // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
-  const clipboardQueryInterval = 60 * 1000;
 
   if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
     return (
@@ -122,7 +117,7 @@ export default function () {
           return;
         }
 
-        // 需要添加参数异常错误处理，防止用户AppID错误等导致的问题
+        // handle exceptional errors, such as user AppID errors or exceptions of the API itself.
         requestResultState = {
           type: TranslationType.Youdao,
           errorInfo: getYoudaoErrorInfo(youdaoErrorCode),
@@ -179,7 +174,9 @@ export default function () {
 
         const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
-          translate(from, getAutoSelectedTargetLanguageId(from));
+          const target = getAutoSelectedTargetLanguageId(from);
+          updateAutoSelectedTargetLanguage(getItemFromLanguageList(target));
+          translate(from, target);
           return;
         }
 
@@ -188,6 +185,8 @@ export default function () {
           reformatTranslateDisplayResult(reformatResult)
         );
         updateCurrentFromLanguageState(getItemFromLanguageList(from));
+
+        checkIsInstalledEudic(updateIsInstalledEudic);
       })
     );
   }
@@ -196,123 +195,6 @@ export default function () {
   function displayRequestErrorInfo() {
     updateLoadingState(false);
     updateTranslateDisplayResult([]);
-  }
-
-  // function: save last Clipboard text and timestamp
-  function saveQueryClipboardRecord(text: string) {
-    LocalStorage.setItem(text, new Date().getTime());
-    // console.log("save", text, new Date().getTime());
-  }
-
-  // function: remove all punctuation from the text
-  function removeEnglishPunctuation(text: string) {
-    return text.replace(
-      /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g,
-      ""
-    );
-  }
-
-  // function: remove all Chinese punctuation and blank space from the text
-  function removeChinesePunctuation(text: string) {
-    return text.replace(
-      /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/g,
-      ""
-    );
-  }
-
-  // function: remove all punctuation from the text
-  function removePunctuation(text: string) {
-    return removeEnglishPunctuation(removeChinesePunctuation(text));
-  }
-
-  // function: remove all blank space from the text
-  function removeBlankSpace(text: string) {
-    return text.replace(/\s/g, "");
-  }
-
-  // function: check if the text contains Chinese characters
-  function isContainChinese(text: string) {
-    return /[\u4e00-\u9fa5]/g.test(text);
-  }
-
-  // function: check if text isEnglish or isNumber
-  function isEnglishOrNumber(text: string) {
-    const pureText = removePunctuation(removeBlankSpace(text));
-    console.log("pureText: " + pureText);
-    return /^[a-zA-Z0-9]+$/.test(pureText);
-  }
-
-  // function: get the language type represented by the string, priority to use English and Chinese, and then auto
-  function getInputTextLanguageId(inputText: string): string {
-    let fromLanguageId = "auto";
-    const englishLanguageId = "en";
-    const chineseLanguageId = "zh-CHS";
-    if (
-      isEnglishOrNumber(inputText) &&
-      (defaultLanguage1.youdaoLanguageId === englishLanguageId ||
-        defaultLanguage2.youdaoLanguageId === englishLanguageId)
-    ) {
-      fromLanguageId = englishLanguageId;
-    } else if (
-      isContainChinese(inputText) &&
-      (defaultLanguage1.youdaoLanguageId === chineseLanguageId ||
-        defaultLanguage2.youdaoLanguageId === chineseLanguageId)
-    ) {
-      fromLanguageId = chineseLanguageId;
-    }
-
-    console.log("fromLanguage-->:", fromLanguageId);
-    return fromLanguageId;
-  }
-
-  // function: return and update the autoSelectedTargetLanguage according to the languageId
-  function getAutoSelectedTargetLanguageId(
-    accordingLanguageId: string
-  ): string {
-    let targetLanguageId = "auto";
-    if (accordingLanguageId === defaultLanguage1.youdaoLanguageId) {
-      targetLanguageId = defaultLanguage2.youdaoLanguageId;
-    } else if (accordingLanguageId === defaultLanguage2.youdaoLanguageId) {
-      targetLanguageId = defaultLanguage1.youdaoLanguageId;
-    }
-
-    const targetLanguage = getItemFromLanguageList(targetLanguageId);
-    updateAutoSelectedTargetLanguage(targetLanguage);
-
-    console.log(
-      `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`
-    );
-    return targetLanguage.youdaoLanguageId;
-  }
-
-  async function traverseAllInstalledApplications() {
-    const installedApplications = await getApplications();
-    LocalStorage.setItem(eudicBundleId, false);
-    updateIsInstalledEudic(false);
-
-    for (const application of installedApplications) {
-      console.log(application.bundleId);
-      if (application.bundleId === eudicBundleId) {
-        updateIsInstalledEudic(true);
-        LocalStorage.setItem(eudicBundleId, true);
-
-        console.log("isInstalledEudic: true");
-      }
-    }
-  }
-
-  function checkIsInstalledEudic() {
-    LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
-      console.log("is install: ", isInstalledEudic);
-
-      if (isInstalledEudic == true) {
-        updateIsInstalledEudic(true);
-      } else if (isInstalledEudic == false) {
-        updateIsInstalledEudic(false);
-      } else {
-        traverseAllInstalledApplications();
-      }
-    });
   }
 
   // function: query the clipboard text from LocalStorage
@@ -338,18 +220,21 @@ export default function () {
       clearTimeout(delayUpdateTargetLanguageTimer);
 
       const currentLanguageId = getInputTextLanguageId(searchText);
+      console.log("currentLanguageId: ", currentLanguageId);
       updateCurrentFromLanguageState(
         getItemFromLanguageList(currentLanguageId)
       );
 
       // priority to use user selected target language
       let tartgetLanguageId = userSelectedTargetLanguage.youdaoLanguageId;
+      console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
+
       // if conflict, use auto selected target language
       if (currentLanguageId === tartgetLanguageId) {
         tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
+        console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
       }
       translate(currentLanguageId, tartgetLanguageId);
-      checkIsInstalledEudic();
 
       return;
     }
@@ -358,90 +243,6 @@ export default function () {
       queryClipboardText();
     }
   }, [searchText]);
-
-  // function: Returns the corresponding ImageLike based on the SectionType type
-  function getListItemIcon(
-    sectionType: SectionType | TranslationType
-  ): Image.ImageLike {
-    let dotColor: Color.ColorLike = Color.PrimaryText;
-    switch (sectionType) {
-      case TranslationType.Youdao: {
-        dotColor = Color.Red;
-        break;
-      }
-      case TranslationType.Baidu: {
-        dotColor = "#4169E1";
-        break;
-      }
-      case TranslationType.Caiyun: {
-        dotColor = Color.Green;
-        break;
-      }
-
-      case SectionType.Translation: {
-        dotColor = Color.Red;
-        break;
-      }
-      case SectionType.Explanations: {
-        dotColor = Color.Blue;
-        break;
-      }
-      case SectionType.WebTranslation: {
-        dotColor = Color.Yellow;
-        break;
-      }
-      case SectionType.WebPhrase: {
-        dotColor = "teal"; //{ light: "#00B0FF", dark: "#0081EA" };
-        break;
-      }
-    }
-
-    let itemIcon: Image.ImageLike = {
-      source: Icon.Dot,
-      tintColor: dotColor,
-    };
-    if (sectionType === SectionType.Forms) {
-      itemIcon = Icon.Text;
-    }
-    return itemIcon;
-  }
-
-  // function: return List.Item.Accessory[] based on the SectionType type
-  function getWordAccessories(
-    sectionType: SectionType | TranslationType,
-    item: YoudaoTranslateReformatResultItem
-  ): List.Item.Accessory[] {
-    let wordExamTypeAccessory = [];
-    let pronunciationAccessory = [];
-    let wordAccessories: any[] = [];
-    if (sectionType === SectionType.Translation) {
-      if (item.examTypes) {
-        wordExamTypeAccessory = [
-          {
-            icon: { source: Icon.Star, tintColor: Color.SecondaryText },
-            tooltip: "Word included in the types of exam",
-          },
-          { text: item.examTypes?.join("  ") },
-        ];
-        wordAccessories = [...wordExamTypeAccessory];
-      }
-      if (item.phonetic) {
-        pronunciationAccessory = [
-          {
-            icon: playSoundIcon("gray"),
-            tooltip: "Pronunciation",
-          },
-          { text: item.phonetic },
-        ];
-        wordAccessories = [
-          ...wordAccessories,
-          { text: " " },
-          ...pronunciationAccessory,
-        ];
-      }
-    }
-    return wordAccessories;
-  }
 
   function ListDetail() {
     if (!requestResultState) return null;

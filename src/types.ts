@@ -37,7 +37,7 @@ export interface YoudaoTranslateReformatResultItem {
   examTypes?: string[];
 }
 
-export interface Preferences {
+export interface MyPreferences {
   language1: string;
   language2: string;
   youdaoAppId: string;

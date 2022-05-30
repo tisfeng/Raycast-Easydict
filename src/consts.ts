@@ -65,7 +65,7 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
   );
 }
 
-export const LANGUAGE_LIST: LanguageItem[] = [
+export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "auto",
     baiduLanguageId: "auto",
@@ -94,6 +94,7 @@ export const LANGUAGE_LIST: LanguageItem[] = [
     youdaoLanguageId: "en",
     baiduLanguageId: "en",
     caiyunLanguageId: "en",
+    googleLanguageId: "en",
     languageTitle: "English",
     languageVoice: [
       "Samantha",

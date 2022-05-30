@@ -1,19 +1,22 @@
 import { Component } from "react";
 import { exec, execFile } from "child_process";
-import { LANGUAGE_LIST } from "./consts";
-import { truncate } from "./shared.func";
-import { ListItemActionPanelItem, Preferences } from "./types";
+import { languageItemList, SectionType, TranslationType } from "./consts";
+import {
+  ListItemActionPanelItem,
+  YoudaoTranslateReformatResultItem,
+} from "./types";
 import {
   Action,
   ActionPanel,
-  getPreferenceValues,
+  Color,
   Icon,
+  Image,
+  List,
   LocalStorage,
   showToast,
   Toast,
 } from "@raycast/api";
-
-const preferences: Preferences = getPreferenceValues();
+import { myPreferences, truncate } from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -22,6 +25,90 @@ export function playSoundIcon(lightTintColor: string) {
     source: { light: "speak.png", dark: "speak.png" },
     tintColor: { light: lightTintColor, dark: "lightgray" },
   };
+}
+
+// function: Returns the corresponding ImageLike based on the SectionType type
+export function getListItemIcon(
+  sectionType: SectionType | TranslationType
+): Image.ImageLike {
+  let dotColor: Color.ColorLike = Color.PrimaryText;
+  switch (sectionType) {
+    case TranslationType.Youdao: {
+      dotColor = Color.Red;
+      break;
+    }
+    case TranslationType.Baidu: {
+      dotColor = "#4169E1";
+      break;
+    }
+    case TranslationType.Caiyun: {
+      dotColor = Color.Green;
+      break;
+    }
+
+    case SectionType.Translation: {
+      dotColor = Color.Red;
+      break;
+    }
+    case SectionType.Explanations: {
+      dotColor = Color.Blue;
+      break;
+    }
+    case SectionType.WebTranslation: {
+      dotColor = Color.Yellow;
+      break;
+    }
+    case SectionType.WebPhrase: {
+      dotColor = "teal";
+      break;
+    }
+  }
+
+  let itemIcon: Image.ImageLike = {
+    source: Icon.Dot,
+    tintColor: dotColor,
+  };
+  if (sectionType === SectionType.Forms) {
+    itemIcon = Icon.Text;
+  }
+  return itemIcon;
+}
+
+// function: return List.Item.Accessory[] based on the SectionType type
+export function getWordAccessories(
+  sectionType: SectionType | TranslationType,
+  item: YoudaoTranslateReformatResultItem
+): List.Item.Accessory[] {
+  let wordExamTypeAccessory = [];
+  let pronunciationAccessory = [];
+  let wordAccessories: any[] = [];
+  if (sectionType === SectionType.Translation) {
+    if (item.examTypes) {
+      wordExamTypeAccessory = [
+        {
+          icon: { source: Icon.Star, tintColor: Color.SecondaryText },
+          tooltip: "Word included in the types of exam",
+        },
+        { text: item.examTypes?.join("  ") },
+      ];
+      wordAccessories = [...wordExamTypeAccessory];
+    }
+    if (item.phonetic) {
+      pronunciationAccessory = [
+        {
+          icon: playSoundIcon("gray"),
+          tooltip: "Pronunciation",
+        },
+        { text: item.phonetic },
+      ];
+      wordAccessories = [
+        ...wordAccessories,
+        { text: " " },
+        ...pronunciationAccessory,
+      ];
+    }
+  }
+  return wordAccessories;
 }
 
 export function ActionFeedback() {
@@ -38,7 +125,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
     if (language && text) {
       const voiceIndex = 0;
-      for (const LANG of LANGUAGE_LIST) {
+      for (const LANG of languageItemList) {
         if (language === LANG.youdaoLanguageId) {
           const truncateText = truncate(text).replace(/"/g, " ");
           const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${truncateText}'`;
@@ -142,9 +229,9 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           />
         </ActionPanel.Section>
 
-        {preferences.isDisplayTargetTranslationLanguage && (
+        {myPreferences.isDisplayTargetTranslationLanguage && (
           <ActionPanel.Section title="Target Language">
-            {LANGUAGE_LIST.map((region) => {
+            {languageItemList.map((region) => {
               if (
                 this.props.currentFromLanguage?.youdaoLanguageId ===
                 region.youdaoLanguageId
