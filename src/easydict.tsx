@@ -360,11 +360,11 @@ export default function () {
         dotColor = Color.Red;
         break;
       }
-      case SectionType.Detail || TranslationType.Baidu: {
+      case SectionType.Explanations: {
         dotColor = Color.Blue;
         break;
       }
-      case SectionType.WebTranslation || TranslationType.Caiyun: {
+      case SectionType.WebTranslation: {
         dotColor = Color.Yellow;
         break;
       }

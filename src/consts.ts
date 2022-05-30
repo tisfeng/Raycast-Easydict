@@ -2,8 +2,7 @@ import { LanguageItem, RequestErrorInfo } from "./types";
 
 export enum SectionType {
   Translation = "Translate",
-  Explains = "Explains",
-  Detail = "Details",
+  Explanations = "Explanation",
   Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",

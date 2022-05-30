@@ -299,7 +299,7 @@ export function reformatTranslateResult(
   return {
     queryTextInfo: queryTextInfo,
     translations: translations,
-    details: src.youdaoResult.basic?.explains,
+    explanations: src.youdaoResult.basic?.explains,
     forms: src.youdaoResult.basic?.wfs,
     webTranslation: webTranslation,
     webPhrases: webPhrases,
@@ -311,10 +311,17 @@ export function reformatTranslateDisplayResult(
 ): TranslateDisplayResult[] {
   let displayResult: Array<TranslateDisplayResult> = [];
 
+  // console.log("reformatResult: ", JSON.stringify(reformatResult));
+  console.log("details: ", reformatResult.explanations);
+  console.log("forms: ", reformatResult.forms);
+  console.log("webTranslation: ", reformatResult.webTranslation);
+  console.log("webPhrases: ", reformatResult.webPhrases);
+
   const isShowMultipleTranslations =
-    !reformatResult.queryTextInfo.isWord &&
-    reformatResult.details?.length &&
-    reformatResult.translations.length;
+    !reformatResult.explanations &&
+    !reformatResult.forms &&
+    !reformatResult.webPhrases &&
+    !reformatResult.webTranslation;
 
   const sectionTitleMap = new Map([
     [TranslationType.Youdao, "有道翻译"],
@@ -357,24 +364,26 @@ export function reformatTranslateDisplayResult(
     }
   }
 
-  reformatResult.details?.forEach((detail, i) => {
-    let sectionTitle;
-    if (i === 0) {
-      sectionTitle = SectionType.Detail;
-    }
+  let hasShowDetailsSectionTitle = false;
+  let detailsSectionTitle = "Details";
 
+  reformatResult.explanations?.forEach((explanation, i) => {
     displayResult.push({
-      type: SectionType.Detail,
-      sectionTitle: sectionTitle,
+      type: SectionType.Explanations,
+      sectionTitle: !hasShowDetailsSectionTitle
+        ? detailsSectionTitle
+        : undefined,
       items: [
         {
-          key: detail + i,
-          title: detail,
-          tooltip: SectionType.Explains,
-          copyText: detail,
+          key: explanation + i,
+          title: explanation,
+          tooltip: SectionType.Explanations,
+          copyText: explanation,
         },
       ],
     });
+
+    hasShowDetailsSectionTitle = true;
   });
 
   const wfs = reformatResult.forms?.map((wfItem, idx) => {
@@ -386,6 +395,9 @@ export function reformatTranslateDisplayResult(
   if (wfsText.length) {
     displayResult.push({
       type: SectionType.Forms,
+      sectionTitle: !hasShowDetailsSectionTitle
+        ? detailsSectionTitle
+        : undefined,
       items: [
         {
           key: wfsText,
@@ -396,6 +408,8 @@ export function reformatTranslateDisplayResult(
         },
       ],
     });
+
+    hasShowDetailsSectionTitle = true;
   }
 
   if (reformatResult.webTranslation) {
@@ -403,6 +417,9 @@ export function reformatTranslateDisplayResult(
     const webResultValue = reformatResult.webTranslation.value.join("；");
     displayResult.push({
       type: SectionType.WebTranslation,
+      sectionTitle: !hasShowDetailsSectionTitle
+        ? detailsSectionTitle
+        : undefined,
       items: [
         {
           key: webResultKey,
@@ -413,6 +430,8 @@ export function reformatTranslateDisplayResult(
         },
       ],
     });
+
+    hasShowDetailsSectionTitle = true;
   }
 
   reformatResult.webPhrases?.forEach((phrase, i) => {
@@ -420,6 +439,9 @@ export function reformatTranslateDisplayResult(
     const phraseValue = phrase.value.join("；");
     displayResult.push({
       type: SectionType.WebPhrase,
+      sectionTitle: !hasShowDetailsSectionTitle
+        ? detailsSectionTitle
+        : undefined,
       items: [
         {
           key: phraseKey + i,
@@ -430,6 +452,8 @@ export function reformatTranslateDisplayResult(
         },
       ],
     });
+
+    hasShowDetailsSectionTitle = true;
   });
 
   console.log("displayResult: ", JSON.stringify(displayResult));

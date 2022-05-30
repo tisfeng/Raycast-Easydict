@@ -100,7 +100,7 @@ export interface TranslateSourceResult {
 export interface TranslateReformatResult {
   queryTextInfo: QueryTextInfo;
   translations: TranslationItem[];
-  details?: string[];
+  explanations?: string[];
   forms?: YoudaoTranslateResultBasicFormsItem[];
   webTranslation?: TranslateResultKeyValueItem;
   webPhrases?: TranslateResultKeyValueItem[];
