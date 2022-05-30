@@ -33,14 +33,16 @@ import {
 } from "./shared.func";
 import {
   BaiduRequestStateCode,
+  getBaiduErrorInfo,
+  getYoudaoErrorInfo,
+  requestStateCodeLinkMap,
   SectionType,
   TranslationType,
   YoudaoRequestStateCode,
 } from "./consts";
 import axios from "axios";
 
-let fetchResultStateCode = "-1";
-let requestResultState: RequestResultState = {};
+let requestResultState: RequestResultState;
 
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
@@ -52,7 +54,6 @@ export default function () {
   const [searchText, updateSearchText] = useState<string>();
 
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
-
   const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
 
   const preferences: IPreferences = getPreferenceValues();
@@ -106,10 +107,10 @@ export default function () {
         // success return code: 0 undefined null
 
         const youdaoErrorCode = youdaoRes.data.errorCode;
-        console.log("error code: ", youdaoErrorCode);
+        console.log("youdao error code: ", youdaoErrorCode);
 
-        const baiduErrorCode = baiduRes.data.errorCode;
-        console.log("error code: ", baiduErrorCode);
+        const baiduErrorCode = baiduRes.data.error_code;
+        console.log("baidu error code: ", baiduErrorCode);
 
         if (
           youdaoRes.data.errorCode ===
@@ -118,29 +119,26 @@ export default function () {
             BaiduRequestStateCode.AccessFrequencyLimited.toString()
         ) {
           delayUpdateTargetLanguageTimer = setTimeout(() => {
-            console.log(
-              "--> error_code: ",
-              youdaoRes.data.error_code || baiduRes.data.error_code
-            );
+            console.log("--> error_code: ", youdaoErrorCode || baiduErrorCode);
             translate(fromLanguage, targetLanguage);
           }, delayRequestTime);
           return;
         }
 
-        if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
-          fetchResultStateCode = youdaoErrorCode;
-          requestResultState.youdaoStateCode = youdaoErrorCode;
-        }
+        requestResultState = {
+          type: TranslationType.Youdao,
+          errorInfo: getYoudaoErrorInfo(youdaoErrorCode),
+        };
         if (baiduErrorCode) {
-          fetchResultStateCode = baiduErrorCode;
-          requestResultState.baiduStateCode = baiduErrorCode;
+          requestResultState = {
+            type: TranslationType.Baidu,
+            errorInfo: getBaiduErrorInfo(baiduErrorCode),
+          };
         }
         console.log(
           "requestResultState translate: ",
           JSON.stringify(requestResultState)
         );
-
-        console.log("fetchResultStateCode: ", fetchResultStateCode);
 
         let youdaoTranslateResult = youdaoRes.data;
         let baiduTranslateResult = baiduRes.data;
@@ -170,9 +168,6 @@ export default function () {
         }
 
         updateLoadingState(false);
-        requestResultState.youdaoStateCode =
-          YoudaoRequestStateCode.Success.toString();
-        fetchResultStateCode = YoudaoRequestStateCode.Success.toString();
         updateTranslateDisplayResult(
           reformatTranslateDisplayResult(reformatResult)
         );
@@ -431,73 +426,81 @@ export default function () {
       "requestResultState ListDetail: ",
       JSON.stringify(requestResultState)
     );
-    if (!requestResultState.youdaoStateCode) return null;
-    if (
-      requestResultState.youdaoStateCode ===
-        YoudaoRequestStateCode.Success.toString() &&
-      !requestResultState.baiduStateCode
-    ) {
-      // if (fetchResultStateCode === "-1") return null;
-      // if (fetchResultStateCode === "0") {
+    if (!requestResultState) return null;
+
+    const isYoudaoRequestError =
+      requestResultState.type === TranslationType.Youdao &&
+      requestResultState.errorInfo.errorCode !==
+        YoudaoRequestStateCode.Success.toString();
+
+    const isBaiduRequestError =
+      requestResultState.type === TranslationType.Baidu &&
+      requestResultState.errorInfo.errorCode !==
+        BaiduRequestStateCode.Success.toString();
+
+    if (isYoudaoRequestError || isBaiduRequestError) {
       return (
-        <Fragment>
-          {translateDisplayResult?.map((resultItem, idx) => {
-            return (
-              <List.Section key={idx} title={resultItem.sectionTitle}>
-                {resultItem.items?.map((item) => {
-                  return (
-                    <List.Item
-                      key={item.key}
-                      icon={{
-                        value: getListItemIcon(resultItem.type),
-                        tooltip: item.tooltip || "",
-                      }}
-                      title={item.title}
-                      subtitle={item.subtitle}
-                      accessories={getWordAccessories(resultItem.type, item)}
-                      actions={
-                        <ListActionPanel
-                          isInstalledEudic={isInstalledEudic}
-                          queryText={searchText}
-                          copyText={item.copyText}
-                          currentFromLanguage={currentFromLanguageState}
-                          currentTargetLanguage={autoSelectedTargetLanguage}
-                          onLanguageUpdate={(value) => {
-                            updateAutoSelectedTargetLanguage(value);
-                            updateUserSelectedTargetLanguage(value);
-                            translate(
-                              currentFromLanguageState!.languageId,
-                              value.languageId
-                            );
-                          }}
-                        />
-                      }
-                    />
-                  );
-                })}
-              </List.Section>
-            );
-          })}
-        </Fragment>
+        <List.Item
+          title={`Network request error`}
+          subtitle={`${requestResultState.errorInfo.errorMessage}`}
+          accessories={[
+            { text: `Error code: ${requestResultState.errorInfo.errorCode}` },
+          ]}
+          icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+          actions={
+            <ActionPanel>
+              <Action.OpenInBrowser
+                title="See Error Code Meaning"
+                icon={Icon.QuestionMark}
+                url={requestStateCodeLinkMap.get(requestResultState.type)!}
+              />
+              <ActionFeedback />
+            </ActionPanel>
+          }
+        />
       );
     }
 
     return (
-      <List.Item
-        title={`Sorry, network request service error.`}
-        accessories={[{ text: `Error code: ${fetchResultStateCode}` }]}
-        icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
-        actions={
-          <ActionPanel>
-            <Action.OpenInBrowser
-              title="See Error Code Meaning"
-              icon={Icon.QuestionMark}
-              url="https://ai.youdao.com/DOCSIRMA/html/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E7%BF%BB%E8%AF%91/API%E6%96%87%E6%A1%A3/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1-API%E6%96%87%E6%A1%A3.html#section-11"
-            />
-            <ActionFeedback />
-          </ActionPanel>
-        }
-      />
+      <Fragment>
+        {translateDisplayResult?.map((resultItem, idx) => {
+          return (
+            <List.Section key={idx} title={resultItem.sectionTitle}>
+              {resultItem.items?.map((item) => {
+                return (
+                  <List.Item
+                    key={item.key}
+                    icon={{
+                      value: getListItemIcon(resultItem.type),
+                      tooltip: item.tooltip || "",
+                    }}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    accessories={getWordAccessories(resultItem.type, item)}
+                    actions={
+                      <ListActionPanel
+                        isInstalledEudic={isInstalledEudic}
+                        queryText={searchText}
+                        copyText={item.copyText}
+                        currentFromLanguage={currentFromLanguageState}
+                        currentTargetLanguage={autoSelectedTargetLanguage}
+                        onLanguageUpdate={(value) => {
+                          updateAutoSelectedTargetLanguage(value);
+                          updateUserSelectedTargetLanguage(value);
+                          translate(
+                            currentFromLanguageState!.languageId,
+                            value.languageId
+                          );
+                        }}
+                      />
+                    }
+                  />
+                );
+              })}
+            </List.Section>
+          );
+        })}
+      </Fragment>
     );
   }
 

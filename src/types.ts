@@ -1,4 +1,4 @@
-import { BaiduRequestStateCode, SectionType, TranslationType, YoudaoRequestStateCode } from "./consts";
+import { SectionType, TranslationType } from "./consts";
 
 export interface YoudaoTranslateResult {
   l: string;
@@ -56,9 +56,15 @@ export interface ListItemActionPanelItem {
 }
 
 export interface RequestResultState {
-  youdaoStateCode?: YoudaoRequestStateCode | string;
-  baiduStateCode?: BaiduRequestStateCode | string;
+  type: TranslationType;
+  errorInfo: RequestErrorInfo,
 }
+
+export interface RequestErrorInfo {
+  errorCode: string,
+  errorMessage: string,
+}
+
 
 export interface LanguageItem {
   languageId: string;

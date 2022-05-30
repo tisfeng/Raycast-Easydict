@@ -15,7 +15,6 @@ import {
   YoudaoTranslateReformatResult,
   YoudaoTranslateResult,
 } from "./types";
-import { resolve } from "path";
 
 export function truncate(string: string, length = 40, separator = "...") {
   if (string.length <= length) return string;
@@ -30,9 +29,8 @@ function isPreferredChinese(): boolean {
     preferences.language2.startsWith(lanuguageIdPrefix)
   ) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 export function getItemFromLanguageList(value: string): LanguageItem {
@@ -312,11 +310,11 @@ export function reformatTranslateDisplayResult(
   reformatResult: TranslateReformatResult
 ): TranslateDisplayResult[] {
   let displayResult: Array<TranslateDisplayResult> = [];
-  const isWord = reformatResult.queryTextInfo.isWord;
 
-  const isShowOnlyOneTranslation =
-    isWord ||
-    (reformatResult.details?.length && reformatResult.webPhrases?.length);
+  const isShowMultipleTranslations =
+    !reformatResult.queryTextInfo.isWord &&
+    reformatResult.details?.length &&
+    reformatResult.translations.length;
 
   const sectionTitleMap = new Map([
     [TranslationType.Youdao, "有道翻译"],
@@ -325,15 +323,14 @@ export function reformatTranslateDisplayResult(
   ]);
 
   for (const [i, translation] of reformatResult.translations.entries()) {
-    let sectionType = isShowOnlyOneTranslation
-      ? SectionType.Translation
-      : translation.type;
-    let sectionTitle: any = isShowOnlyOneTranslation
-      ? SectionType.Translation
-      : translation.type;
+    let sectionType = isShowMultipleTranslations
+      ? translation.type
+      : SectionType.Translation;
+    let sectionTitle: any = sectionType;
+
     let tooltip: string = translation.type;
 
-    if (!isShowOnlyOneTranslation) {
+    if (isShowMultipleTranslations) {
       if (isPreferredChinese()) {
         sectionTitle = sectionTitleMap.get(sectionTitle as TranslationType);
       }
@@ -355,7 +352,7 @@ export function reformatTranslateDisplayResult(
       ],
     });
 
-    if (isShowOnlyOneTranslation) {
+    if (!isShowMultipleTranslations) {
       break;
     }
   }

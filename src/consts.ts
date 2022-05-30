@@ -1,4 +1,4 @@
-import { LanguageItem } from "./types";
+import { LanguageItem, RequestErrorInfo } from "./types";
 
 export enum SectionType {
   Translation = "Translate",
@@ -15,6 +15,13 @@ export enum TranslationType {
   Caiyun = "Caiyun Translate",
 }
 
+export enum YoudaoRequestStateCode {
+  Success = "0",
+  AccessFrequencyLimited = "207",
+  InsufficientAccountBalance = "401",
+  TargetLanguageNotSupported = "102",
+}
+
 // https://fanyi-api.baidu.com/doc/21
 export enum BaiduRequestStateCode {
   Success = "52000",
@@ -23,12 +30,63 @@ export enum BaiduRequestStateCode {
   TargetLanguageNotSupported = "58001",
 }
 
-export enum YoudaoRequestStateCode {
-  Success = "0",
-  AccessFrequencyLimited = "207",
-  InsufficientAccountBalance = "401",
-  TargetLanguageNotSupported = "102",
+export const requestStateCodeLinkMap = new Map([
+  [TranslationType.Youdao, "https://ai.youdao.com/DOCSIRMA/html/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E7%BF%BB%E8%AF%91/API%E6%96%87%E6%A1%A3/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1-API%E6%96%87%E6%A1%A3.html#section-11"],
+  [TranslationType.Baidu, "https://fanyi-api.baidu.com/doc/21"],
+])
+
+export const youdaoErrorList: RequestErrorInfo[] = [
+  {
+    errorCode: YoudaoRequestStateCode.Success,
+    errorMessage: "Success",
+  },
+  {
+    errorCode: YoudaoRequestStateCode.AccessFrequencyLimited,
+    errorMessage: "Access frequency limited",
+  },
+  {
+    errorCode: YoudaoRequestStateCode.InsufficientAccountBalance,
+    errorMessage: "Insufficient account balance",
+  },
+  {
+    errorCode: YoudaoRequestStateCode.TargetLanguageNotSupported,
+    errorMessage: "Target language not supported",
+  },
+]
+
+export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
+  return youdaoErrorList.find(item => item.errorCode === errorCode) || {
+    errorCode,
+    errorMessage: "Unknown error",
+  }
 }
+
+export const baiduErrorList: RequestErrorInfo[] = [
+  {
+    errorCode: BaiduRequestStateCode.Success,
+    errorMessage: "Success",
+  },
+  {
+    errorCode: BaiduRequestStateCode.AccessFrequencyLimited,
+    errorMessage: "Access frequency limited",
+  },
+  {
+    errorCode: BaiduRequestStateCode.InsufficientAccountBalance,
+    errorMessage: "Insufficient account balance",
+  },
+  {
+    errorCode: BaiduRequestStateCode.TargetLanguageNotSupported,
+    errorMessage: "Target language not supported",
+  },
+]
+
+export function getBaiduErrorInfo(errorCode: string): RequestErrorInfo {
+  return baiduErrorList.find(item => item.errorCode === errorCode) || {
+    errorCode,
+    errorMessage: "Unknown error",
+  }
+}
+
 
 export const LANGUAGE_LIST: LanguageItem[] = [
   {
