@@ -105,10 +105,11 @@ export default function () {
     requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
       axios.spread((youdaoRes: any, baiduRes: any, caiyunRes: any) => {
         // success return code: 0 undefined null
-
         const youdaoErrorCode = youdaoRes.data.errorCode;
         const baiduErrorCode = baiduRes.data.error_code;
         console.log("error code: ", youdaoErrorCode, baiduErrorCode);
+        console.log("youdaoRes: ", youdaoRes.data);
+        console.log("baiduRes: ", baiduRes.data);
 
         if (
           youdaoErrorCode ===
@@ -123,17 +124,26 @@ export default function () {
           return;
         }
 
-        // todo: 需要添加参数异常错误处理，防止用户AppId错误等导致的异常
-
+        // 需要添加参数异常错误处理，防止用户AppID错误等导致的问题
         requestResultState = {
           type: TranslationType.Youdao,
           errorInfo: getYoudaoErrorInfo(youdaoErrorCode),
         };
+        if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
+          displayRequestErrorInfo();
+          return;
+        }
+
         if (baiduErrorCode) {
           requestResultState = {
             type: TranslationType.Baidu,
-            errorInfo: getBaiduErrorInfo(baiduErrorCode),
+            errorInfo: {
+              errorCode: baiduErrorCode,
+              errorMessage: baiduRes.data.error_msg,
+            },
           };
+          displayRequestErrorInfo();
+          return;
         }
 
         let youdaoTranslateResult = youdaoRes.data;
@@ -178,6 +188,12 @@ export default function () {
         updateCurrentFromLanguageState(getItemFromLanguageList(from));
       })
     );
+  }
+
+  // function: display error info when request API failed
+  function displayRequestErrorInfo() {
+    updateLoadingState(false);
+    updateTranslateDisplayResult([]);
   }
 
   // function: save last Clipboard text and timestamp
@@ -438,13 +454,20 @@ export default function () {
       requestResultState.errorInfo.errorCode !==
         BaiduRequestStateCode.Success.toString();
 
+    let errorTitle = "Network Request Error:";
+    if (isYoudaoRequestError) {
+      errorTitle = "Youdao Request Error:";
+    } else if (isBaiduRequestError) {
+      errorTitle = "Baidu Request Error:";
+    }
+
     if (isYoudaoRequestError || isBaiduRequestError) {
       return (
         <List.Item
-          title={`Network request error`}
+          title={errorTitle}
           subtitle={`${requestResultState.errorInfo.errorMessage}`}
           accessories={[
-            { text: `Error code: ${requestResultState.errorInfo.errorCode}` },
+            { text: `Error Code: ${requestResultState.errorInfo.errorCode}` },
           ]}
           icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
           actions={

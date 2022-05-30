@@ -60,35 +60,7 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
   return (
     youdaoErrorList.find((item) => item.errorCode === errorCode) || {
       errorCode,
-      errorMessage: "Unknown error",
-    }
-  );
-}
-
-export const baiduErrorList: RequestErrorInfo[] = [
-  {
-    errorCode: BaiduRequestStateCode.Success,
-    errorMessage: "Success",
-  },
-  {
-    errorCode: BaiduRequestStateCode.AccessFrequencyLimited,
-    errorMessage: "Access frequency limited",
-  },
-  {
-    errorCode: BaiduRequestStateCode.InsufficientAccountBalance,
-    errorMessage: "Insufficient account balance",
-  },
-  {
-    errorCode: BaiduRequestStateCode.TargetLanguageNotSupported,
-    errorMessage: "Target language not supported",
-  },
-];
-
-export function getBaiduErrorInfo(errorCode: string): RequestErrorInfo {
-  return (
-    baiduErrorList.find((item) => item.errorCode === errorCode) || {
-      errorCode,
-      errorMessage: "Unknown error",
+      errorMessage: "null",
     }
   );
 }

@@ -245,7 +245,7 @@
       "name": "youdaoAppId",
       "type": "password",
       "required": false,
-      "description": "Your Youdao App Id",
+      "description": "Your Youdao App ID",
       "default": "0a874cc6e77b666d"
     },
     {
