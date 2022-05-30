@@ -37,11 +37,14 @@ export interface YoudaoTranslateReformatResultItem {
   examTypes?: string[];
 }
 
-export interface IPreferences {
+export interface Preferences {
   language1: string;
   language2: string;
-  appId: string;
-  appKey: string;
+  youdaoAppId: string;
+  youdaoAppSecret: string;
+  baiduAppId: string;
+  baiduAppSecret: string;
+  caiyunAppToken: string;
   isAutomaticQueryClipboard: boolean;
   isDisplayTargetTranslationLanguage: boolean;
 }
@@ -57,14 +60,13 @@ export interface ListItemActionPanelItem {
 
 export interface RequestResultState {
   type: TranslationType;
-  errorInfo: RequestErrorInfo,
+  errorInfo: RequestErrorInfo;
 }
 
 export interface RequestErrorInfo {
-  errorCode: string,
-  errorMessage: string,
+  errorCode: string;
+  errorMessage: string;
 }
-
 
 export interface LanguageItem {
   youdaoLanguageId: string;

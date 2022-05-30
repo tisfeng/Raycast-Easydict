@@ -2,7 +2,7 @@ import { Component } from "react";
 import { exec, execFile } from "child_process";
 import { LANGUAGE_LIST } from "./consts";
 import { truncate } from "./shared.func";
-import { ListItemActionPanelItem, IPreferences } from "./types";
+import { ListItemActionPanelItem, Preferences } from "./types";
 import {
   Action,
   ActionPanel,
@@ -13,7 +13,7 @@ import {
   Toast,
 } from "@raycast/api";
 
-const preferences: IPreferences = getPreferenceValues();
+const preferences: Preferences = getPreferenceValues();
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 

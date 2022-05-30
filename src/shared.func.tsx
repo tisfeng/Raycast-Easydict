@@ -6,7 +6,7 @@ import { LANGUAGE_LIST, SectionType, TranslationType } from "./consts";
 
 import {
   LanguageItem,
-  IPreferences,
+  Preferences,
   QueryTextInfo,
   TranslateDisplayResult,
   TranslateReformatResult,
@@ -21,7 +21,7 @@ export function truncate(string: string, length = 40, separator = "...") {
 
 function isPreferredChinese(): boolean {
   const lanuguageIdPrefix = "zh";
-  const preferences: IPreferences = getPreferenceValues();
+  const preferences: Preferences = getPreferenceValues();
   if (
     preferences.language1.startsWith(lanuguageIdPrefix) ||
     preferences.language2.startsWith(lanuguageIdPrefix)
@@ -58,15 +58,15 @@ export function requestYoudaoAPI(
       : q.substring(0, 10) + len + q.substring(len - 10, len);
   }
 
-  const preferences: IPreferences = getPreferenceValues();
-  const APP_ID = preferences.appId;
-  const APP_KEY = preferences.appKey;
+  const preferences: Preferences = getPreferenceValues();
+  const AppId = preferences.youdaoAppId;
+  const AppSecret = preferences.youdaoAppSecret;
 
   const sha256 = crypto.createHash("sha256");
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const sha256Content =
-    APP_ID + truncate(queryText) + salt + timestamp + APP_KEY;
+    AppId + truncate(queryText) + salt + timestamp + AppSecret;
   const sign = sha256.update(sha256Content).digest("hex");
   const url = "https://openapi.youdao.com/api";
 
@@ -78,7 +78,7 @@ export function requestYoudaoAPI(
       from: fromLanguage,
       signType: "v3",
       q: queryText,
-      appKey: APP_ID,
+      appKey: AppId,
       curtime: timestamp,
       to: targetLanguage,
     })
@@ -95,11 +95,13 @@ export function requestBaiduAPI(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<any> {
-  const APP_ID = "20220428001194113";
-  const APP_KEY = "kiaee1BtT9d2MGJUdAMi";
+  const preferences: Preferences = getPreferenceValues();
+  const AppId = preferences.baiduAppId;
+  const AppSecret = preferences.baiduAppSecret;
+
   const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
-  const md5Content = APP_ID + queryText + salt + APP_KEY;
+  const md5Content = AppId + queryText + salt + AppSecret;
   const sign = md5.update(md5Content).digest("hex");
   const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
@@ -110,7 +112,7 @@ export function requestBaiduAPI(
 
   const url =
     apiServer +
-    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${APP_ID}&salt=${salt}&sign=${sign}`;
+    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${AppId}&salt=${salt}&sign=${sign}`;
 
   return axios.get(url);
 }
@@ -121,7 +123,9 @@ export function requestCaiyunAPI(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<any> {
-  const token = "izz99g9m50n4hpi71oke";
+  const preferences: Preferences = getPreferenceValues();
+  const AppToken = preferences.caiyunAppToken;
+
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
 
   const from = getItemFromLanguageList(fromLanguage).caiyunLanguageId || "auto";
@@ -145,7 +149,7 @@ export function requestCaiyunAPI(
     {
       headers: {
         "content-type": "application/json",
-        "x-authorization": "token " + token,
+        "x-authorization": "token " + AppToken,
       },
     }
   );

@@ -19,7 +19,7 @@ import {
 } from "@raycast/api";
 import {
   LanguageItem,
-  IPreferences,
+  Preferences,
   TranslateSourceResult,
   TranslateDisplayResult,
   YoudaoTranslateReformatResultItem,
@@ -56,7 +56,7 @@ export default function () {
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
   const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
 
-  const preferences: IPreferences = getPreferenceValues();
+  const preferences: Preferences = getPreferenceValues();
   const defaultLanguage1 = getItemFromLanguageList(preferences.language1);
   const defaultLanguage2 = getItemFromLanguageList(preferences.language2);
 
@@ -122,6 +122,8 @@ export default function () {
           }, delayRequestTime);
           return;
         }
+
+        // todo: 需要添加参数异常错误处理，防止用户AppId错误等导致的异常
 
         requestResultState = {
           type: TranslationType.Youdao,
