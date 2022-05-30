@@ -67,7 +67,7 @@ export interface RequestErrorInfo {
 
 
 export interface LanguageItem {
-  languageId: string;
+  youdaoLanguageId: string;
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
   languageTitle: string;

@@ -66,7 +66,7 @@ export default function () {
   // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
   const clipboardQueryInterval = 60 * 1000;
 
-  if (defaultLanguage1.languageId === defaultLanguage2.languageId) {
+  if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
     return (
       <List>
         <List.Item
@@ -227,14 +227,14 @@ export default function () {
     const chineseLanguageId = "zh-CHS";
     if (
       isEnglishOrNumber(inputText) &&
-      (defaultLanguage1.languageId === englishLanguageId ||
-        defaultLanguage2.languageId === englishLanguageId)
+      (defaultLanguage1.youdaoLanguageId === englishLanguageId ||
+        defaultLanguage2.youdaoLanguageId === englishLanguageId)
     ) {
       fromLanguageId = englishLanguageId;
     } else if (
       isContainChinese(inputText) &&
-      (defaultLanguage1.languageId === chineseLanguageId ||
-        defaultLanguage2.languageId === chineseLanguageId)
+      (defaultLanguage1.youdaoLanguageId === chineseLanguageId ||
+        defaultLanguage2.youdaoLanguageId === chineseLanguageId)
     ) {
       fromLanguageId = chineseLanguageId;
     }
@@ -248,19 +248,19 @@ export default function () {
     accordingLanguageId: string
   ): string {
     let targetLanguageId = "auto";
-    if (accordingLanguageId === defaultLanguage1.languageId) {
-      targetLanguageId = defaultLanguage2.languageId;
-    } else if (accordingLanguageId === defaultLanguage2.languageId) {
-      targetLanguageId = defaultLanguage1.languageId;
+    if (accordingLanguageId === defaultLanguage1.youdaoLanguageId) {
+      targetLanguageId = defaultLanguage2.youdaoLanguageId;
+    } else if (accordingLanguageId === defaultLanguage2.youdaoLanguageId) {
+      targetLanguageId = defaultLanguage1.youdaoLanguageId;
     }
 
     const targetLanguage = getItemFromLanguageList(targetLanguageId);
     updateAutoSelectedTargetLanguage(targetLanguage);
 
     console.log(
-      `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.languageId}`
+      `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`
     );
-    return targetLanguage.languageId;
+    return targetLanguage.youdaoLanguageId;
   }
 
   async function traverseAllInstalledApplications() {
@@ -321,7 +321,7 @@ export default function () {
       );
 
       // priority to use user selected target language
-      let tartgetLanguageId = userSelectedTargetLanguage.languageId;
+      let tartgetLanguageId = userSelectedTargetLanguage.youdaoLanguageId;
       // if conflict, use auto selected target language
       if (currentLanguageId === tartgetLanguageId) {
         tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
@@ -488,8 +488,8 @@ export default function () {
                           updateAutoSelectedTargetLanguage(value);
                           updateUserSelectedTargetLanguage(value);
                           translate(
-                            currentFromLanguageState!.languageId,
-                            value.languageId
+                            currentFromLanguageState!.youdaoLanguageId,
+                            value.youdaoLanguageId
                           );
                         }}
                       />

@@ -39,7 +39,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
     if (language && text) {
       const voiceIndex = 0;
       for (const LANG of LANGUAGE_LIST) {
-        if (language === LANG.languageId) {
+        if (language === LANG.youdaoLanguageId) {
           const escapeText = truncate(text)
             .replace(/'/g, " ")
             .replace(/"/g, " ");
@@ -54,10 +54,10 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
   getGoogleTranslateURL(): string {
     const from =
       this.props.currentFromLanguage?.googleLanguageId ||
-      this.props.currentFromLanguage?.languageId;
+      this.props.currentFromLanguage?.youdaoLanguageId;
     const to =
       this.props.currentTargetLanguage?.googleLanguageId ||
-      this.props.currentTargetLanguage?.languageId;
+      this.props.currentTargetLanguage?.youdaoLanguageId;
     const text = encodeURI(this.props.queryText!);
     return `https://translate.google.cn/?sl=${from}&tl=${to}&text=${text}&op=translate`;
   }
@@ -128,7 +128,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             onAction={() =>
               this.onPlaySound(
                 this.props?.queryText,
-                this.props.currentFromLanguage?.languageId
+                this.props.currentFromLanguage?.youdaoLanguageId
               )
             }
           />
@@ -138,7 +138,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             onAction={() =>
               this.onPlaySound(
                 this.props.copyText,
-                this.props.currentTargetLanguage?.languageId
+                this.props.currentTargetLanguage?.youdaoLanguageId
               )
             }
           />
@@ -148,18 +148,19 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           <ActionPanel.Section title="Target Language">
             {LANGUAGE_LIST.map((region) => {
               if (
-                this.props.currentFromLanguage?.languageId === region.languageId
+                this.props.currentFromLanguage?.youdaoLanguageId ===
+                region.youdaoLanguageId
               )
                 return null;
 
               return (
                 <Action
-                  key={region.languageId}
+                  key={region.youdaoLanguageId}
                   title={region.languageTitle}
                   onAction={() => this.props.onLanguageUpdate(region)}
                   icon={
-                    this.props.currentTargetLanguage?.languageId ===
-                    region.languageId
+                    this.props.currentTargetLanguage?.youdaoLanguageId ===
+                    region.youdaoLanguageId
                       ? Icon.ArrowRight
                       : Icon.Globe
                   }

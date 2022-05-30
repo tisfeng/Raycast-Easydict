@@ -35,13 +35,13 @@ function isPreferredChinese(): boolean {
 
 export function getItemFromLanguageList(value: string): LanguageItem {
   for (const langItem of LANGUAGE_LIST) {
-    if (langItem.languageId === value) {
+    if (langItem.youdaoLanguageId === value) {
       return langItem;
     }
   }
 
   return {
-    languageId: "",
+    youdaoLanguageId: "",
     languageTitle: "",
     languageVoice: [""],
   };
