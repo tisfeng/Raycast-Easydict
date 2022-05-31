@@ -202,9 +202,10 @@ export default function () {
     let text = await Clipboard.readText();
     console.log("query clipboard text: " + text);
     if (text) {
-      const timestamp = await LocalStorage.getItem<number>(text);
+      const timestamp = (await LocalStorage.getItem<number>(text)) || 0;
       const now = new Date().getTime();
-      console.log(`timestamp: ${timestamp}, now: ${now}`);
+      console.log(`before: ${new Date(timestamp).toUTCString()}`);
+      console.log(`now:    ${new Date(now).toUTCString()}`);
       if (!timestamp || now - timestamp > clipboardQueryInterval) {
         text = text.trim();
         saveQueryClipboardRecord(text);

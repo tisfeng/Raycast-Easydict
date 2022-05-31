@@ -8,7 +8,7 @@ import { languageItemList } from "./consts";
 import { LanguageItem, MyPreferences } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
-export const clipboardQueryInterval = 60 * 1000;
+export const clipboardQueryInterval = 10 * 60 * 1000;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getItemFromLanguageList(
