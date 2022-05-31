@@ -2,9 +2,9 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "easy-dict",
   "title": "Easy Dictionary",
-  "description": "Easy to look up words or translate text.",
+  "description": "Look up words or translate text in an easy way, use it out of the box, support Youdao, Baidu and Caiyun translation API.",
   "icon": "eudic-icon.png",
-  "author": "tisfeng",
+  "author": "isfeng",
   "license": "MIT",
   "commands": [
     {
@@ -16,7 +16,17 @@
     }
   ],
   "categories": [
-    "Productivity"
+    "Productivity",
+    "Developer Tools",
+    "Web"
+  ],
+  "keywords": [
+    "dictionary",
+    "translate",
+    "youdao",
+    "eudic",
+    "baidu",
+    "caiyun"
   ],
   "preferences": [
     {
