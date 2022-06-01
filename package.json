@@ -256,7 +256,7 @@
       "type": "password",
       "required": false,
       "description": "Your Youdao App ID",
-      "default": "0a874cc6e77b666d"
+      "default": "17555d7e1ec6fdce"
     },
     {
       "title": "Youdao App Secret",
@@ -264,7 +264,7 @@
       "type": "password",
       "required": false,
       "description": "Your Youdao App Secret",
-      "default": "3AGpg1HB2VBZGYRWwSQfGwUfz1EHGKgt"
+      "default": "6tIP98TMTJIE6HqKsLpKQxlJWfJq4wgx"
     },
     {
       "title": "Baidu App ID",
