@@ -1,17 +1,13 @@
-# Easydict
+## What is Easydict?
 
-A Raycast Extension, Easy and elegant to look up words or translate text, especially optimized for English and Chinese words.
-
-## What is Easydict ?
-
-Easydict is an Easy Dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, and support 23 translation languages with the help of Youdao, Baidu and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support 23 translation languages with the help of Youdao, Baidu and Caiyun translation API.
 
 ![log](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/log.png)
 
 ## Features
 
-- [x] Out of the box，Easy to look up words or translate text.
-- [x] Beautiful and practical UI, and friendly UI interaction and prompts.
+- [x] Out of the box, easy to look up words or translate text.
+- [x] Beautiful and practical UI, friendly UI interaction and prompts.
 - [x] Automatically recognize the language type of your input text and translate it into the preferred language.
 - [x] Provide word rich query information, including basic translation, pronunciation, parts of speech, forms and tenses, web translations and web phrases.
 - [x] Show the types of exams that include the word, such as CET-4 and CET-6, TOEFL, IELTS, etc.
@@ -19,12 +15,16 @@ Easydict is an Easy Dictionary, for looking up words or translate text in an eas
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
 - [x] Support Text to Speech, aka TTS.
-- [x] Support for displaying multiple translation results，currently supports Youdao, Baidu and Caiyun translation API.
+- [x] Support for displaying multiple translation results, currently supports Youdao, Baidu and Caiyun translation API.
 - [x] Support 23 languages.
+
+
+Next:
+
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, 金山词霸, etc.
 - [ ] Support more translation API, such as Apple system translate, Google translate, etc.
 - [ ] Optimize the implementation of text to speech, current is simple call say shell command.
-- [ ] More Features are on the way...
+- [ ] More features are on the way...
 
 ![log-exam-action](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/log-exam-action.png)
 
@@ -40,7 +40,7 @@ Easydict is an Easy Dictionary, for looking up words or translate text in an eas
 
 
 
-Actually, it works well without you having to do any extra work. The next are some advanced documents for those who want to use `Easydic` better or understand how the extension works.
+Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydic` better or understand how the extension works.
 
 ![](https://github.com/tisfeng/ImageBed/blob/main/uPic/iShot_2022-06-01_10.57.00.png?raw=true)
 
@@ -73,7 +73,6 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 In order to better match the automatic clipboard query feature, it is a good idea to set a hotkey for `Easydic`, such as `Shift` + `Cmd ` + `E`, so that after copying the text, you can directly query words through the hotkey, which is very smooth and elegant. 
 In addition, to avoid frequently querying the same clipboard words, we set a `10 minute` limit, that is, if the latest word on the clipboard is automatically queried only once within 10 minutes, of course, you can manually paste and query at any time.
 </details>
-
 
 
 ### Display Target Translation Language
