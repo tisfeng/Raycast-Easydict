@@ -81,24 +81,14 @@ export function reformatTranslateDisplayResult(
     !reformatResult.webPhrases &&
     !reformatResult.webTranslation;
 
-  const sectionTitleMap = new Map([
-    [TranslationType.Youdao, "有道翻译"],
-    [TranslationType.Baidu, "百度翻译"],
-    [TranslationType.Caiyun, "彩云小译"],
-  ]);
-
   for (const [i, translation] of reformatResult.translations.entries()) {
     let sectionType = isShowMultipleTranslations
       ? translation.type
       : SectionType.Translation;
     let sectionTitle: any = sectionType;
-
     let tooltip: string = translation.type;
 
     if (isShowMultipleTranslations) {
-      if (isPreferredChinese()) {
-        sectionTitle = sectionTitleMap.get(sectionTitle as TranslationType);
-      }
       tooltip = "";
     }
 
