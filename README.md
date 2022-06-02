@@ -14,7 +14,7 @@
 - [x] Support automatic query clipboard text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
-- [x] Support Text to Speech(aka TTS). 
+- [x] Support Text to Speech(aka TTS).
 - [x] Support shortcut `Cmd`+`S` to quickly play the pronunciation of query words.
 - [x] Support for displaying multiple translation results, currently supports Youdao, Baidu and Caiyun translation API.
 - [x] Support 23 languages.
