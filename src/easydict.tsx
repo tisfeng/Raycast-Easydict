@@ -15,6 +15,7 @@ import {
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
+  maxInputTextLength,
   requestStateCodeLinkMap,
   TranslationType,
   YoudaoRequestStateCode,
@@ -191,6 +192,7 @@ export default function () {
 
   function queryClipboardText(text: string) {
     text = text.trim();
+    text = text.substring(0, maxInputTextLength);
     saveQueryClipboardRecord(text);
     updateSearchText(text);
     updateInputText(text);
@@ -315,7 +317,7 @@ export default function () {
   function onInputChangeEvent(text: string) {
     updateInputText(text);
 
-    const trimText = text.trim();
+    let trimText = text.trim();
     if (trimText.length == 0) {
       updateLoadingState(false);
       updateTranslateDisplayResult([]);
@@ -327,6 +329,7 @@ export default function () {
     // start delay timer for fetch translate API
     if (trimText.length > 0 && trimText !== searchText) {
       delayFetchTranslateAPITimer = setTimeout(() => {
+        trimText = trimText.substring(0, maxInputTextLength);
         updateSearchText(trimText);
       }, delayRequestTime);
     }

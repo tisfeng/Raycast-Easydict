@@ -2,6 +2,9 @@ import { LanguageItem, RequestErrorInfo } from "./types";
 
 export const clipboardQueryTextKey = "clipboardQueryTextKey";
 
+// 百度翻译： query 长度：为保证翻译质量，请将单次请求长度控制在 6000 bytes以内（汉字约为输入参数 2000 个）
+export const maxInputTextLength = 2000;
+
 export enum SectionType {
   Translation = "Translate",
   Explanations = "Explanation",
