@@ -140,3 +140,14 @@ export interface TranslateDisplayItem {
   examTypes?: string[];
   translationType?: TranslationType;
 }
+
+export interface ClipboardRecoredItem {
+  key: string;
+  vale: string;
+}
+
+export interface QueryRecoredItem {
+  timestamp: number;
+  queryText: string;
+  result?: string;
+}

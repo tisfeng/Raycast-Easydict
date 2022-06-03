@@ -5,15 +5,7 @@ import {
   getWordAccessories,
   ListActionPanel,
 } from "./components";
-import {
-  Action,
-  ActionPanel,
-  Clipboard,
-  Color,
-  Icon,
-  List,
-  LocalStorage,
-} from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
 import {
   LanguageItem,
   TranslateSourceResult,
@@ -30,13 +22,13 @@ import {
 import axios from "axios";
 import {
   checkIsInstalledEudic,
-  clipboardQueryInterval,
   defaultLanguage1,
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getInputTextLanguageId,
   getItemFromLanguageList,
   saveQueryClipboardRecord,
+  tryQueryClipboardText,
 } from "./utils";
 import { requestAllTranslateAPI } from "./request";
 import {
@@ -197,22 +189,11 @@ export default function () {
     updateTranslateDisplayResult([]);
   }
 
-  // function: query the clipboard text from LocalStorage
-  async function queryClipboardText() {
-    let text = await Clipboard.readText();
-    console.log("query clipboard text: " + text);
-    if (text) {
-      const timestamp = (await LocalStorage.getItem<number>(text)) || 0;
-      const now = new Date().getTime();
-      console.log(`before: ${new Date(timestamp).toUTCString()}`);
-      console.log(`now:    ${new Date(now).toUTCString()}`);
-      if (!timestamp || now - timestamp > clipboardQueryInterval) {
-        text = text.trim();
-        saveQueryClipboardRecord(text);
-        updateSearchText(text);
-        updateInputText(text);
-      }
-    }
+  function queryClipboardText(text: string) {
+    text = text.trim();
+    saveQueryClipboardRecord(text);
+    updateSearchText(text);
+    updateInputText(text);
   }
 
   useEffect(() => {
@@ -241,7 +222,7 @@ export default function () {
     }
 
     if (!searchText) {
-      queryClipboardText();
+      tryQueryClipboardText(queryClipboardText);
     }
   }, [searchText]);
 

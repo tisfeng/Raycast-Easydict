@@ -1,5 +1,7 @@
 import { LanguageItem, RequestErrorInfo } from "./types";
 
+export const clipboardQueryTextKey = "clipboardQueryTextKey";
+
 export enum SectionType {
   Translation = "Translate",
   Explanations = "Explanation",

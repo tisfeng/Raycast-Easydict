@@ -1,11 +1,12 @@
 import {
+  Clipboard,
   getApplications,
   getPreferenceValues,
   LocalStorage,
 } from "@raycast/api";
 import { eudicBundleId } from "./components";
-import { languageItemList } from "./consts";
-import { LanguageItem, MyPreferences } from "./types";
+import { clipboardQueryTextKey, languageItemList } from "./consts";
+import { LanguageItem, MyPreferences, QueryRecoredItem } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -49,9 +50,43 @@ export function getItemFromLanguageList(value: string): LanguageItem {
   };
 }
 
+ // function: query the clipboard text from LocalStorage
+ export async function tryQueryClipboardText(queryClipboardText: (text: string) => void) {
+  let text = await Clipboard.readText();
+  console.log("query clipboard text: " + text);
+  if (text) {
+    const jsonString = await LocalStorage.getItem<string>(
+      clipboardQueryTextKey
+    );
+    console.log("query jsonString: " + jsonString);
+    if (!jsonString) {
+      queryClipboardText(text);
+    }
+
+    if (jsonString) {
+      const queryRecoredItem: QueryRecoredItem = JSON.parse(jsonString);
+      const timestamp = queryRecoredItem.timestamp;
+      const queryText = queryRecoredItem.queryText;
+      if (queryText === text) {
+        const now = new Date().getTime();
+        console.log(`before: ${new Date(timestamp).toUTCString()}`);
+        console.log(`now:    ${new Date(now).toUTCString()}`);
+        if (!timestamp || now - timestamp > clipboardQueryInterval) {
+          queryClipboardText(text);
+        }
+      } else {
+        queryClipboardText(text);
+      }
+    }
+  }
+}
+
 // function: save last Clipboard text and timestamp
 export function saveQueryClipboardRecord(text: string) {
-  LocalStorage.setItem(text, new Date().getTime());
+  const jsonString: string = JSON.stringify({queryText: text, timestamp: new Date().getTime()});
+  LocalStorage.setItem(clipboardQueryTextKey, jsonString);
+
+  console.log("saveQueryClipboardRecord: " + jsonString);
 }
 
 // function: remove all punctuation from the text
