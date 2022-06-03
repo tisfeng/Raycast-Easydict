@@ -12,10 +12,10 @@ import { LanguageItem, MyPreferences, QueryRecoredItem } from "./types";
 export const clipboardQueryInterval = 10 * 60 * 1000;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const defaultLanguage1 = getItemFromLanguageList(
+export const defaultLanguage1 = getLanguageItemFromList(
   myPreferences.language1
 );
-export const defaultLanguage2 = getItemFromLanguageList(
+export const defaultLanguage2 = getLanguageItemFromList(
   myPreferences.language2
 );
 
@@ -36,9 +36,11 @@ export function isPreferredChinese(): boolean {
   return false;
 }
 
-export function getItemFromLanguageList(value: string): LanguageItem {
+export function getLanguageItemFromList(
+  youdaoLanguageId: string
+): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.youdaoLanguageId === value) {
+    if (langItem.youdaoLanguageId === youdaoLanguageId) {
       return langItem;
     }
   }
@@ -50,8 +52,67 @@ export function getItemFromLanguageList(value: string): LanguageItem {
   };
 }
 
- // function: query the clipboard text from LocalStorage
- export async function tryQueryClipboardText(queryClipboardText: (text: string) => void) {
+function getAnotherLanguageItem(
+  from: LanguageItem,
+  to: LanguageItem
+): LanguageItem {
+  const zh = "zh-CHS";
+  if (from.youdaoLanguageId === zh) {
+    return to;
+  } else {
+    return from;
+  }
+}
+
+export function getEudicWebTranslateURL(
+  queryText: string,
+  from: LanguageItem,
+  to: LanguageItem
+): string {
+  const eudicWebLanguageId = getAnotherLanguageItem(
+    from,
+    to
+  ).eudicWebLanguageId;
+  if (eudicWebLanguageId) {
+    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(
+      queryText
+    )}`;
+  }
+  return "";
+}
+
+export function getYoudaoWebTranslateURL(
+  queryText: string,
+  from: LanguageItem,
+  to: LanguageItem
+): string {
+  const youdaoWebLanguageId = getAnotherLanguageItem(
+    from,
+    to
+  ).youdaoWebLanguageId;
+  if (youdaoWebLanguageId) {
+    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(
+      queryText
+    )}`;
+  }
+  return "";
+}
+
+export function getGoogleTranslateURL(
+  queryText: string,
+  from: LanguageItem,
+  to: LanguageItem
+): string {
+  const fromLanguageId = from.googleLanguageId || from.youdaoLanguageId;
+  const toLanguageId = to.googleLanguageId || to.youdaoLanguageId;
+  const text = encodeURI(queryText!);
+  return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
+}
+
+// function: query the clipboard text from LocalStorage
+export async function tryQueryClipboardText(
+  queryClipboardText: (text: string) => void
+) {
   let text = await Clipboard.readText();
   console.log("query clipboard text: " + text);
   if (text) {
@@ -83,7 +144,10 @@ export function getItemFromLanguageList(value: string): LanguageItem {
 
 // function: save last Clipboard text and timestamp
 export function saveQueryClipboardRecord(text: string) {
-  const jsonString: string = JSON.stringify({queryText: text, timestamp: new Date().getTime()});
+  const jsonString: string = JSON.stringify({
+    queryText: text,
+    timestamp: new Date().getTime(),
+  });
   LocalStorage.setItem(clipboardQueryTextKey, jsonString);
 
   console.log("saveQueryClipboardRecord: " + jsonString);
@@ -161,7 +225,7 @@ export function getAutoSelectedTargetLanguageId(
     targetLanguageId = defaultLanguage1.youdaoLanguageId;
   }
 
-  const targetLanguage = getItemFromLanguageList(targetLanguageId);
+  const targetLanguage = getLanguageItemFromList(targetLanguageId);
 
   console.log(
     `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`
