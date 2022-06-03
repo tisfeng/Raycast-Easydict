@@ -1,4 +1,4 @@
-## What is Easydict?  【[中文简介](https://github.com/tisfeng/Raycast-Easydict/wiki/Easydict-%E4%B8%AD%E6%96%87%E7%AE%80%E4%BB%8B)】
+## What is Easydict?  [【中文简介】](https://github.com/tisfeng/Raycast-Easydict/wiki/Easydict-%E4%B8%AD%E6%96%87%E7%AE%80%E4%BB%8B)
 
 `Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support 23 translation languages with the help of Youdao, Baidu and Caiyun translation API.
 
@@ -99,4 +99,4 @@ This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-P
 
 Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered. 
 
-In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR, or in [discussions](https://github.com/tisfeng/Raycast-Eas Ydict/discussions) Let's have a brief discussion to avoid conflicts between PR and the features I am currently developing. Thank you.
+In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR, or in [discussions](https://github.com/tisfeng/Raycast-Easydict/discussions) Let's have a brief discussion to avoid conflicts between PR and the features I am currently developing. Thank you.
