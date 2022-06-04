@@ -33,7 +33,11 @@ import {
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
-import { requestAllTranslateAPI } from "./request";
+import {
+  aliyunLanguageDetect,
+  requestAllTranslateAPI,
+  tencentLanguageDetect,
+} from "./request";
 import {
   reformatTranslateDisplayResult,
   reformatTranslateResult,
@@ -224,6 +228,24 @@ export default function () {
         console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
       }
       translate(currentLanguageId, tartgetLanguageId);
+
+      tencentLanguageDetect(searchText).then(
+        (data) => {
+          console.log("tencent language detect: ", data);
+        },
+        (err) => {
+          console.error("tencent language detect error: ", err);
+        }
+      );
+
+      // aliyunLanguageDetect(searchText).then(
+      //   (data) => {
+      //     console.log("aliyun language detect: ", data);
+      //   },
+      //   (err) => {
+      //     console.error("aliyun language detect error: ", err);
+      //   }
+      // );
 
       return;
     }

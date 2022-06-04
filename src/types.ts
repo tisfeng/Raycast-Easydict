@@ -74,13 +74,15 @@ export interface RequestErrorInfo {
 
 export interface LanguageItem {
   youdaoLanguageId: string;
-  youdaoWebLanguageId?: string;
-  eudicWebLanguageId?: string;
+  aliyunLanguageId: string;
+  tencentLanguageId?: string;
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
   languageTitle: string;
   languageVoice: string[];
   googleLanguageId?: string;
+  youdaoWebLanguageId?: string;
+  eudicWebLanguageId?: string;
 }
 
 export interface BaiduTranslateResult {

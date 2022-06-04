@@ -292,8 +292,10 @@
     }
   ],
   "dependencies": {
+    "@alicloud/alimt20181012": "^1.0.3",
     "@raycast/api": "^1.35.1",
-    "axios": "^0.25.0"
+    "axios": "^0.25.0",
+    "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
   "devDependencies": {
     "@types/node": "~16.10.0",

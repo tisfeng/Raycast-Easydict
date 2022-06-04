@@ -2,6 +2,35 @@ import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
 import { getLanguageItemFromList, myPreferences } from "./utils";
+import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
+import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
+
+export function tencentLanguageDetect(
+  text: string
+): Promise<LanguageDetectResponse> {
+  const TmtClient = tencentcloud.tmt.v20180321.Client;
+
+  const clientConfig = {
+    credential: {
+      secretId: "AKIDHOIxOZUAalhNp2zh9LIzQbXEfroVxA8r",
+      secretKey: "VkmY5NQEm47vTnVzEDxRgfOs89vSlpeF",
+    },
+    region: "ap-guangzhou",
+    profile: {
+      httpProfile: {
+        endpoint: "tmt.tencentcloudapi.com",
+      },
+    },
+  };
+
+  const client = new TmtClient(clientConfig);
+  const params = {
+    Text: text, //"Le sourire",
+    ProjectId: 1265458,
+  };
+
+  return client.LanguageDetect(params);
+}
 
 // concurrent request for multiple translation interfaces
 export function requestAllTranslateAPI(
