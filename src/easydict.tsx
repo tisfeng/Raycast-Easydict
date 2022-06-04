@@ -33,11 +33,7 @@ import {
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
-import {
-  aliyunLanguageDetect,
-  requestAllTranslateAPI,
-  tencentLanguageDetect,
-} from "./request";
+import { requestAllTranslateAPI, tencentLanguageDetect } from "./request";
 import {
   reformatTranslateDisplayResult,
   reformatTranslateResult,
@@ -80,20 +76,20 @@ export default function () {
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
      */
-  const [currentFromLanguageState, updateCurrentFromLanguageState] =
+  const [currentFromLanguageItem, updateCurrentFromLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
 
   /*
     default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
     */
-  const [autoSelectedTargetLanguage, updateAutoSelectedTargetLanguage] =
+  const [autoSelectedTargetLanguageItem, updateAutoSelectedTargetLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
 
   /*
     the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
     */
-  const [userSelectedTargetLanguage, updateUserSelectedTargetLanguage] =
-    useState<LanguageItem>(autoSelectedTargetLanguage);
+  const [userSelectedTargetLanguageItem, updateUserSelectedTargetLanguageItem] =
+    useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
   function translate(fromLanguage: string, targetLanguage: string) {
     requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
@@ -174,7 +170,7 @@ export default function () {
         const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
-          updateAutoSelectedTargetLanguage(getLanguageItemFromList(target));
+          updateAutoSelectedTargetLanguageItem(getLanguageItemFromList(target));
           translate(from, target);
           return;
         }
@@ -183,7 +179,7 @@ export default function () {
         updateTranslateDisplayResult(
           reformatTranslateDisplayResult(reformatResult)
         );
-        updateCurrentFromLanguageState(getLanguageItemFromList(from));
+        updateCurrentFromLanguageItem(getLanguageItemFromList(from));
 
         checkIsInstalledEudic(updateIsInstalledEudic);
       })
@@ -209,43 +205,19 @@ export default function () {
       updateLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
 
-      const currentLanguageId = getInputTextLanguageId(searchText);
-      console.log("currentLanguageId: ", currentLanguageId);
-      updateCurrentFromLanguageState(
-        getLanguageItemFromList(currentLanguageId)
-      );
-
-      // priority to use user selected target language
-      let tartgetLanguageId = userSelectedTargetLanguage.youdaoLanguageId;
-      console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
-
-      // if conflict, use auto selected target language
-      if (currentLanguageId === tartgetLanguageId) {
-        tartgetLanguageId = getAutoSelectedTargetLanguageId(currentLanguageId);
-        updateAutoSelectedTargetLanguage(
-          getLanguageItemFromList(tartgetLanguageId)
-        );
-        console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
-      }
-      translate(currentLanguageId, tartgetLanguageId);
-
       tencentLanguageDetect(searchText).then(
         (data) => {
           console.log("tencent language detect: ", data);
+          const languageId = data.Lang || "auto";
+          translateFromLanguageId(languageId);
         },
         (err) => {
           console.error("tencent language detect error: ", err);
+
+          const currentLanguageId = getInputTextLanguageId(searchText);
+          translateFromLanguageId(currentLanguageId);
         }
       );
-
-      // aliyunLanguageDetect(searchText).then(
-      //   (data) => {
-      //     console.log("aliyun language detect: ", data);
-      //   },
-      //   (err) => {
-      //     console.error("aliyun language detect error: ", err);
-      //   }
-      // );
 
       return;
     }
@@ -254,6 +226,25 @@ export default function () {
       tryQueryClipboardText(queryClipboardText);
     }
   }, [searchText]);
+
+  function translateFromLanguageId(languageId: string) {
+    console.log("currentLanguageId: ", languageId);
+    updateCurrentFromLanguageItem(getLanguageItemFromList(languageId));
+
+    // priority to use user selected target language
+    let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
+    console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
+
+    // if conflict, use auto selected target language
+    if (languageId === tartgetLanguageId) {
+      tartgetLanguageId = getAutoSelectedTargetLanguageId(languageId);
+      updateAutoSelectedTargetLanguageItem(
+        getLanguageItemFromList(tartgetLanguageId)
+      );
+      console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
+    }
+    translate(languageId, tartgetLanguageId);
+  }
 
   function ListDetail() {
     if (!requestResultState) return null;
@@ -300,14 +291,14 @@ export default function () {
 
     let eudicWebUrl = getEudicWebTranslateURL(
       searchText || "",
-      currentFromLanguageState!,
-      autoSelectedTargetLanguage
+      currentFromLanguageItem!,
+      autoSelectedTargetLanguageItem
     );
 
     let youdaoWebUrl = getYoudaoWebTranslateURL(
       searchText || "",
-      currentFromLanguageState!,
-      autoSelectedTargetLanguage
+      currentFromLanguageItem!,
+      autoSelectedTargetLanguageItem
     );
 
     return (
@@ -335,13 +326,13 @@ export default function () {
                         youdaoWebUrl={youdaoWebUrl}
                         queryText={searchText}
                         copyText={item.copyText}
-                        currentFromLanguage={currentFromLanguageState}
-                        currentTargetLanguage={autoSelectedTargetLanguage}
+                        currentFromLanguage={currentFromLanguageItem}
+                        currentTargetLanguage={autoSelectedTargetLanguageItem}
                         onLanguageUpdate={(value) => {
-                          updateAutoSelectedTargetLanguage(value);
-                          updateUserSelectedTargetLanguage(value);
+                          updateAutoSelectedTargetLanguageItem(value);
+                          updateUserSelectedTargetLanguageItem(value);
                           translate(
-                            currentFromLanguageState!.youdaoLanguageId,
+                            currentFromLanguageItem!.youdaoLanguageId,
                             value.youdaoLanguageId
                           );
                         }}

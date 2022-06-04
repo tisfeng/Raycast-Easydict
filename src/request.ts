@@ -5,6 +5,7 @@ import { getLanguageItemFromList, myPreferences } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 
+// 接口请求频率限制：5次/秒。
 export function tencentLanguageDetect(
   text: string
 ): Promise<LanguageDetectResponse> {
@@ -25,7 +26,7 @@ export function tencentLanguageDetect(
 
   const client = new TmtClient(clientConfig);
   const params = {
-    Text: text, //"Le sourire",
+    Text: text,
     ProjectId: 1265458,
   };
 
@@ -84,10 +85,6 @@ export function requestYoudaoAPI(
       to: targetLanguage,
     })
   );
-}
-
-export function useSymbolSegmentationArrayText(textArray: string[]): string {
-  return textArray.join("；");
 }
 
 // 百度翻译API https://fanyi-api.baidu.com/doc/21

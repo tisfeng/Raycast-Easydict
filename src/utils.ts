@@ -47,6 +47,7 @@ export function getLanguageItemFromList(
 
   return {
     youdaoLanguageId: "",
+    aliyunLanguageId: "",
     languageTitle: "",
     languageVoice: [""],
   };
