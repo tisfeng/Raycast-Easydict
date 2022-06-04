@@ -12,10 +12,10 @@ import { LanguageItem, MyPreferences, QueryRecoredItem } from "./types";
 export const clipboardQueryInterval = 10 * 60 * 1000;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const defaultLanguage1 = getLanguageItemFromList(
+export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
   myPreferences.language1
 );
-export const defaultLanguage2 = getLanguageItemFromList(
+export const defaultLanguage2 = getLanguageItemFromYoudaoLanguageId(
   myPreferences.language2
 );
 
@@ -36,7 +36,7 @@ export function isPreferredChinese(): boolean {
   return false;
 }
 
-export function getLanguageItemFromList(
+export function getLanguageItemFromYoudaoLanguageId(
   youdaoLanguageId: string
 ): LanguageItem {
   for (const langItem of languageItemList) {
@@ -226,7 +226,7 @@ export function getAutoSelectedTargetLanguageId(
     targetLanguageId = defaultLanguage1.youdaoLanguageId;
   }
 
-  const targetLanguage = getLanguageItemFromList(targetLanguageId);
+  const targetLanguage = getLanguageItemFromYoudaoLanguageId(targetLanguageId);
 
   console.log(
     `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`

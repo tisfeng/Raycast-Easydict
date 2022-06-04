@@ -28,12 +28,16 @@ import {
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
   getInputTextLanguageId,
-  getLanguageItemFromList,
+  getLanguageItemFromYoudaoLanguageId,
   getYoudaoWebTranslateURL,
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
-import { requestAllTranslateAPI, tencentLanguageDetect } from "./request";
+import {
+  requestAllTranslateAPI,
+  tencentTextTranslate,
+  tencentLanguageDetect,
+} from "./request";
 import {
   reformatTranslateDisplayResult,
   reformatTranslateResult,
@@ -170,7 +174,9 @@ export default function () {
         const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
-          updateAutoSelectedTargetLanguageItem(getLanguageItemFromList(target));
+          updateAutoSelectedTargetLanguageItem(
+            getLanguageItemFromYoudaoLanguageId(target)
+          );
           translate(from, target);
           return;
         }
@@ -179,7 +185,9 @@ export default function () {
         updateTranslateDisplayResult(
           reformatTranslateDisplayResult(reformatResult)
         );
-        updateCurrentFromLanguageItem(getLanguageItemFromList(from));
+        updateCurrentFromLanguageItem(
+          getLanguageItemFromYoudaoLanguageId(from)
+        );
 
         checkIsInstalledEudic(updateIsInstalledEudic);
       })
@@ -229,7 +237,9 @@ export default function () {
 
   function translateFromLanguageId(languageId: string) {
     console.log("currentLanguageId: ", languageId);
-    updateCurrentFromLanguageItem(getLanguageItemFromList(languageId));
+    updateCurrentFromLanguageItem(
+      getLanguageItemFromYoudaoLanguageId(languageId)
+    );
 
     // priority to use user selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
@@ -239,11 +249,20 @@ export default function () {
     if (languageId === tartgetLanguageId) {
       tartgetLanguageId = getAutoSelectedTargetLanguageId(languageId);
       updateAutoSelectedTargetLanguageItem(
-        getLanguageItemFromList(tartgetLanguageId)
+        getLanguageItemFromYoudaoLanguageId(tartgetLanguageId)
       );
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
     translate(languageId, tartgetLanguageId);
+
+    tencentTextTranslate(searchText!, languageId, tartgetLanguageId).then(
+      (data) => {
+        console.log("tencent translate: ", data);
+      },
+      (err) => {
+        console.error("tencent error", err);
+      }
+    );
   }
 
   function ListDetail() {

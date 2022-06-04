@@ -1,35 +1,66 @@
 import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
-import { getLanguageItemFromList, myPreferences } from "./utils";
+import { getLanguageItemFromYoudaoLanguageId, myPreferences } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
+import {
+  LanguageDetectResponse,
+  TextTranslateResponse,
+} from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 
-// 接口请求频率限制：5次/秒。
+const tencentSecretId = "AKIDHOIxOZUAalhNp2zh9LIzQbXEfroVxA8r";
+const tencentSecretKey = "VkmY5NQEm47vTnVzEDxRgfOs89vSlpeF";
+const tencentEndpoint = "tmt.tencentcloudapi.com";
+const tencentRegion = "ap-guangzhou";
+const tencentProjectId = 1258657901;
+const TmtClient = tencentcloud.tmt.v20180321.Client;
+const clientConfig = {
+  credential: {
+    secretId: tencentSecretId,
+    secretKey: tencentSecretKey,
+  },
+  region: tencentRegion,
+  profile: {
+    httpProfile: {
+      endpoint: tencentEndpoint,
+    },
+  },
+};
+const client = new TmtClient(clientConfig);
+
+// 腾讯翻译，5次/秒
+export function tencentTextTranslate(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<TextTranslateResponse> {
+  const from =
+    getLanguageItemFromYoudaoLanguageId(fromLanguage).tencentLanguageId ||
+    "auto";
+  const to =
+    getLanguageItemFromYoudaoLanguageId(targetLanguage).tencentLanguageId;
+  if (!to) {
+    return Promise.reject(
+      new Error("Target language is not supported by Tencent Translate")
+    );
+  }
+  const params = {
+    SourceText: queryText,
+    Source: from,
+    Target: to!,
+    ProjectId: tencentProjectId,
+  };
+  return client.TextTranslate(params);
+}
+
+// 腾讯语种识别，5次/秒
 export function tencentLanguageDetect(
   text: string
 ): Promise<LanguageDetectResponse> {
-  const TmtClient = tencentcloud.tmt.v20180321.Client;
-
-  const clientConfig = {
-    credential: {
-      secretId: "AKIDHOIxOZUAalhNp2zh9LIzQbXEfroVxA8r",
-      secretKey: "VkmY5NQEm47vTnVzEDxRgfOs89vSlpeF",
-    },
-    region: "ap-guangzhou",
-    profile: {
-      httpProfile: {
-        endpoint: "tmt.tencentcloudapi.com",
-      },
-    },
-  };
-
-  const client = new TmtClient(clientConfig);
   const params = {
     Text: text,
-    ProjectId: 1265458,
+    ProjectId: tencentProjectId,
   };
-
   return client.LanguageDetect(params);
 }
 
@@ -40,14 +71,14 @@ export function requestAllTranslateAPI(
   targetLanguage: string
 ): Promise<any> {
   return axios.all([
-    requestYoudaoAPI(queryText, fromLanguage, targetLanguage),
-    requestBaiduAPI(queryText, fromLanguage, targetLanguage),
-    requestCaiyunAPI(queryText, fromLanguage, targetLanguage),
+    youdaoTextTranslate(queryText, fromLanguage, targetLanguage),
+    baiduTextTranslate(queryText, fromLanguage, targetLanguage),
+    caiyunTextTranslate(queryText, fromLanguage, targetLanguage),
   ]);
 }
 
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
-export function requestYoudaoAPI(
+export function youdaoTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -88,7 +119,7 @@ export function requestYoudaoAPI(
 }
 
 // 百度翻译API https://fanyi-api.baidu.com/doc/21
-export function requestBaiduAPI(
+export function baiduTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -102,8 +133,10 @@ export function requestBaiduAPI(
   const sign = md5.update(md5Content).digest("hex");
   const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
-  const from = getLanguageItemFromList(fromLanguage).baiduLanguageId;
-  const to = getLanguageItemFromList(targetLanguage).baiduLanguageId;
+  const from =
+    getLanguageItemFromYoudaoLanguageId(fromLanguage).baiduLanguageId;
+  const to =
+    getLanguageItemFromYoudaoLanguageId(targetLanguage).baiduLanguageId;
 
   let encodeQueryText = encodeURIComponent(queryText);
 
@@ -115,7 +148,7 @@ export function requestBaiduAPI(
 }
 
 // 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
-export function requestCaiyunAPI(
+export function caiyunTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -123,8 +156,11 @@ export function requestCaiyunAPI(
   const appToken = myPreferences.caiyunAppToken;
 
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-  const from = getLanguageItemFromList(fromLanguage).caiyunLanguageId || "auto";
-  const to = getLanguageItemFromList(targetLanguage).caiyunLanguageId;
+  const from =
+    getLanguageItemFromYoudaoLanguageId(fromLanguage).caiyunLanguageId ||
+    "auto";
+  const to =
+    getLanguageItemFromYoudaoLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present.
