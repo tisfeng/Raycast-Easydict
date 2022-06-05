@@ -66,7 +66,7 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
   return (
     youdaoErrorList.find((item) => item.errorCode === errorCode) || {
       errorCode,
-      errorMessage: errorCode,
+      errorMessage: "",
     }
   );
 }

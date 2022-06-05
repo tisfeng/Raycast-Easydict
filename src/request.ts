@@ -96,7 +96,7 @@ export function youdaoTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<any> {
+): Promise<TranslateTypeResult> {
   function truncate(q: string): string {
     const len = q.length;
     return len <= 20
@@ -143,7 +143,7 @@ export function baiduTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<any> {
+): Promise<TranslateTypeResult> {
   const appId = myPreferences.baiduAppId;
   const appSecret = myPreferences.baiduAppSecret;
 
@@ -179,9 +179,8 @@ export function caiyunTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<any> {
+): Promise<TranslateTypeResult> {
   const appToken = myPreferences.caiyunAppToken;
-
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
   const from =
     getLanguageItemFromYoudaoLanguageId(fromLanguage).caiyunLanguageId ||
@@ -189,10 +188,11 @@ export function caiyunTextTranslate(
   const to =
     getLanguageItemFromYoudaoLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
+  console.log("trans_type: ", trans_type);
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
-  if (!supportedTranslatType.includes(trans_type) || !appToken.length) {
+  if (!supportedTranslatType.includes(trans_type)) {
     return Promise.resolve({
       type: TranslateType.Caiyun,
       result: null,
@@ -212,11 +212,24 @@ export function caiyunTextTranslate(
   };
 
   return new Promise((resolve) => {
-    axios.post(url, params, headers).then((response) => {
-      resolve({
-        type: TranslateType.Caiyun,
-        result: response.data,
+    axios
+      .post(url, params, headers)
+      .then((response) => {
+        resolve({
+          type: TranslateType.Caiyun,
+          result: response.data,
+        });
+      })
+      .catch((error) => {
+        resolve({
+          type: TranslateType.Caiyun,
+          result: null,
+          errorInfo: {
+            errorCode: error.response.status,
+            errorMessage: !appToken.length ? "Caiyun Token is empty" : "",
+          },
+        });
+        console.log("caiyunTextTranslate error: ", error);
       });
-    });
   });
 }
