@@ -289,6 +289,30 @@
       "required": false,
       "description": "Your Caiyun App Token",
       "default": "izz99g9m50n4hpi71oke"
+    },
+    {
+      "title": "Tencent SecretId",
+      "name": "tencentSecretId",
+      "type": "password",
+      "required": false,
+      "description": "Your Tencent SecretId",
+      "default": "AKID2vdAUaR3Qp1xe5HEvNaZJn8E5h3B4i6F"
+    },
+    {
+      "title": "Tencent SecretKey",
+      "name": "tencentSecretKey",
+      "type": "password",
+      "required": false,
+      "description": "Your Tencent SecretKey",
+      "default": "xe5IFzTiiU1KPEo8D3dy84kBNK2VjiSx"
+    },
+    {
+      "title": "Tencent ProjectId",
+      "name": "tencentProjectId",
+      "type": "password",
+      "required": false,
+      "description": "Your Tencent ProjectId",
+      "default": "1265458"
     }
   ],
   "dependencies": {

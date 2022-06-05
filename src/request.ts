@@ -3,17 +3,18 @@ import crypto from "crypto";
 import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoLanguageId, myPreferences } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import {
-  LanguageDetectResponse,
-  TextTranslateResponse,
-} from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
+import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
+import { TranslateTypeResult } from "./types";
+import { TranslateType } from "./consts";
 
-const tencentSecretId = "AKIDHOIxOZUAalhNp2zh9LIzQbXEfroVxA8r";
-const tencentSecretKey = "VkmY5NQEm47vTnVzEDxRgfOs89vSlpeF";
+const tencentSecretId = myPreferences.tencentSecretId;
+const tencentSecretKey = myPreferences.tencentSecretKey;
+const tencentProjectId = parseInt(myPreferences.tencentProjectId);
+
 const tencentEndpoint = "tmt.tencentcloudapi.com";
 const tencentRegion = "ap-guangzhou";
-const tencentProjectId = 1258657901;
 const TmtClient = tencentcloud.tmt.v20180321.Client;
+
 const clientConfig = {
   credential: {
     secretId: tencentSecretId,
@@ -28,12 +29,12 @@ const clientConfig = {
 };
 const client = new TmtClient(clientConfig);
 
-// 腾讯翻译，5次/秒
+// 腾讯文本翻译，5次/秒
 export function tencentTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<TextTranslateResponse> {
+): Promise<TranslateTypeResult> {
   const from =
     getLanguageItemFromYoudaoLanguageId(fromLanguage).tencentLanguageId ||
     "auto";
@@ -50,7 +51,19 @@ export function tencentTextTranslate(
     Target: to!,
     ProjectId: tencentProjectId,
   };
-  return client.TextTranslate(params);
+
+  return new Promise((resolve, reject) => {
+    client.TextTranslate(params, (err, response) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({
+          type: TranslateType.Tencent,
+          result: response,
+        });
+      }
+    });
+  });
 }
 
 // 腾讯语种识别，5次/秒
@@ -69,10 +82,11 @@ export function requestAllTranslateAPI(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<any> {
+): Promise<TranslateTypeResult[]> {
   return axios.all([
     youdaoTextTranslate(queryText, fromLanguage, targetLanguage),
     baiduTextTranslate(queryText, fromLanguage, targetLanguage),
+    tencentTextTranslate(queryText, fromLanguage, targetLanguage),
     caiyunTextTranslate(queryText, fromLanguage, targetLanguage),
   ]);
 }
@@ -103,19 +117,25 @@ export function youdaoTextTranslate(
 
   console.log("requestYoudaoAPI");
 
-  return axios.post(
-    url,
-    querystring.stringify({
-      sign,
-      salt,
-      from: fromLanguage,
-      signType: "v3",
-      q: queryText,
-      appKey: appId,
-      curtime: timestamp,
-      to: targetLanguage,
-    })
-  );
+  const params = querystring.stringify({
+    sign,
+    salt,
+    from: fromLanguage,
+    signType: "v3",
+    q: queryText,
+    appKey: appId,
+    curtime: timestamp,
+    to: targetLanguage,
+  });
+
+  return new Promise((resolve) => {
+    axios.post(url, params).then((response) => {
+      resolve({
+        type: TranslateType.Youdao,
+        result: response.data,
+      });
+    });
+  });
 }
 
 // 百度翻译API https://fanyi-api.baidu.com/doc/21
@@ -144,7 +164,14 @@ export function baiduTextTranslate(
     apiServer +
     `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${appId}&salt=${salt}&sign=${sign}`;
 
-  return axios.get(url);
+  return new Promise((resolve) => {
+    axios.get(url).then((response) => {
+      resolve({
+        type: TranslateType.Baidu,
+        result: response.data,
+      });
+    });
+  });
 }
 
 // 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
@@ -166,21 +193,30 @@ export function caiyunTextTranslate(
   // Note that Caiyun Xiaoyi only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type) || !appToken.length) {
-    return Promise.resolve(null);
+    return Promise.resolve({
+      type: TranslateType.Caiyun,
+      result: null,
+    });
   }
 
-  return axios.post(
-    url,
-    {
-      source: queryText,
-      trans_type,
-      detect: from === "auto",
+  const params = {
+    source: queryText,
+    trans_type,
+    detect: from === "auto",
+  };
+  const headers = {
+    headers: {
+      "content-type": "application/json",
+      "x-authorization": "token " + appToken,
     },
-    {
-      headers: {
-        "content-type": "application/json",
-        "x-authorization": "token " + appToken,
-      },
-    }
-  );
+  };
+
+  return new Promise((resolve) => {
+    axios.post(url, params, headers).then((response) => {
+      resolve({
+        type: TranslateType.Caiyun,
+        result: response.data,
+      });
+    });
+  });
 }

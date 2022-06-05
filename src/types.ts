@@ -1,4 +1,10 @@
-import { SectionType, TranslationType } from "./consts";
+import { SectionType, TranslateType } from "./consts";
+
+export interface TranslateTypeResult {
+  type: TranslateType;
+  result: any;
+  errorInfo?: RequestErrorInfo;
+}
 
 export interface YoudaoTranslateResult {
   l: string;
@@ -45,6 +51,9 @@ export interface MyPreferences {
   baiduAppId: string;
   baiduAppSecret: string;
   caiyunAppToken: string;
+  tencentSecretId: string;
+  tencentSecretKey: string;
+  tencentProjectId: string;
   isAutomaticQueryClipboard: boolean;
   isDisplayTargetTranslationLanguage: boolean;
 }
@@ -63,7 +72,7 @@ export interface ListItemActionPanelItem {
 }
 
 export interface RequestResultState {
-  type: TranslationType;
+  type: TranslateType;
   errorInfo: RequestErrorInfo;
 }
 
@@ -95,6 +104,13 @@ export interface BaiduTranslateItem {
   dst: string;
 }
 
+export interface TencentTranslateResult {
+  TargetText: string;
+  Source: string;
+  Target: string;
+  RequestId: string;
+}
+
 export interface CaiyunTranslateResult {
   rc: string;
   target: string;
@@ -103,20 +119,21 @@ export interface CaiyunTranslateResult {
 
 export interface TranslateSourceResult {
   youdaoResult: YoudaoTranslateResult;
-  baiduResult: BaiduTranslateResult;
+  baiduResult?: BaiduTranslateResult;
+  tencentResult?: TencentTranslateResult;
   caiyunResult?: CaiyunTranslateResult;
 }
 
 export interface TranslateReformatResult {
-  queryTextInfo: QueryTextInfo;
-  translations: TranslationItem[];
+  queryWordInfo: QueryWordInfo;
+  translations: TranslateItem[];
   explanations?: string[];
   forms?: YoudaoTranslateResultBasicFormsItem[];
   webTranslation?: TranslateResultKeyValueItem;
   webPhrases?: TranslateResultKeyValueItem[];
 }
 
-export interface QueryTextInfo {
+export interface QueryWordInfo {
   query: string;
   phonetic?: string;
   from: string;
@@ -124,8 +141,8 @@ export interface QueryTextInfo {
   isWord: boolean;
   examTypes?: string[];
 }
-export interface TranslationItem {
-  type: TranslationType;
+export interface TranslateItem {
+  type: TranslateType;
   text: string;
 }
 export interface TranslateResultKeyValueItem {
@@ -134,8 +151,8 @@ export interface TranslateResultKeyValueItem {
 }
 
 export interface TranslateDisplayResult {
-  type: SectionType | TranslationType;
-  sectionTitle?: SectionType | TranslationType | string;
+  type: SectionType | TranslateType;
+  sectionTitle?: SectionType | TranslateType | string;
   items?: TranslateDisplayItem[];
 }
 export interface TranslateDisplayItem {
@@ -146,7 +163,7 @@ export interface TranslateDisplayItem {
   subtitle?: string;
   phonetic?: string;
   examTypes?: string[];
-  translationType?: TranslationType;
+  translationType?: TranslateType;
 }
 
 export interface ClipboardRecoredItem {

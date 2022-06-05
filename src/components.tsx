@@ -1,6 +1,6 @@
-import { Component, useState } from "react";
+import { Component } from "react";
 import { exec, execFile } from "child_process";
-import { languageItemList, SectionType, TranslationType } from "./consts";
+import { languageItemList, SectionType, TranslateType } from "./consts";
 import {
   ListItemActionPanelItem,
   YoudaoTranslateReformatResultItem,
@@ -29,19 +29,23 @@ export function playSoundIcon(lightTintColor: string) {
 
 // function: Returns the corresponding ImageLike based on the SectionType type
 export function getListItemIcon(
-  sectionType: SectionType | TranslationType
+  sectionType: SectionType | TranslateType
 ): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (sectionType) {
-    case TranslationType.Youdao: {
+    case TranslateType.Youdao: {
       dotColor = Color.Red;
       break;
     }
-    case TranslationType.Baidu: {
+    case TranslateType.Baidu: {
       dotColor = "#4169E1";
       break;
     }
-    case TranslationType.Caiyun: {
+    case TranslateType.Tencent: {
+      dotColor = Color.Purple; // "#801dae"
+      break;
+    }
+    case TranslateType.Caiyun: {
       dotColor = Color.Green;
       break;
     }
@@ -76,7 +80,7 @@ export function getListItemIcon(
 
 // function: return List.Item.Accessory[] based on the SectionType type
 export function getWordAccessories(
-  sectionType: SectionType | TranslationType,
+  sectionType: SectionType | TranslateType,
   item: YoudaoTranslateReformatResultItem
 ): List.Item.Accessory[] {
   let wordExamTypeAccessory = [];

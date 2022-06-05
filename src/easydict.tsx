@@ -5,19 +5,28 @@ import {
   getWordAccessories,
   ListActionPanel,
 } from "./components";
-import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Color,
+  Icon,
+  List,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import {
   LanguageItem,
   TranslateSourceResult,
   TranslateDisplayResult,
   RequestResultState,
+  TranslateTypeResult,
 } from "./types";
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
   maxInputTextLength,
   requestStateCodeLinkMap,
-  TranslationType,
+  TranslateType,
   YoudaoRequestStateCode,
 } from "./consts";
 import axios from "axios";
@@ -28,16 +37,13 @@ import {
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
   getInputTextLanguageId,
+  getLanguageItemFromTencentLanguageId,
   getLanguageItemFromYoudaoLanguageId,
   getYoudaoWebTranslateURL,
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
-import {
-  requestAllTranslateAPI,
-  tencentTextTranslate,
-  tencentLanguageDetect,
-} from "./request";
+import { requestAllTranslateAPI, tencentLanguageDetect } from "./request";
 import {
   reformatTranslateDisplayResult,
   reformatTranslateResult,
@@ -96,11 +102,60 @@ export default function () {
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
   function translate(fromLanguage: string, targetLanguage: string) {
+    console.log(`translate fromTo: ${fromLanguage} -> ${targetLanguage}`);
+
     requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
-      axios.spread((youdaoRes: any, baiduRes: any, caiyunRes: any) => {
+      axios.spread((...typeResult) => {
+        let youdaoRes: TranslateTypeResult;
+        let baiduRes: TranslateTypeResult | null = null;
+        let tecentRes: TranslateTypeResult | null = null;
+        let caiyunRes: TranslateTypeResult | null = null;
+
+        let sourceResult: TranslateSourceResult = {} as TranslateSourceResult;
+
+        for (const res of typeResult) {
+          console.log(
+            `${res.type} result: ${JSON.stringify(res.result, null, 4)}`
+          );
+
+          if (res.type === TranslateType.Youdao) {
+            youdaoRes = res;
+            sourceResult.youdaoResult = res.result;
+          }
+
+          if (res.type === TranslateType.Baidu) {
+            baiduRes = res;
+            if (!baiduRes.result.error_code) {
+              sourceResult.baiduResult = baiduRes.result;
+            } else {
+              baiduRes.errorInfo = {
+                errorCode: baiduRes.result.error_code,
+                errorMessage: baiduRes.result.error_msg,
+              };
+              showToast({
+                style: Toast.Style.Failure,
+                title: `${baiduRes.type}: ${baiduRes.result.error_code}`,
+                message: baiduRes.errorInfo.errorMessage,
+              });
+            }
+          }
+          if (res.type === TranslateType.Tencent) {
+            tecentRes = res;
+            sourceResult.tencentResult = res.result;
+          }
+          if (res.type === TranslateType.Caiyun) {
+            caiyunRes = res;
+            sourceResult.caiyunResult = res.result;
+          }
+        }
+
+        youdaoRes!.errorInfo = getYoudaoErrorInfo(
+          sourceResult.youdaoResult?.errorCode || "0"
+        );
+
         // success return code: 0 undefined null
-        const youdaoErrorCode = youdaoRes.data.errorCode;
-        const baiduErrorCode = baiduRes.data.error_code;
+        const youdaoErrorCode = youdaoRes!.errorInfo?.errorCode;
+        const baiduErrorCode = baiduRes?.errorInfo?.errorCode;
         console.log("error code: ", youdaoErrorCode, baiduErrorCode);
 
         if (
@@ -118,60 +173,19 @@ export default function () {
 
         // handle exceptional errors, such as user AppID errors or exceptions of the API itself.
         requestResultState = {
-          type: TranslationType.Youdao,
-          errorInfo: getYoudaoErrorInfo(youdaoErrorCode),
+          type: TranslateType.Youdao,
+          errorInfo: getYoudaoErrorInfo(youdaoErrorCode || ""),
         };
         if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
-          console.log("youdaoRes: ", youdaoRes.data);
+          console.log("youdaoRes: ", youdaoRes!.result);
 
           displayRequestErrorInfo();
           return;
         }
 
-        if (baiduErrorCode) {
-          console.log("baiduRes: ", baiduRes.data);
-
-          requestResultState = {
-            type: TranslationType.Baidu,
-            errorInfo: {
-              errorCode: baiduErrorCode,
-              errorMessage: baiduRes.data.error_msg,
-            },
-          };
-          displayRequestErrorInfo();
-          return;
-        }
-
-        let youdaoTranslateResult = youdaoRes.data;
-        let baiduTranslateResult = baiduRes.data;
-        let caiyunTranslateResult = undefined;
-
-        console.log(`translate: ${fromLanguage} -> ${targetLanguage}`);
-        console.log(
-          "youdao result: ",
-          JSON.stringify(youdaoTranslateResult, null, 4)
-        );
-        console.log(
-          "baidu result: ",
-          JSON.stringify(baiduTranslateResult, null, 4)
-        );
-
-        if (caiyunRes) {
-          caiyunTranslateResult = caiyunRes.data;
-          console.log(
-            "caiyun result: ",
-            JSON.stringify(caiyunRes.data, null, 4)
-          );
-        }
-
-        const sourceResult: TranslateSourceResult = {
-          youdaoResult: youdaoTranslateResult,
-          baiduResult: baiduTranslateResult,
-          caiyunResult: caiyunTranslateResult,
-        };
         const reformatResult = reformatTranslateResult(sourceResult);
 
-        const [from, to] = youdaoTranslateResult.l.split("2"); // from2to
+        const [from, to] = sourceResult.youdaoResult!.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
           updateAutoSelectedTargetLanguageItem(
@@ -216,17 +230,19 @@ export default function () {
       tencentLanguageDetect(searchText).then(
         (data) => {
           console.log("tencent language detect: ", data);
+
           const languageId = data.Lang || "auto";
-          translateFromLanguageId(languageId);
+          const youdaoLanguageId =
+            getLanguageItemFromTencentLanguageId(languageId).youdaoLanguageId;
+          translateFromYoudaoLanguageId(youdaoLanguageId);
         },
         (err) => {
           console.error("tencent language detect error: ", err);
 
           const currentLanguageId = getInputTextLanguageId(searchText);
-          translateFromLanguageId(currentLanguageId);
+          translateFromYoudaoLanguageId(currentLanguageId);
         }
       );
-
       return;
     }
 
@@ -235,7 +251,7 @@ export default function () {
     }
   }, [searchText]);
 
-  function translateFromLanguageId(languageId: string) {
+  function translateFromYoudaoLanguageId(languageId: string) {
     console.log("currentLanguageId: ", languageId);
     updateCurrentFromLanguageItem(
       getLanguageItemFromYoudaoLanguageId(languageId)
@@ -254,35 +270,26 @@ export default function () {
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
     translate(languageId, tartgetLanguageId);
-
-    tencentTextTranslate(searchText!, languageId, tartgetLanguageId).then(
-      (data) => {
-        console.log("tencent translate: ", data);
-      },
-      (err) => {
-        console.error("tencent error", err);
-      }
-    );
   }
 
   function ListDetail() {
     if (!requestResultState) return null;
 
     const isYoudaoRequestError =
-      requestResultState.type === TranslationType.Youdao &&
+      requestResultState.type === TranslateType.Youdao &&
       requestResultState.errorInfo.errorCode !==
         YoudaoRequestStateCode.Success.toString();
 
     const isBaiduRequestError =
-      requestResultState.type === TranslationType.Baidu &&
+      requestResultState.type === TranslateType.Baidu &&
       requestResultState.errorInfo.errorCode !==
         BaiduRequestStateCode.Success.toString();
 
-    let errorTitle = "Network Request Error:";
+    let errorTitle = "Network request error:";
     if (isYoudaoRequestError) {
-      errorTitle = "Youdao Request Error:";
+      errorTitle = "Youdao request error:";
     } else if (isBaiduRequestError) {
-      errorTitle = "Baidu Request Error:";
+      errorTitle = "Baidu request error:";
     }
 
     if (isYoudaoRequestError || isBaiduRequestError) {

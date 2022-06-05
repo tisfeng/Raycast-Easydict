@@ -1,22 +1,22 @@
-import { SectionType, TranslationType } from "./consts";
+import { SectionType, TranslateType } from "./consts";
 import {
-  QueryTextInfo,
+  QueryWordInfo,
   TranslateDisplayResult,
   TranslateReformatResult,
   TranslateSourceResult,
-  TranslationItem,
+  TranslateItem,
 } from "./types";
 import { isPreferredChinese } from "./utils";
 
 export function reformatTranslateResult(
   src: TranslateSourceResult
 ): TranslateReformatResult {
-  let translations: TranslationItem[] = [];
+  let translations: TranslateItem[] = [];
 
-  const youdaoTranslations = src.youdaoResult.translation.map(
+  const youdaoTranslations = src.youdaoResult!.translation.map(
     (translationText) => {
       return {
-        type: TranslationType.Youdao,
+        type: TranslateType.Youdao,
         text: translationText,
       };
     }
@@ -24,26 +24,37 @@ export function reformatTranslateResult(
 
   translations.push(...youdaoTranslations);
 
-  const baiduTranslation = src.baiduResult.trans_result
-    .map((item) => {
-      return item.dst;
-    })
-    .join(" ");
+  if (src.baiduResult) {
+    const baiduTranslation = src.baiduResult.trans_result
+      .map((item) => {
+        return item.dst;
+      })
+      .join(" ");
 
-  translations.push({
-    type: TranslationType.Baidu,
-    text: baiduTranslation,
-  });
+    translations.push({
+      type: TranslateType.Baidu,
+      text: baiduTranslation,
+    });
+  }
+
+  if (src.tencentResult) {
+    const tencentTranslation = src.tencentResult.TargetText;
+
+    translations.push({
+      type: TranslateType.Tencent,
+      text: tencentTranslation,
+    });
+  }
 
   if (src.caiyunResult) {
     translations.push({
-      type: TranslationType.Caiyun,
+      type: TranslateType.Caiyun,
       text: src.caiyunResult?.target,
     });
   }
 
   const [from, to] = src.youdaoResult.l.split("2"); // from2to
-  const queryTextInfo: QueryTextInfo = {
+  const queryTextInfo: QueryWordInfo = {
     query: src.youdaoResult.query,
     phonetic: src.youdaoResult.basic?.phonetic,
     from: from,
@@ -59,7 +70,7 @@ export function reformatTranslateResult(
   const webPhrases = src.youdaoResult.web?.slice(1);
 
   return {
-    queryTextInfo: queryTextInfo,
+    queryWordInfo: queryTextInfo,
     translations: translations,
     explanations: src.youdaoResult.basic?.explains,
     forms: src.youdaoResult.basic?.wfs,
@@ -103,8 +114,8 @@ export function reformatTranslateDisplayResult(
           title: oneLineTranslation,
           tooltip: tooltip,
           copyText: oneLineTranslation,
-          phonetic: reformatResult.queryTextInfo.phonetic,
-          examTypes: reformatResult.queryTextInfo.examTypes,
+          phonetic: reformatResult.queryWordInfo.phonetic,
+          examTypes: reformatResult.queryWordInfo.examTypes,
         },
       ],
     });

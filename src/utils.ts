@@ -44,7 +44,22 @@ export function getLanguageItemFromYoudaoLanguageId(
       return langItem;
     }
   }
+  return {
+    youdaoLanguageId: "",
+    aliyunLanguageId: "",
+    languageTitle: "",
+    languageVoice: [""],
+  };
+}
 
+export function getLanguageItemFromTencentLanguageId(
+  tencentLanguageId: string
+): LanguageItem {
+  for (const langItem of languageItemList) {
+    if (langItem.tencentLanguageId === tencentLanguageId) {
+      return langItem;
+    }
+  }
   return {
     youdaoLanguageId: "",
     aliyunLanguageId: "",
