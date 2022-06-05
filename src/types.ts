@@ -84,6 +84,7 @@ export interface RequestErrorInfo {
 export interface LanguageItem {
   youdaoLanguageId: string;
   aliyunLanguageId: string;
+  tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
   tencentLanguageId?: string;
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
@@ -98,6 +99,8 @@ export interface BaiduTranslateResult {
   from: string;
   to: string;
   trans_result: BaiduTranslateItem[];
+  error_code?: string;
+  error_msg?: string;
 }
 export interface BaiduTranslateItem {
   src: string;

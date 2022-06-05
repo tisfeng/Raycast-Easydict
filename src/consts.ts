@@ -117,6 +117,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "ja",
     aliyunLanguageId: "ja",
+    tencentDetectLanguageId: "jp",
     tencentLanguageId: "ja",
     youdaoWebLanguageId: "jap",
     baiduLanguageId: "jp",
@@ -127,6 +128,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "ko",
     aliyunLanguageId: "ko",
+    tencentDetectLanguageId: "kr",
     tencentLanguageId: "ko",
     youdaoWebLanguageId: "ko",
     baiduLanguageId: "kor",

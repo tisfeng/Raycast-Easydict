@@ -37,7 +37,7 @@ import {
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
   getInputTextLanguageId,
-  getLanguageItemFromTencentLanguageId,
+  getLanguageItemFromTencentDetectLanguageId,
   getLanguageItemFromYoudaoLanguageId,
   getYoudaoWebTranslateURL,
   saveQueryClipboardRecord,
@@ -233,7 +233,9 @@ export default function () {
 
           const languageId = data.Lang || "auto";
           const youdaoLanguageId =
-            getLanguageItemFromTencentLanguageId(languageId).youdaoLanguageId;
+            getLanguageItemFromTencentDetectLanguageId(
+              languageId
+            ).youdaoLanguageId;
           translateFromYoudaoLanguageId(youdaoLanguageId);
         },
         (err) => {

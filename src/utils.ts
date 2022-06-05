@@ -52,11 +52,13 @@ export function getLanguageItemFromYoudaoLanguageId(
   };
 }
 
-export function getLanguageItemFromTencentLanguageId(
+export function getLanguageItemFromTencentDetectLanguageId(
   tencentLanguageId: string
 ): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.tencentLanguageId === tencentLanguageId) {
+    const tencentDetectLanguageId =
+      langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
+    if (tencentDetectLanguageId === tencentLanguageId) {
       return langItem;
     }
   }
