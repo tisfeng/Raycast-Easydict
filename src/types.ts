@@ -130,7 +130,7 @@ export interface TranslateSourceResult {
   caiyunResult?: CaiyunTranslateResult;
 }
 
-export interface TranslateReformatResult {
+export interface TranslateFormatResult {
   queryWordInfo: QueryWordInfo;
   translations: TranslateItem[];
   explanations?: string[];

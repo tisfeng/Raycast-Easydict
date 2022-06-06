@@ -2,15 +2,15 @@ import { SectionType, TranslateType } from "./consts";
 import {
   QueryWordInfo,
   TranslateDisplayResult,
-  TranslateReformatResult,
+  TranslateFormatResult,
   TranslateSourceResult,
   TranslateItem,
 } from "./types";
 import { isPreferredChinese } from "./utils";
 
-export function reformatTranslateResult(
+export function formatTranslateResult(
   src: TranslateSourceResult
-): TranslateReformatResult {
+): TranslateFormatResult {
   let translations: TranslateItem[] = [];
 
   const youdaoTranslations = src.youdaoResult!.translation.map(
@@ -80,7 +80,7 @@ export function reformatTranslateResult(
 }
 
 export function reformatTranslateDisplayResult(
-  reformatResult: TranslateReformatResult
+  reformatResult: TranslateFormatResult
 ): TranslateDisplayResult[] {
   let displayResult: Array<TranslateDisplayResult> = [];
 

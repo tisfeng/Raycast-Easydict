@@ -6,10 +6,18 @@ import {
 } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import { LanguageItem, MyPreferences, QueryRecoredItem } from "./types";
+import {
+  LanguageItem,
+  MyPreferences,
+  QueryRecoredItem,
+  TranslateFormatResult,
+} from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
+
+export const maxLineLengthOfChineseTextDisplay = 40;
+export const maxLineLengthOfEnglishTextDisplay = 100;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
@@ -18,6 +26,37 @@ export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
 export const defaultLanguage2 = getLanguageItemFromYoudaoLanguageId(
   myPreferences.language2
 );
+
+// export function: Determine whether the title of the result exceeds the maximum value of one line.
+export function isTranslationTooLong(
+  formatResult: TranslateFormatResult
+): boolean {
+  console.log(formatResult.queryWordInfo.query);
+  console.log(
+    "isTranslatResultTooLong: ",
+    formatResult.queryWordInfo.query.length
+  );
+
+  const isChineseTextResult = formatResult.queryWordInfo.to === "zh-CHS";
+  const isEnglishTextResult = formatResult.queryWordInfo.to === "en";
+
+  for (const translation of formatResult.translations) {
+    const textLength = translation.text.length;
+    console.log(`{${textLength}`);
+    if (isChineseTextResult) {
+      if (textLength < maxLineLengthOfChineseTextDisplay) {
+        return false;
+      }
+    } else if (isEnglishTextResult) {
+      if (textLength < maxLineLengthOfEnglishTextDisplay) {
+        return false;
+      }
+    } else if (textLength < maxLineLengthOfEnglishTextDisplay) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function truncate(string: string, length = 40, separator = "...") {
   if (string.length <= length) return string;

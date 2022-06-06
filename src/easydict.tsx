@@ -43,13 +43,14 @@ import {
   getLanguageItemFromTencentDetectLanguageId,
   getLanguageItemFromYoudaoLanguageId,
   getYoudaoWebTranslateURL,
+  isTranslationTooLong,
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
 import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
   reformatTranslateDisplayResult,
-  reformatTranslateResult,
+  formatTranslateResult,
 } from "./dataFormat";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
@@ -64,6 +65,8 @@ export default function () {
   const [searchText, updateSearchText] = useState<string>();
 
   const [isLoadingState, updateLoadingState] = useState<boolean>(false);
+  const [isShowingDetail, updateIsShowingDetail] = useState<boolean>(false);
+
   const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
 
   // Delay the time to call the query API. The API has frequency limit.
@@ -197,7 +200,7 @@ export default function () {
           }
         }
 
-        const reformatResult = reformatTranslateResult(sourceResult);
+        const formatResult = formatTranslateResult(sourceResult);
         const [from, to] = sourceResult.youdaoResult!.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
@@ -210,8 +213,10 @@ export default function () {
 
         updateLoadingState(false);
         updateTranslateDisplayResult(
-          reformatTranslateDisplayResult(reformatResult)
+          reformatTranslateDisplayResult(formatResult)
         );
+        updateIsShowingDetail(isTranslationTooLong(formatResult));
+
         updateCurrentFromLanguageItem(
           getLanguageItemFromYoudaoLanguageId(from)
         );
@@ -354,6 +359,7 @@ export default function () {
                     title={item.title}
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
+                    detail={<List.Item.Detail markdown={item.title} />}
                     actions={
                       <ListActionPanel
                         isInstalledEudic={isInstalledEudic}
@@ -409,6 +415,7 @@ export default function () {
   return (
     <List
       isLoading={isLoadingState}
+      isShowingDetail={isShowingDetail}
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChangeEvent}
