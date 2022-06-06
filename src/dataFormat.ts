@@ -116,7 +116,10 @@ export function reformatTranslateDisplayResult(
           copyText: oneLineTranslation,
           phonetic: reformatResult.queryWordInfo.phonetic,
           examTypes: reformatResult.queryWordInfo.examTypes,
-          translationDetail: formatTranslationText(translation.text),
+          translationDetail: formatTranslationText(
+            sectionType,
+            translation.text
+          ),
         },
       ],
     });
@@ -222,7 +225,15 @@ export function reformatTranslateDisplayResult(
 }
 
 // function format translation result to display multiple translations
-export function formatTranslationText(text: string) {
+export function formatTranslationText(
+  type: TranslateType | SectionType,
+  text: string
+) {
   let string = text.replace(/\n/g, "\n\n");
-  return string;
+  let markdown = `
+  # ${type} 
+  ---  
+  \n  
+  ${string}`;
+  return markdown;
 }
