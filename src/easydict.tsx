@@ -359,7 +359,9 @@ export default function () {
                     title={item.title}
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
-                    detail={<List.Item.Detail markdown={item.title} />}
+                    detail={
+                      <List.Item.Detail markdown={item.translationDetail} />
+                    }
                     actions={
                       <ListActionPanel
                         isInstalledEudic={isInstalledEudic}

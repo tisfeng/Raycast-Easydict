@@ -207,7 +207,7 @@ export function caiyunTextTranslate(
   }
 
   const params = {
-    source: queryText,
+    source: queryText.split("\n"), // source can be text or array. if source is an array, it will be translated in parallel
     trans_type,
     detect: from === "auto",
   };

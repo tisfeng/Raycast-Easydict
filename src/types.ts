@@ -119,7 +119,7 @@ export interface TencentTranslateResult {
 
 export interface CaiyunTranslateResult {
   rc: string;
-  target: string;
+  target: string[];
   confidence: number;
 }
 
@@ -169,7 +169,7 @@ export interface TranslateDisplayItem {
   subtitle?: string;
   phonetic?: string;
   examTypes?: string[];
-  translationType?: TranslateType;
+  translationDetail?: string;
 }
 
 export interface ClipboardRecoredItem {

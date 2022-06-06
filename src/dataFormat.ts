@@ -29,7 +29,7 @@ export function formatTranslateResult(
       .map((item) => {
         return item.dst;
       })
-      .join(" ");
+      .join("\n");
 
     translations.push({
       type: TranslateType.Baidu,
@@ -49,7 +49,7 @@ export function formatTranslateResult(
   if (src.caiyunResult) {
     translations.push({
       type: TranslateType.Caiyun,
-      text: src.caiyunResult?.target,
+      text: src.caiyunResult?.target.join("\n"),
     });
   }
 
@@ -103,7 +103,7 @@ export function reformatTranslateDisplayResult(
       tooltip = "";
     }
 
-    let oneLineTranslation = translation.text.split("\n").join("");
+    let oneLineTranslation = translation.text.split("\n").join(" ");
 
     displayResult.push({
       type: sectionType,
@@ -116,6 +116,7 @@ export function reformatTranslateDisplayResult(
           copyText: oneLineTranslation,
           phonetic: reformatResult.queryWordInfo.phonetic,
           examTypes: reformatResult.queryWordInfo.examTypes,
+          translationDetail: formatTranslationText(translation.text),
         },
       ],
     });
@@ -217,7 +218,11 @@ export function reformatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   });
 
-  // console.log("displayResult: ", JSON.stringify(displayResult));
-
   return displayResult;
+}
+
+// function format translation result to display multiple translations
+export function formatTranslationText(text: string) {
+  let string = text.replace(/\n/g, "\n\n");
+  return string;
 }
