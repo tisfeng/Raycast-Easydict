@@ -24,7 +24,7 @@ export function reformatTranslateResult(
 
   translations.push(...youdaoTranslations);
 
-  if (src.baiduResult) {
+  if (src.baiduResult?.trans_result) {
     const baiduTranslation = src.baiduResult.trans_result
       .map((item) => {
         return item.dst;

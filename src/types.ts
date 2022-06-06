@@ -2,7 +2,12 @@ import { SectionType, TranslateType } from "./consts";
 
 export interface TranslateTypeResult {
   type: TranslateType;
-  result: any;
+  result:
+    | YoudaoTranslateResult
+    | BaiduTranslateResult
+    | TencentTranslateResult
+    | CaiyunTranslateResult
+    | null;
   errorInfo?: RequestErrorInfo;
 }
 
@@ -71,11 +76,6 @@ export interface ListItemActionPanelItem {
   onLanguageUpdate: (language: LanguageItem) => void;
 }
 
-export interface RequestResultState {
-  type: TranslateType;
-  errorInfo: RequestErrorInfo;
-}
-
 export interface RequestErrorInfo {
   errorCode: string;
   errorMessage: string;
@@ -96,9 +96,9 @@ export interface LanguageItem {
 }
 
 export interface BaiduTranslateResult {
-  from: string;
-  to: string;
-  trans_result: BaiduTranslateItem[];
+  from?: string;
+  to?: string;
+  trans_result?: BaiduTranslateItem[];
   error_code?: string;
   error_msg?: string;
 }

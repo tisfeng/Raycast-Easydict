@@ -4,7 +4,11 @@ import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoLanguageId, myPreferences } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import { TranslateTypeResult } from "./types";
+import {
+  CaiyunTranslateResult,
+  TencentTranslateResult,
+  TranslateTypeResult,
+} from "./types";
 import { TranslateType } from "./consts";
 
 const tencentSecretId = myPreferences.tencentSecretId;
@@ -51,7 +55,6 @@ export function tencentTextTranslate(
     Target: to!,
     ProjectId: tencentProjectId,
   };
-
   return new Promise((resolve, reject) => {
     client.TextTranslate(params, (err, response) => {
       if (err) {
@@ -59,7 +62,7 @@ export function tencentTextTranslate(
       } else {
         resolve({
           type: TranslateType.Tencent,
-          result: response,
+          result: response as TencentTranslateResult,
         });
       }
     });
@@ -160,9 +163,30 @@ export function baiduTextTranslate(
 
   let encodeQueryText = encodeURIComponent(queryText);
 
+  encodeQueryText = Buffer.from(encodeQueryText).toString("utf8");
+
   const url =
     apiServer +
     `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${appId}&salt=${salt}&sign=${sign}`;
+
+  const params = {
+    q: encodeQueryText,
+    from: from,
+    to: to,
+    appid: appId,
+    salt: salt,
+    sign: sign,
+  };
+  console.log("requestBaiduAPI params", params);
+
+  return new Promise((resolve) => {
+    axios.get(apiServer, { params }).then((response) => {
+      resolve({
+        type: TranslateType.Baidu,
+        result: response.data,
+      });
+    });
+  });
 
   return new Promise((resolve) => {
     axios.get(url).then((response) => {
@@ -217,7 +241,7 @@ export function caiyunTextTranslate(
       .then((response) => {
         resolve({
           type: TranslateType.Caiyun,
-          result: response.data,
+          result: response.data as CaiyunTranslateResult,
         });
       })
       .catch((error) => {

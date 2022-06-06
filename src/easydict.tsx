@@ -19,6 +19,10 @@ import {
   TranslateSourceResult,
   TranslateDisplayResult,
   TranslateTypeResult,
+  YoudaoTranslateResult,
+  BaiduTranslateResult,
+  TencentTranslateResult,
+  CaiyunTranslateResult,
 } from "./types";
 import {
   BaiduRequestStateCode,
@@ -48,7 +52,7 @@ import {
   reformatTranslateResult,
 } from "./dataFormat";
 
-let youdaoTranslateResult: TranslateTypeResult;
+let youdaoTranslateTypeResult: TranslateTypeResult;
 
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
@@ -109,6 +113,11 @@ export default function () {
         let tecentRes: TranslateTypeResult | null = null;
         let caiyunRes: TranslateTypeResult | null = null;
 
+        let youdaoTranslateReuslt: YoudaoTranslateResult;
+        let baiduTranslateResult: BaiduTranslateResult;
+        let tencentTranslateResult: TencentTranslateResult;
+        let caiyunTranslateResult: CaiyunTranslateResult;
+
         let sourceResult: TranslateSourceResult = {} as TranslateSourceResult;
 
         for (const res of typeResult) {
@@ -116,11 +125,13 @@ export default function () {
             `${res.type} result: ${JSON.stringify(res.result, null, 4)}`
           );
           if (res.type === TranslateType.Youdao) {
-            youdaoTranslateResult = res;
-            sourceResult.youdaoResult = res.result;
-            const youdaoErrorCode = youdaoTranslateResult.result.errorCode;
-            youdaoTranslateResult.errorInfo =
+            youdaoTranslateTypeResult = res;
+            youdaoTranslateReuslt = res.result as YoudaoTranslateResult;
+            const youdaoErrorCode = youdaoTranslateReuslt.errorCode;
+            youdaoTranslateTypeResult.errorInfo =
               getYoudaoErrorInfo(youdaoErrorCode);
+
+            sourceResult.youdaoResult = youdaoTranslateReuslt;
 
             if (
               youdaoErrorCode ===
@@ -139,19 +150,23 @@ export default function () {
 
           if (res.type === TranslateType.Baidu) {
             baiduRes = res;
-            const baiduErrorCode = baiduRes.result.errorCode;
-            if (!baiduErrorCode) {
-              sourceResult.baiduResult = baiduRes.result;
-            } else if (
-              baiduErrorCode ===
-              BaiduRequestStateCode.AccessFrequencyLimited.toString()
-            ) {
-              delayTranslate(fromLanguage, targetLanguage);
-              return;
-            } else {
+            baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
+            const baiduErrorCode = baiduTranslateResult.error_code;
+
+            sourceResult.baiduResult = baiduTranslateResult;
+
+            if (baiduErrorCode) {
+              if (
+                baiduErrorCode ===
+                BaiduRequestStateCode.AccessFrequencyLimited.toString()
+              ) {
+                delayTranslate(fromLanguage, targetLanguage);
+                return;
+              }
+
               baiduRes.errorInfo = {
                 errorCode: baiduErrorCode,
-                errorMessage: baiduRes.result.error_msg,
+                errorMessage: baiduTranslateResult.error_msg!,
               };
               showToast({
                 style: Toast.Style.Failure,
@@ -163,12 +178,12 @@ export default function () {
 
           if (res.type === TranslateType.Tencent) {
             tecentRes = res;
-            sourceResult.tencentResult = res.result;
+            sourceResult.tencentResult = res.result as TencentTranslateResult;
           }
 
           if (res.type === TranslateType.Caiyun) {
             caiyunRes = res;
-            sourceResult.caiyunResult = res.result;
+            sourceResult.caiyunResult = res.result as CaiyunTranslateResult;
 
             if (caiyunRes.errorInfo) {
               showToast({
@@ -275,10 +290,13 @@ export default function () {
   }
 
   function ListDetail() {
-    if (!youdaoTranslateResult) return null;
+    if (!youdaoTranslateTypeResult) return null;
 
-    const youdaoErrorCode = youdaoTranslateResult.result.errorCode;
-    const youdaoErrorMessage = youdaoTranslateResult!.errorInfo!.errorMessage;
+    const youdaoErrorCode = (
+      youdaoTranslateTypeResult.result as YoudaoTranslateResult
+    ).errorCode;
+    const youdaoErrorMessage =
+      youdaoTranslateTypeResult!.errorInfo!.errorMessage;
     const isYoudaoRequestError =
       youdaoErrorCode !== YoudaoRequestStateCode.Success.toString();
 
@@ -286,7 +304,7 @@ export default function () {
       return (
         <List.Item
           title={"Youdao Request Error"}
-          subtitle={youdaoErrorMessage.length ? ` : ${youdaoErrorMessage}` : ""}
+          subtitle={youdaoErrorMessage.length ? `: ${youdaoErrorMessage}` : ""}
           accessories={[
             {
               text: `Error Code: ${youdaoErrorCode}`,
@@ -298,7 +316,9 @@ export default function () {
               <Action.OpenInBrowser
                 title="See Error Code Meaning"
                 icon={Icon.QuestionMark}
-                url={requestStateCodeLinkMap.get(youdaoTranslateResult.type)!}
+                url={
+                  requestStateCodeLinkMap.get(youdaoTranslateTypeResult.type)!
+                }
               />
               <ActionFeedback />
             </ActionPanel>
