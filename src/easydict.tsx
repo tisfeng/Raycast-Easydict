@@ -46,7 +46,7 @@ import {
   saveQueryClipboardRecord,
   tryQueryClipboardText,
 } from "./utils";
-import { requestAllTranslateAPI, tencentLanguageDetect } from "./request";
+import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
   reformatTranslateDisplayResult,
   reformatTranslateResult,
@@ -107,7 +107,7 @@ export default function () {
   function translate(fromLanguage: string, targetLanguage: string) {
     console.log(`translate fromTo: ${fromLanguage} -> ${targetLanguage}`);
 
-    requestAllTranslateAPI(searchText!, fromLanguage, targetLanguage).then(
+    requestTranslate(searchText!, fromLanguage, targetLanguage).then(
       axios.spread((...typeResult) => {
         let baiduRes: TranslateTypeResult | null = null;
         let tecentRes: TranslateTypeResult | null = null;
@@ -198,7 +198,6 @@ export default function () {
         }
 
         const reformatResult = reformatTranslateResult(sourceResult);
-
         const [from, to] = sourceResult.youdaoResult!.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { Axios } from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoLanguageId, myPreferences } from "./utils";
@@ -81,17 +81,24 @@ export function tencentLanguageDetect(
 }
 
 // concurrent request for multiple translation interfaces
-export function requestAllTranslateAPI(
+export function requestTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult[]> {
-  return axios.all([
-    youdaoTextTranslate(queryText, fromLanguage, targetLanguage),
-    baiduTextTranslate(queryText, fromLanguage, targetLanguage),
-    tencentTextTranslate(queryText, fromLanguage, targetLanguage),
-    caiyunTextTranslate(queryText, fromLanguage, targetLanguage),
-  ]);
+  let requests = [youdaoTextTranslate(queryText, fromLanguage, targetLanguage)];
+  if (myPreferences.enableBaiduTranslate) {
+    requests.push(baiduTextTranslate(queryText, fromLanguage, targetLanguage));
+  }
+  if (myPreferences.enableTencentTranslate) {
+    requests.push(
+      tencentTextTranslate(queryText, fromLanguage, targetLanguage)
+    );
+  }
+  if (myPreferences.enableCaiyunTranslate) {
+    requests.push(caiyunTextTranslate(queryText, fromLanguage, targetLanguage));
+  }
+  return axios.all(requests);
 }
 
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
@@ -109,7 +116,6 @@ export function youdaoTextTranslate(
 
   const appId = myPreferences.youdaoAppId;
   const appSecret = myPreferences.youdaoAppSecret;
-
   const sha256 = crypto.createHash("sha256");
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
@@ -117,9 +123,6 @@ export function youdaoTextTranslate(
     appId + truncate(queryText) + salt + timestamp + appSecret;
   const sign = sha256.update(sha256Content).digest("hex");
   const url = "https://openapi.youdao.com/api";
-
-  console.log("requestYoudaoAPI");
-
   const params = querystring.stringify({
     sign,
     salt,
@@ -149,26 +152,16 @@ export function baiduTextTranslate(
 ): Promise<TranslateTypeResult> {
   const appId = myPreferences.baiduAppId;
   const appSecret = myPreferences.baiduAppSecret;
-
   const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
   const md5Content = appId + queryText + salt + appSecret;
   const sign = md5.update(md5Content).digest("hex");
-  const apiServer = "https://fanyi-api.baidu.com/api/trans/vip/translate";
-
+  const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from =
     getLanguageItemFromYoudaoLanguageId(fromLanguage).baiduLanguageId;
   const to =
     getLanguageItemFromYoudaoLanguageId(targetLanguage).baiduLanguageId;
-
-  let encodeQueryText = encodeURIComponent(queryText);
-
-  encodeQueryText = Buffer.from(encodeQueryText).toString("utf8");
-
-  const url =
-    apiServer +
-    `?q=${encodeQueryText}&from=${from}&to=${to}&appid=${appId}&salt=${salt}&sign=${sign}`;
-
+  let encodeQueryText = Buffer.from(queryText, "utf8").toString();
   const params = {
     q: encodeQueryText,
     from: from,
@@ -177,19 +170,9 @@ export function baiduTextTranslate(
     salt: salt,
     sign: sign,
   };
-  console.log("requestBaiduAPI params", params);
 
   return new Promise((resolve) => {
-    axios.get(apiServer, { params }).then((response) => {
-      resolve({
-        type: TranslateType.Baidu,
-        result: response.data,
-      });
-    });
-  });
-
-  return new Promise((resolve) => {
-    axios.get(url).then((response) => {
+    axios.get(url, { params }).then((response) => {
       resolve({
         type: TranslateType.Baidu,
         result: response.data,

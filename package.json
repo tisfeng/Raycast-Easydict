@@ -251,6 +251,31 @@
       "default": false
     },
     {
+      "title": "Translation Services",
+      "name": "enableBaiduTranslate",
+      "type": "checkbox",
+      "label": "Baidu Translate",
+      "required": false,
+      "description": "Turn on/off Baidu Translate",
+      "default": true
+    },
+    {
+      "name": "enableTencentTranslate",
+      "type": "checkbox",
+      "label": "Tencent Translate",
+      "required": false,
+      "description": "Turn on/off Tencent Translate",
+      "default": false
+    },
+    {
+      "name": "enableCaiyunTranslate",
+      "type": "checkbox",
+      "label": "Caiyun Translate",
+      "required": false,
+      "description": "Turn on/off Caiyun Translate",
+      "default": false
+    },
+    {
       "title": "Youdao App ID",
       "name": "youdaoAppId",
       "type": "password",

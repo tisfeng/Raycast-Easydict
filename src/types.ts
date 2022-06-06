@@ -61,6 +61,9 @@ export interface MyPreferences {
   tencentProjectId: string;
   isAutomaticQueryClipboard: boolean;
   isDisplayTargetTranslationLanguage: boolean;
+  enableBaiduTranslate: boolean;
+  enableTencentTranslate: boolean;
+  enableCaiyunTranslate: boolean;
 }
 
 export interface ListItemActionPanelItem {
