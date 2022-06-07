@@ -49,7 +49,7 @@ import {
 } from "./utils";
 import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
-  reformatTranslateDisplayResult,
+  formatTranslateDisplayResult,
   formatTranslateResult,
 } from "./dataFormat";
 
@@ -213,7 +213,7 @@ export default function () {
 
         updateLoadingState(false);
         updateTranslateDisplayResult(
-          reformatTranslateDisplayResult(formatResult)
+          formatTranslateDisplayResult(formatResult)
         );
         updateIsShowingDetail(isTranslationTooLong(formatResult));
 

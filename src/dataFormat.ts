@@ -79,20 +79,20 @@ export function formatTranslateResult(
   };
 }
 
-export function reformatTranslateDisplayResult(
-  reformatResult: TranslateFormatResult
+export function formatTranslateDisplayResult(
+  formatResult: TranslateFormatResult
 ): TranslateDisplayResult[] {
   let displayResult: Array<TranslateDisplayResult> = [];
 
   // console.log("reformatResult: ", JSON.stringify(reformatResult));
 
   const isShowMultipleTranslations =
-    !reformatResult.explanations &&
-    !reformatResult.forms &&
-    !reformatResult.webPhrases &&
-    !reformatResult.webTranslation;
+    !formatResult.explanations &&
+    !formatResult.forms &&
+    !formatResult.webPhrases &&
+    !formatResult.webTranslation;
 
-  for (const [i, translation] of reformatResult.translations.entries()) {
+  for (const [i, translation] of formatResult.translations.entries()) {
     let sectionType = isShowMultipleTranslations
       ? translation.type
       : SectionType.Translation;
@@ -114,11 +114,11 @@ export function reformatTranslateDisplayResult(
           title: oneLineTranslation,
           tooltip: tooltip,
           copyText: oneLineTranslation,
-          phonetic: reformatResult.queryWordInfo.phonetic,
-          examTypes: reformatResult.queryWordInfo.examTypes,
-          translationDetail: formatTranslationText(
+          phonetic: formatResult.queryWordInfo.phonetic,
+          examTypes: formatResult.queryWordInfo.examTypes,
+          translationDetail: formatAllTypeTranslation(
             sectionType,
-            translation.text
+            formatResult
           ),
         },
       ],
@@ -132,7 +132,7 @@ export function reformatTranslateDisplayResult(
   let hasShowDetailsSectionTitle = false;
   let detailsSectionTitle = "Details";
 
-  reformatResult.explanations?.forEach((explanation, i) => {
+  formatResult.explanations?.forEach((explanation, i) => {
     displayResult.push({
       type: SectionType.Explanations,
       sectionTitle: !hasShowDetailsSectionTitle
@@ -151,7 +151,7 @@ export function reformatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   });
 
-  const wfs = reformatResult.forms?.map((wfItem, idx) => {
+  const wfs = formatResult.forms?.map((wfItem, idx) => {
     return wfItem.wf?.name + " " + wfItem.wf?.value;
   });
 
@@ -177,9 +177,9 @@ export function reformatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   }
 
-  if (reformatResult.webTranslation) {
-    const webResultKey = reformatResult.webTranslation?.key;
-    const webResultValue = reformatResult.webTranslation.value.join("；");
+  if (formatResult.webTranslation) {
+    const webResultKey = formatResult.webTranslation?.key;
+    const webResultValue = formatResult.webTranslation.value.join("；");
     displayResult.push({
       type: SectionType.WebTranslation,
       sectionTitle: !hasShowDetailsSectionTitle
@@ -199,7 +199,7 @@ export function reformatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   }
 
-  reformatResult.webPhrases?.forEach((phrase, i) => {
+  formatResult.webPhrases?.forEach((phrase, i) => {
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
     displayResult.push({
@@ -224,16 +224,45 @@ export function reformatTranslateDisplayResult(
   return displayResult;
 }
 
+export function formatAllTypeTranslation(
+  type: TranslateType | SectionType,
+  formatResult: TranslateFormatResult
+) {
+  const sourceText = formatResult.queryWordInfo.query;
+  let translations = [] as TranslateItem[];
+  for (const translation of formatResult.translations) {
+    const formatTranslation = formatTranslationType(
+      translation.type,
+      translation.text
+    );
+    translations.push({ type: translation.type, text: formatTranslation });
+  }
+  // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
+  for (let i = 0; i < translations.length; i++) {
+    if (translations[i].type === type) {
+      const temp = translations[i];
+      translations.splice(i, 1);
+      translations.unshift(temp);
+      break;
+    }
+  }
+  return translations
+    .map((translation) => {
+      return translation.text;
+    })
+    .join("\n");
+}
+
 // function format translation result to display multiple translations
-export function formatTranslationText(
+export function formatTranslationType(
   type: TranslateType | SectionType,
   text: string
 ) {
   let string = text.replace(/\n/g, "\n\n");
   let markdown = `
-  # ${type} 
+  ## ${type} 
   ---  
-  \n  
-  ${string}`;
+  ${string}
+  `;
   return markdown;
 }

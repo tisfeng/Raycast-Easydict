@@ -69,13 +69,13 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 In order to better match the automatic clipboard query feature, it is a good idea to set a hotkey for `Easydic`, such as `Shift` + `Cmd ` + `E`, so that after copying the text, you can directly query words through the hotkey, which is very smooth and elegant. 
 In addition, to avoid frequently querying the same clipboard words, we set a `10 minute` limit, that is, if the latest word on the clipboard is automatically queried only once within 10 minutes, of course, you can manually paste and query at any time.
 </details>
+
 ### Select Target Translation Language
 
 <details>
   <summary> Specify the target translation language. This option is turned off by default. </summary>
 By default, the extension will automatically select the preferred languages as the target translation language, but sometimes if you want to manually specify a supported language as the target language, you can turn on the option `Select Target Translation Language` on the preference page, and then you can temporarily select another target language in the action panel.
 </details>
-
 ### Translation Services
 
 For easy to use, we provide some built-in translation APIs appid and appkey, but these Services have request frequency limits. If many people use them at the same time, it is likely to slow down or even stop. Therefore, for a better use experience, you'd better apply for a dedicated appid and appkey, and then replace the built-in services on the Preferences page.
