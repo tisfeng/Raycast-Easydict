@@ -18,8 +18,8 @@ var CryptoJS = require("crypto-js");
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
 
-export const maxLineLengthOfChineseTextDisplay = 40;
-export const maxLineLengthOfEnglishTextDisplay = 90;
+export const maxLineLengthOfChineseTextDisplay = 45;
+export const maxLineLengthOfEnglishTextDisplay = 100;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
@@ -67,19 +67,20 @@ export function isTranslateResultTooLong(
 
   for (const translation of formatResult.translations) {
     const textLength = translation.text.length;
+    console.log(`type: ${translation.type}, textLength: ${textLength}`);
     if (isChineseTextResult) {
-      if (textLength < maxLineLengthOfChineseTextDisplay) {
-        return false;
+      if (textLength > maxLineLengthOfChineseTextDisplay) {
+        return true;
       }
     } else if (isEnglishTextResult) {
-      if (textLength < maxLineLengthOfEnglishTextDisplay) {
-        return false;
+      if (textLength > maxLineLengthOfEnglishTextDisplay) {
+        return true;
       }
-    } else if (textLength < maxLineLengthOfEnglishTextDisplay) {
-      return false;
+    } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
+      return true;
     }
   }
-  return true;
+  return false;
 }
 
 // function: truncate too long text for playing sound
