@@ -77,7 +77,7 @@ export default function () {
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
      */
-  const [currentSourceLanguageItem, setCurrentSourceLanguageItem] =
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
   /*
     default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
@@ -133,8 +133,11 @@ export default function () {
                   youdaoTranslateTypeResult.errorInfo
                 )}`
               );
-              setLoadingState(false);
-              setTranslateDisplayResult([]);
+              setTranslateDisplayResult(() => {
+                setLoadingState(false);
+                setIsShowingDetail(false);
+                return [];
+              });
               return;
             }
           }
@@ -206,11 +209,12 @@ export default function () {
           return;
         }
 
-        setLoadingState(false);
-        setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
-        setIsShowingDetail(isTranslateResultTooLong(formatResult));
-
-        setCurrentSourceLanguageItem(getLanguageItemFromLanguageId(from));
+        setCurrentFromLanguageItem(getLanguageItemFromLanguageId(from));
+        setTranslateDisplayResult(() => {
+          setLoadingState(false);
+          setIsShowingDetail(isTranslateResultTooLong(formatResult));
+          return formatTranslateDisplayResult(formatResult);
+        });
 
         checkIsInstalledEudic(setIsInstalledEudic);
       })
@@ -294,9 +298,7 @@ export default function () {
 
   function translateWithSourceLanguageId(youdaoLanguageId: string) {
     console.log("currentLanguageId: ", youdaoLanguageId);
-    setCurrentSourceLanguageItem(
-      getLanguageItemFromLanguageId(youdaoLanguageId)
-    );
+    setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
 
     // priority to use user selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
@@ -353,13 +355,13 @@ export default function () {
 
     let eudicWebUrl = getEudicWebTranslateURL(
       searchText || "",
-      currentSourceLanguageItem!,
+      currentFromLanguageItem!,
       autoSelectedTargetLanguageItem
     );
 
     let youdaoWebUrl = getYoudaoWebTranslateURL(
       searchText || "",
-      currentSourceLanguageItem!,
+      currentFromLanguageItem!,
       autoSelectedTargetLanguageItem
     );
 
@@ -391,13 +393,13 @@ export default function () {
                         youdaoWebUrl={youdaoWebUrl}
                         queryText={searchText}
                         copyText={item.copyText}
-                        currentFromLanguage={currentSourceLanguageItem}
+                        currentFromLanguage={currentFromLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}
                         onLanguageUpdate={(value) => {
                           setAutoSelectedTargetLanguageItem(value);
                           setUserSelectedTargetLanguageItem(value);
                           translate(
-                            currentSourceLanguageItem!.youdaoLanguageId,
+                            currentFromLanguageItem!.youdaoLanguageId,
                             value.youdaoLanguageId
                           );
                         }}
@@ -418,8 +420,11 @@ export default function () {
 
     let trimText = text.trim();
     if (trimText.length == 0) {
-      setLoadingState(false);
-      setTranslateDisplayResult([]);
+      setTranslateDisplayResult(() => {
+        setLoadingState(false);
+        setIsShowingDetail(false);
+        return [];
+      });
       return;
     }
 
