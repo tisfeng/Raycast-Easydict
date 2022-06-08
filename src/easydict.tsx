@@ -40,9 +40,9 @@ import {
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
-  getInputTextLanguageId,
+  detectInputTextLanguageId,
   getLanguageItemFromTencentDetectLanguageId,
-  getLanguageItemFromYoudaoLanguageId,
+  getLanguageItemFromLanguageId,
   getYoudaoWebTranslateURL,
   isTranslateResultTooLong,
   saveQueryClipboardRecord,
@@ -77,7 +77,7 @@ export default function () {
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
      */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] =
+  const [currentSourceLanguageItem, setCurrentSourceLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
   /*
     default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
@@ -200,7 +200,7 @@ export default function () {
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
           setAutoSelectedTargetLanguageItem(
-            getLanguageItemFromYoudaoLanguageId(target)
+            getLanguageItemFromLanguageId(target)
           );
           translate(from, target);
           return;
@@ -210,7 +210,7 @@ export default function () {
         setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
         setIsShowingDetail(isTranslateResultTooLong(formatResult));
 
-        setCurrentFromLanguageItem(getLanguageItemFromYoudaoLanguageId(from));
+        setCurrentSourceLanguageItem(getLanguageItemFromLanguageId(from));
 
         checkIsInstalledEudic(setIsInstalledEudic);
       })
@@ -257,9 +257,7 @@ export default function () {
       selectedText = selectedText.trim().substring(0, maxInputTextLength);
       setSearchText(selectedText);
       setInputText(selectedText);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {
@@ -277,13 +275,13 @@ export default function () {
             getLanguageItemFromTencentDetectLanguageId(
               languageId
             ).youdaoLanguageId;
-          translateFromYoudaoLanguageId(youdaoLanguageId);
+          translateWithSourceLanguageId(youdaoLanguageId);
         },
         (err) => {
           console.error("tencent language detect error: ", err);
 
-          const currentLanguageId = getInputTextLanguageId(searchText);
-          translateFromYoudaoLanguageId(currentLanguageId);
+          const currentLanguageId = detectInputTextLanguageId(searchText);
+          translateWithSourceLanguageId(currentLanguageId);
         }
       );
       return;
@@ -291,27 +289,28 @@ export default function () {
 
     if (!searchText) {
       tryQuerySelecedtText();
-      // tryQueryClipboardText(queryClipboardText);
     }
   }, [searchText]);
 
-  function translateFromYoudaoLanguageId(languageId: string) {
-    console.log("currentLanguageId: ", languageId);
-    setCurrentFromLanguageItem(getLanguageItemFromYoudaoLanguageId(languageId));
+  function translateWithSourceLanguageId(youdaoLanguageId: string) {
+    console.log("currentLanguageId: ", youdaoLanguageId);
+    setCurrentSourceLanguageItem(
+      getLanguageItemFromLanguageId(youdaoLanguageId)
+    );
 
     // priority to use user selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
     console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
 
     // if conflict, use auto selected target language
-    if (languageId === tartgetLanguageId) {
-      tartgetLanguageId = getAutoSelectedTargetLanguageId(languageId);
+    if (youdaoLanguageId === tartgetLanguageId) {
+      tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
       setAutoSelectedTargetLanguageItem(
-        getLanguageItemFromYoudaoLanguageId(tartgetLanguageId)
+        getLanguageItemFromLanguageId(tartgetLanguageId)
       );
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
-    translate(languageId, tartgetLanguageId);
+    translate(youdaoLanguageId, tartgetLanguageId);
   }
 
   function ListDetail() {
@@ -354,13 +353,13 @@ export default function () {
 
     let eudicWebUrl = getEudicWebTranslateURL(
       searchText || "",
-      currentFromLanguageItem!,
+      currentSourceLanguageItem!,
       autoSelectedTargetLanguageItem
     );
 
     let youdaoWebUrl = getYoudaoWebTranslateURL(
       searchText || "",
-      currentFromLanguageItem!,
+      currentSourceLanguageItem!,
       autoSelectedTargetLanguageItem
     );
 
@@ -381,7 +380,7 @@ export default function () {
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
                     detail={
-                      <List.Item.Detail markdown={item.translationDetail} />
+                      <List.Item.Detail markdown={item.translationMarkdown} />
                     }
                     actions={
                       <ListActionPanel
@@ -392,13 +391,13 @@ export default function () {
                         youdaoWebUrl={youdaoWebUrl}
                         queryText={searchText}
                         copyText={item.copyText}
-                        currentFromLanguage={currentFromLanguageItem}
+                        currentFromLanguage={currentSourceLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}
                         onLanguageUpdate={(value) => {
                           setAutoSelectedTargetLanguageItem(value);
                           setUserSelectedTargetLanguageItem(value);
                           translate(
-                            currentFromLanguageItem!.youdaoLanguageId,
+                            currentSourceLanguageItem!.youdaoLanguageId,
                             value.youdaoLanguageId
                           );
                         }}

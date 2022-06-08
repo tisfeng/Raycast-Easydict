@@ -9,18 +9,14 @@ import {
   defaultTencentSecretKey,
   defaultYoudaoAppId,
   defaultYoudaoAppSecret,
-  getLanguageItemFromYoudaoLanguageId,
+  getLanguageItemFromLanguageId,
   myDecrypt,
   myEncrypt,
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import {
-  CaiyunTranslateResult,
-  TencentTranslateResult,
-  TranslateTypeResult,
-} from "./types";
+import { TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
 
 // youdao appid and appsecret
@@ -87,10 +83,8 @@ export function tencentTextTranslate(
   const decryptText = myDecrypt(encryptedText);
 
   const from =
-    getLanguageItemFromYoudaoLanguageId(fromLanguage).tencentLanguageId ||
-    "auto";
-  const to =
-    getLanguageItemFromYoudaoLanguageId(targetLanguage).tencentLanguageId;
+    getLanguageItemFromLanguageId(fromLanguage).tencentLanguageId || "auto";
+  const to = getLanguageItemFromLanguageId(targetLanguage).tencentLanguageId;
   if (!to) {
     return Promise.reject(
       new Error("Target language is not supported by Tencent Translate")
@@ -204,10 +198,8 @@ export function baiduTextTranslate(
   const md5Content = appId + queryText + salt + appSecret;
   const sign = md5.update(md5Content).digest("hex");
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
-  const from =
-    getLanguageItemFromYoudaoLanguageId(fromLanguage).baiduLanguageId;
-  const to =
-    getLanguageItemFromYoudaoLanguageId(targetLanguage).baiduLanguageId;
+  const from = getLanguageItemFromLanguageId(fromLanguage).baiduLanguageId;
+  const to = getLanguageItemFromLanguageId(targetLanguage).baiduLanguageId;
   let encodeQueryText = Buffer.from(queryText, "utf8").toString();
   const params = {
     q: encodeQueryText,
@@ -236,10 +228,8 @@ export function caiyunTextTranslate(
 ): Promise<TranslateTypeResult> {
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
   const from =
-    getLanguageItemFromYoudaoLanguageId(fromLanguage).caiyunLanguageId ||
-    "auto";
-  const to =
-    getLanguageItemFromYoudaoLanguageId(targetLanguage).caiyunLanguageId;
+    getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
+  const to = getLanguageItemFromLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
   console.log("trans_type: ", trans_type);
 
@@ -270,7 +260,7 @@ export function caiyunTextTranslate(
       .then((response) => {
         resolve({
           type: TranslateType.Caiyun,
-          result: response.data as CaiyunTranslateResult,
+          result: response.data,
         });
       })
       .catch((error) => {

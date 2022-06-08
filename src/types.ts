@@ -55,7 +55,7 @@ export interface MyPreferences {
   youdaoAppSecret: string;
   baiduAppId: string;
   baiduAppSecret: string;
-  caiyunAppToken: string;
+  caiyunToken: string;
   tencentSecretId: string;
   tencentSecretKey: string;
   tencentProjectId: string;
@@ -169,7 +169,7 @@ export interface TranslateDisplayItem {
   subtitle?: string;
   phonetic?: string;
   examTypes?: string[];
-  translationDetail?: string;
+  translationMarkdown?: string;
 }
 
 export interface ClipboardRecoredItem {

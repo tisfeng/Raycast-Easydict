@@ -13,6 +13,7 @@ import {
   QueryRecoredItem,
   TranslateFormatResult,
 } from "./types";
+
 var CryptoJS = require("crypto-js");
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
@@ -22,10 +23,10 @@ export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 100;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
+export const defaultLanguage1 = getLanguageItemFromLanguageId(
   myPreferences.language1
 );
-export const defaultLanguage2 = getLanguageItemFromYoudaoLanguageId(
+export const defaultLanguage2 = getLanguageItemFromLanguageId(
   myPreferences.language2
 );
 
@@ -105,7 +106,7 @@ export function isPreferredChinese(): boolean {
   return false;
 }
 
-export function getLanguageItemFromYoudaoLanguageId(
+export function getLanguageItemFromLanguageId(
   youdaoLanguageId: string
 ): LanguageItem {
   for (const langItem of languageItemList) {
@@ -139,12 +140,13 @@ export function getLanguageItemFromTencentDetectLanguageId(
   };
 }
 
-function getAnotherLanguageItem(
+// function: get another language item expcept chinese
+
+function getLanguageItemExpceptChinese(
   from: LanguageItem,
   to: LanguageItem
 ): LanguageItem {
-  const zh = "zh-CHS";
-  if (from.youdaoLanguageId === zh) {
+  if (from.youdaoLanguageId === "zh-CHS") {
     return to;
   } else {
     return from;
@@ -156,7 +158,7 @@ export function getEudicWebTranslateURL(
   from: LanguageItem,
   to: LanguageItem
 ): string {
-  const eudicWebLanguageId = getAnotherLanguageItem(
+  const eudicWebLanguageId = getLanguageItemExpceptChinese(
     from,
     to
   ).eudicWebLanguageId;
@@ -173,7 +175,7 @@ export function getYoudaoWebTranslateURL(
   from: LanguageItem,
   to: LanguageItem
 ): string {
-  const youdaoWebLanguageId = getAnotherLanguageItem(
+  const youdaoWebLanguageId = getLanguageItemExpceptChinese(
     from,
     to
   ).youdaoWebLanguageId;
@@ -185,7 +187,7 @@ export function getYoudaoWebTranslateURL(
   return "";
 }
 
-export function getGoogleTranslateURL(
+export function getGoogleWebTranslateURL(
   queryText: string,
   from: LanguageItem,
   to: LanguageItem
@@ -279,22 +281,22 @@ export function isEnglishOrNumber(text: string) {
 }
 
 // function: get the language type represented by the string, priority to use English and Chinese, and then auto
-export function getInputTextLanguageId(inputText: string): string {
+export function detectInputTextLanguageId(inputText: string): string {
   let fromLanguageId = "auto";
-  const englishLanguageId = "en";
-  const chineseLanguageId = "zh-CHS";
+  const EnglishLanguageId = "en";
+  const ChineseLanguageId = "zh-CHS";
   if (
     isEnglishOrNumber(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === englishLanguageId ||
-      defaultLanguage2.youdaoLanguageId === englishLanguageId)
+    (defaultLanguage1.youdaoLanguageId === EnglishLanguageId ||
+      defaultLanguage2.youdaoLanguageId === EnglishLanguageId)
   ) {
-    fromLanguageId = englishLanguageId;
+    fromLanguageId = EnglishLanguageId;
   } else if (
     isContainChinese(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === chineseLanguageId ||
-      defaultLanguage2.youdaoLanguageId === chineseLanguageId)
+    (defaultLanguage1.youdaoLanguageId === ChineseLanguageId ||
+      defaultLanguage2.youdaoLanguageId === ChineseLanguageId)
   ) {
-    fromLanguageId = chineseLanguageId;
+    fromLanguageId = ChineseLanguageId;
   }
 
   console.log("fromLanguage-->:", fromLanguageId);
@@ -312,7 +314,7 @@ export function getAutoSelectedTargetLanguageId(
     targetLanguageId = defaultLanguage1.youdaoLanguageId;
   }
 
-  const targetLanguage = getLanguageItemFromYoudaoLanguageId(targetLanguageId);
+  const targetLanguage = getLanguageItemFromLanguageId(targetLanguageId);
 
   console.log(
     `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`

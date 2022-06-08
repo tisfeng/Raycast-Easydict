@@ -26,6 +26,7 @@
     "youdao",
     "eudic",
     "baidu",
+    "tencent",
     "caiyun"
   ],
   "preferences": [
@@ -265,7 +266,7 @@
       "label": "Tencent Translate",
       "required": false,
       "description": "Turn on/off Tencent Translate",
-      "default": false
+      "default": true
     },
     {
       "name": "enableCaiyunTranslate",

@@ -116,7 +116,7 @@ export function formatTranslateDisplayResult(
           copyText: oneLineTranslation,
           phonetic: formatResult.queryWordInfo.phonetic,
           examTypes: formatResult.queryWordInfo.examTypes,
-          translationDetail: formatAllTypeTranslation(
+          translationMarkdown: formatAllTypeTranslationToMarkdown(
             sectionType,
             formatResult
           ),
@@ -224,14 +224,14 @@ export function formatTranslateDisplayResult(
   return displayResult;
 }
 
-export function formatAllTypeTranslation(
+export function formatAllTypeTranslationToMarkdown(
   type: TranslateType | SectionType,
   formatResult: TranslateFormatResult
 ) {
   const sourceText = formatResult.queryWordInfo.query;
   let translations = [] as TranslateItem[];
   for (const translation of formatResult.translations) {
-    const formatTranslation = formatTranslationType(
+    const formatTranslation = formatTranslationToMarkdown(
       translation.type,
       translation.text
     );
@@ -254,7 +254,7 @@ export function formatAllTypeTranslation(
 }
 
 // function format translation result to display multiple translations
-export function formatTranslationType(
+export function formatTranslationToMarkdown(
   type: TranslateType | SectionType,
   text: string
 ) {

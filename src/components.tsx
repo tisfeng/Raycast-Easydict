@@ -17,7 +17,7 @@ import {
   Toast,
 } from "@raycast/api";
 import {
-  getGoogleTranslateURL,
+  getGoogleWebTranslateURL,
   myPreferences,
   truncateTextForPlayingSound,
 } from "./utils";
@@ -202,7 +202,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           <Action.OpenInBrowser
             icon={Icon.Link}
             title="See Google Translate Results"
-            url={getGoogleTranslateURL(
+            url={getGoogleWebTranslateURL(
               this.props.queryText!,
               this.props.currentFromLanguage!,
               this.props.currentTargetLanguage!
