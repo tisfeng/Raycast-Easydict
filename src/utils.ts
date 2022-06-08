@@ -59,21 +59,14 @@ const defaultEncryptedCaiyunToken =
 export const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
 
 // export function: Determine whether the title of the result exceeds the maximum value of one line.
-export function isTranslationTooLong(
+export function isTranslateResultTooLong(
   formatResult: TranslateFormatResult
 ): boolean {
-  console.log(formatResult.queryWordInfo.query);
-  console.log(
-    "isTranslatResultTooLong: ",
-    formatResult.queryWordInfo.query.length
-  );
-
   const isChineseTextResult = formatResult.queryWordInfo.to === "zh-CHS";
   const isEnglishTextResult = formatResult.queryWordInfo.to === "en";
 
   for (const translation of formatResult.translations) {
     const textLength = translation.text.length;
-    console.log(`length: ${textLength}`);
     if (isChineseTextResult) {
       if (textLength < maxLineLengthOfChineseTextDisplay) {
         return false;
@@ -89,9 +82,14 @@ export function isTranslationTooLong(
   return true;
 }
 
-export function truncate(string: string, length = 40, separator = "...") {
-  if (string.length <= length) return string;
-  return string.substring(0, length) + separator;
+// function: truncate too long text for playing sound
+export function truncateTextForPlayingSound(
+  text: string,
+  length = 40,
+  separator = "..."
+) {
+  if (text.length <= length) return text;
+  return text.substring(0, length) + separator;
 }
 
 export function isPreferredChinese(): boolean {
@@ -340,35 +338,35 @@ async function traverseAllInstalledApplications(
 }
 
 export function checkIsInstalledEudic(
-  updateIsInstalledEudic: (isInstalled: boolean) => void
+  setIsInstalledEudic: (isInstalled: boolean) => void
 ) {
   LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
-    console.log("is install: ", isInstalledEudic);
+    console.log("is install Eudic: ", isInstalledEudic);
 
     if (isInstalledEudic == true) {
-      updateIsInstalledEudic(true);
+      setIsInstalledEudic(true);
     } else if (isInstalledEudic == false) {
-      updateIsInstalledEudic(false);
+      setIsInstalledEudic(false);
     } else {
-      traverseAllInstalledApplications(updateIsInstalledEudic);
+      traverseAllInstalledApplications(setIsInstalledEudic);
     }
   });
 }
 
 export function myEncrypt(text: string) {
-  console.warn("encrypt:", text);
+  // console.warn("encrypt:", text);
   var ciphertext = CryptoJS.AES.encrypt(
     text,
     environment.extensionName
   ).toString();
-  console.warn("ciphertext: ", ciphertext);
+  // console.warn("ciphertext: ", ciphertext);
   return ciphertext;
 }
 
 export function myDecrypt(ciphertext: string) {
-  console.warn("decrypt:", ciphertext);
+  // console.warn("decrypt:", ciphertext);
   var bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
   var originalText = bytes.toString(CryptoJS.enc.Utf8);
-  console.warn("originalText: ", originalText);
+  // console.warn("originalText: ", originalText);
   return originalText;
 }

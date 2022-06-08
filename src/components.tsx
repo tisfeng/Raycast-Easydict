@@ -16,7 +16,11 @@ import {
   showToast,
   Toast,
 } from "@raycast/api";
-import { getGoogleTranslateURL, myPreferences, truncate } from "./utils";
+import {
+  getGoogleTranslateURL,
+  myPreferences,
+  truncateTextForPlayingSound,
+} from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -131,7 +135,10 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
       const voiceIndex = 0;
       for (const LANG of languageItemList) {
         if (language === LANG.youdaoLanguageId) {
-          const truncateText = truncate(text).replace(/"/g, " ");
+          const truncateText = truncateTextForPlayingSound(text).replace(
+            /"/g,
+            " "
+          );
           const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${truncateText}'`;
           console.log(sayCommand);
           LANG.languageVoice.length > 0 && exec(sayCommand);

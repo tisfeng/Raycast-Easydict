@@ -9,6 +9,7 @@ import {
   Action,
   ActionPanel,
   Color,
+  getSelectedText,
   Icon,
   List,
   showToast,
@@ -43,9 +44,8 @@ import {
   getLanguageItemFromTencentDetectLanguageId,
   getLanguageItemFromYoudaoLanguageId,
   getYoudaoWebTranslateURL,
-  isTranslationTooLong,
+  isTranslateResultTooLong,
   saveQueryClipboardRecord,
-  tryQueryClipboardText,
 } from "./utils";
 import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
@@ -59,52 +59,35 @@ let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
 export default function () {
-  // use to display input text
-  const [inputText, updateInputText] = useState<string>();
-  // searchText = inputText.trim(), avoid frequent request API
-  const [searchText, updateSearchText] = useState<string>();
+  checkLanguageIsSame();
 
-  const [isLoadingState, updateLoadingState] = useState<boolean>(false);
-  const [isShowingDetail, updateIsShowingDetail] = useState<boolean>(false);
-
-  const [isInstalledEudic, updateIsInstalledEudic] = useState<boolean>(false);
-
-  // Delay the time to call the query API. The API has frequency limit.
+  // Delay the time to call the query API. Since API has frequency limit.
   const delayRequestTime = 600;
 
-  if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
-    return (
-      <List>
-        <List.Item
-          title={"Language Conflict"}
-          icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
-          subtitle={
-            "Your first Language with second Language must be different."
-          }
-        />
-      </List>
-    );
-  }
+  const [isLoadingState, setLoadingState] = useState<boolean>(false);
+  const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
+  const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
-  const [translateDisplayResult, updateTranslateDisplayResult] =
+  // use to display input text
+  const [inputText, setInputText] = useState<string>();
+  // searchText = inputText.trim(), avoid frequent request API
+  const [searchText, setSearchText] = useState<string>();
+  const [translateDisplayResult, setTranslateDisplayResult] =
     useState<TranslateDisplayResult[]>();
-
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
      */
-  const [currentFromLanguageItem, updateCurrentFromLanguageItem] =
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
-
   /*
     default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
     */
-  const [autoSelectedTargetLanguageItem, updateAutoSelectedTargetLanguageItem] =
+  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] =
     useState<LanguageItem>(defaultLanguage1);
-
   /*
     the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
     */
-  const [userSelectedTargetLanguageItem, updateUserSelectedTargetLanguageItem] =
+  const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
   function translate(fromLanguage: string, targetLanguage: string) {
@@ -150,8 +133,8 @@ export default function () {
                   youdaoTranslateTypeResult.errorInfo
                 )}`
               );
-              updateLoadingState(false);
-              updateTranslateDisplayResult([]);
+              setLoadingState(false);
+              setTranslateDisplayResult([]);
               return;
             }
           }
@@ -216,26 +199,41 @@ export default function () {
         const [from, to] = sourceResult.youdaoResult!.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);
-          updateAutoSelectedTargetLanguageItem(
+          setAutoSelectedTargetLanguageItem(
             getLanguageItemFromYoudaoLanguageId(target)
           );
           translate(from, target);
           return;
         }
 
-        updateLoadingState(false);
-        updateTranslateDisplayResult(
-          formatTranslateDisplayResult(formatResult)
-        );
-        updateIsShowingDetail(isTranslationTooLong(formatResult));
+        setLoadingState(false);
+        setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
+        setIsShowingDetail(isTranslateResultTooLong(formatResult));
 
-        updateCurrentFromLanguageItem(
-          getLanguageItemFromYoudaoLanguageId(from)
-        );
+        setCurrentFromLanguageItem(getLanguageItemFromYoudaoLanguageId(from));
 
-        checkIsInstalledEudic(updateIsInstalledEudic);
+        checkIsInstalledEudic(setIsInstalledEudic);
       })
     );
+  }
+
+  // function check first language and second language is the same
+  function checkLanguageIsSame() {
+    if (
+      defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId
+    ) {
+      return (
+        <List>
+          <List.Item
+            title={"Language Conflict"}
+            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+            subtitle={
+              "Your first Language with second Language must be different."
+            }
+          />
+        </List>
+      );
+    }
   }
 
   function delayTranslate(fromLanguage: string, targetLanguage: string) {
@@ -245,16 +243,28 @@ export default function () {
   }
 
   function queryClipboardText(text: string) {
-    text = text.trim();
-    text = text.substring(0, maxInputTextLength);
+    text = text.trim().substring(0, maxInputTextLength);
     saveQueryClipboardRecord(text);
-    updateSearchText(text);
-    updateInputText(text);
+    setSearchText(text);
+    setInputText(text);
+  }
+
+  async function tryQuerySelecedtText() {
+    console.log("tryQuerySelecedtText");
+    try {
+      let selectedText = await getSelectedText();
+      console.log("selectedText: ", selectedText);
+      selectedText = selectedText.trim().substring(0, maxInputTextLength);
+      setSearchText(selectedText);
+      setInputText(selectedText);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   useEffect(() => {
     if (searchText) {
-      updateLoadingState(true);
+      setLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
 
       console.log(`translate text: ${searchText}`);
@@ -280,15 +290,14 @@ export default function () {
     }
 
     if (!searchText) {
-      tryQueryClipboardText(queryClipboardText);
+      tryQuerySelecedtText();
+      // tryQueryClipboardText(queryClipboardText);
     }
   }, [searchText]);
 
   function translateFromYoudaoLanguageId(languageId: string) {
     console.log("currentLanguageId: ", languageId);
-    updateCurrentFromLanguageItem(
-      getLanguageItemFromYoudaoLanguageId(languageId)
-    );
+    setCurrentFromLanguageItem(getLanguageItemFromYoudaoLanguageId(languageId));
 
     // priority to use user selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
@@ -297,7 +306,7 @@ export default function () {
     // if conflict, use auto selected target language
     if (languageId === tartgetLanguageId) {
       tartgetLanguageId = getAutoSelectedTargetLanguageId(languageId);
-      updateAutoSelectedTargetLanguageItem(
+      setAutoSelectedTargetLanguageItem(
         getLanguageItemFromYoudaoLanguageId(tartgetLanguageId)
       );
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
@@ -386,8 +395,8 @@ export default function () {
                         currentFromLanguage={currentFromLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}
                         onLanguageUpdate={(value) => {
-                          updateAutoSelectedTargetLanguageItem(value);
-                          updateUserSelectedTargetLanguageItem(value);
+                          setAutoSelectedTargetLanguageItem(value);
+                          setUserSelectedTargetLanguageItem(value);
                           translate(
                             currentFromLanguageItem!.youdaoLanguageId,
                             value.youdaoLanguageId
@@ -406,12 +415,12 @@ export default function () {
   }
 
   function onInputChangeEvent(text: string) {
-    updateInputText(text);
+    setInputText(text);
 
     let trimText = text.trim();
     if (trimText.length == 0) {
-      updateLoadingState(false);
-      updateTranslateDisplayResult([]);
+      setLoadingState(false);
+      setTranslateDisplayResult([]);
       return;
     }
 
@@ -421,7 +430,7 @@ export default function () {
     if (trimText.length > 0 && trimText !== searchText) {
       delayFetchTranslateAPITimer = setTimeout(() => {
         trimText = trimText.substring(0, maxInputTextLength);
-        updateSearchText(trimText);
+        setSearchText(trimText);
       }, delayRequestTime);
     }
   }
