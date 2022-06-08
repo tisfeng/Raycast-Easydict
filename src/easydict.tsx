@@ -145,6 +145,11 @@ export default function () {
             } else if (
               youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()
             ) {
+              console.error(
+                `youdao error: ${JSON.stringify(
+                  youdaoTranslateTypeResult.errorInfo
+                )}`
+              );
               updateLoadingState(false);
               updateTranslateDisplayResult([]);
               return;
@@ -176,6 +181,8 @@ export default function () {
                 title: `${baiduRes.type}: ${baiduErrorCode}`,
                 message: baiduRes.errorInfo.errorMessage,
               });
+              console.error(`${baiduRes.type}: ${baiduErrorCode}`);
+              console.error(baiduRes.errorInfo.errorMessage);
             }
           }
 
@@ -196,6 +203,11 @@ export default function () {
                 }`,
                 message: res.errorInfo!.errorMessage,
               });
+              console.error(
+                `caiyun error: ${res.errorInfo!.errorCode}, ${
+                  res.errorInfo!.errorMessage
+                }`
+              );
             }
           }
         }

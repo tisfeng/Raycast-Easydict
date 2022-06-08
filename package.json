@@ -278,74 +278,68 @@
     {
       "title": "Youdao App ID",
       "name": "youdaoAppId",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Youdao App ID",
-      "default": "17555d7e1ec6fdce"
+      "default": ""
     },
     {
       "title": "Youdao App Secret",
       "name": "youdaoAppSecret",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Youdao App Secret",
-      "default": "6tIP98TMTJIE6HqKsLpKQxlJWfJq4wgx"
+      "default": ""
     },
     {
       "title": "Baidu App ID",
       "name": "baiduAppId",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Baidu App ID",
-      "default": "20220428001194113"
+      "default": ""
     },
     {
       "title": "Baidu App Secret",
       "name": "baiduAppSecret",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Baidu App Secret",
-      "default": "kiaee1BtT9d2MGJUdAMi"
-    },
-    {
-      "title": "Caiyun App Token",
-      "name": "caiyunAppToken",
-      "type": "password",
-      "required": false,
-      "description": "Your Caiyun App Token",
-      "default": "izz99g9m50n4hpi71oke"
+      "default": ""
     },
     {
       "title": "Tencent SecretId",
       "name": "tencentSecretId",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Tencent SecretId",
-      "default": "AKID2vdAUaR3Qp1xe5HEvNaZJn8E5h3B4i6F"
+      "default": ""
     },
     {
       "title": "Tencent SecretKey",
       "name": "tencentSecretKey",
-      "type": "password",
+      "type": "textfield",
       "required": false,
       "description": "Your Tencent SecretKey",
-      "default": "xe5IFzTiiU1KPEo8D3dy84kBNK2VjiSx"
+      "default": ""
     },
     {
-      "title": "Tencent ProjectId",
-      "name": "tencentProjectId",
-      "type": "password",
+      "title": "Caiyun Token",
+      "name": "caiyunToken",
+      "type": "textfield",
       "required": false,
-      "description": "Your Tencent ProjectId",
-      "default": "1265458"
+      "description": "Your Caiyun Token",
+      "default": ""
     }
   ],
   "dependencies": {
     "@raycast/api": "^1.35.1",
     "axios": "^0.25.0",
+    "crypto-js": "^4.1.1",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@types/node": "~16.10.0",
     "@types/react": "^17.0.28",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

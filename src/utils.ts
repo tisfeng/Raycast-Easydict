@@ -1,5 +1,6 @@
 import {
   Clipboard,
+  environment,
   getApplications,
   getPreferenceValues,
   LocalStorage,
@@ -12,12 +13,13 @@ import {
   QueryRecoredItem,
   TranslateFormatResult,
 } from "./types";
+var CryptoJS = require("crypto-js");
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
 
 export const maxLineLengthOfChineseTextDisplay = 40;
-export const maxLineLengthOfEnglishTextDisplay = 100;
+export const maxLineLengthOfEnglishTextDisplay = 90;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
@@ -26,6 +28,35 @@ export const defaultLanguage1 = getLanguageItemFromYoudaoLanguageId(
 export const defaultLanguage2 = getLanguageItemFromYoudaoLanguageId(
   myPreferences.language2
 );
+
+const defaultEncrytedYoudaoAppId =
+  "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
+const defaultEncrytedYoudaoAppKey =
+  "U2FsdGVkX1/JF2ZMngmTw8Vm+P0pHWmHKLQhGpUtYiDc0kLZl6FKw1Vn3hMyl7iL7owwReGJCLsovDxztZKb9g==";
+export const defaultYoudaoAppId = myDecrypt(defaultEncrytedYoudaoAppId);
+export const defaultYoudaoAppSecret = myDecrypt(defaultEncrytedYoudaoAppKey);
+
+const defaultEncryptedBaiduAppId =
+  "U2FsdGVkX1/QHkSw+8qxr99vLkSasBfBRmA6Kb5nMyjP8IJazM9DcOpd3cOY6/il";
+const defaultEncryptedBaiduAppSecret =
+  "U2FsdGVkX1+a2LbZ0+jntJTQjpPKUNWGrlr4NSBOwmlah7iP+w2gefq1UpCan39J";
+export const defaultBaiduAppId = myDecrypt(defaultEncryptedBaiduAppId);
+export const defaultBaiduAppSecret = myDecrypt(defaultEncryptedBaiduAppSecret);
+
+const defaultEncryptedTencentSecretId =
+  "U2FsdGVkX19lHBVXE+CEZI9cENSToLIGzHDsUIE+RyvIC66rgxumDmpYPDY4MdaTSbrq7MIyDvtgXaLvzijYSg==";
+const defaultEncryptedTencentSecretKey =
+  "U2FsdGVkX1+N6wDYXNiUISwKOM97cY03RjXmC+0+iodFo3b4NTNC1J8RR6xqcbdyF7z3Z2yQRMHHxn4m02aUvA==";
+export const defaultTencentSecretId = myDecrypt(
+  defaultEncryptedTencentSecretId
+);
+export const defaultTencentSecretKey = myDecrypt(
+  defaultEncryptedTencentSecretKey
+);
+
+const defaultEncryptedCaiyunToken =
+  "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
+export const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
 
 // export function: Determine whether the title of the result exceeds the maximum value of one line.
 export function isTranslationTooLong(
@@ -322,4 +353,22 @@ export function checkIsInstalledEudic(
       traverseAllInstalledApplications(updateIsInstalledEudic);
     }
   });
+}
+
+export function myEncrypt(text: string) {
+  console.warn("encrypt:", text);
+  var ciphertext = CryptoJS.AES.encrypt(
+    text,
+    environment.extensionName
+  ).toString();
+  console.warn("ciphertext: ", ciphertext);
+  return ciphertext;
+}
+
+export function myDecrypt(ciphertext: string) {
+  console.warn("decrypt:", ciphertext);
+  var bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
+  var originalText = bytes.toString(CryptoJS.enc.Utf8);
+  console.warn("originalText: ", originalText);
+  return originalText;
 }

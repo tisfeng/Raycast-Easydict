@@ -1,7 +1,19 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 import crypto from "crypto";
 import querystring from "node:querystring";
-import { getLanguageItemFromYoudaoLanguageId, myPreferences } from "./utils";
+import {
+  defaultBaiduAppId,
+  defaultBaiduAppSecret,
+  defaultCaiyunToken,
+  defaultTencentSecretId,
+  defaultTencentSecretKey,
+  defaultYoudaoAppId,
+  defaultYoudaoAppSecret,
+  getLanguageItemFromYoudaoLanguageId,
+  myDecrypt,
+  myEncrypt,
+  myPreferences,
+} from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import {
@@ -11,12 +23,44 @@ import {
 } from "./types";
 import { TranslateType } from "./consts";
 
-const tencentSecretId = myPreferences.tencentSecretId;
-const tencentSecretKey = myPreferences.tencentSecretKey;
-const tencentProjectId = parseInt(myPreferences.tencentProjectId);
+// youdao appid and appsecret
+const youdaoAppId =
+  myPreferences.youdaoAppId.trim().length > 0
+    ? myPreferences.youdaoAppId.trim()
+    : defaultYoudaoAppId;
+const youdaoAppSecret =
+  myPreferences.youdaoAppSecret.trim().length > 0
+    ? myPreferences.youdaoAppSecret.trim()
+    : defaultYoudaoAppSecret;
+
+// baidu app id and secret
+const baiduAppId =
+  myPreferences.baiduAppId.trim().length > 0
+    ? myPreferences.baiduAppId.trim()
+    : defaultBaiduAppId;
+const baiduAppSecret =
+  myPreferences.baiduAppSecret.trim().length > 0
+    ? myPreferences.baiduAppSecret.trim()
+    : defaultBaiduAppSecret;
+
+// tencent secret id and key
+const tencentSecretId =
+  myPreferences.tencentSecretId.trim().length > 0
+    ? myPreferences.tencentSecretId.trim()
+    : defaultTencentSecretId;
+const tencentSecretKey =
+  myPreferences.tencentSecretKey.trim().length > 0
+    ? myPreferences.tencentSecretKey.trim()
+    : defaultTencentSecretKey;
+
+const caiyunToken =
+  myPreferences.caiyunToken.trim().length > 0
+    ? myPreferences.caiyunToken.trim()
+    : defaultCaiyunToken;
 
 const tencentEndpoint = "tmt.tencentcloudapi.com";
 const tencentRegion = "ap-guangzhou";
+const tencentProjectId = 0;
 const TmtClient = tencentcloud.tmt.v20180321.Client;
 
 const clientConfig = {
@@ -39,6 +83,9 @@ export function tencentTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
+  const encryptedText = myEncrypt(queryText);
+  const decryptText = myDecrypt(encryptedText);
+
   const from =
     getLanguageItemFromYoudaoLanguageId(fromLanguage).tencentLanguageId ||
     "auto";
@@ -114,8 +161,8 @@ export function youdaoTextTranslate(
       : q.substring(0, 10) + len + q.substring(len - 10, len);
   }
 
-  const appId = myPreferences.youdaoAppId;
-  const appSecret = myPreferences.youdaoAppSecret;
+  const appId = youdaoAppId;
+  const appSecret = youdaoAppSecret;
   const sha256 = crypto.createHash("sha256");
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
@@ -150,8 +197,8 @@ export function baiduTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
-  const appId = myPreferences.baiduAppId;
-  const appSecret = myPreferences.baiduAppSecret;
+  const appId = baiduAppId;
+  const appSecret = baiduAppSecret;
   const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
   const md5Content = appId + queryText + salt + appSecret;
@@ -187,7 +234,6 @@ export function caiyunTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
-  const appToken = myPreferences.caiyunAppToken;
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
   const from =
     getLanguageItemFromYoudaoLanguageId(fromLanguage).caiyunLanguageId ||
@@ -214,7 +260,7 @@ export function caiyunTextTranslate(
   const headers = {
     headers: {
       "content-type": "application/json",
-      "x-authorization": "token " + appToken,
+      "x-authorization": "token " + caiyunToken,
     },
   };
 
@@ -233,10 +279,10 @@ export function caiyunTextTranslate(
           result: null,
           errorInfo: {
             errorCode: error.response.status,
-            errorMessage: !appToken.length ? "Caiyun Token is empty" : "",
+            errorMessage: error.response.statusText,
           },
         });
-        console.log("caiyunTextTranslate error: ", error);
+        console.error("response: ", error.response);
       });
   });
 }
