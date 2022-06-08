@@ -61,8 +61,12 @@ export const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
 
 // export function: Determine whether the title of the result exceeds the maximum value of one line.
 export function isTranslateResultTooLong(
-  formatResult: TranslateFormatResult
+  formatResult: TranslateFormatResult | null
 ): boolean {
+  if (!formatResult) {
+    return false;
+  }
+
   const isChineseTextResult = formatResult.queryWordInfo.to === "zh-CHS";
   const isEnglishTextResult = formatResult.queryWordInfo.to === "en";
 

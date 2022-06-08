@@ -80,9 +80,12 @@ export function formatTranslateResult(
 }
 
 export function formatTranslateDisplayResult(
-  formatResult: TranslateFormatResult
+  formatResult: TranslateFormatResult | null
 ): TranslateDisplayResult[] {
   let displayResult: Array<TranslateDisplayResult> = [];
+  if (!formatResult) {
+    return displayResult;
+  }
 
   // console.log("reformatResult: ", JSON.stringify(reformatResult));
 

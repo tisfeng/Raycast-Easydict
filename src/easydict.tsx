@@ -24,6 +24,7 @@ import {
   BaiduTranslateResult,
   TencentTranslateResult,
   CaiyunTranslateResult,
+  TranslateFormatResult,
 } from "./types";
 import {
   BaiduRequestStateCode,
@@ -54,7 +55,6 @@ import {
 } from "./dataFormat";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
-
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
@@ -133,11 +133,7 @@ export default function () {
                   youdaoTranslateTypeResult.errorInfo
                 )}`
               );
-              setTranslateDisplayResult(() => {
-                setLoadingState(false);
-                setIsShowingDetail(false);
-                return [];
-              });
+              updateTranslateDisplayResult(null);
               return;
             }
           }
@@ -210,12 +206,7 @@ export default function () {
         }
 
         setCurrentFromLanguageItem(getLanguageItemFromLanguageId(from));
-        setTranslateDisplayResult(() => {
-          setLoadingState(false);
-          setIsShowingDetail(isTranslateResultTooLong(formatResult));
-          return formatTranslateDisplayResult(formatResult);
-        });
-
+        updateTranslateDisplayResult(formatResult);
         checkIsInstalledEudic(setIsInstalledEudic);
       })
     );
@@ -420,11 +411,7 @@ export default function () {
 
     let trimText = text.trim();
     if (trimText.length == 0) {
-      setTranslateDisplayResult(() => {
-        setLoadingState(false);
-        setIsShowingDetail(false);
-        return [];
-      });
+      updateTranslateDisplayResult(null);
       return;
     }
 
@@ -437,6 +424,16 @@ export default function () {
         setSearchText(trimText);
       }, delayRequestTime);
     }
+  }
+
+  function updateTranslateDisplayResult(
+    formatResult: TranslateFormatResult | null
+  ) {
+    setTranslateDisplayResult(() => {
+      setLoadingState(false);
+      setIsShowingDetail(isTranslateResultTooLong(formatResult));
+      return formatTranslateDisplayResult(formatResult);
+    });
   }
 
   return (

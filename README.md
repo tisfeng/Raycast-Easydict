@@ -76,6 +76,7 @@ In addition, to avoid frequently querying the same clipboard words, we set a `10
   <summary> Specify the target translation language. This option is turned off by default. </summary>
 By default, the extension will automatically select the preferred languages as the target translation language, but sometimes if you want to manually specify a supported language as the target language, you can turn on the option `Select Target Translation Language` on the preference page, and then you can temporarily select another target language in the action panel.
 </details>
+
 ### Translation Services
 
 For easy to use, we provide some built-in translation APIs appid and appkey, but these Services have request frequency limits. If many people use them at the same time, it is likely to slow down or even stop. Therefore, for a better use experience, you'd better apply for a dedicated appid and appkey, and then replace the built-in services on the Preferences page.
