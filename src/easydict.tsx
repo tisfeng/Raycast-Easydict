@@ -429,11 +429,9 @@ export default function () {
   function updateTranslateDisplayResult(
     formatResult: TranslateFormatResult | null
   ) {
-    setTranslateDisplayResult(() => {
-      setLoadingState(false);
-      setIsShowingDetail(isTranslateResultTooLong(formatResult));
-      return formatTranslateDisplayResult(formatResult);
-    });
+    setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
+    setIsShowingDetail(isTranslateResultTooLong(formatResult));
+    setLoadingState(false);
   }
 
   return (
