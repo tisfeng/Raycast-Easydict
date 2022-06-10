@@ -54,6 +54,8 @@ import {
   formatTranslateResult,
 } from "./dataFormat";
 
+const { bingTranslate } = require("./bing");
+
 let youdaoTranslateTypeResult: TranslateTypeResult;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
@@ -245,7 +247,6 @@ export default function () {
   }
 
   async function tryQuerySelecedtText() {
-    console.log("tryQuerySelecedtText");
     try {
       let selectedText = await getSelectedText();
       console.log("selectedText: ", selectedText);
@@ -304,6 +305,8 @@ export default function () {
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
     translate(youdaoLanguageId, tartgetLanguageId);
+
+    bingTranslate(searchText);
   }
 
   function ListDetail() {

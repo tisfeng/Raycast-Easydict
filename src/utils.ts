@@ -72,7 +72,6 @@ export function isTranslateResultTooLong(
 
   for (const translation of formatResult.translations) {
     const textLength = translation.text.length;
-    console.log(`type: ${translation.type}, textLength: ${textLength}`);
     if (isChineseTextResult) {
       if (textLength > maxLineLengthOfChineseTextDisplay) {
         return true;

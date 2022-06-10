@@ -46,7 +46,7 @@ export function getListItemIcon(
       break;
     }
     case TranslateType.Tencent: {
-      dotColor = Color.Purple; // "#801dae"
+      dotColor = Color.Purple;
       break;
     }
     case TranslateType.Caiyun: {
