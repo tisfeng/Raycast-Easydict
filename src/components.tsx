@@ -167,13 +167,6 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
     return (
       <ActionPanel>
         <ActionPanel.Section>
-          <Action.CopyToClipboard
-            onCopy={() => {
-              console.log("copy: ", this.props.copyText);
-            }}
-            title={`Copy  ${this.props.copyText}`}
-            content={this.props.copyText || ""}
-          />
           {this.props.isInstalledEudic && (
             <Action
               icon={Icon.MagnifyingGlass}
@@ -181,6 +174,13 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
               onAction={() => this.openInEudic(this.props.queryText)}
             />
           )}
+          <Action.CopyToClipboard
+            onCopy={() => {
+              console.log("copy: ", this.props.copyText);
+            }}
+            title={`Copy  ${this.props.copyText}`}
+            content={this.props.copyText || ""}
+          />
         </ActionPanel.Section>
 
         <ActionPanel.Section title="Search Query Text Online">
