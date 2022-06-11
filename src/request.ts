@@ -276,3 +276,20 @@ export function caiyunTextTranslate(
       });
   });
 }
+
+export function icibaDictionary(word: string) {
+  const url = "http://dict-co.iciba.com/api/dictionary.php";
+  const params = {
+    key: "0EAE08A016D6688F64AB3EBB2337BFB0",
+    type: "json",
+    w: word,
+  };
+  axios
+    .get(url, { params })
+    .then((response) => {
+      console.warn("iciba: ", JSON.stringify(response.data, null, 2));
+    })
+    .catch((error) => {
+      console.error("error: ", error);
+    });
+}

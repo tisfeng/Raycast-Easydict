@@ -48,7 +48,11 @@ import {
   isTranslateResultTooLong,
   saveQueryClipboardRecord,
 } from "./utils";
-import { requestTranslate, tencentLanguageDetect } from "./request";
+import {
+  icibaDictionary,
+  requestTranslate,
+  tencentLanguageDetect,
+} from "./request";
 import {
   formatTranslateDisplayResult,
   formatTranslateResult,
@@ -307,6 +311,8 @@ export default function () {
     translate(youdaoLanguageId, tartgetLanguageId);
 
     bingTranslate(searchText);
+
+    icibaDictionary(searchText!);
   }
 
   function ListDetail() {
