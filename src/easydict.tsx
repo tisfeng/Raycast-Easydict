@@ -120,10 +120,6 @@ export default function () {
               getYoudaoErrorInfo(youdaoErrorCode);
 
             sourceResult.youdaoResult = youdaoTranslateReuslt;
-            console.warn(
-              "us-speech: ",
-              youdaoTranslateReuslt.basic?.["us-speech"]
-            );
 
             if (
               youdaoErrorCode ===
