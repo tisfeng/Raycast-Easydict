@@ -56,7 +56,8 @@ export function formatTranslateResult(
   const [from, to] = src.youdaoResult.l.split("2"); // from2to
   const queryTextInfo: QueryWordInfo = {
     query: src.youdaoResult.query,
-    phonetic: src.youdaoResult.basic?.phonetic,
+    phonetic: src.youdaoResult.basic?.["us-phonetic"],
+    speech: src.youdaoResult.basic?.["us-speech"],
     from: from,
     to: to,
     isWord: src.youdaoResult.isWord,
@@ -117,7 +118,9 @@ export function formatTranslateDisplayResult(
           title: oneLineTranslation,
           tooltip: tooltip,
           copyText: oneLineTranslation,
+          queryWordInfo: formatResult.queryWordInfo,
           phonetic: formatResult.queryWordInfo.phonetic,
+          speech: formatResult.queryWordInfo.speech,
           examTypes: formatResult.queryWordInfo.examTypes,
           translationMarkdown: formatAllTypeTranslationToMarkdown(
             sectionType,
@@ -145,6 +148,7 @@ export function formatTranslateDisplayResult(
         {
           key: explanation + i,
           title: explanation,
+          queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.Explanations,
           copyText: explanation,
         },
@@ -170,6 +174,7 @@ export function formatTranslateDisplayResult(
         {
           key: wfsText,
           title: "",
+          queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
@@ -192,6 +197,7 @@ export function formatTranslateDisplayResult(
         {
           key: webResultKey,
           title: webResultKey,
+          queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.WebTranslation,
           subtitle: webResultValue,
           copyText: `${webResultKey} ${webResultValue}`,
@@ -214,6 +220,7 @@ export function formatTranslateDisplayResult(
         {
           key: phraseKey + i,
           title: phraseKey,
+          queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.WebPhrase,
           subtitle: phraseValue,
           copyText: `${phraseKey} ${phraseValue}`,

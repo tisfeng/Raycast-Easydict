@@ -120,6 +120,10 @@ export default function () {
               getYoudaoErrorInfo(youdaoErrorCode);
 
             sourceResult.youdaoResult = youdaoTranslateReuslt;
+            console.warn(
+              "us-speech: ",
+              youdaoTranslateReuslt.basic?.["us-speech"]
+            );
 
             if (
               youdaoErrorCode ===
@@ -386,6 +390,7 @@ export default function () {
                         eudicWebUrl={eudicWebUrl}
                         youdaoWebUrl={youdaoWebUrl}
                         queryText={searchText}
+                        queryWordInfo={item.queryWordInfo}
                         copyText={item.copyText}
                         currentFromLanguage={currentFromLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}

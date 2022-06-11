@@ -1,10 +1,6 @@
 import * as cheerio from "cheerio";
-import { environment } from "@raycast/api";
-import { execFile } from "child_process";
 import axios from "axios";
-import fs from "fs";
-
-// var fs = require("fs");
+import { downloadWordAudio, getWordAudioPath, playAudio } from "./audio";
 
 /**
 <ul id="fruits">
@@ -23,13 +19,10 @@ $('li[class=orange]').html()
 //=> Orange
  */
 
-// good
 export function bingTranslate(word: string) {
   const queryWordUrl = `https://cn.bing.com/dict/search?q=${encodeURI(word)}`;
 
   axios.get(queryWordUrl).then((response) => {
-    console.log(`data: ${response.data}`);
-
     const $ = cheerio.load(response.data);
 
     const pronounceText = $(".hd_p1_1>.hd_prUS").text();
@@ -54,60 +47,19 @@ export function bingTranslate(word: string) {
     let title = $(".hd_p1_1").find(".hd_tf").first().attr("class");
     console.warn(`title: ${title}`);
 
-    // onClick = "javascript:BilingualDict.Click(this,'https://dictionary.blob.core.chinacloudapi.cn/media/audio/tom/8e/00/8E00A7C3C07F3A1E7B6706E266B8FC3B.mp3','akicon.png',false,'dictionaryvoiceid')"
+    // onclick = "javascript:BilingualDict.Click(this,'https://dictionary.blob.core.chinacloudapi.cn/media/audio/tom/8e/00/8E00A7C3C07F3A1E7B6706E266B8FC3B.mp3','akicon.png',false,'dictionaryvoiceid')"
 
-    const onClick = $(".bigaud").first().attr("onclick");
-    console.warn(`onClick: ${onClick}`);
+    const onclick = $(".bigaud").first().attr("onclick");
+    console.warn(`onclick: ${onclick}`);
 
-    if (onClick) {
-      const url = onClick.split("'")[1];
+    if (onclick) {
+      const url = onclick.split("'")[1];
       console.warn(`url: ${url}`);
 
       const audioPath = getWordAudioPath(word);
-
       downloadWordAudio(url, audioPath, () => {
         playAudio(audioPath);
       });
     }
   });
-}
-
-export function playAudio(audioPath: string) {
-  console.log(`play audio file: ${audioPath}`);
-  execFile("afplay", [audioPath]);
-}
-
-// function: get audio file name, if audio directory is empty, create it
-export function getWordAudioPath(word: string) {
-  const audioPath = `${environment.supportPath}/audio/${word}.mp3`;
-  if (!fs.existsSync(environment.supportPath)) {
-    console.log(`create directory: ${environment.supportPath}`);
-    fs.mkdirSync(`${environment.supportPath}/audio`);
-  }
-  return `${environment.supportPath}/audio/${word}.mp3`;
-}
-
-function downloadWordAudio(
-  url: string,
-  audioPath: string,
-  callback: () => void
-) {
-  if (fs.existsSync(audioPath)) {
-    console.log(`audio file already exists: ${audioPath}`);
-    callback();
-    return;
-  }
-
-  console.log(`download url audio: ${url}`);
-  axios({
-    method: "get",
-    url: url,
-    responseType: "stream",
-  })
-    .then((response) => {
-      response.data.pipe(fs.createWriteStream(audioPath).on("close", callback));
-    })
-    .catch((error) => {
-      console.error(error);
-    });
 }

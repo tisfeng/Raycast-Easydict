@@ -23,7 +23,8 @@ export interface YoudaoTranslateResult {
 }
 export interface YoudaoTranslateResultBasicItem {
   explains: string[];
-  phonetic?: string;
+  "us-phonetic"?: string;
+  "us-speech"?: string;
   exam_type?: string[];
   wfs?: YoudaoTranslateResultBasicFormsItem[];
 }
@@ -45,6 +46,7 @@ export interface YoudaoTranslateReformatResultItem {
   copyText: string;
   subtitle?: string;
   phonetic?: string;
+  speech?: string;
   examTypes?: string[];
 }
 
@@ -74,6 +76,7 @@ export interface ListItemActionPanelItem {
   youdaoWebUrl: string;
   copyText?: string;
   queryText?: string;
+  queryWordInfo: QueryWordInfo;
   currentFromLanguage?: LanguageItem;
   currentTargetLanguage?: LanguageItem;
   onLanguageUpdate: (language: LanguageItem) => void;
@@ -142,6 +145,7 @@ export interface TranslateFormatResult {
 export interface QueryWordInfo {
   query: string;
   phonetic?: string;
+  speech?: string;
   from: string;
   to: string;
   isWord: boolean;
@@ -167,7 +171,9 @@ export interface TranslateDisplayItem {
   copyText: string;
   tooltip?: string;
   subtitle?: string;
+  queryWordInfo: QueryWordInfo;
   phonetic?: string;
+  speech?: string;
   examTypes?: string[];
   translationMarkdown?: string;
 }
