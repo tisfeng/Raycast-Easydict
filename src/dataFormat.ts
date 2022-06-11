@@ -109,6 +109,9 @@ export function formatTranslateDisplayResult(
 
     let oneLineTranslation = translation.text.split("\n").join(" ");
 
+    const phoneticText = formatResult.queryWordInfo.phonetic
+      ? `[${formatResult.queryWordInfo.phonetic}]`
+      : undefined;
     displayResult.push({
       type: sectionType,
       sectionTitle: sectionTitle,
@@ -119,7 +122,7 @@ export function formatTranslateDisplayResult(
           tooltip: tooltip,
           copyText: oneLineTranslation,
           queryWordInfo: formatResult.queryWordInfo,
-          phonetic: formatResult.queryWordInfo.phonetic,
+          phonetic: phoneticText,
           speech: formatResult.queryWordInfo.speech,
           examTypes: formatResult.queryWordInfo.examTypes,
           translationMarkdown: formatAllTypeTranslationToMarkdown(
