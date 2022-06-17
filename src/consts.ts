@@ -20,6 +20,11 @@ export enum TranslateType {
   Caiyun = "Caiyun Translate",
 }
 
+export enum DicionaryType {
+  Youdao = "Youdao Dictionary",
+  Iciba = "Iciba Dictionary",
+}
+
 export enum YoudaoRequestStateCode {
   Success = "0",
   AccessFrequencyLimited = "207",

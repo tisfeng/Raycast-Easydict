@@ -48,17 +48,13 @@ import {
   isTranslateResultTooLong,
   saveQueryClipboardRecord,
 } from "./utils";
-import {
-  icibaDictionary,
-  requestTranslate,
-  tencentLanguageDetect,
-} from "./request";
+import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
   formatTranslateDisplayResult,
   formatTranslateResult,
 } from "./dataFormat";
-
-const { bingTranslate } = require("./bing");
+import { downloadIcibaWordAudio } from "./dict/iciba/request";
+import { playAudio, playWordAudio } from "./audio";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -98,6 +94,10 @@ export default function () {
 
   function translate(fromLanguage: string, targetLanguage: string) {
     console.log(`translate fromTo: ${fromLanguage} -> ${targetLanguage}`);
+
+    downloadIcibaWordAudio(searchText!, () => {
+      playWordAudio(searchText!);
+    });
 
     requestTranslate(searchText!, fromLanguage, targetLanguage).then(
       axios.spread((...typeResult) => {
@@ -309,10 +309,6 @@ export default function () {
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
     translate(youdaoLanguageId, tartgetLanguageId);
-
-    bingTranslate(searchText);
-
-    icibaDictionary(searchText!);
   }
 
   function ListDetail() {
@@ -343,7 +339,9 @@ export default function () {
                 title="See Error Code Meaning"
                 icon={Icon.QuestionMark}
                 url={
-                  requestStateCodeLinkMap.get(youdaoTranslateTypeResult.type)!
+                  requestStateCodeLinkMap.get(
+                    youdaoTranslateTypeResult.type as TranslateType
+                  )!
                 }
               />
               <ActionFeedback />

@@ -21,6 +21,10 @@ import {
   myPreferences,
   truncateTextForPlayingSound,
 } from "./utils";
+import { getWordAudioPath, playAudio } from "./audio";
+
+import playerImport = require("play-sound");
+const player = playerImport({});
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -131,6 +135,12 @@ export function ActionFeedback() {
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
+    const wordAudioPath = getWordAudioPath(this.props.queryText || "");
+    if (wordAudioPath.length) {
+      playAudio(wordAudioPath);
+      return;
+    }
+
     if (language && text) {
       const voiceIndex = 0;
       for (const LANG of languageItemList) {

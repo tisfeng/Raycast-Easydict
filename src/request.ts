@@ -17,7 +17,7 @@ import {
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { TencentTranslateResult, TranslateTypeResult } from "./types";
-import { TranslateType } from "./consts";
+import { DicionaryType, TranslateType } from "./consts";
 
 // youdao appid and appsecret
 const youdaoAppId =
@@ -277,19 +277,42 @@ export function caiyunTextTranslate(
   });
 }
 
-export function icibaDictionary(word: string) {
+export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
   const url = "http://dict-co.iciba.com/api/dictionary.php";
   const params = {
     key: "0EAE08A016D6688F64AB3EBB2337BFB0",
     type: "json",
     w: word,
   };
-  axios
-    .get(url, { params })
-    .then((response) => {
-      console.warn("iciba: ", JSON.stringify(response.data, null, 2));
-    })
-    .catch((error) => {
-      console.error("error: ", error);
-    });
+
+  return new Promise((resolve) => {
+    axios
+      .get(url, { params })
+      .then((response) => {
+        resolve({
+          type: DicionaryType.Iciba,
+          result: response.data,
+        });
+      })
+      .catch((error) => {
+        resolve({
+          type: DicionaryType.Iciba,
+          result: null,
+          errorInfo: {
+            errorCode: error.response.status,
+            errorMessage: error.response.statusText,
+          },
+        });
+      });
+  });
+
+  // axios
+  //   .get(url, { params })
+  //   .then((response) => {
+  //     console.warn("iciba: ", JSON.stringify(response.data, null, 2));
+  //     return new Promise((resolve) => {
+  //   })
+  //   .catch((error) => {
+  //     console.error("error: ", error);
+  //   });
 }

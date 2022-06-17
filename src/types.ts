@@ -1,12 +1,14 @@
-import { SectionType, TranslateType } from "./consts";
+import { DicionaryType, SectionType, TranslateType } from "./consts";
+import { IcibaDictionaryResult } from "./dict/iciba/interface";
 
 export interface TranslateTypeResult {
-  type: TranslateType;
+  type: TranslateType | DicionaryType;
   result:
     | YoudaoTranslateResult
     | BaiduTranslateResult
     | TencentTranslateResult
     | CaiyunTranslateResult
+    | IcibaDictionaryResult
     | null;
   errorInfo?: RequestErrorInfo;
 }
@@ -131,6 +133,7 @@ export interface TranslateSourceResult {
   baiduResult?: BaiduTranslateResult;
   tencentResult?: TencentTranslateResult;
   caiyunResult?: CaiyunTranslateResult;
+  icibaResult?: IcibaDictionaryResult;
 }
 
 export interface TranslateFormatResult {
@@ -150,6 +153,7 @@ export interface QueryWordInfo {
   to: string;
   isWord: boolean;
   examTypes?: string[];
+  audioPath?: string;
 }
 export interface TranslateItem {
   type: TranslateType;

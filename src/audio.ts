@@ -3,9 +3,9 @@ import axios from "axios";
 import { execFile } from "child_process";
 import fs from "fs";
 
-let audioPath = `${environment.supportPath}/audio`;
-console.log(`audioPath: ${audioPath}`);
+let audioDirPath = `${environment.supportPath}/audio`;
 
+// use shell afplay to play audio
 export function playAudio(audioPath: string) {
   console.log(`play audio: ${audioPath}`);
   if (!fs.existsSync(audioPath)) {
@@ -20,13 +20,17 @@ export function playAudio(audioPath: string) {
   });
 }
 
+export function playWordAudio(word: string) {
+  const audioPath = getWordAudioPath(word);
+  playAudio(audioPath);
+}
+
 export function downloadWordAudio(
   url: string,
   audioPath: string,
   callback?: () => void
 ) {
   if (fs.existsSync(audioPath)) {
-    console.log(`audio file already exists: ${audioPath}`);
     callback && callback();
     return;
   }
@@ -39,9 +43,14 @@ export function downloadWordAudio(
   })
     .then((response) => {
       response.data.pipe(
-        fs
-          .createWriteStream(audioPath)
-          .on("close", callback ? callback : () => {})
+        fs.createWriteStream(audioPath).on(
+          "close",
+          callback
+            ? callback
+            : () => {
+                // do nothing
+              }
+        )
       );
     })
     .catch((error) => {
@@ -51,10 +60,8 @@ export function downloadWordAudio(
 
 // function: get audio file name, if audio directory is empty, create it
 export function getWordAudioPath(word: string) {
-  const audioPath = `${environment.supportPath}/audio/${word}.mp3`;
-  if (!fs.existsSync(environment.supportPath)) {
-    console.log(`create directory: ${environment.supportPath}`);
-    fs.mkdirSync(`${environment.supportPath}/audio`);
+  if (!fs.existsSync(audioDirPath)) {
+    fs.mkdirSync(audioDirPath);
   }
-  return `${environment.supportPath}/audio/${word}.mp3`;
+  return `${audioDirPath}/${word}.mp3`;
 }

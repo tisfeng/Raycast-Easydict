@@ -1,4 +1,5 @@
 import { SectionType, TranslateType } from "./consts";
+import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import {
   QueryWordInfo,
   TranslateDisplayResult,
@@ -235,6 +236,15 @@ export function formatTranslateDisplayResult(
   });
 
   return displayResult;
+}
+
+export function updateFormateIcibaDict(
+  icibaResult: IcibaDictionaryResult,
+  formatResult: TranslateFormatResult
+) {
+  if (!icibaResult) {
+    return formatResult;
+  }
 }
 
 export function formatAllTypeTranslationToMarkdown(
