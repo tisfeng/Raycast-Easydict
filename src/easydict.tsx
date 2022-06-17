@@ -53,8 +53,8 @@ import {
   formatTranslateDisplayResult,
   formatTranslateResult,
 } from "./dataFormat";
-import { downloadIcibaWordAudio } from "./dict/iciba/request";
-import { playAudio, playWordAudio } from "./audio";
+import { playAudioPath, playWordAudio } from "./audio";
+import { downloadYoudaoWordAudio } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -95,7 +95,7 @@ export default function () {
   function translate(fromLanguage: string, targetLanguage: string) {
     console.log(`translate fromTo: ${fromLanguage} -> ${targetLanguage}`);
 
-    downloadIcibaWordAudio(searchText!, () => {
+    downloadYoudaoWordAudio(searchText!, () => {
       playWordAudio(searchText!);
     });
 

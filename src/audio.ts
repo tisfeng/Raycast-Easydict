@@ -3,10 +3,13 @@ import axios from "axios";
 import { execFile } from "child_process";
 import fs from "fs";
 
+import playerImport = require("play-sound");
+const player = playerImport({});
+
 let audioDirPath = `${environment.supportPath}/audio`;
 
 // use shell afplay to play audio
-export function playAudio(audioPath: string) {
+export function playAudioPath(audioPath: string) {
   console.log(`play audio: ${audioPath}`);
   if (!fs.existsSync(audioPath)) {
     console.error(`audio file not exists: ${audioPath}`);
@@ -22,7 +25,13 @@ export function playAudio(audioPath: string) {
 
 export function playWordAudio(word: string) {
   const audioPath = getWordAudioPath(word);
-  playAudio(audioPath);
+  // playAudio(audioPath);
+
+  player.play(audioPath, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
 
 export function downloadWordAudio(
@@ -54,7 +63,7 @@ export function downloadWordAudio(
       );
     })
     .catch((error) => {
-      console.error(error);
+      console.error(`download url audio error: ${error}`);
     });
 }
 

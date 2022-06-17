@@ -21,7 +21,7 @@ import {
   myPreferences,
   truncateTextForPlayingSound,
 } from "./utils";
-import { getWordAudioPath, playAudio } from "./audio";
+import { getWordAudioPath, playAudioPath } from "./audio";
 
 import playerImport = require("play-sound");
 const player = playerImport({});
@@ -137,7 +137,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
     const wordAudioPath = getWordAudioPath(this.props.queryText || "");
     if (wordAudioPath.length) {
-      playAudio(wordAudioPath);
+      playAudioPath(wordAudioPath);
       return;
     }
 

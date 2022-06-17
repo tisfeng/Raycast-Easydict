@@ -1,4 +1,8 @@
-import { downloadWordAudio, getWordAudioPath, playAudio } from "../../audio";
+import {
+  downloadWordAudio,
+  getWordAudioPath,
+  playAudioPath,
+} from "../../audio";
 import { icibaDictionary } from "../../request";
 import { IcibaDictionaryResult } from "./interface";
 
