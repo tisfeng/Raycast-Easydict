@@ -1,5 +1,5 @@
 import axios from "axios";
-import crypto from "crypto";
+import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import {
   defaultBaiduAppId,
@@ -157,12 +157,11 @@ export function youdaoTextTranslate(
 
   const appId = youdaoAppId;
   const appSecret = youdaoAppSecret;
-  const sha256 = crypto.createHash("sha256");
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const sha256Content =
     appId + truncate(queryText) + salt + timestamp + appSecret;
-  const sign = sha256.update(sha256Content).digest("hex");
+  const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({
     sign,
@@ -193,10 +192,9 @@ export function baiduTextTranslate(
 ): Promise<TranslateTypeResult> {
   const appId = baiduAppId;
   const appSecret = baiduAppSecret;
-  const md5 = crypto.createHash("md5");
   const salt = Math.round(new Date().getTime() / 1000);
   const md5Content = appId + queryText + salt + appSecret;
-  const sign = md5.update(md5Content).digest("hex");
+  const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from = getLanguageItemFromLanguageId(fromLanguage).baiduLanguageId;
   const to = getLanguageItemFromLanguageId(targetLanguage).baiduLanguageId;
@@ -275,44 +273,4 @@ export function caiyunTextTranslate(
         console.error("response: ", error.response);
       });
   });
-}
-
-export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
-  const url = "http://dict-co.iciba.com/api/dictionary.php";
-  const params = {
-    key: "0EAE08A016D6688F64AB3EBB2337BFB0",
-    type: "json",
-    w: word,
-  };
-
-  return new Promise((resolve) => {
-    axios
-      .get(url, { params })
-      .then((response) => {
-        resolve({
-          type: DicionaryType.Iciba,
-          result: response.data,
-        });
-      })
-      .catch((error) => {
-        resolve({
-          type: DicionaryType.Iciba,
-          result: null,
-          errorInfo: {
-            errorCode: error.response.status,
-            errorMessage: error.response.statusText,
-          },
-        });
-      });
-  });
-
-  // axios
-  //   .get(url, { params })
-  //   .then((response) => {
-  //     console.warn("iciba: ", JSON.stringify(response.data, null, 2));
-  //     return new Promise((resolve) => {
-  //   })
-  //   .catch((error) => {
-  //     console.error("error: ", error);
-  //   });
 }

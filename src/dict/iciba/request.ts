@@ -1,10 +1,38 @@
-import {
-  downloadWordAudio,
-  getWordAudioPath,
-  playAudioPath,
-} from "../../audio";
-import { icibaDictionary } from "../../request";
+import axios from "axios";
+import { downloadWordAudio, getWordAudioPath } from "../../audio";
+import { DicionaryType } from "../../consts";
+import { TranslateTypeResult } from "../../types";
 import { IcibaDictionaryResult } from "./interface";
+
+export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
+  const url = "http://dict-co.iciba.com/api/dictionary.php";
+  const params = {
+    key: "0EAE08A016D6688F64AB3EBB2337BFB0",
+    type: "json",
+    w: word,
+  };
+
+  return new Promise((resolve) => {
+    axios
+      .get(url, { params })
+      .then((response) => {
+        resolve({
+          type: DicionaryType.Iciba,
+          result: response.data,
+        });
+      })
+      .catch((error) => {
+        resolve({
+          type: DicionaryType.Iciba,
+          result: null,
+          errorInfo: {
+            errorCode: error.response.status,
+            errorMessage: error.response.statusText,
+          },
+        });
+      });
+  });
+}
 
 // function download icicba audio file
 export async function downloadIcibaWordAudio(
