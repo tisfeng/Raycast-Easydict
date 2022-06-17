@@ -17,7 +17,7 @@ import {
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { TencentTranslateResult, TranslateTypeResult } from "./types";
-import { DicionaryType, TranslateType } from "./consts";
+import { TranslateType } from "./consts";
 
 // youdao appid and appsecret
 const youdaoAppId =
@@ -155,12 +155,10 @@ export function youdaoTextTranslate(
       : q.substring(0, 10) + len + q.substring(len - 10, len);
   }
 
-  const appId = youdaoAppId;
-  const appSecret = youdaoAppSecret;
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const sha256Content =
-    appId + truncate(queryText) + salt + timestamp + appSecret;
+    youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({
@@ -169,7 +167,7 @@ export function youdaoTextTranslate(
     from: fromLanguage,
     signType: "v3",
     q: queryText,
-    appKey: appId,
+    appKey: youdaoAppId,
     curtime: timestamp,
     to: targetLanguage,
   });
@@ -190,10 +188,8 @@ export function baiduTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
-  const appId = baiduAppId;
-  const appSecret = baiduAppSecret;
   const salt = Math.round(new Date().getTime() / 1000);
-  const md5Content = appId + queryText + salt + appSecret;
+  const md5Content = baiduAppId + queryText + salt + baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from = getLanguageItemFromLanguageId(fromLanguage).baiduLanguageId;
@@ -203,7 +199,7 @@ export function baiduTextTranslate(
     q: encodeQueryText,
     from: from,
     to: to,
-    appid: appId,
+    appid: baiduAppId,
     salt: salt,
     sign: sign,
   };

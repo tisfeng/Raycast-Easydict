@@ -22,11 +22,26 @@ export interface YoudaoTranslateResult {
   web?: TranslateResultKeyValueItem[];
   basic?: YoudaoTranslateResultBasicItem;
   isWord: boolean;
+  speakUrl: string;
 }
+
+export interface QueryWordInfo {
+  word: string;
+  phonetic?: string;
+  speech?: string;
+  from: string;
+  to: string;
+  isWord: boolean;
+  examTypes?: string[];
+  audioPath?: string;
+  speechUrl: string;
+}
+
 export interface YoudaoTranslateResultBasicItem {
   explains: string[];
   "us-phonetic"?: string;
   "us-speech"?: string;
+  phonetic?: string; // Chinese word phonetic
   exam_type?: string[];
   wfs?: YoudaoTranslateResultBasicFormsItem[];
 }
@@ -145,16 +160,6 @@ export interface TranslateFormatResult {
   webPhrases?: TranslateResultKeyValueItem[];
 }
 
-export interface QueryWordInfo {
-  query: string;
-  phonetic?: string;
-  speech?: string;
-  from: string;
-  to: string;
-  isWord: boolean;
-  examTypes?: string[];
-  audioPath?: string;
-}
 export interface TranslateItem {
   type: TranslateType;
   text: string;

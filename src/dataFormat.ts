@@ -14,6 +14,7 @@ export function formatTranslateResult(
 ): TranslateFormatResult {
   let translations: TranslateItem[] = [];
 
+  const youdaoResult = src.youdaoResult;
   const youdaoTranslations = src.youdaoResult!.translation.map(
     (translationText) => {
       return {
@@ -56,13 +57,15 @@ export function formatTranslateResult(
 
   const [from, to] = src.youdaoResult.l.split("2"); // from2to
   const queryTextInfo: QueryWordInfo = {
-    query: src.youdaoResult.query,
-    phonetic: src.youdaoResult.basic?.["us-phonetic"],
+    word: src.youdaoResult.query,
+    phonetic:
+      src.youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
     speech: src.youdaoResult.basic?.["us-speech"],
     from: from,
     to: to,
     isWord: src.youdaoResult.isWord,
     examTypes: src.youdaoResult.basic?.exam_type,
+    speechUrl: src.youdaoResult.speakUrl,
   };
 
   let webTranslation;
@@ -88,8 +91,6 @@ export function formatTranslateDisplayResult(
   if (!formatResult) {
     return displayResult;
   }
-
-  // console.log("reformatResult: ", JSON.stringify(reformatResult));
 
   const isShowMultipleTranslations =
     !formatResult.explanations &&
@@ -251,7 +252,7 @@ export function formatAllTypeTranslationToMarkdown(
   type: TranslateType | SectionType,
   formatResult: TranslateFormatResult
 ) {
-  const sourceText = formatResult.queryWordInfo.query;
+  const sourceText = formatResult.queryWordInfo.word;
   let translations = [] as TranslateItem[];
   for (const translation of formatResult.translations) {
     const formatTranslation = formatTranslationToMarkdown(

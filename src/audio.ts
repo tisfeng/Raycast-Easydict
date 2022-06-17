@@ -8,6 +8,15 @@ const player = playerImport({});
 
 let audioDirPath = `${environment.supportPath}/audio`;
 
+export function playWordAudio(word: string) {
+  const audioPath = getWordAudioPath(word);
+  player.play(audioPath, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}
+
 // use shell afplay to play audio
 export function playAudioPath(audioPath: string) {
   console.log(`play audio: ${audioPath}`);
@@ -23,18 +32,16 @@ export function playAudioPath(audioPath: string) {
   });
 }
 
-export function playWordAudio(word: string) {
+export function downloadWordAudioWithURL(
+  word: string,
+  url: string,
+  callback?: () => void
+) {
   const audioPath = getWordAudioPath(word);
-  // playAudio(audioPath);
-
-  player.play(audioPath, (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
+  downloadAudio(url, audioPath, callback);
 }
 
-export function downloadWordAudio(
+export function downloadAudio(
   url: string,
   audioPath: string,
   callback?: () => void

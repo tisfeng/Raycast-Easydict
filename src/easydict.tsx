@@ -53,7 +53,7 @@ import {
   formatTranslateDisplayResult,
   formatTranslateResult,
 } from "./dataFormat";
-import { playAudioPath, playWordAudio } from "./audio";
+import { downloadWordAudioWithURL, playWordAudio } from "./audio";
 import { downloadYoudaoWordAudio } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
@@ -94,10 +94,6 @@ export default function () {
 
   function translate(fromLanguage: string, targetLanguage: string) {
     console.log(`translate fromTo: ${fromLanguage} -> ${targetLanguage}`);
-
-    downloadYoudaoWordAudio(searchText!, () => {
-      playWordAudio(searchText!);
-    });
 
     requestTranslate(searchText!, fromLanguage, targetLanguage).then(
       axios.spread((...typeResult) => {
@@ -201,6 +197,14 @@ export default function () {
         }
 
         const formatResult = formatTranslateResult(sourceResult);
+        downloadWordAudioWithURL(
+          formatResult.queryWordInfo.word,
+          formatResult.queryWordInfo.speechUrl,
+          () => {
+            playWordAudio(formatResult.queryWordInfo.word);
+          }
+        );
+
         const [from, to] = sourceResult.youdaoResult!.l.split("2"); // from2to
         if (from === to) {
           const target = getAutoSelectedTargetLanguageId(from);

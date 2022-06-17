@@ -1,5 +1,5 @@
 import axios from "axios";
-import { downloadWordAudio, getWordAudioPath } from "../../audio";
+import { downloadAudio, getWordAudioPath } from "../../audio";
 import { DicionaryType } from "../../consts";
 import { TranslateTypeResult } from "../../types";
 import { IcibaDictionaryResult } from "./interface";
@@ -50,7 +50,7 @@ export async function downloadIcibaWordAudio(
       : symbol.ph_en_mp3;
     if (phoneticUrl.length) {
       const audioPath = getWordAudioPath(word);
-      downloadWordAudio(phoneticUrl, audioPath, callback);
+      downloadAudio(phoneticUrl, audioPath, callback);
     }
 
     console.log(

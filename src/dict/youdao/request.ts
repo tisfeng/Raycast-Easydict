@@ -1,5 +1,4 @@
-import axios from "axios";
-import { downloadWordAudio, getWordAudioPath } from "../../audio";
+import { downloadAudio, getWordAudioPath } from "../../audio";
 
 // Web API from:  https://cloud.tencent.com/developer/article/1596467
 export function downloadYoudaoWordAudio(word: string, callback?: () => void) {
@@ -8,5 +7,5 @@ export function downloadYoudaoWordAudio(word: string, callback?: () => void) {
   )}`;
 
   const audioPath = getWordAudioPath(word);
-  downloadWordAudio(url, audioPath, callback);
+  downloadAudio(url, audioPath, callback);
 }
