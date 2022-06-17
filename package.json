@@ -269,11 +269,19 @@
       "default": true
     },
     {
+      "name": "isAutomaticPlayWordAudio",
+      "type": "checkbox",
+      "label": "Automatic Play Word Audio",
+      "required": false,
+      "description": "Automatic play audio after looking up a word",
+      "default": true
+    },
+    {
       "name": "isDisplayTargetTranslationLanguage",
       "type": "checkbox",
       "label": "Select Target Translation Language",
       "required": false,
-      "description": "Allow manual selection of target translation language in action panel",
+      "description": "Select target translation language in action panel manually",
       "default": false
     },
     {

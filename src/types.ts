@@ -79,6 +79,7 @@ export interface MyPreferences {
   tencentSecretKey: string;
   tencentProjectId: string;
   isAutomaticQueryClipboard: boolean;
+  isAutomaticPlayWordAudio: boolean;
   isDisplayTargetTranslationLanguage: boolean;
   enableBaiduTranslate: boolean;
   enableTencentTranslate: boolean;

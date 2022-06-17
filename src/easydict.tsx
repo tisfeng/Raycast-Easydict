@@ -47,6 +47,7 @@ import {
   getYoudaoWebTranslateURL,
   isTranslateResultTooLong,
   saveQueryClipboardRecord,
+  myPreferences,
 } from "./utils";
 import { requestTranslate, tencentLanguageDetect } from "./request";
 import {
@@ -54,7 +55,6 @@ import {
   formatTranslateResult,
 } from "./dataFormat";
 import { downloadWordAudioWithURL, playWordAudio } from "./audio";
-import { downloadYoudaoWordAudio } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -201,7 +201,9 @@ export default function () {
           formatResult.queryWordInfo.word,
           formatResult.queryWordInfo.speechUrl,
           () => {
-            playWordAudio(formatResult.queryWordInfo.word);
+            if (myPreferences.isAutomaticPlayWordAudio) {
+              playWordAudio(formatResult.queryWordInfo.word);
+            }
           }
         );
 
