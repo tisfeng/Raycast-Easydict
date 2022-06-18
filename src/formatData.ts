@@ -225,6 +225,13 @@ export function formatTranslateDisplayResult(
     const phoneticText = formatResult.queryWordInfo.phonetic
       ? `[${formatResult.queryWordInfo.phonetic}]`
       : undefined;
+
+    const isShowWordSubtitle =
+      phoneticText || formatResult.queryWordInfo.examTypes;
+    const wordSubtitle = isShowWordSubtitle
+      ? formatResult.queryWordInfo.word
+      : undefined;
+
     displayResult.push({
       type: sectionType,
       sectionTitle: sectionTitle,
@@ -232,6 +239,7 @@ export function formatTranslateDisplayResult(
         {
           key: oneLineTranslation + i,
           title: oneLineTranslation,
+          subtitle: wordSubtitle,
           tooltip: tooltip,
           copyText: oneLineTranslation,
           queryWordInfo: formatResult.queryWordInfo,

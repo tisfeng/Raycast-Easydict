@@ -51,7 +51,6 @@ export function downloadAudio(
     return;
   }
 
-  console.log(`download url audio: ${url}`);
   axios({
     method: "get",
     url: url,
