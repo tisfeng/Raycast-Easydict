@@ -136,7 +136,10 @@ export default function () {
       formatResult.queryWordInfo.word,
       formatResult.queryWordInfo.speechUrl,
       () => {
-        if (myPreferences.isAutomaticPlayWordAudio) {
+        if (
+          myPreferences.isAutomaticPlayWordAudio &&
+          formatResult.queryWordInfo.isWord
+        ) {
           playWordAudio(formatResult.queryWordInfo.word);
         }
       }
