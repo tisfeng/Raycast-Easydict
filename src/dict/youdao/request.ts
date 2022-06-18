@@ -12,7 +12,7 @@ export function downloadYoudaoAudio(
   queryWordInfo: QueryWordInfo,
   callback?: () => void
 ) {
-  if (queryWordInfo.word) {
+  if (queryWordInfo.isWord) {
     downloadYoudaoWordAudio(queryWordInfo.word, callback);
   } else {
     downloadWordAudioWithURL(
