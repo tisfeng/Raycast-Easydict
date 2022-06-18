@@ -31,7 +31,7 @@ export function updateFormateResultWithBaiduTranslation(
       text: baiduTranslation,
     });
   }
-  return formatResult;
+  return sortTranslations(formatResult);
 }
 
 export function updateFormateResultWithTencentTranslation(
@@ -47,8 +47,7 @@ export function updateFormateResultWithTencentTranslation(
       text: tencentTranslation,
     });
   }
-
-  return formatResult;
+  return sortTranslations(formatResult);
 }
 
 export function updateFormateResultWithCaiyunTranslation(
@@ -62,7 +61,27 @@ export function updateFormateResultWithCaiyunTranslation(
       text: caiyunResult?.target.join("\n"),
     });
   }
+  return sortTranslations(formatResult);
+}
 
+// function sort formatResult translations, by type: baidu > tencent > youdao > caiyun
+export function sortTranslations(
+  formatResult: TranslateFormatResult
+): TranslateFormatResult {
+  const sortByOrders = [
+    TranslateType.Baidu,
+    TranslateType.Tencent,
+    TranslateType.Youdao,
+    TranslateType.Caiyun,
+  ];
+  const sortTranslations: TranslateItem[] = [];
+  for (const translationItem of formatResult.translations) {
+    const index = sortByOrders.indexOf(translationItem.type);
+    sortTranslations[index] = translationItem;
+  }
+  // filter undefined
+  const translations = sortTranslations.filter((item) => item);
+  formatResult.translations = translations;
   return formatResult;
 }
 

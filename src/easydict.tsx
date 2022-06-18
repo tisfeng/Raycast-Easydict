@@ -159,85 +159,92 @@ export default function () {
 
     if (isShowMultipleTranslations(formatResult)) {
       if (myPreferences.enableBaiduTranslate) {
-        const baiduRes = await requestBaiduTextTranslate(
-          searchText!,
-          fromLanguage,
-          targetLanguage
-        );
-        const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
-        const baiduErrorCode = baiduTranslateResult.error_code;
+        console.log("requestBaiduTextTranslate");
+        requestBaiduTextTranslate(searchText!, fromLanguage, targetLanguage)
+          .then((baiduRes) => {
+            console.log("requestBaiduTextTranslate success");
+            const baiduTranslateResult =
+              baiduRes.result as BaiduTranslateResult;
+            const baiduErrorCode = baiduTranslateResult.error_code;
 
-        if (baiduErrorCode) {
-          if (
-            baiduErrorCode ===
-            BaiduRequestStateCode.AccessFrequencyLimited.toString()
-          ) {
-            delaySearchQueryText(fromLanguage, targetLanguage);
-            return;
-          }
+            if (baiduErrorCode) {
+              if (
+                baiduErrorCode ===
+                BaiduRequestStateCode.AccessFrequencyLimited.toString()
+              ) {
+                delaySearchQueryText(fromLanguage, targetLanguage);
+                return;
+              }
 
-          baiduRes.errorInfo = {
-            errorCode: baiduErrorCode,
-            errorMessage: baiduTranslateResult.error_msg!,
-          };
-          showToast({
-            style: Toast.Style.Failure,
-            title: `${baiduRes.type}: ${baiduErrorCode}`,
-            message: baiduRes.errorInfo.errorMessage,
+              baiduRes.errorInfo = {
+                errorCode: baiduErrorCode,
+                errorMessage: baiduTranslateResult.error_msg!,
+              };
+              showToast({
+                style: Toast.Style.Failure,
+                title: `${baiduRes.type}: ${baiduErrorCode}`,
+                message: baiduRes.errorInfo.errorMessage,
+              });
+              console.error(`${baiduRes.type}: ${baiduErrorCode}`);
+              console.error(baiduRes.errorInfo.errorMessage);
+            } else {
+              formatResult = updateFormateResultWithBaiduTranslation(
+                baiduRes,
+                formatResult
+              );
+              updateTranslateDisplayResult(formatResult);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
           });
-          console.error(`${baiduRes.type}: ${baiduErrorCode}`);
-          console.error(baiduRes.errorInfo.errorMessage);
-        } else {
-          formatResult = updateFormateResultWithBaiduTranslation(
-            baiduRes,
-            formatResult
-          );
-          updateTranslateDisplayResult(formatResult);
-        }
       }
 
       if (myPreferences.enableTencentTranslate) {
-        const tencentRes = await requestTencentTextTranslate(
-          queryText,
-          fromLanguage,
-          targetLanguage
-        );
-        formatResult = updateFormateResultWithTencentTranslation(
-          tencentRes,
-          formatResult
-        );
-        updateTranslateDisplayResult(formatResult);
+        console.log(`requestTencentTextTranslate`);
+        requestTencentTextTranslate(queryText, fromLanguage, targetLanguage)
+          .then((tencentRes) => {
+            console.log(`requestTencentTextTranslate success`);
+            formatResult = updateFormateResultWithTencentTranslation(
+              tencentRes,
+              formatResult
+            );
+            updateTranslateDisplayResult(formatResult);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
       }
 
       if (myPreferences.enableCaiyunTranslate) {
-        const caiyunRes = await requestCaiyunTextTranslate(
-          queryText,
-          fromLanguage,
-          targetLanguage
-        );
-
-        const caiyunResult = caiyunRes.result as CaiyunTranslateResult;
-
-        if (caiyunRes.errorInfo) {
-          showToast({
-            style: Toast.Style.Failure,
-            title: `${caiyunRes.type.split(" ")[0]} Error: ${
-              caiyunRes.errorInfo!.errorCode
-            }`,
-            message: caiyunRes.errorInfo!.errorMessage,
+        console.log("requestCaiyunTextTranslate");
+        requestCaiyunTextTranslate(queryText, fromLanguage, targetLanguage)
+          .then((caiyunRes) => {
+            console.log("requestCaiyunTextTranslate success");
+            if (caiyunRes.errorInfo) {
+              showToast({
+                style: Toast.Style.Failure,
+                title: `${caiyunRes.type.split(" ")[0]} Error: ${
+                  caiyunRes.errorInfo!.errorCode
+                }`,
+                message: caiyunRes.errorInfo!.errorMessage,
+              });
+              console.error(
+                `caiyun error: ${caiyunRes.errorInfo!.errorCode}, ${
+                  caiyunRes.errorInfo!.errorMessage
+                }`
+              );
+            } else {
+              formatResult = updateFormateResultWithCaiyunTranslation(
+                caiyunRes,
+                formatResult
+              );
+              updateTranslateDisplayResult(formatResult);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
           });
-          console.error(
-            `caiyun error: ${caiyunRes.errorInfo!.errorCode}, ${
-              caiyunRes.errorInfo!.errorMessage
-            }`
-          );
-        } else {
-          formatResult = updateFormateResultWithCaiyunTranslation(
-            caiyunRes,
-            formatResult
-          );
-          updateTranslateDisplayResult(formatResult);
-        }
       }
     }
 
