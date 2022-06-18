@@ -7,14 +7,14 @@ import {
 import { QueryWordInfo } from "../../types";
 
 /**
-download word audio file. if query text is a word, download audio file from youdao wild api, otherwise download from youdao tts.
+download word audio file. if query text is a word (only English word?), download audio file from youdao wild api, otherwise download from youdao tts.
 if query text is too long, don't download audio file. can play sound by say command.
  */
 export function downloadYoudaoAudio(
   queryWordInfo: QueryWordInfo,
   callback?: () => void
 ) {
-  if (queryWordInfo.isWord) {
+  if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
     downloadYoudaoWebWordAudio(queryWordInfo.word, callback);
   } else if (queryWordInfo.word.length < maxPlaySoundTextLength) {
     downloadWordAudioWithURL(

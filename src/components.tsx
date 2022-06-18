@@ -17,7 +17,7 @@ import {
   Toast,
 } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
-import { getWordAudioPath, playWordAudio, sayCommand, sayTruncateCommand } from "./audio";
+import { getWordAudioPath, playWordAudio, sayTruncateCommand } from "./audio";
 
 import fs from "fs";
 
