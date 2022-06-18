@@ -259,10 +259,10 @@ export default function () {
   async function tryQuerySelecedtText() {
     try {
       let selectedText = await getSelectedText();
+      setInputText(selectedText);
       console.log("selectedText: ", selectedText);
       selectedText = selectedText.trim().substring(0, maxInputTextLength);
       setSearchText(selectedText);
-      setInputText(selectedText);
     } catch (error) {}
   }
 
@@ -294,7 +294,9 @@ export default function () {
     }
 
     if (!searchText) {
-      tryQuerySelecedtText();
+      if (myPreferences.isAutomaticQuerySelectedText) {
+        tryQuerySelecedtText();
+      }
     }
   }, [searchText]);
 

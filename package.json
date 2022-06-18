@@ -261,11 +261,11 @@
     },
     {
       "title": "Switch Boxes",
-      "name": "isAutomaticQueryClipboard",
+      "name": "isAutomaticQuerySelectedText",
       "type": "checkbox",
-      "label": "Automatic Query Clipboard",
+      "label": "Automatic Query Selected Text",
       "required": false,
-      "description": "Automatic query clipboard text when you first enter the extension",
+      "description": "Automatic query selected text of the frontmost application",
       "default": true
     },
     {
