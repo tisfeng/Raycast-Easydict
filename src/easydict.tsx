@@ -65,6 +65,7 @@ import {
   updateFormateResultWithTencentTranslation,
 } from "./formatData";
 import { downloadWordAudioWithURL, playWordAudio } from "./audio";
+import { downloadYoudaoAudio } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -114,7 +115,7 @@ export default function () {
 
     const youdaoResult =
       youdaoTranslateTypeResult.result as YoudaoTranslateResult;
-    console.warn(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
+    console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
     const youdaoErrorCode = youdaoResult.errorCode;
     youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
@@ -132,18 +133,15 @@ export default function () {
       return;
     }
     let formatResult = formatYoudaoTranslateResult(youdaoResult);
-    downloadWordAudioWithURL(
-      formatResult.queryWordInfo.word,
-      formatResult.queryWordInfo.speechUrl,
-      () => {
-        if (
-          myPreferences.isAutomaticPlayWordAudio &&
-          formatResult.queryWordInfo.isWord
-        ) {
-          playWordAudio(formatResult.queryWordInfo.word);
-        }
+
+    downloadYoudaoAudio(formatResult.queryWordInfo, () => {
+      if (
+        myPreferences.isAutomaticPlayWordAudio &&
+        formatResult.queryWordInfo.isWord
+      ) {
+        playWordAudio(formatResult.queryWordInfo.word);
       }
-    );
+    });
 
     const [from, to] = youdaoResult!.l.split("2"); // from2to
     if (from === to) {
@@ -453,7 +451,6 @@ export default function () {
 
     let trimText = text.trim();
     if (trimText.length == 0) {
-      console.warn("updateTranslateDisplayResult, onInputChangeEvent");
       updateTranslateDisplayResult(null);
       return;
     }

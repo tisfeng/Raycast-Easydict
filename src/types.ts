@@ -38,7 +38,7 @@ export interface QueryWordInfo {
   isWord: boolean;
   examTypes?: string[];
   audioPath?: string;
-  speechUrl: string;
+  speechUrl: string; // youdao tts url
 }
 
 export interface YoudaoTranslateResultBasicItem {
