@@ -376,3 +376,14 @@ export function myDecrypt(ciphertext: string) {
   // console.warn("originalText: ", originalText);
   return originalText;
 }
+
+export function isShowMultipleTranslations(
+  formatResult: TranslateFormatResult
+) {
+  return (
+    !formatResult.explanations &&
+    !formatResult.forms &&
+    !formatResult.webPhrases &&
+    !formatResult.webTranslation
+  );
+}

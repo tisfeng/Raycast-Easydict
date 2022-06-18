@@ -73,8 +73,19 @@ const clientConfig = {
 };
 const client = new TmtClient(clientConfig);
 
-// 腾讯文本翻译，5次/秒
-export function tencentTextTranslate(
+// 腾讯语种识别，5次/秒
+export function tencentLanguageDetect(
+  text: string
+): Promise<LanguageDetectResponse> {
+  const params = {
+    Text: text,
+    ProjectId: tencentProjectId,
+  };
+  return client.LanguageDetect(params);
+}
+
+// 腾讯文本翻译，5次/秒  https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
+export function requestTencentTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -110,40 +121,8 @@ export function tencentTextTranslate(
   });
 }
 
-// 腾讯语种识别，5次/秒
-export function tencentLanguageDetect(
-  text: string
-): Promise<LanguageDetectResponse> {
-  const params = {
-    Text: text,
-    ProjectId: tencentProjectId,
-  };
-  return client.LanguageDetect(params);
-}
-
-// concurrent request for multiple translation interfaces
-export function requestTranslate(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string
-): Promise<TranslateTypeResult[]> {
-  let requests = [youdaoTextTranslate(queryText, fromLanguage, targetLanguage)];
-  if (myPreferences.enableBaiduTranslate) {
-    requests.push(baiduTextTranslate(queryText, fromLanguage, targetLanguage));
-  }
-  if (myPreferences.enableTencentTranslate) {
-    requests.push(
-      tencentTextTranslate(queryText, fromLanguage, targetLanguage)
-    );
-  }
-  if (myPreferences.enableCaiyunTranslate) {
-    requests.push(caiyunTextTranslate(queryText, fromLanguage, targetLanguage));
-  }
-  return axios.all(requests);
-}
-
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
-export function youdaoTextTranslate(
+export function requestYoudaoDictionary(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -183,7 +162,7 @@ export function youdaoTextTranslate(
 }
 
 // 百度翻译API https://fanyi-api.baidu.com/doc/21
-export function baiduTextTranslate(
+export function requestBaiduTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -215,7 +194,7 @@ export function baiduTextTranslate(
 }
 
 // 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
-export function caiyunTextTranslate(
+export function requestCaiyunTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -225,7 +204,7 @@ export function caiyunTextTranslate(
     getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
   const to = getLanguageItemFromLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
-  console.log("trans_type: ", trans_type);
+  console.log("caiyun trans_type: ", trans_type);
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];

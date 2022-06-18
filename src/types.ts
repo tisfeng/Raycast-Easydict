@@ -1,3 +1,4 @@
+import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { DicionaryType, SectionType, TranslateType } from "./consts";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 
@@ -9,6 +10,7 @@ export interface TranslateTypeResult {
     | TencentTranslateResult
     | CaiyunTranslateResult
     | IcibaDictionaryResult
+    | YoudaoDictionaryResult
     | null;
   errorInfo?: RequestErrorInfo;
 }
@@ -25,6 +27,8 @@ export interface YoudaoTranslateResult {
   speakUrl: string;
 }
 
+export type YoudaoDictionaryResult = YoudaoTranslateResult;
+
 export interface QueryWordInfo {
   word: string;
   phonetic?: string;
@@ -39,7 +43,7 @@ export interface QueryWordInfo {
 
 export interface YoudaoTranslateResultBasicItem {
   explains: string[];
-  "us-phonetic"?: string;
+  "us-phonetic"?: string; // American phonetic
   "us-speech"?: string;
   phonetic?: string; // Chinese word phonetic
   exam_type?: string[];
@@ -131,12 +135,14 @@ export interface BaiduTranslateItem {
   dst: string;
 }
 
-export interface TencentTranslateResult {
-  TargetText: string;
-  Source: string;
-  Target: string;
-  RequestId: string;
-}
+export type TencentTranslateResult = TextTranslateResponse;
+
+// export interface TencentTranslateResult {
+//   TargetText: string;
+//   Source: string;
+//   Target: string;
+//   RequestId: string;
+// }
 
 export interface CaiyunTranslateResult {
   rc: string;

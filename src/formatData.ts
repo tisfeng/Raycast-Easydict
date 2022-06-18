@@ -6,8 +6,104 @@ import {
   TranslateFormatResult,
   TranslateSourceResult,
   TranslateItem,
+  YoudaoTranslateResult,
+  TranslateTypeResult,
+  BaiduTranslateResult,
+  TencentTranslateResult,
+  CaiyunTranslateResult,
 } from "./types";
-import { isPreferredChinese } from "./utils";
+import { isShowMultipleTranslations } from "./utils";
+
+export function updateFormateResultWithBaiduTranslation(
+  baiduTypeResult: TranslateTypeResult,
+  formatResult: TranslateFormatResult
+): TranslateFormatResult {
+  const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
+  if (baiduResult?.trans_result) {
+    const baiduTranslation = baiduResult.trans_result
+      .map((item) => {
+        return item.dst;
+      })
+      .join("\n");
+
+    formatResult.translations.push({
+      type: TranslateType.Baidu,
+      text: baiduTranslation,
+    });
+  }
+  return formatResult;
+}
+
+export function updateFormateResultWithTencentTranslation(
+  tencentTypeResult: TranslateTypeResult,
+  formatResult: TranslateFormatResult
+): TranslateFormatResult {
+  const tencentResult = tencentTypeResult.result as TencentTranslateResult;
+  if (tencentResult) {
+    const tencentTranslation = tencentResult.TargetText;
+
+    formatResult.translations.push({
+      type: TranslateType.Tencent,
+      text: tencentTranslation,
+    });
+  }
+
+  return formatResult;
+}
+
+export function updateFormateResultWithCaiyunTranslation(
+  caiyunTypeResult: TranslateTypeResult,
+  formatResult: TranslateFormatResult
+): TranslateFormatResult {
+  const caiyunResult = caiyunTypeResult.result as CaiyunTranslateResult;
+  if (caiyunResult) {
+    formatResult.translations.push({
+      type: TranslateType.Caiyun,
+      text: caiyunResult?.target.join("\n"),
+    });
+  }
+
+  return formatResult;
+}
+
+export function formatYoudaoTranslateResult(
+  youdaoResult: YoudaoTranslateResult
+): TranslateFormatResult {
+  const translations = youdaoResult!.translation.map((translationText) => {
+    return {
+      type: TranslateType.Youdao,
+      text: translationText,
+    };
+  });
+
+  const [from, to] = youdaoResult.l.split("2"); // from2to
+  const queryTextInfo: QueryWordInfo = {
+    word: youdaoResult.query,
+    phonetic:
+      youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
+    speech: youdaoResult.basic?.["us-speech"],
+    from: from,
+    to: to,
+    isWord: youdaoResult.isWord,
+    examTypes: youdaoResult.basic?.exam_type,
+    speechUrl: youdaoResult.speakUrl,
+  };
+
+  let webTranslation;
+  if (youdaoResult.web) {
+    webTranslation = youdaoResult.web[0];
+  }
+  const webPhrases = youdaoResult.web?.slice(1);
+
+  return {
+    queryWordInfo: queryTextInfo,
+    translations: translations,
+    explanations: youdaoResult.basic?.explains,
+    forms: youdaoResult.basic?.wfs,
+    webTranslation: webTranslation,
+    webPhrases: webPhrases,
+  };
+}
 
 export function formatTranslateResult(
   src: TranslateSourceResult
@@ -92,20 +188,16 @@ export function formatTranslateDisplayResult(
     return displayResult;
   }
 
-  const isShowMultipleTranslations =
-    !formatResult.explanations &&
-    !formatResult.forms &&
-    !formatResult.webPhrases &&
-    !formatResult.webTranslation;
+  const showMultipleTranslations = isShowMultipleTranslations(formatResult);
 
   for (const [i, translation] of formatResult.translations.entries()) {
-    let sectionType = isShowMultipleTranslations
+    let sectionType = showMultipleTranslations
       ? translation.type
       : SectionType.Translation;
     let sectionTitle: any = sectionType;
     let tooltip: string = translation.type;
 
-    if (isShowMultipleTranslations) {
+    if (showMultipleTranslations) {
       tooltip = "";
     }
 
