@@ -33,8 +33,8 @@ export interface QueryWordInfo {
   word: string;
   phonetic?: string;
   speech?: string;
-  from: string;
-  to: string;
+  fromLanguage: string;
+  toLanguage: string;
   isWord: boolean;
   examTypes?: string[];
   audioPath?: string;

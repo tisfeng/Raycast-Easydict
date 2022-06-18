@@ -1,18 +1,26 @@
 import { environment } from "@raycast/api";
 import axios from "axios";
-import { execFile } from "child_process";
+import { exec, execFile } from "child_process";
 import fs from "fs";
 
 import playerImport = require("play-sound");
+import { languageItemList } from "./consts";
 const player = playerImport({});
+
+export const maxPlaySoundTextLength = 40;
 
 let audioDirPath = `${environment.supportPath}/audio`;
 
 export function playWordAudio(word: string) {
   const audioPath = getWordAudioPath(word);
+  if (!fs.existsSync(audioPath)) {
+    console.warn(`audio file not found: ${audioPath}`);
+    return;
+  }
+
   player.play(audioPath, (err) => {
     if (err) {
-      console.error(err);
+      console.error(`play word audio error: ${err}`);
     }
   });
 }
@@ -30,6 +38,25 @@ export function playAudioPath(audioPath: string) {
     }
     console.log(stdout);
   });
+}
+
+export function sayTruncateCommand(text: string, language: string) {
+  const truncateText = text.substring(0, maxPlaySoundTextLength) + "...";
+  sayCommand(truncateText, language);
+}
+
+function sayCommand(text: string, language: string) {
+  if (language && text) {
+    const voiceIndex = 0;
+    for (const LANG of languageItemList) {
+      if (language === LANG.youdaoLanguageId) {
+        const safeText = text.replace(/"/g, " ");
+        const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${safeText}'`;
+        console.log(sayCommand);
+        LANG.languageVoice.length > 0 && exec(sayCommand);
+      }
+    }
+  }
 }
 
 export function downloadWordAudioWithURL(

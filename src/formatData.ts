@@ -101,8 +101,8 @@ export function formatYoudaoTranslateResult(
     phonetic:
       youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
     speech: youdaoResult.basic?.["us-speech"],
-    from: from,
-    to: to,
+    fromLanguage: from,
+    toLanguage: to,
     isWord: youdaoResult.isWord,
     examTypes: youdaoResult.basic?.exam_type,
     speechUrl: youdaoResult.speakUrl,
@@ -176,8 +176,8 @@ export function formatTranslateResult(
     phonetic:
       src.youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
     speech: src.youdaoResult.basic?.["us-speech"],
-    from: from,
-    to: to,
+    fromLanguage: from,
+    toLanguage: to,
     isWord: src.youdaoResult.isWord,
     examTypes: src.youdaoResult.basic?.exam_type,
     speechUrl: src.youdaoResult.speakUrl,

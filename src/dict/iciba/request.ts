@@ -61,6 +61,6 @@ export async function downloadIcibaWordAudio(
       )}`
     );
   } catch (error) {
-    console.error(error);
+    console.error(`download iciba audio error: ${error}`);
   }
 }

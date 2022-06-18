@@ -16,12 +16,10 @@ import {
   showToast,
   Toast,
 } from "@raycast/api";
-import {
-  getGoogleWebTranslateURL,
-  myPreferences,
-  truncateTextForPlayingSound,
-} from "./utils";
-import { getWordAudioPath, playWordAudio } from "./audio";
+import { getGoogleWebTranslateURL, myPreferences } from "./utils";
+import { getWordAudioPath, playWordAudio, sayCommand, sayTruncateCommand } from "./audio";
+
+import fs from "fs";
 
 import playerImport = require("play-sound");
 const player = playerImport({});
@@ -135,26 +133,11 @@ export function ActionFeedback() {
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text?: string, language?: string) {
-    const wordAudioPath = getWordAudioPath(this.props.queryText || "");
-    if (wordAudioPath.length) {
-      // playAudioPath(wordAudioPath);
-      playWordAudio(this.props.queryText!);
-      return;
-    }
-
-    if (language && text) {
-      const voiceIndex = 0;
-      for (const LANG of languageItemList) {
-        if (language === LANG.youdaoLanguageId) {
-          const truncateText = truncateTextForPlayingSound(text).replace(
-            /"/g,
-            " "
-          );
-          const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${truncateText}'`;
-          console.log(sayCommand);
-          LANG.languageVoice.length > 0 && exec(sayCommand);
-        }
-      }
+    const wordAudioPath = getWordAudioPath(text!);
+    if (fs.existsSync(wordAudioPath)) {
+      playWordAudio(text!);
+    } else {
+      sayTruncateCommand(text!, language!);
     }
   }
 

@@ -64,7 +64,7 @@ import {
   updateFormateResultWithCaiyunTranslation,
   updateFormateResultWithTencentTranslation,
 } from "./formatData";
-import { downloadWordAudioWithURL, playWordAudio } from "./audio";
+import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult;
@@ -194,7 +194,7 @@ export default function () {
             }
           })
           .catch((err) => {
-            console.error(err);
+            console.error(`requestBaiduTextTranslate error: ${err}`);
           });
       }
 
@@ -241,7 +241,7 @@ export default function () {
             }
           })
           .catch((err) => {
-            console.error(err);
+            console.error(`requestCaiyunTextTranslate error: ${err}`);
           });
       }
     }

@@ -67,8 +67,9 @@ export function isTranslateResultTooLong(
     return false;
   }
 
-  const isChineseTextResult = formatResult.queryWordInfo.to === "zh-CHS";
-  const isEnglishTextResult = formatResult.queryWordInfo.to === "en";
+  const isChineseTextResult =
+    formatResult.queryWordInfo.toLanguage === "zh-CHS";
+  const isEnglishTextResult = formatResult.queryWordInfo.toLanguage === "en";
 
   for (const translation of formatResult.translations) {
     const textLength = translation.text.length;
@@ -85,16 +86,6 @@ export function isTranslateResultTooLong(
     }
   }
   return false;
-}
-
-// function: truncate too long text for playing sound
-export function truncateTextForPlayingSound(
-  text: string,
-  length = 40,
-  separator = "..."
-) {
-  if (text.length <= length) return text;
-  return text.substring(0, length) + separator;
 }
 
 export function isPreferredChinese(): boolean {
