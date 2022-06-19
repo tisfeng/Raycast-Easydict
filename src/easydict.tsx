@@ -17,13 +17,11 @@ import {
 } from "@raycast/api";
 import {
   LanguageItem,
-  TranslateSourceResult,
   TranslateDisplayResult,
   TranslateTypeResult,
   YoudaoTranslateResult,
   BaiduTranslateResult,
-  TencentTranslateResult,
-  CaiyunTranslateResult,
+
   TranslateFormatResult,
 } from "./types";
 import {
@@ -34,7 +32,6 @@ import {
   TranslateType,
   YoudaoRequestStateCode,
 } from "./consts";
-import axios from "axios";
 import {
   checkIsInstalledEudic,
   defaultLanguage1,
@@ -59,7 +56,7 @@ import {
 } from "./request";
 import {
   formatTranslateDisplayResult,
-  formatYoudaoTranslateResult,
+  formatYoudaoDictionaryResult,
   updateFormateResultWithBaiduTranslation,
   updateFormateResultWithCaiyunTranslation,
   updateFormateResultWithTencentTranslation,
@@ -132,8 +129,7 @@ export default function () {
       updateTranslateDisplayResult(null);
       return;
     }
-    let formatResult = formatYoudaoTranslateResult(youdaoResult);
-
+    let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
     downloadYoudaoAudio(formatResult.queryWordInfo, () => {
       if (
         myPreferences.isAutomaticPlayWordAudio &&
@@ -284,9 +280,9 @@ export default function () {
   async function tryQuerySelecedtText() {
     try {
       let selectedText = await getSelectedText();
-      setInputText(selectedText);
       console.log("selectedText: ", selectedText);
       selectedText = selectedText.trim().substring(0, maxInputTextLength);
+      setInputText(selectedText);
       setSearchText(selectedText);
     } catch (error) {}
   }
@@ -450,7 +446,7 @@ export default function () {
     setInputText(text);
 
     let trimText = text.trim();
-    if (trimText.length == 0) {
+    if (trimText.length === 0) {
       updateTranslateDisplayResult(null);
       return;
     }
