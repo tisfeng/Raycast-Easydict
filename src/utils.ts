@@ -1,20 +1,9 @@
-import {
-  Clipboard,
-  environment,
-  getApplications,
-  getPreferenceValues,
-  LocalStorage,
-} from "@raycast/api";
+import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import {
-  LanguageItem,
-  MyPreferences,
-  QueryRecoredItem,
-  TranslateFormatResult,
-} from "./types";
+import { LanguageItem, MyPreferences, QueryRecoredItem, TranslateFormatResult } from "./types";
 
-var CryptoJS = require("crypto-js");
+import CryptoJS from "crypto-js";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -23,24 +12,17 @@ export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 95;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const defaultLanguage1 = getLanguageItemFromLanguageId(
-  myPreferences.language1
-);
-export const defaultLanguage2 = getLanguageItemFromLanguageId(
-  myPreferences.language2
-);
+export const defaultLanguage1 = getLanguageItemFromLanguageId(myPreferences.language1);
+export const defaultLanguage2 = getLanguageItemFromLanguageId(myPreferences.language2);
 
-const defaultEncrytedYoudaoAppId =
-  "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
+const defaultEncrytedYoudaoAppId = "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
 const defaultEncrytedYoudaoAppKey =
   "U2FsdGVkX1/JF2ZMngmTw8Vm+P0pHWmHKLQhGpUtYiDc0kLZl6FKw1Vn3hMyl7iL7owwReGJCLsovDxztZKb9g==";
 export const defaultYoudaoAppId = myDecrypt(defaultEncrytedYoudaoAppId);
 export const defaultYoudaoAppSecret = myDecrypt(defaultEncrytedYoudaoAppKey);
 
-const defaultEncryptedBaiduAppId =
-  "U2FsdGVkX1/QHkSw+8qxr99vLkSasBfBRmA6Kb5nMyjP8IJazM9DcOpd3cOY6/il";
-const defaultEncryptedBaiduAppSecret =
-  "U2FsdGVkX1+a2LbZ0+jntJTQjpPKUNWGrlr4NSBOwmlah7iP+w2gefq1UpCan39J";
+const defaultEncryptedBaiduAppId = "U2FsdGVkX1/QHkSw+8qxr99vLkSasBfBRmA6Kb5nMyjP8IJazM9DcOpd3cOY6/il";
+const defaultEncryptedBaiduAppSecret = "U2FsdGVkX1+a2LbZ0+jntJTQjpPKUNWGrlr4NSBOwmlah7iP+w2gefq1UpCan39J";
 export const defaultBaiduAppId = myDecrypt(defaultEncryptedBaiduAppId);
 export const defaultBaiduAppSecret = myDecrypt(defaultEncryptedBaiduAppSecret);
 
@@ -48,27 +30,19 @@ const defaultEncryptedTencentSecretId =
   "U2FsdGVkX19lHBVXE+CEZI9cENSToLIGzHDsUIE+RyvIC66rgxumDmpYPDY4MdaTSbrq7MIyDvtgXaLvzijYSg==";
 const defaultEncryptedTencentSecretKey =
   "U2FsdGVkX1+N6wDYXNiUISwKOM97cY03RjXmC+0+iodFo3b4NTNC1J8RR6xqcbdyF7z3Z2yQRMHHxn4m02aUvA==";
-export const defaultTencentSecretId = myDecrypt(
-  defaultEncryptedTencentSecretId
-);
-export const defaultTencentSecretKey = myDecrypt(
-  defaultEncryptedTencentSecretKey
-);
+export const defaultTencentSecretId = myDecrypt(defaultEncryptedTencentSecretId);
+export const defaultTencentSecretKey = myDecrypt(defaultEncryptedTencentSecretKey);
 
-const defaultEncryptedCaiyunToken =
-  "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
+const defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
 export const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
 
 // export function: Determine whether the title of the result exceeds the maximum value of one line.
-export function isTranslateResultTooLong(
-  formatResult: TranslateFormatResult | null
-): boolean {
+export function isTranslateResultTooLong(formatResult: TranslateFormatResult | null): boolean {
   if (!formatResult) {
     return false;
   }
 
-  const isChineseTextResult =
-    formatResult.queryWordInfo.toLanguage === "zh-CHS";
+  const isChineseTextResult = formatResult.queryWordInfo.toLanguage === "zh-CHS";
   const isEnglishTextResult = formatResult.queryWordInfo.toLanguage === "en";
 
   for (const translation of formatResult.translations) {
@@ -91,18 +65,13 @@ export function isTranslateResultTooLong(
 export function isPreferredChinese(): boolean {
   const lanuguageIdPrefix = "zh";
   const preferences: MyPreferences = getPreferenceValues();
-  if (
-    preferences.language1.startsWith(lanuguageIdPrefix) ||
-    preferences.language2.startsWith(lanuguageIdPrefix)
-  ) {
+  if (preferences.language1.startsWith(lanuguageIdPrefix) || preferences.language2.startsWith(lanuguageIdPrefix)) {
     return true;
   }
   return false;
 }
 
-export function getLanguageItemFromLanguageId(
-  youdaoLanguageId: string
-): LanguageItem {
+export function getLanguageItemFromLanguageId(youdaoLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
     if (langItem.youdaoLanguageId === youdaoLanguageId) {
       return langItem;
@@ -116,12 +85,9 @@ export function getLanguageItemFromLanguageId(
   };
 }
 
-export function getLanguageItemFromTencentDetectLanguageId(
-  tencentLanguageId: string
-): LanguageItem {
+export function getLanguageItemFromTencentDetectLanguageId(tencentLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
-    const tencentDetectLanguageId =
-      langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
+    const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
     if (tencentDetectLanguageId === tencentLanguageId) {
       return langItem;
     }
@@ -136,10 +102,7 @@ export function getLanguageItemFromTencentDetectLanguageId(
 
 // function: get another language item expcept chinese
 
-function getLanguageItemExpceptChinese(
-  from: LanguageItem,
-  to: LanguageItem
-): LanguageItem {
+function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
   if (from.youdaoLanguageId === "zh-CHS") {
     return to;
   } else {
@@ -147,45 +110,23 @@ function getLanguageItemExpceptChinese(
   }
 }
 
-export function getEudicWebTranslateURL(
-  queryText: string,
-  from: LanguageItem,
-  to: LanguageItem
-): string {
-  const eudicWebLanguageId = getLanguageItemExpceptChinese(
-    from,
-    to
-  ).eudicWebLanguageId;
+export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
+  const eudicWebLanguageId = getLanguageItemExpceptChinese(from, to).eudicWebLanguageId;
   if (eudicWebLanguageId) {
-    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(
-      queryText
-    )}`;
+    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryText)}`;
   }
   return "";
 }
 
-export function getYoudaoWebTranslateURL(
-  queryText: string,
-  from: LanguageItem,
-  to: LanguageItem
-): string {
-  const youdaoWebLanguageId = getLanguageItemExpceptChinese(
-    from,
-    to
-  ).youdaoWebLanguageId;
+export function getYoudaoWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
+  const youdaoWebLanguageId = getLanguageItemExpceptChinese(from, to).youdaoWebLanguageId;
   if (youdaoWebLanguageId) {
-    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(
-      queryText
-    )}`;
+    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(queryText)}`;
   }
   return "";
 }
 
-export function getGoogleWebTranslateURL(
-  queryText: string,
-  from: LanguageItem,
-  to: LanguageItem
-): string {
+export function getGoogleWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
   const fromLanguageId = from.googleLanguageId || from.youdaoLanguageId;
   const toLanguageId = to.googleLanguageId || to.youdaoLanguageId;
   const text = encodeURI(queryText!);
@@ -193,15 +134,11 @@ export function getGoogleWebTranslateURL(
 }
 
 // function: query the clipboard text from LocalStorage
-export async function tryQueryClipboardText(
-  queryClipboardText: (text: string) => void
-) {
-  let text = await Clipboard.readText();
+export async function tryQueryClipboardText(queryClipboardText: (text: string) => void) {
+  const text = await Clipboard.readText();
   console.log("query clipboard text: " + text);
   if (text) {
-    const jsonString = await LocalStorage.getItem<string>(
-      clipboardQueryTextKey
-    );
+    const jsonString = await LocalStorage.getItem<string>(clipboardQueryTextKey);
     console.log("query jsonString: " + jsonString);
     if (!jsonString) {
       queryClipboardText(text);
@@ -238,10 +175,7 @@ export function saveQueryClipboardRecord(text: string) {
 
 // function: remove all punctuation from the text
 export function removeEnglishPunctuation(text: string) {
-  return text.replace(
-    /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g,
-    ""
-  );
+  return text.replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g, "");
 }
 
 // function: remove all Chinese punctuation and blank space from the text
@@ -281,14 +215,12 @@ export function detectInputTextLanguageId(inputText: string): string {
   const ChineseLanguageId = "zh-CHS";
   if (
     isEnglishOrNumber(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === EnglishLanguageId ||
-      defaultLanguage2.youdaoLanguageId === EnglishLanguageId)
+    (defaultLanguage1.youdaoLanguageId === EnglishLanguageId || defaultLanguage2.youdaoLanguageId === EnglishLanguageId)
   ) {
     fromLanguageId = EnglishLanguageId;
   } else if (
     isContainChinese(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === ChineseLanguageId ||
-      defaultLanguage2.youdaoLanguageId === ChineseLanguageId)
+    (defaultLanguage1.youdaoLanguageId === ChineseLanguageId || defaultLanguage2.youdaoLanguageId === ChineseLanguageId)
   ) {
     fromLanguageId = ChineseLanguageId;
   }
@@ -298,9 +230,7 @@ export function detectInputTextLanguageId(inputText: string): string {
 }
 
 // function: return and update the autoSelectedTargetLanguage according to the languageId
-export function getAutoSelectedTargetLanguageId(
-  accordingLanguageId: string
-): string {
+export function getAutoSelectedTargetLanguageId(accordingLanguageId: string): string {
   let targetLanguageId = "auto";
   if (accordingLanguageId === defaultLanguage1.youdaoLanguageId) {
     targetLanguageId = defaultLanguage2.youdaoLanguageId;
@@ -310,15 +240,11 @@ export function getAutoSelectedTargetLanguageId(
 
   const targetLanguage = getLanguageItemFromLanguageId(targetLanguageId);
 
-  console.log(
-    `languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`
-  );
+  console.log(`languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`);
   return targetLanguage.youdaoLanguageId;
 }
 
-async function traverseAllInstalledApplications(
-  updateIsInstalledEudic: (isInstalled: boolean) => void
-) {
+async function traverseAllInstalledApplications(updateIsInstalledEudic: (isInstalled: boolean) => void) {
   const installedApplications = await getApplications();
   LocalStorage.setItem(eudicBundleId, false);
   updateIsInstalledEudic(false);
@@ -334,9 +260,7 @@ async function traverseAllInstalledApplications(
   }
 }
 
-export function checkIsInstalledEudic(
-  setIsInstalledEudic: (isInstalled: boolean) => void
-) {
+export function checkIsInstalledEudic(setIsInstalledEudic: (isInstalled: boolean) => void) {
   LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
     console.log("is install Eudic: ", isInstalledEudic);
 
@@ -352,29 +276,19 @@ export function checkIsInstalledEudic(
 
 export function myEncrypt(text: string) {
   // console.warn("encrypt:", text);
-  var ciphertext = CryptoJS.AES.encrypt(
-    text,
-    environment.extensionName
-  ).toString();
+  const ciphertext = CryptoJS.AES.encrypt(text, environment.extensionName).toString();
   // console.warn("ciphertext: ", ciphertext);
   return ciphertext;
 }
 
 export function myDecrypt(ciphertext: string) {
   // console.warn("decrypt:", ciphertext);
-  var bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
-  var originalText = bytes.toString(CryptoJS.enc.Utf8);
+  const bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
+  const originalText = bytes.toString(CryptoJS.enc.Utf8);
   // console.warn("originalText: ", originalText);
   return originalText;
 }
 
-export function isShowMultipleTranslations(
-  formatResult: TranslateFormatResult
-) {
-  return (
-    !formatResult.explanations &&
-    !formatResult.forms &&
-    !formatResult.webPhrases &&
-    !formatResult.webTranslation
-  );
+export function isShowMultipleTranslations(formatResult: TranslateFormatResult) {
+  return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
 }

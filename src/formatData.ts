@@ -142,7 +142,7 @@ export function sortTranslations(
 export function formatTranslateDisplayResult(
   formatResult: TranslateFormatResult | null
 ): TranslateDisplayResult[] {
-  let displayResult: Array<TranslateDisplayResult> = [];
+  const displayResult: Array<TranslateDisplayResult> = [];
   if (!formatResult) {
     return displayResult;
   }
@@ -150,17 +150,17 @@ export function formatTranslateDisplayResult(
   const showMultipleTranslations = isShowMultipleTranslations(formatResult);
 
   for (const [i, translation] of formatResult.translations.entries()) {
-    let sectionType = showMultipleTranslations
+    const sectionType = showMultipleTranslations
       ? translation.type
       : SectionType.Translation;
-    let sectionTitle: any = sectionType;
+    const sectionTitle: any = sectionType;
     let tooltip: string = translation.type;
 
     if (showMultipleTranslations) {
       tooltip = "";
     }
 
-    let oneLineTranslation = translation.text.split("\n").join(" ");
+    const oneLineTranslation = translation.text.split("\n").join(" ");
 
     const phoneticText = formatResult.queryWordInfo.phonetic
       ? `[${formatResult.queryWordInfo.phonetic}]`
@@ -200,7 +200,7 @@ export function formatTranslateDisplayResult(
   }
 
   let hasShowDetailsSectionTitle = false;
-  let detailsSectionTitle = "Details";
+  const detailsSectionTitle = "Details";
 
   formatResult.explanations?.forEach((explanation, i) => {
     displayResult.push({
@@ -305,7 +305,7 @@ export function formatAllTypeTranslationToMarkdown(
   type: TranslateType | SectionType,
   formatResult: TranslateFormatResult
 ) {
-  let translations = [] as TranslateItem[];
+  const translations = [] as TranslateItem[];
   for (const translation of formatResult.translations) {
     const formatTranslation = formatTranslationToMarkdown(
       translation.type,
@@ -334,8 +334,8 @@ export function formatTranslationToMarkdown(
   type: TranslateType | SectionType,
   text: string
 ) {
-  let string = text.replace(/\n/g, "\n\n");
-  let markdown = `
+  const string = text.replace(/\n/g, "\n\n");
+  const markdown = `
   ## ${type} 
   ---  
   ${string}

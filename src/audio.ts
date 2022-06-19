@@ -9,7 +9,7 @@ const player = playerImport({});
 
 export const maxPlaySoundTextLength = 40;
 
-let audioDirPath = `${environment.supportPath}/audio`;
+const audioDirPath = `${environment.supportPath}/audio`;
 
 export function playWordAudio(word: string) {
   const audioPath = getWordAudioPath(word);
@@ -32,7 +32,7 @@ export function playAudioPath(audioPath: string) {
     console.error(`audio file not exists: ${audioPath}`);
     return;
   }
-  execFile("afplay", [audioPath], (error, stdout, stderr) => {
+  execFile("afplay", [audioPath], (error, stdout) => {
     if (error) {
       console.error(`exec error: ${error}`);
     }
@@ -59,20 +59,12 @@ function sayCommand(text: string, language: string) {
   }
 }
 
-export function downloadWordAudioWithURL(
-  word: string,
-  url: string,
-  callback?: () => void
-) {
+export function downloadWordAudioWithURL(word: string, url: string, callback?: () => void) {
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback);
 }
 
-export function downloadAudio(
-  url: string,
-  audioPath: string,
-  callback?: () => void
-) {
+export function downloadAudio(url: string, audioPath: string, callback?: () => void) {
   if (fs.existsSync(audioPath)) {
     callback && callback();
     return;

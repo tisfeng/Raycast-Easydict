@@ -1,27 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
-import {
-  ActionFeedback,
-  getListItemIcon,
-  getWordAccessories,
-  ListActionPanel,
-} from "./components";
-import {
-  Action,
-  ActionPanel,
-  Color,
-  getSelectedText,
-  Icon,
-  List,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { ActionFeedback, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
+import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import {
   LanguageItem,
   TranslateDisplayResult,
   TranslateTypeResult,
   YoudaoTranslateResult,
   BaiduTranslateResult,
-
   TranslateFormatResult,
 } from "./types";
 import {
@@ -82,18 +67,15 @@ export default function () {
   const [inputText, setInputText] = useState<string>();
   // searchText = inputText.trim(), avoid frequent request API
   const [searchText, setSearchText] = useState<string>();
-  const [translateDisplayResult, setTranslateDisplayResult] =
-    useState<TranslateDisplayResult[]>();
+  const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
      */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] =
-    useState<LanguageItem>(defaultLanguage1);
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(defaultLanguage1);
   /*
     default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
     */
-  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] =
-    useState<LanguageItem>(defaultLanguage1);
+  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(defaultLanguage1);
   /*
     the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
     */
@@ -104,37 +86,24 @@ export default function () {
     console.log(`querySearchText fromTo: ${fromLanguage} -> ${targetLanguage}`);
 
     const queryText = searchText!;
-    youdaoTranslateTypeResult = await requestYoudaoDictionary(
-      searchText!,
-      fromLanguage,
-      targetLanguage
-    );
+    youdaoTranslateTypeResult = await requestYoudaoDictionary(searchText!, fromLanguage, targetLanguage);
 
-    const youdaoResult =
-      youdaoTranslateTypeResult.result as YoudaoTranslateResult;
+    const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
     console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
     const youdaoErrorCode = youdaoResult.errorCode;
     youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
-    if (
-      youdaoErrorCode ===
-      YoudaoRequestStateCode.AccessFrequencyLimited.toString()
-    ) {
+    if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
       delaySearchQueryText(fromLanguage, targetLanguage);
       return;
     } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
-      console.error(
-        `youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`
-      );
+      console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
       updateTranslateDisplayResult(null);
       return;
     }
     let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
     downloadYoudaoAudio(formatResult.queryWordInfo, () => {
-      if (
-        myPreferences.isAutomaticPlayWordAudio &&
-        formatResult.queryWordInfo.isWord
-      ) {
+      if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord) {
         playWordAudio(formatResult.queryWordInfo.word);
       }
     });
@@ -157,15 +126,11 @@ export default function () {
         requestBaiduTextTranslate(searchText!, fromLanguage, targetLanguage)
           .then((baiduRes) => {
             console.log("requestBaiduTextTranslate success");
-            const baiduTranslateResult =
-              baiduRes.result as BaiduTranslateResult;
+            const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
             const baiduErrorCode = baiduTranslateResult.error_code;
 
             if (baiduErrorCode) {
-              if (
-                baiduErrorCode ===
-                BaiduRequestStateCode.AccessFrequencyLimited.toString()
-              ) {
+              if (baiduErrorCode === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
                 delaySearchQueryText(fromLanguage, targetLanguage);
                 return;
               }
@@ -182,10 +147,7 @@ export default function () {
               console.error(`${baiduRes.type}: ${baiduErrorCode}`);
               console.error(baiduRes.errorInfo.errorMessage);
             } else {
-              formatResult = updateFormateResultWithBaiduTranslation(
-                baiduRes,
-                formatResult
-              );
+              formatResult = updateFormateResultWithBaiduTranslation(baiduRes, formatResult);
               updateTranslateDisplayResult(formatResult);
             }
           })
@@ -199,10 +161,7 @@ export default function () {
         requestTencentTextTranslate(queryText, fromLanguage, targetLanguage)
           .then((tencentRes) => {
             console.log(`requestTencentTextTranslate success`);
-            formatResult = updateFormateResultWithTencentTranslation(
-              tencentRes,
-              formatResult
-            );
+            formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
             updateTranslateDisplayResult(formatResult);
           })
           .catch((err) => {
@@ -218,21 +177,12 @@ export default function () {
             if (caiyunRes.errorInfo) {
               showToast({
                 style: Toast.Style.Failure,
-                title: `${caiyunRes.type.split(" ")[0]} Error: ${
-                  caiyunRes.errorInfo!.errorCode
-                }`,
+                title: `${caiyunRes.type.split(" ")[0]} Error: ${caiyunRes.errorInfo!.errorCode}`,
                 message: caiyunRes.errorInfo!.errorMessage,
               });
-              console.error(
-                `caiyun error: ${caiyunRes.errorInfo!.errorCode}, ${
-                  caiyunRes.errorInfo!.errorMessage
-                }`
-              );
+              console.error(`caiyun error: ${caiyunRes.errorInfo!.errorCode}, ${caiyunRes.errorInfo!.errorMessage}`);
             } else {
-              formatResult = updateFormateResultWithCaiyunTranslation(
-                caiyunRes,
-                formatResult
-              );
+              formatResult = updateFormateResultWithCaiyunTranslation(caiyunRes, formatResult);
               updateTranslateDisplayResult(formatResult);
             }
           })
@@ -247,17 +197,13 @@ export default function () {
 
   // function check first language and second language is the same
   function checkLanguageIsSame() {
-    if (
-      defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId
-    ) {
+    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
       return (
         <List>
           <List.Item
             title={"Language Conflict"}
             icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
-            subtitle={
-              "Your first Language with second Language must be different."
-            }
+            subtitle={"Your first Language with second Language must be different."}
           />
         </List>
       );
@@ -284,7 +230,9 @@ export default function () {
       selectedText = selectedText.trim().substring(0, maxInputTextLength);
       setInputText(selectedText);
       setSearchText(selectedText);
-    } catch (error) {}
+    } catch (error) {
+      // do nothing
+    }
   }
 
   useEffect(() => {
@@ -297,10 +245,7 @@ export default function () {
           console.log("tencent language detect: ", data);
 
           const languageId = data.Lang || "auto";
-          const youdaoLanguageId =
-            getLanguageItemFromTencentDetectLanguageId(
-              languageId
-            ).youdaoLanguageId;
+          const youdaoLanguageId = getLanguageItemFromTencentDetectLanguageId(languageId).youdaoLanguageId;
           translateWithSourceLanguageId(youdaoLanguageId);
         },
         (err) => {
@@ -331,9 +276,7 @@ export default function () {
     // if conflict, use auto selected target language
     if (youdaoLanguageId === tartgetLanguageId) {
       tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
-      setAutoSelectedTargetLanguageItem(
-        getLanguageItemFromLanguageId(tartgetLanguageId)
-      );
+      setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(tartgetLanguageId));
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
     querySearchText(youdaoLanguageId, tartgetLanguageId);
@@ -342,13 +285,9 @@ export default function () {
   function ListDetail() {
     if (!youdaoTranslateTypeResult) return null;
 
-    const youdaoErrorCode = (
-      youdaoTranslateTypeResult.result as YoudaoTranslateResult
-    ).errorCode;
-    const youdaoErrorMessage =
-      youdaoTranslateTypeResult!.errorInfo!.errorMessage;
-    const isYoudaoRequestError =
-      youdaoErrorCode !== YoudaoRequestStateCode.Success.toString();
+    const youdaoErrorCode = (youdaoTranslateTypeResult.result as YoudaoTranslateResult).errorCode;
+    const youdaoErrorMessage = youdaoTranslateTypeResult!.errorInfo!.errorMessage;
+    const isYoudaoRequestError = youdaoErrorCode !== YoudaoRequestStateCode.Success.toString();
 
     if (isYoudaoRequestError) {
       return (
@@ -366,11 +305,7 @@ export default function () {
               <Action.OpenInBrowser
                 title="See Error Code Meaning"
                 icon={Icon.QuestionMark}
-                url={
-                  requestStateCodeLinkMap.get(
-                    youdaoTranslateTypeResult.type as TranslateType
-                  )!
-                }
+                url={requestStateCodeLinkMap.get(youdaoTranslateTypeResult.type as TranslateType)!}
               />
               <ActionFeedback />
             </ActionPanel>
@@ -379,15 +314,15 @@ export default function () {
       );
     }
 
-    let eudicWebUrl = getEudicWebTranslateURL(
+    const eudicWebUrl = getEudicWebTranslateURL(
       searchText || "",
-      currentFromLanguageItem!,
+      currentFromLanguageItem,
       autoSelectedTargetLanguageItem
     );
 
-    let youdaoWebUrl = getYoudaoWebTranslateURL(
+    const youdaoWebUrl = getYoudaoWebTranslateURL(
       searchText || "",
-      currentFromLanguageItem!,
+      currentFromLanguageItem,
       autoSelectedTargetLanguageItem
     );
 
@@ -407,9 +342,7 @@ export default function () {
                     title={item.title}
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
-                    detail={
-                      <List.Item.Detail markdown={item.translationMarkdown} />
-                    }
+                    detail={<List.Item.Detail markdown={item.translationMarkdown} />}
                     actions={
                       <ListActionPanel
                         isInstalledEudic={isInstalledEudic}
@@ -425,10 +358,7 @@ export default function () {
                         onLanguageUpdate={(value) => {
                           setAutoSelectedTargetLanguageItem(value);
                           setUserSelectedTargetLanguageItem(value);
-                          querySearchText(
-                            currentFromLanguageItem!.youdaoLanguageId,
-                            value.youdaoLanguageId
-                          );
+                          querySearchText(currentFromLanguageItem!.youdaoLanguageId, value.youdaoLanguageId);
                         }}
                       />
                     }
@@ -462,9 +392,7 @@ export default function () {
     }
   }
 
-  function updateTranslateDisplayResult(
-    formatResult: TranslateFormatResult | null
-  ) {
+  function updateTranslateDisplayResult(formatResult: TranslateFormatResult | null) {
     setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
     setIsShowingDetail(isTranslateResultTooLong(formatResult));
     setLoadingState(false);
@@ -483,10 +411,7 @@ export default function () {
         </ActionPanel>
       }
     >
-      <List.EmptyView
-        icon={Icon.TextDocument}
-        title="Type a word to look up or translate"
-      />
+      <List.EmptyView icon={Icon.TextDocument} title="Type a word to look up or translate" />
       <ListDetail />
     </List>
   );

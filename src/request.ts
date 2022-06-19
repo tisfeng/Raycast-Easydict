@@ -173,7 +173,7 @@ export function requestBaiduTextTranslate(
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from = getLanguageItemFromLanguageId(fromLanguage).baiduLanguageId;
   const to = getLanguageItemFromLanguageId(targetLanguage).baiduLanguageId;
-  let encodeQueryText = Buffer.from(queryText, "utf8").toString();
+  const encodeQueryText = Buffer.from(queryText, "utf8").toString();
   const params = {
     q: encodeQueryText,
     from: from,

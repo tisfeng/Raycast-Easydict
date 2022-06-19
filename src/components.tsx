@@ -1,21 +1,8 @@
 import { Component } from "react";
-import { exec, execFile } from "child_process";
+import { execFile } from "child_process";
 import { languageItemList, SectionType, TranslateType } from "./consts";
-import {
-  ListItemActionPanelItem,
-  YoudaoTranslateReformatResultItem,
-} from "./types";
-import {
-  Action,
-  ActionPanel,
-  Color,
-  Icon,
-  Image,
-  List,
-  LocalStorage,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./types";
+import { Action, ActionPanel, Color, Icon, Image, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { getWordAudioPath, playWordAudio, sayTruncateCommand } from "./audio";
 import fs from "fs";
@@ -30,9 +17,7 @@ export function playSoundIcon(lightTintColor: string) {
 }
 
 // function: Returns the corresponding ImageLike based on the SectionType type
-export function getListItemIcon(
-  sectionType: SectionType | TranslateType
-): Image.ImageLike {
+export function getListItemIcon(sectionType: SectionType | TranslateType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (sectionType) {
     case TranslateType.Youdao: {
@@ -107,11 +92,7 @@ export function getWordAccessories(
         },
         { text: item.phonetic },
       ];
-      wordAccessories = [
-        ...wordAccessories,
-        { text: " " },
-        ...pronunciationAccessory,
-      ];
+      wordAccessories = [...wordAccessories, { text: " " }, ...pronunciationAccessory];
     }
   }
   return wordAccessories;
@@ -175,18 +156,10 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
 
         <ActionPanel.Section title="Search Query Text Online">
           {this.props.isShowOpenInEudicWeb && (
-            <Action.OpenInBrowser
-              icon={Icon.Link}
-              title="See Eudic Translate Results"
-              url={this.props.eudicWebUrl}
-            />
+            <Action.OpenInBrowser icon={Icon.Link} title="See Eudic Translate Results" url={this.props.eudicWebUrl} />
           )}
           {this.props.isShowOpenInYoudaoWeb && (
-            <Action.OpenInBrowser
-              icon={Icon.Link}
-              title="See Youdao Translate Results"
-              url={this.props.youdaoWebUrl}
-            />
+            <Action.OpenInBrowser icon={Icon.Link} title="See Youdao Translate Results" url={this.props.youdaoWebUrl} />
           )}
 
           <Action.OpenInBrowser
@@ -205,33 +178,19 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             title="Play Query Text Sound"
             icon={playSoundIcon("black")}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
-            onAction={() =>
-              this.onPlaySound(
-                this.props?.queryText,
-                this.props.currentFromLanguage?.youdaoLanguageId
-              )
-            }
+            onAction={() => this.onPlaySound(this.props?.queryText, this.props.currentFromLanguage?.youdaoLanguageId)}
           />
           <Action
             title="Play Result Text Sound"
             icon={playSoundIcon("black")}
-            onAction={() =>
-              this.onPlaySound(
-                this.props.copyText,
-                this.props.currentTargetLanguage?.youdaoLanguageId
-              )
-            }
+            onAction={() => this.onPlaySound(this.props.copyText, this.props.currentTargetLanguage?.youdaoLanguageId)}
           />
         </ActionPanel.Section>
 
         {myPreferences.isDisplayTargetTranslationLanguage && (
           <ActionPanel.Section title="Target Language">
             {languageItemList.map((region) => {
-              if (
-                this.props.currentFromLanguage?.youdaoLanguageId ===
-                region.youdaoLanguageId
-              )
-                return null;
+              if (this.props.currentFromLanguage?.youdaoLanguageId === region.youdaoLanguageId) return null;
 
               return (
                 <Action
@@ -239,8 +198,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
                   title={region.languageTitle}
                   onAction={() => this.props.onLanguageUpdate(region)}
                   icon={
-                    this.props.currentTargetLanguage?.youdaoLanguageId ===
-                    region.youdaoLanguageId
+                    this.props.currentTargetLanguage?.youdaoLanguageId === region.youdaoLanguageId
                       ? Icon.ArrowRight
                       : Icon.Globe
                   }
