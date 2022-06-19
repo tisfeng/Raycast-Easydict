@@ -129,7 +129,7 @@ export function getYoudaoWebTranslateURL(queryText: string, from: LanguageItem, 
 export function getGoogleWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
   const fromLanguageId = from.googleLanguageId || from.youdaoLanguageId;
   const toLanguageId = to.googleLanguageId || to.youdaoLanguageId;
-  const text = encodeURI(queryText!);
+  const text = encodeURI(queryText);
   return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
 }
 

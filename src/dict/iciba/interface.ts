@@ -22,7 +22,7 @@ export interface IcibaSymbol {
   ph_am_mp3: string; // American word pronunciation audio url, maybe empty, then use ph_tts
   ph_tts_mp3: string; // if tts empty, then use ph_en
   ph_en_mp3: string;
-  parts: { [key: string]: any }; // word meaning
+  parts: { [key: string]: [value: string | { [key: string]: { value: string | number } }[]] }[]; // word meaning
 }
 
 export interface IcibaChinesePart {

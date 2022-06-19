@@ -96,11 +96,11 @@ export interface ListItemActionPanelItem {
   eudicWebUrl: string;
   isShowOpenInYoudaoWeb: boolean;
   youdaoWebUrl: string;
-  copyText?: string;
-  queryText?: string;
+  copyText: string;
+  queryText: string;
   queryWordInfo: QueryWordInfo;
-  currentFromLanguage?: LanguageItem;
-  currentTargetLanguage?: LanguageItem;
+  currentFromLanguage: LanguageItem;
+  currentTargetLanguage: LanguageItem;
   onLanguageUpdate: (language: LanguageItem) => void;
 }
 

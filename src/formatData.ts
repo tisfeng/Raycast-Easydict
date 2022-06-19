@@ -153,7 +153,7 @@ export function formatTranslateDisplayResult(
     const sectionType = showMultipleTranslations
       ? translation.type
       : SectionType.Translation;
-    const sectionTitle: any = sectionType;
+    const sectionTitle: TranslateType | SectionType = sectionType;
     let tooltip: string = translation.type;
 
     if (showMultipleTranslations) {
@@ -222,7 +222,7 @@ export function formatTranslateDisplayResult(
     hasShowDetailsSectionTitle = true;
   });
 
-  const wfs = formatResult.forms?.map((wfItem, idx) => {
+  const wfs = formatResult.forms?.map((wfItem) => {
     return wfItem.wf?.name + " " + wfItem.wf?.value;
   });
 

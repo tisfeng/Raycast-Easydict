@@ -13,8 +13,7 @@ import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
   maxInputTextLength,
-  requestStateCodeLinkMap,
-  TranslateType,
+  youdaoErrorCodeLink,
   YoudaoRequestStateCode,
 } from "./consts";
 import {
@@ -27,9 +26,8 @@ import {
   getLanguageItemFromTencentDetectLanguageId,
   getLanguageItemFromLanguageId,
   getYoudaoWebTranslateURL,
-  isTranslateResultTooLong,
-  saveQueryClipboardRecord,
   myPreferences,
+  isTranslateResultTooLong,
   isShowMultipleTranslations,
 } from "./utils";
 import {
@@ -49,7 +47,7 @@ import {
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
 
-let youdaoTranslateTypeResult: TranslateTypeResult;
+let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
@@ -64,9 +62,9 @@ export default function () {
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   // use to display input text
-  const [inputText, setInputText] = useState<string>();
+  const [inputText, setInputText] = useState<string>("");
   // searchText = inputText.trim(), avoid frequent request API
-  const [searchText, setSearchText] = useState<string>();
+  const [searchText, setSearchText] = useState<string>("");
   const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
   /**
      the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
@@ -85,8 +83,7 @@ export default function () {
   async function querySearchText(fromLanguage: string, targetLanguage: string) {
     console.log(`querySearchText fromTo: ${fromLanguage} -> ${targetLanguage}`);
 
-    const queryText = searchText!;
-    youdaoTranslateTypeResult = await requestYoudaoDictionary(searchText!, fromLanguage, targetLanguage);
+    youdaoTranslateTypeResult = await requestYoudaoDictionary(searchText, fromLanguage, targetLanguage);
 
     const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
     console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
@@ -108,7 +105,7 @@ export default function () {
       }
     });
 
-    const [from, to] = youdaoResult!.l.split("2"); // from2to
+    const [from, to] = youdaoResult.l.split("2"); // from2to
     if (from === to) {
       const target = getAutoSelectedTargetLanguageId(from);
       setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(target));
@@ -123,7 +120,7 @@ export default function () {
     if (isShowMultipleTranslations(formatResult)) {
       if (myPreferences.enableBaiduTranslate) {
         console.log("requestBaiduTextTranslate");
-        requestBaiduTextTranslate(searchText!, fromLanguage, targetLanguage)
+        requestBaiduTextTranslate(searchText, fromLanguage, targetLanguage)
           .then((baiduRes) => {
             console.log("requestBaiduTextTranslate success");
             const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
@@ -137,7 +134,7 @@ export default function () {
 
               baiduRes.errorInfo = {
                 errorCode: baiduErrorCode,
-                errorMessage: baiduTranslateResult.error_msg!,
+                errorMessage: baiduTranslateResult.error_msg || "",
               };
               showToast({
                 style: Toast.Style.Failure,
@@ -158,7 +155,7 @@ export default function () {
 
       if (myPreferences.enableTencentTranslate) {
         console.log(`requestTencentTextTranslate`);
-        requestTencentTextTranslate(queryText, fromLanguage, targetLanguage)
+        requestTencentTextTranslate(searchText, fromLanguage, targetLanguage)
           .then((tencentRes) => {
             console.log(`requestTencentTextTranslate success`);
             formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
@@ -171,16 +168,16 @@ export default function () {
 
       if (myPreferences.enableCaiyunTranslate) {
         console.log("requestCaiyunTextTranslate");
-        requestCaiyunTextTranslate(queryText, fromLanguage, targetLanguage)
+        requestCaiyunTextTranslate(searchText, fromLanguage, targetLanguage)
           .then((caiyunRes) => {
             console.log("requestCaiyunTextTranslate success");
             if (caiyunRes.errorInfo) {
               showToast({
                 style: Toast.Style.Failure,
-                title: `${caiyunRes.type.split(" ")[0]} Error: ${caiyunRes.errorInfo!.errorCode}`,
-                message: caiyunRes.errorInfo!.errorMessage,
+                title: `${caiyunRes.type.split(" ")[0]} Error: ${caiyunRes.errorInfo.errorCode}`,
+                message: caiyunRes.errorInfo.errorMessage,
               });
-              console.error(`caiyun error: ${caiyunRes.errorInfo!.errorCode}, ${caiyunRes.errorInfo!.errorMessage}`);
+              console.error(`caiyun error: ${caiyunRes.errorInfo.errorCode}, ${caiyunRes.errorInfo.errorMessage}`);
             } else {
               formatResult = updateFormateResultWithCaiyunTranslation(caiyunRes, formatResult);
               updateTranslateDisplayResult(formatResult);
@@ -216,13 +213,6 @@ export default function () {
     }, delayRequestTime);
   }
 
-  function queryClipboardText(text: string) {
-    text = text.trim().substring(0, maxInputTextLength);
-    saveQueryClipboardRecord(text);
-    setSearchText(text);
-    setInputText(text);
-  }
-
   async function tryQuerySelecedtText() {
     try {
       let selectedText = await getSelectedText();
@@ -236,7 +226,7 @@ export default function () {
   }
 
   useEffect(() => {
-    if (searchText) {
+    if (searchText.length) {
       setLoadingState(true);
       clearTimeout(delayUpdateTargetLanguageTimer);
 
@@ -256,13 +246,12 @@ export default function () {
         }
       );
       return;
-    }
-
-    if (!searchText) {
+    } else {
       if (myPreferences.isAutomaticQuerySelectedText) {
         tryQuerySelecedtText();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
   function translateWithSourceLanguageId(youdaoLanguageId: string) {
@@ -286,14 +275,14 @@ export default function () {
     if (!youdaoTranslateTypeResult) return null;
 
     const youdaoErrorCode = (youdaoTranslateTypeResult.result as YoudaoTranslateResult).errorCode;
-    const youdaoErrorMessage = youdaoTranslateTypeResult!.errorInfo!.errorMessage;
+    const youdaoErrorMessage = youdaoTranslateTypeResult?.errorInfo?.errorMessage;
     const isYoudaoRequestError = youdaoErrorCode !== YoudaoRequestStateCode.Success.toString();
 
     if (isYoudaoRequestError) {
       return (
         <List.Item
           title={"Youdao Request Error"}
-          subtitle={youdaoErrorMessage.length ? `: ${youdaoErrorMessage}` : ""}
+          subtitle={youdaoErrorMessage?.length ? `: ${youdaoErrorMessage}` : ""}
           accessories={[
             {
               text: `Error Code: ${youdaoErrorCode}`,
@@ -302,11 +291,7 @@ export default function () {
           icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
           actions={
             <ActionPanel>
-              <Action.OpenInBrowser
-                title="See Error Code Meaning"
-                icon={Icon.QuestionMark}
-                url={requestStateCodeLinkMap.get(youdaoTranslateTypeResult.type as TranslateType)!}
-              />
+              <Action.OpenInBrowser title="See Error Code Meaning" icon={Icon.QuestionMark} url={youdaoErrorCodeLink} />
               <ActionFeedback />
             </ActionPanel>
           }
@@ -358,7 +343,7 @@ export default function () {
                         onLanguageUpdate={(value) => {
                           setAutoSelectedTargetLanguageItem(value);
                           setUserSelectedTargetLanguageItem(value);
-                          querySearchText(currentFromLanguageItem!.youdaoLanguageId, value.youdaoLanguageId);
+                          querySearchText(currentFromLanguageItem.youdaoLanguageId, value.youdaoLanguageId);
                         }}
                       />
                     }

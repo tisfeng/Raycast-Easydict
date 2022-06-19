@@ -10,8 +10,6 @@ import {
   defaultYoudaoAppId,
   defaultYoudaoAppSecret,
   getLanguageItemFromLanguageId,
-  myDecrypt,
-  myEncrypt,
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
@@ -20,39 +18,22 @@ import { TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
 
 // youdao appid and appsecret
-const youdaoAppId =
-  myPreferences.youdaoAppId.trim().length > 0
-    ? myPreferences.youdaoAppId.trim()
-    : defaultYoudaoAppId;
+const youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;
 const youdaoAppSecret =
-  myPreferences.youdaoAppSecret.trim().length > 0
-    ? myPreferences.youdaoAppSecret.trim()
-    : defaultYoudaoAppSecret;
+  myPreferences.youdaoAppSecret.trim().length > 0 ? myPreferences.youdaoAppSecret.trim() : defaultYoudaoAppSecret;
 
 // baidu app id and secret
-const baiduAppId =
-  myPreferences.baiduAppId.trim().length > 0
-    ? myPreferences.baiduAppId.trim()
-    : defaultBaiduAppId;
+const baiduAppId = myPreferences.baiduAppId.trim().length > 0 ? myPreferences.baiduAppId.trim() : defaultBaiduAppId;
 const baiduAppSecret =
-  myPreferences.baiduAppSecret.trim().length > 0
-    ? myPreferences.baiduAppSecret.trim()
-    : defaultBaiduAppSecret;
+  myPreferences.baiduAppSecret.trim().length > 0 ? myPreferences.baiduAppSecret.trim() : defaultBaiduAppSecret;
 
 // tencent secret id and key
 const tencentSecretId =
-  myPreferences.tencentSecretId.trim().length > 0
-    ? myPreferences.tencentSecretId.trim()
-    : defaultTencentSecretId;
+  myPreferences.tencentSecretId.trim().length > 0 ? myPreferences.tencentSecretId.trim() : defaultTencentSecretId;
 const tencentSecretKey =
-  myPreferences.tencentSecretKey.trim().length > 0
-    ? myPreferences.tencentSecretKey.trim()
-    : defaultTencentSecretKey;
+  myPreferences.tencentSecretKey.trim().length > 0 ? myPreferences.tencentSecretKey.trim() : defaultTencentSecretKey;
 
-const caiyunToken =
-  myPreferences.caiyunToken.trim().length > 0
-    ? myPreferences.caiyunToken.trim()
-    : defaultCaiyunToken;
+const caiyunToken = myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : defaultCaiyunToken;
 
 const tencentEndpoint = "tmt.tencentcloudapi.com";
 const tencentRegion = "ap-guangzhou";
@@ -74,9 +55,7 @@ const clientConfig = {
 const client = new TmtClient(clientConfig);
 
 // 腾讯语种识别，5次/秒
-export function tencentLanguageDetect(
-  text: string
-): Promise<LanguageDetectResponse> {
+export function tencentLanguageDetect(text: string): Promise<LanguageDetectResponse> {
   const params = {
     Text: text,
     ProjectId: tencentProjectId,
@@ -90,21 +69,15 @@ export function requestTencentTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
-  const encryptedText = myEncrypt(queryText);
-  const decryptText = myDecrypt(encryptedText);
-
-  const from =
-    getLanguageItemFromLanguageId(fromLanguage).tencentLanguageId || "auto";
+  const from = getLanguageItemFromLanguageId(fromLanguage).tencentLanguageId || "auto";
   const to = getLanguageItemFromLanguageId(targetLanguage).tencentLanguageId;
   if (!to) {
-    return Promise.reject(
-      new Error("Target language is not supported by Tencent Translate")
-    );
+    return Promise.reject(new Error("Target language is not supported by Tencent Translate"));
   }
   const params = {
     SourceText: queryText,
     Source: from,
-    Target: to!,
+    Target: to,
     ProjectId: tencentProjectId,
   };
   return new Promise((resolve, reject) => {
@@ -129,15 +102,12 @@ export function requestYoudaoDictionary(
 ): Promise<TranslateTypeResult> {
   function truncate(q: string): string {
     const len = q.length;
-    return len <= 20
-      ? q
-      : q.substring(0, 10) + len + q.substring(len - 10, len);
+    return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
   }
 
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
-  const sha256Content =
-    youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
+  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({
@@ -200,8 +170,7 @@ export function requestCaiyunTextTranslate(
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-  const from =
-    getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
+  const from = getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
   const to = getLanguageItemFromLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
   console.log("caiyun trans_type: ", trans_type);

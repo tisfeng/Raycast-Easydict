@@ -72,7 +72,7 @@ export function getWordAccessories(
 ): List.Item.Accessory[] {
   let wordExamTypeAccessory = [];
   let pronunciationAccessory = [];
-  let wordAccessories: any[] = [];
+  let wordAccessories: List.Item.Accessory[] = [];
   if (sectionType === SectionType.Translation) {
     if (item.examTypes) {
       wordExamTypeAccessory = [
@@ -109,18 +109,18 @@ export function ActionFeedback() {
 }
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
-  onPlaySound(text?: string, language?: string) {
-    const wordAudioPath = getWordAudioPath(text!);
+  onPlaySound(text: string, language: string) {
+    const wordAudioPath = getWordAudioPath(text);
     if (fs.existsSync(wordAudioPath)) {
-      playWordAudio(text!);
+      playWordAudio(text);
     } else {
-      sayTruncateCommand(text!, language!);
+      sayTruncateCommand(text, language);
     }
   }
 
-  openInEudic = (queryText?: string) => {
+  openInEudic = (queryText: string) => {
     const url = `eudic://dict/${queryText}`;
-    execFile("open", [url], (error, stdout, stderr) => {
+    execFile("open", [url], (error, stdout) => {
       if (error) {
         console.log("error:", error);
         LocalStorage.removeItem(eudicBundleId);
@@ -166,9 +166,9 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             icon={Icon.Link}
             title="See Google Translate Results"
             url={getGoogleWebTranslateURL(
-              this.props.queryText!,
-              this.props.currentFromLanguage!,
-              this.props.currentTargetLanguage!
+              this.props.queryText,
+              this.props.currentFromLanguage,
+              this.props.currentTargetLanguage
             )}
           />
         </ActionPanel.Section>
