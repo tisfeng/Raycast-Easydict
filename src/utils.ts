@@ -20,7 +20,7 @@ var CryptoJS = require("crypto-js");
 export const clipboardQueryInterval = 10 * 60 * 1000;
 
 export const maxLineLengthOfChineseTextDisplay = 45;
-export const maxLineLengthOfEnglishTextDisplay = 100;
+export const maxLineLengthOfEnglishTextDisplay = 95;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getLanguageItemFromLanguageId(
@@ -73,6 +73,7 @@ export function isTranslateResultTooLong(
 
   for (const translation of formatResult.translations) {
     const textLength = translation.text.length;
+    console.log(`${translation.type} textLength: ${textLength}`);
     if (isChineseTextResult) {
       if (textLength > maxLineLengthOfChineseTextDisplay) {
         return true;
