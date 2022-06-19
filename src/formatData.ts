@@ -96,10 +96,11 @@ export function formatYoudaoTranslateResult(
   });
 
   const [from, to] = youdaoResult.l.split("2"); // from2to
+  let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
+  usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
   const queryTextInfo: QueryWordInfo = {
     word: youdaoResult.query,
-    phonetic:
-      youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
+    phonetic: usPhonetic || youdaoResult.basic?.phonetic,
     speech: youdaoResult.basic?.["us-speech"],
     fromLanguage: from,
     toLanguage: to,
@@ -171,10 +172,11 @@ export function formatTranslateResult(
   }
 
   const [from, to] = src.youdaoResult.l.split("2"); // from2to
+  let usPhonetic = src.youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
+  usPhonetic = usPhonetic?.split("; ")[1] ?? usPhonetic;
   const queryTextInfo: QueryWordInfo = {
     word: src.youdaoResult.query,
-    phonetic:
-      src.youdaoResult.basic?.["us-phonetic"] || youdaoResult.basic?.phonetic,
+    phonetic: usPhonetic || youdaoResult.basic?.phonetic,
     speech: src.youdaoResult.basic?.["us-speech"],
     fromLanguage: from,
     toLanguage: to,

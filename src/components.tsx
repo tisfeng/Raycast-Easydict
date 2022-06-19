@@ -18,11 +18,7 @@ import {
 } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { getWordAudioPath, playWordAudio, sayTruncateCommand } from "./audio";
-
 import fs from "fs";
-
-import playerImport = require("play-sound");
-const player = playerImport({});
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
