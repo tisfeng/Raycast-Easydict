@@ -35,10 +35,7 @@ export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
 }
 
 // function download icicba audio file
-export async function downloadIcibaWordAudio(
-  word: string,
-  callback?: () => void
-) {
+export async function downloadIcibaWordAudio(word: string, callback?: () => void) {
   try {
     const icibaResult = await icibaDictionary(word);
     const icibaDictionaryResult = icibaResult.result as IcibaDictionaryResult;
@@ -53,13 +50,7 @@ export async function downloadIcibaWordAudio(
       downloadAudio(phoneticUrl, audioPath, callback);
     }
 
-    console.log(
-      `iciba dictionary result: ${JSON.stringify(
-        icibaDictionaryResult,
-        null,
-        4
-      )}`
-    );
+    console.log(`iciba dictionary result: ${JSON.stringify(icibaDictionaryResult, null, 4)}`);
   } catch (error) {
     console.error(`download iciba audio error: ${error}`);
   }

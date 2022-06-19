@@ -15,9 +15,7 @@ import { isShowMultipleTranslations } from "./utils";
 /**
  * Format the Youdao original data for later use.
  */
-export function formatYoudaoDictionaryResult(
-  youdaoTypeResult: TranslateTypeResult
-): TranslateFormatResult {
+export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResult): TranslateFormatResult {
   const youdaoResult = youdaoTypeResult.result as YoudaoTranslateResult;
   const translations = youdaoResult.translation.map((translationText) => {
     return {
@@ -116,15 +114,8 @@ export function updateFormateResultWithCaiyunTranslation(
 }
 
 // function sort formatResult translations, by type: baidu > tencent > youdao > caiyun
-export function sortTranslations(
-  formatResult: TranslateFormatResult
-): TranslateFormatResult {
-  const sortByOrders = [
-    TranslateType.Baidu,
-    TranslateType.Tencent,
-    TranslateType.Youdao,
-    TranslateType.Caiyun,
-  ];
+export function sortTranslations(formatResult: TranslateFormatResult): TranslateFormatResult {
+  const sortByOrders = [TranslateType.Baidu, TranslateType.Tencent, TranslateType.Youdao, TranslateType.Caiyun];
   const sortTranslations: TranslateItem[] = [];
   for (const translationItem of formatResult.translations) {
     const index = sortByOrders.indexOf(translationItem.type);
@@ -139,9 +130,7 @@ export function sortTranslations(
 /**
  * Convert the formatted query results to a format that can be directly used for UI display.
  */
-export function formatTranslateDisplayResult(
-  formatResult: TranslateFormatResult | null
-): TranslateDisplayResult[] {
+export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): TranslateDisplayResult[] {
   const displayResult: Array<TranslateDisplayResult> = [];
   if (!formatResult) {
     return displayResult;
@@ -150,9 +139,7 @@ export function formatTranslateDisplayResult(
   const showMultipleTranslations = isShowMultipleTranslations(formatResult);
 
   for (const [i, translation] of formatResult.translations.entries()) {
-    const sectionType = showMultipleTranslations
-      ? translation.type
-      : SectionType.Translation;
+    const sectionType = showMultipleTranslations ? translation.type : SectionType.Translation;
     const sectionTitle: TranslateType | SectionType = sectionType;
     let tooltip: string = translation.type;
 
@@ -162,15 +149,10 @@ export function formatTranslateDisplayResult(
 
     const oneLineTranslation = translation.text.split("\n").join(" ");
 
-    const phoneticText = formatResult.queryWordInfo.phonetic
-      ? `[${formatResult.queryWordInfo.phonetic}]`
-      : undefined;
+    const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
 
-    const isShowWordSubtitle =
-      phoneticText || formatResult.queryWordInfo.examTypes;
-    const wordSubtitle = isShowWordSubtitle
-      ? formatResult.queryWordInfo.word
-      : undefined;
+    const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
+    const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
 
     displayResult.push({
       type: sectionType,
@@ -186,10 +168,7 @@ export function formatTranslateDisplayResult(
           phonetic: phoneticText,
           speech: formatResult.queryWordInfo.speech,
           examTypes: formatResult.queryWordInfo.examTypes,
-          translationMarkdown: formatAllTypeTranslationToMarkdown(
-            sectionType,
-            formatResult
-          ),
+          translationMarkdown: formatAllTypeTranslationToMarkdown(sectionType, formatResult),
         },
       ],
     });
@@ -205,9 +184,7 @@ export function formatTranslateDisplayResult(
   formatResult.explanations?.forEach((explanation, i) => {
     displayResult.push({
       type: SectionType.Explanations,
-      sectionTitle: !hasShowDetailsSectionTitle
-        ? detailsSectionTitle
-        : undefined,
+      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
           key: explanation + i,
@@ -231,9 +208,7 @@ export function formatTranslateDisplayResult(
   if (wfsText.length) {
     displayResult.push({
       type: SectionType.Forms,
-      sectionTitle: !hasShowDetailsSectionTitle
-        ? detailsSectionTitle
-        : undefined,
+      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
           key: wfsText,
@@ -254,9 +229,7 @@ export function formatTranslateDisplayResult(
     const webResultValue = formatResult.webTranslation.value.join("；");
     displayResult.push({
       type: SectionType.WebTranslation,
-      sectionTitle: !hasShowDetailsSectionTitle
-        ? detailsSectionTitle
-        : undefined,
+      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
           key: webResultKey,
@@ -277,9 +250,7 @@ export function formatTranslateDisplayResult(
     const phraseValue = phrase.value.join("；");
     displayResult.push({
       type: SectionType.WebPhrase,
-      sectionTitle: !hasShowDetailsSectionTitle
-        ? detailsSectionTitle
-        : undefined,
+      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
           key: phraseKey + i,
@@ -307,10 +278,7 @@ export function formatAllTypeTranslationToMarkdown(
 ) {
   const translations = [] as TranslateItem[];
   for (const translation of formatResult.translations) {
-    const formatTranslation = formatTranslationToMarkdown(
-      translation.type,
-      translation.text
-    );
+    const formatTranslation = formatTranslationToMarkdown(translation.type, translation.text);
     translations.push({ type: translation.type, text: formatTranslation });
   }
   // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
@@ -330,10 +298,7 @@ export function formatAllTypeTranslationToMarkdown(
 }
 
 // Format type translation result to markdown format.
-export function formatTranslationToMarkdown(
-  type: TranslateType | SectionType,
-  text: string
-) {
+export function formatTranslationToMarkdown(type: TranslateType | SectionType, text: string) {
   const string = text.replace(/\n/g, "\n\n");
   const markdown = `
   ## ${type} 
