@@ -168,7 +168,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             onCopy={() => {
               console.log("copy: ", this.props.copyText);
             }}
-            title={`Copy  ${this.props.copyText}`}
+            title={`Copy Text`}
             content={this.props.copyText || ""}
           />
         </ActionPanel.Section>
