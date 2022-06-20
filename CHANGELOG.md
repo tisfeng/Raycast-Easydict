@@ -18,15 +18,10 @@
 ### 💎 Improvements
 
 - Improved request response speed: no longer send concurrent requests together, change to first request Youdao dictionary API. If input text is not a `word`, continue to request other translation APIs.
-
 - Improved the accuracy of input text language detect, used Tencent language detect API first.
-
 - Improved the display of long text translation results. Multiple translation results are displayed in the list details page for mutual comparison.
-
 - Improved the text pronunciation. The online Youdao dictionary pronunciation is preferred for English words, and the TTS service of Youdao translation is used for others. Long text playback uses the say shell command.
-
 - Improved word phonetic symbol display. When a word has multiple American phonetic symbols, only show the last one.
-
 - Improved the handling of translation interface exceptions. Only when there is a Youdao translation exception, an error prompt is reported. Other translation exceptions only display toast prompt.
 
   
