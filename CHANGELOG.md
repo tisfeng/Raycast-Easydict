@@ -1,9 +1,5 @@
 # `Easydict` Changelog
 
-
-
-
-
 ## [1.1.0] - 2022-06-20
 
 ### ✨ New
@@ -12,8 +8,6 @@
 - Added support for getting the selected text of the frontmost application, and use crossing word query to replace clipboard query.
 - Added a switch option in the preference settings to allow you to manually turn on or off some translation services.
 - Added the automatic pronunciation option in the preference settings. When enabled, it will automatically pronounce the `word` after it is found.
-
-
 
 ### 💎 Improvements
 
@@ -24,14 +18,9 @@
 - Improved word phonetic symbol display. When a word has multiple American phonetic symbols, only show the last one.
 - Improved the handling of translation interface exceptions. Only when there is a Youdao translation exception, an error prompt is reported. Other translation exceptions only display toast prompt.
 
-  
-
 ### 🐞 Fixes
 
 - Fixed online dictionary links has always been a Chinese and English query problem, and now it has been automatically switched according to different languages.
-  
-
-
 
 ## [1.0.0] - 2022-06-16
 
@@ -42,4 +31,3 @@
 
 - Supported automatic query clipboard text, enabled by default.
 - Supported to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) to quickly look up word, if installed on your Mac.
-

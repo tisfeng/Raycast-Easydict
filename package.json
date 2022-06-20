@@ -46,6 +46,8 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.2",
     "prettier": "^2.5.1",
     "typescript": "^4.7.4"
   },
@@ -53,13 +55,14 @@
     "build": "ray build -e dist",
     "dev": "ray develop",
     "lint": "ray lint",
-    "eslint": "eslint src --fix --ext .ts,.tsx",
-    "fix": "prettier --write ."
+    "fix-lint": "ray lint --fix",
+    "lint-staged": "lint-staged",
+    "prepare": "husky install",
+    "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && eslint --fix && prettier --write ."
-    }
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": "npm run eslint",
+    "*.{ts,tsx,js,jsx,json,md}": "prettier --write ."
   },
   "preferences": [
     {

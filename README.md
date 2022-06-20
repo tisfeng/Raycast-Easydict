@@ -4,7 +4,6 @@
 
 ![easydict-1](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-1.png)
 
-
 ## Features
 
 - [x] Out of the box, easy to look up words or translate text.
@@ -29,8 +28,6 @@ Next:
 ![easydict-2](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-2.png)
 
 ![easydict-4](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-4.png)
-
-
 
 ## Advanced
 
@@ -103,7 +100,6 @@ The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob
 [`Bob`](https://ripperhe.gitee.io/bob/#/) is a MacOS **translation** and **OCR** application. Easy to use and free!
 
 ![image-20220620150946277](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620150946277.png)
-
 
 ## Thanks
 
