@@ -46,14 +46,24 @@ The default preferred languages are simplified Chinese and English. You can chan
 
 Preference language has two main functions:
 
-<details>
-  <summary> First, it improves the accuracy of automatic recognition of input text language. </summary>
+<details><summary> First, it improves the accuracy of automatic recognition of input text language. </summary>
+
+<p>
+
 Preference language will be given priority in order during automatic recognition. This is because some words may represent multiple languages at the same time, and the automatic recognition program cannot work as expected. In most cases, the automatic recognition of input text is very useful, except for very few special cases. For example, the English word `heel` will be automatically recognized into Dutch by Youdao translation, and then the translation results are not what we expect. At this time, if your `Easydict` preferred language contains English, it will be recognized into English first and translated correctly.
+
+</p>
+
 </details>
 
-<details>
-  <summary> Second, it is used to confirm your target translation language.  </summary>
+<details><summary> Second, it is used to confirm your target translation language.  </summary>
+
+<p>
+
 For example, if you input a sentence arbitrarily, it will be translated into the first preferred language. If the automatically recognized language is the same as your first preferred language, it will be automatically translated into the second preferred language.
+
+</p>
+
 </details>
 
 > **Correction: after v1.1.0, Tencent language recognition is preferred. When Tencent language recognition service is unavailable, the accuracy of language recognition will be optimized through the above methods.**
@@ -66,24 +76,40 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 
 ### Automatic Query Selected Text
 
-<details>
-	<summary> Automatic query selected text of the frontmost application, this option is turned on by default. </summary> 
-In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydic`, such as `Shift` + `Cmd ` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant. 
+<details><summary> Automatic query selected text of the frontmost application, this option is turned on by default. </summary>
+
+<p>
+
+In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydic`, such as `Shift` + `Cmd ` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant.
+
+</p>
+
 </details>
 
 ### Automatic Play Query Word Pronunciation
 
-<details>
-	<summary> Automatically play the word voice after querying the word, turned off by default. </summary> 
-Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query `, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice. 
+<details><summary> Automatically play the word voice after querying the word, turned off by default. </summary>
+
+<p>
+
+Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query `, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
+
 Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
+
+</p>
+
 </details>
 
 ### Select Target Translation Language
 
-<details>
-  <summary> Specify the target translation language. This option is turned off by default. </summary>
+<details><summary> Specify the target translation language. This option is turned off by default. </summary>
+
+<p>
+
 By default, the extension will automatically select the preferred languages as the target translation language, but sometimes if you want to manually specify a supported language as the target language, you can turn on the option `Select Target Translation Language` on the preference page, and then you can temporarily select another target language in the action panel.
+
+</p>
+
 </details>
 
 ### Translation Services
