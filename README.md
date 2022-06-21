@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="assets/eudic-icon.png" height="128">
+  <h1 align="center">Easydict</h1>
+</p>
+
 ## What is Easydict? [【中文简介】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
 `Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, Baidu, Tencent, Youdao and Caiyun translation API.
@@ -18,8 +23,8 @@
 
 Next:
 
-- [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, 金山词霸, etc.
-- [ ] ￼Support to view query history.
+- [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
+- [ ] Support to view query history.
 
 ![log_type](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/log_type.png)
 
@@ -50,6 +55,7 @@ Preference language will be given priority in order during automatic recognition
   <summary> Second, it is used to confirm your target translation language.  </summary>
 For example, if you input a sentence arbitrarily, it will be translated into the first preferred language. If the automatically recognized language is the same as your first preferred language, it will be automatically translated into the second preferred language.
 </details>
+
 > **Correction: after v1.1.0, Tencent language recognition is preferred. When Tencent language recognition service is unavailable, the accuracy of language recognition will be optimized through the above methods.**
 
 [Youdao translation](https://fanyi.youdao.com/?keyfrom=dict2.top)
@@ -72,12 +78,14 @@ In order to better match the automatic selected text feature, it is a good idea 
 Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query `, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice. 
 Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
 </details>
+
 ### Select Target Translation Language
 
 <details>
   <summary> Specify the target translation language. This option is turned off by default. </summary>
 By default, the extension will automatically select the preferred languages as the target translation language, but sometimes if you want to manually specify a supported language as the target language, you can turn on the option `Select Target Translation Language` on the preference page, and then you can temporarily select another target language in the action panel.
 </details>
+
 ### Translation Services
 
 For easy to use, we provide some built-in translation APIs appid and appkey, but these Services have request frequency limits. If many people use them at the same time, it is likely to slow down or even stop. Therefore, for a better use experience, you'd better apply for a dedicated appid and appkey, and then replace the built-in services on the Preferences page.
@@ -86,18 +94,18 @@ Don't worry, these translation services have free quotas. Generally speaking, pe
 
 The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob/#/general/advance/service). Follow the tutorial and you should be able to complete the application soon.
 
-- [有道翻译](https://ripperhe.gitee.io/bob/#/service/translate/youdao)： select 'text translation' and 'speech synthesis'.
-- [百度翻译](https://ripperhe.gitee.io/bob/#/service/translate/baidu)
+- [Youdao Translate](https://ripperhe.gitee.io/bob/#/service/translate/youdao)： Select `text translation` and `speech synthesis`. (You will receive ¥50 experience fund)
+- [Baidu Translate](https://ripperhe.gitee.io/bob/#/service/translate/baidu)
 
-- [腾讯翻译](https://ripperhe.gitee.io/bob/#/service/translate/tencent)
+- [Tencent Translate](https://ripperhe.gitee.io/bob/#/service/translate/tencent)
 
-- [彩云小译](https://ripperhe.gitee.io/bob/#/service/translate/caiyun)
+- [Caiyun Translate](https://ripperhe.gitee.io/bob/#/service/translate/caiyun)
 
 ![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
 
 ## Friendly Recommendation
 
-[`Bob`](https://ripperhe.gitee.io/bob/#/) is a MacOS **translation** and **OCR** application. Easy to use and free!
+[`Bob`](https://ripperhe.gitee.io/bob/#/) is a MacOS **translation** and **OCR** application. Bob is probably the best translation application on the MacOS platform, and it's free!
 
 ![image-20220620150946277](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620150946277.png)
 
