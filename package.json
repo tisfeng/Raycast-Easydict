@@ -37,6 +37,8 @@
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.2",
+    "@commitlint/config-conventional": "^17.0.2",
     "@types/crypto-js": "^4.1.1",
     "@types/node": "~16.10.0",
     "@types/play-sound": "^1.1.0",
@@ -62,7 +64,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": "npm run eslint",
-    "*.{ts,tsx,js,jsx,json,md}": "prettier --write ."
+    "**/*": "prettier --write . --ignore-unknown"
   },
   "preferences": [
     {
