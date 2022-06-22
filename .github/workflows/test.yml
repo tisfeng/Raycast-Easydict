@@ -1,9 +1,9 @@
-name: Test Workflow Action
+name: Test Action
 
 on: [pull_request_target, issues]
 
 jobs:
-  greeting:
+  test:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Thank you for your contribution! ${{ github.actor }}"
