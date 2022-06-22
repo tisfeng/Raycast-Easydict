@@ -9,6 +9,6 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - run: echo "Thank you for your first contribution! ${{ github.actor }}"
+      - run: echo "Thank you for your contribution! @${{ github.actor }}"
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
