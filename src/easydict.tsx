@@ -29,6 +29,7 @@ import {
   myPreferences,
   isTranslateResultTooLong,
   isShowMultipleTranslations,
+  openDetectLanguageShortcuts,
 } from "./utils";
 import {
   requestBaiduTextTranslate,
@@ -129,22 +130,25 @@ export default function () {
     console.log("translateText:", lowerCaseText);
     tencentLanguageDetect(lowerCaseText).then(
       (data) => {
-        const languageId = data.Lang || "auto";
-        const youdaoLanguageId = getLanguageItemFromTencentDetectLanguageId(languageId).youdaoLanguageId;
-        queryTextWithFromLanguageId(youdaoLanguageId);
         console.log("tencent language detect: ", data);
+        const languageId = data.Lang || "auto";
+        const youdaoLanguageItem = getLanguageItemFromTencentDetectLanguageId(languageId);
+        console.log("detect language:", youdaoLanguageItem.languageTitle);
+        queryTextWithFromLanguageId(youdaoLanguageItem.youdaoLanguageId);
       },
       (err) => {
+        console.error("tencent language detect error: ", err);
         const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
         queryTextWithFromLanguageId(currentLanguageId);
-        console.error("tencent language detect error: ", err);
       }
     );
+
+    openDetectLanguageShortcuts(lowerCaseText);
   }
 
   // function to query text with from youdao language id
   function queryTextWithFromLanguageId(youdaoLanguageId: string) {
-    console.log("currentLanguageId: ", youdaoLanguageId);
+    console.log("queryTextWithFromLanguageId: ", youdaoLanguageId);
     setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
 
     // priority to use user selected target language

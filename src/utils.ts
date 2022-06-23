@@ -1,9 +1,19 @@
-import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
+import {
+  Clipboard,
+  environment,
+  getApplications,
+  getPreferenceValues,
+  LocalStorage,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
 import { LanguageItem, MyPreferences, QueryRecoredItem, TranslateFormatResult } from "./types";
 
 import CryptoJS from "crypto-js";
+import { exec, execFile, execFileSync, execSync } from "child_process";
+import fs from "fs";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -291,4 +301,43 @@ export function myDecrypt(ciphertext: string) {
 
 export function isShowMultipleTranslations(formatResult: TranslateFormatResult) {
   return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
+}
+
+// function: open  DetectLanguage shortcuts with the given text
+export function openDetectLanguageShortcuts(text: string) {
+  const applescriptContent = `
+      tell application "Shortcuts"
+        run the shortcut named "DetectLanguage" with input "${text}"
+      end tell
+    `;
+
+  const scriptPath = `${environment.supportPath}/script.sh`;
+  console.log("scriptPath: ", scriptPath);
+
+  fs.writeFile(scriptPath, applescriptContent, (err) => {
+    if (!err) {
+      execFile(`osascript`, [scriptPath], (error, stdout) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.warn(`stdout: ${stdout}`);
+      });
+    }
+  });
+
+  exec(`osascript -e '${applescriptContent}'`, (error, stdout) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.warn(`exec: ${stdout}`);
+  });
+
+  try {
+    const detectLanguage = execSync(`osascript -e '${applescriptContent}'`).toString();
+    console.log("detectLanguage: ", detectLanguage);
+  } catch (error) {
+    console.error(`execSync error: ${error}`);
+  }
 }
