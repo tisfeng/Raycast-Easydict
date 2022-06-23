@@ -80,7 +80,87 @@ export default function () {
   const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
-  async function querySearchText(fromLanguage: string, targetLanguage: string) {
+  // check first language and second language is the same
+  function checkLanguageIsSame() {
+    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
+      return (
+        <List>
+          <List.Item
+            title={"Language Conflict"}
+            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+            subtitle={"Your first Language with second Language must be different."}
+          />
+        </List>
+      );
+    }
+  }
+
+  useEffect(() => {
+    if (searchText.length) {
+      queryText(searchText);
+      return;
+    }
+
+    if (myPreferences.isAutomaticQuerySelectedText) {
+      tryQuerySelecedtText();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
+  // function to detect the selected text
+  async function tryQuerySelecedtText() {
+    try {
+      const selectedText = await getSelectedText();
+      console.log("selectedText: ", selectedText);
+      updateInputText(selectedText);
+    } catch (error) {
+      // do nothing
+    }
+  }
+
+  // function to query text, automatically detect the language of the input text
+  function queryText(text: string) {
+    setLoadingState(true);
+    clearTimeout(delayUpdateTargetLanguageTimer);
+
+    console.log("translateText:", text);
+    tencentLanguageDetect(text).then(
+      (data) => {
+        console.log("tencent language detect: ", data);
+
+        const languageId = data.Lang || "auto";
+        const youdaoLanguageId = getLanguageItemFromTencentDetectLanguageId(languageId).youdaoLanguageId;
+        queryTextWithFromLanguageId(youdaoLanguageId);
+      },
+      (err) => {
+        console.error("tencent language detect error: ", err);
+
+        const currentLanguageId = detectInputTextLanguageId(text);
+        queryTextWithFromLanguageId(currentLanguageId);
+      }
+    );
+  }
+
+  // function to query text with from youdao language id
+  function queryTextWithFromLanguageId(youdaoLanguageId: string) {
+    console.log("currentLanguageId: ", youdaoLanguageId);
+    setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
+
+    // priority to use user selected target language
+    let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
+    console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
+
+    // if conflict, use auto selected target language
+    if (youdaoLanguageId === tartgetLanguageId) {
+      tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
+      setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(tartgetLanguageId));
+      console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
+    }
+    queryTextFromLanguage(youdaoLanguageId, tartgetLanguageId);
+  }
+
+  // function to query search text, with from language id and target language id
+  async function queryTextFromLanguage(fromLanguage: string, targetLanguage: string) {
     console.log(`querySearchText fromTo: ${fromLanguage} -> ${targetLanguage}`);
 
     youdaoTranslateTypeResult = await requestYoudaoDictionary(searchText, fromLanguage, targetLanguage);
@@ -91,7 +171,7 @@ export default function () {
     youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
     if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
-      delaySearchQueryText(fromLanguage, targetLanguage);
+      delayQueryTextFromLanguage(fromLanguage, targetLanguage);
       return;
     } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
       console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
@@ -109,7 +189,7 @@ export default function () {
     if (from === to) {
       const target = getAutoSelectedTargetLanguageId(from);
       setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(target));
-      querySearchText(from, target);
+      queryTextFromLanguage(from, target);
       return;
     }
 
@@ -128,7 +208,7 @@ export default function () {
 
             if (baiduErrorCode) {
               if (baiduErrorCode === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
-                delaySearchQueryText(fromLanguage, targetLanguage);
+                delayQueryTextFromLanguage(fromLanguage, targetLanguage);
                 return;
               }
 
@@ -192,83 +272,18 @@ export default function () {
     return;
   }
 
-  // function check first language and second language is the same
-  function checkLanguageIsSame() {
-    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
-      return (
-        <List>
-          <List.Item
-            title={"Language Conflict"}
-            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
-            subtitle={"Your first Language with second Language must be different."}
-          />
-        </List>
-      );
-    }
+  // function to update translate display result, loading state, showing detail
+  function updateTranslateDisplayResult(formatResult: TranslateFormatResult | null) {
+    setLoadingState(false);
+    setIsShowingDetail(isTranslateResultTooLong(formatResult));
+    setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
   }
 
-  function delaySearchQueryText(fromLanguage: string, targetLanguage: string) {
+  // function to delay query search text, later can cancel the query
+  function delayQueryTextFromLanguage(fromLanguage: string, targetLanguage: string) {
     delayUpdateTargetLanguageTimer = setTimeout(() => {
-      querySearchText(fromLanguage, targetLanguage);
+      queryTextFromLanguage(fromLanguage, targetLanguage);
     }, delayRequestTime);
-  }
-
-  async function tryQuerySelecedtText() {
-    try {
-      let selectedText = await getSelectedText();
-      console.log("selectedText: ", selectedText);
-      selectedText = selectedText.trim().substring(0, maxInputTextLength);
-      setInputText(selectedText);
-      setSearchText(selectedText);
-    } catch (error) {
-      // do nothing
-    }
-  }
-
-  useEffect(() => {
-    if (searchText.length) {
-      setLoadingState(true);
-      clearTimeout(delayUpdateTargetLanguageTimer);
-
-      tencentLanguageDetect(searchText).then(
-        (data) => {
-          console.log("tencent language detect: ", data);
-
-          const languageId = data.Lang || "auto";
-          const youdaoLanguageId = getLanguageItemFromTencentDetectLanguageId(languageId).youdaoLanguageId;
-          translateWithSourceLanguageId(youdaoLanguageId);
-        },
-        (err) => {
-          console.error("tencent language detect error: ", err);
-
-          const currentLanguageId = detectInputTextLanguageId(searchText);
-          translateWithSourceLanguageId(currentLanguageId);
-        }
-      );
-      return;
-    } else {
-      if (myPreferences.isAutomaticQuerySelectedText) {
-        tryQuerySelecedtText();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchText]);
-
-  function translateWithSourceLanguageId(youdaoLanguageId: string) {
-    console.log("currentLanguageId: ", youdaoLanguageId);
-    setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
-
-    // priority to use user selected target language
-    let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
-    console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
-
-    // if conflict, use auto selected target language
-    if (youdaoLanguageId === tartgetLanguageId) {
-      tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
-      setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(tartgetLanguageId));
-      console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
-    }
-    querySearchText(youdaoLanguageId, tartgetLanguageId);
   }
 
   function ListDetail() {
@@ -343,7 +358,7 @@ export default function () {
                         onLanguageUpdate={(value) => {
                           setAutoSelectedTargetLanguageItem(value);
                           setUserSelectedTargetLanguageItem(value);
-                          querySearchText(currentFromLanguageItem.youdaoLanguageId, value.youdaoLanguageId);
+                          queryTextFromLanguage(currentFromLanguageItem.youdaoLanguageId, value.youdaoLanguageId);
                         }}
                       />
                     }
@@ -357,10 +372,11 @@ export default function () {
     );
   }
 
-  function onInputChangeEvent(text: string) {
+  // function to update input text and search text
+  function updateInputText(text: string) {
     setInputText(text);
 
-    let trimText = text.trim();
+    const trimText = text.trim().substring(0, maxInputTextLength);
     if (trimText.length === 0) {
       updateTranslateDisplayResult(null);
       return;
@@ -369,18 +385,15 @@ export default function () {
     clearTimeout(delayFetchTranslateAPITimer);
 
     // start delay timer for fetch translate API
-    if (trimText.length > 0 && trimText !== searchText) {
+    if (trimText !== searchText) {
       delayFetchTranslateAPITimer = setTimeout(() => {
-        trimText = trimText.substring(0, maxInputTextLength);
         setSearchText(trimText);
       }, delayRequestTime);
     }
   }
 
-  function updateTranslateDisplayResult(formatResult: TranslateFormatResult | null) {
-    setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
-    setIsShowingDetail(isTranslateResultTooLong(formatResult));
-    setLoadingState(false);
+  function onInputChangeEvent(text: string) {
+    updateInputText(text);
   }
 
   return (
