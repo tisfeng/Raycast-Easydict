@@ -123,20 +123,21 @@ export default function () {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
-    console.log("translateText:", text);
-    tencentLanguageDetect(text).then(
-      (data) => {
-        console.log("tencent language detect: ", data);
+    // covert the input text to lowercase, because detect language API is case sensitive, such as 'Section' is detected as 'fr' 😑
+    const lowerCaseText = text.toLowerCase();
 
+    console.log("translateText:", lowerCaseText);
+    tencentLanguageDetect(lowerCaseText).then(
+      (data) => {
         const languageId = data.Lang || "auto";
         const youdaoLanguageId = getLanguageItemFromTencentDetectLanguageId(languageId).youdaoLanguageId;
         queryTextWithFromLanguageId(youdaoLanguageId);
+        console.log("tencent language detect: ", data);
       },
       (err) => {
-        console.error("tencent language detect error: ", err);
-
-        const currentLanguageId = detectInputTextLanguageId(text);
+        const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
         queryTextWithFromLanguageId(currentLanguageId);
+        console.error("tencent language detect error: ", err);
       }
     );
   }
