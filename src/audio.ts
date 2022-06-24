@@ -5,13 +5,16 @@ import fs from "fs";
 
 import playerImport = require("play-sound");
 import { languageItemList } from "./consts";
+import { QueryWordInfo } from "./types";
 const player = playerImport({});
 
 export const maxPlaySoundTextLength = 40;
 
 const audioDirPath = `${environment.supportPath}/audio`;
 
-export function playWordAudio(word: string) {
+// use play-sound to play local audio file, if error, use say command to play.
+export function playWordAudio(queryWordInfo: QueryWordInfo) {
+  const word = queryWordInfo.word;
   const audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
     console.warn(`audio file not found: ${audioPath}`);
@@ -20,7 +23,11 @@ export function playWordAudio(word: string) {
 
   player.play(audioPath, (err) => {
     if (err) {
+      // afplay play word 'set' throw error ???
       console.error(`play word audio error: ${err}`);
+      console.log(`audioPath: ${audioPath}`);
+
+      sayTruncateCommand(word, queryWordInfo.fromLanguage);
     }
   });
 }

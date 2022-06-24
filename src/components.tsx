@@ -112,7 +112,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text: string, language: string) {
     const wordAudioPath = getWordAudioPath(text);
     if (fs.existsSync(wordAudioPath)) {
-      playWordAudio(text);
+      playWordAudio(this.props.queryWordInfo);
     } else {
       sayTruncateCommand(text, language);
     }

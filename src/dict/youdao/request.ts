@@ -20,6 +20,7 @@ example https://dict.youdao.com/dictvoice?type=0&audio=good
  */
 export function downloadYoudaoWebWordAudio(word: string, callback?: () => void) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURI(word)}`;
+  console.log(`download youdao web audio: ${url}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback);
 }

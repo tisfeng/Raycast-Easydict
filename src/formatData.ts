@@ -27,7 +27,7 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResu
   const [from, to] = youdaoResult.l.split("2"); // from2to
   let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
   usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
-  const queryTextInfo: QueryWordInfo = {
+  const queryWordInfo: QueryWordInfo = {
     word: youdaoResult.query,
     phonetic: usPhonetic || youdaoResult.basic?.phonetic,
     speech: youdaoResult.basic?.["us-speech"],
@@ -45,7 +45,7 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResu
   const webPhrases = youdaoResult.web?.slice(1);
 
   return {
-    queryWordInfo: queryTextInfo,
+    queryWordInfo: queryWordInfo,
     translations: translations,
     explanations: youdaoResult.basic?.explains,
     forms: youdaoResult.basic?.wfs,
