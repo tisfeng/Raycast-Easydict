@@ -370,7 +370,7 @@ export default function () {
       return (
         <List.Item
           title={"Youdao Request Error"}
-          subtitle={youdaoErrorMessage?.length ? `: ${youdaoErrorMessage}` : ""}
+          subtitle={youdaoErrorMessage?.length ? `${youdaoErrorMessage}` : ""}
           accessories={[
             {
               text: `Error Code: ${youdaoErrorCode}`,

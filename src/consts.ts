@@ -30,6 +30,7 @@ export enum YoudaoRequestStateCode {
   AccessFrequencyLimited = "207",
   InsufficientAccountBalance = "401",
   TargetLanguageNotSupported = "102",
+  TranslationQueryFailed = "302", // 翻译查询失败, such as 'con' 😓
 }
 
 // https://fanyi-api.baidu.com/doc/21
@@ -60,6 +61,10 @@ export const youdaoErrorList: RequestErrorInfo[] = [
   {
     errorCode: YoudaoRequestStateCode.TargetLanguageNotSupported,
     errorMessage: "Target language not supported",
+  },
+  {
+    errorCode: YoudaoRequestStateCode.TranslationQueryFailed,
+    errorMessage: "Translation query failed",
   },
 ];
 
