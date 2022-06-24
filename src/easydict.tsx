@@ -14,7 +14,7 @@ import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
   maxInputTextLength,
-  youdaoErrorCodeLink,
+  youdaoErrorCodeUrl,
   YoudaoRequestStateCode,
 } from "./consts";
 import {
@@ -379,7 +379,7 @@ export default function () {
           icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
           actions={
             <ActionPanel>
-              <Action.OpenInBrowser title="See Error Code Meaning" icon={Icon.QuestionMark} url={youdaoErrorCodeLink} />
+              <Action.OpenInBrowser title="See Error Code Meaning" icon={Icon.QuestionMark} url={youdaoErrorCodeUrl} />
               <ActionFeedback />
             </ActionPanel>
           }

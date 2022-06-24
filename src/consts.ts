@@ -40,8 +40,9 @@ export enum BaiduRequestStateCode {
   TargetLanguageNotSupported = "58001",
 }
 
-export const youdaoErrorCodeLink =
-  "https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html#section-11";
+export const youdaoErrorCodeUrl = encodeURI(
+  "https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html#section-11"
+);
 
 export const youdaoErrorList: RequestErrorInfo[] = [
   {
