@@ -111,6 +111,7 @@ export interface RequestErrorInfo {
 
 export interface LanguageItem {
   youdaoLanguageId: string;
+  appleLanguageId?: string; // apple language id, apple translate support 12 languages
   aliyunLanguageId: string;
   tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
   tencentLanguageId?: string;

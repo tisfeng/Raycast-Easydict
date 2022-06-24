@@ -30,6 +30,8 @@ import {
   isTranslateResultTooLong,
   isShowMultipleTranslations,
   openDetectLanguageShortcuts,
+  runAppletTranslateShortcuts,
+  runAppleDetectLanguageShortcuts,
 } from "./utils";
 import {
   requestBaiduTextTranslate,
@@ -124,10 +126,26 @@ export default function () {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
-    // covert the input text to lowercase, because detect language API is case sensitive, such as 'Section' is detected as 'fr' 😑
+    // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
     const lowerCaseText = text.toLowerCase();
 
     console.log("translateText:", lowerCaseText);
+
+    runAppleDetectLanguageShortcuts(lowerCaseText)
+      .then((languageId) => {
+        console.warn(`apple detect language: ${languageId}`);
+        if (languageId) {
+          // const languageItem = getLanguageItemFromLanguageId(languageId);
+          // setCurrentFromLanguageItem(languageItem);
+        }
+      })
+      .catch((error) => {
+        console.warn(`apple detect language: ${error}`);
+      })
+      .finally(() => {
+        console.log("runAppleDetectLanguageShortcuts finally");
+      });
+
     tencentLanguageDetect(lowerCaseText).then(
       (data) => {
         console.log("tencent language detect: ", data);
@@ -142,8 +160,6 @@ export default function () {
         queryTextWithFromLanguageId(currentLanguageId);
       }
     );
-
-    openDetectLanguageShortcuts(lowerCaseText);
   }
 
   // function to query text with from youdao language id
@@ -201,6 +217,8 @@ export default function () {
     setCurrentFromLanguageItem(getLanguageItemFromLanguageId(from));
     updateTranslateDisplayResult(formatResult);
     checkIsInstalledEudic(setIsInstalledEudic);
+
+    runAppletTranslateShortcuts(formatResult.queryWordInfo);
 
     if (isShowMultipleTranslations(formatResult)) {
       if (myPreferences.enableBaiduTranslate) {
