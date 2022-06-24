@@ -23,9 +23,6 @@ import {
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
-  detectInputTextLanguageId,
-  getLanguageItemFromTencentDetectLanguageId,
-  getLanguageItemFromLanguageId,
   getYoudaoWebTranslateURL,
   myPreferences,
   isTranslateResultTooLong,
@@ -49,17 +46,33 @@ import {
 } from "./formatData";
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
-import { performance } from "node:perf_hooks";
+import {
+  detectInputTextLanguageId,
+  getLanguageItemFromAppleChineseTitle,
+  getLanguageItemFromTencentDetectId,
+  getLanguageItemFromYoudaoId,
+  isPreferredLanguage,
+} from "./detectLanguage";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
+/**
+ For a better user experience, a maximum of 1 second is set to request the Tencent language identification interface, and the local language check is used for timeout.
+If the result of the local language test is not a preferred language, use the interface query instead.
+If Apple language detection is enabled, both Apple language test and Tencent language test will be initiated, and which first-out result will be used.
+If the language of the asynchronous check is the preferred language, use it directly. If not, continue to invoke local language detection.
+ */
+const delayDetectLanguageInterval = 2000;
+let isDetectedLanguage = false;
+let delayDetectLanguageTimer: NodeJS.Timeout;
+
 export default function () {
   checkLanguageIsSame();
 
   // Delay the time to call the query API. Since API has frequency limit.
-  const delayRequestTime = 600;
+  const delayRequestTime = 500;
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
@@ -133,35 +146,51 @@ export default function () {
     console.log("translateText:", lowerCaseText);
 
     runAppleDetectLanguageShortcuts(lowerCaseText)
-      .then((languageId) => {
-        console.warn(`apple detect language: ${languageId}`);
-        if (languageId) {
-          // const languageItem = getLanguageItemFromLanguageId(languageId);
-          // setCurrentFromLanguageItem(languageItem);
+      .then((appleLanguage) => {
+        if (appleLanguage) {
+          const language = appleLanguage.trim();
+          const languageItem = getLanguageItemFromAppleChineseTitle(language);
+          console.warn(`apple detect language: ${language}, youdao: ${languageItem?.youdaoLanguageId}`);
         }
       })
       .catch((error) => {
         console.warn(`apple detect language: ${error}`);
       });
 
-    const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
-    console.log(`detect language: ${currentLanguageId}`);
+    delayDetectLanguageTimer = setTimeout(() => {
+      const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
+      if (isPreferredLanguage(currentLanguageId)) {
+        isDetectedLanguage = true;
+        console.log(`detect language: ${currentLanguageId}`);
+        queryTextWithFromLanguageId(currentLanguageId);
+      }
+    }, delayDetectLanguageInterval);
 
-    // caculate tecent language detect cost time
     const startTime = new Date().getTime();
     tencentLanguageDetect(lowerCaseText).then(
       (data) => {
+        if (isDetectedLanguage) {
+          return;
+        }
+
+        isDetectedLanguage = true;
+        clearTimeout(delayDetectLanguageTimer);
+
         const endTime = new Date().getTime();
-        console.warn(`tencent detect language: ${JSON.stringify(data.Lang)}, cost: ${endTime - startTime} ms`);
-        const languageId = data.Lang || "auto";
-        const youdaoLanguageItem = getLanguageItemFromTencentDetectLanguageId(languageId);
-        console.log("detect language:", youdaoLanguageItem.languageTitle);
+        console.log(`tencent detect: ${JSON.stringify(data.Lang)}`);
+        const tencentLanguageId = data.Lang || "auto";
+        const youdaoLanguageItem = getLanguageItemFromTencentDetectId(tencentLanguageId);
+        console.warn(
+          `tencent detect language: ${tencentLanguageId}, youdao: ${youdaoLanguageItem?.youdaoLanguageId}, cost: ${
+            endTime - startTime
+          } ms`
+        );
         queryTextWithFromLanguageId(youdaoLanguageItem.youdaoLanguageId);
       },
       (err) => {
         console.error("tencent language detect error: ", err);
-        const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
-        queryTextWithFromLanguageId(currentLanguageId);
+        const detectLanguageId = detectInputTextLanguageId(lowerCaseText);
+        queryTextWithFromLanguageId(detectLanguageId);
       }
     );
   }
@@ -169,14 +198,14 @@ export default function () {
   // function to query text with from youdao language id
   function queryTextWithFromLanguageId(youdaoLanguageId: string) {
     console.log("queryTextWithFromLanguageId: ", youdaoLanguageId);
-    setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
+    setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(youdaoLanguageId));
 
     // priority to use user selected target language, if conflict, use auto selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
     console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
     if (youdaoLanguageId === tartgetLanguageId) {
       tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
-      setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(tartgetLanguageId));
+      setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(tartgetLanguageId));
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
 
@@ -198,7 +227,6 @@ export default function () {
       });
   }
 
-  // function to query text info
   async function queryTextWithTextInfo(queryTextInfo: QueryTextInfo) {
     const [queryText, fromLanguage, toLanguage] = [
       queryTextInfo.queryText,
@@ -233,12 +261,12 @@ export default function () {
     const [from, to] = youdaoResult.l.split("2"); // from2to
     if (from === to) {
       const target = getAutoSelectedTargetLanguageId(from);
-      setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(target));
+      setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(target));
       queryTextWithTextInfo(queryTextInfo);
       return;
     }
 
-    setCurrentFromLanguageItem(getLanguageItemFromLanguageId(from));
+    setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
     updateTranslateDisplayResult(formatResult);
     checkIsInstalledEudic(setIsInstalledEudic);
 

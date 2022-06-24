@@ -9,13 +9,13 @@ import {
   defaultTencentSecretKey,
   defaultYoudaoAppId,
   defaultYoudaoAppSecret,
-  getLanguageItemFromLanguageId,
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
+import { getLanguageItemFromYoudaoId } from "./detectLanguage";
 
 // youdao appid and appsecret
 const youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;
@@ -86,8 +86,8 @@ export function requestTencentTextTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
-  const from = getLanguageItemFromLanguageId(fromLanguage).tencentLanguageId || "auto";
-  const to = getLanguageItemFromLanguageId(targetLanguage).tencentLanguageId;
+  const from = getLanguageItemFromYoudaoId(fromLanguage).tencentLanguageId || "auto";
+  const to = getLanguageItemFromYoudaoId(targetLanguage).tencentLanguageId;
   if (!to) {
     return Promise.reject(new Error("Target language is not supported by Tencent Translate"));
   }
@@ -143,7 +143,7 @@ export function requestYoudaoDictionary(
 
   return new Promise((resolve) => {
     axios.post(url, params).then((response) => {
-      console.warn(`youdao cost: ${response.headers[requestDuration]} ms`);
+      console.warn(`youdao translate cost: ${response.headers[requestDuration]} ms`);
       resolve({
         type: TranslateType.Youdao,
         result: response.data,
@@ -162,8 +162,8 @@ export function requestBaiduTextTranslate(
   const md5Content = baiduAppId + queryText + salt + baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
-  const from = getLanguageItemFromLanguageId(fromLanguage).baiduLanguageId;
-  const to = getLanguageItemFromLanguageId(targetLanguage).baiduLanguageId;
+  const from = getLanguageItemFromYoudaoId(fromLanguage).baiduLanguageId;
+  const to = getLanguageItemFromYoudaoId(targetLanguage).baiduLanguageId;
   const encodeQueryText = Buffer.from(queryText, "utf8").toString();
   const params = {
     q: encodeQueryText,
@@ -191,8 +191,8 @@ export function requestCaiyunTextTranslate(
   targetLanguage: string
 ): Promise<TranslateTypeResult> {
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-  const from = getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
-  const to = getLanguageItemFromLanguageId(targetLanguage).caiyunLanguageId;
+  const from = getLanguageItemFromYoudaoId(fromLanguage).caiyunLanguageId || "auto";
+  const to = getLanguageItemFromYoudaoId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present.

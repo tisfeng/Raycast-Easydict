@@ -86,6 +86,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "zh-CHS",
     appleLanguageId: "zh_CN",
+    appleChineseLanguageTitle: "中文",
     aliyunLanguageId: "zh",
     tencentLanguageId: "zh",
     baiduLanguageId: "zh",
@@ -97,6 +98,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "zh-CHT",
     appleLanguageId: "zh-TW",
+    appleChineseLanguageTitle: "中文",
     aliyunLanguageId: "zh-tw",
     tencentLanguageId: "zh-TW",
     baiduLanguageId: "cht",
@@ -108,6 +110,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "en",
     appleLanguageId: "en_US",
+    appleChineseLanguageTitle: "英语",
     aliyunLanguageId: "en",
     tencentLanguageId: "en",
     youdaoWebLanguageId: "eng",
@@ -121,6 +124,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "ja",
     appleLanguageId: "ja_JP",
+    appleChineseLanguageTitle: "日语",
     aliyunLanguageId: "ja",
     tencentDetectLanguageId: "jp",
     tencentLanguageId: "ja",
@@ -133,6 +137,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "ko",
     appleLanguageId: "ko_KR",
+    appleChineseLanguageTitle: "韩语",
     aliyunLanguageId: "ko",
     tencentDetectLanguageId: "kr",
     tencentLanguageId: "ko",
@@ -144,6 +149,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "fr",
     appleLanguageId: "fr_FR",
+    appleChineseLanguageTitle: "法语",
     aliyunLanguageId: "fr",
     tencentLanguageId: "fr",
     youdaoWebLanguageId: "fr",
@@ -155,6 +161,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "es",
     appleLanguageId: "es_ES",
+    appleChineseLanguageTitle: "西班牙语",
     aliyunLanguageId: "es",
     tencentLanguageId: "es",
     eudicWebLanguageId: "es",
@@ -165,6 +172,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "it",
     appleLanguageId: "it_IT",
+    appleChineseLanguageTitle: "意大利语",
     aliyunLanguageId: "it",
     tencentLanguageId: "it",
     baiduLanguageId: "it",
@@ -174,6 +182,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "de",
     appleLanguageId: "de_DE",
+    appleChineseLanguageTitle: "德语",
     aliyunLanguageId: "de",
     tencentLanguageId: "de",
     eudicWebLanguageId: "de",
@@ -184,26 +193,27 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "pt",
     appleLanguageId: "pt_BR",
+    appleChineseLanguageTitle: "葡萄牙语",
     aliyunLanguageId: "pt",
     tencentLanguageId: "pt",
     baiduLanguageId: "pt",
     languageTitle: "Portuguese",
     languageVoice: ["Joana", "Luciana"],
   },
-
   {
     youdaoLanguageId: "ru",
     appleLanguageId: "ru_RU",
+    appleChineseLanguageTitle: "俄语",
     aliyunLanguageId: "ru",
     tencentLanguageId: "ru",
     baiduLanguageId: "ru",
     languageTitle: "Russian",
     languageVoice: ["Milena", "Yuri"],
   },
-
   {
     youdaoLanguageId: "ar",
     appleLanguageId: "ar_AE",
+    appleChineseLanguageTitle: "阿拉伯语",
     aliyunLanguageId: "ar",
     tencentLanguageId: "ar",
     baiduLanguageId: "ara",
