@@ -186,7 +186,7 @@ export function saveQueryClipboardRecord(text: string) {
 
 // function: remove all punctuation from the text
 export function removeEnglishPunctuation(text: string) {
-  return text.replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g, "");
+  return text.replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~·]/g, "");
 }
 
 // function: remove all Chinese punctuation and blank space from the text
@@ -222,18 +222,18 @@ export function isEnglishOrNumber(text: string) {
 // function: get the language type represented by the string, priority to use English and Chinese, and then auto
 export function detectInputTextLanguageId(inputText: string): string {
   let fromLanguageId = "auto";
-  const EnglishLanguageId = "en";
-  const ChineseLanguageId = "zh-CHS";
+  const englishLanguageId = "en";
+  const chineseLanguageId = "zh-CHS";
   if (
     isEnglishOrNumber(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === EnglishLanguageId || defaultLanguage2.youdaoLanguageId === EnglishLanguageId)
+    (defaultLanguage1.youdaoLanguageId === englishLanguageId || defaultLanguage2.youdaoLanguageId === englishLanguageId)
   ) {
-    fromLanguageId = EnglishLanguageId;
+    fromLanguageId = englishLanguageId;
   } else if (
     isContainChinese(inputText) &&
-    (defaultLanguage1.youdaoLanguageId === ChineseLanguageId || defaultLanguage2.youdaoLanguageId === ChineseLanguageId)
+    (defaultLanguage1.youdaoLanguageId === chineseLanguageId || defaultLanguage2.youdaoLanguageId === chineseLanguageId)
   ) {
-    fromLanguageId = ChineseLanguageId;
+    fromLanguageId = chineseLanguageId;
   }
 
   console.log("fromLanguage-->:", fromLanguageId);
