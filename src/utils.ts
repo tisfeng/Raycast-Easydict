@@ -194,39 +194,35 @@ export function isShowMultipleTranslations(formatResult: TranslateFormatResult) 
 
 // function: open DetectLanguage shortcuts with the given text
 export function openDetectLanguageShortcuts(text: string) {
-  const applescriptContent = `
-      tell application "Shortcuts"
-        run the shortcut named "DetectLanguage" with input "${text}"
-      end tell
-    `;
+  const appleScript = getShortcutsScript("Easydict-DetectLanguage-V1.2.0", text);
 
   const scriptPath = `${environment.supportPath}/script.sh`;
 
-  fs.writeFile(scriptPath, applescriptContent, (err) => {
+  fs.writeFile(scriptPath, appleScript, (err) => {
     if (!err) {
       execFile(`osascript`, [scriptPath], (error, stdout) => {
         if (error) {
-          console.error(`exec error: ${error}`);
+          console.error(`detect execFile error: ${error}`);
           return;
         }
-        console.warn(`stdout: ${stdout}`);
+        console.warn(`detect execFile: ${stdout}`);
       });
     }
   });
 
-  exec(`osascript -e '${applescriptContent}'`, (error, stdout) => {
+  exec(`osascript -e '${appleScript}'`, (error, stdout) => {
     if (error) {
-      console.error(`exec error: ${error}`);
+      console.error(`detect exec error: ${error}`);
       return;
     }
-    console.warn(`exec: ${stdout}`);
+    console.warn(`detect exec: ${stdout}`);
   });
 
   try {
-    const detectLanguage = execSync(`osascript -e '${applescriptContent}'`).toString();
-    console.log("detectLanguage: ", detectLanguage);
+    const detectLanguage = execSync(`osascript -e '${appleScript}'`).toString();
+    console.warn("detect execSync: ", detectLanguage);
   } catch (error) {
-    console.error(`execSync error: ${error}`);
+    console.error(`detect execSync error: ${error}`);
   }
 }
 
@@ -276,9 +272,13 @@ export function runAppleTranslateShortcuts(queryTextInfo: QueryTextInfo): Promis
 
 // function: get shortcuts script template string according to shortcut name and input
 function getShortcutsScript(shortcutName: string, input: string): string {
+  // replace " with \" in input, otherwise the script will error
+  const escapedInput = input.replace(/"/g, '\\"');
+  console.log("escapedInput: ", escapedInput);
+
   const applescriptContent = `
       tell application "Shortcuts"
-        run the shortcut named "${shortcutName}" with input "${input}"
+        run the shortcut named "${shortcutName}" with input "${escapedInput}"
       end tell
     `;
   return applescriptContent;
