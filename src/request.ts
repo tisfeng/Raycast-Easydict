@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import {
@@ -54,6 +54,23 @@ const clientConfig = {
 };
 const client = new TmtClient(clientConfig);
 
+// caclulate axios request cost time
+const requestDuration = "request-duration";
+axios.interceptors.request.use(function (config: AxiosRequestConfig) {
+  if (config.headers) {
+    config.headers["request-startTime"] = new Date().getTime();
+  }
+  return config;
+});
+axios.interceptors.response.use(function (response) {
+  if (response.config.headers) {
+    const startTime = response.config.headers["request-startTime"] as number;
+    const endTime = new Date().getTime();
+    response.headers[requestDuration] = (endTime - startTime).toString();
+  }
+  return response;
+});
+
 // 腾讯语种识别，5次/秒
 export function tencentLanguageDetect(text: string): Promise<LanguageDetectResponse> {
   const params = {
@@ -80,11 +97,14 @@ export function requestTencentTextTranslate(
     Target: to,
     ProjectId: tencentProjectId,
   };
+  const startTime = new Date().getTime();
   return new Promise((resolve, reject) => {
     client.TextTranslate(params, (err, response) => {
       if (err) {
         reject(err);
       } else {
+        const endTime = new Date().getTime();
+        console.warn(`tencent translate cost: ${endTime - startTime} ms`);
         resolve({
           type: TranslateType.Tencent,
           result: response as TencentTranslateResult,
@@ -123,6 +143,7 @@ export function requestYoudaoDictionary(
 
   return new Promise((resolve) => {
     axios.post(url, params).then((response) => {
+      console.warn(`youdao cost: ${response.headers[requestDuration]} ms`);
       resolve({
         type: TranslateType.Youdao,
         result: response.data,
@@ -152,9 +173,9 @@ export function requestBaiduTextTranslate(
     salt: salt,
     sign: sign,
   };
-
   return new Promise((resolve) => {
     axios.get(url, { params }).then((response) => {
+      console.warn(`baidu cost: ${response.headers[requestDuration]} ms`);
       resolve({
         type: TranslateType.Baidu,
         result: response.data,
@@ -173,7 +194,6 @@ export function requestCaiyunTextTranslate(
   const from = getLanguageItemFromLanguageId(fromLanguage).caiyunLanguageId || "auto";
   const to = getLanguageItemFromLanguageId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
-  console.log("caiyun trans_type: ", trans_type);
 
   // Note that Caiyun Xiaoyi only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
@@ -195,11 +215,11 @@ export function requestCaiyunTextTranslate(
       "x-authorization": "token " + caiyunToken,
     },
   };
-
   return new Promise((resolve) => {
     axios
       .post(url, params, headers)
       .then((response) => {
+        console.warn(`caiyun cost: ${response.headers[requestDuration]} ms`);
         resolve({
           type: TranslateType.Caiyun,
           result: response.data,

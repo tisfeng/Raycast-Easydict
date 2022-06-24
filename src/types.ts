@@ -2,6 +2,12 @@ import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/
 import { DicionaryType, SectionType, TranslateType } from "./consts";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 
+export interface QueryTextInfo {
+  queryText: string;
+  fromLanguage: string;
+  toLanguage: string;
+}
+
 export interface TranslateTypeResult {
   type: TranslateType | DicionaryType;
   result:

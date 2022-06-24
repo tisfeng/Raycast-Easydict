@@ -9,11 +9,12 @@ import {
 } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslateFormatResult } from "./types";
+import { LanguageItem, MyPreferences, QueryRecoredItem, QueryTextInfo, TranslateFormatResult } from "./types";
 import querystring from "node:querystring";
 import CryptoJS from "crypto-js";
 import { exec, execFile, execSync } from "child_process";
 import fs from "fs";
+import { performance } from "node:perf_hooks";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -343,48 +344,54 @@ export function openDetectLanguageShortcuts(text: string) {
 
 // function: run DetectLanguage shortcuts with the given text, return promise
 export function runAppleDetectLanguageShortcuts(text: string): Promise<string> {
-  const applescriptContent = `
-      tell application "Shortcuts"
-        run the shortcut named "DetectLanguage" with input "${text}"
-      end tell
-    `;
+  const startTime = new Date().getTime();
+  const appleScript = getShortcutsScript("Easydict-DetectLanguage-V1.2.0", text);
   return new Promise((resolve, reject) => {
-    exec(`osascript -e '${applescriptContent}'`, (error, stdout) => {
+    exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {
         reject(error);
       }
       resolve(stdout);
+      const endTime = new Date().getTime();
+      console.warn(`apple detect cost: ${endTime - startTime} ms`);
     });
   });
 }
 
-// function: run apple Translate shortcuts with the given QueryWordInfo
-export function runAppletTranslateShortcuts(queryWordInfo: QueryWordInfo) {
-  const appleFromLanguageId = getLanguageItemFromLanguageId(queryWordInfo.fromLanguage).appleLanguageId;
-  const appleToLanguageId = getLanguageItemFromLanguageId(queryWordInfo.toLanguage).appleLanguageId;
+// function: run apple Translate shortcuts with the given QueryWordInfo, return promise
+export function runAppleTranslateShortcuts(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
+  const startTime = new Date().getTime();
+  const appleFromLanguageId = getLanguageItemFromLanguageId(queryTextInfo.fromLanguage).appleLanguageId;
+  const appleToLanguageId = getLanguageItemFromLanguageId(queryTextInfo.toLanguage).appleLanguageId;
   if (!appleFromLanguageId || !appleToLanguageId) {
     console.warn(`apple translate language not support: ${appleFromLanguageId} -> ${appleToLanguageId}`);
-    return;
+    return Promise.resolve(undefined);
   }
 
   const jsonString = querystring.stringify({
-    text: queryWordInfo.word,
-    detectFrom: appleFromLanguageId,
-    detectTo: appleToLanguageId,
+    text: queryTextInfo.queryText,
+    from: appleFromLanguageId,
+    to: appleToLanguageId,
   });
+  const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", jsonString);
+  return new Promise((resolve, reject) => {
+    exec(`osascript -e '${appleScript}'`, (error, stdout) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(stdout);
+      const endTime = new Date().getTime();
+      console.warn(`apple translate cost: ${endTime - startTime} ms`);
+    });
+  });
+}
 
-  console.warn("jsonString: ", jsonString);
+// function: get shortcuts script template string according to shortcut name and input
+function getShortcutsScript(shortcutName: string, input: string): string {
   const applescriptContent = `
       tell application "Shortcuts"
-        run the shortcut named "Easydict-Translate" with input "${jsonString}"
+        run the shortcut named "${shortcutName}" with input "${input}"
       end tell
     `;
-
-  exec(`osascript -e '${applescriptContent}'`, (error, stdout) => {
-    if (error) {
-      console.error(`apple translate error: ${error}`);
-      return;
-    }
-    console.warn(`apple translate: ${stdout}`);
-  });
+  return applescriptContent;
 }

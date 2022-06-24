@@ -8,6 +8,7 @@ import {
   YoudaoTranslateResult,
   BaiduTranslateResult,
   TranslateFormatResult,
+  QueryTextInfo,
 } from "./types";
 import {
   BaiduRequestStateCode,
@@ -29,8 +30,7 @@ import {
   myPreferences,
   isTranslateResultTooLong,
   isShowMultipleTranslations,
-  openDetectLanguageShortcuts,
-  runAppletTranslateShortcuts,
+  runAppleTranslateShortcuts,
   runAppleDetectLanguageShortcuts,
 } from "./utils";
 import {
@@ -49,6 +49,7 @@ import {
 } from "./formatData";
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
+import { performance } from "node:perf_hooks";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
@@ -141,14 +142,17 @@ export default function () {
       })
       .catch((error) => {
         console.warn(`apple detect language: ${error}`);
-      })
-      .finally(() => {
-        console.log("runAppleDetectLanguageShortcuts finally");
       });
 
+    const currentLanguageId = detectInputTextLanguageId(lowerCaseText);
+    console.log(`detect language: ${currentLanguageId}`);
+
+    // caculate tecent language detect cost time
+    const startTime = new Date().getTime();
     tencentLanguageDetect(lowerCaseText).then(
       (data) => {
-        console.log("tencent language detect: ", data);
+        const endTime = new Date().getTime();
+        console.warn(`tencent detect language: ${JSON.stringify(data.Lang)}, cost: ${endTime - startTime} ms`);
         const languageId = data.Lang || "auto";
         const youdaoLanguageItem = getLanguageItemFromTencentDetectLanguageId(languageId);
         console.log("detect language:", youdaoLanguageItem.languageTitle);
@@ -167,24 +171,44 @@ export default function () {
     console.log("queryTextWithFromLanguageId: ", youdaoLanguageId);
     setCurrentFromLanguageItem(getLanguageItemFromLanguageId(youdaoLanguageId));
 
-    // priority to use user selected target language
+    // priority to use user selected target language, if conflict, use auto selected target language
     let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
     console.log("userSelectedTargetLanguage: ", tartgetLanguageId);
-
-    // if conflict, use auto selected target language
     if (youdaoLanguageId === tartgetLanguageId) {
       tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
       setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(tartgetLanguageId));
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
-    queryTextFromLanguage(youdaoLanguageId, tartgetLanguageId);
+
+    const queryTextInfo: QueryTextInfo = {
+      queryText: searchText,
+      fromLanguage: youdaoLanguageId,
+      toLanguage: tartgetLanguageId,
+    };
+    queryTextWithTextInfo(queryTextInfo);
+
+    runAppleTranslateShortcuts(queryTextInfo)
+      .then((translatedText) => {
+        if (translatedText) {
+          console.warn("apple translate: ", translatedText);
+        }
+      })
+      .catch((error) => {
+        console.warn(`apple translate: ${error}`);
+      });
   }
 
-  // function to query search text, with from language id and target language id
-  async function queryTextFromLanguage(fromLanguage: string, targetLanguage: string) {
-    console.log(`querySearchText fromTo: ${fromLanguage} -> ${targetLanguage}`);
+  // function to query text info
+  async function queryTextWithTextInfo(queryTextInfo: QueryTextInfo) {
+    const [queryText, fromLanguage, toLanguage] = [
+      queryTextInfo.queryText,
+      queryTextInfo.fromLanguage,
+      queryTextInfo.toLanguage,
+    ];
 
-    youdaoTranslateTypeResult = await requestYoudaoDictionary(searchText, fromLanguage, targetLanguage);
+    console.log(`querySearchText fromTo: ${fromLanguage} -> ${toLanguage}`);
+
+    youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
 
     const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
     console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
@@ -192,7 +216,7 @@ export default function () {
     youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
     if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
-      delayQueryTextFromLanguage(fromLanguage, targetLanguage);
+      delayQueryWithTextInfo(queryTextInfo);
       return;
     } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
       console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
@@ -210,7 +234,7 @@ export default function () {
     if (from === to) {
       const target = getAutoSelectedTargetLanguageId(from);
       setAutoSelectedTargetLanguageItem(getLanguageItemFromLanguageId(target));
-      queryTextFromLanguage(from, target);
+      queryTextWithTextInfo(queryTextInfo);
       return;
     }
 
@@ -218,12 +242,10 @@ export default function () {
     updateTranslateDisplayResult(formatResult);
     checkIsInstalledEudic(setIsInstalledEudic);
 
-    runAppletTranslateShortcuts(formatResult.queryWordInfo);
-
     if (isShowMultipleTranslations(formatResult)) {
       if (myPreferences.enableBaiduTranslate) {
         console.log("requestBaiduTextTranslate");
-        requestBaiduTextTranslate(searchText, fromLanguage, targetLanguage)
+        requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
           .then((baiduRes) => {
             console.log("requestBaiduTextTranslate success");
             const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
@@ -231,7 +253,7 @@ export default function () {
 
             if (baiduErrorCode) {
               if (baiduErrorCode === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
-                delayQueryTextFromLanguage(fromLanguage, targetLanguage);
+                delayQueryWithTextInfo(queryTextInfo);
                 return;
               }
 
@@ -258,7 +280,7 @@ export default function () {
 
       if (myPreferences.enableTencentTranslate) {
         console.log(`requestTencentTextTranslate`);
-        requestTencentTextTranslate(searchText, fromLanguage, targetLanguage)
+        requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
           .then((tencentRes) => {
             console.log(`requestTencentTextTranslate success`);
             formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
@@ -271,7 +293,7 @@ export default function () {
 
       if (myPreferences.enableCaiyunTranslate) {
         console.log("requestCaiyunTextTranslate");
-        requestCaiyunTextTranslate(searchText, fromLanguage, targetLanguage)
+        requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
           .then((caiyunRes) => {
             console.log("requestCaiyunTextTranslate success");
             if (caiyunRes.errorInfo) {
@@ -303,9 +325,9 @@ export default function () {
   }
 
   // function to delay query search text, later can cancel the query
-  function delayQueryTextFromLanguage(fromLanguage: string, targetLanguage: string) {
+  function delayQueryWithTextInfo(queryTextInfo: QueryTextInfo) {
     delayUpdateTargetLanguageTimer = setTimeout(() => {
-      queryTextFromLanguage(fromLanguage, targetLanguage);
+      queryTextWithTextInfo(queryTextInfo);
     }, delayRequestTime);
   }
 
@@ -378,10 +400,14 @@ export default function () {
                         copyText={item.copyText}
                         currentFromLanguage={currentFromLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}
-                        onLanguageUpdate={(value) => {
-                          setAutoSelectedTargetLanguageItem(value);
-                          setUserSelectedTargetLanguageItem(value);
-                          queryTextFromLanguage(currentFromLanguageItem.youdaoLanguageId, value.youdaoLanguageId);
+                        onLanguageUpdate={(selectedLanguageItem) => {
+                          setAutoSelectedTargetLanguageItem(selectedLanguageItem);
+                          setUserSelectedTargetLanguageItem(selectedLanguageItem);
+                          queryTextWithTextInfo({
+                            queryText: searchText,
+                            fromLanguage: currentFromLanguageItem.youdaoLanguageId,
+                            toLanguage: selectedLanguageItem.youdaoLanguageId,
+                          });
                         }}
                       />
                     }
