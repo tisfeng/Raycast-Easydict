@@ -137,15 +137,14 @@ export default function () {
     }
   }
 
-  // function to query text, automatically detect the language of the input text
+  // function to query text, automatically detect the language of input text
   function queryText(text: string) {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
     // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
     const lowerCaseText = text.toLowerCase();
-
-    console.log("translateText:", lowerCaseText);
+    console.log("queryText:", lowerCaseText);
 
     runAppleDetectLanguageShortcuts(lowerCaseText)
       .then((appleLanguage) => {
@@ -168,10 +167,13 @@ export default function () {
       }
     }, delayDetectLanguageInterval);
 
+    const detectLanguageId = detectInputTextLanguageId(lowerCaseText);
+
     const startTime = new Date().getTime();
     tencentLanguageDetect(lowerCaseText).then(
       (data) => {
         if (isDetectedLanguage) {
+          console.warn(`tencent detect over time: ${JSON.stringify(data.Lang)}`);
           return;
         }
 
@@ -187,11 +189,16 @@ export default function () {
             endTime - startTime
           } ms`
         );
-        queryTextWithFromLanguageId(youdaoLanguageItem.youdaoLanguageId);
+
+        let fromLanguageId = youdaoLanguageItem?.youdaoLanguageId;
+        const isDetectedLanguageAuto = detectLanguageId === "auto";
+        if (!isPreferredLanguage(fromLanguageId) || !isDetectedLanguageAuto) {
+          fromLanguageId = detectLanguageId;
+        }
+        queryTextWithFromLanguageId(fromLanguageId);
       },
       (err) => {
         console.error("tencent language detect error: ", err);
-        const detectLanguageId = detectInputTextLanguageId(lowerCaseText);
         queryTextWithFromLanguageId(detectLanguageId);
       }
     );

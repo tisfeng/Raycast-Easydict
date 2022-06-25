@@ -13,7 +13,7 @@ export function detectInputTextLanguageId(inputText: string): string {
   } else if (isContainChinese(inputText) && isPreferredLanguagesContainedChinese()) {
     fromYoudaoLanguageId = chineseLanguageId;
   }
-  console.warn("detect fromLanguage-->:", fromYoudaoLanguageId);
+  console.log("detect fromLanguage-->:", fromYoudaoLanguageId);
   return fromYoudaoLanguageId;
 }
 

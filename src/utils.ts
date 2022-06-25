@@ -272,10 +272,8 @@ export function runAppleTranslateShortcuts(queryTextInfo: QueryTextInfo): Promis
 
 // function: get shortcuts script template string according to shortcut name and input
 function getShortcutsScript(shortcutName: string, input: string): string {
-  // replace " with \" in input, otherwise the script will error
+  // replace " with \" in input, otherwise run the script will error
   const escapedInput = input.replace(/"/g, '\\"');
-  console.log("escapedInput: ", escapedInput);
-
   const applescriptContent = `
       tell application "Shortcuts"
         run the shortcut named "${shortcutName}" with input "${escapedInput}"
