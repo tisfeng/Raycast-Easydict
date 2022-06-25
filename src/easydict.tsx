@@ -141,9 +141,11 @@ export default function () {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
+    console.log("queryText:", text);
+
     // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
     const lowerCaseText = text.toLowerCase();
-    console.log("queryText:", lowerCaseText);
+    console.log("lowerCaseText:", lowerCaseText);
 
     runAppleDetectLanguageShortcuts(lowerCaseText)
       .then((appleLanguage) => {
@@ -268,7 +270,7 @@ export default function () {
         let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
         downloadYoudaoAudio(formatResult.queryWordInfo, () => {
           if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord && isLastRequest) {
-            playWordAudio(formatResult.queryWordInfo);
+            playWordAudio(queryText, fromLanguage);
           }
         });
 

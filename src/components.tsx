@@ -3,8 +3,7 @@ import { languageItemList, SectionType, TranslateType } from "./consts";
 import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./types";
 import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
-import { getWordAudioPath, playWordAudio, sayTruncateCommand } from "./audio";
-import fs from "fs";
+import { playWordAudio } from "./audio";
 import { openInEudic } from "./shells";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
@@ -109,13 +108,8 @@ export function ActionFeedback() {
 }
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
-  onPlaySound(text: string, language: string) {
-    const wordAudioPath = getWordAudioPath(text);
-    if (fs.existsSync(wordAudioPath)) {
-      playWordAudio(this.props.queryWordInfo);
-    } else {
-      sayTruncateCommand(text, language);
-    }
+  onPlaySound(text: string, fromLanguage: string) {
+    playWordAudio(text, fromLanguage);
   }
 
   render() {

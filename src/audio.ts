@@ -1,33 +1,34 @@
 import { environment } from "@raycast/api";
-import axios from "axios";
 import { exec, execFile } from "child_process";
+import axios from "axios";
 import fs from "fs";
-
-import playerImport = require("play-sound");
 import { languageItemList } from "./consts";
-import { QueryWordInfo } from "./types";
+import playerImport = require("play-sound");
 const player = playerImport({});
 
 export const maxPlaySoundTextLength = 40;
-
 const audioDirPath = `${environment.supportPath}/audio`;
 
-// use play-sound to play local audio file, if error, use say command to play.
-export function playWordAudio(queryWordInfo: QueryWordInfo) {
-  const word = queryWordInfo.word;
+// use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
+export function playWordAudio(word: string, fromLanguage: string, useSayCommand = true) {
   const audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
     console.warn(`audio file not found: ${audioPath}`);
+
+    if (useSayCommand) {
+      sayTruncateCommand(word, fromLanguage);
+    }
+
     return;
   }
 
   player.play(audioPath, (err) => {
     if (err) {
-      // afplay play word 'set' throw error ???
+      // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
       console.error(`play word audio error: ${err}`);
       console.log(`audioPath: ${audioPath}`);
 
-      sayTruncateCommand(word, queryWordInfo.fromLanguage);
+      sayTruncateCommand(word, fromLanguage);
     }
   });
 }
