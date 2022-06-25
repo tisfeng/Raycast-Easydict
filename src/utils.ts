@@ -1,11 +1,9 @@
 import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey } from "./consts";
-import { LanguageItem, MyPreferences, QueryRecoredItem, QueryTextInfo, TranslateFormatResult } from "./types";
-import querystring from "node:querystring";
+import { LanguageItem, MyPreferences, QueryRecoredItem, TranslateFormatResult } from "./types";
+
 import CryptoJS from "crypto-js";
-import { exec, execFile, execSync } from "child_process";
-import fs from "fs";
 import { getLanguageItemExpceptChinese, getLanguageItemFromYoudaoId } from "./detectLanguage";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
@@ -190,94 +188,4 @@ export function myDecrypt(ciphertext: string) {
 
 export function isShowMultipleTranslations(formatResult: TranslateFormatResult) {
   return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
-}
-
-// function: open DetectLanguage shortcuts with the given text
-export function openDetectLanguageShortcuts(text: string) {
-  const appleScript = getShortcutsScript("Easydict-DetectLanguage-V1.2.0", text);
-
-  const scriptPath = `${environment.supportPath}/script.sh`;
-
-  fs.writeFile(scriptPath, appleScript, (err) => {
-    if (!err) {
-      execFile(`osascript`, [scriptPath], (error, stdout) => {
-        if (error) {
-          console.error(`detect execFile error: ${error}`);
-          return;
-        }
-        console.warn(`detect execFile: ${stdout}`);
-      });
-    }
-  });
-
-  exec(`osascript -e '${appleScript}'`, (error, stdout) => {
-    if (error) {
-      console.error(`detect exec error: ${error}`);
-      return;
-    }
-    console.warn(`detect exec: ${stdout}`);
-  });
-
-  try {
-    const detectLanguage = execSync(`osascript -e '${appleScript}'`).toString();
-    console.warn("detect execSync: ", detectLanguage);
-  } catch (error) {
-    console.error(`detect execSync error: ${error}`);
-  }
-}
-
-// function: run DetectLanguage shortcuts with the given text, return promise
-export function runAppleDetectLanguageShortcuts(text: string): Promise<string> {
-  const startTime = new Date().getTime();
-  const appleScript = getShortcutsScript("Easydict-DetectLanguage-V1.2.0", text);
-  return new Promise((resolve, reject) => {
-    exec(`osascript -e '${appleScript}'`, (error, stdout) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(stdout);
-      const endTime = new Date().getTime();
-      console.warn(`apple detect cost: ${endTime - startTime} ms`);
-    });
-  });
-}
-
-// function: run apple Translate shortcuts with the given QueryWordInfo, return promise
-export function runAppleTranslateShortcuts(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
-  const startTime = new Date().getTime();
-  const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
-  const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
-  if (!appleFromLanguageId || !appleToLanguageId) {
-    console.warn(`apple translate language not support: ${appleFromLanguageId} -> ${appleToLanguageId}`);
-    return Promise.resolve(undefined);
-  }
-
-  const jsonString = querystring.stringify({
-    text: queryTextInfo.queryText,
-    from: appleFromLanguageId,
-    to: appleToLanguageId,
-  });
-  const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", jsonString);
-  return new Promise((resolve, reject) => {
-    exec(`osascript -e '${appleScript}'`, (error, stdout) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(stdout);
-      const endTime = new Date().getTime();
-      console.warn(`apple translate cost: ${endTime - startTime} ms`);
-    });
-  });
-}
-
-// function: get shortcuts script template string according to shortcut name and input
-function getShortcutsScript(shortcutName: string, input: string): string {
-  // replace " with \" in input, otherwise run the script will error
-  const escapedInput = input.replace(/"/g, '\\"');
-  const applescriptContent = `
-      tell application "Shortcuts"
-        run the shortcut named "${shortcutName}" with input "${escapedInput}"
-      end tell
-    `;
-  return applescriptContent;
 }

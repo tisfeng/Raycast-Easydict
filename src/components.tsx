@@ -1,11 +1,11 @@
 import { Component } from "react";
-import { execFile } from "child_process";
 import { languageItemList, SectionType, TranslateType } from "./consts";
 import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./types";
-import { Action, ActionPanel, Color, Icon, Image, List, LocalStorage, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { getWordAudioPath, playWordAudio, sayTruncateCommand } from "./audio";
 import fs from "fs";
+import { openInEudic } from "./shells";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -118,22 +118,6 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
     }
   }
 
-  openInEudic = (queryText: string) => {
-    const url = `eudic://dict/${queryText}`;
-    execFile("open", [url], (error, stdout) => {
-      if (error) {
-        console.log("error:", error);
-        LocalStorage.removeItem(eudicBundleId);
-
-        showToast({
-          title: "Eudic is not installed.",
-          style: Toast.Style.Failure,
-        });
-      }
-      console.log(stdout);
-    });
-  };
-
   render() {
     return (
       <ActionPanel>
@@ -142,7 +126,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
             <Action
               icon={Icon.MagnifyingGlass}
               title="Open in Eudic"
-              onAction={() => this.openInEudic(this.props.queryText)}
+              onAction={() => openInEudic(this.props.queryText)}
             />
           )}
           <Action.CopyToClipboard

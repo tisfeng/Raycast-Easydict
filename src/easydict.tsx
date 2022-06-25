@@ -27,8 +27,6 @@ import {
   myPreferences,
   isTranslateResultTooLong,
   isShowMultipleTranslations,
-  runAppleTranslateShortcuts,
-  runAppleDetectLanguageShortcuts,
 } from "./utils";
 import {
   requestBaiduTextTranslate,
@@ -53,6 +51,7 @@ import {
   getLanguageItemFromYoudaoId,
   isPreferredLanguage,
 } from "./detectLanguage";
+import { runAppleDetectLanguageShortcuts, runAppleTranslateShortcuts } from "./shells";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
