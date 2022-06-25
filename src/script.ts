@@ -2,19 +2,22 @@ import { LocalStorage, showToast, Toast } from "@raycast/api";
 import querystring from "node:querystring";
 import { exec, execFile } from "child_process";
 import { QueryTextInfo } from "./types";
-import { getLanguageItemFromYoudaoId } from "./detectLanguage";
+import { getLanguageItemFromYoudaoId, LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
 
 // function: run DetectLanguage shortcuts with the given text, return promise
-export function runAppleDetectLanguageShortcuts(text: string): Promise<string> {
+export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const startTime = new Date().getTime();
-  const appleScript = getShortcutsScript("Easydict-DetectLanguage-V1.2.0", text);
+  const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
   return new Promise((resolve, reject) => {
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {
         reject(error);
       }
-      resolve(stdout);
+      resolve({
+        type: LanguageDetectType.Apple,
+        languageId: stdout.trim(), // NOTE: need trim()
+      });
       const endTime = new Date().getTime();
       console.warn(`apple detect cost: ${endTime - startTime} ms`);
     });
@@ -22,7 +25,7 @@ export function runAppleDetectLanguageShortcuts(text: string): Promise<string> {
 }
 
 // function: run apple Translate shortcuts with the given QueryWordInfo, return promise
-export function runAppleTranslateShortcuts(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
+export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
   const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;

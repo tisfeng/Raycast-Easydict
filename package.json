@@ -1,7 +1,6 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "easydict",
-  "version": "1.1.0",
   "title": "Easy Dictionary",
   "description": "Look up words or translate text in an easy way, especially optimized for English and Chinese words.",
   "icon": "eudic-icon.png",
@@ -295,6 +294,23 @@
       "label": "Select Target Translation Language",
       "required": false,
       "description": "Select target translation language in action panel manually",
+      "default": false
+    },
+    {
+      "title": "Apple System Features",
+      "name": "enableAppleLanguageDetect",
+      "type": "checkbox",
+      "label": "Apple Language Detect",
+      "required": false,
+      "description": "A detect shortcut is required, please see README for more details",
+      "default": false
+    },
+    {
+      "name": "enableAppleTranslate",
+      "type": "checkbox",
+      "label": "Apple Translate",
+      "required": false,
+      "description": "A translate shortcut is required, please see README for more details",
       "default": false
     },
     {

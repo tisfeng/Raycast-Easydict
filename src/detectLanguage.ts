@@ -3,7 +3,21 @@ import { languageItemList } from "./consts";
 import { LanguageItem, MyPreferences } from "./types";
 import { defaultLanguage1, defaultLanguage2 } from "./utils";
 
-// function: get the language type represented by the string, priority to use English and Chinese, and then auto
+// enum language detect type
+export enum LanguageDetectType {
+  Local = "Local",
+  Apple = "Apple",
+  Tencent = "Tencent",
+}
+
+export interface LanguageDetectTypeResult {
+  type: LanguageDetectType;
+  languageId: string | undefined;
+}
+
+/**
+  get the language type represented by the string, priority to use English and Chinese, and then auto
+ */
 export function detectInputTextLanguageId(inputText: string): string {
   let fromYoudaoLanguageId = "auto";
   const englishLanguageId = "en";
@@ -13,7 +27,7 @@ export function detectInputTextLanguageId(inputText: string): string {
   } else if (isContainChinese(inputText) && isPreferredLanguagesContainedChinese()) {
     fromYoudaoLanguageId = chineseLanguageId;
   }
-  console.log("detect fromLanguage-->:", fromYoudaoLanguageId);
+  console.log("detect fromLanguage -->:", fromYoudaoLanguageId);
   return fromYoudaoLanguageId;
 }
 
@@ -46,23 +60,22 @@ export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageI
   return languageItemList[0];
 }
 
-export function getLanguageItemFromTencentDetectId(tencentLanguageId: string): LanguageItem {
+export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
     const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
     if (tencentDetectLanguageId === tencentLanguageId) {
       return langItem;
     }
   }
-  return languageItemList[0];
+  // return languageItemList[0];
 }
 
-export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
+export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
     if (langItem.appleChineseLanguageTitle === chineseTitle) {
       return langItem;
     }
   }
-  return languageItemList[0];
 }
 
 // function: get another language item expcept chinese

@@ -94,6 +94,8 @@ export interface MyPreferences {
   enableBaiduTranslate: boolean;
   enableTencentTranslate: boolean;
   enableCaiyunTranslate: boolean;
+  enableAppleLanguageDetect: boolean;
+  enableAppleTranslate: boolean;
 }
 
 export interface ListItemActionPanelItem {
@@ -144,13 +146,6 @@ export interface BaiduTranslateItem {
 }
 
 export type TencentTranslateResult = TextTranslateResponse;
-
-// export interface TencentTranslateResult {
-//   TargetText: string;
-//   Source: string;
-//   Target: string;
-//   RequestId: string;
-// }
 
 export interface CaiyunTranslateResult {
   rc: string;

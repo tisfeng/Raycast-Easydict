@@ -12,10 +12,9 @@ import {
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { LanguageDetectResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
-import { getLanguageItemFromYoudaoId } from "./detectLanguage";
+import { getLanguageItemFromYoudaoId, LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 
 // youdao appid and appsecret
 const youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;
@@ -72,12 +71,26 @@ axios.interceptors.response.use(function (response) {
 });
 
 // 腾讯语种识别，5次/秒
-export function tencentLanguageDetect(text: string): Promise<LanguageDetectResponse> {
+export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {
     Text: text,
     ProjectId: tencentProjectId,
   };
-  return client.LanguageDetect(params);
+  const startTime = new Date().getTime();
+  return new Promise((resolve, reject) => {
+    client.LanguageDetect(params, function (err, response) {
+      if (err) {
+        reject(err);
+      } else {
+        const endTime = new Date().getTime();
+        console.warn(`tencen detect cost: ${endTime - startTime} ms`);
+        resolve({
+          type: LanguageDetectType.Tencent,
+          languageId: response.Lang,
+        });
+      }
+    });
+  });
 }
 
 // 腾讯文本翻译，5次/秒  https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=

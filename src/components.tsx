@@ -4,7 +4,7 @@ import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./ty
 import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { playWordAudio } from "./audio";
-import { openInEudic } from "./shells";
+import { openInEudic } from "./script";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
