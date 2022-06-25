@@ -9,12 +9,13 @@ import {
   defaultTencentSecretKey,
   defaultYoudaoAppId,
   defaultYoudaoAppSecret,
+  getLanguageItemFromYoudaoId,
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
-import { getLanguageItemFromYoudaoId, LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 
 // youdao appid and appsecret
 const youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;

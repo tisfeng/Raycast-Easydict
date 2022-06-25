@@ -2,8 +2,9 @@ import { LocalStorage, showToast, Toast } from "@raycast/api";
 import querystring from "node:querystring";
 import { exec, execFile } from "child_process";
 import { QueryTextInfo } from "./types";
-import { getLanguageItemFromYoudaoId, LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
+import { getLanguageItemFromYoudaoId } from "./utils";
 
 // function: run DetectLanguage shortcuts with the given text, return promise
 export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {

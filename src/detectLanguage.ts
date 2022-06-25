@@ -1,7 +1,14 @@
 import { getPreferenceValues } from "@raycast/api";
-import { languageItemList } from "./consts";
+import { tencentLanguageDetect } from "./request";
+import { appleLanguageDetect } from "./script";
 import { LanguageItem, MyPreferences } from "./types";
-import { defaultLanguage1, defaultLanguage2 } from "./utils";
+import {
+  defaultLanguage1,
+  defaultLanguage2,
+  getLanguageItemFromAppleChineseTitle,
+  getLanguageItemFromTencentId,
+  myPreferences,
+} from "./utils";
 
 // enum language detect type
 export enum LanguageDetectType {
@@ -16,9 +23,151 @@ export interface LanguageDetectTypeResult {
 }
 
 /**
-  get the language type represented by the string, priority to use English and Chinese, and then auto
+ For a better user experience, a maximum of 1 second is set to request the Tencent language identification interface, and the local language check is used for timeout.
+If the result of the local language test is not a preferred language, use the interface query instead.
+If Apple language detection is enabled, both Apple language test and Tencent language test will be initiated, and which first-out result will be used.
+If the language of the asynchronous check is the preferred language, use it directly. If not, continue to invoke local language detection.
  */
-export function detectInputTextLanguageId(inputText: string): string {
+const delayDetectLanguageInterval = 2000;
+let isDetectedLanguage = false;
+let delayDetectLanguageTimer: NodeJS.Timeout;
+
+/**
+ * function: detect language with the given text, callback with language detect type and language id
+ */
+export function detectLanguage(text: string, callback: (result: LanguageDetectTypeResult) => void): void {
+  // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
+  const lowerCaseText = text.toLowerCase();
+  console.log("queryText:", text);
+  console.log("lowerCaseText:", lowerCaseText);
+
+  clearTimeout(delayDetectLanguageTimer);
+
+  const localDetectLanguageId = localDetectTextLanguageId(lowerCaseText);
+  delayDetectLanguageTimer = setTimeout(() => {
+    if (isPreferredLanguage(localDetectLanguageId)) {
+      isDetectedLanguage = true;
+      console.log(`use detect language --->: ${localDetectLanguageId}`);
+      callback({ type: LanguageDetectType.Local, languageId: localDetectLanguageId });
+    }
+  }, delayDetectLanguageInterval);
+
+  // new a action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
+  const actionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
+  actionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
+  if (myPreferences.enableAppleLanguageDetect) {
+    actionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
+  }
+
+  raceDetectTextLanguage(lowerCaseText, actionMap, (detectLanguageId) => {
+    console.warn(`raceDetectTextLanguage: ${detectLanguageId}`);
+    const fromLanguageItem = getPreferredLanguageAccordingToLocalTextDetect(lowerCaseText, detectLanguageId);
+    callback({ type: LanguageDetectType.Local, languageId: fromLanguageItem });
+  });
+}
+
+/**
+    get language according to the input text and detect language, 
+    if the detect language is the preferred language, or local detect language is "auto", use it directly.
+    else use local language detect.
+   */
+function getPreferredLanguageAccordingToLocalTextDetect(text: string, detectLanguageId: string) {
+  if (isPreferredLanguage(detectLanguageId)) {
+    return detectLanguageId;
+  }
+  const localDetectLanguageId = localDetectTextLanguageId(text);
+  if (localDetectLanguageId === "auto") {
+    return detectLanguageId;
+  }
+  return localDetectLanguageId;
+}
+
+/**
+ * promise race to detect language
+ * @param text
+ * @param detectLanguageActionMap
+ * @param callback fromLanguageId => {}
+ */
+function raceDetectTextLanguage(
+  text: string,
+  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
+  callback: (fromLanguageId: string) => void
+) {
+  console.log(`start raceDetectTextLanguage: ${[...detectLanguageActionMap.keys()]}`);
+  isDetectedLanguage = false;
+  const detectLanguageActionList = detectLanguageActionMap.values();
+  Promise.race(detectLanguageActionList)
+    .then((typeResult) => {
+      if (isDetectedLanguage) {
+        console.warn(`promise race detect over time: ${JSON.stringify(typeResult, null, 4)}`);
+        return;
+      }
+
+      isDetectedLanguage = true;
+      clearTimeout(delayDetectLanguageTimer);
+
+      if (typeResult.type === LanguageDetectType.Apple) {
+        const appleLanguageId = typeResult.languageId as string;
+        const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
+        console.warn(`apple detect language: ${appleLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+
+        const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
+          LanguageDetectType.Apple,
+          languageItem,
+          detectLanguageActionMap
+        );
+        if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
+          callback((languageItem as LanguageItem).youdaoLanguageId);
+        } else {
+          raceDetectTextLanguage(text, detectLanguageActionMap, callback);
+        }
+      }
+
+      if (typeResult.type === LanguageDetectType.Tencent) {
+        const tencentLanguageId = typeResult.languageId || "";
+        const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
+        console.warn(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+
+        const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
+          LanguageDetectType.Tencent,
+          languageItem,
+          detectLanguageActionMap
+        );
+        if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
+          callback((languageItem as LanguageItem).youdaoLanguageId);
+        } else {
+          raceDetectTextLanguage(text, detectLanguageActionMap, callback);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error(`detect language error: ${error}`);
+      callback(localDetectTextLanguageId(text));
+    });
+}
+
+// function check if the language is preferred language, if not, remove it from the action map
+function checkDetectedLanguageIsPreferred(
+  detectType: LanguageDetectType,
+  languageItem: LanguageItem | undefined,
+  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
+) {
+  if (!languageItem || !isPreferredLanguage(languageItem.youdaoLanguageId)) {
+    for (const [type] of detectLanguageActionMap) {
+      if (type === detectType) {
+        detectLanguageActionMap.delete(type);
+      }
+    }
+    console.warn(`${detectType} check not preferred language: ${languageItem?.youdaoLanguageId}`);
+    return false;
+  }
+  return true;
+}
+
+/**
+  get local detect language id according to inputText, priority to use English and Chinese, and then auto
+ */
+export function localDetectTextLanguageId(inputText: string): string {
   let fromYoudaoLanguageId = "auto";
   const englishLanguageId = "en";
   const chineseLanguageId = "zh-CHS";
@@ -49,42 +198,6 @@ export function isPreferredLanguagesContainedChinese(): boolean {
     return true;
   }
   return false;
-}
-
-export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageItem {
-  for (const langItem of languageItemList) {
-    if (langItem.youdaoLanguageId === youdaoLanguageId) {
-      return langItem;
-    }
-  }
-  return languageItemList[0];
-}
-
-export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem | undefined {
-  for (const langItem of languageItemList) {
-    const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
-    if (tencentDetectLanguageId === tencentLanguageId) {
-      return langItem;
-    }
-  }
-  // return languageItemList[0];
-}
-
-export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
-  for (const langItem of languageItemList) {
-    if (langItem.appleChineseLanguageTitle === chineseTitle) {
-      return langItem;
-    }
-  }
-}
-
-// function: get another language item expcept chinese
-export function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
-  if (from.youdaoLanguageId === "zh-CHS") {
-    return to;
-  } else {
-    return from;
-  }
 }
 
 // function: remove all punctuation from the text

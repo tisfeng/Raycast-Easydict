@@ -1,10 +1,8 @@
 import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
-import { clipboardQueryTextKey } from "./consts";
+import { clipboardQueryTextKey, languageItemList } from "./consts";
 import { LanguageItem, MyPreferences, QueryRecoredItem, TranslateFormatResult } from "./types";
-
 import CryptoJS from "crypto-js";
-import { getLanguageItemExpceptChinese, getLanguageItemFromYoudaoId } from "./detectLanguage";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -36,6 +34,42 @@ export const defaultTencentSecretKey = myDecrypt(defaultEncryptedTencentSecretKe
 
 const defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
 export const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
+
+export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageItem {
+  for (const langItem of languageItemList) {
+    if (langItem.youdaoLanguageId === youdaoLanguageId) {
+      return langItem;
+    }
+  }
+  return languageItemList[0];
+}
+
+export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem | undefined {
+  for (const langItem of languageItemList) {
+    const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
+    if (tencentDetectLanguageId === tencentLanguageId) {
+      return langItem;
+    }
+  }
+  // return languageItemList[0];
+}
+
+export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
+  for (const langItem of languageItemList) {
+    if (langItem.appleChineseLanguageTitle === chineseTitle) {
+      return langItem;
+    }
+  }
+}
+
+// function: get another language item expcept chinese
+export function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
+  if (from.youdaoLanguageId === "zh-CHS") {
+    return to;
+  } else {
+    return from;
+  }
+}
 
 // export function: Determine whether the title of the result exceeds the maximum value of one line.
 export function isTranslateResultTooLong(formatResult: TranslateFormatResult | null): boolean {
