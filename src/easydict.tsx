@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 23:56
+ * @lastEditTime: 2022-06-27 01:43
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -56,7 +56,7 @@ import {
 } from "./formatData";
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
-import { LanguageDetectTypeResult, detectLanguage, getFinalDetectedLanguage } from "./detectLanguage";
+import { LanguageDetectTypeResult, detectLanguage, getFinalConfirmedLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
@@ -126,11 +126,14 @@ export default function () {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
-    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult) => {
-      console.log("detectLanguage:", JSON.stringify(detectTypeResult));
-      const finalDetectedlanguageId = getFinalDetectedLanguage(text, detectTypeResult.youdaoLanguageId);
-      console.warn(`finalDetectedlanguageId: ${finalDetectedlanguageId}`);
-      queryTextWithFromLanguageId(finalDetectedlanguageId);
+    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult, confirmed) => {
+      console.log(`detectLanguage: ${JSON.stringify(detectTypeResult)}, confirmed: ${confirmed}`);
+      let finalConfirmedLanguage = detectTypeResult.youdaoLanguageId;
+      if (!confirmed) {
+        finalConfirmedLanguage = getFinalConfirmedLanguage(text, detectTypeResult.youdaoLanguageId);
+      }
+      console.warn(`finalDetectedlanguageId: ${finalConfirmedLanguage}`);
+      queryTextWithFromLanguageId(finalConfirmedLanguage);
     });
   }
 
@@ -168,7 +171,7 @@ export default function () {
 
     requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
       .then((result) => {
-        console.warn(`is last request: ${isLastRequest}`);
+        console.log(`is last request: ${isLastRequest}`);
         if (!isLastRequest) {
           return;
         }
@@ -211,7 +214,6 @@ export default function () {
             appleTranslate(queryTextInfo)
               .then((translatedText) => {
                 if (translatedText) {
-                  console.warn(`apple translate: ${translatedText}`);
                   const appleTranslateResult: TranslateTypeResult = {
                     type: TranslateType.Apple,
                     result: { translatedText },

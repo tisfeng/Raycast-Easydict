@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 23:53
+ * @lastEditTime: 2022-06-27 01:39
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -43,25 +43,32 @@ let isDetectedLanguage = false;
 let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 
 /**
- * detect language with the given text, callback with language detect type and language id
+ * record the detected language id, if has detected two identical language id, use it
  */
-export function detectLanguage(text: string, callback: (result: LanguageDetectTypeResult) => void): void {
+let detectedLanguageId: string | undefined;
+
+/**
+ * detect language with the given text, callback with detectTypeResult and confirmed
+ */
+export function detectLanguage(
+  text: string,
+  callback: (detectTypeResult: LanguageDetectTypeResult, confirmed: boolean) => void
+): void {
   // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
   console.log("queryText:", text);
   console.log("lowerCaseText:", lowerCaseText);
 
   // new a action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
-  const actionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
-  actionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
+  const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
+  detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
   if (myPreferences.enableAppleLanguageDetect) {
-    actionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
+    detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
 
   // priority API language detect
-  raceDetectTextLanguage(lowerCaseText, actionMap, (detectTypeResult) => {
-    console.warn(`raceDetectTextLanguage: ${JSON.stringify(detectTypeResult, null, 4)}`);
-    callback(detectTypeResult);
+  raceDetectTextLanguage(detectActionMap, (detectTypeResult, confirmed) => {
+    callback(detectTypeResult, confirmed);
   });
 
   // start a delay local language detect timer, use it only if API detect over time and local detect language is preferred.
@@ -71,21 +78,21 @@ export function detectLanguage(text: string, callback: (result: LanguageDetectTy
     if (isPreferredLanguage(localDetectLanguageId)) {
       isDetectedLanguage = true;
       console.log(`use local detect language --->: ${localDetectLanguageId}`);
-      callback({ type: LanguageDetectType.Local, youdaoLanguageId: localDetectLanguageId });
+      const localDetectTypeResult = {
+        type: LanguageDetectType.Local,
+        youdaoLanguageId: localDetectLanguageId,
+      };
+      callback(localDetectTypeResult, false);
     }
   }, delayDetectLanguageInterval);
 }
 
 /**
  * promise race to detect language, if success, callback API detect language, else local detect language
- * @param text
- * @param detectLanguageActionMap
- * @param callback LanguageDetectTypeResult => {}
  */
 function raceDetectTextLanguage(
-  text: string,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
-  callback: (detectTypeResult: LanguageDetectTypeResult) => void
+  callback: (detectTypeResult: LanguageDetectTypeResult, confirmed: boolean) => void
 ) {
   console.log(`start raceDetectTextLanguage: ${[...detectLanguageActionMap.keys()]}`);
   isDetectedLanguage = false;
@@ -103,70 +110,67 @@ function raceDetectTextLanguage(
       if (typeResult.type === LanguageDetectType.Apple) {
         const appleLanguageId = typeResult.youdaoLanguageId as string;
         const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
-        console.warn(`apple detect language: ${appleLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
-        const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
-          LanguageDetectType.Apple,
-          languageItem,
-          detectLanguageActionMap
-        );
-        if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
-          const appleDetectTypeResult = {
-            type: LanguageDetectType.Apple,
-            youdaoLanguageId: languageItem?.youdaoLanguageId as string,
-          };
-          callback(appleDetectTypeResult);
-        } else {
-          raceDetectTextLanguage(text, detectLanguageActionMap, callback);
-        }
+        console.log(`apple detect language: ${appleLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+        handleDetectedLanguage(typeResult.type, languageItem, detectLanguageActionMap, callback);
       }
 
       if (typeResult.type === LanguageDetectType.Tencent) {
         const tencentLanguageId = typeResult.youdaoLanguageId || "";
         const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
-        console.warn(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
-        const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
-          LanguageDetectType.Tencent,
-          languageItem,
-          detectLanguageActionMap
-        );
-        if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
-          const tencentDetectTypeResult = {
-            type: LanguageDetectType.Tencent,
-            youdaoLanguageId: languageItem?.youdaoLanguageId as string,
-          };
-          callback(tencentDetectTypeResult);
-        } else {
-          raceDetectTextLanguage(text, detectLanguageActionMap, callback);
-        }
+        console.log(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+        handleDetectedLanguage(typeResult.type, languageItem, detectLanguageActionMap, callback);
       }
     })
     .catch((error) => {
       console.error(`detect language error: ${error}`);
-      callback({ type: LanguageDetectType.Local, youdaoLanguageId: localDetectTextLanguageId(text) });
+      callback({ type: LanguageDetectType.Local, youdaoLanguageId: "auto" }, false);
     });
 }
 
 /**
- *  get final detected language according to the text and detect language,
- *  if the detect language is the preferred language, or local detect language is "auto", use it directly.
- *  else use local language detect.
+ * check if the language is preferred language, or has two identical language id, or has no continue detect action
  */
-export function getFinalDetectedLanguage(text: string, youdaoLanguageId: string): string {
-  if (isPreferredLanguage(youdaoLanguageId)) {
-    return youdaoLanguageId;
+function handleDetectedLanguage(
+  detectType: LanguageDetectType,
+  languageItem: LanguageItem | undefined,
+  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
+  callback: (detectTypeResult: LanguageDetectTypeResult, confirmed: boolean) => void
+) {
+  const detectTypeResult = {
+    type: detectType,
+    youdaoLanguageId: languageItem?.youdaoLanguageId as string,
+  };
+
+  // first check if the language is preferred language, if true, use it directly, else remove it from the action map
+  const checkIsPreferredLanguage = checkIfDetectedPreferredLanguage(detectType, languageItem, detectLanguageActionMap);
+  if (checkIsPreferredLanguage) {
+    callback(detectTypeResult, true);
+    return;
   }
-  const localDetectLanguageId = localDetectTextLanguageId(text);
-  const isLocalDetectedAutoLanguage = localDetectLanguageId === "auto";
-  if (isLocalDetectedAutoLanguage) {
-    return youdaoLanguageId;
+
+  // second check if has detected two identical language id, if true, use it
+  const hasDetectedTwoIdenticalLanguage = detectedLanguageId === languageItem?.youdaoLanguageId;
+  if (hasDetectedTwoIdenticalLanguage) {
+    console.warn(`detect two identical language: ${detectedLanguageId}`);
+    callback(detectTypeResult, true);
+    return;
   }
-  return localDetectLanguageId;
+
+  // finally, if this is the last language detect action, have to use it, but not confirmed
+  if (detectLanguageActionMap.size === 0) {
+    callback(detectTypeResult, false);
+    return;
+  }
+
+  detectedLanguageId = languageItem?.youdaoLanguageId;
+  // if current action detect language has no result, continue to detect next action
+  raceDetectTextLanguage(detectLanguageActionMap, callback);
 }
 
 /**
  * check if the language is preferred language, if not, remove it from the action map
  */
-function checkDetectedLanguageIsPreferred(
+function checkIfDetectedPreferredLanguage(
   detectType: LanguageDetectType,
   languageItem: LanguageItem | undefined,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
@@ -181,6 +185,23 @@ function checkDetectedLanguageIsPreferred(
     return false;
   }
   return true;
+}
+
+/**
+ *  get final confirmed language according to the text and detect language,
+ *  if the detect language is the preferred language, or local detect language is "auto", use it directly.
+ *  else use local language detect.
+ */
+export function getFinalConfirmedLanguage(text: string, youdaoLanguageId: string): string {
+  if (isPreferredLanguage(youdaoLanguageId)) {
+    return youdaoLanguageId;
+  }
+  const localDetectLanguageId = localDetectTextLanguageId(text);
+  const isLocalDetectedAutoLanguage = localDetectLanguageId === "auto";
+  if (isLocalDetectedAutoLanguage) {
+    return youdaoLanguageId;
+  }
+  return localDetectLanguageId;
 }
 
 /**

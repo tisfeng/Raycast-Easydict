@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:23
+ * @lastEditTime: 2022-06-27 00:12
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,7 +96,7 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
         reject(err);
       } else {
         const endTime = new Date().getTime();
-        console.warn(`tencen detect cost: ${endTime - startTime} ms`);
+        console.warn(`tencen detect: ${response.Lang}, cost: ${endTime - startTime} ms`);
         resolve({
           type: LanguageDetectType.Tencent,
           youdaoLanguageId: response.Lang || "",
