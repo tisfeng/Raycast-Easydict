@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:09
+ * @lastEditTime: 2022-06-26 21:33
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,6 +33,10 @@ export function getListItemIcon(sectionType: SectionType | TranslateType): Image
   switch (sectionType) {
     case TranslateType.Youdao: {
       dotColor = Color.Red;
+      break;
+    }
+    case TranslateType.Apple: {
+      dotColor = "#336666"; // #59ABC4	#408080 #336666
       break;
     }
     case TranslateType.Baidu: {

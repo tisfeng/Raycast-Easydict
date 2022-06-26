@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:19
+ * @lastEditTime: 2022-06-26 22:47
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,6 +17,7 @@ import {
   defaultLanguage2,
   getLanguageItemFromAppleChineseTitle,
   getLanguageItemFromTencentId,
+  getLanguageItemFromYoudaoId,
   myPreferences,
 } from "./utils";
 
@@ -28,7 +29,7 @@ export enum LanguageDetectType {
 
 export interface LanguageDetectTypeResult {
   type: LanguageDetectType;
-  languageId: string;
+  youdaoLanguageId: string;
 }
 
 /**
@@ -70,23 +71,9 @@ export function detectLanguage(text: string, callback: (result: LanguageDetectTy
     if (isPreferredLanguage(localDetectLanguageId)) {
       isDetectedLanguage = true;
       console.log(`use local detect language --->: ${localDetectLanguageId}`);
-      callback({ type: LanguageDetectType.Local, languageId: localDetectLanguageId });
+      callback({ type: LanguageDetectType.Local, youdaoLanguageId: localDetectLanguageId });
     }
   }, delayDetectLanguageInterval);
-}
-
-/**
- *  get final detected language according to the text and detect language,
- *  if the detect language is the preferred language, or local detect language is "auto", use it directly.
- *  else use local language detect.
- */
-export function getFinalDetectedLanguage(text: string, detectTypeResult: LanguageDetectTypeResult): string {
-  const [type, detectLanguageId] = [detectTypeResult.type, detectTypeResult.languageId];
-  const isLocalDetectedAutoLanguage = type === LanguageDetectType.Local && detectLanguageId === "auto";
-  if (isPreferredLanguage(detectLanguageId) || isLocalDetectedAutoLanguage) {
-    return detectLanguageId;
-  }
-  return localDetectTextLanguageId(text);
 }
 
 /**
@@ -114,34 +101,40 @@ function raceDetectTextLanguage(
       clearTimeout(delayLocalDetectLanguageTimer);
 
       if (typeResult.type === LanguageDetectType.Apple) {
-        const appleLanguageId = typeResult.languageId as string;
+        const appleLanguageId = typeResult.youdaoLanguageId as string;
         const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
         console.warn(`apple detect language: ${appleLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
-
         const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
           LanguageDetectType.Apple,
           languageItem,
           detectLanguageActionMap
         );
         if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
-          callback(typeResult);
+          const appleDetectTypeResult = {
+            type: LanguageDetectType.Apple,
+            youdaoLanguageId: languageItem?.youdaoLanguageId as string,
+          };
+          callback(appleDetectTypeResult);
         } else {
           raceDetectTextLanguage(text, detectLanguageActionMap, callback);
         }
       }
 
       if (typeResult.type === LanguageDetectType.Tencent) {
-        const tencentLanguageId = typeResult.languageId || "";
+        const tencentLanguageId = typeResult.youdaoLanguageId || "";
         const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
         console.warn(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
-
         const checkIsPreferredLanguage = checkDetectedLanguageIsPreferred(
           LanguageDetectType.Tencent,
           languageItem,
           detectLanguageActionMap
         );
         if (checkIsPreferredLanguage || detectLanguageActionMap.size === 0) {
-          callback(typeResult);
+          const tencentDetectTypeResult = {
+            type: LanguageDetectType.Tencent,
+            youdaoLanguageId: languageItem?.youdaoLanguageId as string,
+          };
+          callback(tencentDetectTypeResult);
         } else {
           raceDetectTextLanguage(text, detectLanguageActionMap, callback);
         }
@@ -149,8 +142,23 @@ function raceDetectTextLanguage(
     })
     .catch((error) => {
       console.error(`detect language error: ${error}`);
-      callback({ type: LanguageDetectType.Local, languageId: localDetectTextLanguageId(text) });
+      callback({ type: LanguageDetectType.Local, youdaoLanguageId: localDetectTextLanguageId(text) });
     });
+}
+
+/**
+ *  get final detected language according to the text and detect language,
+ *  if the detect language is the preferred language, or local detect language is "auto", use it directly.
+ *  else use local language detect.
+ */
+export function getFinalDetectedLanguage(text: string, detectTypeResult: LanguageDetectTypeResult): string {
+  const languageItem = getLanguageItemFromYoudaoId(detectTypeResult.youdaoLanguageId);
+  const [type, detectLanguageId] = [detectTypeResult.type, languageItem.youdaoLanguageId];
+  const isLocalDetectedAutoLanguage = type === LanguageDetectType.Local && detectLanguageId === "auto";
+  if (isPreferredLanguage(detectLanguageId) || isLocalDetectedAutoLanguage) {
+    return detectLanguageId;
+  }
+  return localDetectTextLanguageId(text);
 }
 
 /**

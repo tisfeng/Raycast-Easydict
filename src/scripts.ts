@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:25
+ * @lastEditTime: 2022-06-26 22:49
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,12 +27,13 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
       if (error) {
         reject(error);
       }
-      resolve({
+      const detectTypeResult: LanguageDetectTypeResult = {
         type: LanguageDetectType.Apple,
-        languageId: stdout.trim(), // NOTE: need trim()
-      });
+        youdaoLanguageId: stdout.trim(), // NOTE: need trim()
+      };
+      resolve(detectTypeResult);
       const endTime = new Date().getTime();
-      console.warn(`apple detect cost: ${endTime - startTime} ms`);
+      console.warn(`apple detect: ${detectTypeResult.youdaoLanguageId} ,cost: ${endTime - startTime} ms`);
     });
   });
 }
@@ -62,7 +63,7 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
       }
       resolve(stdout);
       const endTime = new Date().getTime();
-      console.warn(`apple translate cost: ${endTime - startTime} ms`);
+      console.warn(`apple translate: ${stdout}, cost: ${endTime - startTime} ms`);
     });
   });
 }

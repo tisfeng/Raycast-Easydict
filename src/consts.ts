@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:19
+ * @lastEditTime: 2022-06-26 22:45
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,6 +30,7 @@ export enum TranslateType {
   Baidu = "Baidu Translate",
   Tencent = "Tencent Translate",
   Caiyun = "Caiyun Translate",
+  Apple = "Apple Translate",
 }
 
 export enum DicionaryType {

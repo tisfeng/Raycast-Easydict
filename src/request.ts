@@ -99,7 +99,7 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
         console.warn(`tencen detect cost: ${endTime - startTime} ms`);
         resolve({
           type: LanguageDetectType.Tencent,
-          languageId: response.Lang || "",
+          youdaoLanguageId: response.Lang || "",
         });
       }
     });

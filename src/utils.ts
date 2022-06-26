@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:32
+ * @lastEditTime: 2022-06-26 22:43
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -63,6 +63,11 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
   }
 }
 
+/**
+ * return language item from apple Chinese title, such as "中文" --> LanguageItem
+ *
+ * Todo: support other languages, currently only support Chinese
+ */
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
     if (langItem.appleChineseLanguageTitle === chineseTitle) {
@@ -72,13 +77,24 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
 }
 
 /**
- * get another language item expcept chinese
+ * get another language item except chinese
  */
-export function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
+export function getLanguageItemExceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
   if (from.youdaoLanguageId === "zh-CHS") {
     return to;
   } else {
     return from;
+  }
+}
+
+/**
+ * get another language item expcept chinese from language item array
+ */
+export function getLanguageItemOfTwoExceptChinese(languageItems: [LanguageItem, LanguageItem]): LanguageItem {
+  if (languageItems[0].youdaoLanguageId === "zh-CHS") {
+    return languageItems[1];
+  } else {
+    return languageItems[0];
   }
 }
 
@@ -111,7 +127,8 @@ export function isTranslateResultTooLong(formatResult: TranslateFormatResult | n
 }
 
 export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  const eudicWebLanguageId = getLanguageItemExpceptChinese(from, to).eudicWebLanguageId;
+  // const eudicWebLanguageId = getLanguageItemExceptChinese(from, to).eudicWebLanguageId;
+  const eudicWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).eudicWebLanguageId;
   if (eudicWebLanguageId) {
     return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryText)}`;
   }
@@ -119,7 +136,9 @@ export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, t
 }
 
 export function getYoudaoWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  const youdaoWebLanguageId = getLanguageItemExpceptChinese(from, to).youdaoWebLanguageId;
+  // const youdaoWebLanguageId = getLanguageItemExceptChinese(from, to).youdaoWebLanguageId;
+  const youdaoWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).youdaoWebLanguageId;
+
   if (youdaoWebLanguageId) {
     return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(queryText)}`;
   }

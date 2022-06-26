@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:20
+ * @lastEditTime: 2022-06-26 20:41
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,6 +19,7 @@ import {
   BaiduTranslateResult,
   TencentTranslateResult,
   CaiyunTranslateResult,
+  AppleTranslateResult,
 } from "./types";
 import { isShowMultipleTranslations } from "./utils";
 
@@ -65,7 +66,22 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResu
 }
 
 /**
- * Format the Baidu original data for later use.
+ * update formated result with apple translate result
+ */
+export function updateFormatResultWithAppleTranslateResult(
+  formatResult: TranslateFormatResult,
+  appleTranslateResult: TranslateTypeResult
+): TranslateFormatResult {
+  const appleTranslate = appleTranslateResult.result as AppleTranslateResult;
+  formatResult.translations.push({
+    type: TranslateType.Apple,
+    text: appleTranslate.translatedText,
+  });
+  return sortTranslations(formatResult);
+}
+
+/**
+ * update formated result with baidu translate result
  */
 export function updateFormateResultWithBaiduTranslation(
   baiduTypeResult: TranslateTypeResult,
@@ -88,7 +104,7 @@ export function updateFormateResultWithBaiduTranslation(
 }
 
 /**
- * Format the Tencent original data for later use.
+ * update formated result with tencent translate result
  */
 export function updateFormateResultWithTencentTranslation(
   tencentTypeResult: TranslateTypeResult,
@@ -97,7 +113,6 @@ export function updateFormateResultWithTencentTranslation(
   const tencentResult = tencentTypeResult.result as TencentTranslateResult;
   if (tencentResult) {
     const tencentTranslation = tencentResult.TargetText;
-
     formatResult.translations.push({
       type: TranslateType.Tencent,
       text: tencentTranslation,
@@ -107,7 +122,7 @@ export function updateFormateResultWithTencentTranslation(
 }
 
 /**
- * Format the Caiyun original data for later use.
+ * update formated result with caiyun translate result
  */
 export function updateFormateResultWithCaiyunTranslation(
   caiyunTypeResult: TranslateTypeResult,
@@ -124,10 +139,16 @@ export function updateFormateResultWithCaiyunTranslation(
 }
 
 /**
- * sort formatResult translations, by type: baidu > tencent > youdao > caiyun
+ * sort formatResult translations, by type: apple > baidu > tencent > youdao > caiyun
  */
 export function sortTranslations(formatResult: TranslateFormatResult): TranslateFormatResult {
-  const sortByOrders = [TranslateType.Baidu, TranslateType.Tencent, TranslateType.Youdao, TranslateType.Caiyun];
+  const sortByOrders = [
+    TranslateType.Apple,
+    TranslateType.Baidu,
+    TranslateType.Tencent,
+    TranslateType.Youdao,
+    TranslateType.Caiyun,
+  ];
   const sortTranslations: TranslateItem[] = [];
   for (const translationItem of formatResult.translations) {
     const index = sortByOrders.indexOf(translationItem.type);

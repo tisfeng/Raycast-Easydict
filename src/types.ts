@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:26
+ * @lastEditTime: 2022-06-26 21:11
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,6 +25,7 @@ export interface TranslateTypeResult {
     | BaiduTranslateResult
     | TencentTranslateResult
     | CaiyunTranslateResult
+    | AppleTranslateResult
     | IcibaDictionaryResult
     | YoudaoDictionaryResult
     | null;
@@ -161,6 +162,10 @@ export interface CaiyunTranslateResult {
   rc: string;
   target: string[];
   confidence: number;
+}
+
+export interface AppleTranslateResult {
+  translatedText: string;
 }
 
 export interface TranslateSourceResult {

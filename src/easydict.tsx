@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:19
+ * @lastEditTime: 2022-06-26 22:57
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,6 +24,7 @@ import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
   maxInputTextLength,
+  TranslateType,
   youdaoErrorCodeUrl,
   YoudaoRequestStateCode,
 } from "./consts";
@@ -51,6 +52,7 @@ import {
   updateFormateResultWithBaiduTranslation,
   updateFormateResultWithCaiyunTranslation,
   updateFormateResultWithTencentTranslation,
+  updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
@@ -128,7 +130,7 @@ export default function () {
       console.log("detectLanguage:", JSON.stringify(detectTypeResult));
       const finalDetectedlanguageId = getFinalDetectedLanguage(text, detectTypeResult);
       console.warn(`finalDetectedlanguageId: ${finalDetectedlanguageId}`);
-      queryTextWithFromLanguageId(detectTypeResult.languageId);
+      queryTextWithFromLanguageId(finalDetectedlanguageId);
     });
   }
 
@@ -147,23 +149,12 @@ export default function () {
       setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(tartgetLanguageId));
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
-
     const queryTextInfo: QueryTextInfo = {
       queryText: searchText,
       fromLanguage: youdaoLanguageId,
       toLanguage: tartgetLanguageId,
     };
     queryTextWithTextInfo(queryTextInfo);
-
-    appleTranslate(queryTextInfo)
-      .then((translatedText) => {
-        if (translatedText) {
-          console.warn("apple translate: ", translatedText);
-        }
-      })
-      .catch((error) => {
-        console.warn(`apple translate: ${error}`);
-      });
   }
 
   async function queryTextWithTextInfo(queryTextInfo: QueryTextInfo) {
@@ -173,7 +164,7 @@ export default function () {
       queryTextInfo.toLanguage,
     ];
 
-    console.log(`querySearchText fromTo: ${fromLanguage} -> ${toLanguage}`);
+    console.warn(`querySearchText fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
       .then((result) => {
@@ -216,6 +207,24 @@ export default function () {
         checkIsInstalledEudic(setIsInstalledEudic);
 
         if (isShowMultipleTranslations(formatResult)) {
+          if (myPreferences.enableAppleTranslate) {
+            appleTranslate(queryTextInfo)
+              .then((translatedText) => {
+                if (translatedText) {
+                  console.warn(`apple translate: ${translatedText}`);
+                  const appleTranslateResult: TranslateTypeResult = {
+                    type: TranslateType.Apple,
+                    result: { translatedText },
+                  };
+                  updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);
+                  updateTranslateDisplayResult(formatResult);
+                }
+              })
+              .catch((error) => {
+                console.warn(`apple translate error: ${error}`);
+              });
+          }
+
           if (myPreferences.enableBaiduTranslate) {
             console.log("requestBaiduTextTranslate");
             requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
