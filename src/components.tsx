@@ -1,21 +1,33 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-26 11:13
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:09
+ * @fileName: components.tsx
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { Component } from "react";
 import { languageItemList, SectionType, TranslateType } from "./consts";
 import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./types";
 import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { playWordAudio } from "./audio";
-import { openInEudic } from "./script";
+import { openInEudic } from "./scripts";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
-export function playSoundIcon(lightTintColor: string) {
+export function getPlaySoundIcon(lightTintColor: string) {
   return {
     source: { light: "speak.png", dark: "speak.png" },
     tintColor: { light: lightTintColor, dark: "lightgray" },
   };
 }
 
-// function: Returns the corresponding ImageLike based on the SectionType type
+/**
+  return the corresponding ImageLike based on the SectionType type
+*/
 export function getListItemIcon(sectionType: SectionType | TranslateType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (sectionType) {
@@ -64,7 +76,9 @@ export function getListItemIcon(sectionType: SectionType | TranslateType): Image
   return itemIcon;
 }
 
-// function: return List.Item.Accessory[] based on the SectionType type
+/**
+  return List.Item.Accessory[] based on the SectionType type
+*/
 export function getWordAccessories(
   sectionType: SectionType | TranslateType,
   item: YoudaoTranslateReformatResultItem
@@ -86,7 +100,7 @@ export function getWordAccessories(
     if (item.phonetic) {
       pronunciationAccessory = [
         {
-          icon: playSoundIcon("gray"),
+          icon: getPlaySoundIcon("gray"),
           tooltip: "Pronunciation",
         },
         { text: item.phonetic },
@@ -154,13 +168,13 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
         <ActionPanel.Section title="Play Sound">
           <Action
             title="Play Query Text Sound"
-            icon={playSoundIcon("black")}
+            icon={getPlaySoundIcon("black")}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
             onAction={() => this.onPlaySound(this.props?.queryText, this.props.currentFromLanguage?.youdaoLanguageId)}
           />
           <Action
             title="Play Result Text Sound"
-            icon={playSoundIcon("black")}
+            icon={getPlaySoundIcon("black")}
             onAction={() => this.onPlaySound(this.props.copyText, this.props.currentTargetLanguage?.youdaoLanguageId)}
           />
         </ActionPanel.Section>

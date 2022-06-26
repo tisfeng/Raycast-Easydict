@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-26 11:13
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:25
+ * @fileName: scripts.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { LocalStorage, showToast, Toast } from "@raycast/api";
 import querystring from "node:querystring";
 import { exec, execFile } from "child_process";
@@ -6,7 +16,9 @@ import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
-// function: run DetectLanguage shortcuts with the given text, return promise
+/**
+ * run DetectLanguage shortcuts with the given text, return promise
+ */
 export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const startTime = new Date().getTime();
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
@@ -25,7 +37,9 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
   });
 }
 
-// function: run apple Translate shortcuts with the given QueryWordInfo, return promise
+/**
+ * run apple Translate shortcuts with the given QueryWordInfo, return promise
+ */
 export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
@@ -54,9 +68,9 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
 }
 
 /**
- function: get shortcuts script template string according to shortcut name and input
-
- NOTE: To run a shortcut in the background, without opening the Shortcuts app, tell 'Shortcuts Events' instead of 'Shortcuts'.
+ * get shortcuts script template string according to shortcut name and input
+ *
+ * * NOTE: To run a shortcut in the background, without opening the Shortcuts app, tell 'Shortcuts Events' instead of 'Shortcuts'.
  */
 function getShortcutsScript(shortcutName: string, input: string): string {
   // replace " with \" in input, otherwise run the script will error
@@ -69,7 +83,9 @@ function getShortcutsScript(shortcutName: string, input: string): string {
   return applescriptContent;
 }
 
-// open Eudic App with queryText
+/**
+ * open Eudic App with queryText
+ */
 export const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
   execFile("open", [url], (error, stdout) => {

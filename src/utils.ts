@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-26 11:13
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:32
+ * @fileName: utils.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
@@ -51,7 +61,6 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
       return langItem;
     }
   }
-  // return languageItemList[0];
 }
 
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
@@ -62,7 +71,9 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
   }
 }
 
-// function: get another language item expcept chinese
+/**
+ * get another language item expcept chinese
+ */
 export function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
   if (from.youdaoLanguageId === "zh-CHS") {
     return to;
@@ -71,7 +82,9 @@ export function getLanguageItemExpceptChinese(from: LanguageItem, to: LanguageIt
   }
 }
 
-// export function: Determine whether the title of the result exceeds the maximum value of one line.
+/**
+ * Determine whether the title of the result exceeds the maximum value of one line.
+ */
 export function isTranslateResultTooLong(formatResult: TranslateFormatResult | null): boolean {
   if (!formatResult) {
     return false;
@@ -120,7 +133,10 @@ export function getGoogleWebTranslateURL(queryText: string, from: LanguageItem, 
   return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
 }
 
-// function: query the clipboard text from LocalStorage
+/**
+ * query the clipboard text from LocalStorage
+ * * deprecate
+ */
 export async function tryQueryClipboardText(queryClipboardText: (text: string) => void) {
   const text = await Clipboard.readText();
   console.log("query clipboard text: " + text);
@@ -149,18 +165,21 @@ export async function tryQueryClipboardText(queryClipboardText: (text: string) =
   }
 }
 
-// function: save last Clipboard text and timestamp
+/**
+ * save last Clipboard text and timestamp
+ */
 export function saveQueryClipboardRecord(text: string) {
   const jsonString: string = JSON.stringify({
     queryText: text,
     timestamp: new Date().getTime(),
   });
   LocalStorage.setItem(clipboardQueryTextKey, jsonString);
-
   console.log("saveQueryClipboardRecord: " + jsonString);
 }
 
-// function: return and update the autoSelectedTargetLanguage according to the languageId
+/**
+ * return and update the autoSelectedTargetLanguage according to the languageId
+ */
 export function getAutoSelectedTargetLanguageId(accordingLanguageId: string): string {
   let targetLanguageId = "auto";
   if (accordingLanguageId === defaultLanguage1.youdaoLanguageId) {
@@ -175,6 +194,9 @@ export function getAutoSelectedTargetLanguageId(accordingLanguageId: string): st
   return targetLanguage.youdaoLanguageId;
 }
 
+/**
+ * traverse all applications, check if Eudic is installed
+ */
 async function traverseAllInstalledApplications(updateIsInstalledEudic: (isInstalled: boolean) => void) {
   const installedApplications = await getApplications();
   LocalStorage.setItem(eudicBundleId, false);

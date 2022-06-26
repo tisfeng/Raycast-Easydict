@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-26 11:13
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:23
+ * @fileName: request.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import axios, { AxiosRequestConfig } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
@@ -71,7 +81,9 @@ axios.interceptors.response.use(function (response) {
   return response;
 });
 
-// 腾讯语种识别，5次/秒
+/**
+ * 腾讯语种识别，5次/秒
+ */
 export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {
     Text: text,
@@ -87,14 +99,17 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
         console.warn(`tencen detect cost: ${endTime - startTime} ms`);
         resolve({
           type: LanguageDetectType.Tencent,
-          languageId: response.Lang,
+          languageId: response.Lang || "",
         });
       }
     });
   });
 }
 
-// 腾讯文本翻译，5次/秒  https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
+/**
+ * 腾讯文本翻译，5次/秒
+ * 文档：https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
+ */
 export function requestTencentTextTranslate(
   queryText: string,
   fromLanguage: string,
@@ -128,7 +143,10 @@ export function requestTencentTextTranslate(
   });
 }
 
-// API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+/**
+ * 有道翻译
+ * 文档：https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+ */
 export function requestYoudaoDictionary(
   queryText: string,
   fromLanguage: string,
@@ -166,7 +184,11 @@ export function requestYoudaoDictionary(
   });
 }
 
-// 百度翻译API https://fanyi-api.baidu.com/doc/21
+//
+/**
+ * 百度翻译API
+ * 文档：https://fanyi-api.baidu.com/doc/21
+ */
 export function requestBaiduTextTranslate(
   queryText: string,
   fromLanguage: string,
@@ -198,7 +220,10 @@ export function requestBaiduTextTranslate(
   });
 }
 
-// 彩云小译 https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
+/**
+ * 彩云小译
+ * 文档：https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
+ */
 export function requestCaiyunTextTranslate(
   queryText: string,
   fromLanguage: string,

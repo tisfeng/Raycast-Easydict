@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-22 16:22
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:08
+ * @fileName: audio.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { environment } from "@raycast/api";
 import { exec, execFile } from "child_process";
 import axios from "axios";
@@ -9,7 +19,9 @@ const player = playerImport({});
 export const maxPlaySoundTextLength = 40;
 const audioDirPath = `${environment.supportPath}/audio`;
 
-// use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
+/**
+  use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
+*/
 export function playWordAudio(word: string, fromLanguage: string, useSayCommand = true) {
   const audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
@@ -33,8 +45,11 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   });
 }
 
-// use shell afplay to play audio
-export function playAudioPath(audioPath: string) {
+/**
+  use shell afplay to play audio
+*/
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function afplayAudioPath(audioPath: string) {
   console.log(`play audio: ${audioPath}`);
   if (!fs.existsSync(audioPath)) {
     console.error(`audio file not exists: ${audioPath}`);
@@ -48,11 +63,17 @@ export function playAudioPath(audioPath: string) {
   });
 }
 
+/**
+  use shell say to play text sound, if text is too long, truncate it.
+  */
 export function sayTruncateCommand(text: string, language: string) {
   const truncateText = text.substring(0, maxPlaySoundTextLength) + "...";
   sayCommand(truncateText, language);
 }
 
+/**
+  use shell say to play text sound
+*/
 function sayCommand(text: string, language: string) {
   if (language && text) {
     const voiceIndex = 0;
@@ -67,40 +88,33 @@ function sayCommand(text: string, language: string) {
   }
 }
 
-export function downloadWordAudioWithURL(word: string, url: string, callback?: () => void) {
-  const audioPath = getWordAudioPath(word);
+export function downloadWordAudioWithURL(word: string, url: string, callback?: () => void): void {
+  const audioPath = getWordAudioPath(word); // * @param {string} word
   downloadAudio(url, audioPath, callback);
 }
 
-export function downloadAudio(url: string, audioPath: string, callback?: () => void) {
+export async function downloadAudio(url: string, audioPath: string, callback?: () => void) {
   if (fs.existsSync(audioPath)) {
     callback && callback();
     return;
   }
 
-  axios({
-    method: "get",
-    url: url,
-    responseType: "stream",
-  })
-    .then((response) => {
-      response.data.pipe(
-        fs.createWriteStream(audioPath).on(
-          "close",
-          callback
-            ? callback
-            : () => {
-                // do nothing
-              }
-        )
-      );
-    })
-    .catch((error) => {
-      console.error(`download url audio error: ${error}`);
+  try {
+    const response = await axios.get(url, { responseType: "stream" });
+    const fileStream = fs.createWriteStream(audioPath);
+    response.data.pipe(fileStream);
+    fileStream.on("finish", () => {
+      fileStream.close();
+      callback && callback();
     });
+  } catch (error) {
+    console.error(`download url audio error: ${error}`);
+  }
 }
 
-// function: get audio file name, if audio directory is empty, create it
+/**
+  get audio file name, if audio directory is empty, create it
+*/
 export function getWordAudioPath(word: string) {
   if (!fs.existsSync(audioDirPath)) {
     fs.mkdirSync(audioDirPath);

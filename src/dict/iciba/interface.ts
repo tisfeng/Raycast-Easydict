@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createDate: 2022-06-15 18:28:00
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 17:39:15
+ * @filePath: /Raycast-Easydict/src/dict/iciba/interface.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 export interface IcibaDictionaryResult {
   exchange?: IcibaExchange; // English word part of speech
   is_CRI?: string | number; // has is_CRI when hitting word, is_CRI='1' when word has ph_am ?

@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-26 11:13
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:20
+ * @fileName: formatData.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { SectionType, TranslateType } from "./consts";
 import {
   QueryWordInfo,
@@ -113,7 +123,9 @@ export function updateFormateResultWithCaiyunTranslation(
   return sortTranslations(formatResult);
 }
 
-// function sort formatResult translations, by type: baidu > tencent > youdao > caiyun
+/**
+ * sort formatResult translations, by type: baidu > tencent > youdao > caiyun
+ */
 export function sortTranslations(formatResult: TranslateFormatResult): TranslateFormatResult {
   const sortByOrders = [TranslateType.Baidu, TranslateType.Tencent, TranslateType.Youdao, TranslateType.Caiyun];
   const sortTranslations: TranslateItem[] = [];
@@ -270,7 +282,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
 }
 
 /**
-Convert multiple translated result texts to markdown format and display them in the same list details page.
+ * Convert multiple translated result texts to markdown format and display them in the same list details page.
  */
 export function formatAllTypeTranslationToMarkdown(
   type: TranslateType | SectionType,
@@ -297,7 +309,9 @@ export function formatAllTypeTranslationToMarkdown(
     .join("\n");
 }
 
-// Format type translation result to markdown format.
+/**
+ *  format type translation result to markdown format.
+ */
 export function formatTranslationToMarkdown(type: TranslateType | SectionType, text: string) {
   const string = text.replace(/\n/g, "\n\n");
   const markdown = `

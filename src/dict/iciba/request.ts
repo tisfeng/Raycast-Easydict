@@ -1,9 +1,22 @@
+/*
+ * @author: tisfeng
+ * @createDate: 2022-06-26 11:13:35
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 17:43:31
+ * @filePath: /Raycast-Easydict/src/dict/iciba/request.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import axios from "axios";
 import { downloadAudio, getWordAudioPath } from "../../audio";
 import { DicionaryType } from "../../consts";
 import { TranslateTypeResult } from "../../types";
 import { IcibaDictionaryResult } from "./interface";
 
+/**
+ * request iciba dictionary
+ */
 export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
   const url = "http://dict-co.iciba.com/api/dictionary.php";
   const params = {
@@ -34,7 +47,9 @@ export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
   });
 }
 
-// function download icicba audio file
+/**
+ * download icicba word audio file
+ */
 export async function downloadIcibaWordAudio(word: string, callback?: () => void) {
   try {
     const icibaResult = await icibaDictionary(word);

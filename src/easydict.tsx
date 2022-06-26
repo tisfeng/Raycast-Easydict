@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2022-06-23 14:19
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-06-26 18:19
+ * @fileName: easydict.tsx
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
 import { Fragment, useEffect, useState } from "react";
 import { ActionFeedback, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
@@ -44,8 +54,8 @@ import {
 } from "./formatData";
 import { playWordAudio } from "./audio";
 import { downloadYoudaoAudio } from "./dict/youdao/request";
-import { LanguageDetectTypeResult, detectLanguage } from "./detectLanguage";
-import { appleTranslate } from "./script";
+import { LanguageDetectTypeResult, detectLanguage, getFinalDetectedLanguage } from "./detectLanguage";
+import { appleTranslate } from "./scripts";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -54,7 +64,7 @@ let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
 export default function () {
-  checkLanguageIsSame();
+  checkTwoPreferredLanguageIsSame();
 
   // Delay the time to call the query API. Since API has frequency limit.
   const delayRequestTime = 500;
@@ -65,7 +75,7 @@ export default function () {
 
   // use to display input text
   const [inputText, setInputText] = useState<string>("");
-  // searchText = inputText.trim(), avoid frequent request API
+  // searchText = inputText.trim(), avoid frequent request API with blank input
   const [searchText, setSearchText] = useState<string>("");
   const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
   /**
@@ -82,21 +92,6 @@ export default function () {
   const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
-  // check first language and second language is the same
-  function checkLanguageIsSame() {
-    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
-      return (
-        <List>
-          <List.Item
-            title={"Language Conflict"}
-            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
-            subtitle={"Your first Language with second Language must be different."}
-          />
-        </List>
-      );
-    }
-  }
-
   useEffect(() => {
     if (searchText.length) {
       queryText(searchText);
@@ -109,7 +104,9 @@ export default function () {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  // function to detect the selected text
+  /**
+   * try to detect the selected text, if detect success, then query the selected text.
+   */
   async function tryQuerySelecedtText() {
     try {
       const selectedText = await getSelectedText();
@@ -120,18 +117,24 @@ export default function () {
     }
   }
 
-  // function to query text, automatically detect the language of input text
+  /**
+   * query text, automatically detect the language of input text
+   */
   function queryText(text: string) {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
-    detectLanguage(text, (languageDetectTypeResult: LanguageDetectTypeResult) => {
-      console.log("detectLanguage:", JSON.stringify(languageDetectTypeResult));
-      queryTextWithFromLanguageId(languageDetectTypeResult.languageId as string);
+    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult) => {
+      console.log("detectLanguage:", JSON.stringify(detectTypeResult));
+      const finalDetectedlanguageId = getFinalDetectedLanguage(text, detectTypeResult);
+      console.warn(`finalDetectedlanguageId: ${finalDetectedlanguageId}`);
+      queryTextWithFromLanguageId(detectTypeResult.languageId);
     });
   }
 
-  // function to query text with from youdao language id
+  /**
+   * query text with from youdao language id
+   */
   function queryTextWithFromLanguageId(youdaoLanguageId: string) {
     console.log("queryTextWithFromLanguageId:", youdaoLanguageId);
     setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(youdaoLanguageId));
@@ -291,14 +294,18 @@ export default function () {
     return;
   }
 
-  // function to update translate display result, loading state, showing detail
+  /**
+   * update translate display result, loading state, showing detail
+   */
   function updateTranslateDisplayResult(formatResult: TranslateFormatResult | null) {
     setLoadingState(false);
     setIsShowingDetail(isTranslateResultTooLong(formatResult));
     setTranslateDisplayResult(formatTranslateDisplayResult(formatResult));
   }
 
-  // function to delay query search text, later can cancel the query
+  /**
+   * delay query search text, later can cancel the query
+   */
   function delayQueryWithTextInfo(queryTextInfo: QueryTextInfo) {
     delayUpdateTargetLanguageTimer = setTimeout(() => {
       queryTextWithTextInfo(queryTextInfo);
@@ -395,7 +402,26 @@ export default function () {
     );
   }
 
-  // function to update input text and search text
+  /**
+   * check first language and second language is the same
+   */
+  function checkTwoPreferredLanguageIsSame() {
+    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
+      return (
+        <List>
+          <List.Item
+            title={"Language Conflict"}
+            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+            subtitle={"Your first Language with second Language must be different."}
+          />
+        </List>
+      );
+    }
+  }
+
+  /**
+   * update input text and search text
+   */
   function updateInputText(text: string) {
     setInputText(text);
 

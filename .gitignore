@@ -108,3 +108,6 @@ dist
 
 # Icon/r
 Icon*
+
+# vscode
+.vscode/
