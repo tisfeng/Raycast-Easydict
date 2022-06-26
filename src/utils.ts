@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 22:43
+ * @lastEditTime: 2022-06-26 23:00
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,7 @@ export const maxLineLengthOfEnglishTextDisplay = 95;
 export const myPreferences: MyPreferences = getPreferenceValues();
 export const defaultLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1) as LanguageItem;
 export const defaultLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2) as LanguageItem;
+export const preferredLanguages = [defaultLanguage1, defaultLanguage2];
 
 const defaultEncrytedYoudaoAppId = "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
 const defaultEncrytedYoudaoAppKey =
@@ -127,7 +128,6 @@ export function isTranslateResultTooLong(formatResult: TranslateFormatResult | n
 }
 
 export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  // const eudicWebLanguageId = getLanguageItemExceptChinese(from, to).eudicWebLanguageId;
   const eudicWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).eudicWebLanguageId;
   if (eudicWebLanguageId) {
     return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryText)}`;
@@ -136,7 +136,6 @@ export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, t
 }
 
 export function getYoudaoWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  // const youdaoWebLanguageId = getLanguageItemExceptChinese(from, to).youdaoWebLanguageId;
   const youdaoWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).youdaoWebLanguageId;
 
   if (youdaoWebLanguageId) {

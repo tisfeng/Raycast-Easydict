@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 22:57
+ * @lastEditTime: 2022-06-26 23:56
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -128,7 +128,7 @@ export default function () {
 
     detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult) => {
       console.log("detectLanguage:", JSON.stringify(detectTypeResult));
-      const finalDetectedlanguageId = getFinalDetectedLanguage(text, detectTypeResult);
+      const finalDetectedlanguageId = getFinalDetectedLanguage(text, detectTypeResult.youdaoLanguageId);
       console.warn(`finalDetectedlanguageId: ${finalDetectedlanguageId}`);
       queryTextWithFromLanguageId(finalDetectedlanguageId);
     });
@@ -229,7 +229,6 @@ export default function () {
             console.log("requestBaiduTextTranslate");
             requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
               .then((baiduRes) => {
-                console.log("requestBaiduTextTranslate success");
                 const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
                 const baiduErrorCode = baiduTranslateResult.error_code;
 
@@ -264,7 +263,6 @@ export default function () {
             console.log(`requestTencentTextTranslate`);
             requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
               .then((tencentRes) => {
-                console.log(`requestTencentTextTranslate success`);
                 formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
                 updateTranslateDisplayResult(formatResult);
               })
@@ -277,7 +275,6 @@ export default function () {
             console.log("requestCaiyunTextTranslate");
             requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
               .then((caiyunRes) => {
-                console.log("requestCaiyunTextTranslate success");
                 if (caiyunRes.errorInfo) {
                   showToast({
                     style: Toast.Style.Failure,

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 22:47
+ * @lastEditTime: 2022-06-26 23:53
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,8 +17,8 @@ import {
   defaultLanguage2,
   getLanguageItemFromAppleChineseTitle,
   getLanguageItemFromTencentId,
-  getLanguageItemFromYoudaoId,
   myPreferences,
+  preferredLanguages,
 } from "./utils";
 
 export enum LanguageDetectType {
@@ -151,14 +151,16 @@ function raceDetectTextLanguage(
  *  if the detect language is the preferred language, or local detect language is "auto", use it directly.
  *  else use local language detect.
  */
-export function getFinalDetectedLanguage(text: string, detectTypeResult: LanguageDetectTypeResult): string {
-  const languageItem = getLanguageItemFromYoudaoId(detectTypeResult.youdaoLanguageId);
-  const [type, detectLanguageId] = [detectTypeResult.type, languageItem.youdaoLanguageId];
-  const isLocalDetectedAutoLanguage = type === LanguageDetectType.Local && detectLanguageId === "auto";
-  if (isPreferredLanguage(detectLanguageId) || isLocalDetectedAutoLanguage) {
-    return detectLanguageId;
+export function getFinalDetectedLanguage(text: string, youdaoLanguageId: string): string {
+  if (isPreferredLanguage(youdaoLanguageId)) {
+    return youdaoLanguageId;
   }
-  return localDetectTextLanguageId(text);
+  const localDetectLanguageId = localDetectTextLanguageId(text);
+  const isLocalDetectedAutoLanguage = localDetectLanguageId === "auto";
+  if (isLocalDetectedAutoLanguage) {
+    return youdaoLanguageId;
+  }
+  return localDetectLanguageId;
 }
 
 /**
@@ -190,7 +192,7 @@ export function localDetectTextLanguageId(inputText: string): string {
   const chineseLanguageId = "zh-CHS";
   if (isEnglishOrNumber(inputText) && isPreferredLanguagesContainedEnglish()) {
     fromYoudaoLanguageId = englishLanguageId;
-  } else if (isContainChinese(inputText) && isPreferredLanguagesContainedChinese()) {
+  } else if (isChinese(inputText) && isPreferredLanguagesContainedChinese()) {
     fromYoudaoLanguageId = chineseLanguageId;
   }
   console.log("local detect fromLanguage -->:", fromYoudaoLanguageId);
@@ -201,7 +203,7 @@ export function localDetectTextLanguageId(inputText: string): string {
  * check if the language is preferred language
  */
 export function isPreferredLanguage(languageId: string): boolean {
-  return languageId === defaultLanguage1.youdaoLanguageId || languageId === defaultLanguage2.youdaoLanguageId;
+  return preferredLanguages.map((item) => item.youdaoLanguageId).includes(languageId);
 }
 
 /**
@@ -259,6 +261,13 @@ export function removeBlankSpace(text: string) {
  */
 export function isContainChinese(text: string) {
   return /[\u4e00-\u9fa5]/g.test(text);
+}
+
+/**
+ * check text is chinese
+ */
+export function isChinese(text: string) {
+  return /^[\u4e00-\u9fa5]+$/.test(text);
 }
 
 /**

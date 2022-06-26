@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 21:33
+ * @lastEditTime: 2022-06-26 23:00
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,7 +36,7 @@ export function getListItemIcon(sectionType: SectionType | TranslateType): Image
       break;
     }
     case TranslateType.Apple: {
-      dotColor = "#336666"; // #59ABC4	#408080 #336666
+      dotColor = "#408080";
       break;
     }
     case TranslateType.Baidu: {
