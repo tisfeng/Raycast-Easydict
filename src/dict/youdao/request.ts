@@ -1,9 +1,9 @@
 /*
  * @author: tisfeng
- * @createDate: 2022-06-26 11:13:35
+ * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 17:41:37
- * @filePath: /Raycast-Easydict/src/dict/youdao/request.ts
+ * @lastEditTime: 2022-06-27 11:35
+ * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
@@ -19,12 +19,16 @@ export function downloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () 
   if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
     downloadYoudaoWebWordAudio(queryWordInfo.word, callback);
   } else if (queryWordInfo.word.length < maxPlaySoundTextLength) {
-    downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback);
+    if (queryWordInfo.speechUrl) {
+      downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback);
+    } else {
+      console.warn(`youdao tts url not found: ${queryWordInfo.word}`);
+    }
   }
 }
 
 /**
-  * * Note: this function is used to download word audio file from youdao, if not a word, the pronunciation audio is not accurate.
+  * * Note: this function is only used to download `word` audio file from youdao, if not a word, the pronunciation audio is not accurate.
   
   this is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
   example https://dict.youdao.com/dictvoice?type=0&audio=good

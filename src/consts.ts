@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 11:18
+ * @lastEditTime: 2022-06-27 12:29
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -103,7 +103,6 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "auto",
     googleLanguageId: "auto",
     languageTitle: "Auto Language",
-    languageVoice: ["Ting-Ting"],
   },
   {
     youdaoLanguageId: "zh-CHS",
@@ -115,7 +114,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "zh",
     googleLanguageId: "zh-CN",
     languageTitle: "Chinese-Simplified",
-    languageVoice: ["Ting-Ting"],
+    voiceList: ["Ting-Ting"],
   },
   {
     youdaoLanguageId: "zh-CHT",
@@ -127,7 +126,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "zh",
     googleLanguageId: "zh-TW",
     languageTitle: "Chinese-Traditional",
-    languageVoice: ["Ting-Ting"],
+    voiceList: ["Ting-Ting"],
   },
   {
     youdaoLanguageId: "en",
@@ -141,7 +140,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "en",
     googleLanguageId: "en",
     languageTitle: "English",
-    languageVoice: ["Samantha", "Alex"],
+    voiceList: ["Samantha", "Alex"],
   },
   {
     youdaoLanguageId: "ja",
@@ -154,7 +153,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "jp",
     caiyunLanguageId: "ja",
     languageTitle: "Japanese",
-    languageVoice: ["Kyoko"],
+    voiceList: ["Kyoko"],
   },
   {
     youdaoLanguageId: "ko",
@@ -166,7 +165,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoWebLanguageId: "ko",
     baiduLanguageId: "kor",
     languageTitle: "Korean",
-    languageVoice: ["Yuna"],
+    voiceList: ["Yuna"],
   },
   {
     youdaoLanguageId: "fr",
@@ -178,7 +177,7 @@ export const languageItemList: LanguageItem[] = [
     eudicWebLanguageId: "fr",
     baiduLanguageId: "fra",
     languageTitle: "French",
-    languageVoice: ["Amelie", "Thomas"],
+    voiceList: ["Amelie", "Thomas"],
   },
   {
     youdaoLanguageId: "es",
@@ -189,7 +188,7 @@ export const languageItemList: LanguageItem[] = [
     eudicWebLanguageId: "es",
     baiduLanguageId: "spa",
     languageTitle: "Spanish",
-    languageVoice: ["Jorge", "Juan", "Diego", "Monica", "Paulina"],
+    voiceList: ["Jorge", "Juan", "Diego", "Monica", "Paulina"],
   },
   {
     youdaoLanguageId: "it",
@@ -199,7 +198,7 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "it",
     baiduLanguageId: "it",
     languageTitle: "Italian",
-    languageVoice: ["Alice", "Luca"],
+    voiceList: ["Alice", "Luca"],
   },
   {
     youdaoLanguageId: "de",
@@ -210,7 +209,7 @@ export const languageItemList: LanguageItem[] = [
     eudicWebLanguageId: "de",
     baiduLanguageId: "de",
     languageTitle: "German",
-    languageVoice: ["Anna"],
+    voiceList: ["Anna"],
   },
   {
     youdaoLanguageId: "pt",
@@ -220,7 +219,7 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "pt",
     baiduLanguageId: "pt",
     languageTitle: "Portuguese",
-    languageVoice: ["Joana", "Luciana"],
+    voiceList: ["Joana", "Luciana"],
   },
   {
     youdaoLanguageId: "ru",
@@ -230,7 +229,7 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "ru",
     baiduLanguageId: "ru",
     languageTitle: "Russian",
-    languageVoice: ["Milena", "Yuri"],
+    voiceList: ["Milena", "Yuri"],
   },
   {
     youdaoLanguageId: "ar",
@@ -240,7 +239,7 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "ar",
     baiduLanguageId: "ara",
     languageTitle: "Arabic",
-    languageVoice: ["Maged"],
+    voiceList: ["Maged"],
   },
   {
     youdaoLanguageId: "th",
@@ -248,76 +247,76 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "th",
     baiduLanguageId: "th",
     languageTitle: "Thai",
-    languageVoice: ["Kanya"],
+    voiceList: ["Kanya"],
   },
   {
     youdaoLanguageId: "sv",
     aliyunLanguageId: "sv",
     baiduLanguageId: "swe",
     languageTitle: "Swedish",
-    languageVoice: ["Alva"],
+    voiceList: ["Alva"],
   },
   {
     youdaoLanguageId: "nl",
     aliyunLanguageId: "nl",
     baiduLanguageId: "nl",
     languageTitle: "Dutch",
-    languageVoice: ["Ellen", "Xander"],
+    voiceList: ["Ellen", "Xander"],
   },
   {
     youdaoLanguageId: "ro",
     aliyunLanguageId: "ro",
     baiduLanguageId: "rom",
     languageTitle: "Romanian",
-    languageVoice: ["Ioana"],
+    voiceList: ["Ioana"],
   },
   {
     youdaoLanguageId: "sk",
     aliyunLanguageId: "sk",
     baiduLanguageId: "slo",
     languageTitle: "Slovak",
-    languageVoice: ["Laura"],
+    voiceList: ["Laura"],
   },
   {
     youdaoLanguageId: "hu",
     aliyunLanguageId: "hu",
     baiduLanguageId: "hu",
     languageTitle: "Hungarian",
-    languageVoice: ["Mariska"],
+    voiceList: ["Mariska"],
   },
   {
     youdaoLanguageId: "el",
     aliyunLanguageId: "el",
     baiduLanguageId: "el",
     languageTitle: "Greek",
-    languageVoice: ["Melina"],
+    voiceList: ["Melina"],
   },
   {
     youdaoLanguageId: "da",
     aliyunLanguageId: "da",
     baiduLanguageId: "dan",
     languageTitle: "Danish",
-    languageVoice: ["Sara"],
+    voiceList: ["Sara"],
   },
   {
     youdaoLanguageId: "fi",
     aliyunLanguageId: "fi",
     baiduLanguageId: "fin",
     languageTitle: "Finnish",
-    languageVoice: ["Satu"],
+    voiceList: ["Satu"],
   },
   {
     youdaoLanguageId: "pl",
     aliyunLanguageId: "pl",
     baiduLanguageId: "pl",
     languageTitle: "Polish",
-    languageVoice: ["Zosia"],
+    voiceList: ["Zosia"],
   },
   {
     youdaoLanguageId: "cs",
     aliyunLanguageId: "cs",
     baiduLanguageId: "cs",
     languageTitle: "Czech",
-    languageVoice: ["Zuzana"],
+    voiceList: ["Zuzana"],
   },
 ];

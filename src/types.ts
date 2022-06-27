@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 21:11
+ * @lastEditTime: 2022-06-27 12:33
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,7 +55,7 @@ export interface QueryWordInfo {
   isWord: boolean;
   examTypes?: string[];
   audioPath?: string;
-  speechUrl: string; // youdao tts url
+  speechUrl?: string; // youdao tts url, some language not have tts url, such as "ຂາດ"
 }
 
 export interface YoudaoTranslateResultBasicItem {
@@ -138,7 +138,7 @@ export interface LanguageItem {
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
   languageTitle: string;
-  languageVoice: string[];
+  voiceList?: string[];
   googleLanguageId?: string;
   youdaoWebLanguageId?: string;
   eudicWebLanguageId?: string;

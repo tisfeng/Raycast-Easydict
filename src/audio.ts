@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 18:08
+ * @lastEditTime: 2022-06-27 13:07
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,9 @@ import { languageItemList } from "./consts";
 import playerImport = require("play-sound");
 const player = playerImport({});
 
+/**
+ * Max length of text to play sound, to avoid play sound too long that can't be stoped.
+ */
 export const maxPlaySoundTextLength = 40;
 const audioDirPath = `${environment.supportPath}/audio`;
 
@@ -57,34 +60,44 @@ function afplayAudioPath(audioPath: string) {
   }
   execFile("afplay", [audioPath], (error, stdout) => {
     if (error) {
-      console.error(`exec error: ${error}`);
+      console.error(`afplay error: ${error}`);
     }
-    console.log(stdout);
+    console.log(`afplay stdout: ${stdout}`);
   });
 }
 
 /**
   use shell say to play text sound, if text is too long, truncate it.
   */
-export function sayTruncateCommand(text: string, language: string) {
-  const truncateText = text.substring(0, maxPlaySoundTextLength) + "...";
-  sayCommand(truncateText, language);
+export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
+  if (text.length > maxPlaySoundTextLength) {
+    text = text.substring(0, maxPlaySoundTextLength) + "...";
+  }
+  sayCommand(text, youdaoLanguageId);
 }
 
 /**
   use shell say to play text sound
 */
-function sayCommand(text: string, language: string) {
-  if (language && text) {
-    const voiceIndex = 0;
-    for (const LANG of languageItemList) {
-      if (language === LANG.youdaoLanguageId) {
-        const safeText = text.replace(/"/g, " ");
-        const sayCommand = `say -v ${LANG.languageVoice[voiceIndex]} '${safeText}'`;
-        console.log(sayCommand);
-        LANG.languageVoice.length > 0 && exec(sayCommand);
-      }
+function sayCommand(text: string, youdaoLanguageId: string) {
+  if (youdaoLanguageId && text) {
+    const languageItem = languageItemList.find((languageItem) => languageItem.youdaoLanguageId === youdaoLanguageId);
+    if (!languageItem || !languageItem.voiceList) {
+      console.warn(`say command language not supported: ${youdaoLanguageId}`);
+      return;
     }
+
+    // replace " with blank space, otherwise say command will not work.
+    text = text.replace(/"/g, " ");
+    const voice = languageItem.voiceList[0];
+    const sayCommand = `say -v ${voice} "${text}"`; // you're so beautiful, my "unfair" girl
+    console.log(sayCommand);
+    exec(sayCommand, (error, stdout) => {
+      if (error) {
+        console.error(`sayCommand error: ${error}`);
+      }
+      console.log(`sayCommand stdout: ${stdout}`);
+    });
   }
 }
 
@@ -108,7 +121,7 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
       callback && callback();
     });
   } catch (error) {
-    console.error(`download url audio error: ${error}`);
+    console.error(`download url audio error: ${error}, url: ${url}`);
   }
 }
 

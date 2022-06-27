@@ -1,9 +1,9 @@
 /*
  * @author: tisfeng
- * @createDate: 2022-06-26 11:13:35
+ * @createTime: 2022-06-27 10:26
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 17:43:31
- * @filePath: /Raycast-Easydict/src/dict/iciba/request.ts
+ * @lastEditTime: 2022-06-27 11:35
+ * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
