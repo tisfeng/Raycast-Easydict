@@ -55,26 +55,31 @@ export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageI
   return languageItemList[0];
 }
 
-export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem | undefined {
+/**
+ * get language item from tencent language id, if not found, return auto language item
+ */
+export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
     const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
     if (tencentDetectLanguageId === tencentLanguageId) {
       return langItem;
     }
   }
+  return languageItemList[0];
 }
 
 /**
  * return language item from apple Chinese title, such as "中文" --> LanguageItem
  *
- * Todo: support other languages, currently only support Chinese
+ * Todo: currently only support Chinese, later support other languages
  */
-export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
+export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
   for (const langItem of languageItemList) {
     if (langItem.appleChineseLanguageTitle === chineseTitle) {
       return langItem;
     }
   }
+  return languageItemList[0];
 }
 
 /**

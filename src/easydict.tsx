@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 01:43
+ * @lastEditTime: 2022-06-27 10:21
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -61,23 +61,32 @@ import { appleTranslate } from "./scripts";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
-let isLastRequest = true; // when has new input text, need to cancel previous request
+/**
+ * when has new input text, need to cancel previous request
+ */
+let isLastRequest = true;
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
 export default function () {
   checkTwoPreferredLanguageIsSame();
 
-  // Delay the time to call the query API. Since API has frequency limit.
-  const delayRequestTime = 500;
+  /**
+   * Delay the time to call the query API. Since API has frequency limit.
+   */
+  const delayRequestTime = 600;
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
-  // use to display input text
+  /**
+   * use to display input text
+   */
   const [inputText, setInputText] = useState<string>("");
-  // searchText = inputText.trim(), avoid frequent request API with blank input
+  /**
+   * searchText = inputText.trim(), avoid frequent request API with blank input
+   */
   const [searchText, setSearchText] = useState<string>("");
   const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
   /**
@@ -132,7 +141,7 @@ export default function () {
       if (!confirmed) {
         finalConfirmedLanguage = getFinalConfirmedLanguage(text, detectTypeResult.youdaoLanguageId);
       }
-      console.warn(`finalDetectedlanguageId: ${finalConfirmedLanguage}`);
+      console.warn(`final confirmed language: ${finalConfirmedLanguage}`);
       queryTextWithFromLanguageId(finalConfirmedLanguage);
     });
   }
@@ -166,9 +175,11 @@ export default function () {
       queryTextInfo.fromLanguage,
       queryTextInfo.toLanguage,
     ];
-
-    console.warn(`querySearchText fromTo: ${fromLanguage} -> ${toLanguage}`);
-
+    console.warn(`query text fromTo: ${fromLanguage} -> ${toLanguage}`);
+    /**
+     * first, request youdao translate API, check if should show multiple translations, if not, then end.
+     * if need to show multiple translations, then request other translate API.
+     */
     requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
       .then((result) => {
         console.log(`is last request: ${isLastRequest}`);
@@ -183,6 +194,9 @@ export default function () {
         youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
         if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
+          console.warn(
+            `youdao error: ${youdaoErrorCode}, request frequency limited, delay ${delayRequestTime} ms to request again`
+          );
           delayQueryWithTextInfo(queryTextInfo);
           return;
         } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
@@ -209,7 +223,9 @@ export default function () {
         updateTranslateDisplayResult(formatResult);
         checkIsInstalledEudic(setIsInstalledEudic);
 
+        // request other translate API to show multiple translations
         if (isShowMultipleTranslations(formatResult)) {
+          // check if enable apple translate
           if (myPreferences.enableAppleTranslate) {
             appleTranslate(queryTextInfo)
               .then((translatedText) => {
@@ -227,6 +243,7 @@ export default function () {
               });
           }
 
+          // check if enable baidu translate
           if (myPreferences.enableBaiduTranslate) {
             console.log("requestBaiduTextTranslate");
             requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
@@ -261,6 +278,7 @@ export default function () {
               });
           }
 
+          // check if enable tencent translate
           if (myPreferences.enableTencentTranslate) {
             console.log(`requestTencentTextTranslate`);
             requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
@@ -273,6 +291,7 @@ export default function () {
               });
           }
 
+          // check if enable caiyun translate
           if (myPreferences.enableCaiyunTranslate) {
             console.log("requestCaiyunTextTranslate");
             requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)

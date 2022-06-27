@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 00:12
+ * @lastEditTime: 2022-06-27 10:34
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -83,6 +83,7 @@ axios.interceptors.response.use(function (response) {
 
 /**
  * 腾讯语种识别，5次/秒
+ * doc: https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
  */
 export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {

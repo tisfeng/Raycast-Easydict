@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 01:39
+ * @lastEditTime: 2022-06-27 11:23
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -43,9 +43,11 @@ let isDetectedLanguage = false;
 let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 
 /**
- * record the detected language id, if has detected two identical language id, use it
+ * record the detected language id, if has detected two identical language id, use it.
+ *
+ * * NOTE: the initial value is "auto", because the API detect language may be undefined!
  */
-let detectedLanguageId: string | undefined;
+let detectedLanguageId = "auto";
 
 /**
  * detect language with the given text, callback with detectTypeResult and confirmed
@@ -110,14 +112,14 @@ function raceDetectTextLanguage(
       if (typeResult.type === LanguageDetectType.Apple) {
         const appleLanguageId = typeResult.youdaoLanguageId as string;
         const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
-        console.log(`apple detect language: ${appleLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+        console.log(`apple detect language: ${appleLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
         handleDetectedLanguage(typeResult.type, languageItem, detectLanguageActionMap, callback);
       }
 
       if (typeResult.type === LanguageDetectType.Tencent) {
         const tencentLanguageId = typeResult.youdaoLanguageId || "";
         const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
-        console.log(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem?.youdaoLanguageId}`);
+        console.log(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
         handleDetectedLanguage(typeResult.type, languageItem, detectLanguageActionMap, callback);
       }
     })
@@ -149,7 +151,8 @@ function handleDetectedLanguage(
   }
 
   // second check if has detected two identical language id, if true, use it
-  const hasDetectedTwoIdenticalLanguage = detectedLanguageId === languageItem?.youdaoLanguageId;
+  const hasDetectedTwoIdenticalLanguage =
+    detectedLanguageId === languageItem?.youdaoLanguageId && detectedLanguageId !== "auto";
   if (hasDetectedTwoIdenticalLanguage) {
     console.warn(`detect two identical language: ${detectedLanguageId}`);
     callback(detectTypeResult, true);
@@ -162,7 +165,7 @@ function handleDetectedLanguage(
     return;
   }
 
-  detectedLanguageId = languageItem?.youdaoLanguageId;
+  detectedLanguageId = languageItem?.youdaoLanguageId || "";
   // if current action detect language has no result, continue to detect next action
   raceDetectTextLanguage(detectLanguageActionMap, callback);
 }

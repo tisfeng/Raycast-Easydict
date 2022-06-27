@@ -33,7 +33,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
       };
       resolve(detectTypeResult);
       const endTime = new Date().getTime();
-      console.warn(`apple detect: ${detectTypeResult.youdaoLanguageId} ,cost: ${endTime - startTime} ms`);
+      console.warn(`apple detect: ${detectTypeResult.youdaoLanguageId}, cost: ${endTime - startTime} ms`);
     });
   });
 }
