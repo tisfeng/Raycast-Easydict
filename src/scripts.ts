@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 22:49
+ * @lastEditTime: 2022-06-27 14:11
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
   const startTime = new Date().getTime();
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
   return new Promise((resolve, reject) => {
+    // * NOTE: osascript -e param only support single quote 'xxx'
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {
         reject(error);
@@ -74,14 +75,17 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
  * * NOTE: To run a shortcut in the background, without opening the Shortcuts app, tell 'Shortcuts Events' instead of 'Shortcuts'.
  */
 function getShortcutsScript(shortcutName: string, input: string): string {
-  // replace " with \" in input, otherwise run the script will error
-  const escapedInput = input.replace(/"/g, '\\"');
-  const applescriptContent = `
+  /**
+   * * NOTE: First, exec osascript -e 'xxx', internal param only allow double quote, so single quote have to be instead of double quote.
+   * * Then, the double quote in the input must be escaped.
+   */
+  const escapedInput = input.replace(/'/g, '"').replace(/"/g, '\\"'); // test: you're so beautiful, my "unfair" girl
+  const appleScriptContent = `
         tell application "Shortcuts Events"
           run the shortcut named "${shortcutName}" with input "${escapedInput}"
         end tell
       `;
-  return applescriptContent;
+  return appleScriptContent;
 }
 
 /**
