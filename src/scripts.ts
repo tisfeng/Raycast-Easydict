@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 14:11
+ * @lastEditTime: 2022-06-27 14:16
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -62,9 +62,10 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
       if (error) {
         reject(error);
       }
-      resolve(stdout);
+      const translateText = stdout.trim();
+      resolve(translateText);
       const endTime = new Date().getTime();
-      console.warn(`apple translate: ${stdout}, cost: ${endTime - startTime} ms`);
+      console.warn(`apple translate: ${translateText}, cost: ${endTime - startTime} ms`);
     });
   });
 }

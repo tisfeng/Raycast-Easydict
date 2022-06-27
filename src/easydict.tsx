@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 13:08
+ * @lastEditTime: 2022-06-27 18:05
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,7 +55,7 @@ import {
   updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
 import { playWordAudio } from "./audio";
-import { downloadYoudaoAudio } from "./dict/youdao/request";
+import { downloadYoudaoAudio, downloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 import { LanguageDetectTypeResult, detectLanguage, getFinalConfirmedLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 
@@ -205,11 +205,11 @@ export default function () {
           return;
         }
         let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
-        downloadYoudaoAudio(formatResult.queryWordInfo, () => {
-          if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord && isLastRequest) {
-            playWordAudio(queryText, fromLanguage);
-          }
-        });
+
+        // if enable automatic play audio and query is word, then download audio and play it
+        if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord && isLastRequest) {
+          downloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
+        }
 
         const [from, to] = youdaoResult.l.split("2"); // from2to
         if (from === to) {

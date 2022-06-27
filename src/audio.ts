@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 13:20
+ * @lastEditTime: 2022-06-27 18:08
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,7 +24,7 @@ export const maxTextLengthOfSayCommandToPlaySound = 40;
 /**
  * Max length of text to download youdao tts audio
  */
-export const maxTextLengthOfDownloadYoudaoTTSAudio = 20;
+export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 const audioDirPath = `${environment.supportPath}/audio`;
 
@@ -34,12 +34,13 @@ const audioDirPath = `${environment.supportPath}/audio`;
 export function playWordAudio(word: string, fromLanguage: string, useSayCommand = true) {
   const audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
-    console.warn(`audio file not found: ${audioPath}`);
+    console.log(`word audio file not found: ${word}`);
     if (useSayCommand) {
       sayTruncateCommand(word, fromLanguage);
     }
     return;
   }
+  console.log(`play word: ${word}`);
 
   player.play(audioPath, (err) => {
     if (err) {
@@ -95,25 +96,44 @@ function sayCommand(text: string, youdaoLanguageId: string) {
     const voice = languageItem.voiceList[0];
     const sayCommand = `say -v ${voice} "${text}"`; // you're so beautiful, my "unfair" girl
     console.log(sayCommand);
-    exec(sayCommand, (error, stdout) => {
+    exec(sayCommand, (error) => {
       if (error) {
         console.error(`sayCommand error: ${error}`);
       }
-      console.log(`sayCommand stdout: ${stdout}`);
     });
   }
 }
 
-export function downloadWordAudioWithURL(word: string, url: string, callback?: () => void): void {
-  const audioPath = getWordAudioPath(word); // * @param {string} word
-  downloadAudio(url, audioPath, callback);
+export function downloadWordAudioWithURL(
+  word: string,
+  url: string,
+  callback?: () => void,
+  forceDownload = false
+): void {
+  const audioPath = getWordAudioPath(word);
+  downloadAudio(url, audioPath, callback, forceDownload);
 }
 
-export async function downloadAudio(url: string, audioPath: string, callback?: () => void) {
+/**
+ *
+ * @param url the audio url to download
+ * @param audioPath the path to store audio
+ * @param callback callback when after download audio
+ * @param forceDownload is forced download when audio has exist
+ * @returns
+ */
+export async function downloadAudio(url: string, audioPath: string, callback?: () => void, forceDownload = false) {
   if (fs.existsSync(audioPath)) {
-    callback && callback();
-    return;
+    if (!forceDownload) {
+      const word = audioPath.substring(audioPath.lastIndexOf("/") + 1);
+
+      console.log(`download audio has exist: [${word}], url: ${url}`);
+      callback && callback();
+      return;
+    }
+    console.log(`forced download audio, url: ${url}`);
   }
+  console.log(`download audio, url: ${url}`);
 
   try {
     const response = await axios.get(url, { responseType: "stream" });

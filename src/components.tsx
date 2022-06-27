@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 23:00
+ * @lastEditTime: 2022-06-27 16:59
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,7 @@ import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { playWordAudio } from "./audio";
 import { openInEudic } from "./scripts";
+import { downloadYoudaoAudio } from "./dict/youdao/request";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -127,7 +128,13 @@ export function ActionFeedback() {
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text: string, fromLanguage: string) {
-    playWordAudio(text, fromLanguage);
+    console.log(`play sound: ${text}`);
+    // playWordAudio(text, fromLanguage);
+    const queryWordInfo = this.props.queryWordInfo;
+    //
+    downloadYoudaoAudio(queryWordInfo, () => {
+      playWordAudio(queryWordInfo.word, fromLanguage);
+    });
   }
 
   render() {
