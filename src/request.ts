@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 10:34
+ * @lastEditTime: 2022-06-28 01:09
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,7 @@ import {
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { TencentTranslateResult, TranslateTypeResult } from "./types";
+import { BaiduTranslateResult, CaiyunTranslateResult, TencentTranslateResult, TranslateTypeResult } from "./types";
 import { TranslateType } from "./consts";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 
@@ -64,7 +64,9 @@ const clientConfig = {
 };
 const client = new TmtClient(clientConfig);
 
-// caclulate axios request cost time
+/**
+ * Caclulate axios request cost time
+ */
 const requestDuration = "request-duration";
 axios.interceptors.request.use(function (config: AxiosRequestConfig) {
   if (config.headers) {
@@ -91,19 +93,22 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
     ProjectId: tencentProjectId,
   };
   const startTime = new Date().getTime();
+
   return new Promise((resolve, reject) => {
-    client.LanguageDetect(params, function (err, response) {
-      if (err) {
-        reject(err);
-      } else {
+    client
+      .LanguageDetect(params)
+      .then((response) => {
         const endTime = new Date().getTime();
         console.warn(`tencen detect: ${response.Lang}, cost: ${endTime - startTime} ms`);
         resolve({
           type: LanguageDetectType.Tencent,
           youdaoLanguageId: response.Lang || "",
         });
-      }
-    });
+      })
+      .catch((err) => {
+        console.error(`tencent detect error: ${err}`);
+        reject(err);
+      });
   });
 }
 
@@ -111,7 +116,7 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
  * 腾讯文本翻译，5次/秒
  * 文档：https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
  */
-export function requestTencentTextTranslate(
+export async function requestTencentTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
@@ -128,20 +133,21 @@ export function requestTencentTextTranslate(
     ProjectId: tencentProjectId,
   };
   const startTime = new Date().getTime();
-  return new Promise((resolve, reject) => {
-    client.TextTranslate(params, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        const endTime = new Date().getTime();
-        console.warn(`tencent translate cost: ${endTime - startTime} ms`);
-        resolve({
-          type: TranslateType.Tencent,
-          result: response as TencentTranslateResult,
-        });
-      }
-    });
-  });
+
+  try {
+    const response = await client.TextTranslate(params);
+    const endTime = new Date().getTime();
+    console.warn(`tencen translate: ${response.TargetText}, cost: ${endTime - startTime} ms`);
+    const typeResult = {
+      type: TranslateType.Tencent,
+      result: response as TencentTranslateResult,
+    };
+    return Promise.resolve(typeResult);
+  } catch (err) {
+    const error = err as { code: string; message: string };
+    console.error(`tencent translate error, code: ${error.code}, message: ${error.message}`);
+    return Promise.reject(err);
+  }
 }
 
 /**
@@ -174,14 +180,20 @@ export function requestYoudaoDictionary(
     to: targetLanguage,
   });
 
-  return new Promise((resolve) => {
-    axios.post(url, params).then((response) => {
-      console.warn(`youdao translate cost: ${response.headers[requestDuration]} ms`);
-      resolve({
-        type: TranslateType.Youdao,
-        result: response.data,
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, params)
+      .then((response) => {
+        console.warn(`youdao translate cost: ${response.headers[requestDuration]} ms`);
+        resolve({
+          type: TranslateType.Youdao,
+          result: response.data,
+        });
+      })
+      .catch((err) => {
+        console.error(`youdao translate error: ${err}`);
+        reject(err);
       });
-    });
   });
 }
 
@@ -210,14 +222,22 @@ export function requestBaiduTextTranslate(
     salt: salt,
     sign: sign,
   };
-  return new Promise((resolve) => {
-    axios.get(url, { params }).then((response) => {
-      console.warn(`baidu cost: ${response.headers[requestDuration]} ms`);
-      resolve({
-        type: TranslateType.Baidu,
-        result: response.data,
+  return new Promise((resolve, reject) => {
+    axios
+      .get(url, { params })
+      .then((response) => {
+        const baiduResult = response.data as BaiduTranslateResult;
+        const translateText = baiduResult.trans_result ? baiduResult.trans_result[0].dst : "";
+        console.warn(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
+        resolve({
+          type: TranslateType.Baidu,
+          result: baiduResult,
+        });
+      })
+      .catch((err) => {
+        console.error(`baidu translate error: ${err}`);
+        reject(err);
       });
-    });
   });
 }
 
@@ -235,9 +255,10 @@ export function requestCaiyunTextTranslate(
   const to = getLanguageItemFromYoudaoId(targetLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
 
-  // Note that Caiyun Xiaoyi only supports these types of translation at present.
+  // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
+    console.log(`caiyun translate not support language: ${from} --> ${to}`);
     return Promise.resolve({
       type: TranslateType.Caiyun,
       result: null,
@@ -259,10 +280,11 @@ export function requestCaiyunTextTranslate(
     axios
       .post(url, params, headers)
       .then((response) => {
-        console.warn(`caiyun cost: ${response.headers[requestDuration]} ms`);
+        const caiyunResult = response.data as CaiyunTranslateResult;
+        console.warn(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestDuration]} ms`);
         resolve({
           type: TranslateType.Caiyun,
-          result: response.data,
+          result: caiyunResult,
         });
       })
       .catch((error) => {

@@ -64,7 +64,6 @@ export async function downloadIcibaWordAudio(word: string, callback?: () => void
       const audioPath = getWordAudioPath(word);
       downloadAudio(phoneticUrl, audioPath, callback);
     }
-
     console.log(`iciba dictionary result: ${JSON.stringify(icibaDictionaryResult, null, 4)}`);
   } catch (error) {
     console.error(`download iciba audio error: ${error}`);

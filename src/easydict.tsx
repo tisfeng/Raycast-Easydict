@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 22:17
+ * @lastEditTime: 2022-06-28 00:14
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -179,142 +179,142 @@ export default function () {
      * first, request youdao translate API, check if should show multiple translations, if not, then end.
      * if need to show multiple translations, then request other translate API.
      */
-    requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
-      .then((result) => {
-        console.log(`is last request: ${isLastRequest}`);
-        if (!isLastRequest) {
-          return;
-        }
 
-        youdaoTranslateTypeResult = result;
-        const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
-        console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
-        const youdaoErrorCode = youdaoResult.errorCode;
-        youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
+    try {
+      youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
+      const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
+      console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
+      const youdaoErrorCode = youdaoResult.errorCode;
+      youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
-        if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
-          console.warn(
-            `youdao error: ${youdaoErrorCode}, request frequency limited, delay ${delayRequestTime} ms to request again`
-          );
-          delayQueryWithTextInfo(queryTextInfo);
-          return;
-        } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
-          console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
-          updateTranslateDisplayResult(null);
-          return;
-        }
-        let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
+      if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
+        console.warn(
+          `youdao error: ${youdaoErrorCode}, request frequency limited, delay ${delayRequestTime} ms to request again`
+        );
+        delayQueryWithTextInfo(queryTextInfo);
+        return;
+      } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
+        console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
+        updateTranslateDisplayResult(null);
+        return;
+      }
+      let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
 
-        // if enable automatic play audio and query is word, then download audio and play it
-        if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord && isLastRequest) {
-          downloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
-        }
+      // if enable automatic play audio and query is word, then download audio and play it
+      if (myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord && isLastRequest) {
+        downloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
+      }
 
-        const [from, to] = youdaoResult.l.split("2"); // from2to
-        if (from === to) {
-          const target = getAutoSelectedTargetLanguageId(from);
-          setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(target));
-          queryTextWithTextInfo(queryTextInfo);
-          return;
-        }
+      const [from, to] = youdaoResult.l.split("2"); // from2to
+      if (from === to) {
+        const target = getAutoSelectedTargetLanguageId(from);
+        setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(target));
+        queryTextWithTextInfo(queryTextInfo);
+        return;
+      }
 
-        setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
-        updateTranslateDisplayResult(formatResult);
-        checkIsInstalledEudic(setIsInstalledEudic);
+      setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
+      updateTranslateDisplayResult(formatResult);
+      checkIsInstalledEudic(setIsInstalledEudic);
 
-        // request other translate API to show multiple translations
-        if (isShowMultipleTranslations(formatResult)) {
-          // check if enable apple translate
-          if (myPreferences.enableAppleTranslate) {
-            appleTranslate(queryTextInfo)
-              .then((translatedText) => {
-                if (translatedText) {
-                  const appleTranslateResult: TranslateTypeResult = {
-                    type: TranslateType.Apple,
-                    result: { translatedText },
-                  };
-                  updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);
-                  updateTranslateDisplayResult(formatResult);
-                }
-              })
-              .catch((error) => {
-                console.warn(`apple translate error: ${error}`);
-              });
-          }
-
-          // check if enable baidu translate
-          if (myPreferences.enableBaiduTranslate) {
-            requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
-              .then((baiduRes) => {
-                const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
-                const baiduErrorCode = baiduTranslateResult.error_code;
-
-                if (baiduErrorCode) {
-                  if (baiduErrorCode === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
-                    delayQueryWithTextInfo(queryTextInfo);
-                    return;
-                  }
-
-                  baiduRes.errorInfo = {
-                    errorCode: baiduErrorCode,
-                    errorMessage: baiduTranslateResult.error_msg || "",
-                  };
-                  showToast({
-                    style: Toast.Style.Failure,
-                    title: `${baiduRes.type}: ${baiduErrorCode}`,
-                    message: baiduRes.errorInfo.errorMessage,
-                  });
-                  console.error(`${baiduRes.type}: ${baiduErrorCode}`);
-                  console.error(baiduRes.errorInfo.errorMessage);
-                } else {
-                  formatResult = updateFormateResultWithBaiduTranslation(baiduRes, formatResult);
-                  updateTranslateDisplayResult(formatResult);
-                }
-              })
-              .catch((err) => {
-                console.error(`requestBaiduTextTranslate error: ${err}`);
-              });
-          }
-
-          // check if enable tencent translate
-          if (myPreferences.enableTencentTranslate) {
-            requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
-              .then((tencentRes) => {
-                formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
+      // request other translate API to show multiple translations
+      if (isShowMultipleTranslations(formatResult)) {
+        // check if enable apple translate
+        if (myPreferences.enableAppleTranslate) {
+          console.log("apple translate start");
+          appleTranslate(queryTextInfo)
+            .then((translatedText) => {
+              if (translatedText) {
+                const appleTranslateResult: TranslateTypeResult = {
+                  type: TranslateType.Apple,
+                  result: { translatedText },
+                };
+                updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);
                 updateTranslateDisplayResult(formatResult);
-              })
-              .catch((err) => {
-                console.error(err);
-              });
-          }
-
-          // check if enable caiyun translate
-          if (myPreferences.enableCaiyunTranslate) {
-            requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
-              .then((caiyunRes) => {
-                if (caiyunRes.errorInfo) {
-                  showToast({
-                    style: Toast.Style.Failure,
-                    title: `${caiyunRes.type.split(" ")[0]} Error: ${caiyunRes.errorInfo.errorCode}`,
-                    message: caiyunRes.errorInfo.errorMessage,
-                  });
-                  console.error(`caiyun error: ${caiyunRes.errorInfo.errorCode}, ${caiyunRes.errorInfo.errorMessage}`);
-                } else {
-                  formatResult = updateFormateResultWithCaiyunTranslation(caiyunRes, formatResult);
-                  updateTranslateDisplayResult(formatResult);
-                }
-              })
-              .catch((err) => {
-                console.error(`requestCaiyunTextTranslate error: ${err}`);
-              });
-          }
+              }
+            })
+            .catch((error) => {
+              console.warn(`apple translate error: ${error}`);
+            });
         }
-      })
-      .catch((error) => {
-        console.warn(`requestYoudaoDictionary error: ${error}`);
-      });
 
-    return;
+        // check if enable baidu translate
+        if (myPreferences.enableBaiduTranslate) {
+          console.log("baidu translate start");
+          requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
+            .then((baiduRes) => {
+              const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
+              const baiduErrorCode = baiduTranslateResult.error_code;
+
+              if (baiduErrorCode) {
+                if (baiduErrorCode === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
+                  delayQueryWithTextInfo(queryTextInfo);
+                  return;
+                }
+
+                baiduRes.errorInfo = {
+                  errorCode: baiduErrorCode,
+                  errorMessage: baiduTranslateResult.error_msg || "",
+                };
+                showToast({
+                  style: Toast.Style.Failure,
+                  title: `${baiduRes.type}: ${baiduErrorCode}`,
+                  message: baiduRes.errorInfo.errorMessage,
+                });
+                console.error(`${baiduRes.type}: ${baiduErrorCode}`);
+                console.error(baiduRes.errorInfo.errorMessage);
+              } else {
+                formatResult = updateFormateResultWithBaiduTranslation(baiduRes, formatResult);
+                updateTranslateDisplayResult(formatResult);
+              }
+            })
+            .catch((err) => {
+              console.error(`requestBaiduTextTranslate error: ${err}`);
+            });
+        }
+
+        // check if enable tencent translate
+        if (myPreferences.enableTencentTranslate) {
+          console.log(`tencent translate start`);
+          requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
+            .then((tencentRes) => {
+              formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
+              updateTranslateDisplayResult(formatResult);
+            })
+            .catch((error) => {
+              showToast({
+                style: Toast.Style.Failure,
+                title: `tencent translate error`,
+                message: error.message,
+              });
+            });
+        }
+
+        // check if enable caiyun translate
+        if (myPreferences.enableCaiyunTranslate) {
+          console.log(`caiyun translate start`);
+          requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
+            .then((caiyunRes) => {
+              if (caiyunRes.errorInfo) {
+                showToast({
+                  style: Toast.Style.Failure,
+                  title: `${caiyunRes.type.split(" ")[0]} Error: ${caiyunRes.errorInfo.errorCode}`,
+                  message: caiyunRes.errorInfo.errorMessage,
+                });
+                console.error(`caiyun error: ${caiyunRes.errorInfo.errorCode}, ${caiyunRes.errorInfo.errorMessage}`);
+              } else {
+                formatResult = updateFormateResultWithCaiyunTranslation(caiyunRes, formatResult);
+                updateTranslateDisplayResult(formatResult);
+              }
+            })
+            .catch((err) => {
+              console.error(`requestCaiyunTextTranslate error: ${err}`);
+            });
+        }
+      }
+    } catch (error) {
+      console.warn(`requestYoudaoDictionary error: ${error}`);
+    }
   }
 
   /**

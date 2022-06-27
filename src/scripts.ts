@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 22:18
+ * @lastEditTime: 2022-06-28 01:02
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -65,6 +65,9 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
+    console.log(
+      `apple translate may not support auto translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
+    );
   }
   const object = Object.fromEntries(map.entries());
   const jsonString = JSON.stringify(object);
