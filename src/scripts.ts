@@ -2,14 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 14:16
+ * @lastEditTime: 2022-06-27 22:18
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
-import querystring from "node:querystring";
 import { exec, execFile } from "child_process";
 import { QueryTextInfo } from "./types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
@@ -17,7 +16,9 @@ import { eudicBundleId } from "./components";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
 /**
- * run DetectLanguage shortcuts with the given text, return promise
+ * run LanguageDetect shortcuts with the given text, return promise
+ *
+ * * NOTE: Apple language detect support more languages than apple translate!
  */
 export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const startTime = new Date().getTime();
@@ -51,12 +52,25 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
     return Promise.resolve(undefined);
   }
 
-  const jsonString = querystring.stringify({
-    text: queryTextInfo.queryText,
-    from: appleFromLanguageId,
-    to: appleToLanguageId,
-  });
-  const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", jsonString);
+  const map = new Map([
+    ["text", queryTextInfo.queryText],
+    ["from", appleFromLanguageId], // * NOTE: if no from language, it will auto detect
+    ["to", appleToLanguageId],
+  ]);
+  /**
+   * * NOTE: thought apple translate support auto detect language, but it seems only support 12 languages currently that listed in consts.ts.
+   * * If use auto detect and detected language is outside of 12 languages, it will throw language not support error.
+   *
+   * ? execution error: “Shortcuts Events”遇到一个错误：“翻译”可能不支持所提供文本的语言。 (-1753)
+   */
+  if (appleFromLanguageId === "auto") {
+    map.delete("from"); // means use apple language auto detect
+  }
+  const object = Object.fromEntries(map.entries());
+  const jsonString = JSON.stringify(object);
+  // console.warn(`jsonString: ${jsonString}`); // {"text":"jsonString","from":"en_US","to":"zh_CN"}
+
+  const appleScript = getShortcutsScript("Easydict-Translate-V1.3.0", jsonString);
   return new Promise((resolve, reject) => {
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {

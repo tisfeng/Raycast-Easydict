@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 18:08
+ * @lastEditTime: 2022-06-27 21:05
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -126,8 +126,7 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
   if (fs.existsSync(audioPath)) {
     if (!forceDownload) {
       const word = audioPath.substring(audioPath.lastIndexOf("/") + 1);
-
-      console.log(`download audio has exist: [${word}], url: ${url}`);
+      console.log(`download audio has exist: ${word}`);
       callback && callback();
       return;
     }

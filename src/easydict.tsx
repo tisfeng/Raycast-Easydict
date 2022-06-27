@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 18:05
+ * @lastEditTime: 2022-06-27 22:17
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,10 +54,9 @@ import {
   updateFormateResultWithTencentTranslation,
   updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
-import { playWordAudio } from "./audio";
-import { downloadYoudaoAudio, downloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 import { LanguageDetectTypeResult, detectLanguage, getFinalConfirmedLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
+import { downloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -245,7 +244,6 @@ export default function () {
 
           // check if enable baidu translate
           if (myPreferences.enableBaiduTranslate) {
-            console.log("requestBaiduTextTranslate");
             requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
               .then((baiduRes) => {
                 const baiduTranslateResult = baiduRes.result as BaiduTranslateResult;
@@ -280,7 +278,6 @@ export default function () {
 
           // check if enable tencent translate
           if (myPreferences.enableTencentTranslate) {
-            console.log(`requestTencentTextTranslate`);
             requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
               .then((tencentRes) => {
                 formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
@@ -293,7 +290,6 @@ export default function () {
 
           // check if enable caiyun translate
           if (myPreferences.enableCaiyunTranslate) {
-            console.log("requestCaiyunTextTranslate");
             requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
               .then((caiyunRes) => {
                 if (caiyunRes.errorInfo) {
