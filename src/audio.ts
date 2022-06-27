@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 13:07
+ * @lastEditTime: 2022-06-27 13:20
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,13 @@ const player = playerImport({});
 /**
  * Max length of text to play sound, to avoid play sound too long that can't be stoped.
  */
-export const maxPlaySoundTextLength = 40;
+export const maxTextLengthOfSayCommandToPlaySound = 40;
+
+/**
+ * Max length of text to download youdao tts audio
+ */
+export const maxTextLengthOfDownloadYoudaoTTSAudio = 20;
+
 const audioDirPath = `${environment.supportPath}/audio`;
 
 /**
@@ -29,11 +35,9 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   const audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
     console.warn(`audio file not found: ${audioPath}`);
-
     if (useSayCommand) {
       sayTruncateCommand(word, fromLanguage);
     }
-
     return;
   }
 
@@ -42,7 +46,6 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
       console.error(`play word audio error: ${err}`);
       console.log(`audioPath: ${audioPath}`);
-
       sayTruncateCommand(word, fromLanguage);
     }
   });
@@ -70,8 +73,8 @@ function afplayAudioPath(audioPath: string) {
   use shell say to play text sound, if text is too long, truncate it.
   */
 export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
-  if (text.length > maxPlaySoundTextLength) {
-    text = text.substring(0, maxPlaySoundTextLength) + "...";
+  if (text.length > maxTextLengthOfSayCommandToPlaySound) {
+    text = text.substring(0, maxTextLengthOfSayCommandToPlaySound) + "...";
   }
   sayCommand(text, youdaoLanguageId);
 }
