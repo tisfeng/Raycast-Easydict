@@ -302,7 +302,7 @@
       "type": "checkbox",
       "label": "Apple Language Detect",
       "required": false,
-      "description": "A detect shortcut is required, please see README for more details",
+      "description": "Need to install an apple language detect shortcut, please see README for more details",
       "default": false
     },
     {
@@ -310,7 +310,7 @@
       "type": "checkbox",
       "label": "Apple Translate",
       "required": false,
-      "description": "A translate shortcut is required, please see README for more details",
+      "description": "Need to install an apple translate shortcut, please see README for more details",
       "default": false
     },
     {

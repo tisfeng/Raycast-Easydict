@@ -1,7 +1,13 @@
 <p align="center">
   <img src="assets/eudic-icon.png" height="128">
   <h1 align="center">Easydict</h1>
+  <h3 align="center"> Easy to look up words or translate text.</p>
+<p align="center">🇨🇳 🇬🇧 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿</p>
 </p>
+
+<a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
+    <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+</a>
 
 ## What is Easydict? [【中文简介】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
@@ -92,7 +98,7 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 <p>
 
-Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query `, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
+Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
 
 Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
 
