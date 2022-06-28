@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 01:02
+ * @lastEditTime: 2022-06-28 12:49
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import { QueryTextInfo } from "./types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
 import { getLanguageItemFromYoudaoId } from "./utils";
+import querystring from "node:querystring";
 
 /**
  * run LanguageDetect shortcuts with the given text, return promise
@@ -41,7 +42,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
 }
 
 /**
- * run apple Translate shortcuts with the given QueryWordInfo, return promise
+ * Run apple Translate shortcuts with the given QueryWordInfo, return promise
  */
 export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
   const startTime = new Date().getTime();
@@ -66,16 +67,22 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
     console.log(
-      `apple translate may not support auto translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
+      `Apple translate currently not support translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
     );
   }
-  const object = Object.fromEntries(map.entries());
-  const jsonString = JSON.stringify(object);
-  // console.warn(`jsonString: ${jsonString}`); // {"text":"jsonString","from":"en_US","to":"zh_CN"}
 
-  const appleScript = getShortcutsScript("Easydict-Translate-V1.3.0", jsonString);
+  const object = Object.fromEntries(map.entries());
+  /**
+   *  const jsonString = JSON.stringify(object); // {"text":"jsonString","from":"en_US","to":"zh_CN"}
+   *  It seems that this method cannot handle special characters.: you're so beautiful, my "unfair" girl
+   */
+  const queryString = querystring.stringify(object);
+  console.warn(`queryString: ${queryString}`); // text=girl&from=en_US&to=zh_CN
+
+  const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {
-    exec(`osascript -e '${appleScript}'`, (error, stdout) => {
+    const command = `osascript -e '${appleScript}'`;
+    exec(command, (error, stdout) => {
       if (error) {
         reject(error);
       }
@@ -83,6 +90,10 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
       resolve(translateText);
       const endTime = new Date().getTime();
       console.warn(`apple translate: ${translateText}, cost: ${endTime - startTime} ms`);
+      if (translateText.length === 0) {
+        console.log(`apple translate error?: ${translateText}`);
+        console.log(`${command}`);
+      }
     });
   });
 }
@@ -97,7 +108,7 @@ function getShortcutsScript(shortcutName: string, input: string): string {
    * * NOTE: First, exec osascript -e 'xxx', internal param only allow double quote, so single quote have to be instead of double quote.
    * * Then, the double quote in the input must be escaped.
    */
-  const escapedInput = input.replace(/'/g, '"').replace(/"/g, '\\"'); // test: you're so beautiful, my "unfair" girl
+  const escapedInput = input.replace(/'/g, '"').replace(/"/g, '\\"'); // test: oh girl you're so beautiful, my "unfair" girl
   const appleScriptContent = `
         tell application "Shortcuts Events"
           run the shortcut named "${shortcutName}" with input "${escapedInput}"
