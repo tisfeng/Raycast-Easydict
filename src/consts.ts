@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 15:41
+ * @lastEditTime: 2022-06-28 20:16
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,11 +27,11 @@ export enum SectionType {
 }
 
 export enum TranslateType {
-  Youdao = "Youdao Translate",
-  Baidu = "Baidu Translate",
-  Tencent = "Tencent Translate",
-  Caiyun = "Caiyun Translate",
-  Apple = "Apple Translate",
+  Youdao = "Youdao",
+  Baidu = "Baidu",
+  Tencent = "Tencent",
+  Caiyun = "Caiyun",
+  Apple = "Apple",
 }
 
 export enum DicionaryType {

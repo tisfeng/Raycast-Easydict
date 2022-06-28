@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-26 20:41
+ * @lastEditTime: 2022-06-28 21:15
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -161,7 +161,7 @@ export function sortTranslations(formatResult: TranslateFormatResult): Translate
 }
 
 /**
- * Convert the formatted query results to a format that can be directly used for UI display.
+ * Format translate results so that can be directly used for UI display.
  */
 export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): TranslateDisplayResult[] {
   const displayResult: Array<TranslateDisplayResult> = [];
@@ -171,19 +171,20 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
 
   const showMultipleTranslations = isShowMultipleTranslations(formatResult);
 
-  for (const [i, translation] of formatResult.translations.entries()) {
-    const sectionType = showMultipleTranslations ? translation.type : SectionType.Translation;
-    const sectionTitle: TranslateType | SectionType = sectionType;
-    let tooltip: string = translation.type;
+  for (const [i, translateItem] of formatResult.translations.entries()) {
+    const sectionType = showMultipleTranslations ? translateItem.type : SectionType.Translation;
 
+    let sectionTitle = SectionType.Translation.toString();
+    let tooltip = `${translateItem.type.toString()} translate`;
+
+    // don't show tooltip when show multiple translations
     if (showMultipleTranslations) {
+      sectionTitle = tooltip;
       tooltip = "";
     }
 
-    const oneLineTranslation = translation.text.split("\n").join(" ");
-
+    const oneLineTranslation = translateItem.text.split("\n").join(" ");
     const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
-
     const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
     const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
 
@@ -193,7 +194,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
       items: [
         {
           key: oneLineTranslation + i,
-          title: oneLineTranslation,
+          title: ` ${oneLineTranslation}`,
           subtitle: wordSubtitle,
           tooltip: tooltip,
           copyText: oneLineTranslation,

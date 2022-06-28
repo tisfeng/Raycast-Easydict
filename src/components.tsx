@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 17:00
+ * @lastEditTime: 2022-06-28 21:13
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,7 @@ export const eudicBundleId = "com.eusoft.freeeudic";
 
 export function getPlaySoundIcon(lightTintColor: string) {
   return {
-    source: { light: "speak.png", dark: "speak.png" },
+    source: { light: "play.png", dark: "play.png" },
     tintColor: { light: lightTintColor, dark: "lightgray" },
   };
 }
@@ -78,7 +78,22 @@ export function getListItemIcon(sectionType: SectionType | TranslateType): Image
   if (sectionType === SectionType.Forms) {
     itemIcon = Icon.Text;
   }
+
+  if (sectionType in TranslateType) {
+    itemIcon = getTranslateTypeIcon(sectionType as TranslateType);
+  }
+
   return itemIcon;
+}
+
+/**
+ * Get translate type icon based on the section type
+ */
+function getTranslateTypeIcon(translatType: TranslateType): Image.ImageLike {
+  return {
+    source: `${translatType}-Translate.png`,
+    mask: Image.Mask.RoundedRectangle,
+  };
 }
 
 /**
