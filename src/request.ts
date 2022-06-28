@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 01:09
+ * @lastEditTime: 2022-06-28 17:07
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,13 @@ import {
   myPreferences,
 } from "./utils";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { BaiduTranslateResult, CaiyunTranslateResult, TencentTranslateResult, TranslateTypeResult } from "./types";
+import {
+  BaiduTranslateResult,
+  CaiyunTranslateResult,
+  RequestErrorInfo,
+  TencentTranslateResult,
+  TranslateTypeResult,
+} from "./types";
 import { TranslateType } from "./consts";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 
@@ -87,29 +93,31 @@ axios.interceptors.response.use(function (response) {
  * 腾讯语种识别，5次/秒
  * doc: https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
  */
-export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+export async function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {
     Text: text,
     ProjectId: tencentProjectId,
   };
   const startTime = new Date().getTime();
-
-  return new Promise((resolve, reject) => {
-    client
-      .LanguageDetect(params)
-      .then((response) => {
-        const endTime = new Date().getTime();
-        console.warn(`tencen detect: ${response.Lang}, cost: ${endTime - startTime} ms`);
-        resolve({
-          type: LanguageDetectType.Tencent,
-          youdaoLanguageId: response.Lang || "",
-        });
-      })
-      .catch((err) => {
-        console.error(`tencent detect error: ${err}`);
-        reject(err);
-      });
-  });
+  try {
+    const response = await client.LanguageDetect(params);
+    const endTime = new Date().getTime();
+    console.warn(`tencent detect cost time: ${endTime - startTime} ms`);
+    const typeResult = {
+      type: LanguageDetectType.Tencent,
+      youdaoLanguageId: response.Lang || "",
+    };
+    return Promise.resolve(typeResult);
+  } catch (err) {
+    const error = err as { code: string; message: string };
+    console.error(`tencent translate error, code: ${error.code}, message: ${error.message}`);
+    const errorInfo: RequestErrorInfo = {
+      type: TranslateType.Tencent,
+      code: error.code,
+      message: error.message,
+    };
+    return Promise.reject(errorInfo);
+  }
 }
 
 /**
@@ -146,7 +154,12 @@ export async function requestTencentTextTranslate(
   } catch (err) {
     const error = err as { code: string; message: string };
     console.error(`tencent translate error, code: ${error.code}, message: ${error.message}`);
-    return Promise.reject(err);
+    const errorInfo: RequestErrorInfo = {
+      type: TranslateType.Tencent,
+      code: error.code,
+      message: error.message,
+    };
+    return Promise.reject(errorInfo);
   }
 }
 
@@ -190,9 +203,10 @@ export function requestYoudaoDictionary(
           result: response.data,
         });
       })
-      .catch((err) => {
-        console.error(`youdao translate error: ${err}`);
-        reject(err);
+      .catch((error) => {
+        // It seems that Youdao will never reject, always resolve...
+        console.error(`youdao translate error: ${error}`);
+        reject(error);
       });
   });
 }
@@ -227,14 +241,25 @@ export function requestBaiduTextTranslate(
       .get(url, { params })
       .then((response) => {
         const baiduResult = response.data as BaiduTranslateResult;
-        const translateText = baiduResult.trans_result ? baiduResult.trans_result[0].dst : "";
-        console.warn(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
-        resolve({
-          type: TranslateType.Baidu,
-          result: baiduResult,
-        });
+        if (baiduResult.trans_result) {
+          const translateText = baiduResult.trans_result[0].dst;
+          console.warn(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
+          resolve({
+            type: TranslateType.Baidu,
+            result: baiduResult,
+          });
+        } else {
+          console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`);
+          const errorInfo: RequestErrorInfo = {
+            type: TranslateType.Baidu,
+            code: baiduResult.error_code || "",
+            message: baiduResult.error_msg || "",
+          };
+          reject(errorInfo);
+        }
       })
       .catch((err) => {
+        // It seems that Baidu will never reject, always resolve...
         console.error(`baidu translate error: ${err}`);
         reject(err);
       });
@@ -243,7 +268,7 @@ export function requestBaiduTextTranslate(
 
 /**
  * 彩云小译
- * 文档：https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/#python-%E8%B0%83%E7%94%A8
+ * 文档：https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
 export function requestCaiyunTextTranslate(
   queryText: string,
@@ -276,7 +301,7 @@ export function requestCaiyunTextTranslate(
       "x-authorization": "token " + caiyunToken,
     },
   };
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .post(url, params, headers)
       .then((response) => {
@@ -288,15 +313,13 @@ export function requestCaiyunTextTranslate(
         });
       })
       .catch((error) => {
-        resolve({
+        const errorInfo: RequestErrorInfo = {
           type: TranslateType.Caiyun,
-          result: null,
-          errorInfo: {
-            errorCode: error.response.status,
-            errorMessage: error.response.statusText,
-          },
-        });
-        console.error("response: ", error.response);
+          code: error.response.status,
+          message: error.response.statusText,
+        };
+        reject(errorInfo);
+        console.error("caiyun error response: ", error.response);
       });
   });
 }

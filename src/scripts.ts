@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 12:49
+ * @lastEditTime: 2022-06-28 15:22
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -135,3 +135,15 @@ export const openInEudic = (queryText: string) => {
     console.log(`openInEudic: ${stdout}`);
   });
 };
+
+/**
+ * Exec osascript to post notification with title and content
+ */
+export function postNotification(content: string, title: string, subtitle = "") {
+  const appleScript = `osascript -e 'display notification "${content}" with title "${title}" subtitle "${subtitle}"'`;
+  exec(appleScript, (error) => {
+    if (error) {
+      console.log("postNotification error:", error);
+    }
+  });
+}

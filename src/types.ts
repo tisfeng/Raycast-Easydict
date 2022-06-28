@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 00:02
+ * @lastEditTime: 2022-06-28 16:32
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import { DicionaryType, SectionType, TranslateType } from "./consts";
+import { RequestType, SectionType, TranslateType } from "./consts";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 
 export interface QueryTextInfo {
@@ -19,7 +19,7 @@ export interface QueryTextInfo {
 }
 
 export interface TranslateTypeResult {
-  type: TranslateType | DicionaryType;
+  type: RequestType;
   result:
     | YoudaoTranslateResult
     | BaiduTranslateResult
@@ -124,8 +124,9 @@ export interface ListItemActionPanelItem {
 }
 
 export interface RequestErrorInfo {
-  errorCode: string;
-  errorMessage: string;
+  code: string;
+  message: string;
+  type?: RequestType;
 }
 
 export interface LanguageItem {

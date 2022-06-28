@@ -39,8 +39,8 @@ export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
           type: DicionaryType.Iciba,
           result: null,
           errorInfo: {
-            errorCode: error.response.status,
-            errorMessage: error.response.statusText,
+            code: error.response.status,
+            message: error.response.statusText,
           },
         });
       });

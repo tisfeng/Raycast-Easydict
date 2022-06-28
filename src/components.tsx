@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 16:59
+ * @lastEditTime: 2022-06-28 17:00
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -128,7 +128,7 @@ export function ActionFeedback() {
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text: string, fromLanguage: string) {
-    console.log(`play sound: ${text}`);
+    console.log(`start play sound: ${text}`);
     // playWordAudio(text, fromLanguage);
     const queryWordInfo = this.props.queryWordInfo;
     //

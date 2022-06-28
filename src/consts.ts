@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 12:29
+ * @lastEditTime: 2022-06-28 15:41
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { LanguageDetectType } from "./detectLanguage";
 import { LanguageItem, RequestErrorInfo } from "./types";
 
 export const clipboardQueryTextKey = "clipboardQueryTextKey";
@@ -38,6 +39,8 @@ export enum DicionaryType {
   Iciba = "Iciba Dictionary",
 }
 
+export type RequestType = TranslateType | DicionaryType | LanguageDetectType;
+
 export enum YoudaoRequestStateCode {
   Success = "0",
   AccessFrequencyLimited = "207",
@@ -60,32 +63,32 @@ export const youdaoErrorCodeUrl = encodeURI(
 
 export const youdaoErrorList: RequestErrorInfo[] = [
   {
-    errorCode: YoudaoRequestStateCode.Success,
-    errorMessage: "Success",
+    code: YoudaoRequestStateCode.Success,
+    message: "Success",
   },
   {
-    errorCode: YoudaoRequestStateCode.AccessFrequencyLimited,
-    errorMessage: "Access frequency limited",
+    code: YoudaoRequestStateCode.AccessFrequencyLimited,
+    message: "Access frequency limited",
   },
   {
-    errorCode: YoudaoRequestStateCode.InsufficientAccountBalance,
-    errorMessage: "Insufficient account balance",
+    code: YoudaoRequestStateCode.InsufficientAccountBalance,
+    message: "Insufficient account balance",
   },
   {
-    errorCode: YoudaoRequestStateCode.TargetLanguageNotSupported,
-    errorMessage: "Target language not supported",
+    code: YoudaoRequestStateCode.TargetLanguageNotSupported,
+    message: "Target language not supported",
   },
   {
-    errorCode: YoudaoRequestStateCode.TranslationQueryFailed,
-    errorMessage: "Translation query failed",
+    code: YoudaoRequestStateCode.TranslationQueryFailed,
+    message: "Translation query failed",
   },
 ];
 
 export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
   return (
-    youdaoErrorList.find((item) => item.errorCode === errorCode) || {
-      errorCode,
-      errorMessage: "",
+    youdaoErrorList.find((item) => item.code === errorCode) || {
+      code: errorCode,
+      message: "",
     }
   );
 }
