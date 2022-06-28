@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 16:32
+ * @lastEditTime: 2022-06-28 23:35
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -133,6 +133,7 @@ export interface LanguageItem {
   youdaoLanguageId: string;
   appleLanguageId?: string; // apple language id, apple translate support 12 languages
   appleChineseLanguageTitle?: string; // apple Chinese language title, 中文，英语
+  francLanguageId: string; // the languages represented by ISO 639-3
   aliyunLanguageId: string;
   tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
   tencentLanguageId?: string;

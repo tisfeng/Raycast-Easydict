@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 17:05
+ * @lastEditTime: 2022-06-28 23:35
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,6 +76,16 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
   for (const langItem of languageItemList) {
     if (langItem.appleChineseLanguageTitle === chineseTitle) {
+      return langItem;
+    }
+  }
+  return languageItemList[0];
+}
+
+// get language item from franc language id
+export function getLanguageItemFromFrancLanguageId(francLanguageId: string): LanguageItem {
+  for (const langItem of languageItemList) {
+    if (langItem.francLanguageId === francLanguageId) {
       return langItem;
     }
   }

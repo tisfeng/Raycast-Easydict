@@ -33,6 +33,7 @@
     "@raycast/api": "^1.35.1",
     "axios": "^0.25.0",
     "crypto-js": "^4.1.1",
+    "franc": "^6.0.0",
     "play-sound": "^1.1.5",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },

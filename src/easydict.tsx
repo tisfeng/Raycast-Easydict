@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 17:08
+ * @lastEditTime: 2022-06-28 23:40
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,7 @@ import {
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
+  languageItemList,
   maxInputTextLength,
   TranslateType,
   youdaoErrorCodeUrl,
@@ -34,6 +35,7 @@ import {
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
+  getLanguageItemFromFrancLanguageId,
   getYoudaoWebTranslateURL,
   myPreferences,
   isTranslateResultTooLong,
@@ -64,6 +66,8 @@ let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
  * when has new input text, need to cancel previous request
  */
 let isLastRequest = true;
+import { franc, francAll } from "franc";
+
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
@@ -261,6 +265,24 @@ export default function () {
               });
             });
         }
+        // get all franc language id from languageItemList
+        const francLanguageIdList = languageItemList.map((item) => item.francLanguageId);
+
+        const francLanguageId = franc(searchText, { minLength: 1 });
+        const fromLanguageItem = getLanguageItemFromFrancLanguageId(francLanguageId);
+        console.log(`${fromLanguageItem.youdaoLanguageId}, francId: ${francLanguageId}`);
+
+        console.log(francAll(searchText, { minLength: 1, only: francLanguageIdList }));
+
+        // franc('Alle menslike wesens word vry') // => 'afr'
+        // franc('এটি একটি ভাষা একক IBM স্ক্রিপ্ট') // => 'ben'
+        // franc('Alle menneske er fødde til fridom') // => 'nno'
+
+        // franc('') // => 'und' (language code that stands for undetermined)
+
+        // // You can change what’s too short (default: 10):
+        // franc('the') // => 'und'
+        // franc('the', {minLength: 3}) // => 'sco'
 
         // check if enable tencent translate
         if (myPreferences.enableTencentTranslate) {
