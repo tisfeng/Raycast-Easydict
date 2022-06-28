@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="assets/eudic-icon.png" height="128">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/eudic-icon.png" height="128">
   <h1 align="center">Easydict</h1>
-  <h3 align="center"> Easy to look up words or translate text.</p>
+  <h4 align="center"> Easy to look up words or translate text.</p>
 <p align="center">🇨🇳 🇬🇧 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿</p>
 </p>
 
@@ -12,6 +12,8 @@
 ## What is Easydict? [【中文简介】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
 `Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, Baidu, Tencent, Youdao and Caiyun translation API.
+
+If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!
 
 ![easydict-1](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-1.png)
 
