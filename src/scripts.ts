@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 20:12
+ * @lastEditTime: 2022-06-30 00:24
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -129,7 +129,7 @@ function getShortcutsScript(shortcutName: string, input: string): string {
  */
 export const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
-  execFile("open", [url], (error, stdout) => {
+  execFile("open", [url], (error) => {
     if (error) {
       console.log("error:", error);
       LocalStorage.removeItem(eudicBundleId);
@@ -139,7 +139,6 @@ export const openInEudic = (queryText: string) => {
         style: Toast.Style.Failure,
       });
     }
-    console.log(`openInEudic: ${stdout}`);
   });
 };
 
