@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 23:36
+ * @lastEditTime: 2022-06-29 09:34
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -100,7 +100,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "auto",
     appleLanguageId: "auto",
-    francLanguageId: "auto",
+    francLanguageId: "auto", // this is also 'und', means undetermined
     aliyunLanguageId: "auto",
     tencentLanguageId: "auto",
     baiduLanguageId: "auto",

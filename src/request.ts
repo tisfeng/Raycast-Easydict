@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 23:35
+ * @lastEditTime: 2022-06-29 11:01
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -91,7 +91,7 @@ axios.interceptors.response.use(function (response) {
 
 /**
  * 腾讯语种识别，5次/秒
- * doc: https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
+ * Docs: https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
  */
 export async function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {
@@ -106,6 +106,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     const typeResult = {
       type: LanguageDetectType.Tencent,
       youdaoLanguageId: response.Lang || "",
+      confirmed: false,
     };
     return Promise.resolve(typeResult);
   } catch (err) {
@@ -122,7 +123,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
 
 /**
  * 腾讯文本翻译，5次/秒
- * 文档：https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
+ * Docs: https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
  */
 export async function requestTencentTextTranslate(
   queryText: string,
@@ -165,7 +166,7 @@ export async function requestTencentTextTranslate(
 
 /**
  * 有道翻译
- * 文档：https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+ * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
 export function requestYoudaoDictionary(
   queryText: string,
@@ -214,7 +215,7 @@ export function requestYoudaoDictionary(
 //
 /**
  * 百度翻译API
- * 文档：https://fanyi-api.baidu.com/doc/21
+ * Docs: https://fanyi-api.baidu.com/doc/21
  */
 export function requestBaiduTextTranslate(
   queryText: string,
@@ -268,7 +269,7 @@ export function requestBaiduTextTranslate(
 
 /**
  * 彩云小译
- * 文档：https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
+ * Docs: https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
 export function requestCaiyunTextTranslate(
   queryText: string,

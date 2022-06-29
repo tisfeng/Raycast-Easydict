@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 23:35
+ * @lastEditTime: 2022-06-29 10:14
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -124,8 +124,8 @@ export interface ListItemActionPanelItem {
 }
 
 export interface RequestErrorInfo {
-  code: string;
   message: string;
+  code?: string;
   type?: RequestType;
 }
 

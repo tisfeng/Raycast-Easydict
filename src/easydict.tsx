@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 23:40
+ * @lastEditTime: 2022-06-29 15:39
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,6 @@ import {
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
-  languageItemList,
   maxInputTextLength,
   TranslateType,
   youdaoErrorCodeUrl,
@@ -35,7 +34,6 @@ import {
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getEudicWebTranslateURL,
-  getLanguageItemFromFrancLanguageId,
   getYoudaoWebTranslateURL,
   myPreferences,
   isTranslateResultTooLong,
@@ -56,7 +54,7 @@ import {
   updateFormateResultWithTencentTranslation,
   updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
-import { LanguageDetectTypeResult, detectLanguage, getFinalConfirmedLanguage } from "./detectLanguage";
+import { LanguageDetectTypeResult, detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 import { downloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 
@@ -66,8 +64,8 @@ let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
  * when has new input text, need to cancel previous request
  */
 let isLastRequest = true;
-import { franc, francAll } from "franc";
 
+// Todo: need to refactor this two timer
 let delayFetchTranslateAPITimer: NodeJS.Timeout;
 let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
 
@@ -132,20 +130,15 @@ export default function () {
   }
 
   /**
-   * query text, automatically detect the language of input text
+   * Query text, automatically detect the language of input text
    */
   function queryText(text: string) {
     setLoadingState(true);
     clearTimeout(delayUpdateTargetLanguageTimer);
 
-    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult, confirmed) => {
-      console.log(`detectLanguage: ${JSON.stringify(detectTypeResult)}, confirmed: ${confirmed}`);
-      let finalConfirmedLanguage = detectTypeResult.youdaoLanguageId;
-      if (!confirmed) {
-        finalConfirmedLanguage = getFinalConfirmedLanguage(text, detectTypeResult.youdaoLanguageId);
-      }
-      console.warn(`final confirmed language: ${finalConfirmedLanguage}`);
-      queryTextWithFromLanguageId(finalConfirmedLanguage);
+    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult) => {
+      console.log(`---> confirmed: ${detectTypeResult.confirmed}, detectLanguage: ${JSON.stringify(detectTypeResult)}`);
+      queryTextWithFromLanguageId(detectTypeResult.youdaoLanguageId);
     });
   }
 
@@ -178,7 +171,7 @@ export default function () {
       queryTextInfo.fromLanguage,
       queryTextInfo.toLanguage,
     ];
-    console.warn(`query text fromTo: ${fromLanguage} -> ${toLanguage}`);
+    console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
     /**
      * first, request youdao translate API, check if should show multiple translations, if not, then end.
      * if need to show multiple translations, then request other translate API.
@@ -255,6 +248,7 @@ export default function () {
               const errorInfo = err as RequestErrorInfo;
               // * if error is access frequency limited, then delay request again
               if (errorInfo.code === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
+                // Todo: only try request Baidu translate again.
                 delayQueryWithTextInfo(queryTextInfo);
                 return;
               }
@@ -265,24 +259,6 @@ export default function () {
               });
             });
         }
-        // get all franc language id from languageItemList
-        const francLanguageIdList = languageItemList.map((item) => item.francLanguageId);
-
-        const francLanguageId = franc(searchText, { minLength: 1 });
-        const fromLanguageItem = getLanguageItemFromFrancLanguageId(francLanguageId);
-        console.log(`${fromLanguageItem.youdaoLanguageId}, francId: ${francLanguageId}`);
-
-        console.log(francAll(searchText, { minLength: 1, only: francLanguageIdList }));
-
-        // franc('Alle menslike wesens word vry') // => 'afr'
-        // franc('এটি একটি ভাষা একক IBM স্ক্রিপ্ট') // => 'ben'
-        // franc('Alle menneske er fødde til fridom') // => 'nno'
-
-        // franc('') // => 'und' (language code that stands for undetermined)
-
-        // // You can change what’s too short (default: 10):
-        // franc('the') // => 'und'
-        // franc('the', {minLength: 3}) // => 'sco'
 
         // check if enable tencent translate
         if (myPreferences.enableTencentTranslate) {

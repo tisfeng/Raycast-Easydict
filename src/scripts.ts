@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 15:22
+ * @lastEditTime: 2022-06-29 10:55
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
-import { QueryTextInfo } from "./types";
+import { QueryTextInfo, RequestErrorInfo } from "./types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
 import { getLanguageItemFromYoudaoId } from "./utils";
@@ -28,11 +28,18 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
     // * NOTE: osascript -e param only support single quote 'xxx'
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {
-        reject(error);
+        const errorInfo: RequestErrorInfo = {
+          type: LanguageDetectType.Apple,
+          message: error.message,
+          code: error.code?.toString(),
+        };
+        reject(errorInfo);
       }
+
       const detectTypeResult: LanguageDetectTypeResult = {
         type: LanguageDetectType.Apple,
         youdaoLanguageId: stdout.trim(), // NOTE: need trim()
+        confirmed: false,
       };
       resolve(detectTypeResult);
       const endTime = new Date().getTime();
