@@ -100,7 +100,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "auto",
     appleLanguageId: "auto",
-    francLanguageId: "auto", // this is also 'und', means undetermined
+    francLanguageId: "und", // 'und', means undetermined
     aliyunLanguageId: "auto",
     tencentLanguageId: "auto",
     baiduLanguageId: "auto",

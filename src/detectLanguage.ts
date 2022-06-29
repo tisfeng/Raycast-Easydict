@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 18:27
+ * @lastEditTime: 2022-06-29 18:42
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -288,10 +288,10 @@ export function localDetectTextLanguage(text: string): LanguageDetectTypeResult 
  * if franc detect language list contains preferred language && confidence > 0, use it and mark it as confirmed = true.
  * else use the first language in franc detect language list, and mark it as confirmed = false.
  *
- * * NOTE: Result youdaoLanguageId may be 'und'.
+ * * NOTE: result youdaoLanguageId may be 'und'.
  */
 function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
-  let detectedLanguageId = "und"; // language code that stands for undetermined
+  let detectedLanguageId = "und"; // 'und', language code that stands for undetermined
   let confirmed = false;
 
   // get all franc language id from languageItemList
@@ -311,7 +311,7 @@ function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
       // console.log(`franc: ${youdaoLanguageId}, score: ${confidence}`);
       if (isPreferredLanguage(youdaoLanguageId)) {
         console.log(`---> franc detect confirmed language: ${youdaoLanguageId}, confidence: ${confidence}`);
-        detectedLanguageId = youdaoLanguageId;
+        detectedLanguageId = youdaoLanguageId; // ? may be 'und'?
         confirmed = true;
         break;
       }
@@ -320,7 +320,8 @@ function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
 
   // if no preferred language detected, use the first language in the detectLanguageIdList
   if (!confirmed) {
-    detectedLanguageId = detectedLanguageIdList[0];
+    const detectedFrancLanguageId = detectedLanguageIdList[0];
+    detectedLanguageId = getLanguageItemFromFrancId(detectedFrancLanguageId).youdaoLanguageId;
   }
 
   const detectTypeResult = {
