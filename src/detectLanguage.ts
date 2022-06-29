@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 18:11
+ * @lastEditTime: 2022-06-29 18:27
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -296,6 +296,7 @@ function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
 
   // get all franc language id from languageItemList
   const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLanguageId);
+
   const francDetectLanguageIdList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
   console.log("franc detect list:", francDetectLanguageIdList);
 

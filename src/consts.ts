@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 17:22
+ * @lastEditTime: 2022-06-29 18:24
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -250,7 +250,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "ar",
     appleLanguageId: "ar_AE",
     appleChineseLanguageTitle: "阿拉伯语",
-    francLanguageId: "ara",
+    francLanguageId: "arb",
     aliyunLanguageId: "ar",
     tencentLanguageId: "ar",
     baiduLanguageId: "ara",
