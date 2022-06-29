@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 10:55
+ * @lastEditTime: 2022-06-29 16:27
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,7 @@ import querystring from "node:querystring";
  */
 export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const startTime = new Date().getTime();
-  const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
+  const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0 ", text);
   return new Promise((resolve, reject) => {
     // * NOTE: osascript -e param only support single quote 'xxx'
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {

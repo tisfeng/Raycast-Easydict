@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 11:01
+ * @lastEditTime: 2022-06-29 16:43
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -111,7 +111,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     return Promise.resolve(typeResult);
   } catch (err) {
     const error = err as { code: string; message: string };
-    console.error(`tencent translate error, code: ${error.code}, message: ${error.message}`);
+    console.error(`tencent detect error, code: ${error.code}, message: ${error.message}`);
     const errorInfo: RequestErrorInfo = {
       type: TranslateType.Tencent,
       code: error.code,
