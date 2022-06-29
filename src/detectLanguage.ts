@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 18:42
+ * @lastEditTime: 2022-06-29 20:15
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -303,12 +303,11 @@ function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
   const detectMap = new Map(francDetectLanguageIdList);
   const detectedLanguageIdList = [];
 
-  // iterate detectMap, if confidence > 0 and language is preferred language, use it
+  // iterate detectMap, if confidence > 0.5 and language is preferred language, use it
   for (const [languageId, confidence] of detectMap) {
-    if (confidence > 0) {
+    if (confidence > 0.5) {
       detectedLanguageIdList.push(languageId);
       const youdaoLanguageId = getLanguageItemFromFrancId(languageId).youdaoLanguageId;
-      // console.log(`franc: ${youdaoLanguageId}, score: ${confidence}`);
       if (isPreferredLanguage(youdaoLanguageId)) {
         console.log(`---> franc detect confirmed language: ${youdaoLanguageId}, confidence: ${confidence}`);
         detectedLanguageId = youdaoLanguageId; // ? may be 'und'?
