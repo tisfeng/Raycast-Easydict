@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 00:24
+ * @lastEditTime: 2022-06-30 22:37
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,6 +22,7 @@ import querystring from "node:querystring";
  * * NOTE: Apple language detect support more languages than apple translate!
  */
 export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+  console.log(`start apple language detect: ${text}`);
   const startTime = new Date().getTime();
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
   return new Promise((resolve, reject) => {

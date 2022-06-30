@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 22:26
+ * @lastEditTime: 2022-07-01 01:29
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -140,17 +140,17 @@ export default function () {
    * Query text, automatically detect the language of input text
    */
   function queryText(text: string) {
-    isLastQuery = true;
-
     console.log("start queryText:", text);
+
     setLoadingState(true);
     clearTimeout(delayQueryTextInfoTimer);
+    isLastQuery = true;
 
-    detectLanguage(text, (detectTypeResult) => {
+    detectLanguage(text, (detectedLanguageResult) => {
       console.log(
-        `---> final confirmed: ${detectTypeResult.confirmed}, type: ${detectTypeResult.type}, detectLanguage: ${detectTypeResult.youdaoLanguageId}`
+        `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
       );
-      queryTextWithFromLanguageId(detectTypeResult.youdaoLanguageId);
+      queryTextWithFromLanguageId(detectedLanguageResult.youdaoLanguageId);
     });
   }
 
