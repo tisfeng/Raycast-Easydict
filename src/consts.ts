@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 18:24
+ * @lastEditTime: 2022-06-30 16:24
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import { LanguageItem, RequestErrorInfo } from "./types";
 export const clipboardQueryTextKey = "clipboardQueryTextKey";
 
 /**
- * 百度翻译 query 长度限制：为保证翻译质量，请将单次请求长度控制在 6000 bytes以内（汉字约为输入参数 2000 个）
+ *
  */
 export const maxInputTextLength = 2000;
 

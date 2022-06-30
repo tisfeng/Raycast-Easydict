@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 10:18
+ * @lastEditTime: 2022-06-30 22:26
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,6 @@ import {
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
-  maxInputTextLength,
   TranslateType,
   youdaoErrorCodeUrl,
   YoudaoRequestStateCode,
@@ -39,6 +38,7 @@ import {
   isTranslateResultTooLong,
   isShowMultipleTranslations,
   getLanguageItemFromYoudaoId,
+  trimTextLength,
 } from "./utils";
 import {
   requestBaiduTextTranslate,
@@ -54,7 +54,7 @@ import {
   updateFormateResultWithTencentTranslation,
   updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
-import { LanguageDetectTypeResult, detectLanguage } from "./detectLanguage";
+import { detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 import { tryDownloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 
@@ -63,14 +63,13 @@ let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 /**
  * when has new input text, need to cancel previous request
  */
-let isLastRequest = true;
+let isLastQuery = true;
 
-// Todo: need to refactor this two timer
-let delayFetchTranslateAPITimer: NodeJS.Timeout;
-let delayUpdateTargetLanguageTimer: NodeJS.Timeout;
+let delayQueryTextTimer: NodeJS.Timeout;
+let delayQueryTextInfoTimer: NodeJS.Timeout;
 
 export default function () {
-  checkTwoPreferredLanguageIsSame();
+  checkWhetherTwoPreferredLanguagesAreSame();
 
   /**
    * Delay the time to call the query API. Since API has frequency limit.
@@ -89,9 +88,10 @@ export default function () {
    * searchText = inputText.trim(), avoid frequent request API with blank input
    */
   const [searchText, setSearchText] = useState<string>("");
+
   const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
   /**
-     the language type of text, depending on the language type of the current input text, it is preferred to judge whether it is English or Chinese according to the preferred language, and then auto
+     the language type of text, depending on the language type of the current input text.
      */
   const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(defaultLanguage1);
   /*
@@ -105,11 +105,13 @@ export default function () {
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
   useEffect(() => {
-    if (searchText.length) {
+    console.log("enter useEffect");
+    if (searchText.length > 0) {
       queryText(searchText);
       return;
     }
 
+    // try to query selected text when the extension is activated.
     if (myPreferences.isAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }
@@ -117,26 +119,34 @@ export default function () {
   }, [searchText]);
 
   /**
-   * try to detect the selected text, if detect success, then query the selected text.
+   * Try to detect the selected text, if detect success, then query the selected text.
    */
-  async function tryQuerySelecedtText() {
-    try {
-      const selectedText = await getSelectedText();
-      console.log("selectedText: ", selectedText);
-      updateInputText(selectedText);
-    } catch (error) {
-      // do nothing
-    }
+  function tryQuerySelecedtText() {
+    // calculate the selected text cost time
+    console.log("try query selected text");
+    const startTime = Date.now();
+    getSelectedText()
+      .then((selectedText) => {
+        new Date().getTime;
+        console.log(`getSelectedText: ${selectedText}, cost time: ${Date.now() - startTime} ms`);
+        updateInputTextAndQueryTextNow(selectedText, true);
+      })
+      .catch(() => {
+        // do nothing
+      });
   }
 
   /**
    * Query text, automatically detect the language of input text
    */
   function queryText(text: string) {
-    setLoadingState(true);
-    clearTimeout(delayUpdateTargetLanguageTimer);
+    isLastQuery = true;
 
-    detectLanguage(text, (detectTypeResult: LanguageDetectTypeResult) => {
+    console.log("start queryText:", text);
+    setLoadingState(true);
+    clearTimeout(delayQueryTextInfoTimer);
+
+    detectLanguage(text, (detectTypeResult) => {
       console.log(
         `---> final confirmed: ${detectTypeResult.confirmed}, type: ${detectTypeResult.type}, detectLanguage: ${detectTypeResult.youdaoLanguageId}`
       );
@@ -178,7 +188,6 @@ export default function () {
      * first, request youdao translate API, check if should show multiple translations, if not, then end.
      * if need to show multiple translations, then request other translate API.
      */
-
     try {
       youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
       const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
@@ -201,7 +210,7 @@ export default function () {
       let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
       // if enable automatic play audio and query is word, then download audio and play it
       const enableAutomaticDownloadAudio = myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
-      if (enableAutomaticDownloadAudio && isLastRequest) {
+      if (enableAutomaticDownloadAudio && isLastQuery) {
         tryDownloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
       }
 
@@ -316,7 +325,7 @@ export default function () {
    * delay query search text, later can cancel the query
    */
   function delayQueryWithTextInfo(queryTextInfo: QueryTextInfo) {
-    delayUpdateTargetLanguageTimer = setTimeout(() => {
+    delayQueryTextInfoTimer = setTimeout(() => {
       queryTextWithTextInfo(queryTextInfo);
     }, delayRequestTime);
   }
@@ -417,7 +426,7 @@ export default function () {
   /**
    * check first language and second language is the same
    */
-  function checkTwoPreferredLanguageIsSame() {
+  function checkWhetherTwoPreferredLanguagesAreSame() {
     if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
       return (
         <List>
@@ -432,31 +441,37 @@ export default function () {
   }
 
   /**
-   * update input text and search text
+   * Update input text and search text, then query text according to @isNow
+   *
+   * @isNow if true, query text right now, fase will delay query.
    */
-  function updateInputText(text: string) {
+  function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
     setInputText(text);
+    console.log(`updateInputAndQueryText: ${text}`);
 
-    const trimText = text.trim().substring(0, maxInputTextLength);
+    const trimText = trimTextLength(text);
     if (trimText.length === 0) {
       updateTranslateDisplayResult(null);
       return;
     }
 
-    isLastRequest = false;
-    clearTimeout(delayFetchTranslateAPITimer);
+    isLastQuery = false;
+    clearTimeout(delayQueryTextTimer);
 
-    // start delay timer for fetch translate API
     if (trimText !== searchText) {
-      delayFetchTranslateAPITimer = setTimeout(() => {
-        isLastRequest = true;
+      if (isNow) {
         setSearchText(trimText);
-      }, delayRequestTime);
+      } else {
+        // start delay timer for fetch translate API
+        delayQueryTextTimer = setTimeout(() => {
+          setSearchText(trimText);
+        }, delayRequestTime);
+      }
     }
   }
 
   function onInputChangeEvent(text: string) {
-    updateInputText(text);
+    updateInputTextAndQueryTextNow(text, false);
   }
 
   return (

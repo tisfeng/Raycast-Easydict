@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 13:41
+ * @lastEditTime: 2022-06-30 22:15
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -60,6 +60,7 @@ const detectedLanguageTypeResultList: LanguageDetectTypeResult[] = [];
  * Prioritize the local language detection, then the language detection API.
  */
 export function detectLanguage(text: string, callback: (detectTypeResult: LanguageDetectTypeResult) => void): void {
+  console.log(`start detectLanguage: ${text}`);
   const localDetectLangTypeResult = localDetectTextLanguage(text);
   if (localDetectLangTypeResult.confirmed) {
     console.log(
@@ -84,8 +85,8 @@ export function detectLanguage(text: string, callback: (detectTypeResult: Langua
 
   // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
-  console.log("queryText:", text);
-  console.log("lowerCaseText:", lowerCaseText);
+  console.log("detect queryText:", text);
+  console.log("detect lowerCaseText:", lowerCaseText);
 
   // new a action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
   const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
@@ -375,13 +376,16 @@ export function localDetectTextLanguage(text: string): LanguageDetectTypeResult 
  * @reutn confirmed: Only mark confirmed = true when > minConfidence && is preferred language.
  * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
  */
-function francDetectTextLangauge(text: string, minConfidence = 0.8): LanguageDetectTypeResult {
+function francDetectTextLangauge(text: string, minConfidence = 0.6): LanguageDetectTypeResult {
+  const startTime = new Date().getTime();
+  console.log(`start franc detect: ${text}, ${startTime}`);
   let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
   let confirmed = false;
 
   // get all franc language id from languageItemList
   const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLanguageId);
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
+  console.log(`franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
   const detectedLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
@@ -389,6 +393,7 @@ function francDetectTextLangauge(text: string, minConfidence = 0.8): LanguageDet
     const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoLanguageId;
     return [youdaoLanguageId, confidence];
   });
+
   console.log("detected language array:", detectedLanguageArray);
 
   // iterate francDetectLanguageList, if confidence > minConfidence and is preferred language, use it.
