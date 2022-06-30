@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 01:10
+ * @lastEditTime: 2022-06-30 13:41
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,14 +20,10 @@ import {
   getLanguageItemFromAppleChineseTitle,
   getLanguageItemFromFrancId,
   getLanguageItemFromTencentId,
+  isValidLanguageId,
   myPreferences,
   preferredLanguages,
 } from "./utils";
-
-/**
- * * Only franc detect language confidence > 0.5 && is preferred language, the language can be confirmed.
- */
-const francDetectConfirmedConfidence = 0.4;
 
 export enum LanguageDetectType {
   Simple = "Simple",
@@ -54,7 +50,7 @@ let isDetectedLanguage = false;
 let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 
 /**
- * Record all API detected language id, if has detected two identical language id, use it.
+ * Record all API detected language, if has detected two identical language id, use it.
  */
 const detectedLanguageTypeResultList: LanguageDetectTypeResult[] = [];
 
@@ -140,7 +136,7 @@ function raceDetectTextLanguage(
       if (typeResult.type === LanguageDetectType.Apple) {
         const appleLanguageId = typeResult.youdaoLanguageId as string;
         const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
-        console.log(`apple detect language: ${appleLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
+        console.log(`---> apple detect language: ${appleLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
 
         const detectTypeResult = {
           type: typeResult.type,
@@ -158,7 +154,7 @@ function raceDetectTextLanguage(
       if (typeResult.type === LanguageDetectType.Tencent) {
         const tencentLanguageId = typeResult.youdaoLanguageId || "";
         const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
-        console.log(`tencent detect language: ${tencentLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
+        console.log(`---> tencent detect language: ${tencentLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
         const detectTypeResult = {
           type: typeResult.type,
           youdaoLanguageId: languageItem.youdaoLanguageId,
@@ -210,9 +206,10 @@ function handleDetectedLanguageTypeResult(
 
   // Second, iterate detectedLanguageTypeList, check if has detected two identical language id, if true, use it.
   for (const languageTypeReuslt of detectedLanguageTypeResultList as LanguageDetectTypeResult[]) {
+    const detectedYoudaoLanguageId = detectedlanguageTypeResult.youdaoLanguageId;
     if (
-      languageTypeReuslt.youdaoLanguageId === detectedlanguageTypeResult.youdaoLanguageId &&
-      detectedlanguageTypeResult.youdaoLanguageId.length > 0
+      languageTypeReuslt.youdaoLanguageId === detectedYoudaoLanguageId &&
+      isValidLanguageId(detectedYoudaoLanguageId)
     ) {
       languageTypeReuslt.confirmed = true;
       console.warn(`---> API detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
@@ -221,20 +218,26 @@ function handleDetectedLanguageTypeResult(
     }
   }
 
+  // If this API detected language is not confirmed, record it in the detectedLanguageTypeList.
+  detectedLanguageTypeResultList.push(detectedlanguageTypeResult);
+
   /**
-   * Finally, if this is the last language detect action, compare with local detect language list.
+   * Finally, iterate detectedLanguageTypeList, to compare with the local detect language list, if true, use it.
    * If matched, mark it as confirmed, else use it directly, but not confirmed.
    */
   if (detectLanguageActionMap.size === 0) {
+    console.log(`try compare API detected language list with local deteced list`);
+
     const detectedLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
-    // console.log("local detected language array:", detectedLanguageArray);
-    console.log(`detected language id: ${detectedlanguageTypeResult.youdaoLanguageId}`);
     if (detectedLanguageArray) {
       for (const [languageId, confidence] of detectedLanguageArray) {
-        if (languageId === detectedlanguageTypeResult.youdaoLanguageId && confidence > 0) {
-          detectedlanguageTypeResult.confirmed = true;
-          callback && callback(detectedlanguageTypeResult);
-          return;
+        for (const languageTypeReuslt of detectedLanguageTypeResultList) {
+          if (confidence > 0 && languageTypeReuslt.youdaoLanguageId === languageId && isValidLanguageId(languageId)) {
+            languageTypeReuslt.confirmed = true;
+            console.warn(`---> local detect identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
+            callback && callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
+            return;
+          }
         }
       }
     }
@@ -244,12 +247,6 @@ function handleDetectedLanguageTypeResult(
     return;
   }
 
-  // unshift the API detect language to local detect language list
-  // const detectedLanguageIdList = localLanguageDetectTypeResult.detectedLanguageIdList as string[];
-  // detectedLanguageIdList.unshift(detectedlanguageTypeResult.youdaoLanguageId);
-  // console.log(`local detected language id list: ${detectedLanguageIdList}`);
-
-  detectedLanguageTypeResultList.push(detectedlanguageTypeResult);
   // if current action detect language has no result, continue to detect next action
   raceDetectTextLanguage(detectLanguageActionMap, localLanguageDetectTypeResult, callback);
 }
@@ -262,7 +259,7 @@ function checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
 ) {
   const youdaoLanguageId = detectTypeResult.youdaoLanguageId;
-  if (youdaoLanguageId.length || !isPreferredLanguage(youdaoLanguageId)) {
+  if (youdaoLanguageId.length === 0 || !isPreferredLanguage(youdaoLanguageId)) {
     for (const [type] of detectLanguageActionMap) {
       if (type === detectTypeResult.type) {
         detectLanguageActionMap.delete(type);
@@ -288,7 +285,7 @@ function getFinalLanguageDetectTypeResult(
   detectTypeResult: LanguageDetectTypeResult,
   localLanguageDetectTypeResult: LanguageDetectTypeResult
 ): LanguageDetectTypeResult {
-  console.log(`try get final detect language: ${JSON.stringify(detectTypeResult, null, 4)}`);
+  console.log(`start try get final detect language: ${JSON.stringify(detectTypeResult, null, 4)}`);
 
   if (detectTypeResult.confirmed || isPreferredLanguage(detectTypeResult.youdaoLanguageId)) {
     return detectTypeResult;
@@ -296,13 +293,17 @@ function getFinalLanguageDetectTypeResult(
 
   // if local detect language list is not empty, and detect language confidence > 0.2 && is preferred language, use it?
   const detectedLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
+  const lowConfidence = 0.2;
   if (detectedLanguageArray) {
     for (const [languageId, confidence] of detectedLanguageArray) {
-      if (confidence > 0.2 && isPreferredLanguage(languageId)) {
-        console.log(
-          `final use local preferred language confidence > 0.2: ${localLanguageDetectTypeResult.youdaoLanguageId}`
-        );
-        return localLanguageDetectTypeResult;
+      if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
+        console.log(`final use local preferred language low confidence(>0.2): ${languageId}`);
+        const lowConfidenceDetectTypeResult = {
+          type: localLanguageDetectTypeResult.type,
+          youdaoLanguageId: languageId,
+          confirmed: false,
+        };
+        return lowConfidenceDetectTypeResult;
       }
     }
   }
@@ -314,15 +315,21 @@ function getFinalLanguageDetectTypeResult(
     return simpleDetectLangTypeResult;
   }
 
-  // finally, if franc detect language is not "und", use it, such as 'fr', 'it'. else use "auto".
+  // finally, if franc detect language is not "auto", use it, such as 'fr', 'it'. else use "auto".
   const youdaoLanguageId = localLanguageDetectTypeResult.youdaoLanguageId;
-  if (youdaoLanguageId === "und" || youdaoLanguageId.length === 0) {
-    localLanguageDetectTypeResult.youdaoLanguageId = "auto";
-    console.log(`final use auto`);
+  if (isValidLanguageId(youdaoLanguageId)) {
+    console.log(`final use local: ${JSON.stringify(localLanguageDetectTypeResult, null, 4)}`);
+    return localLanguageDetectTypeResult;
   }
 
-  console.log(`final use local: ${JSON.stringify(localLanguageDetectTypeResult, null, 4)}`);
-  return localLanguageDetectTypeResult;
+  const finalAutoLanguageTypeResult: LanguageDetectTypeResult = {
+    type: LanguageDetectType.Simple,
+    youdaoLanguageId: "auto",
+    confirmed: false,
+  };
+
+  console.log(`final use auto`);
+  return finalAutoLanguageTypeResult;
 }
 
 /**
@@ -339,33 +346,37 @@ export function localDetectTextLanguage(text: string): LanguageDetectTypeResult 
     return francDetectTypeResult;
   }
 
-  console.log(`franc detect unconfirmed language: ${francDetectTypeResult.youdaoLanguageId}`);
-
-  const francUndetermined = francDetectLanguageId === "und";
-  if (francUndetermined) {
-    const simpleDetectTypeResult = simpleDetectTextLanguage(text);
-    console.log(`local detect, simple unconfirmed language: ${simpleDetectTypeResult.youdaoLanguageId}`);
-
-    const detectTypeResult = {
-      type: LanguageDetectType.Simple,
-      youdaoLanguageId: simpleDetectTypeResult.youdaoLanguageId,
-      confirmed: false,
-    };
-    return detectTypeResult;
+  // If franc detect language is valid, use it.
+  if (isValidLanguageId(francDetectLanguageId)) {
+    console.log(`local franc detect unconfirmed language: ${francDetectLanguageId}`);
+    return francDetectTypeResult;
   }
 
-  return francDetectTypeResult;
+  // If franc detect language is undetermined, use simple detect language, mark it as confirmed = false.
+  const simpleDetectTypeResult = simpleDetectTextLanguage(text);
+  console.log(`local detect, simple unconfirmed language: ${simpleDetectTypeResult.youdaoLanguageId}`);
+
+  const detectTypeResult = {
+    type: LanguageDetectType.Simple,
+    youdaoLanguageId: simpleDetectTypeResult.youdaoLanguageId,
+    confirmed: false,
+  };
+  return detectTypeResult;
 }
 
 /**
  * Use franc to detect text language.
- * if franc detect language list contains preferred language && confidence > 0.5, use it and mark it as confirmed = true.
+ * if franc detect language list contains preferred language && confidence > minConfidence, use it and mark it as confirmed = true.
  * else use the first language in franc detect language list, and mark it as confirmed = false.
  *
- * ? the detectedLanguageId may be 'undefined'?
+ * @minConfidence the minimum confidence of franc detect language.
+ *
+ * @return detectedLanguageArray: All detected languages will recorded.
+ * @reutn confirmed: Only mark confirmed = true when > minConfidence && is preferred language.
+ * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
  */
-function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
-  let detectedLanguageId = "und"; // 'und', language code that stands for undetermined
+function francDetectTextLangauge(text: string, minConfidence = 0.8): LanguageDetectTypeResult {
+  let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
   let confirmed = false;
 
   // get all franc language id from languageItemList
@@ -374,22 +385,23 @@ function francDetectTextLangauge(text: string): LanguageDetectTypeResult {
 
   const detectedLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
+    // * NOTE: when francLanguageId = 'und' or detected unsupported language, the youdaoLanguageId will be 'auto'
     const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoLanguageId;
     return [youdaoLanguageId, confidence];
   });
   console.log("detected language array:", detectedLanguageArray);
 
-  // iterate francDetectLanguageList, if confidence > 0.5 and language is preferred language, use it
+  // iterate francDetectLanguageList, if confidence > minConfidence and is preferred language, use it.
   for (const [languageId, confidence] of detectedLanguageArray) {
-    if (confidence > francDetectConfirmedConfidence && isPreferredLanguage(languageId)) {
+    if (confidence > minConfidence && isPreferredLanguage(languageId)) {
       console.log(`---> franc detect confirmed language: ${languageId}, confidence: ${confidence}`);
-      detectedLanguageId = languageId; // ? may be 'und'?
+      detectedLanguageId = languageId;
       confirmed = true;
       break;
     }
   }
 
-  // if no preferred language detected, use the first language in the detectLanguageIdList
+  // if not confirmed, use the first language in the detectLanguageIdList.
   if (!confirmed) {
     [detectedLanguageId] = detectedLanguageArray[0];
   }

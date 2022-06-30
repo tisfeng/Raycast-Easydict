@@ -15,7 +15,7 @@ import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { playWordAudio } from "./audio";
 import { openInEudic } from "./scripts";
-import { downloadYoudaoAudio } from "./dict/youdao/request";
+import { tryDownloadYoudaoAudio } from "./dict/youdao/request";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -145,7 +145,7 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text: string, fromLanguage: string) {
     console.log(`start play sound: ${text}`);
     const queryWordInfo = this.props.queryWordInfo;
-    downloadYoudaoAudio(queryWordInfo, () => {
+    tryDownloadYoudaoAudio(queryWordInfo, () => {
       playWordAudio(queryWordInfo.word, fromLanguage);
     });
   }

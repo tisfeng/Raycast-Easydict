@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 21:05
+ * @lastEditTime: 2022-06-30 11:22
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,7 +46,7 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
     if (err) {
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
       console.error(`play word audio error: ${err}`);
-      console.log(`audioPath: ${audioPath}`);
+      console.log(`audioPath: ${encodeURI(audioPath)}`);
       sayTruncateCommand(word, fromLanguage);
     }
   });

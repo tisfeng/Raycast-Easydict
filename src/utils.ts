@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 10:06
+ * @lastEditTime: 2022-06-30 13:08
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -82,7 +82,9 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
   return languageItemList[0];
 }
 
-// get language item from franc language id
+/**
+ * Get language item from franc language id
+ */
 export function getLanguageItemFromFrancId(francLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
     if (langItem.francLanguageId === francLanguageId) {
@@ -90,6 +92,16 @@ export function getLanguageItemFromFrancId(francLanguageId: string): LanguageIte
     }
   }
   return languageItemList[0];
+}
+
+/**
+ * Check language id is valid, except 'auto', ''
+ */
+export function isValidLanguageId(languageId: string): boolean {
+  if (languageId === "auto" || languageId.length === 0) {
+    return false;
+  }
+  return true;
 }
 
 /**

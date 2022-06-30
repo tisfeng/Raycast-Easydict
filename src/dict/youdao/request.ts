@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-27 18:07
+ * @lastEditTime: 2022-06-30 11:23
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,18 +20,19 @@ import { QueryWordInfo } from "../../types";
 /**
  * Download query word audio and play when after download.
  */
-export function downloadYoudaoAudioAndPlay(queryWordInfo: QueryWordInfo) {
-  downloadYoudaoAudio(queryWordInfo, () => {
+export function tryDownloadYoudaoAudioAndPlay(queryWordInfo: QueryWordInfo) {
+  tryDownloadYoudaoAudio(queryWordInfo, () => {
     playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
   });
 }
 
 /**
-  Download word audio file. 
-  if query text is a word (only English word?), download audio file from youdao wild api, otherwise download from youdao tts.
-  if query text is too long, don't download audio file, later derectly use say command to play.
+ * Download word audio file. 
+*  If query text is a word (only English word?), download audio file from youdao wild api, otherwise downloaded from youdao tts.
+
+ * * NOTE: If query text is too long(>40), don't download audio file, later derectly use say command to play.
  */
-export function downloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () => void, forceDownload = false) {
+export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () => void, forceDownload = false) {
   if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
     downloadYoudaoWebWordAudio(queryWordInfo.word, callback, (forceDownload = false));
   } else if (queryWordInfo.word.length < maxTextLengthOfDownloadYoudaoTTSAudio) {
@@ -51,7 +52,8 @@ export function downloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () 
   * * Note: this function is only used to download `isWord` audio file from web youdao, if not a word, the pronunciation audio is not accurate.
   
   this is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
-  example https://dict.youdao.com/dictvoice?type=0&audio=good
+
+  Example: https://dict.youdao.com/dictvoice?type=0&audio=good
  */
 export function downloadYoudaoWebWordAudio(word: string, callback?: () => void, forceDownload = false) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURI(word)}`;

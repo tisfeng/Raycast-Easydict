@@ -56,7 +56,7 @@ import {
 } from "./formatData";
 import { LanguageDetectTypeResult, detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
-import { downloadYoudaoAudioAndPlay } from "./dict/youdao/request";
+import { tryDownloadYoudaoAudioAndPlay } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -202,7 +202,7 @@ export default function () {
       // if enable automatic play audio and query is word, then download audio and play it
       const enableAutomaticDownloadAudio = myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
       if (enableAutomaticDownloadAudio && isLastRequest) {
-        downloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
+        tryDownloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
       }
 
       const [from, to] = youdaoResult.l.split("2"); // from2to
