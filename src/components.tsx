@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 21:13
+ * @lastEditTime: 2022-06-30 10:26
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -144,9 +144,7 @@ export function ActionFeedback() {
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
   onPlaySound(text: string, fromLanguage: string) {
     console.log(`start play sound: ${text}`);
-    // playWordAudio(text, fromLanguage);
     const queryWordInfo = this.props.queryWordInfo;
-    //
     downloadYoudaoAudio(queryWordInfo, () => {
       playWordAudio(queryWordInfo.word, fromLanguage);
     });
@@ -174,15 +172,15 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
 
         <ActionPanel.Section title="Search Query Text Online">
           {this.props.isShowOpenInEudicWeb && (
-            <Action.OpenInBrowser icon={Icon.Link} title="See Eudic Translate Results" url={this.props.eudicWebUrl} />
+            <Action.OpenInBrowser icon={Icon.Link} title="Eudic Dictionary" url={this.props.eudicWebUrl} />
           )}
           {this.props.isShowOpenInYoudaoWeb && (
-            <Action.OpenInBrowser icon={Icon.Link} title="See Youdao Translate Results" url={this.props.youdaoWebUrl} />
+            <Action.OpenInBrowser icon={Icon.Link} title="Youdao Dictionary" url={this.props.youdaoWebUrl} />
           )}
 
           <Action.OpenInBrowser
             icon={Icon.Link}
-            title="See Google Translate Results"
+            title="Google Translate"
             url={getGoogleWebTranslateURL(
               this.props.queryText,
               this.props.currentFromLanguage,
@@ -193,13 +191,13 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
 
         <ActionPanel.Section title="Play Sound">
           <Action
-            title="Play Query Text Sound"
+            title="Query Text"
             icon={getPlaySoundIcon("black")}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
             onAction={() => this.onPlaySound(this.props?.queryText, this.props.currentFromLanguage?.youdaoLanguageId)}
           />
           <Action
-            title="Play Result Text Sound"
+            title="Result Text"
             icon={getPlaySoundIcon("black")}
             onAction={() => this.onPlaySound(this.props.copyText, this.props.currentTargetLanguage?.youdaoLanguageId)}
           />

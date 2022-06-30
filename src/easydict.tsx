@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 00:43
+ * @lastEditTime: 2022-06-30 10:18
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -349,6 +349,7 @@ export default function () {
       );
     }
 
+    // Todo: need to optimize.
     const eudicWebUrl = getEudicWebTranslateURL(
       searchText || "",
       currentFromLanguageItem,
@@ -379,6 +380,7 @@ export default function () {
                     accessories={getWordAccessories(resultItem.type, item)}
                     detail={<List.Item.Detail markdown={item.translationMarkdown} />}
                     actions={
+                      // Todo: need to optimize
                       <ListActionPanel
                         isInstalledEudic={isInstalledEudic}
                         isShowOpenInEudicWeb={eudicWebUrl.length != 0}
@@ -388,6 +390,7 @@ export default function () {
                         queryText={searchText}
                         queryWordInfo={item.queryWordInfo}
                         copyText={item.copyText}
+                        // Todo: redundant params
                         currentFromLanguage={currentFromLanguageItem}
                         currentTargetLanguage={autoSelectedTargetLanguageItem}
                         onLanguageUpdate={(selectedLanguageItem) => {
