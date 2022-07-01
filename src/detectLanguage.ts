@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:18
+ * @lastEditTime: 2022-07-01 17:07
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,7 +45,7 @@ export interface LanguageDetectTypeResult {
  * If Apple language detection is enabled, both Apple language test and Tencent language test will be initiated, and which first-out result will be used.
  * If the language of the asynchronous check is the preferred language, use it directly. If not, continue to invoke local language detection.
  */
-const delayDetectLanguageInterval = 2000;
+const delayDetectLanguageTime = 2000;
 let isDetectedLanguage = false;
 let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 
@@ -63,7 +63,7 @@ export function detectLanguage(
   text: string,
   callback: (detectedLanguageResult: LanguageDetectTypeResult) => void
 ): void {
-  console.log(`start detectLanguage: ${text}`);
+  console.log(`start detectLanguage`);
   let localDetectResult = getLocalTextLanguageDetectResult(text, 0.6);
   if (localDetectResult.confirmed) {
     console.log("use local detect confirmed:", localDetectResult.type, localDetectResult.youdaoLanguageId);
@@ -81,7 +81,7 @@ export function detectLanguage(
     localDetectResult = getLocalTextLanguageDetectResult(text, 0.2);
     console.log(`use local detect language --->: ${localDetectResult}`);
     callback(localDetectResult);
-  }, delayDetectLanguageInterval);
+  }, delayDetectLanguageTime);
 
   // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
@@ -303,9 +303,9 @@ function getLocalTextLanguageDetectResult(
   confirmedConfidence: number,
   lowConfidence = 0.1
 ): LanguageDetectTypeResult {
-  console.log(`start try get low confidence detect language`);
+  console.log(`start local detect language, confirmed confidence (>${confirmedConfidence})`);
 
-  // if detect preferred language confidence > highConfidence.
+  // if detect preferred language confidence > confirmedConfidence.
   const francDetectResult = francDetectTextLangauge(text, confirmedConfidence);
   if (francDetectResult.confirmed) {
     return francDetectResult;
@@ -316,7 +316,9 @@ function getLocalTextLanguageDetectResult(
   if (detectedLanguageArray) {
     for (const [languageId, confidence] of detectedLanguageArray) {
       if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
-        console.log(`find local preferred language: ${languageId}, confidence(>${lowConfidence})`);
+        console.log(
+          `franc detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence}(>${lowConfidence})`
+        );
         const lowConfidenceDetectTypeResult = {
           type: francDetectResult.type,
           youdaoLanguageId: languageId,
@@ -365,7 +367,7 @@ function getLocalTextLanguageDetectResult(
  */
 function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): LanguageDetectTypeResult {
   const startTime = new Date().getTime();
-  console.log(`start franc detect: ${text}`);
+  console.log(`start franc detect`);
   let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
   let confirmed = false;
 
@@ -387,7 +389,7 @@ function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): Langu
   for (const [languageId, confidence] of detectedLanguageArray) {
     if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
       console.log(
-        `---> franc detect confirmed language: ${languageId}, confidence(>${confirmedConfidence}): ${confidence}`
+        `---> franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`
       );
       detectedLanguageId = languageId;
       confirmed = true;

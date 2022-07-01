@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:00
+ * @lastEditTime: 2022-07-01 18:00
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -146,7 +146,7 @@ export default function () {
    * Query text, automatically detect the language of input text
    */
   function queryText(text: string) {
-    console.log("start queryText:", text);
+    console.log("start queryText");
 
     setLoadingState(true);
     clearTimeout(delayQueryTextInfoTimer);
@@ -454,9 +454,9 @@ export default function () {
    */
   function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
     setInputText(text);
-    console.log(`update input text: ${text}`);
 
     const trimText = trimTextLength(text);
+    console.log(`update input text: ${text}`);
     if (trimText.length === 0) {
       updateTranslateDisplayResult(null);
       return;

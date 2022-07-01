@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 22:37
+ * @lastEditTime: 2022-07-01 17:40
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,7 +85,7 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
    *  It seems that this method cannot handle special characters.: you're so beautiful, my "unfair" girl
    */
   const queryString = querystring.stringify(object);
-  console.warn(`queryString: ${queryString}`); // text=girl&from=en_US&to=zh_CN
+  // console.warn(`queryString: ${queryString}`); // text=girl&from=en_US&to=zh_CN
 
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 11:31
+ * @lastEditTime: 2022-07-01 16:41
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,17 +14,8 @@ import axios from "axios";
 import fs from "fs";
 import { languageItemList } from "./consts";
 import playerImport = require("play-sound");
+import { trimTextLength } from "./utils";
 const player = playerImport({});
-
-/**
- * Max length of text to play sound, to avoid play sound too long that can't be stoped.
- */
-export const maxTextLengthOfSayCommandToPlaySound = 40;
-
-/**
- * Max length of text to download youdao tts audio
- */
-export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 const audioDirPath = `${environment.supportPath}/audio`;
 
@@ -71,13 +62,11 @@ function afplayAudioPath(audioPath: string) {
 }
 
 /**
-  use shell say to play text sound, if text is too long, truncate it.
+  Use shell say to play text sound, if text is too long that can't be stoped, so truncate it.
   */
 export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
-  if (text.length > maxTextLengthOfSayCommandToPlaySound) {
-    text = text.substring(0, maxTextLengthOfSayCommandToPlaySound) + "...";
-  }
-  sayCommand(text, youdaoLanguageId);
+  const truncateText = trimTextLength(text, 40);
+  sayCommand(truncateText, youdaoLanguageId);
 }
 
 /**

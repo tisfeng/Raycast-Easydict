@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 23:33
+ * @lastEditTime: 2022-07-01 16:23
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -146,7 +146,7 @@ export async function requestTencentTextTranslate(
   try {
     const response = await client.TextTranslate(params);
     const endTime = new Date().getTime();
-    console.warn(`tencen translate: ${response.TargetText}, cost: ${endTime - startTime} ms`);
+    console.log(`tencen translate: ${response.TargetText}, cost: ${endTime - startTime} ms`);
     const typeResult = {
       type: TranslateType.Tencent,
       result: response as TencentTranslateResult,
@@ -198,7 +198,7 @@ export function requestYoudaoDictionary(
     axios
       .post(url, params)
       .then((response) => {
-        console.warn(`youdao translate cost: ${response.headers[requestDuration]} ms`);
+        console.log(`youdao translate cost: ${response.headers[requestDuration]} ms`);
         resolve({
           type: TranslateType.Youdao,
           result: response.data,
@@ -244,7 +244,7 @@ export function requestBaiduTextTranslate(
         const baiduResult = response.data as BaiduTranslateResult;
         if (baiduResult.trans_result) {
           const translateText = baiduResult.trans_result[0].dst;
-          console.warn(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
+          console.log(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
           resolve({
             type: TranslateType.Baidu,
             result: baiduResult,
@@ -307,7 +307,7 @@ export function requestCaiyunTextTranslate(
       .post(url, params, headers)
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
-        console.warn(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestDuration]} ms`);
+        console.log(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestDuration]} ms`);
         resolve({
           type: TranslateType.Caiyun,
           result: caiyunResult,

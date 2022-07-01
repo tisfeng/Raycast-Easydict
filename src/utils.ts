@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:03
+ * @lastEditTime: 2022-07-01 16:42
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -292,10 +292,14 @@ export function isShowMultipleTranslations(formatResult: TranslateFormatResult) 
 }
 
 /**
- * Trim the text to the max length 2000.
+ * Trim the text to the max length, default 2000.
  *
- * 百度翻译 query 长度限制：为保证翻译质量，请将单次请求长度控制在 6000 bytes 以内（汉字约为输入参数 2000 个）
+ * 例如，百度翻译 query 长度限制：为保证翻译质量，请将单次请求长度控制在 6000 bytes 以内（汉字约为输入参数 2000 个）
  */
 export function trimTextLength(text: string, length = 2000) {
-  return text.trim().substring(0, length);
+  text = text.trim();
+  if (text.length > length) {
+    return text.substring(0, length) + "...";
+  }
+  return text.substring(0, length);
 }

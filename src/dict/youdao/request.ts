@@ -2,20 +2,19 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:03
+ * @lastEditTime: 2022-07-01 16:52
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import {
-  downloadAudio,
-  downloadWordAudioWithURL,
-  getWordAudioPath,
-  maxTextLengthOfDownloadYoudaoTTSAudio,
-  playWordAudio,
-} from "../../audio";
+import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { QueryWordInfo } from "../../types";
+
+/**
+ * Max length of text to download youdao tts audio
+ */
+export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 /**
  * Download query word audio and play after download.
@@ -57,7 +56,7 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURI(word)}`;
-  console.log(`download youdao English word' audio: ${word}`);
+  console.log(`download youdao English word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }
