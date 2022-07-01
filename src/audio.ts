@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 11:22
+ * @lastEditTime: 2022-07-01 11:31
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -93,8 +93,14 @@ function sayCommand(text: string, youdaoLanguageId: string) {
 
     // replace " with blank space, otherwise say command will not work.
     text = text.replace(/"/g, " ");
-    const voice = languageItem.voiceList[0];
-    const sayCommand = `say -v ${voice} "${text}"`; // you're so beautiful, my "unfair" girl
+    const voice = languageItem.voiceList[0]; // say -v Ting-Ting hello
+    /**
+     * Specify play rate, in words per minute. The default is?, seems has valid range.
+     *
+     * say -r 60 "hello"
+     * say "[[rate 60]] hello"
+     */
+    const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
     console.log(sayCommand);
     exec(sayCommand, (error) => {
       if (error) {

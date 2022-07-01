@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 10:26
+ * @lastEditTime: 2022-07-01 12:27
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,9 +13,9 @@ import { languageItemList, SectionType, TranslateType } from "./consts";
 import { ListItemActionPanelItem, YoudaoTranslateReformatResultItem } from "./types";
 import { Action, ActionPanel, Color, Icon, Image, List } from "@raycast/api";
 import { getGoogleWebTranslateURL, myPreferences } from "./utils";
-import { playWordAudio } from "./audio";
+import { sayTruncateCommand } from "./audio";
 import { openInEudic } from "./scripts";
-import { tryDownloadYoudaoAudio } from "./dict/youdao/request";
+import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -142,15 +142,8 @@ export function ActionFeedback() {
 }
 
 export class ListActionPanel extends Component<ListItemActionPanelItem> {
-  onPlaySound(text: string, fromLanguage: string) {
-    console.log(`start play sound: ${text}`);
-    const queryWordInfo = this.props.queryWordInfo;
-    tryDownloadYoudaoAudio(queryWordInfo, () => {
-      playWordAudio(queryWordInfo.word, fromLanguage);
-    });
-  }
-
   render() {
+    // console.log("focus on list:", this.props.copyText);
     return (
       <ActionPanel>
         <ActionPanel.Section>
@@ -189,17 +182,28 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
           />
         </ActionPanel.Section>
 
-        <ActionPanel.Section title="Play Sound">
+        <ActionPanel.Section title="Play Text Audio">
           <Action
-            title="Query Text"
+            title="Play Query Text"
             icon={getPlaySoundIcon("black")}
             shortcut={{ modifiers: ["cmd"], key: "s" }}
-            onAction={() => this.onPlaySound(this.props?.queryText, this.props.currentFromLanguage?.youdaoLanguageId)}
+            onAction={() => {
+              console.log(`start play sound: ${this.props.queryWordInfo.wordText}`);
+              playYoudaoWordAudioAfterDownloading(this.props.queryWordInfo);
+            }}
           />
           <Action
-            title="Result Text"
+            title="Play Result Text"
             icon={getPlaySoundIcon("black")}
-            onAction={() => this.onPlaySound(this.props.copyText, this.props.currentTargetLanguage?.youdaoLanguageId)}
+            onAction={() => {
+              /**
+               *  directly use say command to play the result text.
+               *  because it is difficult to determine whether the result is a word, impossible to use Youdao web audio directly.
+               *  in addition, TTS needs to send additional youdao query requests.
+               */
+
+              sayTruncateCommand(this.props.copyText, this.props.queryWordInfo.toLanguage);
+            }}
           />
         </ActionPanel.Section>
 

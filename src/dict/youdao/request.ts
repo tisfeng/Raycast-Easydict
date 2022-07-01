@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 11:23
+ * @lastEditTime: 2022-07-01 10:31
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,28 +18,28 @@ import {
 import { QueryWordInfo } from "../../types";
 
 /**
- * Download query word audio and play when after download.
+ * Download query word audio and play after download.
  */
-export function tryDownloadYoudaoAudioAndPlay(queryWordInfo: QueryWordInfo) {
+export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo) {
   tryDownloadYoudaoAudio(queryWordInfo, () => {
-    playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
+    playWordAudio(queryWordInfo.wordText, queryWordInfo.fromLanguage);
   });
 }
 
 /**
  * Download word audio file. 
-*  If query text is a word (only English word?), download audio file from youdao wild api, otherwise downloaded from youdao tts.
+*  If query text is a word (only English word?), download audio file from youdao web api, otherwise downloaded from youdao tts.
 
  * * NOTE: If query text is too long(>40), don't download audio file, later derectly use say command to play.
  */
 export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () => void, forceDownload = false) {
   if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
-    downloadYoudaoWebWordAudio(queryWordInfo.word, callback, (forceDownload = false));
-  } else if (queryWordInfo.word.length < maxTextLengthOfDownloadYoudaoTTSAudio) {
+    downloadYoudaoEnglishWordAudio(queryWordInfo.wordText, callback, (forceDownload = false));
+  } else if (queryWordInfo.wordText.length < maxTextLengthOfDownloadYoudaoTTSAudio) {
     if (queryWordInfo.speechUrl) {
-      downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
+      downloadWordAudioWithURL(queryWordInfo.wordText, queryWordInfo.speechUrl, callback, forceDownload);
     } else {
-      console.warn(`youdao tts url not found: ${queryWordInfo.word}`);
+      console.warn(`youdao tts url not found: ${queryWordInfo.wordText}`);
       callback && callback();
     }
   } else {
@@ -55,9 +55,9 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
 
   Example: https://dict.youdao.com/dictvoice?type=0&audio=good
  */
-export function downloadYoudaoWebWordAudio(word: string, callback?: () => void, forceDownload = false) {
+export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURI(word)}`;
-  console.log(`download youdao web audio: ${word}`);
+  console.log(`download youdao 'English Word' audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }

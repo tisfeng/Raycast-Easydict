@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 16:24
+ * @lastEditTime: 2022-07-01 11:05
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -147,7 +147,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "en",
     googleLanguageId: "en",
     languageTitle: "English",
-    voiceList: ["Samantha", "Alex"],
+    voiceList: ["Alex", "Samantha"],
   },
   {
     youdaoLanguageId: "ja",

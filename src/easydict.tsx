@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 01:29
+ * @lastEditTime: 2022-07-01 10:33
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -56,7 +56,7 @@ import {
 } from "./formatData";
 import { detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
-import { tryDownloadYoudaoAudioAndPlay } from "./dict/youdao/request";
+import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -211,7 +211,7 @@ export default function () {
       // if enable automatic play audio and query is word, then download audio and play it
       const enableAutomaticDownloadAudio = myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
       if (enableAutomaticDownloadAudio && isLastQuery) {
-        tryDownloadYoudaoAudioAndPlay(formatResult.queryWordInfo);
+        playYoudaoWordAudioAfterDownloading(formatResult.queryWordInfo);
       }
 
       const [from, to] = youdaoResult.l.split("2"); // from2to
@@ -447,7 +447,7 @@ export default function () {
    */
   function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
     setInputText(text);
-    console.log(`updateInputAndQueryText: ${text}`);
+    console.log(`update input text: ${text}`);
 
     const trimText = trimTextLength(text);
     if (trimText.length === 0) {

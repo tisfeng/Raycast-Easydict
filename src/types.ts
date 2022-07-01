@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-29 10:14
+ * @lastEditTime: 2022-07-01 11:06
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -47,7 +47,7 @@ export interface YoudaoTranslateResult {
 export type YoudaoDictionaryResult = YoudaoTranslateResult;
 
 export interface QueryWordInfo {
-  word: string;
+  wordText: string;
   phonetic?: string;
   speech?: string;
   fromLanguage: string;

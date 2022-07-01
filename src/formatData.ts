@@ -39,7 +39,7 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResu
   let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
   usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
   const queryWordInfo: QueryWordInfo = {
-    word: youdaoResult.query,
+    wordText: youdaoResult.query,
     phonetic: usPhonetic || youdaoResult.basic?.phonetic,
     speech: youdaoResult.basic?.["us-speech"],
     fromLanguage: from,
@@ -186,7 +186,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     const oneLineTranslation = translateItem.text.split("\n").join(" ");
     const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
     const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
-    const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
+    const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.wordText : undefined;
 
     displayResult.push({
       type: sectionType,
