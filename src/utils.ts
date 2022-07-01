@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-30 22:31
+ * @lastEditTime: 2022-07-01 16:03
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -260,7 +260,7 @@ async function traverseAllInstalledApplications(updateIsInstalledEudic: (isInsta
 
 export function checkIsInstalledEudic(setIsInstalledEudic: (isInstalled: boolean) => void) {
   LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
-    console.log("is install Eudic: ", isInstalledEudic);
+    // console.log("is install Eudic: ", isInstalledEudic);
 
     if (isInstalledEudic == true) {
       setIsInstalledEudic(true);

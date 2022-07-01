@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 10:33
+ * @lastEditTime: 2022-07-01 16:00
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -68,6 +68,11 @@ let isLastQuery = true;
 let delayQueryTextTimer: NodeJS.Timeout;
 let delayQueryTextInfoTimer: NodeJS.Timeout;
 
+/**
+ * Calculate the cost time of each query.
+ */
+let startTime: number;
+
 export default function () {
   checkWhetherTwoPreferredLanguagesAreSame();
 
@@ -106,6 +111,7 @@ export default function () {
 
   useEffect(() => {
     console.log("enter useEffect");
+    startTime = Date.now();
     if (searchText.length > 0) {
       queryText(searchText);
       return;
@@ -191,7 +197,8 @@ export default function () {
     try {
       youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
       const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
-      console.log(`youdaoResult: ${JSON.stringify(youdaoResult, null, 2)}`);
+      console.log(`youdao translate result: ${JSON.stringify(youdaoResult, null, 2)}`);
+      console.warn(`query cost time: ${Date.now() - startTime} ms`);
       const youdaoErrorCode = youdaoResult.errorCode;
       youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 

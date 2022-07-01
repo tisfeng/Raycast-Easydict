@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 01:30
+ * @lastEditTime: 2022-07-01 16:18
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -67,6 +67,7 @@ export function detectLanguage(
   let localDetectResult = getLocalTextLanguageDetectResult(text, 0.6);
   if (localDetectResult.confirmed) {
     console.log("use local detect confirmed:", localDetectResult.type, localDetectResult.youdaoLanguageId);
+    // Todo: may be do not need to clear timeout, when API detect success, callback once again.
     clearTimeout(delayLocalDetectLanguageTimer);
     callback(localDetectResult);
     return;
@@ -97,7 +98,7 @@ export function detectLanguage(
   // if local detect language is not confirmed, use API language detect
   try {
     raceDetectTextLanguage(detectActionMap, localDetectResult, (detectTypeResult) => {
-      const finalLanguageTypeResult = getFinalLanguageDetectResult(text, detectTypeResult);
+      const finalLanguageTypeResult = getFinalLanguageDetectResult(text, detectTypeResult, 0.6);
       callback(finalLanguageTypeResult);
     });
   } catch (error) {
@@ -277,13 +278,14 @@ function checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
  */
 function getFinalLanguageDetectResult(
   text: string,
-  detectedTypeResult: LanguageDetectTypeResult
+  detectedTypeResult: LanguageDetectTypeResult,
+  confirmedConfidence: number
 ): LanguageDetectTypeResult {
   console.log(`start try get final detect language: ${JSON.stringify(detectedTypeResult, null, 4)}`);
   if (detectedTypeResult.confirmed || isPreferredLanguage(detectedTypeResult.youdaoLanguageId)) {
     return detectedTypeResult;
   }
-  return getLocalTextLanguageDetectResult(text, 0.6);
+  return getLocalTextLanguageDetectResult(text, confirmedConfidence);
 }
 
 /**
@@ -298,13 +300,13 @@ function getFinalLanguageDetectResult(
  */
 function getLocalTextLanguageDetectResult(
   text: string,
-  highConfidence: number,
-  lowConfidence = 0.2
+  confirmedConfidence: number,
+  lowConfidence = 0.1
 ): LanguageDetectTypeResult {
   console.log(`start try get low confidence detect language`);
 
   // if detect preferred language confidence > highConfidence.
-  const francDetectResult = francDetectTextLangauge(text, highConfidence);
+  const francDetectResult = francDetectTextLangauge(text, confirmedConfidence);
   if (francDetectResult.confirmed) {
     return francDetectResult;
   }
@@ -335,7 +337,7 @@ function getLocalTextLanguageDetectResult(
   // if franc detect language is valid, use it, such as 'fr', 'it'.
   const youdaoLanguageId = francDetectResult.youdaoLanguageId;
   if (isValidLanguageId(youdaoLanguageId)) {
-    console.log(`final use valid franc detect: ${JSON.stringify(francDetectResult, null, 4)}`);
+    console.log(`final use franc unconfirmed but valid detect: ${francDetectResult.youdaoLanguageId}`);
     return francDetectResult;
   }
 
@@ -352,16 +354,16 @@ function getLocalTextLanguageDetectResult(
 
 /**
  * Use franc to detect text language.
- * if franc detect language list contains preferred language && confidence > minConfidence, use it and mark it as confirmed = true.
+ * if franc detect language list contains preferred language && confidence > confirmedConfidence, use it and mark it as confirmed = true.
  * else use the first language in franc detect language list, and mark it as confirmed = false.
  *
- * @minConfidence the minimum confidence of franc detect language.
+ * @confirmedConfidence the minimum confidence of franc detect language.
  *
  * @return detectedLanguageArray: All detected languages will recorded.
- * @reutn confirmed: Only mark confirmed = true when > minConfidence && is preferred language.
+ * @reutn confirmed: Only mark confirmed = true when > confirmedConfidence && is preferred language.
  * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
  */
-function francDetectTextLangauge(text: string, minConfidence = 0.6): LanguageDetectTypeResult {
+function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): LanguageDetectTypeResult {
   const startTime = new Date().getTime();
   console.log(`start franc detect: ${text}`);
   let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
@@ -379,12 +381,14 @@ function francDetectTextLangauge(text: string, minConfidence = 0.6): LanguageDet
     return [youdaoLanguageId, confidence];
   });
 
-  console.log("detected language array:", detectedLanguageArray);
+  console.log("franc detected language array:", detectedLanguageArray);
 
-  // iterate francDetectLanguageList, if confidence > minConfidence and is preferred language, use it.
+  // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
   for (const [languageId, confidence] of detectedLanguageArray) {
-    if (confidence > minConfidence && isPreferredLanguage(languageId)) {
-      console.log(`---> franc detect confirmed language: ${languageId}, confidence: ${confidence}`);
+    if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
+      console.log(
+        `---> franc detect confirmed language: ${languageId}, confidence(>${confirmedConfidence}): ${confidence}`
+      );
       detectedLanguageId = languageId;
       confirmed = true;
       break;
