@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 18:00
+ * @lastEditTime: 2022-07-02 00:02
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,6 +57,7 @@ import {
 import { detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import { EasydictVersionInfo } from "./releaseVersion/version";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -111,6 +112,7 @@ export default function () {
 
   useEffect(() => {
     console.log("enter useEffect");
+
     startTime = Date.now();
     if (searchText.length > 0) {
       queryText(searchText);
@@ -123,6 +125,18 @@ export default function () {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
+
+  function checkUpdatePrompt() {
+    const easydict = new EasydictVersionInfo();
+    easydict.checkVersion((isUpdated) => {
+      if (!isUpdated) {
+        console.log("EasyDict need to date:", JSON.stringify(easydict, null, 2));
+        easydict.storeVersionInfo();
+      } else {
+        console.log("EasyDict has been updated");
+      }
+    });
+  }
 
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
@@ -480,6 +494,8 @@ export default function () {
   function onInputChangeEvent(text: string) {
     updateInputTextAndQueryTextNow(text, false);
   }
+
+  checkUpdatePrompt();
 
   return (
     <List

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 12:27
+ * @lastEditTime: 2022-07-02 00:33
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,7 @@ import { getGoogleWebTranslateURL, myPreferences } from "./utils";
 import { sayTruncateCommand } from "./audio";
 import { openInEudic } from "./scripts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import { LatestReleasePage } from "./releaseVersion/releasePage";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -147,6 +148,8 @@ export class ListActionPanel extends Component<ListItemActionPanelItem> {
     return (
       <ActionPanel>
         <ActionPanel.Section>
+          <Action.Push icon={Icon.TextDocument} title="✨ New Version Released" target={<LatestReleasePage />} />
+
           {this.props.isInstalledEudic && (
             <Action
               icon={Icon.MagnifyingGlass}
