@@ -2,14 +2,20 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-02 17:17
+ * @lastEditTime: 2022-07-03 00:28
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Fragment, useEffect, useState } from "react";
-import ListActionPanel, { ActionFeedback, getListItemIcon, getWordAccessories } from "./components";
+import ListActionPanel, {
+  ActionCurrentVersion,
+  ActionFeedback,
+  ActionRecentUpdate,
+  getListItemIcon,
+  getWordAccessories,
+} from "./components";
 import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import {
   LanguageItem,
@@ -468,6 +474,8 @@ export default function () {
       actions={
         <ActionPanel>
           <ActionFeedback />
+          <ActionRecentUpdate />
+          <ActionCurrentVersion />
         </ActionPanel>
       }
     >
