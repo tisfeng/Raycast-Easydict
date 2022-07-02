@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-02 00:02
+ * @lastEditTime: 2022-07-02 17:17
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Fragment, useEffect, useState } from "react";
-import { ActionFeedback, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
+import ListActionPanel, { ActionFeedback, getListItemIcon, getWordAccessories } from "./components";
 import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import {
   LanguageItem,
@@ -17,7 +17,7 @@ import {
   TranslateTypeResult,
   YoudaoTranslateResult,
   TranslateFormatResult,
-  QueryTextInfo,
+  QueryWordInfo,
   RequestErrorInfo,
 } from "./types";
 import {
@@ -28,12 +28,9 @@ import {
   YoudaoRequestStateCode,
 } from "./consts";
 import {
-  checkIsInstalledEudic,
   defaultLanguage1,
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
-  getEudicWebTranslateURL,
-  getYoudaoWebTranslateURL,
   myPreferences,
   isTranslateResultTooLong,
   isShowMultipleTranslations,
@@ -57,7 +54,6 @@ import {
 import { detectLanguage } from "./detectLanguage";
 import { appleTranslate } from "./scripts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
-import { EasydictVersionInfo } from "./releaseVersion/version";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -84,7 +80,6 @@ export default function () {
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
-  const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   /**
    * use to display input text
@@ -125,18 +120,6 @@ export default function () {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
-
-  function checkUpdatePrompt() {
-    const easydict = new EasydictVersionInfo();
-    easydict.checkVersion((isUpdated) => {
-      if (!isUpdated) {
-        console.log("EasyDict need to date:", JSON.stringify(easydict, null, 2));
-        easydict.storeVersionInfo();
-      } else {
-        console.log("EasyDict has been updated");
-      }
-    });
-  }
 
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
@@ -189,17 +172,18 @@ export default function () {
       setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(tartgetLanguageId));
       console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
     }
-    const queryTextInfo: QueryTextInfo = {
-      queryText: searchText,
+    const queryTextInfo: QueryWordInfo = {
+      word: searchText,
       fromLanguage: youdaoLanguageId,
       toLanguage: tartgetLanguageId,
+      isWord: false,
     };
     queryTextWithTextInfo(queryTextInfo);
   }
 
-  async function queryTextWithTextInfo(queryTextInfo: QueryTextInfo) {
+  async function queryTextWithTextInfo(queryTextInfo: QueryWordInfo) {
     const [queryText, fromLanguage, toLanguage] = [
-      queryTextInfo.queryText,
+      queryTextInfo.word,
       queryTextInfo.fromLanguage,
       queryTextInfo.toLanguage,
     ];
@@ -245,7 +229,6 @@ export default function () {
 
       setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
       updateTranslateDisplayResult(formatResult);
-      checkIsInstalledEudic(setIsInstalledEudic);
 
       // request other translate API to show multiple translations
       if (isShowMultipleTranslations(formatResult)) {
@@ -345,7 +328,7 @@ export default function () {
   /**
    * delay query search text, later can cancel the query
    */
-  function delayQueryWithTextInfo(queryTextInfo: QueryTextInfo) {
+  function delayQueryWithTextInfo(queryTextInfo: QueryWordInfo) {
     delayQueryTextInfoTimer = setTimeout(() => {
       queryTextWithTextInfo(queryTextInfo);
     }, delayRequestTime);
@@ -379,18 +362,16 @@ export default function () {
       );
     }
 
-    // Todo: need to optimize.
-    const eudicWebUrl = getEudicWebTranslateURL(
-      searchText || "",
-      currentFromLanguageItem,
-      autoSelectedTargetLanguageItem
-    );
-
-    const youdaoWebUrl = getYoudaoWebTranslateURL(
-      searchText || "",
-      currentFromLanguageItem,
-      autoSelectedTargetLanguageItem
-    );
+    // function: onLanguageUpdate,
+    const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
+      setAutoSelectedTargetLanguageItem(selectedLanguageItem);
+      setUserSelectedTargetLanguageItem(selectedLanguageItem);
+      queryTextWithTextInfo({
+        word: searchText,
+        fromLanguage: currentFromLanguageItem.youdaoLanguageId,
+        toLanguage: selectedLanguageItem.youdaoLanguageId,
+      });
+    };
 
     return (
       <Fragment>
@@ -410,28 +391,10 @@ export default function () {
                     accessories={getWordAccessories(resultItem.type, item)}
                     detail={<List.Item.Detail markdown={item.translationMarkdown} />}
                     actions={
-                      // Todo: need to optimize
                       <ListActionPanel
-                        isInstalledEudic={isInstalledEudic}
-                        isShowOpenInEudicWeb={eudicWebUrl.length != 0}
-                        isShowOpenInYoudaoWeb={youdaoWebUrl.length != 0}
-                        eudicWebUrl={eudicWebUrl}
-                        youdaoWebUrl={youdaoWebUrl}
-                        queryText={searchText}
                         queryWordInfo={item.queryWordInfo}
                         copyText={item.copyText}
-                        // Todo: redundant params
-                        currentFromLanguage={currentFromLanguageItem}
-                        currentTargetLanguage={autoSelectedTargetLanguageItem}
-                        onLanguageUpdate={(selectedLanguageItem) => {
-                          setAutoSelectedTargetLanguageItem(selectedLanguageItem);
-                          setUserSelectedTargetLanguageItem(selectedLanguageItem);
-                          queryTextWithTextInfo({
-                            queryText: searchText,
-                            fromLanguage: currentFromLanguageItem.youdaoLanguageId,
-                            toLanguage: selectedLanguageItem.youdaoLanguageId,
-                          });
-                        }}
+                        onLanguageUpdate={updateSelectedTargetLanguageItem}
                       />
                     }
                   />
@@ -494,8 +457,6 @@ export default function () {
   function onInputChangeEvent(text: string) {
     updateInputTextAndQueryTextNow(text, false);
   }
-
-  checkUpdatePrompt();
 
   return (
     <List

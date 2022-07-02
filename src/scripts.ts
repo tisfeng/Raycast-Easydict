@@ -10,7 +10,7 @@
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
-import { QueryTextInfo, RequestErrorInfo } from "./types";
+import { QueryWordInfo, RequestErrorInfo } from "./types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { eudicBundleId } from "./components";
 import { getLanguageItemFromYoudaoId } from "./utils";
@@ -52,7 +52,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
 /**
  * Run apple Translate shortcuts with the given QueryWordInfo, return promise
  */
-export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | undefined> {
+export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | undefined> {
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
   const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
@@ -62,7 +62,7 @@ export function appleTranslate(queryTextInfo: QueryTextInfo): Promise<string | u
   }
 
   const map = new Map([
-    ["text", queryTextInfo.queryText],
+    ["text", queryTextInfo.word],
     ["from", appleFromLanguageId], // * NOTE: if no from language, it will auto detect
     ["to", appleToLanguageId],
   ]);

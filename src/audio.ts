@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:41
+ * @lastEditTime: 2022-07-02 15:33
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -91,11 +91,16 @@ function sayCommand(text: string, youdaoLanguageId: string) {
      */
     const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
     console.log(sayCommand);
-    exec(sayCommand, (error) => {
+    const childProcess = exec(sayCommand, (error) => {
       if (error) {
         console.error(`sayCommand error: ${error}`);
       }
     });
+
+    // Todo: need to refactor, change to a MyAudio class
+    setTimeout(() => {
+      childProcess.kill();
+    }, 10000);
   }
 }
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 16:42
+ * @lastEditTime: 2022-07-02 17:29
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Clipboard, environment, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import { LanguageItem, MyPreferences, QueryRecoredItem, TranslateFormatResult } from "./types";
+import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslateFormatResult } from "./types";
 import CryptoJS from "crypto-js";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
@@ -105,24 +105,13 @@ export function isValidLanguageId(languageId: string): boolean {
 }
 
 /**
- * get another language item except chinese
- */
-export function getLanguageItemExceptChinese(from: LanguageItem, to: LanguageItem): LanguageItem {
-  if (from.youdaoLanguageId === "zh-CHS") {
-    return to;
-  } else {
-    return from;
-  }
-}
-
-/**
  * get another language item expcept chinese from language item array
  */
-export function getLanguageItemOfTwoExceptChinese(languageItems: [LanguageItem, LanguageItem]): LanguageItem {
-  if (languageItems[0].youdaoLanguageId === "zh-CHS") {
-    return languageItems[1];
+export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string]): string {
+  if (youdaoLanguageIds[0] === "zh-CHS") {
+    return youdaoLanguageIds[1];
   } else {
-    return languageItems[0];
+    return youdaoLanguageIds[0];
   }
 }
 
@@ -154,27 +143,30 @@ export function isTranslateResultTooLong(formatResult: TranslateFormatResult | n
   return false;
 }
 
-export function getEudicWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  const eudicWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).eudicWebLanguageId;
-  if (eudicWebLanguageId) {
-    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryText)}`;
+export function getEudicWebTranslateURL(queryTextInfo: QueryWordInfo): string {
+  const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
+  const eudicWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
+  if (languageId) {
+    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryTextInfo.word)}`;
   }
   return "";
 }
 
-export function getYoudaoWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  const youdaoWebLanguageId = getLanguageItemOfTwoExceptChinese([from, to]).youdaoWebLanguageId;
-
+export function getYoudaoWebTranslateURL(queryTextInfo: QueryWordInfo): string {
+  const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
+  const youdaoWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
   if (youdaoWebLanguageId) {
-    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(queryText)}`;
+    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(queryTextInfo.word)}`;
   }
   return "";
 }
 
-export function getGoogleWebTranslateURL(queryText: string, from: LanguageItem, to: LanguageItem): string {
-  const fromLanguageId = from.googleLanguageId || from.youdaoLanguageId;
-  const toLanguageId = to.googleLanguageId || to.youdaoLanguageId;
-  const text = encodeURI(queryText);
+export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string {
+  const fromLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage);
+  const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
+  const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
+  const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
+  const text = encodeURI(queryTextInfo.word);
   return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
 }
 

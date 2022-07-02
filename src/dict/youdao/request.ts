@@ -21,7 +21,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  */
 export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo) {
   tryDownloadYoudaoAudio(queryWordInfo, () => {
-    playWordAudio(queryWordInfo.wordText, queryWordInfo.fromLanguage);
+    playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
   });
 }
 
@@ -33,12 +33,12 @@ export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo
  */
 export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () => void, forceDownload = false) {
   if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
-    downloadYoudaoEnglishWordAudio(queryWordInfo.wordText, callback, (forceDownload = false));
-  } else if (queryWordInfo.wordText.length < maxTextLengthOfDownloadYoudaoTTSAudio) {
+    downloadYoudaoEnglishWordAudio(queryWordInfo.word, callback, (forceDownload = false));
+  } else if (queryWordInfo.word.length < maxTextLengthOfDownloadYoudaoTTSAudio) {
     if (queryWordInfo.speechUrl) {
-      downloadWordAudioWithURL(queryWordInfo.wordText, queryWordInfo.speechUrl, callback, forceDownload);
+      downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
     } else {
-      console.warn(`youdao tts url not found: ${queryWordInfo.wordText}`);
+      console.warn(`youdao tts url not found: ${queryWordInfo.word}`);
       callback && callback();
     }
   } else {

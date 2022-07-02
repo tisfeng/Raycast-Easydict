@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 19:40
+ * @lastEditTime: 2022-07-02 17:28
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,11 +12,11 @@ import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/
 import { RequestType, SectionType, TranslateType } from "./consts";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 
-export interface QueryTextInfo {
-  queryText: string;
-  fromLanguage: string;
-  toLanguage: string;
-}
+// export interface QueryTextInfo {
+//   queryText: string;
+//   fromLanguage: string;
+//   toLanguage: string;
+// }
 
 export interface TranslateTypeResult {
   type: RequestType;
@@ -47,12 +47,12 @@ export interface YoudaoTranslateResult {
 export type YoudaoDictionaryResult = YoudaoTranslateResult;
 
 export interface QueryWordInfo {
-  wordText: string;
-  phonetic?: string;
-  speech?: string;
+  word: string;
   fromLanguage: string;
   toLanguage: string;
-  isWord: boolean;
+  isWord?: boolean; // * NOTE: youdao return must be have value.
+  phonetic?: string;
+  speech?: string;
   examTypes?: string[];
   audioPath?: string;
   speechUrl?: string; // youdao tts url, some language not have tts url, such as "ຂາດ"
@@ -109,18 +109,20 @@ export interface MyPreferences {
   enableAppleTranslate: boolean;
 }
 
-export interface ListItemActionPanelItem {
-  isInstalledEudic: boolean;
-  isShowOpenInEudicWeb: boolean;
-  eudicWebUrl: string;
-  isShowOpenInYoudaoWeb: boolean;
-  youdaoWebUrl: string;
-  copyText: string;
-  queryText: string;
+export interface ActionListPanelProps {
   queryWordInfo: QueryWordInfo;
-  currentFromLanguage: LanguageItem;
-  currentTargetLanguage: LanguageItem;
   onLanguageUpdate: (language: LanguageItem) => void;
+  copyText: string;
+
+  // isNeedPrompt: boolean;
+  // isInstalledEudic: boolean;
+  // isShowOpenInEudicWeb: boolean;
+  // eudicWebUrl: string;
+  // isShowOpenInYoudaoWeb: boolean;
+  // youdaoWebUrl: string;
+  // queryText: string;
+  // currentFromLanguage: LanguageItem;
+  // currentTargetLanguage: LanguageItem;
 }
 
 export interface RequestErrorInfo {
