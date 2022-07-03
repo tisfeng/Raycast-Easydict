@@ -23,7 +23,7 @@ import { openInEudic } from "./scripts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { ReleaseDetail } from "./releaseVersion/releaseDetail";
 import { useState } from "react";
-import { Easydict } from "./releaseVersion/version";
+import { Easydict } from "./releaseVersion/versionInfo";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 

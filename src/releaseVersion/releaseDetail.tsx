@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 21:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 22:21
+ * @lastEditTime: 2022-07-04 00:53
  * @fileName: releaseDetail.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,8 +10,7 @@
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
 import { useState } from "react";
-import { changelog } from "./changelog";
-import { Easydict } from "./version";
+import { Easydict } from "./versionInfo";
 
 /**
  * Return a release Detail page with the markdown content.
@@ -19,7 +18,7 @@ import { Easydict } from "./version";
  * @fallbackMarkdown The placeholder markdown content before fetching from GitHub.
  */
 export function ReleaseDetail(props: { fallbackMarkdown?: string }) {
-  const [releaseMarkdown, setReleaseMarkdown] = useState<string>(changelog);
+  const [releaseMarkdown, setReleaseMarkdown] = useState<string>();
 
   console.log(`call ReleaseDetail function`);
   const easydict = new Easydict();
@@ -29,12 +28,11 @@ export function ReleaseDetail(props: { fallbackMarkdown?: string }) {
       setReleaseMarkdown(markdown);
     } else {
       console.error("Failed to fetch GitHub release markdown, use local stored instead.");
-      setReleaseMarkdown(easydict.releaseMarkdown);
+      easydict.getLocalStoredMarkdown().then((markdown) => {
+        setReleaseMarkdown(markdown);
+      });
     }
   });
-
-  // Todo: need to set hasPrompted to true when user click the button, and store the value to local storage.
-  easydict.hasPrompted = false;
 
   return (
     <Detail

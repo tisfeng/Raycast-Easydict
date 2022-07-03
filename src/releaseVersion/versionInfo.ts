@@ -2,8 +2,8 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 22:15
- * @fileName: version.ts
+ * @lastEditTime: 2022-07-04 00:58
+ * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
@@ -22,38 +22,13 @@ export class Easydict {
   static repo = "Raycast-Easydict";
 
   // new version info
-  // static currentInfo = new Easydict("1.1.0", 3, "2022-07-01", true, false, "");
-
-  // * NOTE: new version info, don't use it directly. Use getCurrentStoredVersionInfo() instead.
+  // * NOTE: this is new version info, don't use it directly. Use getCurrentStoredVersionInfo() instead.
   version = "1.1.0";
   buildNumber = 3;
   versionDate = "2022-07-01";
   isNeedPrompt = true;
   hasPrompted = false; // only show once, then will be set to true
   releaseMarkdown = changelog;
-
-  // version: string;
-  // buildNumber: number;
-  // versionDate: string;
-  // isNeedPrompt: boolean;
-  // hasPrompt: boolean;
-  // releaseMarkdown: string;
-
-  // constructor(
-  //   version: string,
-  //   buildNumber: number,
-  //   versionDate: string,
-  //   isNeedPrompt: boolean,
-  //   hasPrompt: boolean,
-  //   releaseMarkdown: string
-  // ) {
-  //   this.version = version;
-  //   this.buildNumber = buildNumber;
-  //   this.versionDate = versionDate;
-  //   this.isNeedPrompt = isNeedPrompt;
-  //   this.hasPrompt = hasPrompt;
-  //   this.releaseMarkdown = releaseMarkdown;
-  // }
 
   getRepoUrl() {
     return `${githubUrl}/${Easydict.author}/${Easydict.repo}`;
@@ -68,7 +43,7 @@ export class Easydict {
   }
 
   /**
-   * 项目中文介绍 https://github.com/tisfeng/Raycast-Easydict/wiki
+   * Chinese Wiki: https://github.com/tisfeng/Raycast-Easydict/wiki
    */
   public getChineseWikiUrl() {
     return `${this.getRepoUrl()}/wiki`;
@@ -76,30 +51,12 @@ export class Easydict {
 
   /**
    *  Release tag url: /repos/{owner}/{repo}/releases/tags/{tag}
+   *
    *  https://api.github.com/repos/tisfeng/Raycast-Easydict/releases/tags/1.1.0
    */
   public getReleaseApiUrl() {
     return `${githubApiUrl}/repos/${Easydict.author}/${Easydict.repo}/releases/tags/${this.version}`;
   }
-
-  /**
-   * Get current version info, return a promise EasydictInfo.
-   */
-  // async getCurrentStoredVersionInfo(): Promise<Easydict> {
-  //   const startTime = Date.now();
-  //   const currentVersionKey = `${versionInfoKey}-${this.version}`;
-  //   const currentVersionInfo = await this.getVersionInfo(currentVersionKey);
-  //   if (currentVersionInfo) {
-  //     console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
-  //     return Promise.resolve(currentVersionInfo);
-  //   } else {
-  //     const startStoredTime = Date.now();
-  //     await this.storeCurrentVersionInfo();
-  //     console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
-  //     console.log(`store and get current stored version cost time: ${Date.now() - startTime} ms`);
-  //     return Promise.resolve(this);
-  //   }
-  // }
 
   /**
    * Store current version info.
@@ -108,14 +65,6 @@ export class Easydict {
     const jsonString = JSON.stringify(this);
     const currentVersionKey = `${versionInfoKey}-${this.version}`;
     return LocalStorage.setItem(currentVersionKey, jsonString);
-  }
-
-  /**
-   * Remove current version info.
-   */
-  removeCurrentVersionInfo() {
-    const currentVersionKey = `${versionInfoKey}-${this.version}`;
-    LocalStorage.removeItem(currentVersionKey);
   }
 
   /**
@@ -149,46 +98,41 @@ export class Easydict {
   }
 
   /**
-   * Check if need store current version info.
-   */
-  // private async checkHasNewVersion(): Promise<boolean> {
-  //   const storedVersionInfo = await this.getCurrentStoredVersionInfo();
-  //   if (storedVersionInfo) {
-  //     const currentVersion = parseFloat(this.version);
-  //     const storedVersion = parseFloat(storedVersionInfo.version);
-  //     const hasNewVersion = currentVersion > storedVersion;
-  //     return Promise.resolve(hasNewVersion);
-  //   } else {
-  //     this.storeCurrentVersionInfo();
-  //   }
-  //   return Promise.resolve(true);
-  // }
-
-  /**
    * Fetch release markdown, return a promise string.
    * First, fetech markdown from github, if failed, then read from localStorage.
    *
    * * NOTE: if fetch markdown from github success, then will store `this`(Easydict) to localStorage.
    */
-  public async fetchReleaseMarkdown(): Promise<string | undefined> {
+  public async fetchReleaseMarkdown(): Promise<string> {
     try {
       console.log("fetch release markdown from github");
       const releaseInfo = await this.fetchReleaseInfo(this.getReleaseApiUrl());
-      if (releaseInfo) {
-        const releaseBody = releaseInfo.body;
-        console.log("fetch release markdown from github success");
-        if (releaseBody) {
-          this.releaseMarkdown = releaseBody;
-          this.storeCurrentVersionInfo();
-          return Promise.resolve(releaseBody);
-        }
+      const releaseMarkdown = releaseInfo.body;
+      console.log("fetch release markdown from github success");
+      if (releaseMarkdown) {
+        this.releaseMarkdown = releaseMarkdown;
+        this.hasPrompted = true; // need to set hasPrompted to true when user viewed `ReleaseDetail` page.
+        // Todo: only for test, remove it later.
+        this.hasPrompted = false;
+        this.storeCurrentVersionInfo(); // store the value to local storage.
+        return Promise.resolve(releaseMarkdown);
+      } else {
+        console.log("fetch release markdown from github failed");
+        return this.getLocalStoredMarkdown();
       }
     } catch (error) {
       console.error(`fetch release markdown error: ${error}`);
-      const currentVersionInfo = await this.getCurrentVersionInfo();
-      console.log(`use local storaged markdown : ${currentVersionInfo?.version}`);
-      return Promise.resolve(currentVersionInfo?.releaseMarkdown);
+      console.log(`use local storaged markdown`);
+      return this.getLocalStoredMarkdown();
     }
+  }
+
+  /**
+   * Get local stored markdown, return a promise string.
+   */
+  public async getLocalStoredMarkdown(): Promise<string> {
+    const currentVersionInfo = await this.getCurrentVersionInfo();
+    return Promise.resolve(currentVersionInfo.releaseMarkdown);
   }
 
   /**
