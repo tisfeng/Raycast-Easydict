@@ -136,7 +136,7 @@ export class Easydict {
     const currentVersionKey = `${versionInfoKey}-${this.version}`;
     const currentEasydictInfo = await this.getVersionInfo(currentVersionKey);
     if (currentEasydictInfo) {
-      console.log(`get current easydict cost time: ${Date.now() - startTime} ms`);
+      // console.log(`get current easydict cost time: ${Date.now() - startTime} ms`);
       return Promise.resolve(currentEasydictInfo);
     } else {
       const startStoredTime = Date.now();

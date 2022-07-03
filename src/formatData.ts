@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-06-28 21:15
+ * @lastEditTime: 2022-07-03 19:50
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -261,17 +261,18 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
   if (formatResult.webTranslation) {
     const webResultKey = formatResult.webTranslation?.key;
     const webResultValue = formatResult.webTranslation.value.join("；");
+    const copyText = `${webResultKey} ${webResultValue}`;
     displayResult.push({
       type: SectionType.WebTranslation,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          key: webResultKey,
+          key: copyText,
           title: webResultKey,
           queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.WebTranslation,
           subtitle: webResultValue,
-          copyText: `${webResultKey} ${webResultValue}`,
+          copyText: copyText,
         },
       ],
     });
@@ -282,17 +283,18 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
   formatResult.webPhrases?.forEach((phrase, i) => {
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
+    const copyText = `${phraseKey} ${phraseValue}`;
     displayResult.push({
       type: SectionType.WebPhrase,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          key: phraseKey + i,
+          key: copyText + i,
           title: phraseKey,
           queryWordInfo: formatResult.queryWordInfo,
           tooltip: SectionType.WebPhrase,
           subtitle: phraseValue,
-          copyText: `${phraseKey} ${phraseValue}`,
+          copyText: copyText,
         },
       ],
     });

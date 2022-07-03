@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-02 15:33
+ * @lastEditTime: 2022-07-03 18:09
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,18 +27,17 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   if (!fs.existsSync(audioPath)) {
     console.log(`word audio file not found: ${word}`);
     if (useSayCommand) {
-      sayTruncateCommand(word, fromLanguage);
+      return sayTruncateCommand(word, fromLanguage);
     }
-    return;
   }
   console.log(`play word: ${word}`);
 
-  player.play(audioPath, (err) => {
+  return player.play(audioPath, (err) => {
     if (err) {
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
       console.error(`play word audio error: ${err}`);
       console.log(`audioPath: ${encodeURI(audioPath)}`);
-      sayTruncateCommand(word, fromLanguage);
+      return sayTruncateCommand(word, fromLanguage);
     }
   });
 }
@@ -66,7 +65,7 @@ function afplayAudioPath(audioPath: string) {
   */
 export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
   const truncateText = trimTextLength(text, 40);
-  sayCommand(truncateText, youdaoLanguageId);
+  return sayCommand(truncateText, youdaoLanguageId);
 }
 
 /**
@@ -97,10 +96,7 @@ function sayCommand(text: string, youdaoLanguageId: string) {
       }
     });
 
-    // Todo: need to refactor, change to a MyAudio class
-    setTimeout(() => {
-      childProcess.kill();
-    }, 10000);
+    return childProcess;
   }
 }
 

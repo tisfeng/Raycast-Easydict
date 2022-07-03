@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-02 17:28
+ * @lastEditTime: 2022-07-03 20:02
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,12 +11,6 @@
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { RequestType, SectionType, TranslateType } from "./consts";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
-
-// export interface QueryTextInfo {
-//   queryText: string;
-//   fromLanguage: string;
-//   toLanguage: string;
-// }
 
 export interface TranslateTypeResult {
   type: RequestType;
@@ -110,19 +104,8 @@ export interface MyPreferences {
 }
 
 export interface ActionListPanelProps {
-  queryWordInfo: QueryWordInfo;
+  displayItem: TranslateDisplayItem;
   onLanguageUpdate: (language: LanguageItem) => void;
-  copyText: string;
-
-  // isNeedPrompt: boolean;
-  // isInstalledEudic: boolean;
-  // isShowOpenInEudicWeb: boolean;
-  // eudicWebUrl: string;
-  // isShowOpenInYoudaoWeb: boolean;
-  // youdaoWebUrl: string;
-  // queryText: string;
-  // currentFromLanguage: LanguageItem;
-  // currentTargetLanguage: LanguageItem;
 }
 
 export interface RequestErrorInfo {

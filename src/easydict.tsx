@@ -400,13 +400,7 @@ export default function () {
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
                     detail={<List.Item.Detail markdown={item.translationMarkdown} />}
-                    actions={
-                      <ListActionPanel
-                        queryWordInfo={item.queryWordInfo}
-                        copyText={item.copyText}
-                        onLanguageUpdate={updateSelectedTargetLanguageItem}
-                      />
-                    }
+                    actions={<ListActionPanel displayItem={item} onLanguageUpdate={updateSelectedTargetLanguageItem} />}
                   />
                 );
               })}

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 17:27
+ * @lastEditTime: 2022-07-03 20:00
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -60,8 +60,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
     setHasPrompted(easydict.hasPrompted);
   });
 
-  const eudicWebUrl = getEudicWebTranslateURL(props.queryWordInfo);
-  const youdaoWebUrl = getYoudaoWebTranslateURL(props.queryWordInfo);
+  const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
+  const youdaoWebUrl = getYoudaoWebTranslateURL(props.displayItem.queryWordInfo);
 
   return (
     <ActionPanel>
@@ -72,15 +72,15 @@ export default function ListActionPanel(props: ActionListPanelProps) {
           <Action
             icon={Icon.MagnifyingGlass}
             title="Open in Eudic"
-            onAction={() => openInEudic(props.queryWordInfo.word)}
+            onAction={() => openInEudic(props.displayItem.queryWordInfo.word)}
           />
         )}
         <Action.CopyToClipboard
           onCopy={() => {
-            console.log("copy: ", props.copyText);
+            console.log("copy: ", props.displayItem.copyText);
           }}
           title={`Copy Text`}
-          content={props.copyText || ""}
+          content={props.displayItem.copyText || ""}
         />
       </ActionPanel.Section>
 
@@ -95,7 +95,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
         <Action.OpenInBrowser
           icon={Icon.MagnifyingGlass}
           title="Google Translate"
-          url={getGoogleWebTranslateURL(props.queryWordInfo)}
+          url={getGoogleWebTranslateURL(props.displayItem.queryWordInfo)}
         />
       </ActionPanel.Section>
 
@@ -105,8 +105,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
           icon={playSoundIcon("black")}
           shortcut={{ modifiers: ["cmd"], key: "s" }}
           onAction={() => {
-            console.log(`start play sound: ${props.queryWordInfo.word}`);
-            playYoudaoWordAudioAfterDownloading(props.queryWordInfo);
+            console.log(`start play sound: ${props.displayItem.queryWordInfo.word}`);
+            playYoudaoWordAudioAfterDownloading(props.displayItem.queryWordInfo);
           }}
         />
         <Action
@@ -118,7 +118,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
              *  because it is difficult to determine whether the result is a word, impossible to use Youdao web audio directly.
              *  in addition, TTS needs to send additional youdao query requests.
              */
-            sayTruncateCommand(props.copyText, props.queryWordInfo.toLanguage);
+            sayTruncateCommand(props.displayItem.copyText, props.displayItem.queryWordInfo.toLanguage);
           }}
         />
       </ActionPanel.Section>
@@ -126,7 +126,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       {myPreferences.isDisplayTargetTranslationLanguage && (
         <ActionPanel.Section title="Target Language">
           {languageItemList.map((region) => {
-            if (props.queryWordInfo.fromLanguage === region.youdaoLanguageId) {
+            if (props.displayItem.queryWordInfo.fromLanguage === region.youdaoLanguageId) {
               return null;
             }
 
@@ -135,7 +135,11 @@ export default function ListActionPanel(props: ActionListPanelProps) {
                 key={region.youdaoLanguageId}
                 title={region.languageTitle}
                 onAction={() => props.onLanguageUpdate(region)}
-                icon={props.queryWordInfo.fromLanguage === region.youdaoLanguageId ? Icon.ArrowRight : Icon.Globe}
+                icon={
+                  props.displayItem.queryWordInfo.fromLanguage === region.youdaoLanguageId
+                    ? Icon.ArrowRight
+                    : Icon.Globe
+                }
               />
             );
           })}
