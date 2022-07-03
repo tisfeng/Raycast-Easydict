@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 11:31
+ * @lastEditTime: 2022-07-03 17:43
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,10 +76,8 @@ let delayQueryTextInfoTimer: NodeJS.Timeout;
  */
 let startTime: number;
 
-console.log("easydict.tsx");
-
 export default function () {
-  console.log(`enter default function`);
+  console.log(`call default function`);
   checkWhetherTwoPreferredLanguagesAreSame();
 
   /**
@@ -139,6 +137,7 @@ export default function () {
     const startTime = Date.now();
     getSelectedText()
       .then((selectedText) => {
+        selectedText = trimTextLength(selectedText);
         new Date().getTime;
         console.log(`getSelectedText: ${selectedText}, cost time: ${Date.now() - startTime} ms`);
         updateInputTextAndQueryTextNow(selectedText, true);

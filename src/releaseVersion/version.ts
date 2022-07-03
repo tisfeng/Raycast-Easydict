@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 11:30
+ * @lastEditTime: 2022-07-03 17:42
  * @fileName: version.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -28,7 +28,7 @@ export class Easydict {
   buildNumber = 3;
   versionDate = "2022-07-01";
   isNeedPrompt = true;
-  hasPrompt = false; // only show once, then will be set to true
+  hasPrompted = false; // only show once, then will be set to true
   releaseMarkdown = "Release Markdown";
 
   // version: string;
@@ -84,26 +84,26 @@ export class Easydict {
   /**
    * Get current version info, return a promise EasydictInfo.
    */
-  async getCurrentStoredVersionInfo(): Promise<Easydict> {
-    const startTime = Date.now();
-    const currentVersionKey = `${versionInfoKey}-${this.version}`;
-    const currentVersionInfo = await this.getVersionInfo(currentVersionKey);
-    if (currentVersionInfo) {
-      console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
-      return Promise.resolve(currentVersionInfo);
-    } else {
-      const startStoredTime = Date.now();
-      await this.storeCurrentVersionInfo();
-      console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
-      console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
-      return Promise.resolve(this);
-    }
-  }
+  // async getCurrentStoredVersionInfo(): Promise<Easydict> {
+  //   const startTime = Date.now();
+  //   const currentVersionKey = `${versionInfoKey}-${this.version}`;
+  //   const currentVersionInfo = await this.getVersionInfo(currentVersionKey);
+  //   if (currentVersionInfo) {
+  //     console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
+  //     return Promise.resolve(currentVersionInfo);
+  //   } else {
+  //     const startStoredTime = Date.now();
+  //     await this.storeCurrentVersionInfo();
+  //     console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
+  //     console.log(`store and get current stored version cost time: ${Date.now() - startTime} ms`);
+  //     return Promise.resolve(this);
+  //   }
+  // }
 
   /**
    * Store current version info.
    */
-  public storeCurrentVersionInfo() {
+  private storeCurrentVersionInfo() {
     const jsonString = JSON.stringify(this);
     const currentVersionKey = `${versionInfoKey}-${this.version}`;
     return LocalStorage.setItem(currentVersionKey, jsonString);
@@ -129,6 +129,25 @@ export class Easydict {
   }
 
   /**
+   * Get current version info, return a promise EasydictInfo.
+   */
+  async getCurrentVersionInfo(): Promise<Easydict> {
+    const startTime = Date.now();
+    const currentVersionKey = `${versionInfoKey}-${this.version}`;
+    const currentEasydictInfo = await this.getVersionInfo(currentVersionKey);
+    if (currentEasydictInfo) {
+      console.log(`get current easydict cost time: ${Date.now() - startTime} ms`);
+      return Promise.resolve(currentEasydictInfo);
+    } else {
+      const startStoredTime = Date.now();
+      await this.storeCurrentVersionInfo();
+      console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
+      console.log(`store and get current version cost time: ${Date.now() - startTime} ms`);
+      return Promise.resolve(this);
+    }
+  }
+
+  /**
    * Check if need store current version info.
    */
   // private async checkHasNewVersion(): Promise<boolean> {
@@ -147,6 +166,8 @@ export class Easydict {
   /**
    * Fetch release markdown, return a promise string.
    * First, fetech markdown from github, if failed, then read from localStorage.
+   *
+   * * NOTE: if fetch markdown from github success, then will store `this`(Easydict) to localStorage.
    */
   public async fetchReleaseMarkdown(): Promise<string | undefined> {
     try {
@@ -154,7 +175,7 @@ export class Easydict {
       const releaseInfo = await this.fetchReleaseInfo(this.getReleaseApiUrl());
       if (releaseInfo) {
         const releaseBody = releaseInfo.body;
-        // console.log("release body: ", releaseBody);
+        console.log("fetch release markdown from github success");
         if (releaseBody) {
           this.releaseMarkdown = releaseBody;
           this.storeCurrentVersionInfo();
@@ -163,8 +184,8 @@ export class Easydict {
       }
     } catch (error) {
       console.error(`fetch release markdown error: ${error}`);
-      const currentVersionInfo = await this.getCurrentStoredVersionInfo();
-      console.log(`read markdown from local storage: ${currentVersionInfo?.version}`);
+      const currentVersionInfo = await this.getCurrentVersionInfo();
+      console.log(`use local storaged markdown : ${currentVersionInfo?.version}`);
       return Promise.resolve(currentVersionInfo?.releaseMarkdown);
     }
   }

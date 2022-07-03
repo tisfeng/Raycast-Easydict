@@ -111,3 +111,6 @@ Icon*
 
 # vscode
 .vscode/
+
+# Webstorm config
+.idea/
