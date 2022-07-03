@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 00:28
+ * @lastEditTime: 2022-07-03 11:31
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,7 +76,10 @@ let delayQueryTextInfoTimer: NodeJS.Timeout;
  */
 let startTime: number;
 
+console.log("easydict.tsx");
+
 export default function () {
+  console.log(`enter default function`);
   checkWhetherTwoPreferredLanguagesAreSame();
 
   /**
@@ -341,7 +344,9 @@ export default function () {
   }
 
   function ListDetail() {
-    if (!youdaoTranslateTypeResult) return null;
+    if (!youdaoTranslateTypeResult) {
+      return null;
+    }
 
     const youdaoErrorCode = (youdaoTranslateTypeResult.result as YoudaoTranslateResult).errorCode;
     const youdaoErrorMessage = youdaoTranslateTypeResult?.errorInfo?.message;

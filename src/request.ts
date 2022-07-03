@@ -73,7 +73,7 @@ const client = new TmtClient(clientConfig);
 /**
  * Caclulate axios request cost time
  */
-const requestDuration = "request-duration";
+export const requestCostTime = "x-request-cost";
 axios.interceptors.request.use(function (config: AxiosRequestConfig) {
   if (config.headers) {
     config.headers["request-startTime"] = new Date().getTime();
@@ -84,7 +84,7 @@ axios.interceptors.response.use(function (response) {
   if (response.config.headers) {
     const startTime = response.config.headers["request-startTime"] as number;
     const endTime = new Date().getTime();
-    response.headers[requestDuration] = (endTime - startTime).toString();
+    response.headers[requestCostTime] = (endTime - startTime).toString();
   }
   return response;
 });
@@ -198,7 +198,7 @@ export function requestYoudaoDictionary(
     axios
       .post(url, params)
       .then((response) => {
-        console.log(`youdao translate cost: ${response.headers[requestDuration]} ms`);
+        console.log(`youdao translate cost: ${response.headers[requestCostTime]} ms`);
         resolve({
           type: TranslateType.Youdao,
           result: response.data,
@@ -244,7 +244,7 @@ export function requestBaiduTextTranslate(
         const baiduResult = response.data as BaiduTranslateResult;
         if (baiduResult.trans_result) {
           const translateText = baiduResult.trans_result[0].dst;
-          console.log(`baidu translate: ${translateText}, cost: ${response.headers[requestDuration]} ms`);
+          console.log(`baidu translate: ${translateText}, cost: ${response.headers[requestCostTime]} ms`);
           resolve({
             type: TranslateType.Baidu,
             result: baiduResult,
@@ -307,7 +307,7 @@ export function requestCaiyunTextTranslate(
       .post(url, params, headers)
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
-        console.log(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestDuration]} ms`);
+        console.log(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestCostTime]} ms`);
         resolve({
           type: TranslateType.Caiyun,
           result: caiyunResult,

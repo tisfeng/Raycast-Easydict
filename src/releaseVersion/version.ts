@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 01:56
+ * @lastEditTime: 2022-07-03 11:30
  * @fileName: version.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,6 +10,7 @@
 
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
+import { requestCostTime } from "../request";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";
@@ -28,7 +29,7 @@ export class Easydict {
   versionDate = "2022-07-01";
   isNeedPrompt = true;
   hasPrompt = false; // only show once, then will be set to true
-  releaseMarkdown = "";
+  releaseMarkdown = "Release Markdown";
 
   // version: string;
   // buildNumber: number;
@@ -69,7 +70,7 @@ export class Easydict {
    * 项目中文介绍 https://github.com/tisfeng/Raycast-Easydict/wiki
    */
   public getChineseWikiUrl() {
-    return `${this.getRepoUrl}/wiki`;
+    return `${this.getRepoUrl()}/wiki`;
   }
 
   /**
@@ -84,12 +85,17 @@ export class Easydict {
    * Get current version info, return a promise EasydictInfo.
    */
   async getCurrentStoredVersionInfo(): Promise<Easydict> {
+    const startTime = Date.now();
     const currentVersionKey = `${versionInfoKey}-${this.version}`;
     const currentVersionInfo = await this.getVersionInfo(currentVersionKey);
     if (currentVersionInfo) {
+      console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
       return Promise.resolve(currentVersionInfo);
     } else {
+      const startStoredTime = Date.now();
       await this.storeCurrentVersionInfo();
+      console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
+      console.log(`get current stored version cost time: ${Date.now() - startTime} ms`);
       return Promise.resolve(this);
     }
   }
@@ -140,11 +146,9 @@ export class Easydict {
 
   /**
    * Fetch release markdown, return a promise string.
-   * First, fetech markdown from github, if failed, then fetch from localStorage.
+   * First, fetech markdown from github, if failed, then read from localStorage.
    */
   public async fetchReleaseMarkdown(): Promise<string | undefined> {
-    const currentVersionInfo = await this.getCurrentStoredVersionInfo();
-
     try {
       console.log("fetch release markdown from github");
       const releaseInfo = await this.fetchReleaseInfo(this.getReleaseApiUrl());
@@ -159,8 +163,8 @@ export class Easydict {
       }
     } catch (error) {
       console.error(`fetch release markdown error: ${error}`);
+      const currentVersionInfo = await this.getCurrentStoredVersionInfo();
       console.log(`read markdown from local storage: ${currentVersionInfo?.version}`);
-
       return Promise.resolve(currentVersionInfo?.releaseMarkdown);
     }
   }
@@ -172,6 +176,8 @@ export class Easydict {
     try {
       // console.log(`fetch release url: ${releaseUrl}`);
       const response = await axios.get(releaseUrl);
+      console.log(`fetch github cost time: ${response.headers[requestCostTime]} ms`);
+
       return Promise.resolve(response.data);
     } catch (error) {
       return Promise.reject(error);

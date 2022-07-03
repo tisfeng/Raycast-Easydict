@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 01:42
+ * @lastEditTime: 2022-07-03 11:10
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,7 @@ import {
 import { sayTruncateCommand } from "./audio";
 import { openInEudic } from "./scripts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
-import { ReleaseDetail } from "./releaseVersion/releaseDetail";
+import { MarkdownPage, ReleaseDetail } from "./releaseVersion/releaseDetail";
 import { useState } from "react";
 import { Easydict } from "./releaseVersion/version";
 
@@ -29,7 +29,7 @@ export const eudicBundleId = "com.eusoft.freeeudic";
 
 export function ActionFeedback() {
   const easydict = new Easydict();
-  return <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={easydict.getReadmeUrl()} />;
+  return <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={easydict.getIssueUrl()} />;
 }
 
 export function ActionRecentUpdate() {
@@ -38,19 +38,23 @@ export function ActionRecentUpdate() {
 
 export function ActionCurrentVersion() {
   const easydict = new Easydict();
-  return <Action.OpenInBrowser icon={Icon.Gear} title={`Version: ${easydict.version}`} url={easydict.getReadmeUrl()} />;
+  return (
+    <Action.OpenInBrowser icon={Icon.Gear} title={`Version: ${easydict.version}`} url={easydict.getChineseWikiUrl()} />
+  );
 }
 
 /**
  * Get the list action panel item with ListItemActionPanelItem
  */
 export default function ListActionPanel(props: ActionListPanelProps) {
+  const currentEasydict = new Easydict();
+
   const [easydict, setEasydict] = useState<Easydict>();
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   checkIsInstalledEudic(setIsInstalledEudic);
 
-  new Easydict().getCurrentStoredVersionInfo().then((easydict) => {
+  currentEasydict.getCurrentStoredVersionInfo().then((easydict) => {
     setEasydict(easydict);
   });
 
@@ -61,7 +65,11 @@ export default function ListActionPanel(props: ActionListPanelProps) {
     <ActionPanel>
       <ActionPanel.Section>
         {!easydict?.hasPrompt && (
-          <Action.Push icon={Icon.TextDocument} title="✨ New Version Released" target={<ReleaseDetail />} />
+          <Action.Push
+            icon={Icon.TextDocument}
+            title="✨ New Version Released"
+            target={<MarkdownPage markdown={currentEasydict.releaseMarkdown} />}
+          />
         )}
 
         {isInstalledEudic && (
