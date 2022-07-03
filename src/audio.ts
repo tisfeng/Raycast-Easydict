@@ -111,12 +111,10 @@ export function downloadWordAudioWithURL(
 }
 
 /**
- *
  * @param url the audio url to download
  * @param audioPath the path to store audio
  * @param callback callback when after download audio
  * @param forceDownload is forced download when audio has exist
- * @returns
  */
 export async function downloadAudio(url: string, audioPath: string, callback?: () => void, forceDownload = false) {
   if (fs.existsSync(audioPath)) {

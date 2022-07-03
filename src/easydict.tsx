@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 17:43
+ * @lastEditTime: 2022-07-03 20:23
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -173,17 +173,17 @@ export default function () {
     setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(youdaoLanguageId));
 
     // priority to use user selected target language, if conflict, use auto selected target language
-    let tartgetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
-    console.log("userSelectedTargetLanguage:", tartgetLanguageId);
-    if (youdaoLanguageId === tartgetLanguageId) {
-      tartgetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
-      setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(tartgetLanguageId));
-      console.log("autoSelectedTargetLanguage: ", tartgetLanguageId);
+    let targetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
+    console.log("userSelectedTargetLanguage:", targetLanguageId);
+    if (youdaoLanguageId === targetLanguageId) {
+      targetLanguageId = getAutoSelectedTargetLanguageId(youdaoLanguageId);
+      setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(targetLanguageId));
+      console.log("autoSelectedTargetLanguage: ", targetLanguageId);
     }
     const queryTextInfo: QueryWordInfo = {
       word: searchText,
       fromLanguage: youdaoLanguageId,
-      toLanguage: tartgetLanguageId,
+      toLanguage: targetLanguageId,
       isWord: false,
     };
     queryTextWithTextInfo(queryTextInfo);
@@ -372,8 +372,16 @@ export default function () {
       );
     }
 
-    // function: onLanguageUpdate,
     const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
+      console.log(
+        `selected language: ${selectedLanguageItem.youdaoLanguageId}, current target language: ${userSelectedTargetLanguageItem.youdaoLanguageId}`
+      );
+      // Todo: if selected language is same as current language, then do nothing
+      if (selectedLanguageItem.youdaoLanguageId === userSelectedTargetLanguageItem.youdaoLanguageId) {
+        return;
+      }
+
+      console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLanguageId}`);
       setAutoSelectedTargetLanguageItem(selectedLanguageItem);
       setUserSelectedTargetLanguageItem(selectedLanguageItem);
       queryTextWithTextInfo({

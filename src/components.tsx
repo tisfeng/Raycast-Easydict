@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 20:00
+ * @lastEditTime: 2022-07-03 20:26
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -125,21 +125,24 @@ export default function ListActionPanel(props: ActionListPanelProps) {
 
       {myPreferences.isDisplayTargetTranslationLanguage && (
         <ActionPanel.Section title="Target Language">
-          {languageItemList.map((region) => {
-            if (props.displayItem.queryWordInfo.fromLanguage === region.youdaoLanguageId) {
+          {languageItemList.map((selectedLanguageItem) => {
+            // hide auto language
+            const isAutoLanguage = selectedLanguageItem.youdaoLanguageId === "auto";
+            // hide current detected language
+            const isSameWithDetectedLanguage =
+              selectedLanguageItem.youdaoLanguageId === props.displayItem.queryWordInfo.fromLanguage;
+            const isSameWithTargetLanguage =
+              selectedLanguageItem.youdaoLanguageId === props.displayItem.queryWordInfo.toLanguage;
+            if (isAutoLanguage || isSameWithDetectedLanguage) {
               return null;
             }
 
             return (
               <Action
-                key={region.youdaoLanguageId}
-                title={region.languageTitle}
-                onAction={() => props.onLanguageUpdate(region)}
-                icon={
-                  props.displayItem.queryWordInfo.fromLanguage === region.youdaoLanguageId
-                    ? Icon.ArrowRight
-                    : Icon.Globe
-                }
+                key={selectedLanguageItem.youdaoLanguageId}
+                title={selectedLanguageItem.languageTitle}
+                onAction={() => props.onLanguageUpdate(selectedLanguageItem)}
+                icon={isSameWithTargetLanguage ? Icon.ArrowRight : Icon.Globe}
               />
             );
           })}
