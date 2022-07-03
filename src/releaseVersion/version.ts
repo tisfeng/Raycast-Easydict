@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 17:42
+ * @lastEditTime: 2022-07-03 22:15
  * @fileName: version.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,6 +11,7 @@
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
 import { requestCostTime } from "../request";
+import { changelog } from "./changelog";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";
@@ -29,7 +30,7 @@ export class Easydict {
   versionDate = "2022-07-01";
   isNeedPrompt = true;
   hasPrompted = false; // only show once, then will be set to true
-  releaseMarkdown = "Release Markdown";
+  releaseMarkdown = changelog;
 
   // version: string;
   // buildNumber: number;

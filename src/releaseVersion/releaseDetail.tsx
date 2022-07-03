@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 21:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 17:34
+ * @lastEditTime: 2022-07-03 22:21
  * @fileName: releaseDetail.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,6 +10,7 @@
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
 import { useState } from "react";
+import { changelog } from "./changelog";
 import { Easydict } from "./version";
 
 /**
@@ -18,7 +19,7 @@ import { Easydict } from "./version";
  * @fallbackMarkdown The placeholder markdown content before fetching from GitHub.
  */
 export function ReleaseDetail(props: { fallbackMarkdown?: string }) {
-  const [releaseMarkdown, setReleaseMarkdown] = useState<string>();
+  const [releaseMarkdown, setReleaseMarkdown] = useState<string>(changelog);
 
   console.log(`call ReleaseDetail function`);
   const easydict = new Easydict();

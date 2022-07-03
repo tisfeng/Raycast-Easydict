@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 20:23
+ * @lastEditTime: 2022-07-03 22:23
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -77,7 +77,7 @@ let delayQueryTextInfoTimer: NodeJS.Timeout;
 let startTime: number;
 
 export default function () {
-  console.log(`call default function`);
+  // console.log(`call default function`);
   checkWhetherTwoPreferredLanguagesAreSame();
 
   /**

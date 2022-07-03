@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 17:07
+ * @lastEditTime: 2022-07-03 22:23
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -317,7 +317,7 @@ function getLocalTextLanguageDetectResult(
     for (const [languageId, confidence] of detectedLanguageArray) {
       if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
         console.log(
-          `franc detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence}(>${lowConfidence})`
+          `franc detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence} (>${lowConfidence})`
         );
         const lowConfidenceDetectTypeResult = {
           type: francDetectResult.type,

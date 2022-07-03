@@ -299,19 +299,19 @@
     },
     {
       "title": "Apple System Features",
-      "name": "enableAppleLanguageDetect",
-      "type": "checkbox",
-      "label": "Apple Language Detect",
-      "required": false,
-      "description": "Need to install an apple language detect shortcut, please see README for more details",
-      "default": false
-    },
-    {
       "name": "enableAppleTranslate",
       "type": "checkbox",
       "label": "Apple Translate",
       "required": false,
       "description": "Need to install an apple translate shortcut, please see README for more details",
+      "default": false
+    },
+    {
+      "name": "enableAppleLanguageDetect",
+      "type": "checkbox",
+      "label": "Apple Language Detect",
+      "required": false,
+      "description": "Need to install an apple language detect shortcut, please see README for more details",
       "default": false
     },
     {
@@ -337,7 +337,7 @@
       "label": "Caiyun Translate",
       "required": false,
       "description": "Turn on/off Caiyun Translate",
-      "default": false
+      "default": true
     },
     {
       "title": "Youdao App ID",
