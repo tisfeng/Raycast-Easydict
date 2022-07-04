@@ -10,16 +10,16 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
+
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
-`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, **Apple**, Baidu, Tencent, Youdao and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, **MacOS system translate**, Baidu, Tencent, Youdao and Caiyun translation API.
 
 If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!
 
 ![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
 ## Features
-
 - [x] Out of the box, easy to look up words or translate text.
 - [x] Automatically recognize the language type of the input text and translate it into your preferred language.
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
@@ -32,7 +32,6 @@ If you like this extension, please give a [Star](https://github.com/tisfeng/Rayc
 - [x] Support for displaying multiple translation results, currently supports Baidu, Tencent, Youdao and Caiyun translation API.
 
 Next:
-
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
 - [ ] Support to view query history.
 
@@ -88,7 +87,7 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 
 <p>
 
-In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydic`, such as `Shift` + `Cmd ` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant.
+In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydict`, such as `Shift` + `Cmd ` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant.
 
 </p>
 
@@ -120,9 +119,9 @@ By default, the extension will automatically select the preferred languages as t
 
 </details>
 
-### Apple System Translation
+### Apple Translate
 
-`Easydict` support MacOS system translation, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+`Easydict` support MacOS system translate, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
 
 ### Translation Services
 
