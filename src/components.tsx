@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 20:26
+ * @lastEditTime: 2022-07-04 16:49
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,7 +166,7 @@ export function playSoundIcon(lightTintColor: string) {
 }
 
 /**
-  return the corresponding ImageLike based on the SectionType type
+  Return the corresponding ImageLike based on the SectionType type
 */
 export function getListItemIcon(sectionType: SectionType | TranslateType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
