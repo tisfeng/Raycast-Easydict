@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-04 10:25
+ * @lastEditTime: 2022-07-04 23:29
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,9 +23,9 @@ export class Easydict {
 
   // new version info
   // * NOTE: this is new version info, don't use it directly. Use getCurrentStoredVersionInfo() instead.
-  version = "1.1.0";
+  version = "1.2.0";
   buildNumber = 3;
-  versionDate = "2022-07-01";
+  versionDate = "2022-07-04";
   isNeedPrompt = true;
   hasPrompted = false; // only show once, then will be set to true
   releaseMarkdown = changelog;
@@ -42,6 +42,10 @@ export class Easydict {
     return `${githubUrl}/${Easydict.author}/${Easydict.repo}/issues`;
   }
 
+  getCurrentReleaseTagUrl() {
+    return `${this.getRepoUrl()}/releases/tag/${this.version}`;
+  }
+
   /**
    * Chinese Wiki: https://github.com/tisfeng/Raycast-Easydict/wiki
    */
@@ -52,7 +56,7 @@ export class Easydict {
   /**
    *  Release tag url: /repos/{owner}/{repo}/releases/tags/{tag}
    *
-   *  https://api.github.com/repos/tisfeng/Raycast-Easydict/releases/tags/1.1.0
+   *  https://api.github.com/repos/tisfeng/Raycast-Easydict/releases/tags/1.2.0
    */
   public getReleaseApiUrl() {
     return `${githubApiUrl}/repos/${Easydict.author}/${Easydict.repo}/releases/tags/${this.version}`;
@@ -112,8 +116,6 @@ export class Easydict {
       if (releaseMarkdown) {
         this.releaseMarkdown = releaseMarkdown;
         this.hasPrompted = true; // need to set hasPrompted to true when user viewed `ReleaseDetail` page.
-        // Todo: only for test, remove it later.
-        // this.hasPrompted = false;
         this.storeCurrentVersionInfo(); // store the value to local storage.
         return Promise.resolve(releaseMarkdown);
       } else {

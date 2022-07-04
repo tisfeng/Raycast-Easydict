@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-04 16:49
+ * @lastEditTime: 2022-07-04 18:19
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,13 +33,17 @@ export function ActionFeedback() {
 }
 
 export function ActionRecentUpdate(props: { title?: string }) {
-  return <Action.Push icon={Icon.TextDocument} title={props.title || "Recent Update ✨"} target={<ReleaseDetail />} />;
+  return <Action.Push icon={Icon.Sidebar} title={props.title || "Recent Update ✨"} target={<ReleaseDetail />} />;
 }
 
 export function ActionCurrentVersion() {
   const easydict = new Easydict();
   return (
-    <Action.OpenInBrowser icon={Icon.Gear} title={`Version: ${easydict.version}`} url={easydict.getChineseWikiUrl()} />
+    <Action.OpenInBrowser
+      icon={Icon.Globe}
+      title={`Version: ${easydict.version}`}
+      url={easydict.getCurrentReleaseTagUrl()}
+    />
   );
 }
 
@@ -86,14 +90,14 @@ export default function ListActionPanel(props: ActionListPanelProps) {
 
       <ActionPanel.Section title="Search Query Text Online">
         {eudicWebUrl.length !== 0 && (
-          <Action.OpenInBrowser icon={Icon.MagnifyingGlass} title="Eudic Dictionary" url={eudicWebUrl} />
+          <Action.OpenInBrowser icon={Icon.Globe} title="Eudic Dictionary" url={eudicWebUrl} />
         )}
         {youdaoWebUrl.length !== 0 && (
-          <Action.OpenInBrowser icon={Icon.MagnifyingGlass} title="Youdao Dictionary" url={youdaoWebUrl} />
+          <Action.OpenInBrowser icon={Icon.Globe} title="Youdao Dictionary" url={youdaoWebUrl} />
         )}
 
         <Action.OpenInBrowser
-          icon={Icon.MagnifyingGlass}
+          icon={Icon.Globe}
           title="Google Translate"
           url={getGoogleWebTranslateURL(props.displayItem.queryWordInfo)}
         />
@@ -151,8 +155,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
 
       <ActionPanel.Section>
         {hasPrompted && <ActionRecentUpdate />}
-        <ActionFeedback />
         <ActionCurrentVersion />
+        <ActionFeedback />
       </ActionPanel.Section>
     </ActionPanel>
   );
