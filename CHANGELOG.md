@@ -4,8 +4,8 @@
 
 ### ✨ New
 
-- Supported Apple 🍎 system translation.
-- Supported Apple 🍎 system language detection.
+- Added Apple 🍎 system translation.
+- Added Apple 🍎 system language detection.
 - Added view recent version changelog feature.
 
 ### 💎 Improvements
@@ -16,8 +16,8 @@
 
 ### ✅ Recent Updates
 
-- Supported Tencent text translation.
-- Supported Tencent language detection.
+- Added Tencent text translation.
+- Added Tencent language detection.
 - Supported automatically play the voice of word after querying, need to enable in settings.
 - Supported Youdao TTS.
 

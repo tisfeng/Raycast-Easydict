@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-04 00:58
+ * @lastEditTime: 2022-07-04 10:25
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -113,7 +113,7 @@ export class Easydict {
         this.releaseMarkdown = releaseMarkdown;
         this.hasPrompted = true; // need to set hasPrompted to true when user viewed `ReleaseDetail` page.
         // Todo: only for test, remove it later.
-        this.hasPrompted = false;
+        // this.hasPrompted = false;
         this.storeCurrentVersionInfo(); // store the value to local storage.
         return Promise.resolve(releaseMarkdown);
       } else {

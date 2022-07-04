@@ -10,45 +10,45 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
+## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
-## What is Easydict? [【中文简介】](https://github.com/tisfeng/Raycast-Easydict/wiki)
-
-`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, Baidu, Tencent, Youdao and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, **Apple**, Baidu, Tencent, Youdao and Caiyun translation API.
 
 If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!
 
-![easydict-1](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-1.png)
+![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
 ## Features
 
 - [x] Out of the box, easy to look up words or translate text.
-- [x] Automatically recognize the language type of your input text and translate it into the preferred language.
+- [x] Automatically recognize the language type of the input text and translate it into your preferred language.
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
 - [x] Support Text to Speech(aka TTS).
 - [x] Support shortcut `Cmd + S` to quickly play the pronunciation of query words.
-- [x] Support for displaying multiple translation results, currently supports Youdao, Tencent, Baidu and Caiyun translation API.
+- [x] Support MacOS system translation.
+- [x] Support for displaying multiple translation results, currently supports Baidu, Tencent, Youdao and Caiyun translation API.
 
 Next:
 
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
 - [ ] Support to view query history.
 
-![log_type](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/log_type.png)
+![easydict-2](https://i.imgur.com/L9aE9ke.jpg)
 
-![easydict-3](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-3.png)
+![easydict-3](https://i.imgur.com/b1lzdlA.jpg)
 
-![easydict-2](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-2.png)
+![easydict-4](https://i.imgur.com/Ji8RKD5.jpg)
 
-![easydict-4](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/easydict-4.png)
+---
 
 ## Advanced
 
-Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydic` better or understand how the extension works.
+Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydict` better or understand how the extension works.
 
-![image-20220620151959095](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620151959095.png)
+![setting](https://i.imgur.com/KI9snFe.jpg)
 
 ### Preferred Languages
 
@@ -76,13 +76,11 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 
 </details>
 
-> **Correction: after v1.1.0, Tencent language recognition is preferred. When Tencent language recognition service is unavailable, the accuracy of language recognition will be optimized through the above methods.**
-
 [Youdao translation](https://fanyi.youdao.com/?keyfrom=dict2.top)
 
 ![image-20220531223631425](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220531223631425.png)
 
-![heel](https://raw.githubusercontent.com/tisfeng/ImageBed/32a96a59e87d4954e42ec1da4c038ac4c2501193/uPic/heel.png)
+![heel](https://i.imgur.com/4LhEKrf.jpg)
 
 ### Automatic Query Selected Text
 
@@ -122,6 +120,10 @@ By default, the extension will automatically select the preferred languages as t
 
 </details>
 
+### Apple System Translation
+
+`Easydict` support MacOS system translation, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+
 ### Translation Services
 
 For easy to use, we provide some built-in translation APIs appid and appkey, but these Services have request frequency limits. If many people use them at the same time, it is likely to slow down or even stop. Therefore, for a better use experience, you'd better apply for a dedicated appid and appkey, and then replace the built-in services on the Preferences page.
@@ -147,8 +149,8 @@ The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob
 
 ## Thanks
 
-This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and based on it. `Easydic` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
+This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and the first version of `Easydict` is based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
 
 Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered.
 
-In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR, or in [discussions](https://github.com/tisfeng/Raycast-Easydict/discussions) Let's have a brief discussion to avoid conflicts between PR and the features I am currently developing. Thank you.
+In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR to avoid conflicts between PR and the features I am currently developing. Thank you.

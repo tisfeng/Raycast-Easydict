@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 19:50
+ * @lastEditTime: 2022-07-04 16:18
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -175,7 +175,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     const sectionType = showMultipleTranslations ? translateItem.type : SectionType.Translation;
 
     let sectionTitle = SectionType.Translation.toString();
-    let tooltip = `${translateItem.type.toString()} translate`;
+    let tooltip = `${translateItem.type.toString()} Translate`;
 
     // don't show tooltip when show multiple translations
     if (showMultipleTranslations) {
@@ -339,7 +339,7 @@ export function formatAllTypeTranslationToMarkdown(
 export function formatTranslationToMarkdown(type: TranslateType | SectionType, text: string) {
   const string = text.replace(/\n/g, "\n\n");
   const markdown = `
-  ## ${type} 
+  ## ${type}
   ---  
   ${string}
   `;

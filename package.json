@@ -11,7 +11,7 @@
       "name": "easydict",
       "title": "Search Word",
       "subtitle": "Easy Dictionary",
-      "description": "Easy to look up words or translate text, support Youdao, Tencent, Baidu and Caiyun translation API.",
+      "description": "Easy to look up words or translate text, support Apple, Youdao, Tencent, Baidu and Caiyun translation API.",
       "mode": "view"
     }
   ],
@@ -23,11 +23,13 @@
   "keywords": [
     "dictionary",
     "translate",
+    "apple",
     "youdao",
     "baidu",
     "tencent",
     "caiyun",
-    "eudic"
+    "eudic",
+    "shortcut"
   ],
   "dependencies": {
     "@raycast/api": "^1.35.1",
