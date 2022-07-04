@@ -20,6 +20,7 @@ If you like this extension, please give a [Star](https://github.com/tisfeng/Rayc
 ![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
 ## Features
+
 - [x] Out of the box, easy to look up words or translate text.
 - [x] Automatically recognize the language type of the input text and translate it into your preferred language.
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
@@ -32,14 +33,15 @@ If you like this extension, please give a [Star](https://github.com/tisfeng/Rayc
 - [x] Support for displaying multiple translation results, currently supports Baidu, Tencent, Youdao and Caiyun translation API.
 
 Next:
+
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
 - [ ] Support to view query history.
 
 ![easydict-2](https://i.imgur.com/L9aE9ke.jpg)
 
-![easydict-3](https://i.imgur.com/b1lzdlA.jpg)
+![easydict-3](https://i.imgur.com/ycKif2c.jpg)
 
-![easydict-4](https://i.imgur.com/Ji8RKD5.jpg)
+![easydict-4](https://i.imgur.com/NOZgJtl.jpg)
 
 ---
 
