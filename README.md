@@ -29,7 +29,7 @@ If you like this extension, please give a [Star](https://github.com/tisfeng/Rayc
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
 - [x] Support Text to Speech(aka TTS).
 - [x] Support shortcut `Cmd + S` to quickly play the pronunciation of query words.
-- [x] Support MacOS system translation.
+- [x] Support MacOS system translation. (Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F) for more details)
 - [x] Support for displaying multiple translation results, currently supports Baidu, Tencent, Youdao and Caiyun translation API.
 
 Next:

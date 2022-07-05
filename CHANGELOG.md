@@ -4,15 +4,15 @@
 
 ### ✨ New
 
-- Added Apple 🍎 system translation.
+- Added Apple 🍎 system translation. (Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F) for more details)
 - Added Apple 🍎 system language detection.
 - Added view recent version changelog feature.
 
 ### 💎 Improvements
 
 - Used the logo of Youdao, Baidu, Tencent and other translation services to increase icon recognition.
-- Optimized the response speed of querying selected text.
-- Optimized the response speed and accuracy of automatic language detection.
+- Improved the response speed of querying selected text.
+- Improved the response speed and accuracy of automatic language detection.
 
 ### ✅ Recent Updates
 

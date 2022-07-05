@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-04 18:01
+ * @lastEditTime: 2022-07-05 16:20
  * @fileName: changelog.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ export const changelog = `
 ### ✨ 新特性
 
 - 支持苹果🍎系统翻译，需搭配快捷指令食用。[如何在 Easydict 中使用 macOS 苹果系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
-- 支持苹果🍎系统语言识别。
+- 支持苹果🍎系统语言识别。（同上）
 - 添加查看最近版本更新日志功能。
 
 ![easydict-3](https://i.imgur.com/ycKif2c.jpg)
@@ -36,8 +36,8 @@ export const changelog = `
 
 ### ✨ New
 
-- Supported Apple 🍎 system translation.
-- Supported Apple 🍎 system language detection.
+- Added Apple 🍎 system translation. (Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F) for more details)
+- Supported Apple 🍎 system language detection. (same as above)
 - Added view recent version changelog feature.
 
 ### 💎 Improvements
