@@ -3,7 +3,7 @@
   "name": "easydict",
   "title": "Easy Dictionary",
   "description": "Look up words or translate text in an easy way, especially optimized for English and Chinese words.",
-  "icon": "eudic-icon.png",
+  "icon": "Eudic-icon.png",
   "author": "isfeng",
   "license": "MIT",
   "commands": [
