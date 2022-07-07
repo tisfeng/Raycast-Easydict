@@ -8,7 +8,6 @@ jobs:
     steps:
       - name: "Checkout codes"
         uses: actions/checkout@v1
-      - name: "Forked Notification"
       - name: "Send mail"
         uses: dawidd6/action-send-mail@master
         with:
