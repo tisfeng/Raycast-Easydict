@@ -1,6 +1,6 @@
 name: "GitHub Repo Forked Notification"
 
-on: [fork, workflow_dispatch]
+on: fork
 
 jobs:
   bot:
