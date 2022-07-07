@@ -15,8 +15,6 @@
 
 `Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, **MacOS system translate**, Baidu, Tencent, Youdao and Caiyun translation API.
 
-If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!
-
 ![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
 ## Features
@@ -36,6 +34,8 @@ Next:
 
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
 - [ ] Support to view query history.
+
+**_If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
 ![easydict-2](https://i.imgur.com/L9aE9ke.jpg)
 
@@ -152,6 +152,4 @@ The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob
 
 This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and the first version of `Easydict` is based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
 
-Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered.
-
-In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR to avoid conflicts between PR and the features I am currently developing. Thank you.
+Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered. In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR to avoid conflicts between PR and the features I am currently developing. Thank you.
