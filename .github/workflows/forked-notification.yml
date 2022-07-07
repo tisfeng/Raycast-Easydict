@@ -1,0 +1,23 @@
+name: "GitHub Repo Forked Notification"
+
+on: [fork, workflow_dispatch]
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout codes"
+        uses: actions/checkout@v1
+      - name: "Forked Notification"
+      - name: "Send mail"
+        uses: dawidd6/action-send-mail@master
+        with:
+          server_address: smtp.163.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Your repo has been forked!
+          body: ${{ github.repository }} was forked by ${{ github.actor }}
+          to: tisfeng@gmail.com
+          from: GitHub Actions
+          content_type: text/html
