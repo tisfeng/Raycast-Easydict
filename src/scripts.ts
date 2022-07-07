@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 17:40
+ * @lastEditTime: 2022-07-07 11:24
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,11 +10,11 @@
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
-import { QueryWordInfo, RequestErrorInfo } from "./types";
-import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
-import { eudicBundleId } from "./components";
-import { getLanguageItemFromYoudaoId } from "./utils";
 import querystring from "node:querystring";
+import { eudicBundleId } from "./components";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
+import { QueryWordInfo, RequestErrorInfo } from "./types";
+import { getLanguageItemFromYoudaoId } from "./utils";
 
 /**
  * run LanguageDetect shortcuts with the given text, return promise
@@ -152,5 +152,23 @@ export function postNotification(content: string, title: string, subtitle = "") 
     if (error) {
       console.log("postNotification error:", error);
     }
+  });
+}
+
+export function exitExtension() {
+  console.log("exit extension");
+  // use cmd+W to close the extension, maybe delay a little bit, 0.5s
+  const appleScript = `
+    tell application "System Events"
+    key code 13 using {command down}
+    end tell
+    `;
+
+  exec(`osascript -e '${appleScript}'`, (err, stdout) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
   });
 }

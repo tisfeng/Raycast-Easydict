@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 22:23
+ * @lastEditTime: 2022-07-07 16:44
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
 import ListActionPanel, {
   ActionCurrentVersion,
@@ -16,16 +17,6 @@ import ListActionPanel, {
   getListItemIcon,
   getWordAccessories,
 } from "./components";
-import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
-import {
-  LanguageItem,
-  TranslateDisplayResult,
-  TranslateTypeResult,
-  YoudaoTranslateResult,
-  TranslateFormatResult,
-  QueryWordInfo,
-  RequestErrorInfo,
-} from "./types";
 import {
   BaiduRequestStateCode,
   getYoudaoErrorInfo,
@@ -33,22 +24,8 @@ import {
   youdaoErrorCodeUrl,
   YoudaoRequestStateCode,
 } from "./consts";
-import {
-  defaultLanguage1,
-  defaultLanguage2,
-  getAutoSelectedTargetLanguageId,
-  myPreferences,
-  isTranslateResultTooLong,
-  isShowMultipleTranslations,
-  getLanguageItemFromYoudaoId,
-  trimTextLength,
-} from "./utils";
-import {
-  requestBaiduTextTranslate,
-  requestCaiyunTextTranslate,
-  requestTencentTextTranslate,
-  requestYoudaoDictionary,
-} from "./request";
+import { detectLanguage } from "./detectLanguage";
+import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import {
   formatTranslateDisplayResult,
   formatYoudaoDictionaryResult,
@@ -57,9 +34,32 @@ import {
   updateFormateResultWithTencentTranslation,
   updateFormatResultWithAppleTranslateResult,
 } from "./formatData";
-import { detectLanguage } from "./detectLanguage";
+import {
+  requestBaiduTextTranslate,
+  requestCaiyunTextTranslate,
+  requestTencentTextTranslate,
+  requestYoudaoDictionary,
+} from "./request";
 import { appleTranslate } from "./scripts";
-import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import {
+  LanguageItem,
+  QueryWordInfo,
+  RequestErrorInfo,
+  TranslateDisplayResult,
+  TranslateFormatResult,
+  TranslateTypeResult,
+  YoudaoTranslateResult,
+} from "./types";
+import {
+  defaultLanguage1,
+  defaultLanguage2,
+  getAutoSelectedTargetLanguageId,
+  getLanguageItemFromYoudaoId,
+  isShowMultipleTranslations,
+  isTranslateResultTooLong,
+  myPreferences,
+  trimTextLength,
+} from "./utils";
 
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
@@ -255,7 +255,7 @@ export default function () {
               }
             })
             .catch((error) => {
-              console.warn(`apple translate error: ${error}`);
+              console.error(`apple translate error: ${error}`);
             });
         }
 
@@ -490,3 +490,17 @@ export default function () {
     </List>
   );
 }
+
+/**
+ * Easter egg: if you use PopClip and have added a shortcut for `Easydict`, such as `Cmd + E`, then you can use PopClip to open Easydict!
+ * 
+ * Reference: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
+ * 
+ * Usage: select following text, then PopClip will show "Install Easydict", click it! 
+
+  # popclip
+  name: Easydict
+  icon: search E
+  key combo: command E
+
+ */

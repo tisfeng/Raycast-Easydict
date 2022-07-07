@@ -114,3 +114,5 @@ Icon*
 
 # Webstorm config
 .idea/
+
+.VSCodeCounter
