@@ -40,4 +40,4 @@ jobs:
           body: ${{ github.repository }} was triggered by ${{ github.actor }}
           to: tisfeng@gmail.com
           from: GitHub Actions
-          content_type: text/html
+          convert_markdown: true
