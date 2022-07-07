@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-07 16:44
+ * @lastEditTime: 2022-07-07 17:22
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -67,6 +67,11 @@ let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
  * when has new input text, need to cancel previous request
  */
 let isLastQuery = true;
+
+/**
+ * when input text is empty, need to cancel previous request
+ */
+let shouldCancelQuery = false;
 
 let delayQueryTextTimer: NodeJS.Timeout;
 let delayQueryTextInfoTimer: NodeJS.Timeout;
@@ -202,6 +207,11 @@ export default function () {
      */
     try {
       youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
+      if (shouldCancelQuery) {
+        updateTranslateDisplayResult(null);
+        return;
+      }
+
       const youdaoResult = youdaoTranslateTypeResult.result as YoudaoTranslateResult;
       console.log(`youdao translate result: ${JSON.stringify(youdaoResult, null, 2)}`);
       console.warn(`query cost time: ${Date.now() - startTime} ms`);
@@ -447,11 +457,15 @@ export default function () {
     const trimText = trimTextLength(text);
     console.log(`update input text: ${text}`);
     if (trimText.length === 0) {
+      // fix bug: if input text is empty, need to update search text to empty
+      setSearchText("");
+      shouldCancelQuery = true;
       updateTranslateDisplayResult(null);
       return;
     }
 
     isLastQuery = false;
+    shouldCancelQuery = false;
     clearTimeout(delayQueryTextTimer);
 
     if (trimText !== searchText) {
