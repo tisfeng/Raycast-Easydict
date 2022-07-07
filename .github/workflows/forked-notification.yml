@@ -13,8 +13,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_USERPASSORD }}
           subject: Your repo has been forked!
           body: ${{ github.repository }} was forked by ${{ github.actor }}
           to: tisfeng@gmail.com
