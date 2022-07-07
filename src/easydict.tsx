@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-07 17:22
+ * @lastEditTime: 2022-07-07 20:00
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -64,12 +64,12 @@ import {
 let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
 
 /**
- * when has new input text, need to cancel previous request
+ * when has new input text, need to cancel previous request.
  */
 let isLastQuery = true;
 
 /**
- * when input text is empty, need to cancel previous request
+ * when input text is empty, need to cancel previous request, and clear result.
  */
 let shouldCancelQuery = false;
 
@@ -209,6 +209,10 @@ export default function () {
       youdaoTranslateTypeResult = await requestYoudaoDictionary(queryText, fromLanguage, toLanguage);
       if (shouldCancelQuery) {
         updateTranslateDisplayResult(null);
+        return;
+      }
+      if (!isLastQuery) {
+        console.log("---> queryTextWithTextInfo: isLastQuery is false, return");
         return;
       }
 
@@ -449,7 +453,7 @@ export default function () {
   /**
    * Update input text and search text, then query text according to @isNow
    *
-   * @isNow if true, query text right now, fase will delay query.
+   * @isNow if true, query text right now, false will delay query.
    */
   function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
     setInputText(text);
