@@ -22,8 +22,6 @@ jobs:
       - name: Set the value
         run: echo "event_name=starred" >> $GITHUB_ENV
 
-      - name: "Checkout codes"
-        uses: actions/checkout@v1
       - name: "Send mail"
         uses: dawidd6/action-send-mail@master
         with:
