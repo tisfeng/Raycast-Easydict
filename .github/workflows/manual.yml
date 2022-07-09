@@ -27,7 +27,7 @@ jobs:
     steps:
       # Runs a single command using the runners shell
       - name: Send greeting
-        run: echo "Hello ${{ github.event.inputs.name }}"
+        run: echo "Hello, ${{ github.event.inputs.name }}"
 
       - name: "Send mail"
         uses: dawidd6/action-send-mail@master
@@ -36,9 +36,9 @@ jobs:
           server_port: 465
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_USERPASSORD }}
-          subject: Hello ${{ github.event.inputs.name }}
-          body: ${{ github.repository }} was triggered by ${{ github.actor }},  ${{ github.server_url }}/{{ github.repository }}
+          subject: Hello, ${{ github.event.inputs.name }}
+          # https://github.com/tisfeng/Raycast-Easydict/
+          body: ${{ github.repository }} was triggered by ${{ github.actor }},  ${{ github.server_url }}/${{ github.repository }}
           to: tisfeng@gmail.com
           from: GitHub Actions
           convert_markdown: true
-# https://github.com/tisfeng/Raycast-Easydict/
