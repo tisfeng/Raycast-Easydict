@@ -37,7 +37,8 @@ jobs:
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_USERPASSORD }}
           subject: Hello ${{ github.event.inputs.name }}
-          body: ${{ github.repository }} was triggered by ${{ github.actor }}
+          body: ${{ github.repository }} was triggered by ${{ github.actor }},  ${{ github.server_url }}/{{ github.repository }}
           to: tisfeng@gmail.com
           from: GitHub Actions
           convert_markdown: true
+# https://github.com/tisfeng/Raycast-Easydict/
