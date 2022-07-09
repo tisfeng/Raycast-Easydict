@@ -24,7 +24,7 @@
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
-- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
+- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation. Use `Cmd + K` to see more actions.
 - [x] Support Text to Speech(aka TTS).
 - [x] Support shortcut `Cmd + S` to quickly play the pronunciation of query words.
 - [x] Support MacOS system translation. (Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F) for more details)
@@ -101,13 +101,17 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 <p>
 
-Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
+Note that when this option is enabled, text audio will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play audio.
 
 Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
 
 </p>
 
 </details>
+
+Use `Cmd + S` to play query text.
+
+![log_action的副本](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/log_action%E7%9A%84%E5%89%AF%E6%9C%AC.png)
 
 ### Select Target Translation Language
 
