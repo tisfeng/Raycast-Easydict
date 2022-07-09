@@ -15,13 +15,13 @@ jobs:
   bot:
     runs-on: ubuntu-latest
     steps:
-      - if: ${{ github.event_name == "fork" }}
+      - if: ${{ github.event_name == 'fork' }}
         run: echo "🎉 triggered by a ${{ github.event_name }} event."
       #  env:
       #   event_name: "forked"
       #   run: echo "${{ event_name }} event."
 
-      - if: ${{ github.event_name == "watch" }}
+      - if: ${{ github.event_name == 'watch' }}
         run: echo "🎉 triggered by a ${{ github.event_name }} event."
       #  env:
       #   event_name: "starred"
