@@ -32,7 +32,8 @@ jobs:
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_USERPASSORD }}
           subject: Github repo has been ${{env.event_name}}!
-          body: Your repo [${{ github.repository }}] was ${{env.event_name}} by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}
+          # List stargazers  https://github.com/tisfeng/Raycast-Easydict/stargazers
+          body: Your repo [${{ github.repository }}] was ${{env.event_name}} by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}/stargazers
           to: tisfeng@gmail.com
           from: GitHub Actions
           convert_markdown: true
