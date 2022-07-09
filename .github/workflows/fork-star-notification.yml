@@ -38,8 +38,7 @@ jobs:
           password: ${{ secrets.GMAIL_USERPASSORD }}
           subject: Github Repo Has Been ${{github.event_name}}ed!
           # this github.event_name is watch or fork
-          body: " Your repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}) was ${{github.event_name}}ed by ${{ github.actor }}"
-          # body: Your repo ${{ github.repository }} was ${{github.event_name}}ed by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}
+          body: ${{ github.repository }} was ${{github.event_name}}ed by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}
           to: tisfeng@gmail.com
           from: GitHub Actions
           convert_markdown: true
