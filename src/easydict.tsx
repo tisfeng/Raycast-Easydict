@@ -13,6 +13,7 @@ import { Fragment, useEffect, useState } from "react";
 import ListActionPanel, {
   ActionCurrentVersion,
   ActionFeedback,
+  ActionOpenCommandPreferences,
   ActionRecentUpdate,
   getListItemIcon,
   getWordAccessories,
@@ -498,6 +499,7 @@ export default function () {
       actions={
         <ActionPanel>
           <ActionFeedback />
+          <ActionOpenCommandPreferences />
           <ActionRecentUpdate />
           <ActionCurrentVersion />
         </ActionPanel>
