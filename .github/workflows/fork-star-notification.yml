@@ -1,0 +1,29 @@
+name: "GitHub Repo Forked or Starred Notification"
+
+on:
+  # Runs your workflow when someone forks a repository.
+  fork:
+  # Runs your workflow when the workflow's repository is starred.
+  # https://docs.github.com/cn/github-ae@latest/actions/using-workflows/events-that-trigger-workflows#watch
+  watch:
+    types: [started]
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout codes"
+        uses: actions/checkout@v1
+      - name: "Send mail"
+        uses: dawidd6/action-send-mail@master
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_USERPASSORD }}
+          subject: Github repo has been starred!
+          # this github.event_name is watch or fork
+          body: ${{ github.repository }} was ${{github.event_name}}ed  by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}
+          to: tisfeng@gmail.com
+          from: GitHub Actions
+          convert_markdown: true
