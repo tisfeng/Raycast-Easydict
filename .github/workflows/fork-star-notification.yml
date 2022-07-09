@@ -16,6 +16,7 @@ jobs:
         run: echo "🎉 triggered by a ${{ github.event_name }} event."
       - name: Set the value
         run: echo "event_name=forked" >> $GITHUB_ENV
+
       - if: ${{ github.event_name == 'watch' }}
         run: echo "🎉 triggered by a ${{ github.event_name }} event."
       - name: Set the value
@@ -30,8 +31,8 @@ jobs:
           server_port: 465
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_USERPASSORD }}
-          subject: Github repo has been ${{env.event_name}}ed!
-          body: "Your repo [${{ github.repository }}](${{ github.server_url }}/${{ github.repository }}) was ${{env.event_name}}ed by ${{ github.actor }}"
+          subject: Github repo has been ${{env.event_name}}!
+          body: Your repo [${{ github.repository }}] was ${{env.event_name}} by ${{ github.actor }}, ${{ github.server_url }}/${{ github.repository }}
           to: tisfeng@gmail.com
           from: GitHub Actions
           convert_markdown: true
