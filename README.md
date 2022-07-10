@@ -13,22 +13,21 @@
 
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
-`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically recognize the input text language, support Youdao dictionary, **MacOS system translate**, Baidu, Tencent, Youdao and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, Baidu, Tencent, Youdao and Caiyun translation API.
 
 ![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
 ## Features
 
 - [x] Out of the box, easy to look up words or translate text.
-- [x] Automatically recognize the language type of the input text and translate it into your preferred language.
+- [x] Automatically detect the input language and automatically query the preferred language.
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
-- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation. Use `Cmd + K` to see more actions.
-- [x] Support Text to Speech(aka TTS).
-- [x] Support shortcut `Cmd + S` to quickly play the pronunciation of query words.
-- [x] Support MacOS system translation. (**Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F) for more details**)
-- [x] Support for displaying multiple translation results, currently supports Baidu, Tencent, Youdao and Caiyun translation API.
+- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
+- [x] ￼Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
+- [x] Support Youdao Text to Speech(TTS).
+- [x] Support MacOS system translation. (**Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/如何在-Easydict-中使用-macOS-🍎-系统翻译？) for more details**)
 
 Next:
 
@@ -101,17 +100,13 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 <p>
 
-Note that when this option is enabled, text audio will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play audio.
+Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
 
 Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
 
 </p>
 
 </details>
-
-Use `Cmd + S` to play query text.
-
-![log_action的副本](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/log_action%E7%9A%84%E5%89%AF%E6%9C%AC.png)
 
 ### Select Target Translation Language
 
@@ -156,4 +151,6 @@ The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob
 
 This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and the first version of `Easydict` is based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
 
-Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered. In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR to avoid conflicts between PR and the features I am currently developing. Thank you.
+Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered.
+
+In addition, if submitting a PR, it is recommended to open a issue to briefly describe the content of the PR to avoid conflicts between PR and the features I am currently developing. Thank you.
