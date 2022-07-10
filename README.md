@@ -25,9 +25,9 @@
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
-- [x] ￼Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
+- [x] Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
 - [x] Support Youdao Text to Speech(TTS).
-- [x] Support MacOS system translation. (**Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/如何在-Easydict-中使用-macOS-🍎-系统翻译？) for more details**)
+- [x] Support **MacOS system translation**. (_Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/如何在-Easydict-中使用-macOS-🍎-系统翻译？) for more details_)
 
 Next:
 
@@ -96,17 +96,21 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 ### Automatic Play Query Word Pronunciation
 
-<details><summary> Automatically play the word voice after querying the word, turned off by default. </summary>
+<details><summary> Automatically play the word audio after querying the word, turned off by default. </summary>
 
 <p>
 
-Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play voice.
+Note that when this option is enabled, voice messages will be played automatically only if the content of the query is determined to be `good`, `look for`, `query`, etc. For other query contents, you can use the shortcut key `Cmd + S` to play audio.
 
-Play voice content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
+Play audio content: English words are preferred to be pronounced in an online youdao dictionary, while others are pronounced using Youdao Translation's TTS service. Long text playback uses the say shell command.
 
 </p>
 
 </details>
+
+Use `Cmd + S` to play the pronunciation of words manually.
+
+![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/log_action%E7%9A%84%E5%89%AF%E6%9C%AC-20220710180938330.png)
 
 ### Select Target Translation Language
 
