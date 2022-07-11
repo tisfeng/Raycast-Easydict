@@ -1,4 +1,4 @@
-name: "GitHub Repo Forked or Starred Notification"
+name: "GitHub Repo Starred or Forked Notification"
 
 on:
   # Runs your workflow when someone forks a repository.

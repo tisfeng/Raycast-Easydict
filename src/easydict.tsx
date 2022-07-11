@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-07 20:00
+ * @lastEditTime: 2022-07-11 21:47
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -97,7 +97,7 @@ export default function () {
   /**
    * use to display input text
    */
-  const [inputText, setInputText] = useState<string>("");
+  const [inputText, setInputText] = useState<string>();
   /**
    * searchText = inputText.trim(), avoid frequent request API with blank input
    */
@@ -122,13 +122,13 @@ export default function () {
     console.log("enter useEffect");
 
     startTime = Date.now();
-    if (searchText.length > 0) {
+    if (searchText) {
       queryText(searchText);
       return;
     }
 
     // try to query selected text when the extension is activated.
-    if (myPreferences.isAutomaticQuerySelectedText) {
+    if (inputText === undefined && myPreferences.isAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
