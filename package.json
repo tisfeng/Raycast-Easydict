@@ -335,6 +335,14 @@
       "default": true
     },
     {
+      "type": "checkbox",
+      "name": "enableDeepLTranslate",
+      "label": "DeepL Translate",
+      "required": false,
+      "description": "Turn on/off DeepL Translate",
+      "default": false
+    },
+    {
       "name": "enableCaiyunTranslate",
       "type": "checkbox",
       "label": "Caiyun Translate",
@@ -388,6 +396,14 @@
       "type": "textfield",
       "required": false,
       "description": "Your Tencent SecretKey",
+      "default": ""
+    },
+    {
+      "title": "DeepL Auth Key",
+      "name": "deeplAuthKey",
+      "type": "textfield",
+      "required": false,
+      "description": "Your DeepL Auth Key",
       "default": ""
     },
     {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 20:02
+ * @lastEditTime: 2022-07-15 00:56
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,22 +85,29 @@ export interface YoudaoTranslateReformatResultItem {
 export interface MyPreferences {
   language1: string;
   language2: string;
-  youdaoAppId: string;
-  youdaoAppSecret: string;
-  baiduAppId: string;
-  baiduAppSecret: string;
-  caiyunToken: string;
-  tencentSecretId: string;
-  tencentSecretKey: string;
-  tencentProjectId: string;
   isAutomaticQuerySelectedText: boolean;
   isAutomaticPlayWordAudio: boolean;
   isDisplayTargetTranslationLanguage: boolean;
+
+  youdaoAppId: string;
+  youdaoAppSecret: string;
+
   enableBaiduTranslate: boolean;
+  baiduAppId: string;
+  baiduAppSecret: string;
+
   enableTencentTranslate: boolean;
-  enableCaiyunTranslate: boolean;
+  tencentSecretId: string;
+  tencentSecretKey: string;
+
   enableAppleLanguageDetect: boolean;
   enableAppleTranslate: boolean;
+
+  enableDeepLTranslate: boolean;
+  deeplAuthKey: string;
+
+  enableCaiyunTranslate: boolean;
+  caiyunToken: string;
 }
 
 export interface ActionListPanelProps {
