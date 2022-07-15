@@ -3,7 +3,7 @@ import { deepLAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 21:58
+ * @lastEditTime: 2022-07-15 23:54
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -360,8 +360,10 @@ export async function requestDeepLTextTranslate(
     });
   }
 
-  // TODO: support DeepL Pro API
-  const url = "https://api-free.deepl.com/v2/translate";
+  // * deepL api free and deepL pro api use different url host.
+  const url = deepLAuthKey.endsWith(":fx")
+    ? "https://api-free.deepl.com/v2/translate"
+    : "https://api.deepl.com/v2/translate";
   const params = {
     auth_key: deepLAuthKey,
     text: queryText,
