@@ -3,7 +3,7 @@ import { deeplAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 18:39
+ * @lastEditTime: 2022-07-15 21:51
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -413,10 +413,10 @@ export async function requestDeepTextTranslate(
       const errorInfo: RequestErrorInfo = {
         type: TranslateType.DeepL,
         code: error.response.status.toString(),
-        message: error.message,
+        message: error.response.statusText,
       };
       console.error("deepl error info: ", errorInfo);
-      return Promise.reject(error);
+      return Promise.reject(errorInfo);
     });
 
   // axios({
