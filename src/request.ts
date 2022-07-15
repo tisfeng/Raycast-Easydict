@@ -1,8 +1,9 @@
+import { deeplAuthKey } from "./crypto";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 01:00
+ * @lastEditTime: 2022-07-15 11:52
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,6 +14,16 @@ import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { TranslateType } from "./consts";
+import {
+  baiduAppId,
+  baiduAppSecret,
+  caiyunToken,
+  tencentSecretId,
+  tencentSecretKey,
+  youdaoAppId,
+  youdaoAppSecret,
+} from "./crypto";
+
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import {
   BaiduTranslateResult,
@@ -21,35 +32,7 @@ import {
   TencentTranslateResult,
   TranslateTypeResult,
 } from "./types";
-import {
-  defaultBaiduAppId,
-  defaultBaiduAppSecret,
-  defaultCaiyunToken,
-  defaultTencentSecretId,
-  defaultTencentSecretKey,
-  defaultYoudaoAppId,
-  defaultYoudaoAppSecret,
-  getLanguageItemFromYoudaoId,
-  myPreferences,
-} from "./utils";
-
-// youdao appid and appsecret
-const youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;
-const youdaoAppSecret =
-  myPreferences.youdaoAppSecret.trim().length > 0 ? myPreferences.youdaoAppSecret.trim() : defaultYoudaoAppSecret;
-
-// baidu app id and secret
-const baiduAppId = myPreferences.baiduAppId.trim().length > 0 ? myPreferences.baiduAppId.trim() : defaultBaiduAppId;
-const baiduAppSecret =
-  myPreferences.baiduAppSecret.trim().length > 0 ? myPreferences.baiduAppSecret.trim() : defaultBaiduAppSecret;
-
-// tencent secret id and key
-const tencentSecretId =
-  myPreferences.tencentSecretId.trim().length > 0 ? myPreferences.tencentSecretId.trim() : defaultTencentSecretId;
-const tencentSecretKey =
-  myPreferences.tencentSecretKey.trim().length > 0 ? myPreferences.tencentSecretKey.trim() : defaultTencentSecretKey;
-
-const caiyunToken = myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : defaultCaiyunToken;
+import { getLanguageItemFromYoudaoId } from "./utils";
 
 const tencentEndpoint = "tmt.tencentcloudapi.com";
 const tencentRegion = "ap-guangzhou";
@@ -357,7 +340,7 @@ const myRandomId = 11000056;
 export function requestDeepTextTranslate(queryText: string, fromLanguage: string, targetLanguage: string) {
   const url = "https://api-free.deepl.com/v2/translate";
   const params = querystring.stringify({
-    auth_key: myPreferences.deeplAuthKey,
+    auth_key: deeplAuthKey,
     text: queryText,
     target_lang: "ZH",
   });
