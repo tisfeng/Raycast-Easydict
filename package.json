@@ -356,7 +356,8 @@
       "type": "textfield",
       "required": false,
       "description": "Separate by comma, default is DeepL,Apple,Baidu,Tencent,Youdao,Caiyun",
-      "default": "DeepL,Apple,Baidu,Tencent,Youdao,Caiyun"
+      "default": "deepl,apple,baidu,tencent,youdao,caiyun",
+      "placeholder": "deepl,apple,baidu,tencent,youdao,caiyun"
     },
     {
       "title": "Youdao App ID",

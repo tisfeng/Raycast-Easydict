@@ -3,7 +3,7 @@ import { DeepLTranslateResult } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 23:20
+ * @lastEditTime: 2022-07-15 23:44
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -181,30 +181,31 @@ export function sortTranslations(formatResult: TranslateFormatResult): Translate
     TranslateType.Caiyun,
   ];
 
-  const defaultOrder = defaultTypeOrder.map((type) => type.toString());
+  const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
 
   const userOrder: string[] = [];
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-  const manualOrder = myPreferences.translationDisplayOrder.split(","); // "Baidu,DeepL,Tencent"
-  console.log("manualOrder:", manualOrder);
+  const manualOrder = myPreferences.translationDisplayOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
+  // console.log("manualOrder:", manualOrder);
   if (manualOrder.length > 0) {
-    for (const translationTypeName of manualOrder) {
-      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder
-      if (defaultOrder.includes(translationTypeName)) {
-        userOrder.push(translationTypeName);
-        defaultOrder.splice(defaultOrder.indexOf(translationTypeName), 1);
+    for (let translationName of manualOrder) {
+      translationName = translationName.trim();
+      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
+      if (defaultOrder.includes(translationName)) {
+        userOrder.push(translationName);
+        defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
       }
     }
   }
+  // console.log("defaultNameOrder:", defaultOrder);
+  // console.log("userOrder:", userOrder);
 
-  console.log("defaultNameOrder:", defaultOrder);
-  console.log("userOrder:", userOrder);
   const finalOrder = [...userOrder, ...defaultOrder];
-  console.log("finalOrder:", finalOrder);
+  // console.log("finalOrder:", finalOrder);
 
   const sortTranslations: TranslateItem[] = [];
   for (const translationItem of formatResult.translations) {
-    const index = finalOrder.indexOf(translationItem.type.toString());
+    const index = finalOrder.indexOf(translationItem.type.toString().toLowerCase());
     sortTranslations[index] = translationItem;
   }
   // filter undefined
