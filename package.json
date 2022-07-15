@@ -351,6 +351,14 @@
       "default": true
     },
     {
+      "title": "Translation Display Order",
+      "name": "translationDisplayOrder",
+      "type": "textfield",
+      "required": false,
+      "description": "Separate by comma, default is DeepL,Apple,Baidu,Tencent,Youdao,Caiyun",
+      "default": "DeepL,Apple,Baidu,Tencent,Youdao,Caiyun"
+    },
+    {
       "title": "Youdao App ID",
       "name": "youdaoAppId",
       "type": "textfield",

@@ -3,7 +3,7 @@ import { DeepLTranslateResult } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 22:05
+ * @lastEditTime: 2022-07-15 23:20
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,7 @@ import {
   TranslateType,
   YoudaoTranslateResult,
 } from "./types";
-import { isShowMultipleTranslations } from "./utils";
+import { isShowMultipleTranslations, myPreferences } from "./utils";
 
 /**
  * Format the Youdao original data for later use.
@@ -165,10 +165,14 @@ export function updateFormatResultWithCaiyunTranslation(
 }
 
 /**
- * sort formatResult translations, by type: deelp > apple > baidu > tencent > youdao > caiyun
+ * Translations display order, default is sorted by: deelp > apple > baidu > tencent > youdao > caiyun
+ *
+ * If user manually set the display order, prioritize the order.
+ *
+ * * NOTE: this function will be called many times, because translate results are async, so we need to sort every time.
  */
 export function sortTranslations(formatResult: TranslateFormatResult): TranslateFormatResult {
-  const sortByOrders = [
+  const defaultTypeOrder = [
     TranslateType.DeepL,
     TranslateType.Apple,
     TranslateType.Baidu,
@@ -176,9 +180,31 @@ export function sortTranslations(formatResult: TranslateFormatResult): Translate
     TranslateType.Youdao,
     TranslateType.Caiyun,
   ];
+
+  const defaultOrder = defaultTypeOrder.map((type) => type.toString());
+
+  const userOrder: string[] = [];
+  // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
+  const manualOrder = myPreferences.translationDisplayOrder.split(","); // "Baidu,DeepL,Tencent"
+  console.log("manualOrder:", manualOrder);
+  if (manualOrder.length > 0) {
+    for (const translationTypeName of manualOrder) {
+      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder
+      if (defaultOrder.includes(translationTypeName)) {
+        userOrder.push(translationTypeName);
+        defaultOrder.splice(defaultOrder.indexOf(translationTypeName), 1);
+      }
+    }
+  }
+
+  console.log("defaultNameOrder:", defaultOrder);
+  console.log("userOrder:", userOrder);
+  const finalOrder = [...userOrder, ...defaultOrder];
+  console.log("finalOrder:", finalOrder);
+
   const sortTranslations: TranslateItem[] = [];
   for (const translationItem of formatResult.translations) {
-    const index = sortByOrders.indexOf(translationItem.type);
+    const index = finalOrder.indexOf(translationItem.type.toString());
     sortTranslations[index] = translationItem;
   }
   // filter undefined
