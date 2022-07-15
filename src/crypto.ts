@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-15 11:39
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 11:54
+ * @lastEditTime: 2022-07-15 18:26
  * @fileName: crypto.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +12,7 @@ import { environment } from "@raycast/api";
 import CryptoJS from "crypto-js";
 import { myPreferences } from "./utils";
 
+// * NOTE: Please apply for your own keys as much as possible. Please do not abuse them, otherwise I have to revoke them 😑。
 // Encrypted app id and key.
 const defaultEncrytedYoudaoAppId = "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
 const defaultEncrytedYoudaoAppKey =
@@ -31,14 +32,18 @@ const defaultEncryptedTencentSecretKey =
 const defaultTencentSecretId = myDecrypt(defaultEncryptedTencentSecretId);
 const defaultTencentSecretKey = myDecrypt(defaultEncryptedTencentSecretKey);
 
+/**
+ * This deepl key is from Github, we do not guarantee that it will work all the time.
+ * https://github.com/Exmaralda-Org/exmaralda/blob/c7a62214a6eb432ec25519b4c3ca9817efbe58fa/src/org/exmaralda/webservices/WordCloudConnector.java#L51
+ */
 const defaultEncryptedDeepLAuthKey =
-  "U2FsdGVkX1/VB87X9UueI41eMJVF3VFa9RkGvZ40u3pCzbVXwFYeKw4xBj1UiXgG5GBSPQJKGc+arSiOUBlmXQ==";
+  "U2FsdGVkX19Vg3zrZOyFiGrojAnw7cr5b96+nbzcJowqSpQX7wS00OkCa3dvpU3sQjCg9d519KOosa9/lsMzSA==";
 const defaultDeepLAuthKey = myDecrypt(defaultEncryptedDeepLAuthKey);
 
 const defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
 const defaultCaiyunToken = myDecrypt(defaultEncryptedCaiyunToken);
 
-// youdao appid and appsecret
+// youdao app id and appsecret
 export const youdaoAppId =
   myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : defaultYoudaoAppId;
 export const youdaoAppSecret =

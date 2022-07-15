@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-14 23:43
+ * @lastEditTime: 2022-07-15 18:15
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,22 +18,17 @@ import ListActionPanel, {
   getListItemIcon,
   getWordAccessories,
 } from "./components";
-import {
-  BaiduRequestStateCode,
-  getYoudaoErrorInfo,
-  TranslateType,
-  youdaoErrorCodeUrl,
-  YoudaoRequestStateCode,
-} from "./consts";
+import { BaiduRequestStateCode, getYoudaoErrorInfo, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
 import { detectLanguage } from "./detectLanguage";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import {
   formatTranslateDisplayResult,
   formatYoudaoDictionaryResult,
-  updateFormateResultWithBaiduTranslation,
-  updateFormateResultWithCaiyunTranslation,
-  updateFormateResultWithTencentTranslation,
   updateFormatResultWithAppleTranslateResult,
+  updateFormatResultWithBaiduTranslation,
+  updateFormatResultWithCaiyunTranslation,
+  updateFormatResultWithTencentTranslation,
+  updateFormatTranslateResultWithDeepLResult,
 } from "./formatData";
 import {
   requestBaiduTextTranslate,
@@ -47,9 +42,10 @@ import {
   LanguageItem,
   QueryWordInfo,
   RequestErrorInfo,
+  RequestTypeResult,
   TranslateDisplayResult,
   TranslateFormatResult,
-  TranslateTypeResult,
+  TranslateType,
   YoudaoTranslateResult,
 } from "./types";
 import {
@@ -63,7 +59,7 @@ import {
   trimTextLength,
 } from "./utils";
 
-let youdaoTranslateTypeResult: TranslateTypeResult | undefined;
+let youdaoTranslateTypeResult: RequestTypeResult | undefined;
 
 /**
  * when has new input text, need to cancel previous request.
@@ -254,17 +250,27 @@ export default function () {
       setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
       updateTranslateDisplayResult(formatResult);
 
-      requestDeepTextTranslate(queryText, fromLanguage, toLanguage);
-
       // request other translate API to show multiple translations
       if (isShowMultipleTranslations(formatResult)) {
+        // check if enable deepl translate
+        if (myPreferences.enableDeepLTranslate) {
+          requestDeepTextTranslate(queryText, fromLanguage, toLanguage)
+            .then((deeplTypeResult) => {
+              updateFormatTranslateResultWithDeepLResult(formatResult, deeplTypeResult);
+              updateTranslateDisplayResult(formatResult);
+            })
+            .catch((error) => {
+              console.error(`deepL translate error: ${error}`);
+            });
+        }
+
         // check if enable apple translate
         if (myPreferences.enableAppleTranslate) {
           console.log("apple translate start");
           appleTranslate(queryTextInfo)
             .then((translatedText) => {
               if (translatedText) {
-                const appleTranslateResult: TranslateTypeResult = {
+                const appleTranslateResult: RequestTypeResult = {
                   type: TranslateType.Apple,
                   result: { translatedText },
                 };
@@ -281,8 +287,8 @@ export default function () {
         if (myPreferences.enableBaiduTranslate) {
           console.log("baidu translate start");
           requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
-            .then((baiduRes) => {
-              formatResult = updateFormateResultWithBaiduTranslation(baiduRes, formatResult);
+            .then((baiduTypeResult) => {
+              formatResult = updateFormatResultWithBaiduTranslation(baiduTypeResult, formatResult);
               updateTranslateDisplayResult(formatResult);
             })
             .catch((err) => {
@@ -305,8 +311,8 @@ export default function () {
         if (myPreferences.enableTencentTranslate) {
           console.log(`tencent translate start`);
           requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
-            .then((tencentRes) => {
-              formatResult = updateFormateResultWithTencentTranslation(tencentRes, formatResult);
+            .then((tencentTypeResult) => {
+              formatResult = updateFormatResultWithTencentTranslation(tencentTypeResult, formatResult);
               updateTranslateDisplayResult(formatResult);
             })
             .catch((err) => {
@@ -323,8 +329,8 @@ export default function () {
         if (myPreferences.enableCaiyunTranslate) {
           console.log(`caiyun translate start`);
           requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
-            .then((caiyunRes) => {
-              formatResult = updateFormateResultWithCaiyunTranslation(caiyunRes, formatResult);
+            .then((caiyunTypeResult) => {
+              formatResult = updateFormatResultWithCaiyunTranslation(caiyunTypeResult, formatResult);
               updateTranslateDisplayResult(formatResult);
             })
             .catch((err) => {

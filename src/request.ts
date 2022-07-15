@@ -3,7 +3,7 @@ import { deeplAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 11:52
+ * @lastEditTime: 2022-07-15 18:39
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,6 @@ import axios, { AxiosRequestConfig } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { TranslateType } from "./consts";
 import {
   baiduAppId,
   baiduAppSecret,
@@ -28,9 +27,11 @@ import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import {
   BaiduTranslateResult,
   CaiyunTranslateResult,
+  DeepLTranslateResult,
   RequestErrorInfo,
+  RequestTypeResult,
   TencentTranslateResult,
-  TranslateTypeResult,
+  TranslateType,
 } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
@@ -112,7 +113,7 @@ export async function requestTencentTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<TranslateTypeResult> {
+): Promise<RequestTypeResult> {
   const from = getLanguageItemFromYoudaoId(fromLanguage).tencentLanguageId || "auto";
   const to = getLanguageItemFromYoudaoId(targetLanguage).tencentLanguageId;
   if (!to) {
@@ -155,7 +156,7 @@ export function requestYoudaoDictionary(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<TranslateTypeResult> {
+): Promise<RequestTypeResult> {
   function truncate(q: string): string {
     const len = q.length;
     return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
@@ -204,7 +205,7 @@ export function requestBaiduTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<TranslateTypeResult> {
+): Promise<RequestTypeResult> {
   const salt = Math.round(new Date().getTime() / 1000);
   const md5Content = baiduAppId + queryText + salt + baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
@@ -258,7 +259,7 @@ export function requestCaiyunTextTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
-): Promise<TranslateTypeResult> {
+): Promise<RequestTypeResult> {
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
   const from = getLanguageItemFromYoudaoId(fromLanguage).caiyunLanguageId || "auto";
   const to = getLanguageItemFromYoudaoId(targetLanguage).caiyunLanguageId;
@@ -299,7 +300,7 @@ export function requestCaiyunTextTranslate(
       .catch((error) => {
         const errorInfo: RequestErrorInfo = {
           type: TranslateType.Caiyun,
-          code: error.response.status,
+          code: error.response.status.toString(),
           message: error.response.statusText,
         };
         reject(errorInfo);
@@ -311,6 +312,9 @@ export function requestCaiyunTextTranslate(
 const myRandomId = 11000056;
 
 /**
+ * DeepL translate API
+ * https://www.deepl.com/zh/docs-api/translating-text
+ * 
  * 浏览器模拟
  {
   "jsonrpc": "2.0",
@@ -337,24 +341,82 @@ const myRandomId = 11000056;
   "id": 11000022
 }
  */
-export function requestDeepTextTranslate(queryText: string, fromLanguage: string, targetLanguage: string) {
+export async function requestDeepTextTranslate(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<RequestTypeResult> {
+  const sourceLang = getLanguageItemFromYoudaoId(fromLanguage).deeplSourceLanguageId;
+  const targetLang =
+    getLanguageItemFromYoudaoId(targetLanguage).deeplSourceLanguageId ||
+    getLanguageItemFromYoudaoId(targetLanguage).deeplTargetLanguageId;
+
+  // if language is not supported, return null
+  if (!sourceLang || !targetLang) {
+    console.warn(`deepl translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    return Promise.resolve({
+      type: TranslateType.DeepL,
+      result: null,
+    });
+  }
+
+  // TODO: support DeepL Pro API
   const url = "https://api-free.deepl.com/v2/translate";
-  const params = querystring.stringify({
+  const params = {
     auth_key: deeplAuthKey,
     text: queryText,
-    target_lang: "ZH",
-  });
-  console.log(`---> params: ${params}`);
+    source_lang: sourceLang,
+    target_lang: targetLang,
+  };
+  console.log(`---> deepl params: ${JSON.stringify(params, null, 4)}`);
 
-  axios
-    .post(url, params)
+  // try {
+  //   const response = await axios.post(url, querystring.stringify(params));
+  //   console.log(
+  //     `deepl translate post: ${JSON.stringify(response.data, null, 4)}, cost: ${response.headers[requestCostTime]} ms`
+  //   );
+  //   return Promise.resolve({
+  //     type: TranslateType.DeepL,
+  //     result: response.data,
+  //   });
+  // } catch (err) {
+  //   // console.error(`deepl translate error: ${JSON.stringify(err, null, 4)}`);
+  //   const error = err as { response: AxiosResponse; message: string };
+  //   console.error("error: ", JSON.stringify(error, null, 4));
+
+  //   const errorInfo: RequestErrorInfo = {
+  //     type: TranslateType.DeepL,
+  //     code: error.response.status.toString(),
+  //     message: error.message,
+  //   };
+  //   console.warn("deepl error info: ", errorInfo);
+  //   return Promise.reject(errorInfo);
+  // }
+
+  return axios
+    .post(url, querystring.stringify(params))
     .then((response) => {
+      const deeplResult = response.data as DeepLTranslateResult;
+      const translatedText = deeplResult.translations[0].text;
       console.log(
-        `deepl translate post: ${JSON.stringify(response.data, null, 4)}, cost: ${response.headers[requestCostTime]} ms`
+        `deepl translate: ${JSON.stringify(translatedText, null, 4)}, length: ${translatedText.length}, cost: ${
+          response.headers[requestCostTime]
+        } ms`
       );
+      return Promise.resolve({
+        type: TranslateType.DeepL,
+        result: deeplResult,
+      });
     })
     .catch((error) => {
-      console.error("deepl error response: ", error.response);
+      // console.error("deepl error response: ", error.response);
+      const errorInfo: RequestErrorInfo = {
+        type: TranslateType.DeepL,
+        code: error.response.status.toString(),
+        message: error.message,
+      };
+      console.error("deepl error info: ", errorInfo);
+      return Promise.reject(error);
     });
 
   // axios({

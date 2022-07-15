@@ -319,6 +319,14 @@
     },
     {
       "title": "Translation Services",
+      "type": "checkbox",
+      "name": "enableDeepLTranslate",
+      "label": "DeepL Translate",
+      "required": false,
+      "description": "Turn on/off DeepL Translate",
+      "default": true
+    },
+    {
       "name": "enableBaiduTranslate",
       "type": "checkbox",
       "label": "Baidu Translate",
@@ -333,14 +341,6 @@
       "required": false,
       "description": "Turn on/off Tencent Translate",
       "default": true
-    },
-    {
-      "type": "checkbox",
-      "name": "enableDeepLTranslate",
-      "label": "DeepL Translate",
-      "required": false,
-      "description": "Turn on/off DeepL Translate",
-      "default": false
     },
     {
       "name": "enableCaiyunTranslate",
@@ -364,6 +364,14 @@
       "type": "textfield",
       "required": false,
       "description": "Your Youdao App Secret",
+      "default": ""
+    },
+    {
+      "title": "DeepL Auth Key",
+      "name": "deeplAuthKey",
+      "type": "textfield",
+      "required": false,
+      "description": "Your DeepL Auth Key",
       "default": ""
     },
     {
@@ -396,14 +404,6 @@
       "type": "textfield",
       "required": false,
       "description": "Your Tencent SecretKey",
-      "default": ""
-    },
-    {
-      "title": "DeepL Auth Key",
-      "name": "deeplAuthKey",
-      "type": "textfield",
-      "required": false,
-      "description": "Your DeepL Auth Key",
       "default": ""
     },
     {

@@ -11,13 +11,13 @@
 import axios from "axios";
 import { downloadAudio, getWordAudioPath } from "../../audio";
 import { DicionaryType } from "../../consts";
-import { TranslateTypeResult } from "../../types";
+import { RequestTypeResult } from "../../types";
 import { IcibaDictionaryResult } from "./interface";
 
 /**
  * request iciba dictionary
  */
-export function icibaDictionary(word: string): Promise<TranslateTypeResult> {
+export function icibaDictionary(word: string): Promise<RequestTypeResult> {
   const url = "http://dict-co.iciba.com/api/dictionary.php";
   const params = {
     key: "0EAE08A016D6688F64AB3EBB2337BFB0",

@@ -1,32 +1,34 @@
+import { DeepLTranslateResult } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-04 16:18
+ * @lastEditTime: 2022-07-15 18:18
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { SectionType, TranslateType } from "./consts";
 import {
+  AppleTranslateResult,
+  BaiduTranslateResult,
+  CaiyunTranslateResult,
   QueryWordInfo,
+  RequestTypeResult,
+  SectionType,
+  TencentTranslateResult,
   TranslateDisplayResult,
   TranslateFormatResult,
   TranslateItem,
+  TranslateType,
   YoudaoTranslateResult,
-  TranslateTypeResult,
-  BaiduTranslateResult,
-  TencentTranslateResult,
-  CaiyunTranslateResult,
-  AppleTranslateResult,
 } from "./types";
 import { isShowMultipleTranslations } from "./utils";
 
 /**
  * Format the Youdao original data for later use.
  */
-export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResult): TranslateFormatResult {
+export function formatYoudaoDictionaryResult(youdaoTypeResult: RequestTypeResult): TranslateFormatResult {
   const youdaoResult = youdaoTypeResult.result as YoudaoTranslateResult;
   const translations = youdaoResult.translation.map((translationText) => {
     return {
@@ -66,11 +68,26 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: TranslateTypeResu
 }
 
 /**
- * update formated result with apple translate result
+ * Update format result with deepl translate result.
+ */
+export function updateFormatTranslateResultWithDeepLResult(
+  formatResult: TranslateFormatResult,
+  deeplTypeResult: RequestTypeResult
+): TranslateFormatResult {
+  const deeplResult = deeplTypeResult.result as DeepLTranslateResult;
+  formatResult.translations.push({
+    type: TranslateType.DeepL,
+    text: deeplResult.translations[0].text, // deepl will autotically warp the text.
+  });
+  return sortTranslations(formatResult);
+}
+
+/**
+ * update format result with apple translate result
  */
 export function updateFormatResultWithAppleTranslateResult(
   formatResult: TranslateFormatResult,
-  appleTranslateResult: TranslateTypeResult
+  appleTranslateResult: RequestTypeResult
 ): TranslateFormatResult {
   const appleTranslate = appleTranslateResult.result as AppleTranslateResult;
   formatResult.translations.push({
@@ -81,10 +98,10 @@ export function updateFormatResultWithAppleTranslateResult(
 }
 
 /**
- * update formated result with baidu translate result
+ * update format result with baidu translate result
  */
-export function updateFormateResultWithBaiduTranslation(
-  baiduTypeResult: TranslateTypeResult,
+export function updateFormatResultWithBaiduTranslation(
+  baiduTypeResult: RequestTypeResult,
   formatResult: TranslateFormatResult
 ): TranslateFormatResult {
   const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
@@ -104,10 +121,10 @@ export function updateFormateResultWithBaiduTranslation(
 }
 
 /**
- * update formated result with tencent translate result
+ * update format result with tencent translate result
  */
-export function updateFormateResultWithTencentTranslation(
-  tencentTypeResult: TranslateTypeResult,
+export function updateFormatResultWithTencentTranslation(
+  tencentTypeResult: RequestTypeResult,
   formatResult: TranslateFormatResult
 ): TranslateFormatResult {
   const tencentResult = tencentTypeResult.result as TencentTranslateResult;
@@ -122,10 +139,10 @@ export function updateFormateResultWithTencentTranslation(
 }
 
 /**
- * update formated result with caiyun translate result
+ * update format result with caiyun translate result
  */
-export function updateFormateResultWithCaiyunTranslation(
-  caiyunTypeResult: TranslateTypeResult,
+export function updateFormatResultWithCaiyunTranslation(
+  caiyunTypeResult: RequestTypeResult,
   formatResult: TranslateFormatResult
 ): TranslateFormatResult {
   const caiyunResult = caiyunTypeResult.result as CaiyunTranslateResult;
@@ -139,10 +156,11 @@ export function updateFormateResultWithCaiyunTranslation(
 }
 
 /**
- * sort formatResult translations, by type: apple > baidu > tencent > youdao > caiyun
+ * sort formatResult translations, by type: deelp > apple > baidu > tencent > youdao > caiyun
  */
 export function sortTranslations(formatResult: TranslateFormatResult): TranslateFormatResult {
   const sortByOrders = [
+    TranslateType.DeepL,
     TranslateType.Apple,
     TranslateType.Baidu,
     TranslateType.Tencent,

@@ -2,44 +2,15 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-01 11:05
+ * @lastEditTime: 2022-07-15 16:20
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { LanguageDetectType } from "./detectLanguage";
 import { LanguageItem, RequestErrorInfo } from "./types";
 
 export const clipboardQueryTextKey = "clipboardQueryTextKey";
-
-/**
- *
- */
-export const maxInputTextLength = 2000;
-
-export enum SectionType {
-  Translation = "Translate",
-  Explanations = "Explanation",
-  Forms = "Forms and Tenses",
-  WebTranslation = "Web Translation",
-  WebPhrase = "Web Phrase",
-}
-
-export enum TranslateType {
-  Youdao = "Youdao",
-  Baidu = "Baidu",
-  Tencent = "Tencent",
-  Caiyun = "Caiyun",
-  Apple = "Apple",
-}
-
-export enum DicionaryType {
-  Youdao = "Youdao Dictionary",
-  Iciba = "Iciba Dictionary",
-}
-
-export type RequestType = TranslateType | DicionaryType | LanguageDetectType;
 
 export enum YoudaoRequestStateCode {
   Success = "0",
@@ -94,7 +65,8 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
 }
 
 /**
- * 语言代码列表
+ * language item list
+ * TODO: add more language item.
  */
 export const languageItemList: LanguageItem[] = [
   {
@@ -112,6 +84,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "zh-CHS",
     appleLanguageId: "zh_CN",
     appleChineseLanguageTitle: "中文",
+    deeplSourceLanguageId: "ZH",
     francLanguageId: "cmn",
     aliyunLanguageId: "zh",
     tencentLanguageId: "zh",
@@ -125,6 +98,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "zh-CHT",
     appleLanguageId: "zh-TW",
     appleChineseLanguageTitle: "中文",
+    deeplSourceLanguageId: "ZH",
     francLanguageId: "cmn",
     aliyunLanguageId: "zh-tw",
     tencentLanguageId: "zh-TW",
@@ -138,6 +112,8 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "en",
     appleLanguageId: "en_US",
     appleChineseLanguageTitle: "英语",
+    deeplSourceLanguageId: "EN",
+    deeplTargetLanguageId: "EN-US", // "EN-GB" "EN-US"
     francLanguageId: "eng",
     aliyunLanguageId: "en",
     tencentLanguageId: "en",
@@ -153,6 +129,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "ja",
     appleLanguageId: "ja_JP",
     appleChineseLanguageTitle: "日语",
+    deeplSourceLanguageId: "JA",
     francLanguageId: "jpn",
     aliyunLanguageId: "ja",
     tencentDetectLanguageId: "jp",
@@ -180,6 +157,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "fr",
     appleLanguageId: "fr_FR",
     appleChineseLanguageTitle: "法语",
+    deeplSourceLanguageId: "FR",
     francLanguageId: "fra",
     aliyunLanguageId: "fr",
     tencentLanguageId: "fr",
@@ -193,6 +171,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "es",
     appleLanguageId: "es_ES",
     appleChineseLanguageTitle: "西班牙语",
+    deeplSourceLanguageId: "ES",
     francLanguageId: "spa",
     aliyunLanguageId: "es",
     tencentLanguageId: "es",
@@ -205,6 +184,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "it",
     appleLanguageId: "it_IT",
     appleChineseLanguageTitle: "意大利语",
+    deeplSourceLanguageId: "IT",
     francLanguageId: "ita",
     aliyunLanguageId: "it",
     tencentLanguageId: "it",
@@ -216,6 +196,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "de",
     appleLanguageId: "de_DE",
     appleChineseLanguageTitle: "德语",
+    deeplSourceLanguageId: "DE",
     francLanguageId: "deu",
     aliyunLanguageId: "de",
     tencentLanguageId: "de",
@@ -228,6 +209,8 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "pt",
     appleLanguageId: "pt_BR",
     appleChineseLanguageTitle: "葡萄牙语",
+    deeplSourceLanguageId: "PT",
+    deeplTargetLanguageId: "PT-PT", // "PT-PT" "PT-BR"
     francLanguageId: "por",
     aliyunLanguageId: "pt",
     tencentLanguageId: "pt",
@@ -239,6 +222,7 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "ru",
     appleLanguageId: "ru_RU",
     appleChineseLanguageTitle: "俄语",
+    deeplSourceLanguageId: "RU",
     francLanguageId: "rus",
     aliyunLanguageId: "ru",
     tencentLanguageId: "ru",
@@ -268,6 +252,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "sv",
+    deeplSourceLanguageId: "SV",
     francLanguageId: "swe",
     aliyunLanguageId: "sv",
     baiduLanguageId: "swe",
@@ -276,6 +261,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "nl",
+    deeplSourceLanguageId: "NL",
     francLanguageId: "nld",
     aliyunLanguageId: "nl",
     baiduLanguageId: "nl",
@@ -284,6 +270,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "ro",
+    deeplSourceLanguageId: "RO",
     francLanguageId: "ron",
     aliyunLanguageId: "ro",
     baiduLanguageId: "rom",
@@ -292,6 +279,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "sk",
+    deeplSourceLanguageId: "SK",
     francLanguageId: "slk",
     aliyunLanguageId: "sk",
     baiduLanguageId: "slo",
@@ -300,6 +288,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "hu",
+    deeplSourceLanguageId: "HU",
     francLanguageId: "hun",
     aliyunLanguageId: "hu",
     baiduLanguageId: "hu",
@@ -308,6 +297,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "el",
+    deeplSourceLanguageId: "EL",
     francLanguageId: "ell",
     aliyunLanguageId: "el",
     baiduLanguageId: "el",
@@ -316,6 +306,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "da",
+    deeplSourceLanguageId: "DA",
     francLanguageId: "dan",
     aliyunLanguageId: "da",
     baiduLanguageId: "dan",
@@ -324,6 +315,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "fi",
+    deeplSourceLanguageId: "FI",
     francLanguageId: "fin",
     aliyunLanguageId: "fi",
     baiduLanguageId: "fin",
@@ -332,6 +324,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "pl",
+    deeplSourceLanguageId: "PL",
     francLanguageId: "pol",
     aliyunLanguageId: "pl",
     baiduLanguageId: "pl",
@@ -340,6 +333,7 @@ export const languageItemList: LanguageItem[] = [
   },
   {
     youdaoLanguageId: "cs",
+    deeplSourceLanguageId: "CS",
     francLanguageId: "ces",
     aliyunLanguageId: "cs",
     baiduLanguageId: "cs",

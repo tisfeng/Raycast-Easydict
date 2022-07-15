@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 11:42
+ * @lastEditTime: 2022-07-15 15:56
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,6 +54,18 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
   for (const langItem of languageItemList) {
     if (langItem.appleChineseLanguageTitle === chineseTitle) {
+      return langItem;
+    }
+  }
+  return languageItemList[0];
+}
+
+/**
+ * Return language item from deepl language id, if not found, return auto language item
+ */
+export function getLanguageItemFromDeepLSourceId(deeplLanguageId: string): LanguageItem {
+  for (const langItem of languageItemList) {
+    if (langItem.deeplSourceLanguageId === deeplLanguageId) {
       return langItem;
     }
   }
