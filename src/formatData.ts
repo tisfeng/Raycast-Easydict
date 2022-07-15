@@ -3,7 +3,7 @@ import { DeepLTranslateResult } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 18:18
+ * @lastEditTime: 2022-07-15 22:05
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -72,14 +72,17 @@ export function formatYoudaoDictionaryResult(youdaoTypeResult: RequestTypeResult
  */
 export function updateFormatTranslateResultWithDeepLResult(
   formatResult: TranslateFormatResult,
-  deeplTypeResult: RequestTypeResult
+  deepLTypeResult: RequestTypeResult
 ): TranslateFormatResult {
-  const deeplResult = deeplTypeResult.result as DeepLTranslateResult;
-  formatResult.translations.push({
-    type: TranslateType.DeepL,
-    text: deeplResult.translations[0].text, // deepl will autotically warp the text.
-  });
-  return sortTranslations(formatResult);
+  const deepLResult = deepLTypeResult.result as DeepLTranslateResult;
+  if (deepLResult) {
+    formatResult.translations.push({
+      type: TranslateType.DeepL,
+      text: deepLResult.translations[0].text, // deepl will autotically warp the text.
+    });
+    return sortTranslations(formatResult);
+  }
+  return formatResult;
 }
 
 /**
@@ -90,11 +93,14 @@ export function updateFormatResultWithAppleTranslateResult(
   appleTranslateResult: RequestTypeResult
 ): TranslateFormatResult {
   const appleTranslate = appleTranslateResult.result as AppleTranslateResult;
-  formatResult.translations.push({
-    type: TranslateType.Apple,
-    text: appleTranslate.translatedText,
-  });
-  return sortTranslations(formatResult);
+  if (appleTranslate.translatedText) {
+    formatResult.translations.push({
+      type: TranslateType.Apple,
+      text: appleTranslate.translatedText,
+    });
+    return sortTranslations(formatResult);
+  }
+  return formatResult;
 }
 
 /**
@@ -116,8 +122,9 @@ export function updateFormatResultWithBaiduTranslation(
       type: TranslateType.Baidu,
       text: baiduTranslation,
     });
+    return sortTranslations(formatResult);
   }
-  return sortTranslations(formatResult);
+  return formatResult;
 }
 
 /**
@@ -134,8 +141,9 @@ export function updateFormatResultWithTencentTranslation(
       type: TranslateType.Tencent,
       text: tencentTranslation,
     });
+    return sortTranslations(formatResult);
   }
-  return sortTranslations(formatResult);
+  return formatResult;
 }
 
 /**
@@ -151,8 +159,9 @@ export function updateFormatResultWithCaiyunTranslation(
       type: TranslateType.Caiyun,
       text: caiyunResult?.target.join("\n"),
     });
+    return sortTranslations(formatResult);
   }
-  return sortTranslations(formatResult);
+  return formatResult;
 }
 
 /**

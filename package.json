@@ -368,7 +368,7 @@
     },
     {
       "title": "DeepL Auth Key",
-      "name": "deeplAuthKey",
+      "name": "deepLAuthKey",
       "type": "textfield",
       "required": false,
       "description": "Your DeepL Auth Key",

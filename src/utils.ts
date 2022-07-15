@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 15:56
+ * @lastEditTime: 2022-07-15 22:07
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -61,11 +61,11 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
 }
 
 /**
- * Return language item from deepl language id, if not found, return auto language item
+ * Return language item from deepL language id, if not found, return auto language item
  */
-export function getLanguageItemFromDeepLSourceId(deeplLanguageId: string): LanguageItem {
+export function getLanguageItemFromDeepLSourceId(deepLLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.deeplSourceLanguageId === deeplLanguageId) {
+    if (langItem.deepLSourceLanguageId === deepLLanguageId) {
       return langItem;
     }
   }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-15 11:39
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 18:26
+ * @lastEditTime: 2022-07-15 21:59
  * @fileName: crypto.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -61,8 +61,8 @@ export const tencentSecretId =
 export const tencentSecretKey =
   myPreferences.tencentSecretKey.trim().length > 0 ? myPreferences.tencentSecretKey.trim() : defaultTencentSecretKey;
 
-export const deeplAuthKey =
-  myPreferences.deeplAuthKey.trim().length > 0 ? myPreferences.deeplAuthKey.trim() : defaultDeepLAuthKey;
+export const deepLAuthKey =
+  myPreferences.deepLAuthKey.trim().length > 0 ? myPreferences.deepLAuthKey.trim() : defaultDeepLAuthKey;
 
 export const caiyunToken =
   myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : defaultCaiyunToken;

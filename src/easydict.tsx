@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 21:49
+ * @lastEditTime: 2022-07-15 22:04
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,7 +33,7 @@ import {
 import {
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
-  requestDeepTextTranslate,
+  requestDeepLTextTranslate,
   requestTencentTextTranslate,
   requestYoudaoDictionary,
 } from "./request";
@@ -254,9 +254,9 @@ export default function () {
       if (isShowMultipleTranslations(formatResult)) {
         // check if enable deepl translate
         if (myPreferences.enableDeepLTranslate) {
-          requestDeepTextTranslate(queryText, fromLanguage, toLanguage)
-            .then((deeplTypeResult) => {
-              updateFormatTranslateResultWithDeepLResult(formatResult, deeplTypeResult);
+          requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
+            .then((deepLTypeResult) => {
+              updateFormatTranslateResultWithDeepLResult(formatResult, deepLTypeResult);
               updateTranslateDisplayResult(formatResult);
             })
             .catch((err) => {
