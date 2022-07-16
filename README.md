@@ -60,7 +60,7 @@ Details of the languages supported by each translation service are as follows:
 
 | language               | Youdao | DeepL | 🍎 Apple | Baidu | Tencent | Caiyun |
 | :--------------------- | :----: | :---: | :------: | :---: | :-----: | :----: |
-| Chinese                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Chinese (Simplified)   |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Chinese（Traditional） |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
 | English                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Japanese               |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
@@ -164,7 +164,7 @@ By default, the extension will automatically select the preferred languages as t
 
 <p>
 
-Name case insensitive, use comma to separate. Example: `deepl,apple,baidu,tencent,youdao,caiyun`. You can also specify a part of the sort, for example: `apple,tencent`，the actual sort is: `apple,tencent,deepl,baidu,youdao,caiyun`.
+Name case are insensitive, use comma to separate. Example: `deepl,apple,baidu,tencent,youdao,caiyun`. You can also specify a part of the sort, for example: `apple,tencent`，the actual sort is: `apple,tencent,deepl,baidu,youdao,caiyun`.
 
 > Note: This sort is the overall sort, if a translation service is not enabled, the sort will be automatically ignored.
 

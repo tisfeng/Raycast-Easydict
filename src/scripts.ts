@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-07 11:24
+ * @lastEditTime: 2022-07-16 16:55
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,7 +57,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
   const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
   if (!appleFromLanguageId || !appleToLanguageId) {
-    console.warn(`apple translate language not support: ${appleFromLanguageId} -> ${appleToLanguageId}`);
+    console.warn(`apple translate language not support: ${queryTextInfo.fromLanguage} -> ${queryTextInfo.toLanguage}`);
     return Promise.resolve(undefined);
   }
 
@@ -90,17 +90,19 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
-    exec(command, (error, stdout) => {
+    exec(command, (error, stdout, stderr) => {
       if (error) {
+        // console.error(`error: ${JSON.stringify(error, null, 4)}`);
+        console.error(`apple stderr: ${stderr}`);
         reject(error);
       }
       const translateText = stdout.trim();
       resolve(translateText);
+
       const endTime = new Date().getTime();
       console.warn(`apple translate: ${translateText}, cost: ${endTime - startTime} ms`);
       if (translateText.length === 0) {
-        console.log(`apple translate error?: ${translateText}`);
-        console.log(`${command}`);
+        console.log(`command: ${command}`);
       }
     });
   });

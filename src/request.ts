@@ -3,7 +3,7 @@ import { deepLAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 23:54
+ * @lastEditTime: 2022-07-16 15:57
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -107,7 +107,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
 
 /**
  * 腾讯文本翻译，5次/秒
- * Docs: https://console.cloud.tencent.com/api/explorer?Product=tmt&Version=2018-03-21&Action=TextTranslate&SignVersion=
+ * Docs: https://cloud.tencent.com/document/api/551/15619
  */
 export async function requestTencentTextTranslate(
   queryText: string,
@@ -117,7 +117,11 @@ export async function requestTencentTextTranslate(
   const from = getLanguageItemFromYoudaoId(fromLanguage).tencentLanguageId || "auto";
   const to = getLanguageItemFromYoudaoId(targetLanguage).tencentLanguageId;
   if (!to) {
-    return Promise.reject(new Error("Target language is not supported by Tencent Translate"));
+    console.warn(`Tencent translate not support language: ${from} --> ${to}`);
+    return Promise.resolve({
+      type: TranslateType.Tencent,
+      result: null,
+    });
   }
   const params = {
     SourceText: queryText,
@@ -137,8 +141,9 @@ export async function requestTencentTextTranslate(
     };
     return Promise.resolve(typeResult);
   } catch (err) {
+    // console.error(`tencent translate error: ${JSON.stringify(err, null, 2)}`);
     const error = err as { code: string; message: string };
-    console.error(`tencent translate error, code: ${error.code}, message: ${error.message}`);
+    console.error(`Tencent translate error, code: ${error.code}, message: ${error.message}`);
     const errorInfo: RequestErrorInfo = {
       type: TranslateType.Tencent,
       code: error.code,
@@ -268,7 +273,7 @@ export function requestCaiyunTextTranslate(
   // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
-    console.log(`caiyun translate not support language: ${from} --> ${to}`);
+    console.warn(`Caiyun translate not support language: ${fromLanguage} --> ${targetLanguage}`);
     return Promise.resolve({
       type: TranslateType.Caiyun,
       result: null,
@@ -353,7 +358,7 @@ export async function requestDeepLTextTranslate(
 
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
-    console.warn(`deepL translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.warn(`DeepL translate not support language: ${fromLanguage} --> ${targetLanguage}`);
     return Promise.resolve({
       type: TranslateType.DeepL,
       result: null,

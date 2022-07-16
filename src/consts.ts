@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 11:54
+ * @lastEditTime: 2022-07-16 16:18
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -67,7 +67,8 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
 /**
  * Language item list.
  * Currently support 22 languages, includes two Chinese languages.
- * TODO: add more language item.
+ * TODO: add more translation supported languages.
+ * TODO: add more apple detect supported languages.
  */
 export const languageItemList: LanguageItem[] = [
   {
@@ -99,12 +100,10 @@ export const languageItemList: LanguageItem[] = [
     youdaoLanguageId: "zh-CHT",
     appleLanguageId: "zh-TW",
     appleChineseLanguageTitle: "中文",
-    deepLSourceLanguageId: "ZH",
     francLanguageId: "cmn",
     aliyunLanguageId: "zh-tw",
     tencentLanguageId: "zh-TW",
     baiduLanguageId: "cht",
-    caiyunLanguageId: "zh",
     googleLanguageId: "zh-TW",
     languageTitle: "Chinese-Traditional",
     voiceList: ["Ting-Ting"],
