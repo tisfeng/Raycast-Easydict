@@ -1,5 +1,16 @@
 # `Easydict` Changelog
 
+## [1.3.0] - 2022-07-16
+
+### ✨ New
+
+- Added support for DeepL translation.
+- Supported to sort translation results manually.
+
+### 🐞 Fixes
+
+- Fixed deleting input box text will cause repeated query selected text problem.
+
 ## [1.2.0] - 2022-07-04
 
 ### ✨ New

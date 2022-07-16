@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-15 16:28
+ * @lastEditTime: 2022-07-16 23:26
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,16 +55,14 @@ export function ActionCurrentVersion() {
  * Get the list action panel item with ListItemActionPanelItem
  */
 export default function ListActionPanel(props: ActionListPanelProps) {
-  const currentEasydict = new Easydict();
-
   const [hasPrompted, setHasPrompted] = useState(false);
-  // const [easydict, setEasydict] = useState<Easydict>();
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   checkIsInstalledEudic(setIsInstalledEudic);
 
+  const currentEasydict = new Easydict();
   currentEasydict.getCurrentVersionInfo().then((easydict) => {
-    setHasPrompted(easydict.hasPrompted);
+    setHasPrompted(easydict.isNeedPrompt && easydict.hasPrompted);
   });
 
   const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
