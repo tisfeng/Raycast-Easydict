@@ -69,7 +69,9 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": "npm run eslint",
-    "**/*": "prettier --write . --ignore-unknown"
+    "**/*": [
+      "prettier --write . --ignore-unknown"
+    ]
   },
   "preferences": [
     {
