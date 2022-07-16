@@ -29,6 +29,7 @@
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort translation results manually.
 - [x] Support **MacOS system translation**. (_Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/如何在-Easydict-中使用-macOS-🍎-系统翻译？) for more details_)
+- [x] Support DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
 - [x] Support 22 translation languages.
 
 Next:
@@ -40,9 +41,11 @@ Next:
 
 ![easydict-2](https://i.imgur.com/L9aE9ke.jpg)
 
-![easydict-3](https://i.imgur.com/ycKif2c.jpg)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/c93edb20a2655ba2b1d29c475bdf39ca8e4cfd13/uPic/easydict-3.png)
 
-![easydict-4](https://i.imgur.com/NOZgJtl.jpg)
+![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/c393f8bbb9e4a332e0058854494a08bd1e1bdc08/uPic/easydict-4.png)
+
+![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/c393f8bbb9e4a332e0058854494a08bd1e1bdc08/uPic/easydict-5.png)
 
 ---
 
@@ -50,7 +53,7 @@ Next:
 
 Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydict` better or understand how the extension works.
 
-![setting](https://i.imgur.com/KI9snFe.jpg)
+![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2022-07-16_18.57.16.png)
 
 ### Supported Languages
 
