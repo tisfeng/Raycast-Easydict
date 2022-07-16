@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 16:55
+ * @lastEditTime: 2022-07-16 17:11
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
 import { eudicBundleId } from "./components";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
-import { QueryWordInfo, RequestErrorInfo } from "./types";
+import { QueryWordInfo, RequestErrorInfo, TranslateType } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
 /**
@@ -29,6 +29,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
     // * NOTE: osascript -e param only support single quote 'xxx'
     exec(`osascript -e '${appleScript}'`, (error, stdout) => {
       if (error) {
+        console.error(`Apple detect error: ${error}`);
         const errorInfo: RequestErrorInfo = {
           type: LanguageDetectType.Apple,
           message: error.message,
@@ -93,17 +94,18 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
     exec(command, (error, stdout, stderr) => {
       if (error) {
         // console.error(`error: ${JSON.stringify(error, null, 4)}`);
-        console.error(`apple stderr: ${stderr}`);
-        reject(error);
+        // console.error(`apple stderr: ${stderr}`);
+        console.warn(`Apple translate error: ${command}`);
+        const errorInfo: RequestErrorInfo = {
+          type: TranslateType.Apple,
+          message: stderr,
+        };
+        reject(errorInfo);
       }
-      const translateText = stdout.trim();
-      resolve(translateText);
 
-      const endTime = new Date().getTime();
-      console.warn(`apple translate: ${translateText}, cost: ${endTime - startTime} ms`);
-      if (translateText.length === 0) {
-        console.log(`command: ${command}`);
-      }
+      const translateText = stdout.trim();
+      console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+      resolve(translateText);
     });
   });
 }
