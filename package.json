@@ -11,7 +11,7 @@
       "name": "easydict",
       "title": "Search Word",
       "subtitle": "Easy Dictionary",
-      "description": "Easy to look up words or translate text, support MacOS system translate, Youdao, Tencent, Baidu and Caiyun translation API.",
+      "description": "Easy to look up words or translate text, support MacOS system translate, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.",
       "mode": "view"
     }
   ],
@@ -24,6 +24,7 @@
   "keywords": [
     "dictionary",
     "translate",
+    "deepl",
     "apple",
     "youdao",
     "baidu",

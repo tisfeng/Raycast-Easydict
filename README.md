@@ -27,7 +27,9 @@
 - [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
 - [x] Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
 - [x] Support Youdao Text to Speech(TTS).
+- [x] Support to sort translation results manually.
 - [x] Support **MacOS system translation**. (_Note: this feature needs to install an apple translate shortcut on you mac, please see [Wiki](https://github.com/tisfeng/Raycast-Easydict/wiki/如何在-Easydict-中使用-macOS-🍎-系统翻译？) for more details_)
+- [x] Support 22 translation languages.
 
 Next:
 
@@ -49,6 +51,38 @@ Next:
 Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydict` better or understand how the extension works.
 
 ![setting](https://i.imgur.com/KI9snFe.jpg)
+
+### Supported Languages
+
+Currently we support 22 languages: Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+
+Details of the languages supported by each translation service are as follows:
+
+| language               | Youdao | DeepL | 🍎 Apple | Baidu | Tencent | Caiyun |
+| :--------------------- | :----: | :---: | :------: | :---: | :-----: | :----: |
+| Chinese                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Chinese（Traditional） |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
+| English                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Japanese               |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Korean                 |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
+| French                 |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Spanish                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Portuguese             |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Italian                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| German                 |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Russian                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Arabic                 |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Swedish                |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Romanian               |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Thai                   |   ✅   |  ❌   |    ❌    |  ✅   |   ✅    |   ❌   |
+| Slovak                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Dutch                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Hungarian              |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Greek                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Danish                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Finnish                |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Polish                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Czech                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
 
 ### Preferred Languages
 
@@ -119,6 +153,20 @@ Use `Cmd + S` to play the pronunciation of words manually.
 <p>
 
 By default, the extension will automatically select the preferred languages as the target translation language, but sometimes if you want to manually specify a supported language as the target language, you can turn on the option `Select Target Translation Language` on the preference page, and then you can temporarily select another target language in the action panel.
+
+</p>
+
+</details>
+
+### Sort Translation Results Manually
+
+<details> <summary> You can sort the translation results by your preference, default is `DeepL,Apple,Baidu,Tencent,Youdao,Caiyun`. </summary>
+
+<p>
+
+Name case insensitive, use comma to separate. Example: `deepl,apple,baidu,tencent,youdao,caiyun`. You can also specify a part of the sort, for example: `apple,tencent`，the actual sort is: `apple,tencent,deepl,baidu,youdao,caiyun`.
+
+> Note: This sort is the overall sort, if a translation service is not enabled, the sort will be automatically ignored.
 
 </p>
 
