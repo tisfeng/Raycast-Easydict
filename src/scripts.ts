@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 17:11
+ * @lastEditTime: 2022-07-16 17:47
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -72,6 +72,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
    * * If use auto detect and detected language is outside of 12 languages, it will throw language not support error.
    *
    * ? execution error: “Shortcuts Events”遇到一个错误：“翻译”可能不支持所提供文本的语言。 (-1753)
+   * ? execution error: “Shortcuts Events”遇到一个错误：Translation from 英语（美国） to 中文（台湾） is not supported. (-1753)\n"
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect

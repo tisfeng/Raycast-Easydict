@@ -10,7 +10,7 @@
     {
       "name": "easydict",
       "title": "Search Word",
-      "subtitle": "Easy Dictionary",
+      "subtitle": "Easydict",
       "description": "Easy to look up words or translate text, support MacOS system translate, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.",
       "mode": "view"
     }

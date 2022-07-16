@@ -61,7 +61,7 @@ Details of the languages supported by each translation service are as follows:
 | language               | Youdao | DeepL | 🍎 Apple | Baidu | Tencent | Caiyun |
 | :--------------------- | :----: | :---: | :------: | :---: | :-----: | :----: |
 | Chinese (Simplified)   |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
-| Chinese（Traditional） |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Chinese（Traditional） |   ✅   |  ⚠️   |    ⚠️    |  ✅   |   ✅    |   ⚠️   |
 | English                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Japanese               |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Korean                 |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
@@ -83,6 +83,8 @@ Details of the languages supported by each translation service are as follows:
 | Finnish                |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
 | Polish                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
 | Czech                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+
+> Note: ⚠️ means the translation of source language to Traditional Chinese is not supported, such as DeepL. If you enter Traditional Chinese for translation, it will be treated as Simplified Chinese.
 
 ### Preferred Languages
 
@@ -196,6 +198,8 @@ The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob
 ## Friendly Recommendation
 
 [`Bob`](https://ripperhe.gitee.io/bob/#/) is a MacOS **translation** and **OCR** application. Bob is probably the best translation application on the MacOS platform, and it's free!
+
+> Update: Bob is now available on the Mac App Store, welcome to support: [Bob - 翻译和 OCR 工具](https://apps.apple.com/us/app/bob-%E7%BF%BB%E8%AF%91%E5%92%8C-ocr-%E5%B7%A5%E5%85%B7/id1630034110?l=zh&mt=12)
 
 ![image-20220620150946277](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620150946277.png)
 

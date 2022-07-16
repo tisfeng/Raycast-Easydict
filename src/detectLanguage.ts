@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 17:19
+ * @lastEditTime: 2022-07-16 17:25
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -227,6 +227,7 @@ function handleDetectedLanguageTypeResult(
    */
   if (detectLanguageActionMap.size === 0) {
     console.log(`try compare API detected language list with local deteced list`);
+    console.log(`---> API detected language list: ${JSON.stringify(detectedLanguageTypeResultList, null, 4)}`);
 
     const detectedLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
     if (detectedLanguageArray) {
