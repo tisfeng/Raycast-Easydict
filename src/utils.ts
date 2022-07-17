@@ -53,7 +53,7 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
  */
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.appleChineseLanguageTitle === chineseTitle) {
+    if (langItem.appleDetectChineseLanguageTitle === chineseTitle) {
       return langItem;
     }
   }
