@@ -116,7 +116,7 @@ export function isTranslateResultTooLong(formatResult: TranslateFormatResult | n
   const isChineseTextResult = formatResult.queryWordInfo.toLanguage === "zh-CHS";
   const isEnglishTextResult = formatResult.queryWordInfo.toLanguage === "en";
 
-  for (const translation of formatResult.translations) {
+  for (const translation of formatResult.translationItems) {
     const textLength = translation.text.length;
     if (isChineseTextResult) {
       if (textLength > maxLineLengthOfChineseTextDisplay) {
