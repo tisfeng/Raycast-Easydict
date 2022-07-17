@@ -28,17 +28,3 @@ jobs:
       # Runs a single command using the runners shell
       - name: Send greeting
         run: echo "Hello, ${{ github.event.inputs.name }}"
-
-      - name: "Send mail"
-        uses: dawidd6/action-send-mail@master
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.GMAIL_USERNAME }}
-          password: ${{ secrets.GMAIL_USERPASSORD }}
-          subject: Hello, ${{ github.event.inputs.name }}
-          # https://github.com/tisfeng/Raycast-Easydict/
-          body: ${{ github.repository }} was triggered by ${{ github.actor }},  ${{ github.server_url }}/${{ github.repository }}
-          to: tisfeng@gmail.com
-          from: GitHub Actions
-          convert_markdown: true
