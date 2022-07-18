@@ -187,20 +187,20 @@ For easy to use, we provide some built-in translation APIs appid and appkey, but
 
 Don't worry, these translation services have free quotas. Generally speaking, personal use is enough.
 
-The following application tutorial is from [`Bob`](https://ripperhe.gitee.io/bob/#/general/advance/service). Follow the tutorial and you should be able to complete the application soon.
+The following application tutorial is from [`Bob`](https://v0.bobtranslate.com/#/general/advance/service). Follow the tutorial and you should be able to complete the application soon.
 
-- [Youdao Translate](https://ripperhe.gitee.io/bob/#/service/translate/youdao)： Select `text translation` and `speech synthesis`. (You will receive ¥50 experience fund)
-- [Baidu Translate](https://ripperhe.gitee.io/bob/#/service/translate/baidu)
+- [Youdao Translate](https://v0.bobtranslate.com/#/service/translate/youdao)： Select `text translation` and `speech synthesis`. (You will receive ¥50 experience fund)
+- [Baidu Translate](https://v0.bobtranslate.com/#/service/translate/baidu)
 
-- [Tencent Translate](https://ripperhe.gitee.io/bob/#/service/translate/tencent)
+- [Tencent Translate](https://v0.bobtranslate.com/#/service/translate/tencent)
 
-- [Caiyun Translate](https://ripperhe.gitee.io/bob/#/service/translate/caiyun)
+- [Caiyun Translate](https://v0.bobtranslate.com/#/service/translate/caiyun)
 
 ![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
 
 ## Friendly Recommendation
 
-[`Bob`](https://ripperhe.gitee.io/bob/#/) is a MacOS **translation** and **OCR** application. Bob is probably the best translation application on the MacOS platform, and it's free!
+[`Bob`](https://v0.bobtranslate.com/#/) is a MacOS **translation** and **OCR** application. Bob is probably the best translation application on the MacOS platform, and it's free!
 
 > Update: Bob is now available on the Mac App Store, welcome to support: [Bob - 翻译和 OCR 工具](https://apps.apple.com/us/app/bob-%E7%BF%BB%E8%AF%91%E5%92%8C-ocr-%E5%B7%A5%E5%85%B7/id1630034110?l=zh&mt=12)
 
