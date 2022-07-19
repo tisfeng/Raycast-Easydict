@@ -10,14 +10,7 @@
 
 import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
-import ListActionPanel, {
-  ActionCurrentVersion,
-  ActionFeedback,
-  ActionOpenCommandPreferences,
-  ActionRecentUpdate,
-  getListItemIcon,
-  getWordAccessories,
-} from "./components";
+import ListActionPanel, { ActionFeedback, getListItemIcon, getWordAccessories } from "./components";
 import { BaiduRequestStateCode, getYoudaoErrorInfo, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
 import { detectLanguage } from "./detectLanguage";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
@@ -522,14 +515,7 @@ export default function () {
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChangeEvent}
-      actions={
-        <ActionPanel>
-          <ActionFeedback />
-          <ActionOpenCommandPreferences />
-          <ActionRecentUpdate />
-          <ActionCurrentVersion />
-        </ActionPanel>
-      }
+      actions={null}
     >
       <List.EmptyView icon={Icon.TextDocument} title="Type a word to look up or translate" />
       <ListDetail />
