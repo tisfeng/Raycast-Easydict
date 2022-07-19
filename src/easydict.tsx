@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 18:36
+ * @lastEditTime: 2022-07-19 01:14
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -31,6 +31,7 @@ import {
   updateFormatTranslateResultWithDeepLResult,
 } from "./formatData";
 import {
+  pyDeeplTranslate,
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
   requestDeepLTextTranslate,
@@ -250,6 +251,8 @@ export default function () {
 
       setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(from));
       updateTranslateDisplayResult(formatResult);
+
+      pyDeeplTranslate(queryText);
 
       // request other translate API to show multiple translations
       if (isShowMultipleTranslations(formatResult)) {

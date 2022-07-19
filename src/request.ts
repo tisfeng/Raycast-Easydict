@@ -1,9 +1,8 @@
-import { deepLAuthKey } from "./crypto";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 18:40
+ * @lastEditTime: 2022-07-19 16:40
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +22,9 @@ import {
   youdaoAppSecret,
 } from "./crypto";
 
+import { HttpProxyAgent, HttpsProxyAgent } from "hpagent";
+import { performance } from "node:perf_hooks";
+import { deepLAuthKey } from "./crypto";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import {
   BaiduTranslateResult,
@@ -373,4 +375,170 @@ export async function requestDeepLTextTranslate(
     console.warn("deepL error info: ", errorInfo);
     return Promise.reject(errorInfo);
   }
+}
+
+/**
+ *  根据 python 修改, 参数来自浏览器
+ ```json
+ {
+    "jsonrpc": "2.0",
+    "method": "LMT_handle_jobs",
+    "params": {
+        "jobs": [
+            {
+                "kind": "default",
+                "sentences": [
+                    {
+                        "text": "Good result",
+                        "id": 0,
+                        "prefix": ""
+                    }
+                ],
+                "raw_en_context_before": [],
+                "raw_en_context_after": [],
+                "preferred_num_beams": 4
+            }
+        ],
+        "lang": {
+            "preference": {
+                "weight": {},
+                "default": "default"
+            },
+            "source_lang_computed": "EN",
+            "target_lang": "ZH"
+        },
+        "priority": 1,
+        "commonJobParams": {
+            "browserType": 1,
+            "formality": null
+        },
+        "timestamp": 16577953794019
+    },
+    "id": 16074604
+}
+```
+
+id=48737151, timestamp=16581648416876
+id=99219060, timestamp=16581648197337
+
+16581648197337
+16577953794019
+
+16581652248467
+
+16581979830372
+16581980261906
+
+1658198270625
+ */
+export function pyDeeplTranslate(text: string) {
+  const url = "https://www2.deepl.com/jsonrpc";
+  const randomId = getRandomId();
+  const timestamp = Date.now(); // 16577953794019
+
+  const microsecond = () => Number(timestamp + String(process.hrtime()[1]).slice(3, 6));
+  console.log(`microsecond: ${microsecond()}`);
+
+  const time = performance.now() + performance.timeOrigin;
+  console.log(`time: ${time}`);
+  const fakeTimestamp = parseInt((time * 10).toString());
+  console.log(`---> timestamp: ${timestamp}`);
+  console.log(`id: ${randomId}, ${fakeTimestamp}`);
+
+  const params = {
+    jsonrpc: "2.0",
+    method: "LMT_handle_jobs",
+    params: {
+      jobs: [
+        {
+          kind: "default",
+          sentences: [
+            {
+              text: text,
+              id: 0,
+              prefix: "",
+            },
+          ],
+          raw_en_context_before: [],
+          raw_en_context_after: [],
+          preferred_num_beams: 4,
+        },
+      ],
+      lang: {
+        preference: {
+          weight: {},
+          default: "default",
+        },
+        source_lang_computed: "EN",
+        target_lang: "ZH",
+      },
+      priority: 1,
+      commonJobParams: {
+        browserType: 1,
+        formality: null,
+      },
+      timestamp: timestamp,
+    },
+    id: randomId,
+  };
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  console.log(`---> params: ${JSON.stringify(params, null, 4)}`);
+  console.log(JSON.stringify(params));
+
+  const proxy = "http://127.0.0.1:6152";
+  // hpagent configuration
+  const agentConfig = { proxy: proxy };
+  const httpAgent = new HttpProxyAgent(agentConfig);
+  const httpsAgent = new HttpsProxyAgent(agentConfig);
+
+  const config: AxiosRequestConfig = {
+    url: url,
+    method: "POST",
+    headers: headers,
+    data: params,
+    // proxy: false,
+    httpAgent: httpAgent,
+    httpsAgent: httpsAgent,
+  };
+
+  return axios
+    .request(config)
+    .then((response) => {
+      console.log(
+        `deep translate: ${response.data.result.translations[0].text}, cost: ${response.headers[requestCostTime]} ms`
+      );
+      console.log(`deep translate: ${response.data}`);
+    })
+    .catch((error) => {
+      console.error("deep error response: ", error);
+    });
+
+  axios
+    .post(url, params, { headers })
+    .then((response) => {
+      console.log(
+        `deep translate: ${response.data.result.translations[0].text}, cost: ${response.headers[requestCostTime]} ms`
+      );
+      console.log(`deep translate: ${response.data}`);
+    })
+    .catch((error) => {
+      console.error("deep error response: ", error.response);
+    });
+}
+
+function getRandomId() {
+  return getRandomInt(10000000, 100000000);
+}
+
+/**
+ * get a random int between min and max
+ */
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //不含最大值，含最小值
 }
