@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-19 21:36
+ * @lastEditTime: 2022-07-20 01:44
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,6 @@ import {
   updateFormatResultWithTencentTranslation,
   updateFormatTranslateResultWithDeepLResult,
 } from "./formatData";
-import { Easydict } from "./releaseVersion/versionInfo";
 import {
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
@@ -43,6 +42,8 @@ import {
   YoudaoTranslateResult,
 } from "./types";
 import {
+  checkIfEudicIsInstalled,
+  checkIfNeedShowReleasePrompt,
   checkIfShowMultipleTranslations,
   defaultLanguage1,
   defaultLanguage2,
@@ -85,6 +86,7 @@ export default function () {
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
   const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(false);
+  const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   /**
    * use to display input text
@@ -119,12 +121,23 @@ export default function () {
       return;
     }
 
-    // try to query selected text when the extension is activated.
-    if (inputText === undefined && myPreferences.isAutomaticQuerySelectedText) {
-      tryQuerySelecedtText();
+    if (inputText === undefined) {
+      setup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
+
+  /**
+   * Do something setup when the extension is activated. Only run once.
+   */
+  function setup() {
+    console.log("enter setup");
+    if (myPreferences.isAutomaticQuerySelectedText) {
+      tryQuerySelecedtText();
+    }
+    checkIfEudicIsInstalled(setIsInstalledEudic);
+    checkIfNeedShowReleasePrompt(setIsShowingReleasePrompt);
+  }
 
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
@@ -379,7 +392,7 @@ export default function () {
   }
 
   function ListDetail() {
-    console.log("call ListDetail()");
+    // console.log("call ListDetail()");
     if (!youdaoTranslateTypeResult) {
       return null;
     }
@@ -428,11 +441,6 @@ export default function () {
       });
     };
 
-    const currentEasydict = new Easydict();
-    currentEasydict.getCurrentVersionInfo().then((easydict) => {
-      setIsShowingReleasePrompt(easydict.isNeedPrompt && !easydict.hasPrompted);
-    });
-
     return (
       <Fragment>
         {translateDisplayResult?.map((resultItem, idx) => {
@@ -454,6 +462,7 @@ export default function () {
                       <ListActionPanel
                         displayItem={item}
                         isShowingReleasePrompt={isShowingReleasePrompt}
+                        isInstalledEudic={isInstalledEudic}
                         onLanguageUpdate={updateSelectedTargetLanguageItem}
                       />
                     }
@@ -493,7 +502,6 @@ export default function () {
     setInputText(text);
 
     const trimText = trimTextLength(text);
-    console.log(`update input`);
     if (trimText.length === 0) {
       // fix bug: if input text is empty, need to update search text to empty
       shouldCancelQuery = true;
@@ -510,7 +518,7 @@ export default function () {
     clearTimeout(delayQueryTextTimer);
 
     if (trimText !== searchText) {
-      console.log(`input text: ${text}`);
+      console.log(`update input text: ${text}`);
       if (isNow) {
         setSearchText(trimText);
       } else {
@@ -526,7 +534,7 @@ export default function () {
     updateInputTextAndQueryTextNow(text, false);
   }
 
-  console.log(`render interface`);
+  // console.log(`render interface`);
 
   return (
     <List

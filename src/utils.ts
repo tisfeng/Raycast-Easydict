@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-19 21:00
+ * @lastEditTime: 2022-07-20 01:46
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,6 +11,7 @@
 import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
+import { Easydict } from "./releaseVersion/versionInfo";
 import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslateFormatResult } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
@@ -240,10 +241,9 @@ async function traverseAllInstalledApplications(updateIsInstalledEudic: (isInsta
   }
 }
 
-export function checkIsInstalledEudic(setIsInstalledEudic: (isInstalled: boolean) => void) {
+export function checkIfEudicIsInstalled(setIsInstalledEudic: (isInstalled: boolean) => void) {
   LocalStorage.getItem<boolean>(eudicBundleId).then((isInstalledEudic) => {
-    // console.log("is install Eudic: ", isInstalledEudic);
-
+    console.log("is install Eudic: ", isInstalledEudic);
     if (isInstalledEudic == true) {
       setIsInstalledEudic(true);
     } else if (isInstalledEudic == false) {
@@ -251,6 +251,15 @@ export function checkIsInstalledEudic(setIsInstalledEudic: (isInstalled: boolean
     } else {
       traverseAllInstalledApplications(setIsInstalledEudic);
     }
+  });
+}
+
+export function checkIfNeedShowReleasePrompt(setIsShowingReleasePrompt: (isShowing: boolean) => void) {
+  const currentEasydict = new Easydict();
+  currentEasydict.getCurrentVersionInfo().then((easydict) => {
+    const isShowingReleasePrompt = easydict.isNeedPrompt && !easydict.hasPrompted;
+    console.log("isShowingReleasePrompt: ", isShowingReleasePrompt);
+    setIsShowingReleasePrompt(isShowingReleasePrompt);
   });
 }
 

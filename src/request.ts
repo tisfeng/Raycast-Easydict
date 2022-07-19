@@ -3,7 +3,7 @@ import { deepLAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 18:40
+ * @lastEditTime: 2022-07-20 01:59
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,7 +57,7 @@ const client = new TmtClient(clientConfig);
 /**
  * Caclulate axios request cost time
  */
-export const requestCostTime = "x-request-cost";
+const requestCostTime = "x-request-cost";
 axios.interceptors.request.use(function (config: AxiosRequestConfig) {
   if (config.headers) {
     config.headers["request-startTime"] = new Date().getTime();

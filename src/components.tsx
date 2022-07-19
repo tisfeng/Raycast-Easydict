@@ -9,7 +9,6 @@
  */
 
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
-import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { languageItemList } from "./consts";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
@@ -17,13 +16,7 @@ import { ReleaseDetail } from "./releaseVersion/releaseDetail";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
 import { ActionListPanelProps, SectionType, TranslateType, YoudaoTranslateReformatResultItem } from "./types";
-import {
-  checkIsInstalledEudic,
-  getEudicWebTranslateURL,
-  getGoogleWebTranslateURL,
-  getYoudaoWebTranslateURL,
-  myPreferences,
-} from "./utils";
+import { getEudicWebTranslateURL, getGoogleWebTranslateURL, getYoudaoWebTranslateURL, myPreferences } from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -55,9 +48,6 @@ export function ActionCurrentVersion() {
  * Get the list action panel item with ListItemActionPanelItem
  */
 export default function ListActionPanel(props: ActionListPanelProps) {
-  const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
-  checkIsInstalledEudic(setIsInstalledEudic);
-
   const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
   const youdaoWebUrl = getYoudaoWebTranslateURL(props.displayItem.queryWordInfo);
 
@@ -66,7 +56,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       <ActionPanel.Section>
         {props.isShowingReleasePrompt && <ActionRecentUpdate title="✨ New Version Released" />}
 
-        {isInstalledEudic && (
+        {props.isInstalledEudic && (
           <Action
             icon={Icon.MagnifyingGlass}
             title="Open in Eudic"
