@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 18:36
+ * @lastEditTime: 2022-07-19 17:58
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -257,8 +257,10 @@ export default function () {
         if (myPreferences.enableDeepLTranslate) {
           requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
             .then((deepLTypeResult) => {
-              updateFormatTranslateResultWithDeepLResult(formatResult, deepLTypeResult);
-              updateTranslateDisplayResult(formatResult);
+              if (!shouldCancelQuery) {
+                updateFormatTranslateResultWithDeepLResult(formatResult, deepLTypeResult);
+                updateTranslateDisplayResult(formatResult);
+              }
             })
             .catch((err) => {
               const errorInfo = err as RequestErrorInfo;
@@ -280,8 +282,10 @@ export default function () {
                   type: TranslateType.Apple,
                   result: { translatedText },
                 };
-                updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);
-                updateTranslateDisplayResult(formatResult);
+                if (!shouldCancelQuery) {
+                  updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);
+                  updateTranslateDisplayResult(formatResult);
+                }
               }
             })
             .catch((error) => {
@@ -295,8 +299,10 @@ export default function () {
           console.log("baidu translate start");
           requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
             .then((baiduTypeResult) => {
-              formatResult = updateFormatResultWithBaiduTranslation(baiduTypeResult, formatResult);
-              updateTranslateDisplayResult(formatResult);
+              if (!shouldCancelQuery) {
+                formatResult = updateFormatResultWithBaiduTranslation(baiduTypeResult, formatResult);
+                updateTranslateDisplayResult(formatResult);
+              }
             })
             .catch((err) => {
               const errorInfo = err as RequestErrorInfo;
@@ -319,8 +325,10 @@ export default function () {
           console.log(`tencent translate start`);
           requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
             .then((tencentTypeResult) => {
-              formatResult = updateFormatResultWithTencentTranslation(tencentTypeResult, formatResult);
-              updateTranslateDisplayResult(formatResult);
+              if (!shouldCancelQuery) {
+                formatResult = updateFormatResultWithTencentTranslation(tencentTypeResult, formatResult);
+                updateTranslateDisplayResult(formatResult);
+              }
             })
             .catch((err) => {
               const errorInfo = err as RequestErrorInfo;
@@ -337,8 +345,10 @@ export default function () {
           console.log(`caiyun translate start`);
           requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
             .then((caiyunTypeResult) => {
-              formatResult = updateFormatResultWithCaiyunTranslation(caiyunTypeResult, formatResult);
-              updateTranslateDisplayResult(formatResult);
+              if (!shouldCancelQuery) {
+                formatResult = updateFormatResultWithCaiyunTranslation(caiyunTypeResult, formatResult);
+                updateTranslateDisplayResult(formatResult);
+              }
             })
             .catch((err) => {
               const errorInfo = err as RequestErrorInfo;
