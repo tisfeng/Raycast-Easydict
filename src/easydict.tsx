@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-19 17:58
+ * @lastEditTime: 2022-07-19 21:36
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,7 @@ import {
   updateFormatResultWithTencentTranslation,
   updateFormatTranslateResultWithDeepLResult,
 } from "./formatData";
+import { Easydict } from "./releaseVersion/versionInfo";
 import {
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
@@ -42,11 +43,11 @@ import {
   YoudaoTranslateResult,
 } from "./types";
 import {
+  checkIfShowMultipleTranslations,
   defaultLanguage1,
   defaultLanguage2,
   getAutoSelectedTargetLanguageId,
   getLanguageItemFromYoudaoId,
-  isShowMultipleTranslations,
   isTranslateResultTooLong,
   myPreferences,
   trimTextLength,
@@ -83,6 +84,7 @@ export default function () {
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
+  const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(false);
 
   /**
    * use to display input text
@@ -245,7 +247,7 @@ export default function () {
       updateTranslateDisplayResult(formatResult);
 
       // request other translate API to show multiple translations
-      if (isShowMultipleTranslations(formatResult)) {
+      if (checkIfShowMultipleTranslations(formatResult)) {
         // check if enable deepl translate
         if (myPreferences.enableDeepLTranslate) {
           requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
@@ -377,6 +379,7 @@ export default function () {
   }
 
   function ListDetail() {
+    console.log("call ListDetail()");
     if (!youdaoTranslateTypeResult) {
       return null;
     }
@@ -425,6 +428,11 @@ export default function () {
       });
     };
 
+    const currentEasydict = new Easydict();
+    currentEasydict.getCurrentVersionInfo().then((easydict) => {
+      setIsShowingReleasePrompt(easydict.isNeedPrompt && !easydict.hasPrompted);
+    });
+
     return (
       <Fragment>
         {translateDisplayResult?.map((resultItem, idx) => {
@@ -442,7 +450,13 @@ export default function () {
                     subtitle={item.subtitle}
                     accessories={getWordAccessories(resultItem.type, item)}
                     detail={<List.Item.Detail markdown={item.translationMarkdown} />}
-                    actions={<ListActionPanel displayItem={item} onLanguageUpdate={updateSelectedTargetLanguageItem} />}
+                    actions={
+                      <ListActionPanel
+                        displayItem={item}
+                        isShowingReleasePrompt={isShowingReleasePrompt}
+                        onLanguageUpdate={updateSelectedTargetLanguageItem}
+                      />
+                    }
                   />
                 );
               })}
@@ -479,12 +493,15 @@ export default function () {
     setInputText(text);
 
     const trimText = trimTextLength(text);
-    console.log(`update input text: ${text}`);
+    console.log(`update input`);
     if (trimText.length === 0) {
       // fix bug: if input text is empty, need to update search text to empty
-      setSearchText("");
       shouldCancelQuery = true;
-      updateTranslateDisplayResult(null);
+      if (searchText) {
+        console.log(`set search text to empty`);
+        setSearchText("");
+        updateTranslateDisplayResult(null);
+      }
       return;
     }
 
@@ -493,6 +510,7 @@ export default function () {
     clearTimeout(delayQueryTextTimer);
 
     if (trimText !== searchText) {
+      console.log(`input text: ${text}`);
       if (isNow) {
         setSearchText(trimText);
       } else {
@@ -507,6 +525,8 @@ export default function () {
   function onInputChangeEvent(text: string) {
     updateInputTextAndQueryTextNow(text, false);
   }
+
+  console.log(`render interface`);
 
   return (
     <List

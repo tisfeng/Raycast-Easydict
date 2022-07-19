@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 11:49
+ * @lastEditTime: 2022-07-19 20:58
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -145,6 +145,7 @@ export interface MyPreferences {
 
 export interface ActionListPanelProps {
   displayItem: TranslateDisplayItem;
+  isShowingReleasePrompt: boolean;
   onLanguageUpdate: (language: LanguageItem) => void;
 }
 

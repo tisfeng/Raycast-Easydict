@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 12:04
+ * @lastEditTime: 2022-07-19 21:00
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -254,7 +254,7 @@ export function checkIsInstalledEudic(setIsInstalledEudic: (isInstalled: boolean
   });
 }
 
-export function isShowMultipleTranslations(formatResult: TranslateFormatResult) {
+export function checkIfShowMultipleTranslations(formatResult: TranslateFormatResult) {
   return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
 }
 

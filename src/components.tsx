@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 23:26
+ * @lastEditTime: 2022-07-19 18:04
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,15 +55,8 @@ export function ActionCurrentVersion() {
  * Get the list action panel item with ListItemActionPanelItem
  */
 export default function ListActionPanel(props: ActionListPanelProps) {
-  const [hasPrompted, setHasPrompted] = useState(false);
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
-
   checkIsInstalledEudic(setIsInstalledEudic);
-
-  const currentEasydict = new Easydict();
-  currentEasydict.getCurrentVersionInfo().then((easydict) => {
-    setHasPrompted(easydict.isNeedPrompt && easydict.hasPrompted);
-  });
 
   const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
   const youdaoWebUrl = getYoudaoWebTranslateURL(props.displayItem.queryWordInfo);
@@ -71,7 +64,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
   return (
     <ActionPanel>
       <ActionPanel.Section>
-        {!hasPrompted && <ActionRecentUpdate title="✨ New Version Released" />}
+        {props.isShowingReleasePrompt && <ActionRecentUpdate title="✨ New Version Released" />}
 
         {isInstalledEudic && (
           <Action
@@ -155,7 +148,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       )}
 
       <ActionPanel.Section>
-        {hasPrompted && <ActionRecentUpdate />}
+        {props.isShowingReleasePrompt && <ActionRecentUpdate />}
         <ActionCurrentVersion />
         <ActionOpenCommandPreferences />
         <ActionFeedback />

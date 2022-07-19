@@ -3,7 +3,7 @@ import { DeepLTranslateResult } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-17 11:30
+ * @lastEditTime: 2022-07-19 21:11
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,7 @@ import {
   TranslateType,
   YoudaoTranslateResult,
 } from "./types";
-import { isShowMultipleTranslations, myPreferences } from "./utils";
+import { checkIfShowMultipleTranslations, myPreferences } from "./utils";
 
 const sortedOrder = getTranslationResultOrder();
 
@@ -219,7 +219,7 @@ export function getTranslationResultOrder(): string[] {
   // console.log("defaultNameOrder:", defaultOrder);
   // console.log("userOrder:", userOrder);
   const finalOrder = [...userOrder, ...defaultOrder];
-  console.log("finalOrder:", finalOrder);
+  // console.log("finalOrder:", finalOrder);
   return finalOrder;
 }
 
@@ -232,7 +232,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     return displayResult;
   }
 
-  const showMultipleTranslations = isShowMultipleTranslations(formatResult);
+  const showMultipleTranslations = checkIfShowMultipleTranslations(formatResult);
 
   for (const [i, translateItem] of formatResult.translationItems.entries()) {
     const sectionType = showMultipleTranslations ? translateItem.type : SectionType.Translation;
@@ -270,7 +270,7 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
       ],
     });
 
-    if (!isShowMultipleTranslations) {
+    if (!checkIfShowMultipleTranslations) {
       break;
     }
   }
