@@ -13,7 +13,7 @@
 
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
-`Easydict` is an easy dictionary, for looking up words or translate text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translating text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
 
 ![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
 
@@ -24,17 +24,18 @@
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
-- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
+- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation. Use `Cmd + K` to view the action list.
 - [x] Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort translation results manually.
-- [x] Support **MacOS system translation**. (_Note: this feature needs to install an apple translate shortcut on you mac, please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F) for more details_)
+- [x] Support **MacOS system translation**. (_Note: please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F)_)
 - [x] Support DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
 - [x] Support 23 languages.
 
 Next:
 
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
+- [ ] Support Google translate API.
 - [ ] Support to view query history.
 
 **_If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
