@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 01:44
+ * @lastEditTime: 2022-07-20 11:09
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -162,7 +162,7 @@ export default function () {
    * Query text, automatically detect the language of input text
    */
   function queryText(text: string) {
-    console.log("start queryText");
+    console.log("start queryText: " + text);
 
     setLoadingState(true);
     clearTimeout(delayQueryTextInfoTimer);
@@ -517,8 +517,8 @@ export default function () {
     shouldCancelQuery = false;
     clearTimeout(delayQueryTextTimer);
 
-    if (trimText !== searchText) {
-      console.log(`update input text: ${text}`);
+    if (text !== searchText) {
+      console.log(`update input text: ${text}, ${text.length}`);
       if (isNow) {
         setSearchText(trimText);
       } else {
@@ -530,7 +530,7 @@ export default function () {
     }
   }
 
-  function onInputChangeEvent(text: string) {
+  function onInputChange(text: string) {
     updateInputTextAndQueryTextNow(text, false);
   }
 
@@ -542,7 +542,7 @@ export default function () {
       isShowingDetail={isShowingDetail}
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
-      onSearchTextChange={onInputChangeEvent}
+      onSearchTextChange={onInputChange}
       actions={null}
     >
       <List.EmptyView icon={Icon.TextDocument} title="Type a word to look up or translate" />
