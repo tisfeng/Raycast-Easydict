@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 11:27
+ * @lastEditTime: 2022-07-20 13:03
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,15 @@ import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { ReleaseDetail } from "./releaseVersion/releaseDetail";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
-import { ActionListPanelProps, SectionType, TranslateType, YoudaoTranslateReformatResultItem } from "./types";
+import {
+  ActionListPanelProps,
+  DicionaryType,
+  QueryType,
+  QueryWordInfo,
+  SectionType,
+  TranslationType,
+  YoudaoTranslateReformatResultItem,
+} from "./types";
 import {
   getDeepLWebTranslateURL,
   getEudicWebTranslateURL,
@@ -50,14 +58,59 @@ export function ActionCurrentVersion() {
   );
 }
 
+interface WebTranslationItem {
+  type: QueryType;
+  webUrl: string;
+  icon: Image.ImageLike;
+}
+
+/**
+ * Return WebTranslationItem according to the query type
+ *
+ * Todo: this function could be improved.
+ */
+export function getWebTranslationItem(
+  queryType: QueryType,
+  queryTextInfo: QueryWordInfo
+): WebTranslationItem | undefined {
+  const type = queryType.toString();
+
+  if (type === TranslationType.Google.toString()) {
+    return {
+      type: queryType,
+      webUrl: getGoogleWebTranslateURL(queryTextInfo),
+      icon: getQueryTypeIcon(TranslationType.Google),
+    };
+  } else if (type === TranslationType.DeepL.toString()) {
+    return {
+      type: queryType,
+      webUrl: getDeepLWebTranslateURL(queryTextInfo),
+      icon: getQueryTypeIcon(TranslationType.DeepL),
+    };
+  } else if (type === TranslationType.Youdao.toString()) {
+    return {
+      type: queryType,
+      webUrl: getYoudaoWebTranslateURL(queryTextInfo),
+      icon: getQueryTypeIcon(TranslationType.Youdao),
+    };
+  } else if (type === DicionaryType.Eudic.toString()) {
+    return {
+      type: queryType,
+      webUrl: getEudicWebTranslateURL(queryTextInfo),
+      icon: getQueryTypeIcon(queryType),
+    };
+  }
+}
+
 /**
  * Get the list action panel item with ListItemActionPanelItem
  */
 export default function ListActionPanel(props: ActionListPanelProps) {
-  const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
-  const youdaoWebUrl = getYoudaoWebTranslateURL(props.displayItem.queryWordInfo);
-  const googleWebUrl = getGoogleWebTranslateURL(props.displayItem.queryWordInfo);
-  const deepLWebUrl = getDeepLWebTranslateURL(props.displayItem.queryWordInfo);
+  const queryWordInfo = props.displayItem.queryWordInfo;
+  const googleWebItem = getWebTranslationItem(TranslationType.Google, queryWordInfo) as WebTranslationItem;
+  const deepLWebItem = getWebTranslationItem(TranslationType.DeepL, queryWordInfo) as WebTranslationItem;
+  const youdaoWebItem = getWebTranslationItem(TranslationType.Youdao, queryWordInfo) as WebTranslationItem;
+  const eudicWebItem = getWebTranslationItem(DicionaryType.Eudic, queryWordInfo) as WebTranslationItem;
 
   return (
     <ActionPanel>
@@ -65,11 +118,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
         {props.isShowingReleasePrompt && <ActionRecentUpdate title="✨ New Version Released" />}
 
         {props.isInstalledEudic && (
-          <Action
-            icon={Icon.MagnifyingGlass}
-            title="Open in Eudic"
-            onAction={() => openInEudic(props.displayItem.queryWordInfo.word)}
-          />
+          <Action icon={Icon.MagnifyingGlass} title="Open in Eudic" onAction={() => openInEudic(queryWordInfo.word)} />
         )}
         <Action.CopyToClipboard
           onCopy={() => {
@@ -81,10 +130,16 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
-        <Action.OpenInBrowser icon={Icon.Globe} title="Google Translate" url={googleWebUrl} />
-        {deepLWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="DeepL Translate" url={deepLWebUrl} />}
-        {youdaoWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="Youdao Dictionary" url={youdaoWebUrl} />}
-        {eudicWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="Eudic Dictionary" url={eudicWebUrl} />}
+        <Action.OpenInBrowser icon={googleWebItem.icon} title="Google Translate" url={googleWebItem.webUrl} />
+        {deepLWebItem.webUrl.length && (
+          <Action.OpenInBrowser icon={deepLWebItem.icon} title="DeepL Translate" url={deepLWebItem.webUrl} />
+        )}
+        {youdaoWebItem.webUrl.length && (
+          <Action.OpenInBrowser icon={youdaoWebItem.icon} title="Youdao Dictionary" url={youdaoWebItem.webUrl} />
+        )}
+        {eudicWebItem.webUrl.length && (
+          <Action.OpenInBrowser icon={eudicWebItem.icon} title="Eudic Dictionary" url={eudicWebItem.webUrl} />
+        )}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">
@@ -93,8 +148,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
           icon={playSoundIcon("black")}
           shortcut={{ modifiers: ["cmd"], key: "s" }}
           onAction={() => {
-            console.log(`start play sound: ${props.displayItem.queryWordInfo.word}`);
-            playYoudaoWordAudioAfterDownloading(props.displayItem.queryWordInfo);
+            console.log(`start play sound: ${queryWordInfo.word}`);
+            playYoudaoWordAudioAfterDownloading(queryWordInfo);
           }}
         />
         <Action
@@ -106,7 +161,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
              *  because it is difficult to determine whether the result is a word, impossible to use Youdao web audio directly.
              *  in addition, TTS needs to send additional youdao query requests.
              */
-            sayTruncateCommand(props.displayItem.copyText, props.displayItem.queryWordInfo.toLanguage);
+            sayTruncateCommand(props.displayItem.copyText, queryWordInfo.toLanguage);
           }}
         />
       </ActionPanel.Section>
@@ -117,10 +172,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
             // hide auto language
             const isAutoLanguage = selectedLanguageItem.youdaoLanguageId === "auto";
             // hide current detected language
-            const isSameWithDetectedLanguage =
-              selectedLanguageItem.youdaoLanguageId === props.displayItem.queryWordInfo.fromLanguage;
-            const isSameWithTargetLanguage =
-              selectedLanguageItem.youdaoLanguageId === props.displayItem.queryWordInfo.toLanguage;
+            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoLanguageId === queryWordInfo.fromLanguage;
+            const isSameWithTargetLanguage = selectedLanguageItem.youdaoLanguageId === queryWordInfo.toLanguage;
             if (isAutoLanguage || isSameWithDetectedLanguage) {
               return null;
             }
@@ -157,30 +210,9 @@ export function playSoundIcon(lightTintColor: string) {
 /**
   Return the corresponding ImageLike based on the SectionType type
 */
-export function getListItemIcon(sectionType: SectionType | TranslateType): Image.ImageLike {
+export function getListItemIcon(sectionType: SectionType | TranslationType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (sectionType) {
-    case TranslateType.Youdao: {
-      dotColor = Color.Red;
-      break;
-    }
-    case TranslateType.Apple: {
-      dotColor = "#408080";
-      break;
-    }
-    case TranslateType.Baidu: {
-      dotColor = "#4169E1";
-      break;
-    }
-    case TranslateType.Tencent: {
-      dotColor = Color.Purple;
-      break;
-    }
-    case TranslateType.Caiyun: {
-      dotColor = Color.Green;
-      break;
-    }
-
     case SectionType.Translation: {
       dotColor = Color.Red;
       break;
@@ -207,19 +239,19 @@ export function getListItemIcon(sectionType: SectionType | TranslateType): Image
     itemIcon = Icon.Text;
   }
 
-  if (sectionType in TranslateType) {
-    itemIcon = getTranslateTypeIcon(sectionType as TranslateType);
+  if (sectionType in TranslationType) {
+    itemIcon = getQueryTypeIcon(sectionType as TranslationType);
   }
 
   return itemIcon;
 }
 
 /**
- * Get translate type icon based on the section type
+ * Get query type icon based on the section type.
  */
-function getTranslateTypeIcon(translatType: TranslateType): Image.ImageLike {
+function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
   return {
-    source: `${translatType}-Translate.png`,
+    source: `${queryType}.png`,
     mask: Image.Mask.RoundedRectangle,
   };
 }
@@ -228,7 +260,7 @@ function getTranslateTypeIcon(translatType: TranslateType): Image.ImageLike {
   return List.Item.Accessory[] based on the SectionType type
 */
 export function getWordAccessories(
-  sectionType: SectionType | TranslateType,
+  sectionType: SectionType | TranslationType,
   item: YoudaoTranslateReformatResultItem
 ): List.Item.Accessory[] {
   let wordExamTypeAccessory = [];

@@ -38,7 +38,7 @@ import {
   RequestTypeResult,
   TranslateDisplayResult,
   TranslateFormatResult,
-  TranslateType,
+  TranslationType,
   YoudaoTranslateResult,
 } from "./types";
 import {
@@ -287,7 +287,7 @@ export default function () {
             .then((translatedText) => {
               if (translatedText) {
                 const appleTranslateResult: RequestTypeResult = {
-                  type: TranslateType.Apple,
+                  type: TranslationType.Apple,
                   result: { translatedText },
                 };
                 if (!shouldCancelQuery) {
