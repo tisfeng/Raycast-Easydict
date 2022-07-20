@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 16:44
+ * @lastEditTime: 2022-07-20 17:18
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -40,11 +40,11 @@ export function ActionFeedback() {
 }
 
 export function ActionOpenCommandPreferences() {
-  return <Action icon={Icon.Gear} title="Open Preferences" onAction={openCommandPreferences} />;
+  return <Action icon={Icon.Gear} title="Preferences" onAction={openCommandPreferences} />;
 }
 
 export function ActionRecentUpdate(props: { title?: string }) {
-  return <Action.Push icon={Icon.Stars} title={props.title || "Recent Update"} target={<ReleaseDetail />} />;
+  return <Action.Push icon={Icon.Stars} title={props.title || "Recent Updates"} target={<ReleaseDetail />} />;
 }
 
 export function ActionCurrentVersion() {
@@ -112,6 +112,9 @@ export default function ListActionPanel(props: ActionListPanelProps) {
   const youdaoWebItem = getWebTranslationItem(TranslationType.Youdao, queryWordInfo) as WebTranslationItem;
   const eudicWebItem = getWebTranslationItem(DicionaryType.Eudic, queryWordInfo) as WebTranslationItem;
 
+  const isShowingYoudaoWebAction = youdaoWebItem.webUrl && queryWordInfo.isWord;
+  const isShowingEudicWebAction = eudicWebItem.webUrl && queryWordInfo.isWord;
+
   return (
     <ActionPanel>
       <ActionPanel.Section>
@@ -134,10 +137,10 @@ export default function ListActionPanel(props: ActionListPanelProps) {
         {deepLWebItem.webUrl.length && (
           <Action.OpenInBrowser icon={deepLWebItem.icon} title="DeepL Translate" url={deepLWebItem.webUrl} />
         )}
-        {youdaoWebItem.webUrl.length && (
+        {isShowingYoudaoWebAction && (
           <Action.OpenInBrowser icon={youdaoWebItem.icon} title="Youdao Dictionary" url={youdaoWebItem.webUrl} />
         )}
-        {eudicWebItem.webUrl.length && (
+        {isShowingEudicWebAction && (
           <Action.OpenInBrowser icon={eudicWebItem.icon} title="Eudic Dictionary" url={eudicWebItem.webUrl} />
         )}
       </ActionPanel.Section>
