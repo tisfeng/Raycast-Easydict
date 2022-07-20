@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 01:46
+ * @lastEditTime: 2022-07-20 11:25
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -159,6 +159,22 @@ export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string {
   const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
   const text = encodeURI(queryTextInfo.word);
   return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
+}
+
+/**
+ * Get DeepL web translate url
+ * https://www.deepl.com/translator#en/zh/look
+ */
+export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string {
+  const fromLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage);
+  const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
+  const fromLanguageId = fromLanguageItem.deepLSourceLanguageId;
+  const toLanguageId = toLanguageItem.deepLSourceLanguageId;
+  const text = encodeURI(queryTextInfo.word);
+  if (fromLanguageId && toLanguageId) {
+    return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${text}`;
+  }
+  return "";
 }
 
 /**

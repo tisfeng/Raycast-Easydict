@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-19 18:04
+ * @lastEditTime: 2022-07-20 11:27
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,13 @@ import { ReleaseDetail } from "./releaseVersion/releaseDetail";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
 import { ActionListPanelProps, SectionType, TranslateType, YoudaoTranslateReformatResultItem } from "./types";
-import { getEudicWebTranslateURL, getGoogleWebTranslateURL, getYoudaoWebTranslateURL, myPreferences } from "./utils";
+import {
+  getDeepLWebTranslateURL,
+  getEudicWebTranslateURL,
+  getGoogleWebTranslateURL,
+  getYoudaoWebTranslateURL,
+  myPreferences,
+} from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 
@@ -50,6 +56,8 @@ export function ActionCurrentVersion() {
 export default function ListActionPanel(props: ActionListPanelProps) {
   const eudicWebUrl = getEudicWebTranslateURL(props.displayItem.queryWordInfo);
   const youdaoWebUrl = getYoudaoWebTranslateURL(props.displayItem.queryWordInfo);
+  const googleWebUrl = getGoogleWebTranslateURL(props.displayItem.queryWordInfo);
+  const deepLWebUrl = getDeepLWebTranslateURL(props.displayItem.queryWordInfo);
 
   return (
     <ActionPanel>
@@ -73,18 +81,10 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
-        {eudicWebUrl.length !== 0 && (
-          <Action.OpenInBrowser icon={Icon.Globe} title="Eudic Dictionary" url={eudicWebUrl} />
-        )}
-        {youdaoWebUrl.length !== 0 && (
-          <Action.OpenInBrowser icon={Icon.Globe} title="Youdao Dictionary" url={youdaoWebUrl} />
-        )}
-
-        <Action.OpenInBrowser
-          icon={Icon.Globe}
-          title="Google Translate"
-          url={getGoogleWebTranslateURL(props.displayItem.queryWordInfo)}
-        />
+        <Action.OpenInBrowser icon={Icon.Globe} title="Google Translate" url={googleWebUrl} />
+        {deepLWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="DeepL Translate" url={deepLWebUrl} />}
+        {youdaoWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="Youdao Dictionary" url={youdaoWebUrl} />}
+        {eudicWebUrl.length && <Action.OpenInBrowser icon={Icon.Globe} title="Eudic Dictionary" url={eudicWebUrl} />}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">
