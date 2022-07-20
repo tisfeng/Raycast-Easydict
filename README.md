@@ -15,7 +15,7 @@
 
 `Easydict` is an easy dictionary, for looking up words or translating text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
 
-![easydict-1](https://i.imgur.com/YYlIqTS.jpg)
+![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1658309667-1658309686.png)
 
 ## Features
 
@@ -24,11 +24,11 @@
 - [x] Provide word rich query information, including basic translation, pronunciation, the types of exams that include the word, multiple parts of speech and explanations, forms and tenses, web translations and web phrases.
 - [x] Support automatic query selected text, enabled by default.
 - [x] Support to open the [Eudic Application](https://www.eudic.net/v4/en/app/eudic) and quickly look up words, if installed on your Mac.
-- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation. Use `Cmd + K` to view the action list.
+- [x] Quick search query text online, supports Eudic, Youdao dictionary and Google translation.
 - [x] Support automatic playback of word pronunciation, which can be turned on in Settings. Use `Cmd + S` to play the pronunciation of words manually.
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort translation results manually.
-- [x] Support **MacOS system translation**. (_Note: please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F)_)
+- [x] Support **MacOS system translation**. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F)_)
 - [x] Support DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
 - [x] Support 23 languages.
 
@@ -40,13 +40,13 @@ Next:
 
 **_If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
-![easydict-2](https://i.imgur.com/L9aE9ke.jpg)
+![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1658309750.png)
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/c93edb20a2655ba2b1d29c475bdf39ca8e4cfd13/uPic/easydict-3.png)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1658309767.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/c393f8bbb9e4a332e0058854494a08bd1e1bdc08/uPic/easydict-4.png)
+![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1658309776.png)
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/c393f8bbb9e4a332e0058854494a08bd1e1bdc08/uPic/easydict-5.png)
+![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1658309785.png)
 
 ---
 
@@ -58,7 +58,7 @@ Actually, it works well without you having to do any extra work. The next are ad
 
 ### Supported Languages
 
-Currently we support 23 languages: Chinese-Simplified, Chinese-Traditional, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+Currently we support 23 languages: Simplified Chinese, Traditional Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
 Details of the languages supported by each translation service are as follows:
 
@@ -120,7 +120,7 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 
 ![image-20220531223631425](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220531223631425.png)
 
-![heel](https://i.imgur.com/4LhEKrf.jpg)
+![heel](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/heel-1658321695.png)
 
 ### Automatic Query Selected Text
 
@@ -150,7 +150,7 @@ Play audio content: English words are preferred to be pronounced in an online yo
 
 Use `Cmd + S` to play the pronunciation of words manually.
 
-![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/log_action%E7%9A%84%E5%89%AF%E6%9C%AC-20220710180938330.png)
+![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1658321887.png)
 
 ### Select Target Translation Language
 
