@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 13:03
+ * @lastEditTime: 2022-07-20 16:44
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,14 +44,14 @@ export function ActionOpenCommandPreferences() {
 }
 
 export function ActionRecentUpdate(props: { title?: string }) {
-  return <Action.Push icon={Icon.Sidebar} title={props.title || "Recent Update ✨"} target={<ReleaseDetail />} />;
+  return <Action.Push icon={Icon.Stars} title={props.title || "Recent Update"} target={<ReleaseDetail />} />;
 }
 
 export function ActionCurrentVersion() {
   const easydict = new Easydict();
   return (
     <Action.OpenInBrowser
-      icon={Icon.Globe}
+      icon={Icon.Link}
       title={`Version: ${easydict.version}`}
       url={easydict.getCurrentReleaseTagUrl()}
     />
@@ -160,6 +160,8 @@ export default function ListActionPanel(props: ActionListPanelProps) {
              *  directly use say command to play the result text.
              *  because it is difficult to determine whether the result is a word, impossible to use Youdao web audio directly.
              *  in addition, TTS needs to send additional youdao query requests.
+             *
+             *  Todo: add a shortcut to stop playing audio.
              */
             sayTruncateCommand(props.displayItem.copyText, queryWordInfo.toLanguage);
           }}
@@ -191,7 +193,7 @@ export default function ListActionPanel(props: ActionListPanelProps) {
       )}
 
       <ActionPanel.Section>
-        {props.isShowingReleasePrompt && <ActionRecentUpdate />}
+        {!props.isShowingReleasePrompt && <ActionRecentUpdate />}
         <ActionCurrentVersion />
         <ActionOpenCommandPreferences />
         <ActionFeedback />
@@ -236,7 +238,7 @@ export function getListItemIcon(sectionType: SectionType | TranslationType): Ima
     tintColor: dotColor,
   };
   if (sectionType === SectionType.Forms) {
-    itemIcon = Icon.Text;
+    itemIcon = Icon.Receipt;
   }
 
   if (sectionType in TranslationType) {

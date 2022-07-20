@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 11:09
+ * @lastEditTime: 2022-07-20 16:39
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -265,6 +265,7 @@ export default function () {
         if (myPreferences.enableDeepLTranslate) {
           requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
             .then((deepLTypeResult) => {
+              // Todo: should use axios.CancelToken to cancel the request!
               if (!shouldCancelQuery) {
                 updateFormatTranslateResultWithDeepLResult(formatResult, deepLTypeResult);
                 updateTranslateDisplayResult(formatResult);
@@ -411,10 +412,10 @@ export default function () {
               text: `Error Code: ${youdaoErrorCode}`,
             },
           ]}
-          icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
           actions={
             <ActionPanel>
-              <Action.OpenInBrowser title="See Error Code Meaning" icon={Icon.QuestionMark} url={youdaoErrorCodeUrl} />
+              <Action.OpenInBrowser title="See Error Code Meaning" icon={Icon.Info} url={youdaoErrorCodeUrl} />
               <ActionFeedback />
             </ActionPanel>
           }
@@ -485,7 +486,7 @@ export default function () {
         <List>
           <List.Item
             title={"Language Conflict"}
-            icon={{ source: Icon.XmarkCircle, tintColor: Color.Red }}
+            icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
             subtitle={"Your first Language with second Language must be different."}
           />
         </List>
@@ -545,7 +546,7 @@ export default function () {
       onSearchTextChange={onInputChange}
       actions={null}
     >
-      <List.EmptyView icon={Icon.TextDocument} title="Type a word to look up or translate" />
+      <List.EmptyView icon={Icon.BlankDocument} title="Type a word to look up or translate" />
       <ListDetail />
     </List>
   );
