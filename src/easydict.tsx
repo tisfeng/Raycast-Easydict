@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-21 10:19
+ * @lastEditTime: 2022-07-21 15:42
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -43,7 +43,6 @@ import {
 } from "./types";
 import {
   checkIfEudicIsInstalled,
-  checkIfNeedShowReleasePrompt,
   checkIfShowMultipleTranslations,
   defaultLanguage1,
   defaultLanguage2,
@@ -85,7 +84,8 @@ export default function () {
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
-  const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(false);
+
+  // Todo: need to optimize, and support Eudic Pro version.
   const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
 
   /**
@@ -131,12 +131,10 @@ export default function () {
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    console.log("enter setup");
     if (myPreferences.isAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }
     checkIfEudicIsInstalled(setIsInstalledEudic);
-    checkIfNeedShowReleasePrompt(setIsShowingReleasePrompt);
   }
 
   /**
@@ -462,7 +460,6 @@ export default function () {
                     actions={
                       <ListActionPanel
                         displayItem={item}
-                        isShowingReleasePrompt={isShowingReleasePrompt}
                         isInstalledEudic={isInstalledEudic}
                         onLanguageUpdate={updateSelectedTargetLanguageItem}
                       />

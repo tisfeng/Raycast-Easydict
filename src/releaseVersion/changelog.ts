@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 21:34
+ * @lastEditTime: 2022-07-21 10:26
  * @fileName: changelog.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 export const changelog = `
-## [1.3.0] - 2022-07-20
+## [1.3.1] - 2022-07-21
 
 ### ✨ 新特性
 

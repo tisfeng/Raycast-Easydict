@@ -4,7 +4,7 @@ import { deepLAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-21 10:12
+ * @lastEditTime: 2022-07-21 15:42
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -196,7 +196,7 @@ export function requestYoudaoDictionary(
           result: youdaoResult,
           errorInfo: youdaoErrorInfo,
         };
-        console.log(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
+        console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
           reject(youdaoErrorInfo);
         } else {
