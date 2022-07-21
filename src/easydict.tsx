@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-20 16:39
+ * @lastEditTime: 2022-07-21 10:19
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Action, ActionPanel, Color, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
 import ListActionPanel, { ActionFeedback, getListItemIcon, getWordAccessories } from "./components";
-import { BaiduRequestStateCode, getYoudaoErrorInfo, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
+import { BaiduRequestStateCode, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
 import { detectLanguage } from "./detectLanguage";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import {
@@ -227,17 +227,12 @@ export default function () {
       // From the input text query, to the end of Youdao translation request.
       console.warn(`---> Entire request cost time: ${Date.now() - startTime} ms`);
       const youdaoErrorCode = youdaoResult.errorCode;
-      youdaoTranslateTypeResult.errorInfo = getYoudaoErrorInfo(youdaoErrorCode);
 
       if (youdaoErrorCode === YoudaoRequestStateCode.AccessFrequencyLimited.toString()) {
         console.warn(
           `youdao request frequency limited error: ${youdaoErrorCode}, delay ${delayRequestTime} ms to request again`
         );
         delayQueryWithTextInfo(queryTextInfo);
-        return;
-      } else if (youdaoErrorCode !== YoudaoRequestStateCode.Success.toString()) {
-        console.error(`youdao error: ${JSON.stringify(youdaoTranslateTypeResult.errorInfo)}`);
-        updateTranslateDisplayResult(null);
         return;
       }
 
@@ -370,7 +365,14 @@ export default function () {
         }
       }
     } catch (error) {
-      console.warn(`requestYoudaoDictionary error: ${error}`);
+      console.error(`---> youdao error: ${JSON.stringify(error)}`);
+      youdaoTranslateTypeResult = {
+        type: TranslationType.Youdao,
+        result: null,
+        errorInfo: error as RequestErrorInfo,
+      };
+      updateTranslateDisplayResult(null);
+      return;
     }
   }
 
@@ -398,18 +400,16 @@ export default function () {
       return null;
     }
 
-    const youdaoErrorCode = (youdaoTranslateTypeResult.result as YoudaoTranslateResult).errorCode;
-    const youdaoErrorMessage = youdaoTranslateTypeResult?.errorInfo?.message;
-    const isYoudaoRequestError = youdaoErrorCode !== YoudaoRequestStateCode.Success.toString();
-
+    const youdaoError = youdaoTranslateTypeResult.errorInfo;
+    const isYoudaoRequestError = youdaoError?.code !== YoudaoRequestStateCode.Success.toString();
     if (isYoudaoRequestError) {
       return (
         <List.Item
           title={"Youdao Request Error"}
-          subtitle={youdaoErrorMessage?.length ? `${youdaoErrorMessage}` : ""}
+          subtitle={youdaoError?.message?.length ? `${youdaoError.message}` : ""}
           accessories={[
             {
-              text: `Error Code: ${youdaoErrorCode}`,
+              text: `Error Code: ${youdaoError?.code}`,
             },
           ]}
           icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
