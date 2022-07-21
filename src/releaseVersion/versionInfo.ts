@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-21 15:03
+ * @lastEditTime: 2022-07-21 16:12
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,7 @@ const githubApiUrl = "https://api.github.com";
 /**
  * Used for new release prompt.
  *
- * Todo: need to optimize later.
+ * Todo: need to optimize the structure of this class.
  */
 export class Easydict {
   static author = "tisfeng";
@@ -30,8 +30,8 @@ export class Easydict {
   version = "1.3.1";
   buildNumber = 5;
   versionDate = "2022-07-21";
-  isNeedPrompt = true;
-  hasPrompted = false; // only show once, then will be set to true
+  isNeedPrompt = false;
+  hasPrompted = false; // always default false, only show once, then should be set to true.
   releaseMarkdown = changelog;
 
   getRepoUrl() {
