@@ -209,7 +209,7 @@ The following application tutorial is from [`Bob`](https://v0.bobtranslate.com/#
 
 ## Thanks
 
-This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and the first version of `Easydict` is based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
+This project is inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and the first version is based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` has improved many UI displays, added more practical features, deleted some complex or inappropriate operations, and made a lot of optimization && improvements on the original project.
 
 Finally, all those interested in this project are welcome to contribute to the project, issues and PRs are fine. The project is still in the rapid development stage, any practical suggestions or interesting ideas are OK. There is no guarantee that they will be accepted, but they will be definitely considered.
 
