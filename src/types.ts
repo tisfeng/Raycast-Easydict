@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-21 15:29
+ * @lastEditTime: 2022-07-23 00:19
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -50,10 +50,10 @@ type RequestResult =
   | BaiduTranslateResult
   | TencentTranslateResult
   | CaiyunTranslateResult
-  | AppleTranslateResult
   | DeepLTranslateResult
   | IcibaDictionaryResult
-  | YoudaoDictionaryResult;
+  | YoudaoDictionaryResult
+  | string;
 
 export interface RequestErrorInfo {
   message: string;
@@ -128,6 +128,11 @@ export interface MyPreferences {
   youdaoAppId: string;
   youdaoAppSecret: string;
 
+  enableDeepLTranslate: boolean;
+  deepLAuthKey: string;
+
+  enableGoogleTranslate: boolean;
+
   enableBaiduTranslate: boolean;
   baiduAppId: string;
   baiduAppSecret: string;
@@ -138,9 +143,6 @@ export interface MyPreferences {
 
   enableAppleLanguageDetect: boolean;
   enableAppleTranslate: boolean;
-
-  enableDeepLTranslate: boolean;
-  deepLAuthKey: string;
 
   enableCaiyunTranslate: boolean;
   caiyunToken: string;
@@ -189,10 +191,6 @@ export interface CaiyunTranslateResult {
   rc: string;
   target: string[];
   confidence: number;
-}
-
-export interface AppleTranslateResult {
-  translatedText: string;
 }
 
 /**

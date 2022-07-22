@@ -1,8 +1,9 @@
+import { RequestErrorInfo, TranslationType } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 00:05
+ * @lastEditTime: 2022-07-23 00:21
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,9 +11,14 @@
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 import querystring from "node:querystring";
+import { RequestTypeResult } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
-export async function googleCrawlerTranslate(queryText: string, fromLanguage: string, targetLanguage: string) {
+export async function googleCrawlerTranslate(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<RequestTypeResult> {
   console.log("---> googleTranslate");
 
   const fromLanguageItem = getLanguageItemFromYoudaoId(fromLanguage);
@@ -32,25 +38,31 @@ export async function googleCrawlerTranslate(queryText: string, fromLanguage: st
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
   console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
-  axios
-    .get(url, {
-      // timeout: 5000,
-    })
-    .then((res: AxiosResponse) => {
-      const resData = res.data;
-      console.log(res.data);
+  const errorInfo: RequestErrorInfo = {
+    type: TranslationType.Google,
+    message: "Google translate error",
+  };
 
+  return axios
+    .get(url)
+    .then((res: AxiosResponse) => {
       try {
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
-        let result = resultRegex.exec(resData)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
+        let result = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
         result = decodeURI(result);
         console.warn(`---> google result: ${result}`);
+        return Promise.resolve({
+          type: TranslationType.Google,
+          result,
+        });
       } catch (error) {
         console.error(`googleTranslate error: ${error}`);
+        return Promise.reject(errorInfo);
       }
     })
     .catch((err: AxiosError) => {
       console.error(`googleTranslate error: ${err}`);
+      return Promise.reject(errorInfo);
     });
 }
 

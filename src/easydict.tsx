@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-22 23:42
+ * @lastEditTime: 2022-07-23 00:32
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,6 +22,7 @@ import {
   updateFormatResultWithCaiyunTranslation,
   updateFormatResultWithTencentTranslation,
   updateFormatTranslateResultWithDeepLResult,
+  updateFormatTranslateResultWithGoogleResult,
 } from "./formatData";
 import { googleCrawlerTranslate } from "./google";
 import {
@@ -272,6 +273,21 @@ export default function () {
             });
         }
 
+        // check if enable google translate
+        if (myPreferences.enableGoogleTranslate) {
+          googleCrawlerTranslate(queryText, fromLanguage, toLanguage)
+            .then((googleTypeResult) => {
+              // Todo: should use axios.CancelToken to cancel the request!
+              if (!shouldCancelQuery) {
+                updateFormatTranslateResultWithGoogleResult(formatResult, googleTypeResult);
+                updateTranslateDisplayResult(formatResult);
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+
         // check if enable apple translate
         if (myPreferences.enableAppleTranslate) {
           console.log("apple translate start");
@@ -280,7 +296,7 @@ export default function () {
               if (translatedText) {
                 const appleTranslateResult: RequestTypeResult = {
                   type: TranslationType.Apple,
-                  result: { translatedText },
+                  result: translatedText,
                 };
                 if (!shouldCancelQuery) {
                   updateFormatResultWithAppleTranslateResult(formatResult, appleTranslateResult);

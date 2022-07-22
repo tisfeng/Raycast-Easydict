@@ -330,6 +330,14 @@
       "default": true
     },
     {
+      "type": "checkbox",
+      "name": "enableGoogleTranslate",
+      "label": "Google Translate",
+      "required": false,
+      "description": "Turn on/off Google Translate",
+      "default": true
+    },
+    {
       "name": "enableBaiduTranslate",
       "type": "checkbox",
       "label": "Baidu Translate",
@@ -358,9 +366,9 @@
       "name": "translationDisplayOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is DeepL,Apple,Baidu,Tencent,Youdao,Caiyun",
-      "default": "deepl,apple,baidu,tencent,youdao,caiyun",
-      "placeholder": "deepl,apple,baidu,tencent,youdao,caiyun"
+      "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",
+      "default": "deepl,google,apple,baidu,tencent,youdao,caiyun",
+      "placeholder": "deepl,google,apple,baidu,tencent,youdao,caiyun"
     },
     {
       "title": "Youdao App ID",
