@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 13:29
+ * @lastEditTime: 2022-07-23 15:47
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,7 +24,7 @@ import {
   updateFormatTranslateResultWithDeepLResult,
   updateFormatTranslateResultWithGoogleResult,
 } from "./formatData";
-import { googleCrawlerTranslate } from "./google";
+import { requestGoogleTranslate } from "./google";
 import {
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
@@ -278,7 +278,7 @@ export default function () {
 
         // check if enable google translate
         if (myPreferences.enableGoogleTranslate) {
-          googleCrawlerTranslate(queryText, fromLanguage, toLanguage)
+          requestGoogleTranslate(queryText, fromLanguage, toLanguage)
             .then((googleTypeResult) => {
               if (!shouldCancelQuery) {
                 updateFormatTranslateResultWithGoogleResult(formatResult, googleTypeResult);
