@@ -78,7 +78,7 @@
       "title": "First Language",
       "name": "language1",
       "type": "dropdown",
-      "required": false,
+      "required": true,
       "default": "Chinese-Simplified",
       "description": "Select the first language you want to translate into",
       "data": [
@@ -180,7 +180,7 @@
       "title": "Second Language",
       "name": "language2",
       "type": "dropdown",
-      "required": false,
+      "required": true,
       "default": "English",
       "description": "Select the second language you want to translate into",
       "data": [
