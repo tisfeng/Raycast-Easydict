@@ -11,6 +11,7 @@ import { RequestErrorInfo, TranslationType } from "./types";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 import querystring from "node:querystring";
+import { checkIfPreferredLanguagesContainedChinese } from "./detectLanguage";
 import { RequestTypeResult } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
@@ -26,7 +27,11 @@ export async function googleCrawlerTranslate(
   const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
   const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
 
-  const tld = "cn"; // cn, com
+  // if use Chinese language, or ip in China, should use translate.google.com, else use translate.google.cn
+  let tld = "com"; // cn, com
+  if (checkIfPreferredLanguagesContainedChinese()) {
+    tld = "cn";
+  }
 
   const data = {
     sl: fromLanguageId, // source language
@@ -50,7 +55,7 @@ export async function googleCrawlerTranslate(
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
         let result = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
         result = decodeURI(result);
-        console.warn(`---> google result: ${result}`);
+        console.warn(`---> google result: ${result}, cost: ${res.headers["x-request-cost"]}ms`);
         return Promise.resolve({
           type: TranslationType.Google,
           result,

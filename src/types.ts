@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 00:19
+ * @lastEditTime: 2022-07-23 13:12
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { Image } from "@raycast/api";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { LanguageDetectType } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
@@ -257,4 +258,11 @@ export interface QueryRecoredItem {
   timestamp: number;
   queryText: string;
   result?: string;
+}
+
+export interface WebTranslationItem {
+  type: QueryType;
+  webUrl: string;
+  icon: Image.ImageLike;
+  title: string;
 }

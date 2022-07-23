@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 00:32
+ * @lastEditTime: 2022-07-23 13:06
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -197,10 +197,13 @@ export default function () {
       toLanguage: targetLanguageId,
     };
     queryTextWithTextInfo(queryTextInfo);
-
-    googleCrawlerTranslate(searchText, fromYoudaoLanguageId, targetLanguageId);
   }
 
+  /**
+   * Query text with text info, query dictionary API or tranalsate API.
+   *
+   * Todo: need to optimize, change it to class.
+   */
   async function queryTextWithTextInfo(queryTextInfo: QueryWordInfo) {
     const { word: queryText, fromLanguage, toLanguage } = queryTextInfo;
     console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
@@ -277,14 +280,13 @@ export default function () {
         if (myPreferences.enableGoogleTranslate) {
           googleCrawlerTranslate(queryText, fromLanguage, toLanguage)
             .then((googleTypeResult) => {
-              // Todo: should use axios.CancelToken to cancel the request!
               if (!shouldCancelQuery) {
                 updateFormatTranslateResultWithGoogleResult(formatResult, googleTypeResult);
                 updateTranslateDisplayResult(formatResult);
               }
             })
             .catch((err) => {
-              console.error(err);
+              console.error(`google error: ${err}`);
             });
         }
 
