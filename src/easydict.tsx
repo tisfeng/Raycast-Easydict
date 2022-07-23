@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 13:06
+ * @lastEditTime: 2022-07-23 13:29
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -286,7 +286,7 @@ export default function () {
               }
             })
             .catch((err) => {
-              console.error(`google error: ${err}`);
+              console.error(`google error: ${JSON.stringify(err, null, 2)}`);
             });
         }
 
