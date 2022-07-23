@@ -6,7 +6,7 @@
 
 - Added support for Google translation.
 
-![Google](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1658571181.png)
+![Google](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1658584161.png)
 
 ### ✅ Recent Updates
 
