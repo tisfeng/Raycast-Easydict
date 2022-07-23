@@ -13,7 +13,7 @@
 
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
-`Easydict` is an easy dictionary, for looking up words or translating text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
+`Easydict` is an easy dictionary, for looking up words or translating text in an easy way. Use it out of the box, automatically detect the input text language, support Youdao dictionary, **MacOS system translate**, DeepL, Google, Baidu, Tencent, Youdao and Caiyun translation.
 
 ![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1658309667-1658309686.png)
 
@@ -29,24 +29,23 @@
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort translation results manually.
 - [x] Support **MacOS system translation**. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F)_)
-- [x] Support DeepL, Baidu, Tencent, Youdao and Caiyun translation API.
+- [x] Support DeepL, Google, Baidu, Tencent, Youdao and Caiyun translation.
 - [x] Support 23 languages.
 
 Next:
 
 - [ ] Support more dictionary API, such as homonyms, synonyms, antonyms, Iciba, etc.
-- [ ] Support Google translate API.
 - [ ] Support to view query history.
 
 **_If you like this extension, please give a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
 ![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1658309750.png)
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1658309767.png)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1658570945.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1658309776.png)
+![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1658570954.png)
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1658309785.png)
+![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1658570961.png)
 
 ---
 
@@ -62,31 +61,31 @@ Currently we support 23 languages: Simplified Chinese, Traditional Chinese, Engl
 
 Details of the languages supported by each translation service are as follows:
 
-| language               | Youdao | DeepL | 🍎 Apple | Baidu | Tencent | Caiyun |
-| :--------------------- | :----: | :---: | :------: | :---: | :-----: | :----: |
-| Chinese (Simplified)   |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
-| Chinese（Traditional） |   ✅   |  ⚠️   |    ⚠️    |  ✅   |   ✅    |   ⚠️   |
-| English                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
-| Japanese               |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
-| Korean                 |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
-| French                 |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Spanish                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Portuguese             |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Italian                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| German                 |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Russian                |   ✅   |  ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Arabic                 |   ✅   |  ❌   |    ✅    |  ✅   |   ✅    |   ❌   |
-| Swedish                |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Romanian               |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Thai                   |   ✅   |  ❌   |    ❌    |  ✅   |   ✅    |   ❌   |
-| Slovak                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Dutch                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Hungarian              |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Greek                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Danish                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Finnish                |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Polish                 |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
-| Czech                  |   ✅   |  ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| language               | Youdao | DeepL | Google | 🍎 Apple | Baidu | Tencent | Caiyun |
+| :--------------------- | :----: | :---: | :----: | :------: | :---: | :-----: | :----: |
+| Chinese (Simplified)   |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Chinese（Traditional） |   ✅   |  ⚠️   |  ✅ q  |    ⚠️    |  ✅   |   ✅    |   ⚠️   |
+| English                |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Japanese               |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
+| Korean                 |   ✅   |  ❌   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| French                 |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Spanish                |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Portuguese             |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Italian                |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| German                 |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Russian                |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Arabic                 |   ✅   |  ❌   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
+| Swedish                |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Romanian               |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Thai                   |   ✅   |  ❌   |   ✅   |    ❌    |  ✅   |   ✅    |   ❌   |
+| Slovak                 |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Dutch                  |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Hungarian              |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Greek                  |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Danish                 |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Finnish                |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Polish                 |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
+| Czech                  |   ✅   |  ✅   |   ✅   |    ❌    |  ✅   |   ❌    |   ❌   |
 
 > Note: ⚠️ means the translation of source language to Traditional Chinese is not supported, such as DeepL. If you enter Traditional Chinese for translation, it will be treated as Simplified Chinese.
 
@@ -166,11 +165,11 @@ By default, the extension will automatically select the preferred languages as t
 
 ### Sort Translation Results Manually
 
-<details> <summary> You can sort the translation results by your preference, default is `DeepL,Apple,Baidu,Tencent,Youdao,Caiyun`. </summary>
+<details> <summary> You can sort the translation results by your preference, default is `DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun`. </summary>
 
 <p>
 
-Name case are insensitive, use comma to separate. Example: `deepl,apple,baidu,tencent,youdao,caiyun`. You can also specify a part of the sort, for example: `apple,tencent`，the actual sort is: `apple,tencent,deepl,baidu,youdao,caiyun`.
+Name case are insensitive, use comma to separate. Example: `deepl,google,apple,baidu,tencent,youdao,caiyun`. You can also specify a part of the sort, for example: `apple,tencent`，the actual sort is: `apple,tencent,deepl,google,baidu,youdao,caiyun`.
 
 > Note: This sort is the overall sort, if a translation service is not enabled, the sort will be automatically ignored.
 

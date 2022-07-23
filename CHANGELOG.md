@@ -1,5 +1,20 @@
 # `Easydict` Changelog
 
+## [v1.4.0] - 2022-07-23
+
+### ✨ New
+
+- Added support for Google translation.
+
+![Google](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1658571181.png)
+
+### ✅ Recent Updates
+
+- Added support for DeepL translation.
+- Supported to sort translation results manually.
+- Added support for Apple 🍎 system translation.
+- Fixed deleting input box text will cause repeated query selected text problem.
+
 ## [v1.3.1] - 2022-07-21
 
 ### 🐞 Fixes
