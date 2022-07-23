@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/eudic-icon.png" height="128">
   <h1 align="center">Easydict</h1>
-  <h4 align="center"> Easy to look up words or translate text.</p>
+  <h4 align="center"> Easily look up words or translate text. </p>
 <p align="center">🇨🇳 🇬🇧 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿</p>
 </p>
 
@@ -64,7 +64,7 @@ Details of the languages supported by each translation service are as follows:
 | language               | Youdao | DeepL | Google | 🍎 Apple | Baidu | Tencent | Caiyun |
 | :--------------------- | :----: | :---: | :----: | :------: | :---: | :-----: | :----: |
 | Chinese (Simplified)   |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
-| Chinese（Traditional） |   ✅   |  ⚠️   |  ✅ q  |    ⚠️    |  ✅   |   ✅    |   ⚠️   |
+| Chinese（Traditional） |   ✅   |  ⚠️   |   ✅   |    ⚠️    |  ✅   |   ✅    |   ⚠️   |
 | English                |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Japanese               |   ✅   |  ✅   |   ✅   |    ✅    |  ✅   |   ✅    |   ✅   |
 | Korean                 |   ✅   |  ❌   |   ✅   |    ✅    |  ✅   |   ✅    |   ❌   |
