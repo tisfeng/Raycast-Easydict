@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 00:42
+ * @lastEditTime: 2022-07-25 02:23
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,6 +13,7 @@ import { Fragment, useEffect, useState } from "react";
 import { ActionFeedback, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { BaiduRequestStateCode, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
 import { detectLanguage } from "./detectLanguage";
+import { rquestLingueeWord } from "./dict/linguee/linguee";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import {
   formatTranslateDisplayResult,
@@ -117,15 +118,18 @@ export default function () {
   useEffect(() => {
     console.log("enter useEffect");
 
+    if (inputText === undefined) {
+      setup();
+    }
+
     startTime = Date.now();
     if (searchText) {
       queryText(searchText);
       return;
     }
 
-    if (inputText === undefined) {
-      setup();
-    }
+    rquestLingueeWord();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
@@ -134,7 +138,7 @@ export default function () {
    */
   function setup() {
     if (myPreferences.isAutomaticQuerySelectedText) {
-      tryQuerySelecedtText();
+      // tryQuerySelecedtText();
     }
     checkIfEudicIsInstalled(setIsInstalledEudic);
   }

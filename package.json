@@ -37,8 +37,11 @@
   "dependencies": {
     "@raycast/api": "^1.38.0",
     "axios": "^0.25.0",
+    "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",
     "franc": "^6.0.0",
+    "htmlparser2": "^8.0.1",
+    "node-html-parser": "^5.3.3",
     "play-sound": "^1.1.5",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
