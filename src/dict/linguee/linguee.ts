@@ -1,3 +1,23 @@
+import { WordFrequencey } from "./types";
+/*
+ * @author: tisfeng
+ * @createTime: 2022-07-24 17:58
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2022-07-27 00:48
+ * @fileName: linguee.ts
+ *
+ * Copyright (c) 2022 by tisfeng, All Rights Reserved.
+ */
+
+import { environment } from "@raycast/api";
+import axios, { AxiosRequestHeaders } from "axios";
+import * as cheerio from "cheerio";
+import fs from "fs";
+import * as htmlparser2 from "htmlparser2";
+import { parse } from "node-html-parser";
+import util from "util";
+import { RequestTypeResult } from "../../types";
+import { getLanguageItemFromYoudaoId } from "../../utils";
 import {
   DicionaryType,
   QueryWordInfo,
@@ -5,32 +25,8 @@ import {
   TranslateDisplayItem,
   TranslateDisplayResult,
 } from "./../../types";
-/*
- * @author: tisfeng
- * @createTime: 2022-07-24 17:58
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 18:14
- * @fileName: linguee.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
-
-import { environment } from "@raycast/api";
-import axios from "axios";
-import * as cheerio from "cheerio";
-import fs from "fs";
-import * as htmlparser2 from "htmlparser2";
-import { parse } from "node-html-parser";
-import { RequestTypeResult } from "../../types";
-import { getLanguageItemFromYoudaoId } from "../../utils";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
-import {
-  LingueeDictionaryResult,
-  LingueeExample,
-  LingueeWordExplanation,
-  LingueeWordItem,
-  WordFrequencey,
-} from "./types";
+import { LingueeDictionaryResult, LingueeExample, LingueeWordExplanation, LingueeWordItem } from "./types";
 
 const htmlPath = `${environment.supportPath}/linguee.html`;
 
@@ -67,13 +63,17 @@ export async function rquestLingueeDictionary(
       queryText
     )}`;
     console.log(`---> linguee request: ${url}`);
-    const headers = {
-      "User-Agent": "apifox/1.0.0 (https://www.apifox.cn)",
+    // * avoid linguee's anti-spider
+    const headers: AxiosRequestHeaders = {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+      withCredentials: true,
     };
     axios
       .get(url, { headers })
       .then((response) => {
         console.warn(`---> linguee cost: ${response.headers["x-request-cost"]} ms`);
+        console.log(`--- headers: ${util.inspect(response.headers, { depth: null })}`);
         const rootElement = parse(response.data);
         const mainElement = rootElement.querySelector(".isMainTerm");
         const exactLemmaElement = mainElement?.querySelectorAll(".exact .lemma");
@@ -87,19 +87,23 @@ export async function rquestLingueeDictionary(
 
           // get all featured translation, then remove
           const translations = lemma?.querySelectorAll(".featured");
-          const explanations = iterateTranslationGroup(translations as unknown as HTMLElement[]);
+          const explanations = iterateTranslationGroup(translations as unknown as HTMLElement[], true);
           translations?.forEach((element) => {
             element.remove();
           });
 
           // get rest less common
           const translation_group = lemma?.querySelector(".translation_group");
-          console.log(`---> less common: ${translation_group?.textContent}`);
+          // console.log(`---> less common: ${translation_group?.textContent}`);
+
+          const notascommon = translation_group?.querySelector(".line .notascommon");
+          const frequency = notascommon ? WordFrequencey.LessCommon : WordFrequencey.Normal;
+
           const lessCommonTranslations = translation_group?.querySelectorAll(
             ".translation"
           ) as unknown as HTMLElement[];
 
-          const lessCommonExplanations = iterateTranslationGroup(lessCommonTranslations, WordFrequencey.LessCommon);
+          const lessCommonExplanations = iterateTranslationGroup(lessCommonTranslations, false, frequency);
 
           let allExplanations = explanations;
           if (!explanations || !lessCommonExplanations) {
@@ -112,7 +116,7 @@ export async function rquestLingueeDictionary(
             word: word?.textContent ?? "",
             partOfSpeech: tag_wordtype?.textContent,
             placeholder: tag_lemma_context?.textContent,
-            explanations: allExplanations,
+            explanationItems: allExplanations,
           };
           return lingueeWordItem;
         });
@@ -163,62 +167,100 @@ export async function rquestLingueeDictionary(
 /**
  * Iterate translation group and get translation
  */
-function iterateTranslationGroup(translations: HTMLElement[] | undefined, designatedFrequencey?: WordFrequencey) {
-  const translationsItems = translations?.map((translation) => {
-    console.log(`---> translation text: ${translation?.textContent}`);
-    const explanationElement = translation?.querySelector(".dictLink");
-    const tag_type = translation?.querySelector(".tag_type");
-    const tag_c = translation?.querySelector(".tag_c");
+function iterateTranslationGroup(
+  translations: HTMLElement[] | undefined,
+  isFeatured = false,
+  designatedFrequencey?: WordFrequencey
+) {
+  const explanationItems = [];
+  if (translations) {
+    for (const translation of translations) {
+      // console.log(`---> translation text: ${translation?.textContent}`);
+      const explanationElement = translation?.querySelector(".dictLink");
+      const tag_type = translation?.querySelector(".tag_type");
+      const tag_c = translation?.querySelector(".tag_c");
 
-    const frequencey =
-      tag_c?.textContent === WordFrequencey.OftenUsed.toString() ? WordFrequencey.OftenUsed : WordFrequencey.Normal;
-    const wordFrequencey = designatedFrequencey ?? frequencey;
+      if (explanationElement) {
+        const frequencey =
+          tag_c?.textContent === WordFrequencey.OftenUsed.toString() ? WordFrequencey.OftenUsed : WordFrequencey.Normal;
+        const explanation: LingueeWordExplanation = {
+          explanation: explanationElement?.textContent ?? "",
+          partOfSpeech: tag_type?.textContent ?? "",
+          frequencey: designatedFrequencey ?? frequencey,
+          isFeatured: isFeatured,
+        };
+        // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
+        explanationItems.push(explanation);
+      }
+    }
+  }
 
-    const explanation: LingueeWordExplanation = {
-      explanation: explanationElement?.textContent ?? "",
-      partOfSpeech: tag_type?.textContent ?? "",
-      frequencey: wordFrequencey,
-    };
-    console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
-    return explanation;
-  });
-  // filter out the empty explanation
-  const filteredTranslations = translationsItems?.filter((translation) => {
-    return translation.explanation.length > 0;
-  });
-  return filteredTranslations;
+  return explanationItems;
 }
 
 /**
  * Formate linguee display result
  */
 export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): TranslateDisplayResult[] {
-  console.log(`---> linguee format start`);
   const displayResults: TranslateDisplayResult[] = [];
   const { queryWordInfo, wordItems, examples } = lingueeTypeResult.result as LingueeDictionaryResult;
 
   if (wordItems) {
     for (const wordItem of wordItems) {
       const sectionTitle = `${queryWordInfo.word}: ${wordItem.placeholder ?? ""} ${wordItem.partOfSpeech} `;
-      const displayItems = wordItem.explanations?.map((explanation) => {
-        const title = `${explanation.explanation}`;
-        const subtitle = `${explanation.partOfSpeech}  ${explanation.frequencey?.toString() ?? ""}`;
-        const copyText = `${title} ${subtitle}`;
-        console.log(`---> linguee copyText: ${copyText}`);
-        const displayItem: TranslateDisplayItem = {
-          key: copyText,
-          title: title,
-          subtitle: subtitle,
-          copyText: copyText,
-          queryWordInfo: queryWordInfo,
-        };
-        return displayItem;
-      });
+
+      const displayItems = [];
+
+      if (wordItem.explanationItems) {
+        for (const explanationItem of wordItem.explanationItems) {
+          if (explanationItem.isFeatured) {
+            const title = `${explanationItem.explanation}`;
+            const subtitle = `${explanationItem.partOfSpeech}  ${explanationItem.frequencey?.toString() ?? ""}`;
+            const copyText = `${title} ${subtitle}`;
+            // console.log(`---> linguee copyText: ${copyText}`);
+            const displayItem: TranslateDisplayItem = {
+              key: copyText,
+              title: title,
+              subtitle: subtitle,
+              copyText: copyText,
+              queryWordInfo: queryWordInfo,
+            };
+            displayItems.push(displayItem);
+          }
+        }
+
+        // if explanation featured is false, put explanation to array
+        const unFeaturedExplanations = [];
+        if (wordItem.explanationItems) {
+          for (const explanationItem of wordItem.explanationItems) {
+            if (!explanationItem.isFeatured) {
+              const explanation = `${explanationItem.explanation}`;
+              unFeaturedExplanations.push(explanation);
+            }
+          }
+        }
+        if (unFeaturedExplanations.length > 0) {
+          const lessCommonExplanationCopyText = `${wordItem.partOfSpeech} ${unFeaturedExplanations.join(" ")}`;
+          const lastExplanationItem = wordItem.explanationItems.at(-1);
+          const lessCommonNote =
+            lastExplanationItem?.frequencey === WordFrequencey.LessCommon ? WordFrequencey.LessCommon.toString() : "";
+          const lessCommonDisplayItem: TranslateDisplayItem = {
+            key: lessCommonExplanationCopyText,
+            title: `${lastExplanationItem?.partOfSpeech}`,
+            subtitle: `${unFeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
+            copyText: lessCommonExplanationCopyText,
+            queryWordInfo: queryWordInfo,
+          };
+          displayItems.push(lessCommonDisplayItem);
+        }
+      }
+
       const displayResult: TranslateDisplayResult = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems,
       };
+
       displayResults.push(displayResult);
     }
   }
@@ -227,9 +269,8 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
     const sectionTitle = `Examples`;
     const displayItems = examples.map((example) => {
       const title = `${example.example}`;
-      const subtitle = `${example.translation}`;
+      const subtitle = `—  ${example.translation}`;
       const copyText = `${title} ${subtitle}`;
-      console.log(`---> linguee copyText: ${copyText}`);
       const displayItem: TranslateDisplayItem = {
         key: copyText,
         title: title,
@@ -242,7 +283,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
     const displayResult: TranslateDisplayResult = {
       type: DicionaryType.Linguee,
       sectionTitle: sectionTitle,
-      items: displayItems,
+      items: displayItems.slice(0, 3), // only show 3 examples
     };
     displayResults.push(displayResult);
   }

@@ -1,9 +1,8 @@
-import { DeepLTranslateResult } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 00:38
+ * @lastEditTime: 2022-07-26 18:51
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +11,7 @@ import { DeepLTranslateResult } from "./types";
 import {
   BaiduTranslateResult,
   CaiyunTranslateResult,
+  DeepLTranslateResult,
   QueryWordInfo,
   RequestTypeResult,
   SectionType,

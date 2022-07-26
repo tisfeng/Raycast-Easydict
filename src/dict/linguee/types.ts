@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 17:59
+ * @lastEditTime: 2022-07-26 22:45
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,7 +20,7 @@ export interface LingueeWordItem {
   word: string;
   partOfSpeech?: string;
   placeholder?: string;
-  explanations?: LingueeWordExplanation[];
+  explanationItems?: LingueeWordExplanation[];
 }
 
 export interface LingueeWordExplanation {
@@ -33,7 +33,7 @@ export interface LingueeWordExplanation {
 export enum WordFrequencey {
   OftenUsed = "(often used)",
   Normal = "",
-  LessCommon = "less common",
+  LessCommon = "(less common)",
 }
 
 export interface LingueeExample {
