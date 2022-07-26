@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 00:43
+ * @lastEditTime: 2022-07-26 11:01
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,6 +21,7 @@ import {
   DicionaryType,
   QueryType,
   QueryWordInfo,
+  SectionListType,
   SectionType,
   TranslationType,
   WebTranslationItem,
@@ -186,7 +187,7 @@ function playSoundIcon(lightTintColor: string) {
 /**
   Return the corresponding ImageLike based on the SectionType type
 */
-export function getListItemIcon(sectionType: SectionType | TranslationType): Image.ImageLike {
+export function getListItemIcon(sectionType: SectionListType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (sectionType) {
     case SectionType.Translation: {
@@ -236,7 +237,7 @@ function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
   return List.Item.Accessory[] based on the SectionType type
 */
 export function getWordAccessories(
-  sectionType: SectionType | TranslationType,
+  sectionType: SectionListType,
   item: YoudaoTranslateReformatResultItem
 ): List.Item.Accessory[] {
   let wordExamTypeAccessory = [];

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 00:38
+ * @lastEditTime: 2022-07-26 11:04
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +12,7 @@ import { Image } from "@raycast/api";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { LanguageDetectType } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
+import { LingueeDictionaryResult } from "./dict/linguee/types";
 
 export enum SectionType {
   Translation = "Translate",
@@ -35,6 +36,7 @@ export enum DicionaryType {
   Youdao = "Youdao",
   Iciba = "Iciba",
   Eudic = "Eudic",
+  Linguee = "Linguee",
 }
 
 export type QueryType = TranslationType | DicionaryType;
@@ -54,6 +56,7 @@ type RequestResult =
   | DeepLTranslateResult
   | IcibaDictionaryResult
   | YoudaoDictionaryResult
+  | LingueeDictionaryResult
   | string;
 
 export interface RequestErrorInfo {
@@ -232,10 +235,13 @@ export interface TranslateResultKeyValueItem {
 }
 
 export interface TranslateDisplayResult {
-  type: SectionType | TranslationType;
+  type: SectionListType;
   sectionTitle?: SectionType | TranslationType | string;
   items?: TranslateDisplayItem[];
 }
+
+export type SectionListType = SectionType | TranslationType | DicionaryType;
+
 export interface TranslateDisplayItem {
   key: string;
   title: string;

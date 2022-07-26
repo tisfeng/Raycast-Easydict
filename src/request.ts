@@ -4,7 +4,7 @@ import { deepLAuthKey } from "./crypto";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 22:59
+ * @lastEditTime: 2022-07-26 10:25
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -209,8 +209,8 @@ export function requestYoudaoDictionary(
         console.error(`youdao translate error: ${error}`);
         reject({
           type: TranslationType.Youdao,
-          code: error.response.status.toString(),
-          message: error.response.statusText,
+          code: error.response?.status.toString(),
+          message: error.response?.statusText,
         });
       });
   });
@@ -268,8 +268,8 @@ export function requestBaiduTextTranslate(
         console.error(`---> baidu translate error: ${error}`);
         reject({
           type: TranslationType.Baidu,
-          code: error.response.status.toString(),
-          message: error.response.statusText,
+          code: error.response?.status.toString(),
+          message: error.response?.statusText,
         });
       });
   });
@@ -324,8 +324,8 @@ export function requestCaiyunTextTranslate(
       .catch((error) => {
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Caiyun,
-          code: error.response.status.toString(),
-          message: error.response.statusText,
+          code: error.response?.status.toString(),
+          message: error.response?.statusText,
         };
         reject(errorInfo);
         console.error("caiyun error response: ", error.response);
@@ -386,8 +386,8 @@ export async function requestDeepLTextTranslate(
     console.error("deepL error: ", JSON.stringify(error.response, null, 4));
     const errorInfo: RequestErrorInfo = {
       type: TranslationType.DeepL,
-      code: error.response.status.toString(),
-      message: error.response.statusText,
+      code: error.response?.status.toString(),
+      message: error.response?.statusText,
     };
     console.error("deepL error info: ", errorInfo);
     return Promise.reject(errorInfo);

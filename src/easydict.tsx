@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-25 02:23
+ * @lastEditTime: 2022-07-26 16:42
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { Fragment, useEffect, useState } from "react";
 import { ActionFeedback, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { BaiduRequestStateCode, youdaoErrorCodeUrl, YoudaoRequestStateCode } from "./consts";
 import { detectLanguage } from "./detectLanguage";
-import { rquestLingueeWord } from "./dict/linguee/linguee";
+import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import {
   formatTranslateDisplayResult,
@@ -128,8 +128,6 @@ export default function () {
       return;
     }
 
-    rquestLingueeWord();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
@@ -138,7 +136,7 @@ export default function () {
    */
   function setup() {
     if (myPreferences.isAutomaticQuerySelectedText) {
-      // tryQuerySelecedtText();
+      tryQuerySelecedtText();
     }
     checkIfEudicIsInstalled(setIsInstalledEudic);
   }
@@ -211,6 +209,19 @@ export default function () {
   async function queryTextWithTextInfo(queryTextInfo: QueryWordInfo) {
     const { word: queryText, fromLanguage, toLanguage } = queryTextInfo;
     console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
+
+    rquestLingueeDictionary(queryText, fromLanguage, toLanguage)
+      .then((lingueeTypeResult) => {
+        console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
+        const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
+        console.log(`---> linguee display result:`, JSON.stringify(lingueeDisplayResult));
+        setTranslateDisplayResult(lingueeDisplayResult);
+        setLoadingState(false);
+      })
+      .catch((error) => {
+        console.error("lingueeDictionaryResult error:", error);
+      });
+
     /**
      * first, request youdao translate API, check if should show multiple translations, if not, then end.
      * if need to show multiple translations, then request other translate API.

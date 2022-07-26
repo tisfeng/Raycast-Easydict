@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-23 23:46
+ * @lastEditTime: 2022-07-25 22:41
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -126,7 +126,7 @@ export function getEudicWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
   const eudicWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
   if (eudicWebLanguageId) {
-    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURI(queryTextInfo.word)}`;
+    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
   }
 }
 
@@ -134,7 +134,7 @@ export function getYoudaoWebTranslateURL(queryTextInfo: QueryWordInfo): string |
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
   const youdaoWebLanguageId = getLanguageItemFromYoudaoId(languageId).youdaoWebLanguageId;
   if (youdaoWebLanguageId) {
-    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURI(queryTextInfo.word)}`;
+    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
   }
 }
 
@@ -146,7 +146,7 @@ export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string
 }
 
 export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const text = encodeURI(queryTextInfo.word);
+  const text = encodeURIComponent(queryTextInfo.word);
   const fromLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage);
   const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
   const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
@@ -165,9 +165,10 @@ export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
   const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
   const fromLanguageId = fromLanguageItem.deepLSourceLanguageId;
   const toLanguageId = toLanguageItem.deepLSourceLanguageId;
-  const text = encodeURI(queryTextInfo.word);
   if (fromLanguageId && toLanguageId) {
-    return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${text}`;
+    return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${encodeURIComponent(
+      queryTextInfo.word
+    )}`;
   }
 }
 

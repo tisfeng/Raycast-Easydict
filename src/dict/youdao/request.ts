@@ -55,7 +55,7 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
   Example: https://dict.youdao.com/dictvoice?type=0&audio=good
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
-  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURI(word)}`;
+  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
   console.log(`download youdao English word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
