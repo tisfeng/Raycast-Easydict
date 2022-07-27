@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 11:01
+ * @lastEditTime: 2022-07-27 12:14
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -185,11 +185,11 @@ function playSoundIcon(lightTintColor: string) {
 }
 
 /**
-  Return the corresponding ImageLike based on the SectionType type
-*/
-export function getListItemIcon(sectionType: SectionListType): Image.ImageLike {
+ * Return the corresponding ImageLike based on the SectionType type
+ */
+export function getListItemIcon(sectionListType: SectionListType): Image.ImageLike {
   let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (sectionType) {
+  switch (sectionListType) {
     case SectionType.Translation: {
       dotColor = Color.Red;
       break;
@@ -212,12 +212,12 @@ export function getListItemIcon(sectionType: SectionListType): Image.ImageLike {
     source: Icon.Dot,
     tintColor: dotColor,
   };
-  if (sectionType === SectionType.Forms) {
+  if (sectionListType === SectionType.Forms) {
     itemIcon = Icon.Receipt;
   }
 
-  if (sectionType in TranslationType) {
-    itemIcon = getQueryTypeIcon(sectionType as TranslationType);
+  if (sectionListType in TranslationType) {
+    itemIcon = getQueryTypeIcon(sectionListType as TranslationType);
   }
 
   return itemIcon;
