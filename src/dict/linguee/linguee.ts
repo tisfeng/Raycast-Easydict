@@ -1,9 +1,8 @@
-import { HttpsProxyAgent } from "https-proxy-agent";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 13:13
+ * @lastEditTime: 2022-07-27 18:10
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,20 +13,16 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import * as htmlparser2 from "htmlparser2";
+import { HttpsProxyAgent } from "https-proxy-agent";
 import { parse } from "node-html-parser";
 import util from "util";
 import { RequestTypeResult } from "../../types";
 import { getLanguageItemFromYoudaoId } from "../../utils";
-import {
-  DicionaryType,
-  QueryWordInfo,
-  RequestErrorInfo,
-  TranslateDisplayItem,
-  TranslateDisplayResult,
-} from "./../../types";
+import { DicionaryType, ListDisplayItem, QueryWordInfo, RequestErrorInfo, SectionDisplayResult } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import {
   LingueeDictionaryResult,
+  LingueeDisplayType,
   LingueeExample,
   LingueeWordExplanation,
   LingueeWordItem,
@@ -136,10 +131,8 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     // console.log(`---> less common: ${translation_group?.textContent}`);
 
     const notascommon = translation_group?.querySelector(".line .notascommon");
-    const frequency = notascommon ? WordFrequencey.LessCommon : WordFrequencey.Normal;
-
+    const frequency = notascommon ? WordFrequencey.LessCommon : WordFrequencey.Common;
     const lessCommonTranslations = translation_group?.querySelectorAll(".translation") as unknown as HTMLElement[];
-
     const lessCommonExplanations = iterateTranslationGroup(lessCommonTranslations, false, frequency);
 
     let allExplanations = explanations;
@@ -223,11 +216,11 @@ function iterateTranslationGroup(
 
       if (explanationElement) {
         const frequencey =
-          tag_c?.textContent === WordFrequencey.OftenUsed.toString() ? WordFrequencey.OftenUsed : WordFrequencey.Normal;
+          tag_c?.textContent === `(${WordFrequencey.OftenUsed})` ? WordFrequencey.OftenUsed : WordFrequencey.Common;
         const explanation: LingueeWordExplanation = {
           explanation: explanationElement?.textContent ?? "",
           partOfSpeech: tag_type?.textContent ?? "",
-          frequencey: designatedFrequencey ?? frequencey,
+          frequency: designatedFrequencey ?? frequencey,
           isFeatured: isFeatured,
         };
         // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
@@ -242,60 +235,70 @@ function iterateTranslationGroup(
 /**
  * Formate linguee display result
  */
-export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): TranslateDisplayResult[] {
-  const displayResults: TranslateDisplayResult[] = [];
+export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): SectionDisplayResult[] {
+  const displayResults: SectionDisplayResult[] = [];
   if (lingueeTypeResult.result) {
     const { queryWordInfo, wordItems, examples } = lingueeTypeResult.result as LingueeDictionaryResult;
-
     if (wordItems) {
       for (const wordItem of wordItems) {
-        const sectionTitle = `${queryWordInfo.word} ${wordItem.placeholder ?? ""} ${wordItem.partOfSpeech ?? ""} `;
+        let sectionTitle = queryWordInfo.word;
+        const subSectionTitle = `${wordItem.placeholder ?? ""} ${wordItem.partOfSpeech ?? ""} `;
+        if (subSectionTitle.trim().length > 0) {
+          sectionTitle = `${sectionTitle}: ${subSectionTitle}`;
+        }
         const displayItems = [];
         if (wordItem.explanationItems) {
           for (const explanationItem of wordItem.explanationItems) {
+            // first, iterate featured explanation
             if (explanationItem.isFeatured) {
               const title = `${explanationItem.explanation}`;
-              const subtitle = `${explanationItem.partOfSpeech}  ${explanationItem.frequencey?.toString() ?? ""}`;
+              const isCommon = explanationItem.frequency === WordFrequencey.Common;
+              const subtitle = `${explanationItem.partOfSpeech}  ${isCommon ? "" : `(${explanationItem.frequency})`}`;
               const copyText = `${title} ${subtitle}`;
+              const displayType = isCommon ? LingueeDisplayType.Common : LingueeDisplayType.OftenUsed;
               // console.log(`---> linguee copyText: ${copyText}`);
-              const displayItem: TranslateDisplayItem = {
+              const displayItem: ListDisplayItem = {
                 key: copyText,
                 title: title,
                 subtitle: subtitle,
                 copyText: copyText,
                 queryWordInfo: queryWordInfo,
+                displayType: displayType,
               };
               displayItems.push(displayItem);
             }
           }
 
-          // if explanation featured is false, put explanation to array
-          const unFeaturedExplanations = [];
+          // then, iterate unfeatured explanation, and put them to array
+          const unfeaturedExplanations = [];
           if (wordItem.explanationItems) {
             for (const explanationItem of wordItem.explanationItems) {
               if (!explanationItem.isFeatured) {
                 const explanation = `${explanationItem.explanation}`;
-                unFeaturedExplanations.push(explanation);
+                unfeaturedExplanations.push(explanation);
               }
             }
           }
-          if (unFeaturedExplanations.length > 0) {
-            const lessCommonExplanationCopyText = `${wordItem.partOfSpeech} ${unFeaturedExplanations.join(" ")}`;
+          if (unfeaturedExplanations.length > 0) {
+            const copyText = `${wordItem.partOfSpeech} ${unfeaturedExplanations.join(" ")}`;
             const lastExplanationItem = wordItem.explanationItems.at(-1);
             const lessCommonNote =
-              lastExplanationItem?.frequencey === WordFrequencey.LessCommon ? WordFrequencey.LessCommon.toString() : "";
-            const lessCommonDisplayItem: TranslateDisplayItem = {
-              key: lessCommonExplanationCopyText,
+              lastExplanationItem?.frequency === WordFrequencey.LessCommon ? `(${WordFrequencey.LessCommon})` : "";
+            const displayType =
+              lessCommonNote.length > 0 ? LingueeDisplayType.LessCommon : LingueeDisplayType.Unfeatured;
+            const unFeaturedDisplayItem: ListDisplayItem = {
+              key: copyText,
               title: `${lastExplanationItem?.partOfSpeech}`,
-              subtitle: `${unFeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
-              copyText: lessCommonExplanationCopyText,
+              subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
+              copyText: copyText,
               queryWordInfo: queryWordInfo,
+              displayType: displayType,
             };
-            displayItems.push(lessCommonDisplayItem);
+            displayItems.push(unFeaturedDisplayItem);
           }
         }
 
-        const displayResult: TranslateDisplayResult = {
+        const displayResult: SectionDisplayResult = {
           type: DicionaryType.Linguee,
           sectionTitle: sectionTitle,
           items: displayItems,
@@ -311,16 +314,17 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         const title = `${example.example}`;
         const subtitle = `—  ${example.translation}`;
         const copyText = `${title} ${subtitle}`;
-        const displayItem: TranslateDisplayItem = {
+        const displayItem: ListDisplayItem = {
           key: copyText,
           title: title,
           subtitle: subtitle,
           copyText: copyText,
           queryWordInfo: queryWordInfo,
+          displayType: LingueeDisplayType.Example,
         };
         return displayItem;
       });
-      const displayResult: TranslateDisplayResult = {
+      const displayResult: SectionDisplayResult = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 examples

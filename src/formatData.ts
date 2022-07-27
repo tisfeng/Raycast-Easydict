@@ -14,9 +14,9 @@ import {
   DeepLTranslateResult,
   QueryWordInfo,
   RequestTypeResult,
+  SectionDisplayResult,
   SectionType,
   TencentTranslateResult,
-  TranslateDisplayResult,
   TranslateFormatResult,
   TranslateItem,
   TranslationType,
@@ -241,8 +241,8 @@ export function getTranslationResultOrder(): string[] {
 /**
  * Format translate results so that can be directly used for UI display.
  */
-export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): TranslateDisplayResult[] {
-  const displayResult: Array<TranslateDisplayResult> = [];
+export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): SectionDisplayResult[] {
+  const displayResult: Array<SectionDisplayResult> = [];
   if (!formatResult) {
     return displayResult;
   }

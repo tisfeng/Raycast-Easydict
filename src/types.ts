@@ -1,8 +1,9 @@
+import { LingueeDisplayType } from "./dict/linguee/types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 11:04
+ * @lastEditTime: 2022-07-27 15:59
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -153,7 +154,7 @@ export interface MyPreferences {
 }
 
 export interface ActionListPanelProps {
-  displayItem: TranslateDisplayItem;
+  displayItem: ListDisplayItem;
   isInstalledEudic: boolean;
   onLanguageUpdate: (language: LanguageItem) => void;
 }
@@ -234,15 +235,13 @@ export interface TranslateResultKeyValueItem {
   value: string[];
 }
 
-export interface TranslateDisplayResult {
-  type: SectionListType;
+export interface SectionDisplayResult {
+  type: ListDisplayType;
   sectionTitle?: SectionType | TranslationType | string;
-  items?: TranslateDisplayItem[];
+  items?: ListDisplayItem[];
 }
 
-export type SectionListType = SectionType | TranslationType | DicionaryType;
-
-export interface TranslateDisplayItem {
+export interface ListDisplayItem {
   key: string;
   title: string;
   copyText: string;
@@ -253,7 +252,10 @@ export interface TranslateDisplayItem {
   speech?: string;
   examTypes?: string[];
   translationMarkdown?: string;
+  displayType?: ListDisplayType;
 }
+
+export type ListDisplayType = LingueeDisplayType | SectionType | QueryType;
 
 export interface ClipboardRecoredItem {
   key: string;

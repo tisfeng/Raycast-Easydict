@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 00:33
+ * @lastEditTime: 2022-07-27 16:12
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -39,7 +39,7 @@ import {
   QueryWordInfo,
   RequestErrorInfo,
   RequestTypeResult,
-  TranslateDisplayResult,
+  SectionDisplayResult,
   TranslateFormatResult,
   TranslationType,
   YoudaoTranslateResult,
@@ -100,7 +100,7 @@ export default function () {
    */
   const [searchText, setSearchText] = useState<string>("");
 
-  const [translateDisplayResult, setTranslateDisplayResult] = useState<TranslateDisplayResult[]>();
+  const [translateDisplayResult, setTranslateDisplayResult] = useState<SectionDisplayResult[]>();
   /**
      the language type of text, depending on the language type of the current input text.
      */
@@ -210,7 +210,7 @@ export default function () {
     const { word: queryText, fromLanguage, toLanguage } = queryTextInfo;
     console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    rquestLingueeDictionary(queryText, fromLanguage, toLanguage)
+    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
       .then((lingueeTypeResult) => {
         // console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
         const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
@@ -482,7 +482,7 @@ export default function () {
                   <List.Item
                     key={item.key}
                     icon={{
-                      value: getListItemIcon(resultItem.type),
+                      value: getListItemIcon(item.displayType),
                       tooltip: item.tooltip || "",
                     }}
                     title={item.title}
