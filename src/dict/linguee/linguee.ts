@@ -1,16 +1,16 @@
-import { WordFrequencey } from "./types";
+import { HttpsProxyAgent } from "https-proxy-agent";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 00:48
+ * @lastEditTime: 2022-07-27 11:29
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { environment } from "@raycast/api";
-import axios, { AxiosRequestHeaders } from "axios";
+import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import * as htmlparser2 from "htmlparser2";
@@ -26,14 +26,21 @@ import {
   TranslateDisplayResult,
 } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
-import { LingueeDictionaryResult, LingueeExample, LingueeWordExplanation, LingueeWordItem } from "./types";
+import {
+  LingueeDictionaryResult,
+  LingueeExample,
+  LingueeWordExplanation,
+  LingueeWordItem,
+  WordFrequencey,
+} from "./types";
 
 const htmlPath = `${environment.supportPath}/linguee.html`;
 
 export async function rquestLingueeDictionary(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  enableProxy = false
 ): Promise<RequestTypeResult> {
   let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
@@ -59,21 +66,29 @@ export async function rquestLingueeDictionary(
   const languagePair = languagePairItem.pair;
 
   return new Promise((resolve, reject) => {
-    const url = `https://www.linguee.com/${languagePair}/search?source=${fromLanguageTitle}&query=${encodeURIComponent(
+    const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=${fromLanguageTitle}&query=${encodeURIComponent(
       queryText
     )}`;
-    console.log(`---> linguee request: ${url}`);
-    // * avoid linguee's anti-spider
+    console.log(`---> linguee request: ${lingueeUrl}`);
+    // * avoid linguee's anti-spider, otherwise it will reponse very slowly or even error.
+    const proxy = process.env.http_proxy || "http://127.0.0.1:6152"; // your proxy server
+    // console.log(`---> env https proxy: ${JSON.stringify(process.env)}`);
+    const httpsAgent = new HttpsProxyAgent(proxy);
     const headers: AxiosRequestHeaders = {
       "User-Agent":
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
       withCredentials: true,
     };
+    const config: AxiosRequestConfig = {
+      headers: headers,
+      httpsAgent: enableProxy ? httpsAgent : undefined,
+    };
+
     axios
-      .get(url, { headers })
+      .get(lingueeUrl, config)
       .then((response) => {
         console.warn(`---> linguee cost: ${response.headers["x-request-cost"]} ms`);
-        console.log(`--- headers: ${util.inspect(response.headers, { depth: null })}`);
+        console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const rootElement = parse(response.data);
         const mainElement = rootElement.querySelector(".isMainTerm");
         const exactLemmaElement = mainElement?.querySelectorAll(".exact .lemma");
@@ -149,7 +164,6 @@ export async function rquestLingueeDictionary(
           type: DicionaryType.Linguee,
           result: lingueeResult,
         };
-        console.log(`---> linguee parse end`);
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
