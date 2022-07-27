@@ -3,7 +3,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 12:54
+ * @lastEditTime: 2022-07-27 13:13
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,82 +96,7 @@ export async function rquestLingueeDictionary(
       .then((response) => {
         console.warn(`---> linguee cost: ${response.headers["x-request-cost"]} ms`);
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
-        const result = parseLingueeHTML(response.data);
-        const rootElement = parse(response.data);
-        const mainElement = rootElement.querySelector(".isMainTerm");
-        const exactLemmaElement = mainElement?.querySelectorAll(".exact .lemma");
-        const lingueeWordItems = exactLemmaElement?.map((lemma) => {
-          const word = lemma?.querySelector(".dictLink");
-          const tag_wordtype = lemma?.querySelector(".tag_wordtype");
-          const tag_lemma_context = lemma?.querySelector(".tag_lemma_context");
-          console.log(
-            `--> ${word?.textContent} ${tag_lemma_context?.textContent ?? ""} : ${tag_wordtype?.textContent}`
-          );
-
-          // get all featured translation, then remove
-          const translations = lemma?.querySelectorAll(".featured");
-          const explanations = iterateTranslationGroup(translations as unknown as HTMLElement[], true);
-          translations?.forEach((element) => {
-            element.remove();
-          });
-
-          // get rest less common
-          const translation_group = lemma?.querySelector(".translation_group");
-          // console.log(`---> less common: ${translation_group?.textContent}`);
-
-          const notascommon = translation_group?.querySelector(".line .notascommon");
-          const frequency = notascommon ? WordFrequencey.LessCommon : WordFrequencey.Normal;
-
-          const lessCommonTranslations = translation_group?.querySelectorAll(
-            ".translation"
-          ) as unknown as HTMLElement[];
-
-          const lessCommonExplanations = iterateTranslationGroup(lessCommonTranslations, false, frequency);
-
-          let allExplanations = explanations;
-          if (!explanations || !lessCommonExplanations) {
-            allExplanations = explanations ?? lessCommonExplanations;
-          } else {
-            allExplanations = explanations.concat(lessCommonExplanations);
-          }
-
-          const lingueeWordItem: LingueeWordItem = {
-            word: word?.textContent ?? "",
-            partOfSpeech: tag_wordtype?.textContent,
-            placeholder: tag_lemma_context?.textContent,
-            explanationItems: allExplanations,
-          };
-          return lingueeWordItem;
-        });
-
-        // parse examples
-        const exampleLemmaElement = mainElement?.querySelectorAll(".example_lines .lemma");
-        const examples = exampleLemmaElement?.map((lemma) => {
-          // console.log(`example: ${lemma?.textContent}`);
-          const example = lemma?.querySelector(".line .dictLink");
-          const translation = lemma?.querySelector(".tag_trans .dictLink");
-          const lingueeExample: LingueeExample = {
-            example: example?.textContent,
-            translation: translation?.textContent,
-          };
-          return lingueeExample;
-        });
-
-        const queryWord = rootElement?.querySelector(".l_deepl_ad__querytext");
-        const queryWordInfo: QueryWordInfo = {
-          word: queryWord?.textContent ?? "",
-          fromLanguage: fromLanguage,
-          toLanguage: targetLanguage,
-        };
-        const lingueeResult: LingueeDictionaryResult = {
-          queryWordInfo: queryWordInfo,
-          wordItems: lingueeWordItems,
-          examples: examples,
-        };
-        const lingueeTypeResult = {
-          type: DicionaryType.Linguee,
-          result: lingueeResult,
-        };
+        const lingueeTypeResult = parseLingueeHTML(response.data);
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
@@ -191,8 +116,8 @@ export async function rquestLingueeDictionary(
  */
 export function parseLingueeHTML(html: string): RequestTypeResult {
   const rootElement = parse(html);
-  const mainElement = rootElement.querySelector(".isMainTerm");
-  const exactLemmaElement = mainElement?.querySelectorAll(".exact .lemma");
+  const dictionaryElement = rootElement.querySelector("#dictionary");
+  const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma");
   const lingueeWordItems = exactLemmaElement?.map((lemma) => {
     const word = lemma?.querySelector(".dictLink");
     const tag_wordtype = lemma?.querySelector(".tag_wordtype");
@@ -234,7 +159,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   });
 
   // parse examples
-  const exampleLemmaElement = mainElement?.querySelectorAll(".example_lines .lemma");
+  const exampleLemmaElement = dictionaryElement?.querySelectorAll(".example_lines .lemma");
   const examples = exampleLemmaElement?.map((lemma) => {
     // console.log(`example: ${lemma?.textContent}`);
     const example = lemma?.querySelector(".line .dictLink");
@@ -324,10 +249,8 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
 
     if (wordItems) {
       for (const wordItem of wordItems) {
-        const sectionTitle = `${queryWordInfo.word}: ${wordItem.placeholder ?? ""} ${wordItem.partOfSpeech} `;
-
+        const sectionTitle = `${queryWordInfo.word} ${wordItem.placeholder ?? ""} ${wordItem.partOfSpeech ?? ""} `;
         const displayItems = [];
-
         if (wordItem.explanationItems) {
           for (const explanationItem of wordItem.explanationItems) {
             if (explanationItem.isFeatured) {
@@ -383,7 +306,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
     }
 
     if (examples) {
-      const sectionTitle = `Examples`;
+      const sectionTitle = `Examples:`;
       const displayItems = examples.map((example) => {
         const title = `${example.example}`;
         const subtitle = `—  ${example.translation}`;
