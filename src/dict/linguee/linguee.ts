@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 18:10
+ * @lastEditTime: 2022-07-27 18:43
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -26,7 +26,6 @@ import {
   LingueeExample,
   LingueeWordExplanation,
   LingueeWordItem,
-  WordFrequencey,
 } from "./types";
 
 const htmlPath = `${environment.supportPath}/linguee.html`;
@@ -131,7 +130,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     // console.log(`---> less common: ${translation_group?.textContent}`);
 
     const notascommon = translation_group?.querySelector(".line .notascommon");
-    const frequency = notascommon ? WordFrequencey.LessCommon : WordFrequencey.Common;
+    const frequency = notascommon ? LingueeDisplayType.LessCommon : LingueeDisplayType.Common;
     const lessCommonTranslations = translation_group?.querySelectorAll(".translation") as unknown as HTMLElement[];
     const lessCommonExplanations = iterateTranslationGroup(lessCommonTranslations, false, frequency);
 
@@ -204,7 +203,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
 function iterateTranslationGroup(
   translations: HTMLElement[] | undefined,
   isFeatured = false,
-  designatedFrequencey?: WordFrequencey
+  designatedFrequencey?: LingueeDisplayType
 ) {
   const explanationItems = [];
   if (translations) {
@@ -216,7 +215,9 @@ function iterateTranslationGroup(
 
       if (explanationElement) {
         const frequencey =
-          tag_c?.textContent === `(${WordFrequencey.OftenUsed})` ? WordFrequencey.OftenUsed : WordFrequencey.Common;
+          tag_c?.textContent === `(${LingueeDisplayType.OftenUsed})`
+            ? LingueeDisplayType.OftenUsed
+            : LingueeDisplayType.Common;
         const explanation: LingueeWordExplanation = {
           explanation: explanationElement?.textContent ?? "",
           partOfSpeech: tag_type?.textContent ?? "",
@@ -252,7 +253,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             // first, iterate featured explanation
             if (explanationItem.isFeatured) {
               const title = `${explanationItem.explanation}`;
-              const isCommon = explanationItem.frequency === WordFrequencey.Common;
+              const isCommon = explanationItem.frequency === LingueeDisplayType.Common;
               const subtitle = `${explanationItem.partOfSpeech}  ${isCommon ? "" : `(${explanationItem.frequency})`}`;
               const copyText = `${title} ${subtitle}`;
               const displayType = isCommon ? LingueeDisplayType.Common : LingueeDisplayType.OftenUsed;
@@ -264,6 +265,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
                 copyText: copyText,
                 queryWordInfo: queryWordInfo,
                 displayType: displayType,
+                tooltip: displayType,
               };
               displayItems.push(displayItem);
             }
@@ -283,7 +285,9 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             const copyText = `${wordItem.partOfSpeech} ${unfeaturedExplanations.join(" ")}`;
             const lastExplanationItem = wordItem.explanationItems.at(-1);
             const lessCommonNote =
-              lastExplanationItem?.frequency === WordFrequencey.LessCommon ? `(${WordFrequencey.LessCommon})` : "";
+              lastExplanationItem?.frequency === LingueeDisplayType.LessCommon
+                ? `(${LingueeDisplayType.LessCommon})`
+                : "";
             const displayType =
               lessCommonNote.length > 0 ? LingueeDisplayType.LessCommon : LingueeDisplayType.Unfeatured;
             const unFeaturedDisplayItem: ListDisplayItem = {
@@ -293,6 +297,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               copyText: copyText,
               queryWordInfo: queryWordInfo,
               displayType: displayType,
+              tooltip: displayType,
             };
             displayItems.push(unFeaturedDisplayItem);
           }
@@ -314,13 +319,15 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         const title = `${example.example}`;
         const subtitle = `—  ${example.translation}`;
         const copyText = `${title} ${subtitle}`;
+        const displayType = LingueeDisplayType.Example;
         const displayItem: ListDisplayItem = {
           key: copyText,
           title: title,
           subtitle: subtitle,
           copyText: copyText,
           queryWordInfo: queryWordInfo,
-          displayType: LingueeDisplayType.Example,
+          displayType: displayType,
+          tooltip: displayType,
         };
         return displayItem;
       });

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 16:35
+ * @lastEditTime: 2022-07-27 19:16
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -189,6 +189,7 @@ function playSoundIcon(lightTintColor: string) {
  * Return the corresponding ImageLike based on the ListDisplayType
  */
 export function getListItemIcon(listDisplayType: ListDisplayType | undefined): Image.ImageLike {
+  console.log(`---> list type: ${listDisplayType}, typeof: ${typeof listDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (listDisplayType) {
     case SectionType.Translation: {
@@ -227,10 +228,12 @@ export function getListItemIcon(listDisplayType: ListDisplayType | undefined): I
     itemIcon = getQueryTypeIcon(listDisplayType as TranslationType);
   }
 
-  // if listDisplayType is in linguage list, use the language icon
-  if (listDisplayType in LingueeDisplayType) {
+  // LingueeDisplayType is string enum, so we need to check if it is in the enum
+  if (Object.values(LingueeDisplayType).includes(listDisplayType as LingueeDisplayType)) {
     itemIcon = getLingueeItemIcon(listDisplayType as LingueeDisplayType);
   }
+
+  console.log(`---> end list type: ${listDisplayType}`);
 
   return itemIcon;
 }
@@ -239,6 +242,7 @@ export function getListItemIcon(listDisplayType: ListDisplayType | undefined): I
  * Return the corresponding ImageLike based on LingueeDisplayType
  */
 export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Image.ImageLike {
+  console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
     case LingueeDisplayType.OftenUsed: {
