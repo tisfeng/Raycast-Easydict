@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 19:16
+ * @lastEditTime: 2022-07-28 14:14
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -263,6 +263,10 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
     }
     case LingueeDisplayType.Example: {
       dotColor = "teal";
+      break;
+    }
+    case LingueeDisplayType.RelatedWord: {
+      dotColor = Color.SecondaryText;
       break;
     }
   }

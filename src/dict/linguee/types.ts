@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 18:41
+ * @lastEditTime: 2022-07-28 14:11
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ export interface LingueeDictionaryResult {
   queryWordInfo: QueryWordInfo;
   wordItems?: LingueeWordItem[];
   examples?: LingueeExample[];
+  relatedWords?: LingueeWordItem[];
 }
 
 export interface LingueeWordItem {
@@ -42,4 +43,5 @@ export enum LingueeDisplayType {
 
   Unfeatured = "unfeatured",
   Example = "example",
+  RelatedWord = "see also",
 }
