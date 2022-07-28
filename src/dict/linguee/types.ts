@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-28 17:22
+ * @lastEditTime: 2022-07-28 23:12
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,17 +19,18 @@ export interface LingueeDictionaryResult {
 
 export interface LingueeWordItem {
   word: string;
-  partOfSpeech?: string;
+  featured: boolean;
+  pos?: string; // part of speech, e.g. noun, verb, adj, etc.
   placeholder?: string;
   audioUrl?: string; // may have value when search English word, there are US and UK audio, we use US audio
   explanationItems?: LingueeWordExplanation[];
 }
 
 export interface LingueeWordExplanation {
+  featured?: boolean;
   explanation: string;
-  partOfSpeech: string;
-  frequency?: LingueeDisplayType;
-  isFeatured?: boolean;
+  pos: string;
+  frequency?: LingueeDisplayType; // OfenUsed, Common, LessCommon
   audioUrl?: string; // may have value when search Chinese word
 }
 
