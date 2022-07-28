@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-28 14:33
+ * @lastEditTime: 2022-07-28 22:58
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -118,7 +118,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const lingueeWordItems = getWordItemList(exactLemmaElement);
 
   /**
-   * Try search examples and see also words
+   * try search examples, and related words if have.
    *
    * Example: <div class='example_lines inexact'> <h3>Examples:</h3>
    * See also: <div class='inexact'> <h3>See also:</h3>
@@ -142,9 +142,9 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   // 3. get related words
   const relatedWords = getWordItemList(seeAlsoWordsElement);
 
-  // 4. get word infos
+  // 4. get word infos.   <script type='text/javascript'>
   const queryWord = rootElement?.querySelector(".l_deepl_ad__querytext");
-  const textJavascript = rootElement?.querySelectorAll("script[type='text/javascript']")[0];
+  const textJavascript = rootElement?.querySelectorAll("script[type=text/javascript]")[0];
   const sourceLanguage = textJavascript?.textContent?.split("sourceLang:")[1]?.split(",")[0];
   const targetLanguage = textJavascript?.textContent?.split("targetLang:")[1]?.split(",")[0];
   console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
@@ -168,7 +168,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
 }
 
 /**
- * Get word item list.
+ * Get word item list.  > .exact .lemma
  */
 export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordItem[] {
   console.log(`---> getWordItemList: ${lemma?.length}`);
@@ -177,8 +177,13 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
     for (const element of lemma) {
       // 1. get top word and part of speech
       const word = element?.querySelector(".dictLink");
-      const tag_wordtype = element?.querySelector(".tag_wordtype");
+      const en_audio = word?.innerHTML;
+      console.log(`---> word: ${en_audio}, ${word}`);
       const placeholder = element?.querySelector(".tag_lemma_context") ?? element?.querySelector(".placeholder");
+      const tag_wordtype = element?.querySelector(".tag_wordtype");
+      const audio = element.querySelector("h2[class=line] .audio")?.getAttribute("id");
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
+      console.warn(`---> audioUrl: ${audio}`);
       console.log(`--> ${word?.textContent} ${placeholder?.textContent ?? ""} : ${tag_wordtype?.textContent}`);
 
       const translations = element?.querySelectorAll(".featured");
@@ -209,6 +214,7 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
         partOfSpeech: tag_wordtype?.textContent ?? "",
         placeholder: placeholder?.textContent ?? "",
         explanationItems: allExplanations,
+        audioUrl: audioUrl,
       };
       console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
       wordItemList.push(lingueeWordItem);
@@ -218,7 +224,7 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
 }
 
 /**
- * Get word explanation list.
+ * Get word explanation list. | .exact .lemma .featured
  */
 function getWordExplanationList(
   translations: HTMLElement[] | undefined,
@@ -232,7 +238,8 @@ function getWordExplanationList(
       const explanationElement = translation?.querySelector(".dictLink");
       const tag_type = translation?.querySelector(".tag_type");
       const tag_c = translation?.querySelector(".tag_c");
-
+      const audio = translation?.querySelector(".audio")?.getAttribute("id");
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
       if (explanationElement) {
         const frequencey =
           tag_c?.textContent === `(${LingueeDisplayType.OftenUsed})`
@@ -243,6 +250,7 @@ function getWordExplanationList(
           partOfSpeech: tag_type?.textContent ?? "",
           frequency: designatedFrequencey ?? frequencey,
           isFeatured: isFeatured,
+          audioUrl: audioUrl,
         };
         // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
         explanationItems.push(explanation);

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-28 14:11
+ * @lastEditTime: 2022-07-28 17:22
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,6 +21,7 @@ export interface LingueeWordItem {
   word: string;
   partOfSpeech?: string;
   placeholder?: string;
+  audioUrl?: string; // may have value when search English word, there are US and UK audio, we use US audio
   explanationItems?: LingueeWordExplanation[];
 }
 
@@ -29,6 +30,7 @@ export interface LingueeWordExplanation {
   partOfSpeech: string;
   frequency?: LingueeDisplayType;
   isFeatured?: boolean;
+  audioUrl?: string; // may have value when search Chinese word
 }
 
 export interface LingueeExample {
