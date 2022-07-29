@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 16:39
+ * @lastEditTime: 2022-07-29 17:27
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import { parse } from "node-html-parser";
 import util from "util";
 import { RequestTypeResult } from "../../types";
-import { getLanguageItemFromYoudaoId } from "../../utils";
+import { getLanguageItemFromDeepLSourceId, getLanguageItemFromYoudaoId } from "../../utils";
 import { DicionaryType, ListDisplayItem, QueryWordInfo, RequestErrorInfo, SectionDisplayResult } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import {
@@ -143,18 +143,17 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const exampleItems = getExampleList(examplesElement);
   // 3. get related words
   const relatedWords = getWordItemList(relatedWordsElement);
-
-  // 4. get word infos.   <script type='text/javascript'>
-  const queryWord = rootElement?.querySelector(".l_deepl_ad__querytext");
-  const textJavascript = rootElement?.querySelectorAll("script[type=text/javascript]")[0];
-  const sourceLanguage = textJavascript?.textContent?.split("sourceLang:")[1]?.split(",")[0];
-  const targetLanguage = textJavascript?.textContent?.split("targetLang:")[1]?.split(",")[0];
+  // 4. get word infos.   <script type='text/javascript'> sourceLang:'EN',
+  const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
+  const sourceLanguage = getYoudaoLanguageId("sourceLang", rootElement as unknown as HTMLElement);
+  const targetLanguage = getYoudaoLanguageId("targetLang", rootElement as unknown as HTMLElement);
   console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
 
   const queryWordInfo: QueryWordInfo = {
     word: queryWord?.textContent ?? "",
-    fromLanguage: sourceLanguage,
-    toLanguage: targetLanguage,
+    fromLanguage: sourceLanguage ?? "",
+    toLanguage: targetLanguage ?? "",
+    isWord: lingueeWordItems.length > 0,
   };
   const lingueeResult: LingueeDictionaryResult = {
     queryWordInfo: queryWordInfo,
@@ -167,6 +166,22 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     result: lingueeResult,
   };
   return lingueeTypeResult;
+}
+
+/**
+ * Get Youdao language id from html.
+ *
+ * <script type='text/javascript'> sourceLang:'EN'
+ * return EN
+ */
+function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string | undefined {
+  const textJavascript = rootElement.querySelector("script[type=text/javascript]");
+  const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
+  if (sourceLang) {
+    // remove "'"
+    const sourceLanguage = sourceLang.replace(/'/g, "");
+    return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLanguageId;
+  }
 }
 
 /**

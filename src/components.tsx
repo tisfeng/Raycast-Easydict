@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 16:33
+ * @lastEditTime: 2022-07-29 17:31
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -328,6 +328,7 @@ export function getWordAccessories(
  * Return WebTranslationItem according to the query type and info
  */
 function getWebTranslationItem(queryType: QueryType, queryTextInfo: QueryWordInfo): WebTranslationItem | undefined {
+  // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(queryTextInfo, null, 2)}`);
   let webUrl;
   let title = `${queryType} Translate`;
   if (queryType in DicionaryType) {

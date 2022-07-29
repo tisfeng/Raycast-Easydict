@@ -82,7 +82,7 @@ export type YoudaoDictionaryResult = YoudaoTranslateResult;
 
 export interface QueryWordInfo {
   word: string;
-  fromLanguage: string;
+  fromLanguage: string; // ! must be Youdao language id
   toLanguage: string;
   isWord?: boolean; // * NOTE: youdao reqeust must have the return value.
   phonetic?: string;
