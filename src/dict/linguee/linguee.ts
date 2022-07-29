@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 21:28
+ * @lastEditTime: 2022-07-29 21:47
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -115,7 +115,7 @@ export async function rquestLingueeDictionary(
 export function parseLingueeHTML(html: string): RequestTypeResult {
   const rootElement = parse(html);
   const dictionaryElement = rootElement.querySelector("#dictionary");
-  const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma") as unknown as HTMLElement[];
+  const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma");
 
   // 1. get word infos.
   const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
@@ -124,7 +124,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
 
   // 2. get the exact word list
-  const lingueeWordItems = getWordItemList(exactLemmaElement);
+  const lingueeWordItems = getWordItemList(exactLemmaElement as unknown as HTMLElement[]);
 
   /**
    * try search examples, and related words if have.
@@ -133,24 +133,27 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
    * See also: <div class='inexact'> <h3>See also:</h3>
    */
   const inexactElement = dictionaryElement?.querySelectorAll(".inexact");
-  let examplesElement, relatedWordsElement: HTMLElement[] | undefined;
-  for (const element of inexactElement as unknown as HTMLElement[]) {
-    const h3TextContent = element?.querySelector("h3")?.textContent;
-    const inexactLemma = element.querySelectorAll(".lemma") as unknown as HTMLElement[];
-    if (h3TextContent === "Examples:") {
-      examplesElement = inexactLemma;
-      continue;
-    }
-    if (h3TextContent === "See also:") {
-      relatedWordsElement = inexactLemma;
-      continue;
+  let examplesElement, relatedWordsElement;
+  if (inexactElement) {
+    for (const element of inexactElement) {
+      const h3TextContent = element?.querySelector("h3")?.textContent;
+      const inexactLemma = element.querySelectorAll(".lemma");
+      if (h3TextContent === "Examples:") {
+        examplesElement = inexactLemma;
+        continue;
+      }
+      if (h3TextContent === "See also:") {
+        relatedWordsElement = inexactLemma;
+        continue;
+      }
     }
   }
+
   // 3. get examples
-  const exampleItems = getExampleList(examplesElement);
+  const exampleItems = getExampleList(examplesElement as unknown as HTMLElement[]);
 
   // 4. get related words
-  const relatedWords = getWordItemList(relatedWordsElement);
+  const relatedWords = getWordItemList(relatedWordsElement as unknown as HTMLElement[]);
 
   // 5. get wikipedia
   const wikipediaElement = dictionaryElement?.querySelectorAll(".wikipedia .abstract");
@@ -177,55 +180,14 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
 }
 
 /**
- * Get LingueeWikipedia from wikipedia HTMLElement. | .wikipedia .abstract
- */
-export function getWikipedia(abstractElement: HTMLElement[] | undefined) {
-  const wikipedias: LingueeWikipedia[] = [];
-  if (abstractElement) {
-    for (const element of abstractElement as unknown as HTMLElement[]) {
-      // console.log(`---> element: ${element}`);
-      const h2Title = element.querySelector("h2");
-      const content = h2Title?.nextSibling;
-      const sourceUrl = element.querySelector("a")?.getAttribute("href");
-      const source = element.querySelector(".source_url_spacer");
-      const wikipedia: LingueeWikipedia = {
-        title: h2Title?.textContent ?? "",
-        explanation: content?.textContent?.trim() ?? "",
-        source: source?.textContent ?? "",
-        sourceUrl: sourceUrl ?? "",
-      };
-      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 2)}`);
-      wikipedias.push(wikipedia);
-    }
-  }
-  return wikipedias;
-}
-
-/**
- * Get Youdao language id from html.
- *
- * <script type='text/javascript'> sourceLang:'EN'
- * return EN
- */
-function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string | undefined {
-  const textJavascript = rootElement.querySelector("script[type=text/javascript]");
-  const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
-  if (sourceLang) {
-    // remove "'"
-    const sourceLanguage = sourceLang.replace(/'/g, "");
-    return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLanguageId;
-  }
-}
-
-/**
  * Get word item list.  > .exact .lemma
  */
 export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordItem[] {
+  console.log(`---> getWordItemList`);
   const wordItemList: LingueeWordItem[] = [];
-  if (lemma) {
+  if (lemma?.length) {
     for (const element of lemma) {
       // console.log(`---> lemma: ${element}`);
-      // console.log(`---> lemma attributes: ${JSON.stringify(element.attributes)}`);
 
       // 1. get top word and part of speech
       const word = element?.querySelector(".dictLink");
@@ -246,11 +208,11 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
       });
 
       // 3. get less common explanation
-      const translation_group = element?.querySelector(".lemma_content");
+      const lemmaContent = element?.querySelector(".lemma_content");
       // console.log(`---> less common: ${translation_group?.textContent}`);
-      const notascommon = translation_group?.querySelector(".line .notascommon");
+      const notascommon = lemmaContent?.querySelector(".line .notascommon");
       const frequency = notascommon ? LingueeDisplayType.LessCommon : LingueeDisplayType.Common;
-      const lessCommonTranslations = translation_group?.querySelectorAll(".translation") as unknown as HTMLElement[];
+      const lessCommonTranslations = lemmaContent?.querySelectorAll(".translation") as unknown as HTMLElement[];
       const lessCommonExplanations = getWordExplanationList(lessCommonTranslations, false, frequency);
 
       let allExplanations = explanations;
@@ -283,8 +245,9 @@ function getWordExplanationList(
   isFeatured = false,
   designatedFrequencey?: LingueeDisplayType
 ) {
+  console.log(`---> getWordExplanationList`);
   const explanationItems = [];
-  if (translations) {
+  if (translations?.length) {
     for (const translation of translations) {
       // console.log(`---> translation text: ${translation?.textContent}`);
       const explanationElement = translation?.querySelector(".dictLink");
@@ -348,8 +311,9 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
  * Get example list. | .inexact  Examples:  .lemma
  */
 function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
+  console.log(`---> getExampleList`);
   const exampleItems = [];
-  if (exmapleLemma) {
+  if (exmapleLemma?.length) {
     for (const inexact of exmapleLemma) {
       const exampleElement = inexact.querySelector(".line .dictLink");
       // * may have multiple translations.
@@ -370,6 +334,48 @@ function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
     }
   }
   return exampleItems;
+}
+
+/**
+ * Get LingueeWikipedia from wikipedia HTMLElement. | .wikipedia .abstract
+ */
+export function getWikipedia(abstractElement: HTMLElement[] | undefined) {
+  console.log(`---> getWikipedia`);
+  const wikipedias: LingueeWikipedia[] = [];
+  if (abstractElement?.length) {
+    for (const element of abstractElement as unknown as HTMLElement[]) {
+      // console.log(`---> element: ${element}`);
+      const h2Title = element.querySelector("h2");
+      const content = h2Title?.nextSibling;
+      const sourceUrl = element.querySelector("a")?.getAttribute("href");
+      const source = element.querySelector(".source_url_spacer");
+      const wikipedia: LingueeWikipedia = {
+        title: h2Title?.textContent ?? "",
+        explanation: content?.textContent?.trim() ?? "",
+        source: source?.textContent ?? "",
+        sourceUrl: sourceUrl ?? "",
+      };
+      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 2)}`);
+      wikipedias.push(wikipedia);
+    }
+  }
+  return wikipedias;
+}
+
+/**
+ * Get Youdao language id from html.
+ *
+ * <script type='text/javascript'> sourceLang:'EN'
+ * return EN
+ */
+function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string | undefined {
+  const textJavascript = rootElement.querySelector("script[type=text/javascript]");
+  const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
+  if (sourceLang) {
+    // remove "'"
+    const sourceLanguage = sourceLang.replace(/'/g, "");
+    return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLanguageId;
+  }
 }
 
 /**
