@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 15:57
+ * @lastEditTime: 2022-07-29 17:34
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -197,6 +197,7 @@ export default function () {
       word: searchText,
       fromLanguage: fromYoudaoLanguageId,
       toLanguage: targetLanguageId,
+      isWord: false,
     };
     queryTextWithTextInfo(queryTextInfo);
   }
@@ -469,6 +470,7 @@ export default function () {
         word: searchText,
         fromLanguage: currentFromLanguageItem.youdaoLanguageId,
         toLanguage: selectedLanguageItem.youdaoLanguageId,
+        isWord: false,
       });
     };
 

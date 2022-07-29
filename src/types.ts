@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 15:59
+ * @lastEditTime: 2022-07-29 17:33
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -82,9 +82,9 @@ export type YoudaoDictionaryResult = YoudaoTranslateResult;
 
 export interface QueryWordInfo {
   word: string;
-  fromLanguage: string; // ! must be Youdao language id
+  fromLanguage: string; // ! must be Youdao language id.
   toLanguage: string;
-  isWord?: boolean; // * NOTE: youdao reqeust must have the return value.
+  isWord: boolean; // ! show web translation need this value.
   phonetic?: string;
   speech?: string;
   examTypes?: string[];

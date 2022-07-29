@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 17:27
+ * @lastEditTime: 2022-07-29 17:38
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -327,7 +327,7 @@ function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
           translations.push(element.textContent);
         }
       });
-      console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
+      // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
 
       const lingueeExample: LingueeExample = {
         example: exampleElement?.textContent ?? "",
