@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 21:47
+ * @lastEditTime: 2022-07-29 22:45
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -310,14 +310,15 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
 /**
  * Get example list. | .inexact  Examples:  .lemma
  */
-function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
+function getExampleList(exampleLemma: HTMLElement[] | undefined) {
   console.log(`---> getExampleList`);
   const exampleItems = [];
-  if (exmapleLemma?.length) {
-    for (const inexact of exmapleLemma) {
-      const exampleElement = inexact.querySelector(".line .dictLink");
+  if (exampleLemma?.length) {
+    for (const lemma of exampleLemma) {
+      const exampleElement = lemma.querySelector(".line .dictLink");
+      const tagType = lemma.querySelector(".line .tag_type");
       // * may have multiple translations.
-      const translationElement = inexact.querySelectorAll(".lemma_content .dictLink");
+      const translationElement = lemma.querySelectorAll(".lemma_content .dictLink");
       const translations: string[] = [];
       translationElement.forEach((element) => {
         if (element.textContent) {
@@ -325,9 +326,9 @@ function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
         }
       });
       // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
-
       const lingueeExample: LingueeExample = {
         example: exampleElement?.textContent ?? "",
+        pos: tagType?.textContent ?? "",
         translation: translations.join(";  "),
       };
       exampleItems.push(lingueeExample);
@@ -465,8 +466,9 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       const sectionTitle = `Examples:`;
       const displayItems = examples.map((example) => {
         const displayType = LingueeDisplayType.Example;
+        const pos = example.pos ? `${example.pos}` : "";
         const title = `${example.example}`;
-        const subtitle = `—  ${example.translation}`;
+        const subtitle = `${pos}.  —  ${example.translation}`;
         const copyText = `${title} ${subtitle}`;
         const displayItem: ListDisplayItem = {
           key: copyText,

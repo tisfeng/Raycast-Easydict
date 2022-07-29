@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 21:27
+ * @lastEditTime: 2022-07-29 22:48
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,6 +38,7 @@ export interface LingueeWordExplanation {
 export interface LingueeExample {
   example?: string;
   translation?: string;
+  pos?: string;
 }
 
 export interface LingueeWikipedia {
