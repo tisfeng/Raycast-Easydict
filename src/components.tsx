@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 17:31
+ * @lastEditTime: 2022-07-29 17:43
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -259,7 +259,7 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
       break;
     }
     case LingueeDisplayType.Unfeatured: {
-      dotColor = "#A066D3";
+      dotColor = "#CA8EC2"; // #A066D3, #B766AD
       break;
     }
     case LingueeDisplayType.Example: {
