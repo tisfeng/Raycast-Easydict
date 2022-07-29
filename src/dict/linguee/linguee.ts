@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 00:28
+ * @lastEditTime: 2022-07-29 12:55
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -108,6 +108,8 @@ export async function rquestLingueeDictionary(
 
 /**
  * Parse Linguee html.
+ *
+ * Todo: use cheerio to parse html.
  */
 export function parseLingueeHTML(html: string): RequestTypeResult {
   const rootElement = parse(html);
@@ -264,17 +266,26 @@ function getWordExplanationList(
 }
 
 /**
- * Get example list.
+ * Get example list. | .inexact  Examples:  .lemma
  */
 function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
   const exampleItems = [];
   if (exmapleLemma) {
     for (const inexact of exmapleLemma) {
-      const exampleElement = inexact?.querySelector(".line .dictLink");
-      const translationElement = inexact?.querySelector(".tag_trans .dictLink");
+      const exampleElement = inexact.querySelector(".line .dictLink");
+      // * may have multiple translations.
+      const translationElement = inexact.querySelectorAll(".lemma_content .dictLink");
+      const translations: string[] = [];
+      translationElement.forEach((element) => {
+        if (element.textContent) {
+          translations.push(element.textContent);
+        }
+      });
+      console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
+
       const lingueeExample: LingueeExample = {
         example: exampleElement?.textContent ?? "",
-        translation: translationElement?.textContent ?? "",
+        translation: translations.join(";  "),
       };
       exampleItems.push(lingueeExample);
     }
@@ -296,7 +307,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         if (palaceholder) {
           partOfSpeech = wordItem.pos ? `  ${wordItem.pos}` : "";
         }
-        const sectionTitle = `${queryWordInfo.word}${palaceholder}${partOfSpeech}`;
+        const sectionTitle = `${wordItem.word}${palaceholder}${partOfSpeech}`;
         const displayItems = [];
         if (wordItem.explanationItems) {
           for (const explanationItem of wordItem.explanationItems) {
