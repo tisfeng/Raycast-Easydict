@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 22:48
+ * @lastEditTime: 2022-07-30 00:11
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -56,6 +56,6 @@ export enum LingueeDisplayType {
 
   Unfeatured = "unfeatured",
   Example = "example",
-  RelatedWord = "see also", // eg. 优雅
+  RelatedWord = "related word", // eg. 优雅, 美丽
   Wikipedia = "wikipedia", // eg. sql
 }

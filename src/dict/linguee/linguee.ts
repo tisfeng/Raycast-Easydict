@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 22:45
+ * @lastEditTime: 2022-07-30 00:08
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -193,11 +193,13 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
       const word = element?.querySelector(".dictLink");
       const placeholder = element?.querySelector(".tag_lemma_context") ?? element?.querySelector(".placeholder");
       const tag_wordtype = element?.querySelector(".tag_wordtype");
+      const tag_type = element?.querySelector(".tag_type"); // related word pos
+      const pos = tag_wordtype ?? tag_type;
       const featured = element.getAttribute("class")?.includes("featured") ?? false;
       // * note: audio is not always exist.
       const audio = element.querySelector("h2[class=line] .audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
-      console.log(`--> ${word?.textContent} ${placeholder?.textContent ?? ""} : ${tag_wordtype?.textContent}`);
+      console.log(`--> ${word?.textContent} ${placeholder?.textContent ?? ""} : ${pos?.textContent}`);
 
       const translations = element?.querySelectorAll(".featured");
       // 2. get word featured explanation
@@ -225,7 +227,7 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
       const lingueeWordItem: LingueeWordItem = {
         word: word?.textContent ?? "",
         featured: featured,
-        pos: tag_wordtype?.textContent ?? "",
+        pos: pos?.textContent ?? "",
         placeholder: placeholder?.textContent ?? "",
         explanationItems: allExplanations,
         audioUrl: audioUrl,
@@ -245,7 +247,7 @@ function getWordExplanationList(
   isFeatured = false,
   designatedFrequencey?: LingueeDisplayType
 ) {
-  console.log(`---> getWordExplanationList`);
+  console.log(`---> getWordExplanationList, isFeatured: ${isFeatured}`);
   const explanationItems = [];
   if (translations?.length) {
     for (const translation of translations) {
@@ -308,7 +310,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
 }
 
 /**
- * Get example list. | .inexact  Examples:  .lemma
+ * Get example list.  | .inexact  Examples:  .lemma
  */
 function getExampleList(exampleLemma: HTMLElement[] | undefined) {
   console.log(`---> getExampleList`);
@@ -389,12 +391,9 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       lingueeTypeResult.result as LingueeDictionaryResult;
     if (wordItems) {
       for (const wordItem of wordItems) {
-        let partOfSpeech = wordItem.pos ? `.  ${wordItem.pos}` : "";
+        const pos = wordItem.pos ? `.  ${wordItem.pos}` : "";
         const palaceholder = wordItem.placeholder ? ` ${wordItem.placeholder}` : "";
-        if (palaceholder) {
-          partOfSpeech = wordItem.pos ? `  ${wordItem.pos}` : "";
-        }
-        const sectionTitle = `${wordItem.word}${palaceholder}${partOfSpeech}`;
+        const sectionTitle = `${wordItem.word}${palaceholder}${pos}`;
         const displayItems = [];
         if (wordItem.explanationItems) {
           for (const explanationItem of wordItem.explanationItems) {
@@ -481,28 +480,27 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         };
         return displayItem;
       });
-      const displayResult: SectionDisplayResult = {
+      const exampleSection: SectionDisplayResult = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 examples
       };
-      displayResults.push(displayResult);
+      console.log(`---> linguee exampleSection: ${JSON.stringify(exampleSection, null, 2)}`);
+      displayResults.push(exampleSection);
     }
 
     // 4. iterate related words
     if (relatedWords) {
-      const sectionTitle = "See also:";
+      const sectionTitle = "Related words:";
       const displayItems = relatedWords.map((relatedWord) => {
         const displayType = LingueeDisplayType.RelatedWord;
         const title = `${relatedWord.word}`;
-        const relatedWordItems = relatedWord.explanationItems?.map((explanationItem) => {
-          const explanation = `${explanationItem.explanation}`;
-          const partOfSpeech = explanationItem.pos ? `  ${explanationItem.pos}` : "";
-          return `${explanation}${partOfSpeech}`;
-        });
-        const subtitle = relatedWordItems
-          ? relatedWordItems.join("  ·  ")
+        const relatedWordItems = relatedWord.explanationItems?.map((explanationItem) => explanationItem.explanation);
+        const explanations = relatedWordItems
+          ? relatedWordItems.join(";  ")
           : `${relatedWord.placeholder} ${relatedWord.pos}`;
+        const pos = relatedWord.pos ? `${relatedWord.pos}.  ` : "";
+        const subtitle = `${pos}${explanations}`;
         const copyText = `${title} ${subtitle}`;
         const displayItem: ListDisplayItem = {
           key: copyText,

@@ -211,7 +211,7 @@ export default function () {
     const { word: queryText, fromLanguage, toLanguage } = queryTextInfo;
     console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, false)
+    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
       .then((lingueeTypeResult) => {
         // console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
         const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
