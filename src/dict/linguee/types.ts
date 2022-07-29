@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 16:21
+ * @lastEditTime: 2022-07-29 21:27
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,7 @@ export interface LingueeDictionaryResult {
   wordItems?: LingueeWordItem[];
   examples?: LingueeExample[];
   relatedWords?: LingueeWordItem[];
+  wikipedias?: LingueeWikipedia[];
 }
 
 export interface LingueeWordItem {
@@ -29,7 +30,7 @@ export interface LingueeWordItem {
 export interface LingueeWordExplanation {
   featured?: boolean;
   explanation: string;
-  pos: string;
+  pos?: string;
   frequency?: LingueeDisplayType; // AlmostAlways, OfenUsed, Common, LessCommon
   audioUrl?: string; // may have value when search Chinese word
 }
@@ -37,6 +38,13 @@ export interface LingueeWordExplanation {
 export interface LingueeExample {
   example?: string;
   translation?: string;
+}
+
+export interface LingueeWikipedia {
+  title: string;
+  explanation: string;
+  source: string;
+  sourceUrl: string;
 }
 
 export enum LingueeDisplayType {
@@ -47,5 +55,6 @@ export enum LingueeDisplayType {
 
   Unfeatured = "unfeatured",
   Example = "example",
-  RelatedWord = "see also",
+  RelatedWord = "see also", // eg. 优雅
+  Wikipedia = "wikipedia", // eg. sql
 }

@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 17:38
+ * @lastEditTime: 2022-07-29 21:28
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,6 +25,7 @@ import {
   LingueeDictionaryResult,
   LingueeDisplayType,
   LingueeExample,
+  LingueeWikipedia,
   LingueeWordExplanation,
   LingueeWordItem,
 } from "./types";
@@ -116,7 +117,13 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const dictionaryElement = rootElement.querySelector("#dictionary");
   const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma") as unknown as HTMLElement[];
 
-  // 1. get the exact word list
+  // 1. get word infos.
+  const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
+  const sourceLanguage = getYoudaoLanguageId("sourceLang", rootElement as unknown as HTMLElement);
+  const targetLanguage = getYoudaoLanguageId("targetLang", rootElement as unknown as HTMLElement);
+  console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
+
+  // 2. get the exact word list
   const lingueeWordItems = getWordItemList(exactLemmaElement);
 
   /**
@@ -139,15 +146,15 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
       continue;
     }
   }
-  // 2. get examples
+  // 3. get examples
   const exampleItems = getExampleList(examplesElement);
-  // 3. get related words
+
+  // 4. get related words
   const relatedWords = getWordItemList(relatedWordsElement);
-  // 4. get word infos.   <script type='text/javascript'> sourceLang:'EN',
-  const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
-  const sourceLanguage = getYoudaoLanguageId("sourceLang", rootElement as unknown as HTMLElement);
-  const targetLanguage = getYoudaoLanguageId("targetLang", rootElement as unknown as HTMLElement);
-  console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
+
+  // 5. get wikipedia
+  const wikipediaElement = dictionaryElement?.querySelectorAll(".wikipedia .abstract");
+  const wikipedia = getWikipedia(wikipediaElement as unknown as HTMLElement[]);
 
   const queryWordInfo: QueryWordInfo = {
     word: queryWord?.textContent ?? "",
@@ -160,12 +167,38 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     wordItems: lingueeWordItems,
     examples: exampleItems,
     relatedWords: relatedWords,
+    wikipedias: wikipedia,
   };
   const lingueeTypeResult = {
     type: DicionaryType.Linguee,
     result: lingueeResult,
   };
   return lingueeTypeResult;
+}
+
+/**
+ * Get LingueeWikipedia from wikipedia HTMLElement. | .wikipedia .abstract
+ */
+export function getWikipedia(abstractElement: HTMLElement[] | undefined) {
+  const wikipedias: LingueeWikipedia[] = [];
+  if (abstractElement) {
+    for (const element of abstractElement as unknown as HTMLElement[]) {
+      // console.log(`---> element: ${element}`);
+      const h2Title = element.querySelector("h2");
+      const content = h2Title?.nextSibling;
+      const sourceUrl = element.querySelector("a")?.getAttribute("href");
+      const source = element.querySelector(".source_url_spacer");
+      const wikipedia: LingueeWikipedia = {
+        title: h2Title?.textContent ?? "",
+        explanation: content?.textContent?.trim() ?? "",
+        source: source?.textContent ?? "",
+        sourceUrl: sourceUrl ?? "",
+      };
+      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 2)}`);
+      wikipedias.push(wikipedia);
+    }
+  }
+  return wikipedias;
 }
 
 /**
@@ -345,7 +378,8 @@ function getExampleList(exmapleLemma: HTMLElement[] | undefined) {
 export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): SectionDisplayResult[] {
   const displayResults: SectionDisplayResult[] = [];
   if (lingueeTypeResult.result) {
-    const { queryWordInfo, wordItems, examples, relatedWords } = lingueeTypeResult.result as LingueeDictionaryResult;
+    const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } =
+      lingueeTypeResult.result as LingueeDictionaryResult;
     if (wordItems) {
       for (const wordItem of wordItems) {
         let partOfSpeech = wordItem.pos ? `.  ${wordItem.pos}` : "";
@@ -478,6 +512,30 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 related words
+      };
+      displayResults.push(displayResult);
+    }
+
+    // 5. iterate wikipedia
+    if (wikipedias) {
+      const sectionTitle = "Wikipedia:";
+      const displayItems = wikipedias.map((wikipedia) => {
+        const displayType = LingueeDisplayType.Wikipedia;
+        const title = `${wikipedia.title} ${wikipedia.explanation}`;
+        const displayItem: ListDisplayItem = {
+          key: title,
+          title: title,
+          copyText: title,
+          queryWordInfo: queryWordInfo,
+          displayType: displayType,
+          tooltip: displayType,
+        };
+        return displayItem;
+      });
+      const displayResult: SectionDisplayResult = {
+        type: DicionaryType.Linguee,
+        sectionTitle: sectionTitle,
+        items: displayItems,
       };
       displayResults.push(displayResult);
     }
