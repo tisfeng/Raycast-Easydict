@@ -1,8 +1,9 @@
+import { userAgent } from "./../../consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 12:55
+ * @lastEditTime: 2022-07-29 16:39
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,8 +77,7 @@ export async function rquestLingueeDictionary(
     // console.log(`---> env https proxy: ${JSON.stringify(process.env)}`);
     const httpsAgent = new HttpsProxyAgent(proxy);
     const headers: AxiosRequestHeaders = {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+      "User-Agent": userAgent,
       // withCredentials: true,
     };
     const config: AxiosRequestConfig = {
@@ -245,14 +245,15 @@ function getWordExplanationList(
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
       if (explanationElement) {
-        const frequencey =
-          tag_c?.textContent === `(${LingueeDisplayType.OftenUsed})`
-            ? LingueeDisplayType.OftenUsed
-            : LingueeDisplayType.Common;
+        const wordFrequency = getExplanationDisplayType(tag_c?.textContent ?? "");
+        // const wordFrequency =
+        //   tag_c?.textContent === `(${LingueeDisplayType.OftenUsed})`
+        //     ? LingueeDisplayType.OftenUsed
+        //     : LingueeDisplayType.Common;
         const explanation: LingueeWordExplanation = {
           explanation: explanationElement?.textContent ?? "",
           pos: tag_type?.textContent ?? "",
-          frequency: designatedFrequencey ?? frequencey,
+          frequency: designatedFrequencey ?? wordFrequency,
           featured: isFeatured,
           audioUrl: audioUrl,
         };
@@ -261,8 +262,38 @@ function getWordExplanationList(
       }
     }
   }
-
   return explanationItems;
+}
+
+/**
+ * Get linguee display type according to word frequency.
+ * @param wordFrequency: (almost always used)
+ */
+function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
+  // console.log(`---> word frequency: ${wordFrequency}`);
+  // remove parentheses
+  const wordFrequencyWithoutParentheses = wordFrequency.replace(/\(|\)/g, "");
+  let wordDisplayType: LingueeDisplayType;
+  switch (wordFrequencyWithoutParentheses) {
+    case LingueeDisplayType.AlmostAlways: {
+      wordDisplayType = LingueeDisplayType.AlmostAlways;
+      break;
+    }
+    case LingueeDisplayType.OftenUsed: {
+      wordDisplayType = LingueeDisplayType.OftenUsed;
+      break;
+    }
+    case LingueeDisplayType.LessCommon: {
+      wordDisplayType = LingueeDisplayType.LessCommon;
+      break;
+    }
+    default: {
+      wordDisplayType = LingueeDisplayType.Common;
+      break;
+    }
+  }
+  // console.log(`---> word display type: ${wordDisplayType}`);
+  return wordDisplayType;
 }
 
 /**
@@ -317,7 +348,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               const isCommon = explanationItem.frequency === LingueeDisplayType.Common;
               const subtitle = `${explanationItem.pos}  ${isCommon ? "" : `(${explanationItem.frequency})`}`;
               const copyText = `${title} ${subtitle}`;
-              const displayType = isCommon ? LingueeDisplayType.Common : LingueeDisplayType.OftenUsed;
+              const displayType = explanationItem.frequency;
               // console.log(`---> linguee copyText: ${copyText}`);
               const displayItem: ListDisplayItem = {
                 key: copyText,

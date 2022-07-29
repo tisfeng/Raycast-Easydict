@@ -1,3 +1,4 @@
+import { userAgent } from "./consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
@@ -93,6 +94,9 @@ async function googleCrawlerTranslate(
     q: queryText,
   };
 
+  const headers = {
+    "User-Agent": userAgent,
+  };
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
   console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
   const errorInfo: RequestErrorInfo = {
@@ -101,7 +105,7 @@ async function googleCrawlerTranslate(
   };
 
   return axios
-    .get(url)
+    .get(url, { headers })
     .then((res: AxiosResponse) => {
       try {
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 12:52
+ * @lastEditTime: 2022-07-29 16:33
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -245,6 +245,7 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
   // console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
+    case LingueeDisplayType.AlmostAlways:
     case LingueeDisplayType.OftenUsed: {
       dotColor = Color.Red;
       break;
@@ -270,6 +271,7 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
       break;
     }
   }
+  // console.log(`---> dot color: ${dotColor}`);
   const itemIcon: Image.ImageLike = {
     source: Icon.Dot,
     tintColor: dotColor,

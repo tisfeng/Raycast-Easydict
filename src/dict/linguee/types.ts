@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-28 23:12
+ * @lastEditTime: 2022-07-29 16:21
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,7 @@ export interface LingueeWordExplanation {
   featured?: boolean;
   explanation: string;
   pos: string;
-  frequency?: LingueeDisplayType; // OfenUsed, Common, LessCommon
+  frequency?: LingueeDisplayType; // AlmostAlways, OfenUsed, Common, LessCommon
   audioUrl?: string; // may have value when search Chinese word
 }
 
@@ -40,7 +40,8 @@ export interface LingueeExample {
 }
 
 export enum LingueeDisplayType {
-  OftenUsed = "often used", // also featured
+  AlmostAlways = "almost always used", // also featured, eg. true
+  OftenUsed = "often used", // also featured, eg. good
   Common = "common", // also featured
   LessCommon = "less common", // unfeatured
 
