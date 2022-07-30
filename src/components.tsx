@@ -251,7 +251,7 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
       break;
     }
     case LingueeDisplayType.SpecialTag: {
-      dotColor = Color.Orange;
+      dotColor = Color.Green;
       break;
     }
     case LingueeDisplayType.Common: {

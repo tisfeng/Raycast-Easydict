@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 10:45
+ * @lastEditTime: 2022-07-30 11:32
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -254,7 +254,7 @@ function getWordExplanationList(
     for (const translation of translations) {
       // console.log(`---> translation text: ${translation?.textContent}`);
       const explanationElement = translation?.querySelector(".dictLink");
-      const tag_type = translation?.querySelector(".tag_type");
+      const tag_type = translation?.querySelector(".tag_type"); // adj
       const tag_c = translation?.querySelector(".tag_c"); // (often used)
       const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
       const tagText = tag_c?.textContent ?? tag_forms?.textContent ?? "";
@@ -268,7 +268,7 @@ function getWordExplanationList(
           frequency: designatedFrequencey ?? wordFrequency,
           featured: isFeatured,
           audioUrl: audioUrl,
-          tag: tagText,
+          tag: tagText.trim(),
         };
         // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
         explanationItems.push(explanation);
@@ -283,9 +283,9 @@ function getWordExplanationList(
  * @param wordFrequency: (almost always used)
  */
 function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
-  // console.log(`---> word frequency: ${wordFrequency}`);
+  console.log(`---> word frequency: ${wordFrequency}`);
   // remove parentheses
-  const wordFrequencyWithoutParentheses = wordFrequency.replace(/\(|\)/g, "");
+  const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "");
   let wordDisplayType: LingueeDisplayType;
   switch (wordFrequencyWithoutParentheses) {
     case LingueeDisplayType.AlmostAlways: {
@@ -301,7 +301,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
       break;
     }
     default: {
-      if (wordFrequency.length) {
+      if (wordFrequencyWithoutParentheses.length) {
         wordDisplayType = LingueeDisplayType.SpecialTag;
         break;
       }
@@ -309,7 +309,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
       break;
     }
   }
-  // console.log(`---> word display type: ${wordDisplayType}`);
+  console.log(`---> word display type: ${wordDisplayType}`);
   return wordDisplayType;
 }
 
@@ -407,12 +407,12 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               const isSpecialTag = explanationItem.frequency === LingueeDisplayType.SpecialTag;
               const isCommon = explanationItem.frequency === LingueeDisplayType.Common;
               const tagText = isSpecialTag
-                ? ` ${explanationItem.tag})`
+                ? `${explanationItem.tag})`
                 : isCommon
                 ? ""
                 : `(${explanationItem.frequency})`;
-              const pos = explanationItem.pos ? `${explanationItem.pos}.` : "";
-              const subtitle = `${pos} ${tagText}`;
+              const pos = explanationItem.pos ? `${explanationItem.pos}.  ` : "";
+              const subtitle = `${pos}${tagText}`;
               const copyText = `${title} ${subtitle}`;
               const displayType = explanationItem.frequency;
               // console.log(`---> linguee copyText: ${copyText}`);
@@ -450,7 +450,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               lessCommonNote.length > 0 ? LingueeDisplayType.LessCommon : LingueeDisplayType.Unfeatured;
             const unFeaturedDisplayItem: ListDisplayItem = {
               key: copyText,
-              title: `${lastExplanationItem?.pos}`,
+              title: `${lastExplanationItem?.pos}.`,
               subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
               copyText: copyText,
               queryWordInfo: queryWordInfo,
@@ -559,6 +559,17 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
   }
 
   return displayResults;
+}
+
+/**
+ * Get tag text according frequency
+ */
+function getTagText(frequency: LingueeDisplayType, specialTag: string): string {
+  const isSpecialTag = frequency === LingueeDisplayType.SpecialTag;
+  const isCommon = frequency === LingueeDisplayType.Common;
+  const tagText = isSpecialTag ? `${specialTag})` : isCommon ? "" : `(${frequency})`;
+
+  return tagText;
 }
 
 /**
@@ -719,21 +730,3 @@ export function rquestLingueeWord2() {
       console.log(err);
     });
 }
-
-/**
- <ul id="fruits">
-  <li class="apple">Apple</li>
-  <li class="orange">Orange</li>
-  <li class="pear">Pear</li>
-</ul>
-
-
-$('.apple', '#fruits').text()
-//=> Apple
-
-$('ul .pear').attr('class')
-//=> pear
-
-$('li[class=orange]').html()
-//=> Orange
-*/
