@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 11:32
+ * @lastEditTime: 2022-07-30 17:36
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -97,6 +97,7 @@ export async function rquestLingueeDictionary(
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
+        // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
         console.error(`request linguee error: ${error}`);
         const errorInfo: RequestErrorInfo = {
           type: DicionaryType.Linguee,
@@ -191,16 +192,40 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
       // console.log(`---> lemma: ${element}`);
 
       // 1. get top word and part of speech
-      const word = element?.querySelector(".dictLink");
-      const placeholder = element?.querySelector(".tag_lemma_context") ?? element?.querySelector(".placeholder");
+      const placeholder = element?.querySelector(".dictLink .placeholder");
+      let placeholderText = "";
+      if (placeholder) {
+        placeholderText = placeholder.textContent ?? "";
+        console.log(`---> placeholder: ${placeholderText}`);
+        placeholder.remove(); // * .dictLink contains .placeholder
+      }
+
+      // * dictLink maybe more than one, "good at"
+      const dictLinks = element?.querySelectorAll(".lemma_desc .dictLink");
+      let words = "";
+      if (dictLinks?.length) {
+        const wordArray: string[] = [];
+        dictLinks.forEach((dictLink) => {
+          const wordText = dictLink?.textContent ?? "";
+          wordArray.push(wordText);
+        });
+        words = wordArray.join(" ");
+      }
+
+      const tag_lemma = element?.querySelector(".tag_lemma");
+      const tag_lemma_context = element?.querySelector(".tag_lemma_context");
+      if (tag_lemma_context) {
+        placeholderText = tag_lemma_context.textContent ?? "";
+        console.log(`---> tag_lemma_context placeholder: ${placeholderText}`);
+      }
       const tag_wordtype = element?.querySelector(".tag_wordtype");
       const tag_type = element?.querySelector(".tag_type"); // related word pos
       const pos = tag_wordtype ?? tag_type;
       const featured = element.getAttribute("class")?.includes("featured") ?? false;
       // * note: audio is not always exist.
       const audio = element.querySelector("h2[class=line] .audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
-      console.log(`--> ${word?.textContent} ${placeholder?.textContent ?? ""} : ${pos?.textContent}`);
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
+      console.log(`--> ${words} ${placeholderText} : ${pos?.textContent}`);
 
       const translations = element?.querySelectorAll(".featured");
       // 2. get word featured explanation
@@ -226,10 +251,11 @@ export function getWordItemList(lemma: HTMLElement[] | undefined): LingueeWordIt
       }
 
       const lingueeWordItem: LingueeWordItem = {
-        word: word?.textContent ?? "",
+        word: words,
+        title: tag_lemma?.textContent ?? "",
         featured: featured,
         pos: pos?.textContent ?? "",
-        placeholder: placeholder?.textContent ?? "",
+        placeholder: placeholderText,
         explanationItems: allExplanations,
         audioUrl: audioUrl,
       };
@@ -259,7 +285,7 @@ function getWordExplanationList(
       const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
       const tagText = tag_c?.textContent ?? tag_forms?.textContent ?? "";
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
       if (explanationElement) {
         const wordFrequency = getExplanationDisplayType(tagText);
         const explanation: LingueeWordExplanation = {
@@ -283,7 +309,7 @@ function getWordExplanationList(
  * @param wordFrequency: (almost always used)
  */
 function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
-  console.log(`---> word frequency: ${wordFrequency}`);
+  // console.log(`---> word frequency: ${wordFrequency}`);
   // remove parentheses
   const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "");
   let wordDisplayType: LingueeDisplayType;
@@ -309,7 +335,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
       break;
     }
   }
-  console.log(`---> word display type: ${wordDisplayType}`);
+  // console.log(`---> word display type: ${wordDisplayType}`);
   return wordDisplayType;
 }
 
@@ -395,24 +421,26 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       lingueeTypeResult.result as LingueeDictionaryResult;
     if (wordItems) {
       for (const wordItem of wordItems) {
-        const pos = wordItem.pos ? `.  ${wordItem.pos}` : "";
-        const palaceholder = wordItem.placeholder ? ` ${wordItem.placeholder}` : "";
-        const sectionTitle = `${wordItem.word}${palaceholder}${pos}`;
+        // check if placeholder end with .
+        const checkIfEndsWithDot = wordItem.placeholder.endsWith("."); // "good at"
+        // const pos = wordItem.pos ? `  ${wordItem.pos}` : "";
+        let wordPos = `  ${wordItem.pos}`;
+        if (wordItem.pos && !checkIfEndsWithDot) {
+          wordPos = `.${wordPos}`;
+        }
+        const placeholderText = wordItem.placeholder ? ` ${wordItem.placeholder}` : "";
+        const sectionTitle = `${wordItem.word}${placeholderText}${wordPos}`;
+        // const sectionTitle = wordItem.title;
         const displayItems = [];
         if (wordItem.explanationItems) {
           for (const explanationItem of wordItem.explanationItems) {
             // 1. iterate featured explanation
             if (explanationItem.featured) {
               const title = `${explanationItem.explanation}`;
-              const isSpecialTag = explanationItem.frequency === LingueeDisplayType.SpecialTag;
               const isCommon = explanationItem.frequency === LingueeDisplayType.Common;
-              const tagText = isSpecialTag
-                ? `${explanationItem.tag})`
-                : isCommon
-                ? ""
-                : `(${explanationItem.frequency})`;
-              const pos = explanationItem.pos ? `${explanationItem.pos}.  ` : "";
-              const subtitle = `${pos}${tagText}`;
+              const tagText = isCommon ? "" : explanationItem.tag;
+              const subtitle = tagText ? `${explanationItem.pos}.  ${tagText}` : explanationItem.pos;
+              // const subtitle = `${pos}${tagText}`;
               const copyText = `${title} ${subtitle}`;
               const displayType = explanationItem.frequency;
               // console.log(`---> linguee copyText: ${copyText}`);
@@ -442,6 +470,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
           if (unfeaturedExplanations.length > 0) {
             const copyText = `${wordItem.pos} ${unfeaturedExplanations.join(" ")}`;
             const lastExplanationItem = wordItem.explanationItems.at(-1);
+            const pos = lastExplanationItem?.pos ? `${lastExplanationItem.pos}.` : "";
             const lessCommonNote =
               lastExplanationItem?.frequency === LingueeDisplayType.LessCommon
                 ? `(${LingueeDisplayType.LessCommon})`
@@ -450,7 +479,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               lessCommonNote.length > 0 ? LingueeDisplayType.LessCommon : LingueeDisplayType.Unfeatured;
             const unFeaturedDisplayItem: ListDisplayItem = {
               key: copyText,
-              title: `${lastExplanationItem?.pos}.`,
+              title: pos,
               subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
               copyText: copyText,
               queryWordInfo: queryWordInfo,
@@ -476,9 +505,9 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       const sectionTitle = `Examples:`;
       const displayItems = examples.map((example) => {
         const displayType = LingueeDisplayType.Example;
-        const pos = example.pos ? `${example.pos}` : "";
+        const pos = example.pos ? `${example.pos}.  ` : "";
         const title = `${example.example}`;
-        const subtitle = `${pos}.  —  ${example.translation}`;
+        const subtitle = `${pos}—  ${example.translation}`;
         const copyText = `${title} ${subtitle}`;
         const displayItem: ListDisplayItem = {
           key: copyText,
@@ -500,7 +529,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       displayResults.push(exampleSection);
     }
 
-    // 4. iterate related words
+    // 4. iterate related words. 优雅
     if (relatedWords) {
       const sectionTitle = "Related words:";
       const displayItems = relatedWords.map((relatedWord) => {
@@ -559,17 +588,6 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
   }
 
   return displayResults;
-}
-
-/**
- * Get tag text according frequency
- */
-function getTagText(frequency: LingueeDisplayType, specialTag: string): string {
-  const isSpecialTag = frequency === LingueeDisplayType.SpecialTag;
-  const isCommon = frequency === LingueeDisplayType.Common;
-  const tagText = isSpecialTag ? `${specialTag})` : isCommon ? "" : `(${frequency})`;
-
-  return tagText;
 }
 
 /**
