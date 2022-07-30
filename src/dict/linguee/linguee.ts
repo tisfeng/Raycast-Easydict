@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 00:18
+ * @lastEditTime: 2022-07-31 00:49
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,6 +85,7 @@ export async function rquestLingueeDictionary(
     const config: AxiosRequestConfig = {
       headers: headers,
       httpsAgent: enableProxy ? httpsAgent : undefined,
+      responseType: "arraybuffer", // handle French content-type iso-8859-15
     };
 
     axios
@@ -94,15 +95,10 @@ export async function rquestLingueeDictionary(
         console.log(`--- headers: ${util.inspect(response.config.headers, { depth: null })}`);
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const contentType = response.headers["content-type"];
+        const data: Buffer = response.data;
         console.log(`---> content-type: ${contentType}`);
-        // Todo: French content-type is iso-8859-15, but it can't be read crrectly...
-        const html = response.data.toString(contentType.includes("iso-8859-15") ? "latin1" : "utf-8");
+        const html = data.toString(contentType.includes("iso-8859-15") ? "latin1" : "utf-8");
         const lingueeTypeResult = parseLingueeHTML(html);
-        // fs.writeFile(htmlPath, html, (error) => {
-        //   if (error) {
-        //     console.error(`writeFile error: ${error}`);
-        //   }
-        // });
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
