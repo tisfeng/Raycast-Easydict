@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 00:37
+ * @lastEditTime: 2022-07-30 10:45
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -255,21 +255,20 @@ function getWordExplanationList(
       // console.log(`---> translation text: ${translation?.textContent}`);
       const explanationElement = translation?.querySelector(".dictLink");
       const tag_type = translation?.querySelector(".tag_type");
-      const tag_c = translation?.querySelector(".tag_c");
+      const tag_c = translation?.querySelector(".tag_c"); // (often used)
+      const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
+      const tagText = tag_c?.textContent ?? tag_forms?.textContent ?? "";
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : undefined;
       if (explanationElement) {
-        const wordFrequency = getExplanationDisplayType(tag_c?.textContent ?? "");
-        // const wordFrequency =
-        //   tag_c?.textContent === `(${LingueeDisplayType.OftenUsed})`
-        //     ? LingueeDisplayType.OftenUsed
-        //     : LingueeDisplayType.Common;
+        const wordFrequency = getExplanationDisplayType(tagText);
         const explanation: LingueeWordExplanation = {
           explanation: explanationElement?.textContent ?? "",
           pos: tag_type?.textContent ?? "",
           frequency: designatedFrequencey ?? wordFrequency,
           featured: isFeatured,
           audioUrl: audioUrl,
+          tag: tagText,
         };
         // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
         explanationItems.push(explanation);
@@ -302,6 +301,10 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
       break;
     }
     default: {
+      if (wordFrequency.length) {
+        wordDisplayType = LingueeDisplayType.SpecialTag;
+        break;
+      }
       wordDisplayType = LingueeDisplayType.Common;
       break;
     }
@@ -401,8 +404,15 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             // 1. iterate featured explanation
             if (explanationItem.featured) {
               const title = `${explanationItem.explanation}`;
+              const isSpecialTag = explanationItem.frequency === LingueeDisplayType.SpecialTag;
               const isCommon = explanationItem.frequency === LingueeDisplayType.Common;
-              const subtitle = `${explanationItem.pos}  ${isCommon ? "" : `(${explanationItem.frequency})`}`;
+              const tagText = isSpecialTag
+                ? ` ${explanationItem.tag})`
+                : isCommon
+                ? ""
+                : `(${explanationItem.frequency})`;
+              const pos = explanationItem.pos ? `${explanationItem.pos}.` : "";
+              const subtitle = `${pos} ${tagText}`;
               const copyText = `${title} ${subtitle}`;
               const displayType = explanationItem.frequency;
               // console.log(`---> linguee copyText: ${copyText}`);
