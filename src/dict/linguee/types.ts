@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 17:33
+ * @lastEditTime: 2022-07-30 21:55
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,10 +12,10 @@ import { QueryWordInfo } from "../../types";
 
 export interface LingueeDictionaryResult {
   queryWordInfo: QueryWordInfo;
-  wordItems?: LingueeWordItem[];
-  examples?: LingueeExample[];
-  relatedWords?: LingueeWordItem[];
-  wikipedias?: LingueeWikipedia[];
+  wordItems: LingueeWordItem[];
+  examples: LingueeExample[];
+  relatedWords: LingueeWordItem[];
+  wikipedias: LingueeWikipedia[];
 }
 
 export interface LingueeWordItem {
@@ -25,7 +25,7 @@ export interface LingueeWordItem {
   pos: string; // part of speech, e.g. noun, verb, adj, etc.
   placeholder: string; // eg. (sth. ~), sth.
   audioUrl: string; // may have value when search English word, there are US and UK audio, we use US audio
-  explanationItems?: LingueeWordExplanation[];
+  explanationItems: LingueeWordExplanation[];
 }
 
 export interface LingueeWordExplanation {
@@ -35,6 +35,7 @@ export interface LingueeWordExplanation {
   frequency: LingueeDisplayType; // AlmostAlways, OfenUsed, Common, LessCommon
   audioUrl: string; // may have value when search Chinese word
   tag: string; // (often used), (almost always used)
+  examples: LingueeExample[]; // French: good
 }
 
 export interface LingueeExample {

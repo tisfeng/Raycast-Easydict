@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 00:26
+ * @lastEditTime: 2022-07-30 20:47
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -211,7 +211,7 @@ export default function () {
     const { word: queryText, fromLanguage, toLanguage } = queryTextInfo;
     console.log(`---> query text fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, false)
+    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
       .then((lingueeTypeResult) => {
         // console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
         const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
