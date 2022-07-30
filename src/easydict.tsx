@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 17:34
+ * @lastEditTime: 2022-07-30 00:26
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -250,6 +250,9 @@ export default function () {
         delayQueryWithTextInfo(queryTextInfo);
         return;
       }
+
+      // Todo: debug, remove it
+      return;
 
       let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
       // if enable automatic play audio and query is word, then download audio and play it

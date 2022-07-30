@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 00:08
+ * @lastEditTime: 2022-07-30 00:37
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,14 +52,14 @@ export async function rquestLingueeDictionary(
 
   const englishLanguageLowerTitle = "english";
   let languagePairKey = `${fromLanguageTitle}-${targetLanguageTitle}` as ValidLanguagePairKey;
-  console.log(`---> languagePairKey: ${languagePairKey}`);
+  console.warn(`---> language pair key: ${languagePairKey}`);
   if (targetLanguageTitle === englishLanguageLowerTitle) {
     languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}` as ValidLanguagePairKey;
   }
 
   const languagePairItem = validLanguagePairs[languagePairKey];
   if (!languagePairItem) {
-    console.warn(`----> ${languagePairKey} is not a valid language pair`);
+    console.warn(`----> linguee: ${languagePairKey} is not a valid language pair`);
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,
@@ -69,7 +69,8 @@ export async function rquestLingueeDictionary(
   const languagePair = languagePairItem.pair;
 
   return new Promise((resolve, reject) => {
-    const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=${fromLanguageTitle}&query=${encodeURIComponent(
+    // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
+    const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
       queryText
     )}`;
     console.log(`---> linguee request: ${lingueeUrl}`);
