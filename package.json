@@ -293,7 +293,7 @@
       "type": "checkbox",
       "label": "Show Open In Eudic",
       "required": false,
-      "description": "Show Open In Eudic button in the action panel if Eudic is installed",
+      "description": "Show Open In Eudic in action panel if Eudic is installed",
       "default": true
     },
     {
