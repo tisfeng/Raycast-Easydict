@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 15:57
+ * @lastEditTime: 2022-07-31 23:18
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,6 +27,7 @@ export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 95;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
+// console.log(`myPreferences: ${JSON.stringify(myPreferences, null, 2)}`);
 export const defaultLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1) as LanguageItem;
 export const defaultLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2) as LanguageItem;
 export const preferredLanguages = [defaultLanguage1, defaultLanguage2];
@@ -231,9 +232,7 @@ export function getAutoSelectedTargetLanguageId(accordingLanguageId: string): st
   } else if (accordingLanguageId === defaultLanguage2.youdaoLanguageId) {
     targetLanguageId = defaultLanguage1.youdaoLanguageId;
   }
-
   const targetLanguage = getLanguageItemFromYoudaoId(targetLanguageId);
-
   console.log(`languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`);
   return targetLanguage.youdaoLanguageId;
 }
@@ -245,8 +244,8 @@ export async function checkIfInstalledEudic(): Promise<boolean> {
   const startTime = new Date().getTime();
   const installedApplications = await getApplications();
   for (const application of installedApplications) {
-    const appBundleId = application.bundleId || "";
-    if (eudicBundleIds.includes(appBundleId)) {
+    const appBundleId = application.bundleId;
+    if (appBundleId && eudicBundleIds.includes(appBundleId)) {
       console.log(`checkIfEudicInstalled cost time: ${new Date().getTime() - startTime} ms`); // cost time: 22 ms
       return Promise.resolve(true);
     }

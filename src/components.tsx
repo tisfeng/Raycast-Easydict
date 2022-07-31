@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 15:54
+ * @lastEditTime: 2022-07-31 23:20
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -65,7 +65,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
           <ActionRecentUpdate title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
         {props.isInstalledEudic && (
-          <Action icon={Icon.MagnifyingGlass} title="Open in Eudic" onAction={() => openInEudic(queryWordInfo.word)} />
+          <Action icon={Icon.MagnifyingGlass} title="Open In Eudic" onAction={() => openInEudic(queryWordInfo.word)} />
         )}
         <Action.CopyToClipboard
           onCopy={() => {
@@ -109,7 +109,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         />
       </ActionPanel.Section>
 
-      {myPreferences.isDisplayTargetTranslationLanguage && (
+      {myPreferences.enableDisplayTargetTranslationLanguage && (
         <ActionPanel.Section title="Target Language">
           {languageItemList.map((selectedLanguageItem) => {
             // hide auto language

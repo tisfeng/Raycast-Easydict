@@ -281,7 +281,7 @@
     },
     {
       "title": "Switch Boxes",
-      "name": "isAutomaticQuerySelectedText",
+      "name": "enableAutomaticQuerySelectedText",
       "type": "checkbox",
       "label": "Automatic Query Selected Text",
       "required": false,
@@ -289,7 +289,15 @@
       "default": true
     },
     {
-      "name": "isAutomaticPlayWordAudio",
+      "name": "enableOpenInEudic",
+      "type": "checkbox",
+      "label": "Show Open In Eudic",
+      "required": false,
+      "description": "Show Open In Eudic button in the action panel if Eudic is installed",
+      "default": true
+    },
+    {
+      "name": "enableAutomaticPlayWordAudio",
       "type": "checkbox",
       "label": "Automatic Play Word Audio",
       "required": false,
@@ -297,7 +305,7 @@
       "default": false
     },
     {
-      "name": "isDisplayTargetTranslationLanguage",
+      "name": "enableDisplayTargetTranslationLanguage",
       "type": "checkbox",
       "label": "Select Target Translation Language",
       "required": false,
@@ -363,8 +371,8 @@
       "default": true
     },
     {
-      "title": "Translation Display Order",
-      "name": "translationDisplayOrder",
+      "title": "Translation Sort Order",
+      "name": "translationSortOrder",
       "type": "textfield",
       "required": false,
       "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",

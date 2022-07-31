@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 15:49
+ * @lastEditTime: 2022-07-31 23:08
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -133,7 +133,7 @@ export default function () {
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    if (myPreferences.isAutomaticQuerySelectedText) {
+    if (myPreferences.enableAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }
     checkIfInstalledEudic().then((isInstalled) => {
@@ -240,7 +240,8 @@ export default function () {
 
       let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
       // if enable automatic play audio and query is word, then download audio and play it
-      const enableAutomaticDownloadAudio = myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
+      const enableAutomaticDownloadAudio =
+        myPreferences.enableAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
       if (enableAutomaticDownloadAudio && isLastQuery) {
         playYoudaoWordAudioAfterDownloading(formatResult.queryWordInfo);
       }
@@ -260,7 +261,7 @@ export default function () {
       if (checkIfShowMultipleTranslations(formatResult)) {
         // check if enable deepl translate
         if (myPreferences.enableDeepLTranslate) {
-          console.log("---> deep translate start");
+          console.log("---> deepL translate start");
           requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
             .then((deepLTypeResult) => {
               // Todo: should use axios.CancelToken to cancel the request!
@@ -273,7 +274,7 @@ export default function () {
               const errorInfo = err as RequestErrorInfo;
               showToast({
                 style: Toast.Style.Failure,
-                title: `${errorInfo.type}: ${errorInfo.code}`,
+                title: `${errorInfo.type} error: ${errorInfo.code}`,
                 message: errorInfo.message,
               });
             });
@@ -290,7 +291,7 @@ export default function () {
               }
             })
             .catch((err) => {
-              console.error(`google error: ${JSON.stringify(err, null, 2)}`);
+              console.error(`Google error: ${JSON.stringify(err, null, 2)}`);
             });
         }
 
@@ -336,7 +337,7 @@ export default function () {
               }
               showToast({
                 style: Toast.Style.Failure,
-                title: `${errorInfo.type}: ${errorInfo.code}`,
+                title: `${errorInfo.type} error: ${errorInfo.code}`,
                 message: errorInfo.message,
               });
             });
@@ -356,7 +357,7 @@ export default function () {
               const errorInfo = err as RequestErrorInfo;
               showToast({
                 style: Toast.Style.Failure,
-                title: `tencent translate error`,
+                title: `Tencent translate error`,
                 message: errorInfo.message,
               });
             });
@@ -480,7 +481,7 @@ export default function () {
                     actions={
                       <ListActionPanel
                         displayItem={item}
-                        isInstalledEudic={isInstalledEudic}
+                        isInstalledEudic={isInstalledEudic && myPreferences.enableOpenInEudic}
                         onLanguageUpdate={updateSelectedTargetLanguageItem}
                       />
                     }
