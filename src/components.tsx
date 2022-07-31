@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 00:43
+ * @lastEditTime: 2022-07-31 15:54
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,8 +34,6 @@ import {
   getYoudaoWebTranslateURL,
   myPreferences,
 } from "./utils";
-
-export const eudicBundleId = "com.eusoft.freeeudic";
 
 /**
  * Get the list action panel item with ListItemActionPanelItem

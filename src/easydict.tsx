@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-24 00:42
+ * @lastEditTime: 2022-07-31 15:49
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,7 +44,7 @@ import {
   YoudaoTranslateResult,
 } from "./types";
 import {
-  checkIfEudicIsInstalled,
+  checkIfInstalledEudic,
   checkIfShowMultipleTranslations,
   defaultLanguage1,
   defaultLanguage2,
@@ -136,7 +136,9 @@ export default function () {
     if (myPreferences.isAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }
-    checkIfEudicIsInstalled(setIsInstalledEudic);
+    checkIfInstalledEudic().then((isInstalled) => {
+      setIsInstalledEudic(isInstalled);
+    });
   }
 
   /**
