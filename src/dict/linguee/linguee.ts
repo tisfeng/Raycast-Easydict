@@ -1,9 +1,8 @@
-import { userAgent } from "./../../consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 10:42
+ * @lastEditTime: 2022-08-01 11:11
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,29 +10,26 @@ import { userAgent } from "./../../consts";
 
 import { environment } from "@raycast/api";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
-import * as cheerio from "cheerio";
-import fs from "fs";
-import * as htmlparser2 from "htmlparser2";
 import { HttpsProxyAgent } from "https-proxy-agent";
-import { parse } from "node-html-parser";
 import util from "util";
 import { RequestTypeResult } from "../../types";
-import { getLanguageItemFromDeepLSourceId, getLanguageItemFromYoudaoId } from "../../utils";
-import { DicionaryType, ListDisplayItem, QueryWordInfo, RequestErrorInfo, SectionDisplayResult } from "./../../types";
+import { getLanguageItemFromYoudaoId } from "../../utils";
+import { userAgent } from "./../../consts";
+import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayResult } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
-import {
-  LingueeDictionaryResult,
-  LingueeDisplayType,
-  LingueeExample,
-  LingueeWikipedia,
-  LingueeWordExplanation,
-  LingueeWordItem,
-} from "./types";
+import { parseLingueeHTML } from "./parse";
+import { LingueeDictionaryResult, LingueeDisplayType } from "./types";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const htmlPath = `${environment.supportPath}/linguee.html`;
 
+/**
+ * Get linguee dictionary result.
+ *
+ * eg. good: https://www.linguee.com/english-chinese/search?source=auto&query=good
+ */
 export async function rquestLingueeDictionary(
-  queryText: string,
+  queryWord: string,
   fromLanguage: string,
   targetLanguage: string,
   enableProxy = false
@@ -71,7 +67,7 @@ export async function rquestLingueeDictionary(
   return new Promise((resolve, reject) => {
     // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
     const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
-      queryText
+      queryWord
     )}`;
     console.log(`---> linguee request: ${lingueeUrl}`);
 
@@ -115,325 +111,6 @@ export async function rquestLingueeDictionary(
         reject(errorInfo);
       });
   });
-}
-
-/**
- * Parse Linguee html. node-html-parser cost: ~40ms
- *
- * Todo: use cheerio to parse html.
- */
-export function parseLingueeHTML(html: string): RequestTypeResult {
-  const rootElement = parse(html);
-  const dictionaryElement = rootElement.querySelector("#dictionary");
-  const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma");
-
-  // 1. get word infos.
-  const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
-  const sourceLanguage = getYoudaoLanguageId("sourceLang", rootElement as unknown as HTMLElement);
-  const targetLanguage = getYoudaoLanguageId("targetLang", rootElement as unknown as HTMLElement);
-  console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
-
-  // 2. get the exact word list
-  const lingueeWordItems = getWordItemList(exactLemmaElement as unknown as HTMLElement[]);
-
-  /**
-   * try search examples, and related words if have.
-   *
-   * Example: <div class='example_lines inexact'> <h3>Examples:</h3>
-   * See also: <div class='inexact'> <h3>See also:</h3>
-   */
-  const inexactElement = dictionaryElement?.querySelectorAll(".inexact");
-  let examplesElement, relatedWordsElement;
-  if (inexactElement) {
-    for (const element of inexactElement) {
-      const h3TextContent = element?.querySelector("h3")?.textContent;
-      const inexactLemma = element.querySelectorAll(".lemma");
-      if (h3TextContent === "Examples:") {
-        examplesElement = inexactLemma;
-        continue;
-      }
-      if (h3TextContent === "See also:") {
-        relatedWordsElement = inexactLemma;
-        continue;
-      }
-    }
-  }
-
-  // 3. get examples
-  const exampleItems = getExampleList(examplesElement as unknown as HTMLElement[]);
-
-  // 4. get related words
-  const relatedWords = getWordItemList(relatedWordsElement as unknown as HTMLElement[]);
-
-  // 5. get wikipedia
-  const wikipediaElement = dictionaryElement?.querySelectorAll(".wikipedia .abstract");
-  const wikipedia = getWikipedia(wikipediaElement as unknown as HTMLElement[]);
-
-  const queryWordInfo: QueryWordInfo = {
-    word: queryWord?.textContent ?? "",
-    fromLanguage: sourceLanguage ?? "",
-    toLanguage: targetLanguage ?? "",
-    isWord: lingueeWordItems.length > 0,
-  };
-  const lingueeResult: LingueeDictionaryResult = {
-    queryWordInfo: queryWordInfo,
-    wordItems: lingueeWordItems,
-    examples: exampleItems,
-    relatedWords: relatedWords,
-    wikipedias: wikipedia,
-  };
-  const lingueeTypeResult = {
-    type: DicionaryType.Linguee,
-    result: lingueeResult,
-  };
-  return lingueeTypeResult;
-}
-
-/**
- * Get word item list.  > .exact .lemma
- */
-export function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
-  console.log(`---> getWordItemList`);
-  const wordItemList: LingueeWordItem[] = [];
-  if (lemmas?.length) {
-    for (const lemma of lemmas) {
-      // console.log(`---> lemma: ${element}`);
-
-      // 1. get top word and part of speech
-      const placeholder = lemma?.querySelector(".dictLink .placeholder");
-      let placeholderText = "";
-      if (placeholder) {
-        placeholderText = placeholder.textContent ?? "";
-        console.log(`---> placeholder: ${placeholderText}`);
-        placeholder.remove(); // * .dictLink contains .placeholder
-      }
-
-      // * dictLink maybe more than one, "good at"
-      const dictLinks = lemma?.querySelectorAll(".lemma_desc .dictLink");
-      let words = "";
-      if (dictLinks?.length) {
-        const wordArray: string[] = [];
-        dictLinks.forEach((dictLink) => {
-          const wordText = dictLink?.textContent ?? "";
-          wordArray.push(wordText);
-        });
-        words = wordArray.join(" ");
-      }
-
-      const tag_lemma = lemma?.querySelector(".tag_lemma");
-      const tag_lemma_context = lemma?.querySelector(".tag_lemma_context");
-      if (tag_lemma_context) {
-        placeholderText = tag_lemma_context.textContent ?? "";
-        console.log(`---> tag_lemma_context placeholder: ${placeholderText}`);
-      }
-      const tag_wordtype = lemma?.querySelector(".tag_wordtype");
-      const tag_type = lemma?.querySelector(".tag_type"); // related word pos
-      const pos = tag_wordtype ?? tag_type;
-      const featured = lemma.getAttribute("class")?.includes("featured") ?? false;
-      // * note: audio is not always exist.
-      const audio = lemma.querySelector("h2[class=line] .audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
-      console.log(`--> ${words} ${placeholderText} : ${pos?.textContent}`);
-
-      const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
-      // 2. get word featured explanation
-      const explanations = getWordExplanationList(featuredTranslations as unknown as HTMLElement[], true);
-      // remove featured explanation to get unfeatured explanation
-      featuredTranslations?.forEach((element) => {
-        element.remove();
-      });
-
-      // 3. get less common explanation
-      const lemmaContent = lemma?.querySelector(".lemma_content");
-      // console.log(`---> less common: ${translation_group?.textContent}`);
-      const notascommon = lemmaContent?.querySelector(".line .notascommon");
-      const frequency = notascommon ? LingueeDisplayType.LessCommon : LingueeDisplayType.Common;
-      const lessCommonTranslations = lemmaContent?.querySelectorAll(".translation") as unknown as HTMLElement[];
-      const lessCommonExplanations = getWordExplanationList(lessCommonTranslations, false, frequency);
-
-      let allExplanations = explanations;
-      if (!explanations || !lessCommonExplanations) {
-        allExplanations = explanations ?? lessCommonExplanations;
-      } else {
-        allExplanations = explanations.concat(lessCommonExplanations);
-      }
-
-      const lingueeWordItem: LingueeWordItem = {
-        word: words,
-        title: tag_lemma?.textContent ?? "",
-        featured: featured,
-        pos: pos?.textContent ?? "",
-        placeholder: placeholderText,
-        explanationItems: allExplanations,
-        audioUrl: audioUrl,
-      };
-      console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
-      wordItemList.push(lingueeWordItem);
-    }
-  }
-  return wordItemList;
-}
-
-/**
- * Get word explanation list. | .exact .lemma .featured
- */
-function getWordExplanationList(
-  translations: HTMLElement[] | undefined,
-  isFeatured = false,
-  designatedFrequencey?: LingueeDisplayType
-) {
-  console.log(`---> getWordExplanationList, length: ${translations?.length} , isFeatured: ${isFeatured}`);
-  const explanationItems = [];
-  if (translations?.length) {
-    for (const translation of translations) {
-      // console.log(`---> translation: ${translation}`);
-
-      const explanationElement = translation?.querySelector(".dictLink");
-      const tag_type = translation?.querySelector(".tag_type"); // adj
-      const tag_c = translation?.querySelector(".tag_c"); // (often used)
-      const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
-      const tagText = tag_c?.textContent ?? tag_forms?.textContent ?? "";
-      const audio = translation?.querySelector(".audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
-      const examples = translation?.querySelectorAll(".example");
-      const exampleItems: LingueeExample[] = [];
-      if (examples?.length) {
-        examples.forEach((example) => {
-          const tag_s = example?.querySelector(".tag_s");
-          const tag_t = example?.querySelector(".tag_t");
-          const exampleItem: LingueeExample = {
-            example: tag_s?.textContent ?? "",
-            translation: tag_t?.textContent ?? "",
-            pos: "",
-          };
-          exampleItems.push(exampleItem);
-        });
-      }
-      const tag = tagText.trim();
-      const wordFrequency = getExplanationDisplayType(tag);
-      const explanation: LingueeWordExplanation = {
-        explanation: explanationElement?.textContent ?? "",
-        pos: tag_type?.textContent ?? "",
-        featured: isFeatured,
-        audioUrl: audioUrl,
-        examples: exampleItems,
-        frequencyTag: {
-          tagText: tag,
-          displayType: designatedFrequencey ?? wordFrequency,
-        },
-      };
-      // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
-      explanationItems.push(explanation);
-    }
-  }
-  return explanationItems;
-}
-
-/**
- * Get linguee display type according to word frequency.
- * @param wordFrequency: (almost always used)
- */
-function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
-  // console.log(`---> word frequency: ${wordFrequency}`);
-  // remove parentheses
-  const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "");
-  let wordDisplayType: LingueeDisplayType;
-  switch (wordFrequencyWithoutParentheses) {
-    case LingueeDisplayType.AlmostAlways: {
-      wordDisplayType = LingueeDisplayType.AlmostAlways;
-      break;
-    }
-    case LingueeDisplayType.OftenUsed: {
-      wordDisplayType = LingueeDisplayType.OftenUsed;
-      break;
-    }
-    case LingueeDisplayType.LessCommon: {
-      wordDisplayType = LingueeDisplayType.LessCommon;
-      break;
-    }
-    default: {
-      if (wordFrequencyWithoutParentheses.length) {
-        wordDisplayType = LingueeDisplayType.SpecialTag;
-        break;
-      }
-      wordDisplayType = LingueeDisplayType.Common;
-      break;
-    }
-  }
-  // console.log(`---> word display type: ${wordDisplayType}`);
-  return wordDisplayType;
-}
-
-/**
- * Get example list.  | .inexact  Examples:  .lemma
- */
-function getExampleList(exampleLemma: HTMLElement[] | undefined) {
-  console.log(`---> getExampleList`);
-  const exampleItems = [];
-  if (exampleLemma?.length) {
-    for (const lemma of exampleLemma) {
-      const exampleElement = lemma.querySelector(".line .dictLink");
-      const tagType = lemma.querySelector(".line .tag_type");
-      // * may have multiple translations.
-      const translationElement = lemma.querySelectorAll(".lemma_content .dictLink");
-      const translations: string[] = [];
-      translationElement.forEach((element) => {
-        if (element.textContent) {
-          translations.push(element.textContent);
-        }
-      });
-      // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
-      const lingueeExample: LingueeExample = {
-        example: exampleElement?.textContent ?? "",
-        pos: tagType?.textContent ?? "",
-        translation: translations.join(";  "),
-      };
-      exampleItems.push(lingueeExample);
-    }
-  }
-  return exampleItems;
-}
-
-/**
- * Get LingueeWikipedia from wikipedia HTMLElement. | .wikipedia .abstract
- */
-export function getWikipedia(abstractElement: HTMLElement[] | undefined) {
-  console.log(`---> getWikipedia`);
-  const wikipedias: LingueeWikipedia[] = [];
-  if (abstractElement?.length) {
-    for (const element of abstractElement as unknown as HTMLElement[]) {
-      // console.log(`---> element: ${element}`);
-      const h2Title = element.querySelector("h2");
-      const content = h2Title?.nextSibling;
-      const sourceUrl = element.querySelector("a")?.getAttribute("href");
-      const source = element.querySelector(".source_url_spacer");
-      const wikipedia: LingueeWikipedia = {
-        title: h2Title?.textContent ?? "",
-        explanation: content?.textContent?.trim() ?? "",
-        source: source?.textContent ?? "",
-        sourceUrl: sourceUrl ?? "",
-      };
-      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 2)}`);
-      wikipedias.push(wikipedia);
-    }
-  }
-  return wikipedias;
-}
-
-/**
- * Get Youdao language id from html.
- *
- * <script type='text/javascript'> sourceLang:'EN'
- * return EN
- */
-function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string | undefined {
-  const textJavascript = rootElement.querySelector("script[type=text/javascript]");
-  const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
-  if (sourceLang) {
-    // remove "'"
-    const sourceLanguage = sourceLang.replace(/'/g, "");
-    return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLanguageId;
-  }
 }
 
 /**
@@ -613,163 +290,4 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
   }
 
   return displayResults;
-}
-
-/**
- * Get linguee associative word phrases
- */
-export const parseDOMResult = (dom: ReturnType<typeof parse>) => {
-  const list = dom.querySelectorAll(".autocompletion_item");
-
-  return Array.from(list).map((item) => {
-    const $mainItem = item.querySelector(".main_row .main_item");
-    const word = $mainItem?.textContent;
-    const href = $mainItem?.attributes.href;
-    const lid = $mainItem?.attributes.lid;
-    const wordType = item.querySelector(".main_row .main_wordtype")?.textContent;
-    const translationDOMList = item.querySelectorAll(".translation_item");
-    const translations = Array.from(translationDOMList).map((item) => {
-      const lid = item.attributes.lid;
-      const wordType = item.querySelector(".wordtype")?.textContent;
-      item.querySelector(".sep")?.replaceWith("");
-      item.querySelector(".wordtype")?.replaceWith("");
-
-      const word = item.textContent?.trim();
-
-      if (!word || !wordType || !href || !lid) return;
-
-      return {
-        word,
-        wordType,
-        lid,
-      };
-    });
-
-    if (!word || !wordType || !lid || !href) return;
-
-    return {
-      word: word,
-      wordType: wordType,
-      lid,
-      href,
-      translations: translations,
-    };
-  });
-};
-
-export function rquestLingueeWord0() {
-  console.log("---> requesting linguee word");
-
-  //  read html file async
-  fs.readFile(htmlPath, "utf8", (err, data) => {
-    if (err) {
-      console.error(`read linguee html file error: ${err}`);
-      return;
-    }
-    console.log("---> read linguee html file success");
-
-    const parser = new htmlparser2.Parser(
-      {
-        onattribute(name, value, quote?) {
-          console.log(`name: ${name}, value: ${value}, quote: ${quote}`);
-          // if (name === "class" && value === "tag_wordtype") {
-          //   console.log(`name: ${name}, value: ${value}, quote: ${quote}`);
-          // }
-        },
-        onopentag(name, attributes) {
-          console.log(`name: ${name}, attributes: ${JSON.stringify(attributes)}`);
-          // if (name === "span" && attributes.class === "tag_lemma") {
-          //   console.log(`name: ${name}, attributes: ${JSON.stringify(attributes)}`);
-          // }
-        },
-        ontext(text) {
-          /*
-           * Fires whenever a section of text was processed.
-           *
-           * Note that this can fire at any point within text and you might
-           * have to stitch together multiple pieces.
-           */
-          console.log("-->", text);
-        },
-        onprocessinginstruction(name, data) {
-          console.log(`name: ${name}, data: ${data}`);
-        },
-      },
-      { xmlMode: true }
-    );
-    parser.write(data);
-    parser.end();
-  });
-}
-
-export function rquestLingueeWord1() {
-  console.log("---> requesting linguee word");
-  const url = "https://www.linguee.com/english-chinese/search?source=auto&query=good";
-
-  axios
-    .get(url)
-    .then((res) => {
-      console.warn(`cost: ${res.headers["x-request-cost"]} ms`);
-
-      const parser = new htmlparser2.Parser({
-        onattribute(name, value, quote?) {
-          if (name === "class" && value === "tag_lemma") {
-            console.log(`name: ${name}, value: ${value}, quote: ${quote}`);
-          }
-        },
-      });
-      parser.write(res.data);
-      parser.end();
-
-      //   const dom = htmlparser2.parseDocument(res.data);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-
-export function rquestLingueeWord2() {
-  console.log("---> requesting linguee word");
-  const url = "https://www.linguee.com/english-chinese/search?source=auto&query=good";
-  //   const url = "https://cn.linguee.com/chinese-english/search?source=english&query=good";
-  //   const url = "https://www.linguee.com/search?source=english&qe=good";
-  axios
-    .get(url)
-    .then((res) => {
-      console.warn(`cost: ${res.headers["x-request-cost"]} ms`);
-
-      // use cheerio to parse html
-      const $ = cheerio.load(res.data);
-      //   const pronounceText = $(".hd_p1_1>.hd_prUS").text(); // '美 [ɡʊd]'
-      //   for (const element of $(".qdef>ul>li")) {
-      // const titles = $(".dis", "#pos_0").map((i, element) => {
-
-      // get class 'exact' > 'line lemma_desc'
-      const lemma_desc = $(".exact>.lemma>");
-      console.log(`tag_lemma text: ${lemma_desc.find(".tag_lemma").text()}`);
-
-      const tag_lemma = lemma_desc.find(".tag_lemma");
-      console.log(`tag_lemma length: ${tag_lemma.length}, first: ${tag_lemma.first().text()}`);
-
-      for (const element of tag_lemma) {
-        const word = $(element).find(".dictLink").text();
-        const part = $(element).find(".tag_wordtype").text();
-        console.log(`tag_lemma: ${word}: ${part}`);
-      }
-
-      const translation_lines = lemma_desc.find(".translation_lines");
-      console.log(`translation_lines length: ${translation_lines.length}, first: ${translation_lines.first().text()}`);
-
-      console.warn(`translation_lines: ${$("div .translation_lines").text()}}`);
-
-      for (const element of translation_lines.find(".tag_trans")) {
-        console.log(`translation: ${$(element).text()}`);
-        // const word = $(element).find(".dictLink").text();
-        // const part = $(element).find(".tag_wordtype").text();
-        // console.log(`${word}: ${part}`);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 }
