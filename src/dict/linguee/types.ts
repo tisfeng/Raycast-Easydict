@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 21:55
+ * @lastEditTime: 2022-08-01 10:34
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,10 +32,14 @@ export interface LingueeWordExplanation {
   featured?: boolean;
   explanation: string;
   pos: string;
-  frequency: LingueeDisplayType; // AlmostAlways, OfenUsed, Common, LessCommon
   audioUrl: string; // may have value when search Chinese word
-  tag: string; // (often used), (almost always used)
   examples: LingueeExample[]; // French: good
+  frequencyTag: LingueeFrequencyTag;
+}
+
+export interface LingueeFrequencyTag {
+  tagText: string; // (often used), (almost always used)
+  displayType: LingueeDisplayType; // as frequency use: AlmostAlways, OfenUsed, Common, LessCommon
 }
 
 export interface LingueeExample {
