@@ -255,7 +255,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
     }
     default: {
       if (wordFrequencyWithoutParentheses.length) {
-        wordDisplayType = LingueeDisplayType.SpecialTag;
+        wordDisplayType = LingueeDisplayType.SpecialForms;
         break;
       }
       wordDisplayType = LingueeDisplayType.Common;

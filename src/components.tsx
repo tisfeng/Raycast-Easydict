@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 12:41
+ * @lastEditTime: 2022-08-01 11:25
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -245,13 +245,10 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
   // console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
+    case LingueeDisplayType.SpecialForms:
     case LingueeDisplayType.AlmostAlways:
     case LingueeDisplayType.OftenUsed: {
       dotColor = Color.Red;
-      break;
-    }
-    case LingueeDisplayType.SpecialTag: {
-      dotColor = Color.Purple;
       break;
     }
     case LingueeDisplayType.Common: {
@@ -263,7 +260,7 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
       break;
     }
     case LingueeDisplayType.Unfeatured: {
-      dotColor = "#CA8EC2"; // #A066D3, #B766AD
+      dotColor = "#CA8EC2";
       break;
     }
     case LingueeDisplayType.Example: {

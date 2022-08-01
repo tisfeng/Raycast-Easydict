@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 10:34
+ * @lastEditTime: 2022-08-01 11:28
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -61,7 +61,7 @@ export enum LingueeDisplayType {
   Common = "common", // also featured
   LessCommon = "less common", // unfeatured
 
-  SpecialTag = "special tag", // a special tag, like often used, but we currently don't handle it. eg. good  English-French
+  SpecialForms = "special forms", // special forms, like often used, but we currently don't handle it. eg. good  English-French
 
   Unfeatured = "unfeatured",
   Example = "example",

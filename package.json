@@ -372,7 +372,7 @@
       "type": "textfield",
       "required": false,
       "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",
-      "default": "deepl,google,apple,baidu,tencent,youdao,caiyun",
+      "default": "",
       "placeholder": "deepl,google,apple,baidu,tencent,youdao,caiyun"
     },
     {
