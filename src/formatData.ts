@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 18:51
+ * @lastEditTime: 2022-08-01 12:59
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,12 +14,12 @@ import {
   DeepLTranslateResult,
   QueryWordInfo,
   RequestTypeResult,
-  SectionDisplayResult,
-  SectionType,
+  SectionDisplayItem,
   TencentTranslateResult,
   TranslateFormatResult,
   TranslateItem,
   TranslationType,
+  YoudaoDisplayType,
   YoudaoTranslateResult,
 } from "./types";
 import { checkIfShowMultipleTranslations, myPreferences } from "./utils";
@@ -241,18 +241,18 @@ export function getTranslationResultOrder(): string[] {
 /**
  * Format translate results so that can be directly used for UI display.
  */
-export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): SectionDisplayResult[] {
-  const displayResult: Array<SectionDisplayResult> = [];
+export function formatTranslateDisplayResult(formatResult: TranslateFormatResult | null): SectionDisplayItem[] {
+  const sectionResult: Array<SectionDisplayItem> = [];
   if (!formatResult) {
-    return displayResult;
+    return sectionResult;
   }
 
   const showMultipleTranslations = checkIfShowMultipleTranslations(formatResult);
 
   for (const [i, translateItem] of formatResult.translationItems.entries()) {
-    const sectionType = showMultipleTranslations ? translateItem.type : SectionType.Translation;
+    const sectionType = showMultipleTranslations ? translateItem.type : YoudaoDisplayType.Translation;
 
-    let sectionTitle = SectionType.Translation.toString();
+    let sectionTitle = YoudaoDisplayType.Translation.toString();
     let tooltip = `${translateItem.type.toString()} Translate`;
 
     // don't show tooltip when show multiple translations
@@ -266,21 +266,24 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
     const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
 
-    displayResult.push({
+    sectionResult.push({
       type: sectionType,
       sectionTitle: sectionTitle,
       items: [
         {
+          displayType: YoudaoDisplayType.Translation,
           key: oneLineTranslation + i,
           title: ` ${oneLineTranslation}`,
           subtitle: wordSubtitle,
           tooltip: tooltip,
           copyText: oneLineTranslation,
           queryWordInfo: formatResult.queryWordInfo,
-          phonetic: phoneticText,
           speech: formatResult.queryWordInfo.speech,
-          examTypes: formatResult.queryWordInfo.examTypes,
           translationMarkdown: formatAllTypeTranslationToMarkdown(sectionType, formatResult),
+          accessoryItem: {
+            phonetic: phoneticText,
+            examTypes: formatResult.queryWordInfo.examTypes,
+          },
         },
       ],
     });
@@ -294,15 +297,16 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
   const detailsSectionTitle = "Details";
 
   formatResult.explanations?.forEach((explanation, i) => {
-    displayResult.push({
-      type: SectionType.Explanations,
+    sectionResult.push({
+      type: YoudaoDisplayType.Explanations,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
+          displayType: YoudaoDisplayType.Explanations,
           key: explanation + i,
           title: explanation,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: SectionType.Explanations,
+          tooltip: YoudaoDisplayType.Explanations,
           copyText: explanation,
         },
       ],
@@ -318,15 +322,16 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
   // [ 复数 goods   比较级 better   最高级 best ]
   const wfsText = wfs?.join("   ") || "";
   if (wfsText.length) {
-    displayResult.push({
-      type: SectionType.Forms,
+    sectionResult.push({
+      type: YoudaoDisplayType.Forms,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
+          displayType: YoudaoDisplayType.Forms,
           key: wfsText,
           title: "",
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: SectionType.Forms,
+          tooltip: YoudaoDisplayType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
         },
@@ -340,15 +345,16 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     const webResultKey = formatResult.webTranslation?.key;
     const webResultValue = formatResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
-    displayResult.push({
-      type: SectionType.WebTranslation,
+    sectionResult.push({
+      type: YoudaoDisplayType.WebTranslation,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
+          displayType: YoudaoDisplayType.WebTranslation,
           key: copyText,
           title: webResultKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: SectionType.WebTranslation,
+          tooltip: YoudaoDisplayType.WebTranslation,
           subtitle: webResultValue,
           copyText: copyText,
         },
@@ -362,15 +368,16 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
-    displayResult.push({
-      type: SectionType.WebPhrase,
+    sectionResult.push({
+      type: YoudaoDisplayType.WebPhrase,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
+          displayType: YoudaoDisplayType.WebPhrase,
           key: copyText + i,
           title: phraseKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: SectionType.WebPhrase,
+          tooltip: YoudaoDisplayType.WebPhrase,
           subtitle: phraseValue,
           copyText: copyText,
         },
@@ -380,14 +387,14 @@ export function formatTranslateDisplayResult(formatResult: TranslateFormatResult
     hasShowDetailsSectionTitle = true;
   });
 
-  return displayResult;
+  return sectionResult;
 }
 
 /**
  * Convert multiple translated result texts to markdown format and display them in the same list details page.
  */
 export function formatAllTypeTranslationToMarkdown(
-  type: TranslationType | SectionType,
+  type: TranslationType | YoudaoDisplayType,
   formatResult: TranslateFormatResult
 ) {
   const translations = [] as TranslateItem[];
@@ -414,7 +421,7 @@ export function formatAllTypeTranslationToMarkdown(
 /**
  *  format type translation result to markdown format.
  */
-export function formatTranslationToMarkdown(type: TranslationType | SectionType, text: string) {
+export function formatTranslationToMarkdown(type: TranslationType | YoudaoDisplayType, text: string) {
   const string = text.replace(/\n/g, "\n\n");
   const markdown = `
   ## ${type}

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-30 20:47
+ * @lastEditTime: 2022-08-01 13:02
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -39,7 +39,7 @@ import {
   QueryWordInfo,
   RequestErrorInfo,
   RequestTypeResult,
-  SectionDisplayResult,
+  SectionDisplayItem,
   TranslateFormatResult,
   TranslationType,
   YoudaoTranslateResult,
@@ -100,7 +100,7 @@ export default function () {
    */
   const [searchText, setSearchText] = useState<string>("");
 
-  const [translateDisplayResult, setTranslateDisplayResult] = useState<SectionDisplayResult[]>();
+  const [translateDisplayResult, setTranslateDisplayResult] = useState<SectionDisplayItem[]>();
   /**
      the language type of text, depending on the language type of the current input text.
      */
@@ -215,8 +215,8 @@ export default function () {
       .then((lingueeTypeResult) => {
         // console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
         const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
-        setTranslateDisplayResult(lingueeDisplayResult);
-        setLoadingState(false);
+        // setTranslateDisplayResult(lingueeDisplayResult);
+        // setLoadingState(false);
       })
       .catch((error) => {
         console.error("lingueeDictionaryResult error:", error);
@@ -252,7 +252,7 @@ export default function () {
       }
 
       // Todo: debug, remove it
-      return;
+      // return;
 
       let formatResult = formatYoudaoDictionaryResult(youdaoTranslateTypeResult);
       // if enable automatic play audio and query is word, then download audio and play it
@@ -492,7 +492,7 @@ export default function () {
                     }}
                     title={item.title}
                     subtitle={item.subtitle}
-                    accessories={getWordAccessories(resultItem.type, item)}
+                    accessories={getWordAccessories(item)}
                     detail={<List.Item.Detail markdown={item.translationMarkdown} />}
                     actions={
                       <ListActionPanel

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 11:25
+ * @lastEditTime: 2022-08-01 13:03
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,13 +20,13 @@ import { openInEudic } from "./scripts";
 import {
   ActionListPanelProps,
   DicionaryType,
-  ListDisplayType,
+  ListDisplayItem,
+  ListItemDisplayType,
   QueryType,
   QueryWordInfo,
-  SectionType,
   TranslationType,
   WebTranslationItem,
-  YoudaoTranslateReformatResultItem,
+  YoudaoDisplayType,
 } from "./types";
 import {
   checkIfNeedShowReleasePrompt,
@@ -188,49 +188,25 @@ function playSoundIcon(lightTintColor: string) {
 /**
  * Return the corresponding ImageLike based on the ListDisplayType
  */
-export function getListItemIcon(listDisplayType: ListDisplayType | undefined): Image.ImageLike {
-  // console.log(`---> list type: ${listDisplayType}, typeof: ${typeof listDisplayType}`);
-  let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (listDisplayType) {
-    case SectionType.Translation: {
-      dotColor = Color.Red;
-      break;
-    }
-    case SectionType.Explanations: {
-      dotColor = Color.Blue;
-      break;
-    }
-    case SectionType.WebTranslation: {
-      dotColor = Color.Yellow;
-      break;
-    }
-    case SectionType.WebPhrase: {
-      dotColor = "teal";
-      break;
-    }
-  }
+export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.ImageLike {
+  console.log(`---> list type: ${listDisplayType}, typeof: ${typeof listDisplayType}`);
 
   let itemIcon: Image.ImageLike = {
     source: Icon.Dot,
-    tintColor: dotColor,
+    tintColor: Color.PrimaryText,
   };
 
-  if (listDisplayType === SectionType.Forms) {
-    itemIcon = Icon.Receipt;
+  if (Object.values(YoudaoDisplayType).includes(listDisplayType as YoudaoDisplayType)) {
+    itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDisplayType);
   }
 
-  // if listDisplayType is undefined, use the default icon
-  if (listDisplayType === undefined) {
-    return itemIcon;
-  }
-
-  if (listDisplayType in TranslationType) {
+  if (Object.values(TranslationType).includes(listDisplayType as TranslationType)) {
     itemIcon = getQueryTypeIcon(listDisplayType as TranslationType);
   }
 
   // LingueeDisplayType is string enum, so we need to check if it is in the enum
   if (Object.values(LingueeDisplayType).includes(listDisplayType as LingueeDisplayType)) {
-    itemIcon = getLingueeItemIcon(listDisplayType as LingueeDisplayType);
+    itemIcon = getLingueeListItemIcon(listDisplayType as LingueeDisplayType);
   }
 
   // console.log(`---> end list type: ${listDisplayType}`);
@@ -239,9 +215,9 @@ export function getListItemIcon(listDisplayType: ListDisplayType | undefined): I
 }
 
 /**
- * Return the corresponding ImageLike based on LingueeDisplayType
+ * Get ImageLike based on LingueeDisplayType
  */
-export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Image.ImageLike {
+export function getLingueeListItemIcon(lingueeDisplayType: LingueeDisplayType): Image.ImageLike {
   // console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
@@ -285,7 +261,45 @@ export function getLingueeItemIcon(lingueeDisplayType: LingueeDisplayType): Imag
 }
 
 /**
- * Get query type icon based on the section type.
+ * Get ImageLike based on YoudaoDisplayType
+ */
+export function getYoudaoListItemIcon(youdaoListType: YoudaoDisplayType): Image.ImageLike {
+  // console.log(`---> getYoudaoListItemIcon type: ${queryType}`);
+  let dotColor: Color.ColorLike = Color.PrimaryText;
+  switch (youdaoListType) {
+    case YoudaoDisplayType.Translation: {
+      dotColor = Color.Red;
+      break;
+    }
+    case YoudaoDisplayType.Explanations: {
+      dotColor = Color.Blue;
+      break;
+    }
+    case YoudaoDisplayType.WebTranslation: {
+      dotColor = Color.Yellow;
+      break;
+    }
+    case YoudaoDisplayType.WebPhrase: {
+      dotColor = "teal";
+      break;
+    }
+  }
+
+  // console.log(`---> dot color: ${dotColor}`);
+  let itemIcon: Image.ImageLike = {
+    source: Icon.Dot,
+    tintColor: dotColor,
+  };
+
+  if (youdaoListType === YoudaoDisplayType.Forms) {
+    itemIcon = Icon.Receipt;
+  }
+
+  return itemIcon;
+}
+
+/**
+ * Get query type icon based on the query type, translation or dictionary type.
  */
 function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
   return {
@@ -295,33 +309,31 @@ function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
 }
 
 /**
-  return List.Item.Accessory[] based on the SectionType type
-*/
-export function getWordAccessories(
-  sectionType: ListDisplayType,
-  item: YoudaoTranslateReformatResultItem
-): List.Item.Accessory[] {
+ *  Get List.Item.Accessory[] based on the ListDisplayItem.
+ */
+export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[] {
   let wordExamTypeAccessory = [];
   let pronunciationAccessory = [];
   let wordAccessories: List.Item.Accessory[] = [];
-  if (sectionType === SectionType.Translation) {
-    if (item.examTypes) {
+  const accessoryItem = item.accessoryItem;
+  if (accessoryItem) {
+    if (accessoryItem.examTypes) {
       wordExamTypeAccessory = [
         {
           icon: { source: Icon.Star, tintColor: Color.SecondaryText },
           tooltip: "Word included in the types of exam",
         },
-        { text: item.examTypes?.join("  ") },
+        { text: accessoryItem.examTypes?.join("  ") },
       ];
       wordAccessories = [...wordExamTypeAccessory];
     }
-    if (item.phonetic) {
+    if (accessoryItem.phonetic) {
       pronunciationAccessory = [
         {
           icon: playSoundIcon("gray"),
           tooltip: "Pronunciation",
         },
-        { text: item.phonetic },
+        { text: accessoryItem.phonetic },
       ];
       wordAccessories = [...wordAccessories, { text: " " }, ...pronunciationAccessory];
     }

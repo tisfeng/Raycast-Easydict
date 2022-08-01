@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-29 17:33
+ * @lastEditTime: 2022-08-01 13:00
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import { LanguageDetectType } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 
-export enum SectionType {
+export enum YoudaoDisplayType {
   Translation = "Translate",
   Explanations = "Explanation",
   Forms = "Forms and Tenses",
@@ -85,8 +85,8 @@ export interface QueryWordInfo {
   fromLanguage: string; // ! must be Youdao language id.
   toLanguage: string;
   isWord: boolean; // ! show web translation need this value.
-  phonetic?: string;
-  speech?: string;
+  phonetic?: string; // ɡʊd
+  speech?: string; // youdao tts url
   examTypes?: string[];
   audioPath?: string;
   speechUrl?: string; // youdao tts url, some language not have tts url, such as "ຂາດ"
@@ -109,7 +109,7 @@ export interface YoudaoTranslateResultBasicFormItem {
 }
 
 export interface YoudaoTranslateReformatResult {
-  type: SectionType;
+  type: YoudaoDisplayType;
   children?: YoudaoTranslateReformatResultItem[];
 }
 export interface YoudaoTranslateReformatResultItem {
@@ -235,27 +235,34 @@ export interface TranslateResultKeyValueItem {
   value: string[];
 }
 
-export interface SectionDisplayResult {
-  type: ListDisplayType;
-  sectionTitle?: SectionType | TranslationType | string;
+export interface SectionDisplayItem {
+  type: ListItemDisplayType;
+  sectionTitle?: YoudaoDisplayType | TranslationType | string;
   items?: ListDisplayItem[];
 }
 
 export interface ListDisplayItem {
   key: string;
   title: string;
+  displayType: ListItemDisplayType;
   copyText: string;
   tooltip?: string;
   subtitle?: string;
   queryWordInfo: QueryWordInfo;
-  phonetic?: string;
   speech?: string;
-  examTypes?: string[];
   translationMarkdown?: string;
-  displayType?: ListDisplayType;
+
+  // accessory item
+  accessoryItem?: ListAccessoryItem;
 }
 
-export type ListDisplayType = LingueeDisplayType | SectionType | QueryType;
+export interface ListAccessoryItem {
+  phonetic?: string;
+  examTypes?: string[];
+  example?: string; // French word example text
+}
+
+export type ListItemDisplayType = LingueeDisplayType | YoudaoDisplayType | QueryType;
 
 export interface ClipboardRecoredItem {
   key: string;

@@ -15,7 +15,7 @@ import util from "util";
 import { RequestTypeResult } from "../../types";
 import { getLanguageItemFromYoudaoId } from "../../utils";
 import { userAgent } from "./../../consts";
-import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayResult } from "./../../types";
+import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayItem } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult, LingueeDisplayType } from "./types";
@@ -116,8 +116,8 @@ export async function rquestLingueeDictionary(
 /**
  * Formate linguee display result
  */
-export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): SectionDisplayResult[] {
-  const displayResults: SectionDisplayResult[] = [];
+export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): SectionDisplayItem[] {
+  const displayResults: SectionDisplayItem[] = [];
   if (lingueeTypeResult.result) {
     const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } =
       lingueeTypeResult.result as LingueeDictionaryResult;
@@ -193,7 +193,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             displayItems.push(unFeaturedDisplayItem);
           }
         }
-        const displayResult: SectionDisplayResult = {
+        const displayResult: SectionDisplayItem = {
           type: DicionaryType.Linguee,
           sectionTitle: sectionTitle,
           items: displayItems,
@@ -222,7 +222,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         };
         return displayItem;
       });
-      const exampleSection: SectionDisplayResult = {
+      const exampleSection: SectionDisplayItem = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // show up to 3 examples.
@@ -256,7 +256,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         return displayItem;
       });
 
-      const displayResult: SectionDisplayResult = {
+      const displayResult: SectionDisplayItem = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 related words
@@ -280,7 +280,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         };
         return displayItem;
       });
-      const displayResult: SectionDisplayResult = {
+      const displayResult: SectionDisplayItem = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems,
