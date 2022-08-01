@@ -3,7 +3,7 @@ import { userAgent } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-31 00:49
+ * @lastEditTime: 2022-08-01 10:04
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -74,12 +74,15 @@ export async function rquestLingueeDictionary(
       queryText
     )}`;
     console.log(`---> linguee request: ${lingueeUrl}`);
+
     // * avoid linguee's anti-spider, otherwise it will reponse very slowly or even error.
     const proxy = process.env.http_proxy || "http://127.0.0.1:6152"; // your proxy server
     // console.log(`---> env https proxy: ${JSON.stringify(process.env)}`);
     const httpsAgent = new HttpsProxyAgent(proxy);
     const headers: AxiosRequestHeaders = {
       "User-Agent": userAgent,
+      // accept: "*/*",
+      // connection: "keep-alive",
       // withCredentials: true,
     };
     const config: AxiosRequestConfig = {
@@ -232,7 +235,7 @@ export function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordI
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
       console.log(`--> ${words} ${placeholderText} : ${pos?.textContent}`);
 
-      const featuredTranslations = lemma?.querySelectorAll(".featured"); // <div class='translation sortablemg featured'>
+      const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
       // 2. get word featured explanation
       const explanations = getWordExplanationList(featuredTranslations as unknown as HTMLElement[], true);
       // remove featured explanation to get unfeatured explanation
@@ -284,11 +287,7 @@ function getWordExplanationList(
   if (translations?.length) {
     for (const translation of translations) {
       // console.log(`---> translation: ${translation}`);
-      const translation_desc = translation?.querySelector(".translation_desc");
-      // because of innerHTML has a incorrect featured class, so we need to filter it.
-      if (!translation_desc) {
-        continue;
-      }
+
       const explanationElement = translation?.querySelector(".dictLink");
       const tag_type = translation?.querySelector(".tag_type"); // adj
       const tag_c = translation?.querySelector(".tag_c"); // (often used)
