@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 13:03
+ * @lastEditTime: 2022-08-02 00:59
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import { sayTruncateCommand } from "./audio";
 import { languageItemList } from "./consts";
 import { LingueeDisplayType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
-import ReleaseLogDetail from "./releaseVersion/releaseLog";
+import ReleaseLogDetail from "./releaseVersion/releaselog";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
 import {
@@ -189,7 +189,7 @@ function playSoundIcon(lightTintColor: string) {
  * Return the corresponding ImageLike based on the ListDisplayType
  */
 export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.ImageLike {
-  console.log(`---> list type: ${listDisplayType}, typeof: ${typeof listDisplayType}`);
+  // console.log(`---> list type: ${listDisplayType}, typeof: ${typeof listDisplayType}`);
 
   let itemIcon: Image.ImageLike = {
     source: Icon.Dot,

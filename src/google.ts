@@ -20,7 +20,7 @@ export async function requestGoogleTranslate(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<RequestTypeResult> {
-  console.warn(`---> request google`);
+  console.log(`---> request google`);
   // if has preferred Chinese language or ip in China, use cn, else use com.
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
@@ -114,7 +114,7 @@ async function googleCrawlerTranslate(
         console.warn(`---> google result: ${result}, cost: ${res.headers["x-request-cost"]}ms`);
         return Promise.resolve({
           type: TranslationType.Google,
-          result,
+          result: { translatedText: result },
         });
       } catch (error) {
         console.error(`googleTranslate error: ${error}`);

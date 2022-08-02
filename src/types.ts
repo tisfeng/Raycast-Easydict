@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 13:00
+ * @lastEditTime: 2022-08-02 00:54
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
 
 import { Image } from "@raycast/api";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import { LanguageDetectType } from "./detectLanguage";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 
@@ -45,11 +45,11 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 
 export interface RequestTypeResult {
   type: RequestType;
-  result: RequestResult | null;
+  result: RequestResultType | null;
   errorInfo?: RequestErrorInfo;
 }
 
-type RequestResult =
+type RequestResultType =
   | YoudaoTranslateResult
   | BaiduTranslateResult
   | TencentTranslateResult
@@ -58,7 +58,7 @@ type RequestResult =
   | IcibaDictionaryResult
   | YoudaoDictionaryResult
   | LingueeDictionaryResult
-  | string;
+  | AppleTranslateResult;
 
 export interface RequestErrorInfo {
   message: string;
@@ -85,6 +85,7 @@ export interface QueryWordInfo {
   fromLanguage: string; // ! must be Youdao language id.
   toLanguage: string;
   isWord: boolean; // ! show web translation need this value.
+  detectedLanguage?: LanguageDetectTypeResult;
   phonetic?: string; // ɡʊd
   speech?: string; // youdao tts url
   examTypes?: string[];
@@ -202,11 +203,19 @@ export interface CaiyunTranslateResult {
  * DeepL translate result
  */
 export interface DeepLTranslateResult {
-  translations: DeepLTranslationItem[];
+  translations: DeepLTranslationItem[]; //  deepL may return multiple translations for the text.
 }
 export interface DeepLTranslationItem {
   detected_source_language: string;
   text: string;
+}
+
+export interface GoogleTranslateResult {
+  translatedText: string;
+}
+
+export interface AppleTranslateResult {
+  translatedText: string;
 }
 
 export interface TranslateSourceResult {
@@ -217,7 +226,7 @@ export interface TranslateSourceResult {
   icibaResult?: IcibaDictionaryResult;
 }
 
-export interface TranslateFormatResult {
+export interface YoudaoTranslationFormatResult {
   queryWordInfo: QueryWordInfo;
   translationItems: TranslateItem[];
   explanations?: string[];
@@ -233,6 +242,14 @@ export interface TranslateItem {
 export interface TranslateResultKeyValueItem {
   key: string;
   value: string[];
+}
+
+// export type RequestDisplayResult = SectionDisplayItem[];
+
+export interface QueryDisplayResult {
+  type: QueryType;
+  sourceResult?: RequestTypeResult;
+  displayResult?: SectionDisplayItem[];
 }
 
 export interface SectionDisplayItem {
@@ -262,7 +279,7 @@ export interface ListAccessoryItem {
   example?: string; // French word example text
 }
 
-export type ListItemDisplayType = LingueeDisplayType | YoudaoDisplayType | QueryType;
+export type ListItemDisplayType = LingueeDisplayType | YoudaoDisplayType | QueryType | TranslationType | DicionaryType;
 
 export interface ClipboardRecoredItem {
   key: string;

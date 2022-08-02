@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-25 22:41
+ * @lastEditTime: 2022-08-01 23:24
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,7 @@ import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslateFormatResult } from "./types";
+import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, YoudaoTranslationFormatResult } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -97,7 +97,7 @@ export function isValidLanguageId(languageId: string): boolean {
 /**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
-export function isTranslateResultTooLong(formatResult: TranslateFormatResult | null): boolean {
+export function isTranslateResultTooLong(formatResult: YoudaoTranslationFormatResult | null): boolean {
   if (!formatResult) {
     return false;
   }
@@ -274,7 +274,7 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
   });
 }
 
-export function checkIfShowMultipleTranslations(formatResult: TranslateFormatResult) {
+export function checkIfShowMultipleTranslations(formatResult: YoudaoTranslationFormatResult) {
   return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
 }
 
