@@ -56,17 +56,17 @@ export interface LingueeWikipedia {
 }
 
 export enum LingueeDisplayType {
-  AlmostAlwaysUsed = "almost always used", // also featured, eg. true
-  OftenUsed = "often used", // also featured, eg. good
-  Common = "common", // also featured
-  LessCommon = "less common", // unfeatured
+  AlmostAlwaysUsed = "Almost Always Used", // also featured, eg. true
+  OftenUsed = "Often Used", // also featured, eg. good
+  Common = "Common", // also featured
+  LessCommon = "Less Common", // unfeatured
 
-  SpecialForms = "special forms", // special forms, like often used, but we currently don't handle it. eg. good  English-French
+  SpecialForms = "Forms", // special forms, like often used, but we currently don't handle it. eg. good  English-French
 
-  Unfeatured = "unfeatured",
-  Example = "example",
-  RelatedWord = "related word", // eg. 优雅, 美丽
-  Wikipedia = "wikipedia", // eg. sql
+  Unfeatured = "Unfeatured",
+  Example = "Example",
+  RelatedWord = "Related word", // eg. 优雅, 美丽
+  Wikipedia = "Wikipedia", // eg. sql
 
-  Translation = "translation", // just used for linguee section title item
+  Translation = "Translation", // just used for linguee section title item
 }

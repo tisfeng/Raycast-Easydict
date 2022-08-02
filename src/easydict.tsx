@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 10:23
+ * @lastEditTime: 2022-08-02 23:09
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,7 +46,7 @@ export default function () {
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
   function updateDisplayResult(result: SectionDisplayItem[]) {
-    console.log(`---> updateDisplayResult: ${result.length}`);
+    console.log(`---> update display result, length: ${result.length}`);
     setDisplayResult(result);
     setLoadingState(false);
   }

@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 15:51
+ * @lastEditTime: 2022-08-02 23:00
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -51,13 +51,12 @@ export interface RequestTypeResult {
 }
 
 type RequestResultType =
-  | YoudaoDictionaryResult
+  | YoudaoDictionaryFormatResult
   | BaiduTranslateResult
   | TencentTranslateResult
   | CaiyunTranslateResult
   | DeepLTranslateResult
   | IcibaDictionaryResult
-  | YoudaoDictionaryResult
   | LingueeDictionaryResult
   | AppleTranslateResult;
 
@@ -219,7 +218,7 @@ export interface AppleTranslateResult {
   translatedText: string;
 }
 
-export interface YoudaoTranslationFormatResult {
+export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;
   translations: string[];
   explanations?: string[];

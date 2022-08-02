@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 11:44
+ * @lastEditTime: 2022-08-02 23:35
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,6 +22,7 @@ export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 95;
 
 export const myPreferences: MyPreferences = getPreferenceValues();
+// console.log("myPreferences: ", myPreferences);
 export const defaultLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1) as LanguageItem;
 export const defaultLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2) as LanguageItem;
 export const preferredLanguages = [defaultLanguage1, defaultLanguage2];

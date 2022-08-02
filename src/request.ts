@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 12:52
+ * @lastEditTime: 2022-08-02 21:58
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,17 +12,8 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import {
-  baiduAppId,
-  baiduAppSecret,
-  caiyunToken,
-  tencentSecretId,
-  tencentSecretKey,
-  youdaoAppId,
-  youdaoAppSecret,
-} from "./crypto";
+import { baiduAppId, baiduAppSecret, caiyunToken, tencentSecretId, tencentSecretKey } from "./crypto";
 
-import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "./consts";
 import { deepLAuthKey } from "./crypto";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import {
@@ -33,7 +24,6 @@ import {
   RequestTypeResult,
   TencentTranslateResult,
   TranslationType,
-  YoudaoDictionaryResult,
 } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
@@ -59,7 +49,7 @@ const client = new TmtClient(clientConfig);
 /**
  * Caclulate axios request cost time
  */
-const requestCostTime = "x-request-cost";
+const requestCostTime = "requestCostTime";
 axios.interceptors.request.use(function (config: AxiosRequestConfig) {
   if (config.headers) {
     config.headers["request-startTime"] = new Date().getTime();
@@ -155,68 +145,6 @@ export async function requestTencentTextTranslate(
     };
     return Promise.reject(errorInfo);
   }
-}
-
-/**
- * 有道翻译
- * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
- */
-export function requestYoudaoDictionary(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string
-): Promise<RequestTypeResult> {
-  function truncate(q: string): string {
-    const len = q.length;
-    return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
-  }
-
-  const timestamp = Math.round(new Date().getTime() / 1000);
-  const salt = timestamp;
-  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
-  const sign = CryptoJS.SHA256(sha256Content).toString();
-  const url = "https://openapi.youdao.com/api";
-  const params = querystring.stringify({
-    sign,
-    salt,
-    from: fromLanguage,
-    signType: "v3",
-    q: queryText,
-    appKey: youdaoAppId,
-    curtime: timestamp,
-    to: targetLanguage,
-  });
-
-  return new Promise((resolve, reject) => {
-    axios
-      .post(url, params)
-      .then((response) => {
-        const youdaoResult = response.data as YoudaoDictionaryResult;
-        const youdaoErrorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
-        const youdaoTypeResult = {
-          type: TranslationType.Youdao,
-          result: youdaoResult,
-          errorInfo: youdaoErrorInfo,
-          translation: youdaoResult.translation.join(" "),
-        };
-        console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
-        if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
-          reject(youdaoErrorInfo);
-        } else {
-          resolve(youdaoTypeResult);
-        }
-      })
-      .catch((error) => {
-        // It seems that Youdao will never reject, always resolve...
-        // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
-        console.error(`youdao translate error: ${error}`);
-        reject({
-          type: TranslationType.Youdao,
-          code: error.response?.status.toString(),
-          message: error.response?.statusText,
-        });
-      });
-  });
 }
 
 //

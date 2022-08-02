@@ -2,19 +2,126 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-03 18:03
+ * @lastEditTime: 2022-08-02 23:37
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import axios from "axios";
+import CryptoJS from "crypto-js";
+import querystring from "node:querystring";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
-import { QueryWordInfo } from "../../types";
+import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "../../consts";
+import { youdaoAppId, youdaoAppSecret } from "../../crypto";
+import {
+  QueryWordInfo,
+  RequestTypeResult,
+  TranslationType,
+  YoudaoDictionaryFormatResult,
+  YoudaoDictionaryResult,
+} from "../../types";
 
 /**
  * Max length of text to download youdao tts audio
  */
 export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
+
+/**
+ * 有道翻译
+ * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+ */
+export function requestYoudaoDictionary(
+  queryText: string,
+  fromLanguage: string,
+  targetLanguage: string
+): Promise<RequestTypeResult> {
+  function truncate(q: string): string {
+    const len = q.length;
+    return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
+  }
+  const timestamp = Math.round(new Date().getTime() / 1000);
+  const salt = timestamp;
+  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
+  const sign = CryptoJS.SHA256(sha256Content).toString();
+  const url = "https://openapi.youdao.com/api";
+  const params = querystring.stringify({
+    sign,
+    salt,
+    from: fromLanguage,
+    signType: "v3",
+    q: queryText,
+    appKey: youdaoAppId,
+    curtime: timestamp,
+    to: targetLanguage,
+  });
+  // console.log(`---> youdao params: ${params}`);
+
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, params)
+      .then((response) => {
+        const youdaoResult = response.data as YoudaoDictionaryResult;
+        const youdaoFormatResult = formatYoudaoDictionaryResult(youdaoResult);
+        const youdaoErrorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
+        const youdaoTypeResult: RequestTypeResult = {
+          type: TranslationType.Youdao,
+          result: youdaoFormatResult,
+          errorInfo: youdaoErrorInfo,
+          translation: youdaoResult.translation.join(" "),
+        };
+        console.warn(`---> Youdao translate cost: ${response.headers["requestCostTime"]} ms`);
+        if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
+          reject(youdaoErrorInfo);
+        } else {
+          resolve(youdaoTypeResult);
+        }
+      })
+      .catch((error) => {
+        // It seems that Youdao will never reject, always resolve...
+        // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
+        console.error(`youdao translate error: ${error}`);
+        reject({
+          type: TranslationType.Youdao,
+          code: error.response?.status.toString(),
+          message: error.response?.statusText,
+        });
+      });
+  });
+}
+
+/**
+ * Format the Youdao original data for later use.
+ */
+function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResult): YoudaoDictionaryFormatResult {
+  const [from, to] = youdaoResult.l.split("2"); // from2to
+  let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
+  usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
+  const queryWordInfo: QueryWordInfo = {
+    word: youdaoResult.query,
+    phonetic: usPhonetic || youdaoResult.basic?.phonetic,
+    speech: youdaoResult.basic?.["us-speech"],
+    fromLanguage: from,
+    toLanguage: to,
+    isWord: youdaoResult.isWord,
+    examTypes: youdaoResult.basic?.exam_type,
+    speechUrl: youdaoResult.speakUrl,
+  };
+
+  let webTranslation;
+  if (youdaoResult.web) {
+    webTranslation = youdaoResult.web[0];
+  }
+  const webPhrases = youdaoResult.web?.slice(1);
+  return {
+    queryWordInfo: queryWordInfo,
+    translations: youdaoResult.translation,
+    explanations: youdaoResult.basic?.explains,
+    forms: youdaoResult.basic?.wfs,
+    webTranslation: webTranslation,
+    webPhrases: webPhrases,
+  };
+}
 
 /**
  * Download query word audio and play after download.
@@ -51,7 +158,6 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
   * * Note: this function is only used to download `isWord` audio file from web youdao, if not a word, the pronunciation audio is not accurate.
   
   this is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
-
   Example: https://dict.youdao.com/dictvoice?type=0&audio=good
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {

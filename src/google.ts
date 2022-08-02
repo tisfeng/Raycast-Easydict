@@ -3,7 +3,7 @@ import { userAgent } from "./consts";
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 17:30
+ * @lastEditTime: 2022-08-02 22:00
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -64,7 +64,7 @@ async function getCurrentIpInfo() {
   try {
     const url = "https://ipinfo.io";
     const res = await axios.get(url);
-    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers["x-request-cost"]} ms`);
+    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers["requestCostTime"]} ms`);
     return Promise.resolve(res.data);
   } catch (error) {
     console.error(`getCurrentIp error: ${error}`);
@@ -111,7 +111,7 @@ async function googleCrawlerTranslate(
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
         let result = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
         result = decodeURI(result);
-        console.warn(`---> google result: ${result}, cost: ${res.headers["x-request-cost"]}ms`);
+        console.warn(`---> google result: ${result}, cost: ${res.headers["requestCostTime"]}ms`);
         return Promise.resolve({
           type: TranslationType.Google,
           result: { translatedText: result },
@@ -136,7 +136,7 @@ export async function getCurrentIp(): Promise<string> {
   try {
     const res = await axios.get(url);
     const ip = res.data.trim();
-    console.warn(`---> current ip: ${ip}, cost ${res.headers["x-request-cost"]} ms`);
+    console.warn(`---> current ip: ${ip}, cost ${res.headers["requestCostTime"]} ms`);
     return Promise.resolve(ip);
   } catch (error) {
     console.error(`getCurrentIp error: ${error}`);

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 17:07
+ * @lastEditTime: 2022-08-02 22:06
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -91,7 +91,7 @@ export async function rquestLingueeDictionary(
     axios
       .get(lingueeUrl, config)
       .then((response) => {
-        console.warn(`---> linguee cost: ${response.headers["x-request-cost"]} ms`);
+        console.warn(`---> linguee cost: ${response.headers["requestCostTime"]} ms`);
         console.log(`--- headers: ${util.inspect(response.config.headers, { depth: null })}`);
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const contentType = response.headers["content-type"];

@@ -1,9 +1,8 @@
-import { TranslationType } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 16:40
+ * @lastEditTime: 2022-08-02 23:10
  * @fileName: data.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,14 +11,13 @@ import { TranslationType } from "./types";
 import { showToast, Toast } from "@raycast/api";
 import { BaiduRequestStateCode, dictionarySeparator } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
-import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { requestGoogleTranslate } from "./google";
 import {
   requestBaiduTextTranslate,
   requestCaiyunTextTranslate,
   requestDeepLTextTranslate,
   requestTencentTextTranslate,
-  requestYoudaoDictionary,
 } from "./request";
 import { appleTranslate } from "./scripts";
 import {
@@ -37,13 +35,11 @@ import {
   SectionDisplayItem,
   TencentTranslateResult,
   TranslateItem,
-  YoudaoDictionaryResult,
+  TranslationType,
+  YoudaoDictionaryFormatResult,
   YoudaoDisplayType,
-  YoudaoTranslationFormatResult,
 } from "./types";
 import { myPreferences } from "./utils";
-
-const sortedOrder = getTranslationResultOrder();
 
 export class RequestResult {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
@@ -77,6 +73,8 @@ export class RequestResult {
     // do nothing, it will be assigned later.
   }, 1000);
 
+  sortOrder = getTranslationResultOrder();
+
   queryResults: QueryResult[] = [];
 
   updateRequestDisplayResults(queryDisplayResult: QueryResult) {
@@ -85,7 +83,7 @@ export class RequestResult {
     for (const result of this.queryResults) {
       if (result.displayResult) {
         displaySections.push(result.displayResult);
-        // console.log(`---> update result: ${JSON.stringify(result.sourceResult, null, 4)}`);
+        console.log(`---> update result: ${result.type}`);
       }
     }
     if (displaySections.length) {
@@ -100,10 +98,8 @@ export class RequestResult {
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
-    console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
     console.log(`---> query text: ${queryText}`);
-
-    let youdaoTranslateTypeResult: RequestTypeResult | undefined;
+    console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
       .then((lingueeTypeResult) => {
@@ -122,6 +118,7 @@ export class RequestResult {
 
     const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary;
     if (enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
+      console.log("---> request youdao dictionary");
       requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
@@ -138,25 +135,28 @@ export class RequestResult {
             return;
           }
 
-          const formatResult = this.formatYoudaoDictionaryResult(youdaoTypeResult);
-          const youdaoDisplayResult = this.updateYoudaoDictionaryDisplay(formatResult);
+          const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
+          const youdaoDisplayResult = this.updateYoudaoDictionaryDisplay(formatYoudaoResult);
+          const showYoudaoDictionary = this.checkIfShowYoudaoDictionary(formatYoudaoResult);
+          console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
           const type = enableYoudaoDictionary ? DicionaryType.Youdao : TranslationType.Youdao;
+
           const displayResult: QueryResult = {
             type: type,
-            sourceResult: youdaoTranslateTypeResult,
+            sourceResult: youdaoTypeResult,
             displayResult: youdaoDisplayResult,
           };
-          if (type === DicionaryType.Youdao) {
+          if (type === DicionaryType.Youdao && showYoudaoDictionary) {
             this.updateRequestDisplayResults(displayResult);
-          } else {
+          } else if (type === TranslationType.Youdao) {
             this.updateTranslationDisplay(displayResult);
           }
 
           // if enable automatic play audio and query is word, then download audio and play it
           const enableAutomaticDownloadAudio =
-            myPreferences.isAutomaticPlayWordAudio && formatResult.queryWordInfo.isWord;
+            myPreferences.isAutomaticPlayWordAudio && formatYoudaoResult.queryWordInfo.isWord;
           if (enableAutomaticDownloadAudio && this.isLastQuery) {
-            playYoudaoWordAudioAfterDownloading(formatResult.queryWordInfo);
+            playYoudaoWordAudioAfterDownloading(formatYoudaoResult.queryWordInfo);
           }
         })
         .catch((error) => {
@@ -317,48 +317,12 @@ export class RequestResult {
   }
 
   /**
-   * Format the Youdao original data for later use.
-   */
-  formatYoudaoDictionaryResult(youdaoTypeResult: RequestTypeResult): YoudaoTranslationFormatResult {
-    const youdaoResult = youdaoTypeResult.result as YoudaoDictionaryResult;
-    const [from, to] = youdaoResult.l.split("2"); // from2to
-    let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
-    usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
-    const queryWordInfo: QueryWordInfo = {
-      ...this.queryWordInfo,
-      word: youdaoResult.query,
-      phonetic: usPhonetic || youdaoResult.basic?.phonetic,
-      speech: youdaoResult.basic?.["us-speech"],
-      fromLanguage: from,
-      toLanguage: to,
-      isWord: youdaoResult.isWord,
-      examTypes: youdaoResult.basic?.exam_type,
-      speechUrl: youdaoResult.speakUrl,
-    };
-
-    let webTranslation;
-    if (youdaoResult.web) {
-      webTranslation = youdaoResult.web[0];
-    }
-    const webPhrases = youdaoResult.web?.slice(1);
-
-    return {
-      queryWordInfo: queryWordInfo,
-      translations: youdaoResult.translation,
-      explanations: youdaoResult.basic?.explains,
-      forms: youdaoResult.basic?.wfs,
-      webTranslation: webTranslation,
-      webPhrases: webPhrases,
-    };
-  }
-
-  /**
    * Update the translation display.
    *
    * * If sourceResult.result exist, then will call this.updateRequestDisplayResults()
    */
   updateTranslationDisplay(queryResult: QueryResult) {
-    // console.log(`---> updateTranslationDisplay: ${queryDisplayResult}`);
+    console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
 
     const { type, sourceResult } = queryResult;
     let translatedText = "";
@@ -397,7 +361,7 @@ export class RequestResult {
         break;
       }
       case TranslationType.Youdao: {
-        const youdaoResult = sourceResult.result as YoudaoTranslationFormatResult;
+        const youdaoResult = sourceResult.result as YoudaoDictionaryFormatResult;
         if (youdaoResult) {
           translatedText = youdaoResult.translations.join("\n");
         }
@@ -413,6 +377,7 @@ export class RequestResult {
     }
 
     if (translatedText) {
+      console.log(`---> translatedText: ${translatedText}`);
       const displayItem: ListDisplayItem = {
         displayType: type,
         key: `${translatedText}-${type}`,
@@ -440,7 +405,7 @@ export class RequestResult {
   /**
    * Update Youdao dictionary result.
    */
-  updateYoudaoDictionaryDisplay(formatResult: YoudaoTranslationFormatResult | null): SectionDisplayItem[] {
+  updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): SectionDisplayItem[] {
     const sectionResult: Array<SectionDisplayItem> = [];
     if (!formatResult) {
       return sectionResult;
@@ -572,6 +537,17 @@ export class RequestResult {
   }
 
   /**
+   * Check if should show Youdao dictionary.
+   *
+   * If there is no result other than translation, then should not show Youdao dictionary.
+   */
+  checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
+    return (
+      !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation
+    );
+  }
+
+  /**
    * Convert multiple translated result texts to markdown format and display them in the same list details page.
    */
   // formatAllTypeTranslationToMarkdown(
@@ -686,6 +662,8 @@ export function getTranslationResultOrder(): string[] {
     TranslationType.Tencent,
     TranslationType.Youdao,
     TranslationType.Caiyun,
+
+    DicionaryType.Youdao,
   ];
 
   const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
@@ -693,6 +671,9 @@ export function getTranslationResultOrder(): string[] {
   const userOrder: string[] = [];
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
   const manualOrder = myPreferences.translationDisplayOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
+
+  // if contains DicionaryType.Youdao and TranslationType.Youdao, remove DicionaryType.Youdao
+
   // console.log("manualOrder:", manualOrder);
   if (manualOrder.length > 0) {
     for (let translationName of manualOrder) {

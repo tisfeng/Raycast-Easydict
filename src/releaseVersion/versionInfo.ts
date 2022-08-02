@@ -156,7 +156,7 @@ export class Easydict {
     try {
       // console.log(`fetch release url: ${releaseUrl}`);
       const response = await axios.get(releaseUrl);
-      console.log(`fetch github cost time: ${response.headers["x-request-cost"]} ms`);
+      console.log(`fetch github cost time: ${response.headers["requestCostTime"]} ms`);
 
       return Promise.resolve(response.data);
     } catch (error) {

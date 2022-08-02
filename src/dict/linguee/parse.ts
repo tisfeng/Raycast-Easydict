@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 16:33
+ * @lastEditTime: 2022-08-02 17:38
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -239,18 +239,18 @@ function getWordExplanationList(
 function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
   // console.log(`---> word frequency: ${wordFrequency}`);
   // remove parentheses
-  const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "");
+  const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "").toLowerCase();
   let wordDisplayType: LingueeDisplayType;
   switch (wordFrequencyWithoutParentheses) {
-    case LingueeDisplayType.AlmostAlwaysUsed: {
+    case LingueeDisplayType.AlmostAlwaysUsed.toLowerCase(): {
       wordDisplayType = LingueeDisplayType.AlmostAlwaysUsed;
       break;
     }
-    case LingueeDisplayType.OftenUsed: {
+    case LingueeDisplayType.OftenUsed.toLowerCase(): {
       wordDisplayType = LingueeDisplayType.OftenUsed;
       break;
     }
-    case LingueeDisplayType.LessCommon: {
+    case LingueeDisplayType.LessCommon.toLowerCase(): {
       wordDisplayType = LingueeDisplayType.LessCommon;
       break;
     }
