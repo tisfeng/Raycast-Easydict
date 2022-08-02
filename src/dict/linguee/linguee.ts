@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 22:06
+ * @lastEditTime: 2022-08-03 00:30
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
 import { RequestTypeResult } from "../../types";
-import { getLanguageItemFromYoudaoId } from "../../utils";
+import { getEnabledDictionaryServices, getLanguageItemFromYoudaoId } from "../../utils";
 import { dictionarySeparator, userAgent } from "./../../consts";
 import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayItem } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
@@ -135,10 +135,11 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       }
       const copyText = `${translation} ${word}`;
       const displayType = LingueeDisplayType.Translation;
+      const separator = getEnabledDictionaryServices().length > 1 ? dictionarySeparator : "";
 
       const lingueeTitleSection: SectionDisplayItem = {
         type: lingueeType,
-        sectionTitle: `${lingueeType} Dictionary ${dictionarySeparator}`,
+        sectionTitle: `${lingueeType} ${separator}`,
         items: [
           {
             key: copyText,

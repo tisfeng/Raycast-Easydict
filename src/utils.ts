@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:35
+ * @lastEditTime: 2022-08-03 00:26
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,14 @@ import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
 import { RequestResult } from "./data";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { DicionaryType, LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo } from "./types";
+import {
+  DicionaryType,
+  LanguageItem,
+  MyPreferences,
+  QueryRecoredItem,
+  QueryWordInfo,
+  YoudaoDictionaryFormatResult,
+} from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -299,4 +306,27 @@ export function trimTextLength(text: string, length = 2000) {
     return text.substring(0, length) + "...";
   }
   return text.substring(0, length);
+}
+
+/**
+ * Check if should show Youdao dictionary.
+ *
+ * If there is no result other than translation, then should not show Youdao dictionary.
+ */
+export function checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
+  return formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation;
+}
+
+/**
+ * Get enabled dictionary services.
+ */
+export function getEnabledDictionaryServices(): DicionaryType[] {
+  const enabledDictionaryServices: DicionaryType[] = [];
+  if (myPreferences.enableLingueeDictionary) {
+    enabledDictionaryServices.push(DicionaryType.Linguee);
+  }
+  if (myPreferences.enableYoudaoDictionary) {
+    enabledDictionaryServices.push(DicionaryType.Youdao);
+  }
+  return enabledDictionaryServices;
 }

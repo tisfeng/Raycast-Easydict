@@ -2,15 +2,16 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:54
+ * @lastEditTime: 2022-08-03 00:05
  * @fileName: data.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { BaiduRequestStateCode, dictionarySeparator } from "./consts";
+import { BaiduRequestStateCode } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
+import { updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { requestGoogleTranslate } from "./google";
 import {
@@ -37,9 +38,8 @@ import {
   TranslateItem,
   TranslationType,
   YoudaoDictionaryFormatResult,
-  YoudaoDisplayType,
 } from "./types";
-import { myPreferences } from "./utils";
+import { checkIfShowYoudaoDictionary, myPreferences } from "./utils";
 
 export class RequestResult {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
@@ -137,8 +137,8 @@ export class RequestResult {
           }
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
-          const youdaoDisplayResult = this.updateYoudaoDictionaryDisplay(formatYoudaoResult);
-          const showYoudaoDictionary = this.checkIfShowYoudaoDictionary(formatYoudaoResult);
+          const youdaoDisplayResult = updateYoudaoDictionaryDisplay(formatYoudaoResult);
+          const showYoudaoDictionary = checkIfShowYoudaoDictionary(formatYoudaoResult);
           console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
           const type = enableYoudaoDictionary ? DicionaryType.Youdao : TranslationType.Youdao;
 
@@ -401,149 +401,6 @@ export class RequestResult {
       };
       this.updateRequestDisplayResults(displayResult);
     }
-  }
-
-  /**
-   * Update Youdao dictionary result.
-   */
-  updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): SectionDisplayItem[] {
-    const sectionResult: Array<SectionDisplayItem> = [];
-    if (!formatResult) {
-      return sectionResult;
-    }
-
-    const type = DicionaryType.Youdao;
-    const oneLineTranslation = formatResult.translations.join(" ");
-    const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
-    const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
-    const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
-
-    sectionResult.push({
-      type: type,
-      sectionTitle: `${type} Dictionary ${dictionarySeparator}`,
-      items: [
-        {
-          displayType: YoudaoDisplayType.Translation,
-          key: oneLineTranslation + type,
-          title: ` ${oneLineTranslation}`,
-          subtitle: wordSubtitle,
-          tooltip: `Translate`,
-          copyText: oneLineTranslation,
-          queryWordInfo: formatResult.queryWordInfo,
-          speech: formatResult.queryWordInfo.speech,
-          // translationMarkdown: this.formatAllTypeTranslationToMarkdown(type, formatResult),
-          accessoryItem: {
-            phonetic: phoneticText,
-            examTypes: formatResult.queryWordInfo.examTypes,
-          },
-        },
-      ],
-    });
-
-    let hasShowDetailsSectionTitle = false;
-    const detailsSectionTitle = "Details";
-
-    formatResult.explanations?.forEach((explanation, i) => {
-      sectionResult.push({
-        type: YoudaoDisplayType.Explanations,
-        sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-        items: [
-          {
-            displayType: YoudaoDisplayType.Explanations,
-            key: explanation + i,
-            title: explanation,
-            queryWordInfo: formatResult.queryWordInfo,
-            tooltip: YoudaoDisplayType.Explanations,
-            copyText: explanation,
-          },
-        ],
-      });
-
-      hasShowDetailsSectionTitle = true;
-    });
-
-    const wfs = formatResult.forms?.map((wfItem) => {
-      return wfItem.wf?.name + " " + wfItem.wf?.value;
-    });
-
-    // [ 复数 goods   比较级 better   最高级 best ]
-    const wfsText = wfs?.join("   ") || "";
-    if (wfsText.length) {
-      sectionResult.push({
-        type: YoudaoDisplayType.Forms,
-        sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-        items: [
-          {
-            displayType: YoudaoDisplayType.Forms,
-            key: wfsText,
-            title: "",
-            queryWordInfo: formatResult.queryWordInfo,
-            tooltip: YoudaoDisplayType.Forms,
-            subtitle: `[ ${wfsText} ]`,
-            copyText: wfsText,
-          },
-        ],
-      });
-
-      hasShowDetailsSectionTitle = true;
-    }
-
-    if (formatResult.webTranslation) {
-      const webResultKey = formatResult.webTranslation?.key;
-      const webResultValue = formatResult.webTranslation.value.join("；");
-      const copyText = `${webResultKey} ${webResultValue}`;
-      sectionResult.push({
-        type: YoudaoDisplayType.WebTranslation,
-        sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-        items: [
-          {
-            displayType: YoudaoDisplayType.WebTranslation,
-            key: copyText,
-            title: webResultKey,
-            queryWordInfo: formatResult.queryWordInfo,
-            tooltip: YoudaoDisplayType.WebTranslation,
-            subtitle: webResultValue,
-            copyText: copyText,
-          },
-        ],
-      });
-
-      hasShowDetailsSectionTitle = true;
-    }
-
-    formatResult.webPhrases?.forEach((phrase, i) => {
-      const phraseKey = phrase.key;
-      const phraseValue = phrase.value.join("；");
-      const copyText = `${phraseKey} ${phraseValue}`;
-      sectionResult.push({
-        type: YoudaoDisplayType.WebPhrase,
-        sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-        items: [
-          {
-            displayType: YoudaoDisplayType.WebPhrase,
-            key: copyText + i,
-            title: phraseKey,
-            queryWordInfo: formatResult.queryWordInfo,
-            tooltip: YoudaoDisplayType.WebPhrase,
-            subtitle: phraseValue,
-            copyText: copyText,
-          },
-        ],
-      });
-
-      hasShowDetailsSectionTitle = true;
-    });
-
-    return sectionResult;
-  }
-
-  /**
-   * Check if should show Youdao dictionary.
-   *
-   * If there is no result other than translation, then should not show Youdao dictionary.
-   */
-  checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
-    return formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation;
   }
 
   /**

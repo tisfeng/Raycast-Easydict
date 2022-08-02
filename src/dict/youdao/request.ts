@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:37
+ * @lastEditTime: 2022-08-03 00:05
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,13 +14,8 @@ import querystring from "node:querystring";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "../../consts";
 import { youdaoAppId, youdaoAppSecret } from "../../crypto";
-import {
-  QueryWordInfo,
-  RequestTypeResult,
-  TranslationType,
-  YoudaoDictionaryFormatResult,
-  YoudaoDictionaryResult,
-} from "../../types";
+import { QueryWordInfo, RequestTypeResult, TranslationType, YoudaoDictionaryResult } from "../../types";
+import { formatYoudaoDictionaryResult } from "./formatData";
 
 /**
  * Max length of text to download youdao tts audio
@@ -88,39 +83,6 @@ export function requestYoudaoDictionary(
         });
       });
   });
-}
-
-/**
- * Format the Youdao original data for later use.
- */
-function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResult): YoudaoDictionaryFormatResult {
-  const [from, to] = youdaoResult.l.split("2"); // from2to
-  let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
-  usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
-  const queryWordInfo: QueryWordInfo = {
-    word: youdaoResult.query,
-    phonetic: usPhonetic || youdaoResult.basic?.phonetic,
-    speech: youdaoResult.basic?.["us-speech"],
-    fromLanguage: from,
-    toLanguage: to,
-    isWord: youdaoResult.isWord,
-    examTypes: youdaoResult.basic?.exam_type,
-    speechUrl: youdaoResult.speakUrl,
-  };
-
-  let webTranslation;
-  if (youdaoResult.web) {
-    webTranslation = youdaoResult.web[0];
-  }
-  const webPhrases = youdaoResult.web?.slice(1);
-  return {
-    queryWordInfo: queryWordInfo,
-    translations: youdaoResult.translation,
-    explanations: youdaoResult.basic?.explains,
-    forms: youdaoResult.basic?.wfs,
-    webTranslation: webTranslation,
-    webPhrases: webPhrases,
-  };
 }
 
 /**

@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:49
+ * @lastEditTime: 2022-08-03 00:01
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,10 +34,10 @@ export enum TranslationType {
 }
 
 export enum DicionaryType {
-  Youdao = "Youdao",
-  Iciba = "Iciba",
-  Eudic = "Eudic",
-  Linguee = "Linguee",
+  Youdao = "Youdao Dicionary",
+  Iciba = "Iciba Dicionary",
+  Eudic = "Eudic Dicionary",
+  Linguee = "Linguee Dicionary",
 }
 
 export type QueryType = TranslationType | DicionaryType;
