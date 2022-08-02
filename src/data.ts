@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:10
+ * @lastEditTime: 2022-08-02 23:54
  * @fileName: data.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -101,20 +101,21 @@ export class RequestResult {
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
-      .then((lingueeTypeResult) => {
-        // console.log("---> linguee result:", JSON.stringify(lingueeTypeResult.result, null, 2));
-        const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
-        const displayResult: QueryResult = {
-          type: DicionaryType.Linguee,
-          displayResult: lingueeDisplayResult,
-          sourceResult: lingueeTypeResult,
-        };
-        this.updateRequestDisplayResults(displayResult);
-      })
-      .catch((error) => {
-        console.error("lingueeDictionaryResult error:", error);
-      });
+    if (myPreferences.enableLingueeDictionary) {
+      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
+        .then((lingueeTypeResult) => {
+          const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
+          const displayResult: QueryResult = {
+            type: DicionaryType.Linguee,
+            displayResult: lingueeDisplayResult,
+            sourceResult: lingueeTypeResult,
+          };
+          this.updateRequestDisplayResults(displayResult);
+        })
+        .catch((error) => {
+          console.error("lingueeDictionaryResult error:", error);
+        });
+    }
 
     const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary;
     if (enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
@@ -542,9 +543,7 @@ export class RequestResult {
    * If there is no result other than translation, then should not show Youdao dictionary.
    */
   checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
-    return (
-      !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation
-    );
+    return formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation;
   }
 
   /**
@@ -650,20 +649,20 @@ export class RequestResult {
 // }
 
 /**
- * Get translation result order, defaulf is sorted by: deelp > apple > baidu > tencent > youdao > caiyun.
- * If user set the order manually, prioritize the order.
+ * Get translation result order. If user set the order manually, prioritize the order.
  */
 export function getTranslationResultOrder(): string[] {
   const defaultTypeOrder = [
+    DicionaryType.Linguee,
+    DicionaryType.Youdao,
+
     TranslationType.DeepL,
     TranslationType.Google,
     TranslationType.Apple,
     TranslationType.Baidu,
     TranslationType.Tencent,
-    TranslationType.Youdao,
+    TranslationType.Youdao, // * Note: only one Youdao will be shown.
     TranslationType.Caiyun,
-
-    DicionaryType.Youdao,
   ];
 
   const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());

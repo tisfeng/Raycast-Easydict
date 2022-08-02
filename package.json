@@ -396,9 +396,9 @@
       "name": "translationDisplayOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",
+      "description": "Separate by comma, default is Linguee,Youdao,DeepL,Google,Apple,Baidu,Tencent,Caiyun",
       "default": "",
-      "placeholder": "deepl,google,apple,baidu,tencent,youdao,caiyun"
+      "placeholder": "linguee,youdao,deepl,google,apple,baidu,tencent,caiyun"
     },
     {
       "title": "Youdao App ID",

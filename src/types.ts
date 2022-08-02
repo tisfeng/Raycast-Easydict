@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:00
+ * @lastEditTime: 2022-08-02 23:49
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -133,6 +133,8 @@ export interface MyPreferences {
 
   enableYoudaoDictionary: boolean;
   enableYoudaoTranslate: boolean;
+
+  enableLingueeDictionary: boolean;
 
   youdaoAppId: string;
   youdaoAppSecret: string;
