@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 00:54
+ * @lastEditTime: 2022-08-02 15:51
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,11 +46,12 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 export interface RequestTypeResult {
   type: RequestType;
   result: RequestResultType | null;
+  translation: string; // one line translation, join by " ". if show multiple translation, need to join by "\n"
   errorInfo?: RequestErrorInfo;
 }
 
 type RequestResultType =
-  | YoudaoTranslateResult
+  | YoudaoDictionaryResult
   | BaiduTranslateResult
   | TencentTranslateResult
   | CaiyunTranslateResult
@@ -66,7 +67,7 @@ export interface RequestErrorInfo {
   type?: RequestType;
 }
 
-export interface YoudaoTranslateResult {
+export interface YoudaoDictionaryResult {
   l: string;
   query: string;
   returnPhrase: [];
@@ -78,7 +79,7 @@ export interface YoudaoTranslateResult {
   speakUrl: string;
 }
 
-export type YoudaoDictionaryResult = YoudaoTranslateResult;
+export type YoudaoTranslateResult = YoudaoDictionaryResult;
 
 export interface QueryWordInfo {
   word: string;
@@ -99,7 +100,7 @@ export interface YoudaoTranslateResultBasicItem {
   "us-speech"?: string;
   phonetic?: string; // Chinese word phonetic
   exam_type?: string[];
-  wfs?: YoudaoTranslateResultBasicFormsItem[];
+  wfs?: YoudaoTranslateResultBasicFormsItem[]; // word forms
 }
 export interface YoudaoTranslateResultBasicFormsItem {
   wf?: YoudaoTranslateResultBasicFormItem;
@@ -130,6 +131,9 @@ export interface MyPreferences {
   isAutomaticPlayWordAudio: boolean;
   isDisplayTargetTranslationLanguage: boolean;
   translationDisplayOrder: string;
+
+  enableYoudaoDictionary: boolean;
+  enableYoudaoTranslate: boolean;
 
   youdaoAppId: string;
   youdaoAppSecret: string;
@@ -199,9 +203,6 @@ export interface CaiyunTranslateResult {
   confidence: number;
 }
 
-/**
- * DeepL translate result
- */
 export interface DeepLTranslateResult {
   translations: DeepLTranslationItem[]; //  deepL may return multiple translations for the text.
 }
@@ -218,17 +219,9 @@ export interface AppleTranslateResult {
   translatedText: string;
 }
 
-export interface TranslateSourceResult {
-  youdaoResult: YoudaoTranslateResult;
-  baiduResult?: BaiduTranslateResult;
-  tencentResult?: TencentTranslateResult;
-  caiyunResult?: CaiyunTranslateResult;
-  icibaResult?: IcibaDictionaryResult;
-}
-
 export interface YoudaoTranslationFormatResult {
   queryWordInfo: QueryWordInfo;
-  translationItems: TranslateItem[];
+  translations: string[];
   explanations?: string[];
   forms?: YoudaoTranslateResultBasicFormsItem[];
   webTranslation?: TranslateResultKeyValueItem;
@@ -246,7 +239,7 @@ export interface TranslateResultKeyValueItem {
 
 // export type RequestDisplayResult = SectionDisplayItem[];
 
-export interface QueryDisplayResult {
+export interface QueryResult {
   type: QueryType;
   sourceResult?: RequestTypeResult;
   displayResult?: SectionDisplayItem[];
@@ -254,7 +247,7 @@ export interface QueryDisplayResult {
 
 export interface SectionDisplayItem {
   type: ListItemDisplayType;
-  sectionTitle?: YoudaoDisplayType | TranslationType | string;
+  sectionTitle?: string;
   items?: ListDisplayItem[];
 }
 

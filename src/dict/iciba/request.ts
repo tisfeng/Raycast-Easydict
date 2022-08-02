@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-27 10:26
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-26 10:25
+ * @lastEditTime: 2022-08-02 17:28
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -31,6 +31,7 @@ export function icibaDictionary(word: string): Promise<RequestTypeResult> {
         resolve({
           type: DicionaryType.Iciba,
           result: response.data,
+          translation: "",
         });
       })
       .catch((error) => {
@@ -41,6 +42,7 @@ export function icibaDictionary(word: string): Promise<RequestTypeResult> {
             code: error.response?.status,
             message: error.response?.statusText,
           },
+          translation: "",
         });
       });
   });

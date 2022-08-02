@@ -309,6 +309,23 @@
       "default": false
     },
     {
+      "title": "Dictionry Services",
+      "type": "checkbox",
+      "name": "enableLingueeDictionary",
+      "label": "Linguee Dictionary",
+      "required": false,
+      "description": "Turn on/off Linguee Dictionary",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "name": "enableYoudaoDictionary",
+      "label": "Youdao Dictionary",
+      "required": false,
+      "description": "Turn on/off Youdao Dictionary",
+      "default": true
+    },
+    {
       "title": "Apple System Features",
       "name": "enableAppleTranslate",
       "type": "checkbox",
@@ -335,8 +352,8 @@
       "default": true
     },
     {
-      "type": "checkbox",
       "name": "enableGoogleTranslate",
+      "type": "checkbox",
       "label": "Google Translate",
       "required": false,
       "description": "Turn on/off Google Translate",
@@ -356,6 +373,14 @@
       "label": "Tencent Translate",
       "required": false,
       "description": "Turn on/off Tencent Translate",
+      "default": true
+    },
+    {
+      "name": "enableYoudaoTranslate",
+      "type": "checkbox",
+      "label": "Youdao Translate",
+      "required": false,
+      "description": "Turn on/off Youdao Translate",
       "default": true
     },
     {

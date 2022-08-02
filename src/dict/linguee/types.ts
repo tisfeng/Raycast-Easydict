@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 11:28
+ * @lastEditTime: 2022-08-02 17:13
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,12 +25,12 @@ export interface LingueeWordItem {
   pos: string; // part of speech, e.g. noun, verb, adj, etc.
   placeholder: string; // eg. (sth. ~), sth.
   audioUrl: string; // may have value when search English word, there are US and UK audio, we use US audio
-  explanationItems: LingueeWordExplanation[];
+  translationItems: LingueeWordTranslation[];
 }
 
-export interface LingueeWordExplanation {
+export interface LingueeWordTranslation {
   featured?: boolean;
-  explanation: string;
+  translation: string;
   pos: string;
   audioUrl: string; // may have value when search Chinese word
   examples: LingueeExample[]; // French: good
@@ -56,7 +56,7 @@ export interface LingueeWikipedia {
 }
 
 export enum LingueeDisplayType {
-  AlmostAlways = "almost always used", // also featured, eg. true
+  AlmostAlwaysUsed = "almost always used", // also featured, eg. true
   OftenUsed = "often used", // also featured, eg. good
   Common = "common", // also featured
   LessCommon = "less common", // unfeatured
@@ -67,4 +67,6 @@ export enum LingueeDisplayType {
   Example = "example",
   RelatedWord = "related word", // eg. 优雅, 美丽
   Wikipedia = "wikipedia", // eg. sql
+
+  Translation = "translation", // just used for linguee section title item
 }

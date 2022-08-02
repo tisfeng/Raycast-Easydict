@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 23:24
+ * @lastEditTime: 2022-08-02 11:44
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,8 +11,9 @@
 import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
+import { RequestResult } from "./data";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, YoudaoTranslationFormatResult } from "./types";
+import { DicionaryType, LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -93,33 +94,6 @@ export function isValidLanguageId(languageId: string): boolean {
     return false;
   }
   return true;
-}
-/**
- * Determine whether the title of the result exceeds the maximum value of one line.
- */
-export function isTranslateResultTooLong(formatResult: YoudaoTranslationFormatResult | null): boolean {
-  if (!formatResult) {
-    return false;
-  }
-
-  const isChineseTextResult = formatResult.queryWordInfo.toLanguage === "zh-CHS";
-  const isEnglishTextResult = formatResult.queryWordInfo.toLanguage === "en";
-
-  for (const translation of formatResult.translationItems) {
-    const textLength = translation.text.length;
-    if (isChineseTextResult) {
-      if (textLength > maxLineLengthOfChineseTextDisplay) {
-        return true;
-      }
-    } else if (isEnglishTextResult) {
-      if (textLength > maxLineLengthOfEnglishTextDisplay) {
-        return true;
-      }
-    } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export function getEudicWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
@@ -274,8 +248,43 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
   });
 }
 
-export function checkIfShowMultipleTranslations(formatResult: YoudaoTranslationFormatResult) {
-  return !formatResult.explanations && !formatResult.forms && !formatResult.webPhrases && !formatResult.webTranslation;
+/**
+ * Check if show one line translation.
+ *
+ *  Iterate QueryResult, if dictionary is not empty, return true.
+ */
+export function checkIfShowOneLineTranslation(requestResult: RequestResult): boolean {
+  if (requestResult.queryResults.length) {
+    for (const queryResult of requestResult.queryResults) {
+      if (queryResult.type in DicionaryType && queryResult.sourceResult?.result) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Determine whether the title of the result exceeds the maximum value of one line.
+ */
+export function isTranslationTooLong(translation: string, toLanguage: string): boolean {
+  const isChineseTextResult = toLanguage === "zh-CHS";
+  const isEnglishTextResult = toLanguage === "en";
+
+  const textLength = translation.length;
+  if (isChineseTextResult) {
+    if (textLength > maxLineLengthOfChineseTextDisplay) {
+      return true;
+    }
+  } else if (isEnglishTextResult) {
+    if (textLength > maxLineLengthOfEnglishTextDisplay) {
+      return true;
+    }
+  } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
+    return true;
+  }
+
+  return false;
 }
 
 /**

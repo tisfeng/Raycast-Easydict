@@ -11,8 +11,8 @@
 import { Color, getSelectedText, Icon, List } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
+import { RequestResult } from "./data";
 import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
-import { RequestResults } from "./results";
 import { LanguageItem, QueryWordInfo, SectionDisplayItem } from "./types";
 import {
   checkIfEudicIsInstalled,
@@ -51,7 +51,7 @@ export default function () {
     setLoadingState(false);
   }
 
-  const requestResults = new RequestResults(updateDisplayResult);
+  const requestResults = new RequestResult(updateDisplayResult);
 
   /**
      the language type of text, depending on the language type of the current input text.

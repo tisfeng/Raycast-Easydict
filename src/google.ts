@@ -3,7 +3,7 @@ import { userAgent } from "./consts";
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-27 22:04
+ * @lastEditTime: 2022-08-02 17:30
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -115,6 +115,7 @@ async function googleCrawlerTranslate(
         return Promise.resolve({
           type: TranslationType.Google,
           result: { translatedText: result },
+          translation: result,
         });
       } catch (error) {
         console.error(`googleTranslate error: ${error}`);

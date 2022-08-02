@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 09:49
+ * @lastEditTime: 2022-08-02 12:52
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,7 +33,7 @@ import {
   RequestTypeResult,
   TencentTranslateResult,
   TranslationType,
-  YoudaoTranslateResult,
+  YoudaoDictionaryResult,
 } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
@@ -123,6 +123,7 @@ export async function requestTencentTextTranslate(
     return Promise.resolve({
       type: TranslationType.Tencent,
       result: null,
+      translation: "",
     });
   }
   const params = {
@@ -140,6 +141,7 @@ export async function requestTencentTextTranslate(
     const typeResult = {
       type: TranslationType.Tencent,
       result: response as TencentTranslateResult,
+      translation: response.TargetText,
     };
     return Promise.resolve(typeResult);
   } catch (err) {
@@ -189,12 +191,13 @@ export function requestYoudaoDictionary(
     axios
       .post(url, params)
       .then((response) => {
-        const youdaoResult = response.data as YoudaoTranslateResult;
+        const youdaoResult = response.data as YoudaoDictionaryResult;
         const youdaoErrorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
         const youdaoTypeResult = {
           type: TranslationType.Youdao,
           result: youdaoResult,
           errorInfo: youdaoErrorInfo,
+          translation: youdaoResult.translation.join(" "),
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
@@ -247,11 +250,12 @@ export function requestBaiduTextTranslate(
       .then((response) => {
         const baiduResult = response.data as BaiduTranslateResult;
         if (baiduResult.trans_result) {
-          const translateText = baiduResult.trans_result[0].dst;
+          const translateText = baiduResult.trans_result.map((item) => item.dst).join(" ");
           console.log(`Baidu translate: ${translateText}, cost: ${response.headers[requestCostTime]} ms`);
           resolve({
             type: TranslationType.Baidu,
             result: baiduResult,
+            translation: translateText,
           });
         } else {
           console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`);
@@ -296,6 +300,7 @@ export function requestCaiyunTextTranslate(
     return Promise.resolve({
       type: TranslationType.Caiyun,
       result: null,
+      translation: "",
     });
   }
 
@@ -315,10 +320,12 @@ export function requestCaiyunTextTranslate(
       .post(url, params, headers)
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
-        console.log(`caiyun translate: ${caiyunResult.target}, cost: ${response.headers[requestCostTime]} ms`);
+        const translation = caiyunResult.target.join(" ");
+        console.log(`caiyun translate: ${translation}, cost: ${response.headers[requestCostTime]} ms`);
         resolve({
           type: TranslationType.Caiyun,
           result: caiyunResult,
+          translation: translation,
         });
       })
       .catch((error) => {
@@ -353,6 +360,7 @@ export async function requestDeepLTextTranslate(
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: null,
+      translation: "",
     });
   }
 
@@ -380,6 +388,7 @@ export async function requestDeepLTextTranslate(
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: deepLResult,
+      translation: translatedText,
     });
   } catch (err) {
     const error = err as { response: AxiosResponse };

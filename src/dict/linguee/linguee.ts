@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 20:37
+ * @lastEditTime: 2022-08-02 17:07
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
 import { RequestTypeResult } from "../../types";
 import { getLanguageItemFromYoudaoId } from "../../utils";
-import { userAgent } from "./../../consts";
+import { dictionarySeparator, userAgent } from "./../../consts";
 import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayItem } from "./../../types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
@@ -59,6 +59,7 @@ export async function rquestLingueeDictionary(
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,
+      translation: "",
     });
   }
 
@@ -121,7 +122,37 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
   if (lingueeTypeResult.result) {
     const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } =
       lingueeTypeResult.result as LingueeDictionaryResult;
-    if (wordItems) {
+    const lingueeType = DicionaryType.Linguee;
+
+    // add a Linguee flag section
+    if (wordItems.length) {
+      const firstWordItem = wordItems[0];
+      const word = queryWordInfo.word;
+      const translations = firstWordItem.translationItems;
+      let translation = "";
+      if (translations.length) {
+        translation = translations[0].translation;
+      }
+      const copyText = `${translation} ${word}`;
+      const displayType = LingueeDisplayType.Translation;
+
+      const lingueeTitleSection: SectionDisplayItem = {
+        type: lingueeType,
+        sectionTitle: `${lingueeType} Dictionary ${dictionarySeparator}`,
+        items: [
+          {
+            key: copyText,
+            title: translation,
+            subtitle: word,
+            copyText: copyText,
+            displayType: displayType,
+            queryWordInfo: queryWordInfo,
+            tooltip: displayType,
+          },
+        ],
+      };
+      displayResults.push(lingueeTitleSection);
+
       for (const wordItem of wordItems) {
         // check if placeholder end with .
         const checkIfEndsWithDot = wordItem.placeholder.endsWith("."); // "good at"
@@ -132,11 +163,11 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         const placeholderText = wordItem.placeholder ? ` ${wordItem.placeholder}` : "";
         const sectionTitle = `${wordItem.word}${placeholderText}${wordPos}`;
         const displayItems = [];
-        if (wordItem.explanationItems) {
-          for (const explanationItem of wordItem.explanationItems) {
+        if (wordItem.translationItems) {
+          for (const explanationItem of wordItem.translationItems) {
             // 1. iterate featured explanation
             if (explanationItem.featured) {
-              const title = `${explanationItem.explanation}`;
+              const title = `${explanationItem.translation}`;
               const isCommon = explanationItem.frequencyTag.displayType === LingueeDisplayType.Common;
               const tagText = isCommon ? "" : `  ${explanationItem.frequencyTag.tagText}`;
               const translation = explanationItem.examples.length ? explanationItem.examples[0].translation : "";
@@ -163,17 +194,17 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
 
           // 2. iterate unfeatured explanation, and put them to array
           const unfeaturedExplanations = [];
-          if (wordItem.explanationItems) {
-            for (const explanationItem of wordItem.explanationItems) {
+          if (wordItem.translationItems) {
+            for (const explanationItem of wordItem.translationItems) {
               if (!explanationItem.featured) {
-                const explanation = `${explanationItem.explanation}`;
+                const explanation = `${explanationItem.translation}`;
                 unfeaturedExplanations.push(explanation);
               }
             }
           }
           if (unfeaturedExplanations.length > 0) {
             const copyText = `${wordItem.pos} ${unfeaturedExplanations.join(" ")}`;
-            const lastExplanationItem = wordItem.explanationItems.at(-1);
+            const lastExplanationItem = wordItem.translationItems.at(-1);
             const pos = lastExplanationItem?.pos ? `${lastExplanationItem.pos}.` : "";
             const lessCommonNote =
               lastExplanationItem?.frequencyTag.displayType === LingueeDisplayType.LessCommon
@@ -194,7 +225,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
           }
         }
         const displayResult: SectionDisplayItem = {
-          type: DicionaryType.Linguee,
+          type: lingueeType,
           sectionTitle: sectionTitle,
           items: displayItems,
         };
@@ -237,7 +268,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       const displayItems = relatedWords.map((relatedWord) => {
         const displayType = LingueeDisplayType.RelatedWord;
         const title = `${relatedWord.word}`;
-        const relatedWordItems = relatedWord.explanationItems?.map((explanationItem) => explanationItem.explanation);
+        const relatedWordItems = relatedWord.translationItems?.map((explanationItem) => explanationItem.translation);
         const explanations = relatedWordItems
           ? relatedWordItems.join(";  ")
           : `${relatedWord.placeholder} ${relatedWord.pos}`;
@@ -257,7 +288,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       });
 
       const displayResult: SectionDisplayItem = {
-        type: DicionaryType.Linguee,
+        type: lingueeType,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 related words
       };
@@ -281,13 +312,12 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
         return displayItem;
       });
       const displayResult: SectionDisplayItem = {
-        type: DicionaryType.Linguee,
+        type: lingueeType,
         sectionTitle: sectionTitle,
         items: displayItems,
       };
       displayResults.push(displayResult);
     }
   }
-
   return displayResults;
 }

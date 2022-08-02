@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 00:33
+ * @lastEditTime: 2022-08-02 16:33
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,8 +16,8 @@ import {
   LingueeDisplayType,
   LingueeExample,
   LingueeWikipedia,
-  LingueeWordExplanation,
   LingueeWordItem,
+  LingueeWordTranslation,
 } from "./types";
 
 /**
@@ -88,6 +88,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const lingueeTypeResult = {
     type: DicionaryType.Linguee,
     result: lingueeResult,
+    translation: "",
   };
   return lingueeTypeResult;
 }
@@ -167,7 +168,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         featured: featured,
         pos: pos?.textContent ?? "",
         placeholder: placeholderText,
-        explanationItems: allExplanations,
+        translationItems: allExplanations,
         audioUrl: audioUrl,
       };
       console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
@@ -214,8 +215,8 @@ function getWordExplanationList(
       }
       const tag = tagText.trim();
       const wordFrequency = getExplanationDisplayType(tag);
-      const explanation: LingueeWordExplanation = {
-        explanation: explanationElement?.textContent ?? "",
+      const explanation: LingueeWordTranslation = {
+        translation: explanationElement?.textContent ?? "",
         pos: tag_type?.textContent ?? "",
         featured: isFeatured,
         audioUrl: audioUrl,
@@ -241,8 +242,8 @@ function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
   const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "");
   let wordDisplayType: LingueeDisplayType;
   switch (wordFrequencyWithoutParentheses) {
-    case LingueeDisplayType.AlmostAlways: {
-      wordDisplayType = LingueeDisplayType.AlmostAlways;
+    case LingueeDisplayType.AlmostAlwaysUsed: {
+      wordDisplayType = LingueeDisplayType.AlmostAlwaysUsed;
       break;
     }
     case LingueeDisplayType.OftenUsed: {
