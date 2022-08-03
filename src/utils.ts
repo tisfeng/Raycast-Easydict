@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:37
+ * @lastEditTime: 2022-08-03 23:11
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -303,12 +303,14 @@ export function checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormat
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
+ *
+ * * Note: currently only can manually sort transaltion order.
+ *
+ * @return [linguee dictionary, youdao dictionary, deepl...], all lowercase
  */
 export function getSortOrder(): string[] {
-  const defaultTypeOrder = [
-    DicionaryType.Linguee,
-    DicionaryType.Youdao,
-
+  const defaultDictionaryOrder = [DicionaryType.Linguee, DicionaryType.Youdao];
+  const defaultTranslationOrder = [
     TranslationType.DeepL,
     TranslationType.Google,
     TranslationType.Apple,
@@ -318,7 +320,7 @@ export function getSortOrder(): string[] {
     TranslationType.Caiyun,
   ];
 
-  const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
+  const defaultTranslations = defaultTranslationOrder.map((type) => type.toString().toLowerCase());
 
   const userOrder: string[] = [];
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
@@ -328,15 +330,17 @@ export function getSortOrder(): string[] {
     for (let translationName of manualOrder) {
       translationName = `${translationName.trim()} Translate`.toLowerCase();
       // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
-      if (defaultOrder.includes(translationName)) {
+      if (defaultTranslations.includes(translationName)) {
         userOrder.push(translationName);
-        defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
+        defaultTranslations.splice(defaultTranslations.indexOf(translationName), 1);
       }
     }
   }
 
-  const finalOrder = [...userOrder, ...defaultOrder];
-  console.log("defaultNameOrder:", defaultOrder);
+  const finalOrder = [...defaultDictionaryOrder, ...userOrder, ...defaultTranslations].map((title) =>
+    title.toLowerCase()
+  );
+  console.log("defaultNameOrder:", defaultTranslations);
   console.log("userOrder:", userOrder);
   console.log("finalOrder:", finalOrder);
   return finalOrder;

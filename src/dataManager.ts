@@ -3,7 +3,7 @@ import { QueryType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:34
+ * @lastEditTime: 2022-08-03 23:13
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -493,10 +493,10 @@ export class DataManager {
     for (const queryResult of this.queryResults) {
       const index = sortOrder.indexOf(queryResult.type.toString().toLowerCase());
       queryResults[index] = queryResult;
+      console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
     }
     // filter undefined
-    const results = queryResults.filter((item) => item);
-    this.queryResults = results;
+    this.queryResults = queryResults.filter((item) => item);
   }
 
   /**

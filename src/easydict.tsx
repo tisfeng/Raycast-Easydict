@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:17
+ * @lastEditTime: 2022-08-03 22:59
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,12 +54,12 @@ export default function () {
 
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
-  function updateDisplayResult(result: SectionDisplayItem[]) {
+  function updateDisplaySections(result: SectionDisplayItem[]) {
     setDisplayResult(result);
     setLoadingState(false);
   }
 
-  const requestResults = new DataManager(updateDisplayResult);
+  const requestResults = new DataManager(updateDisplaySections);
 
   /**
      the language type of text, depending on the language type of the current input text.
@@ -234,7 +234,7 @@ export default function () {
       if (searchText) {
         console.log(`set search text to empty`);
         setSearchText("");
-        updateDisplayResult([]);
+        updateDisplaySections([]);
       }
       return;
     }
