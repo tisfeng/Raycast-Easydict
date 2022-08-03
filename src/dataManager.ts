@@ -3,7 +3,7 @@ import { QueryType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 23:13
+ * @lastEditTime: 2022-08-04 00:37
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -493,7 +493,7 @@ export class DataManager {
     for (const queryResult of this.queryResults) {
       const index = sortOrder.indexOf(queryResult.type.toString().toLowerCase());
       queryResults[index] = queryResult;
-      console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
+      // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
     }
     // filter undefined
     this.queryResults = queryResults.filter((item) => item);
@@ -511,22 +511,25 @@ export class DataManager {
   }
 
   /**
-   * Add a separator line for the first dictionary section title.
+   * Show a separator line for the non-first dictionary section title.
    */
   updateDictionarySeparator() {
-    let showSeparator = false;
-    for (const result of this.queryResults) {
+    this.queryResults.forEach((result, i) => {
+      let showSeparator = true;
       const type = result.type;
       const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
+      // console.log(`---> updateDictionarySeparator: index: ${i}, ${type}`);
       if (isDictionaryType) {
+        if (i === 0) {
+          showSeparator = false;
+        }
         this.addOrDeleteSeparator(type as DicionaryType, showSeparator);
-        showSeparator = true;
       }
-    }
+    });
   }
 
   /**
-   * Add dictionary separator.
+   * add or remove a separator line.
    */
   addOrDeleteSeparator(dictionaryType: DicionaryType, isAdd: boolean) {
     const dictionaryResult = this.getQueryResult(dictionaryType);

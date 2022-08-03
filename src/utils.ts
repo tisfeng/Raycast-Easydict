@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 23:11
+ * @lastEditTime: 2022-08-04 00:18
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -340,9 +340,9 @@ export function getSortOrder(): string[] {
   const finalOrder = [...defaultDictionaryOrder, ...userOrder, ...defaultTranslations].map((title) =>
     title.toLowerCase()
   );
-  console.log("defaultNameOrder:", defaultTranslations);
-  console.log("userOrder:", userOrder);
-  console.log("finalOrder:", finalOrder);
+  // console.log("defaultNameOrder:", defaultTranslations);
+  // console.log("userOrder:", userOrder);
+  // console.log("finalOrder:", finalOrder);
   return finalOrder;
 }
 
