@@ -309,7 +309,7 @@
       "default": false
     },
     {
-      "title": "Dictionry Services",
+      "title": "Dictionary Services",
       "type": "checkbox",
       "name": "enableLingueeDictionary",
       "label": "Linguee Dictionary",
@@ -373,7 +373,7 @@
       "label": "Tencent Translate",
       "required": false,
       "description": "Turn on/off Tencent Translate",
-      "default": true
+      "default": false
     },
     {
       "name": "enableYoudaoTranslate",
@@ -381,7 +381,7 @@
       "label": "Youdao Translate",
       "required": false,
       "description": "Turn on/off Youdao Translate",
-      "default": true
+      "default": false
     },
     {
       "name": "enableCaiyunTranslate",

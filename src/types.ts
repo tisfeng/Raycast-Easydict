@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 11:02
+ * @lastEditTime: 2022-08-03 21:16
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,10 +34,10 @@ export enum TranslationType {
 }
 
 export enum DicionaryType {
-  Youdao = "Youdao Dicionary",
-  Iciba = "Iciba Dicionary",
-  Eudic = "Eudic Dicionary",
-  Linguee = "Linguee Dicionary",
+  Youdao = "Youdao Dictionary",
+  Iciba = "Iciba Dictionary",
+  Eudic = "Eudic Dictionary",
+  Linguee = "Linguee Dictionary",
 }
 
 export type QueryType = TranslationType | DicionaryType;
@@ -45,7 +45,7 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 
 export interface RequestTypeResult {
   type: RequestType;
-  result: RequestResultType | null;
+  result: RequestResultType | null; // when not supported, result is null.
   translation: string; // one line translation, join by " ". if show multiple translation, need to join by "\n"
   errorInfo?: RequestErrorInfo;
 }

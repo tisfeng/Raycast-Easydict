@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 11:42
+ * @lastEditTime: 2022-08-03 22:17
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Color, getSelectedText, Icon, List } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
-import { RequestResult } from "./data";
+import { DataManager } from "./dataManager";
 import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
 import { LanguageItem, QueryWordInfo, SectionDisplayItem } from "./types";
 import {
@@ -55,12 +55,11 @@ export default function () {
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
   function updateDisplayResult(result: SectionDisplayItem[]) {
-    console.log(`---> update display result, length: ${result.length}`);
     setDisplayResult(result);
     setLoadingState(false);
   }
 
-  const requestResults = new RequestResult(updateDisplayResult);
+  const requestResults = new DataManager(updateDisplayResult);
 
   /**
      the language type of text, depending on the language type of the current input text.

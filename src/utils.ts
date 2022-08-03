@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 11:30
+ * @lastEditTime: 2022-08-03 16:45
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import { RequestResult } from "./data";
+import { DataManager } from "./dataManager";
 import { Easydict } from "./releaseVersion/versionInfo";
 import {
   DicionaryType,
@@ -19,6 +19,7 @@ import {
   MyPreferences,
   QueryRecoredItem,
   QueryWordInfo,
+  TranslationType,
   YoudaoDictionaryFormatResult,
 } from "./types";
 
@@ -261,10 +262,11 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
  *
  *  Iterate QueryResult, if dictionary is not empty, return true.
  */
-export function checkIfShowOneLineTranslation(requestResult: RequestResult): boolean {
+export function checkIfShowOneLineTranslation(requestResult: DataManager): boolean {
   if (requestResult.queryResults.length) {
     for (const queryResult of requestResult.queryResults) {
-      if (queryResult.type in DicionaryType && queryResult.sourceResult?.result) {
+      const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
+      if (isDictionaryType && queryResult.sourceResult?.result) {
         return true;
       }
     }
@@ -315,6 +317,48 @@ export function trimTextLength(text: string, length = 2000) {
  */
 export function checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
   return formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation;
+}
+
+/**
+ * Get services sort order. If user set the order manually, prioritize the order.
+ */
+export function getServicesSortOrder(): string[] {
+  const defaultTypeOrder = [
+    DicionaryType.Linguee,
+    DicionaryType.Youdao,
+
+    TranslationType.DeepL,
+    TranslationType.Google,
+    TranslationType.Apple,
+    TranslationType.Baidu,
+    TranslationType.Tencent,
+    TranslationType.Youdao, // * Note: only one Youdao will be shown.
+    TranslationType.Caiyun,
+  ];
+
+  const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
+
+  const userOrder: string[] = [];
+  // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
+  const manualOrder = myPreferences.translationOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
+
+  // console.log("manualOrder:", manualOrder);
+  if (manualOrder.length > 0) {
+    for (let translationName of manualOrder) {
+      translationName = translationName.trim();
+      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
+      if (defaultOrder.includes(translationName)) {
+        userOrder.push(translationName);
+        defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
+      }
+    }
+  }
+
+  const finalOrder = [...userOrder, ...defaultOrder];
+  // console.log("defaultNameOrder:", defaultOrder);
+  // console.log("userOrder:", userOrder);
+  // console.log("finalOrder:", finalOrder);
+  return finalOrder;
 }
 
 /**

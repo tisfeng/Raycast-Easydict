@@ -2,13 +2,12 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:30
+ * @lastEditTime: 2022-08-03 17:16
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { dictionarySeparator } from "../../consts";
 import {
   DicionaryType,
   QueryWordInfo,
@@ -17,7 +16,6 @@ import {
   YoudaoDictionaryResult,
   YoudaoDisplayType,
 } from "../../types";
-import { getEnabledDictionaryServices } from "../../utils";
 
 /**
  * Format the Youdao original data for later use.
@@ -61,19 +59,19 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     return sectionResult;
   }
 
-  const type = DicionaryType.Youdao;
+  const youdaoType = DicionaryType.Youdao;
   const oneLineTranslation = formatResult.translations.join(" ");
   const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
   const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
   const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
-  const separator = getEnabledDictionaryServices().length > 1 ? dictionarySeparator : "";
+
   sectionResult.push({
-    type: type,
-    sectionTitle: `${type} ${separator}`,
+    type: youdaoType,
+    sectionTitle: `${youdaoType}`,
     items: [
       {
         displayType: YoudaoDisplayType.Translation,
-        key: oneLineTranslation + type,
+        key: oneLineTranslation + youdaoType,
         title: ` ${oneLineTranslation}`,
         subtitle: wordSubtitle,
         tooltip: `Translate`,

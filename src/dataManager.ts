@@ -1,24 +1,24 @@
+import { QueryType } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 11:10
- * @fileName: data.ts
+ * @lastEditTime: 2022-08-03 22:17
+ * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { BaiduRequestStateCode } from "./consts";
+import { BaiduRequestStateCode, dictionarySeparator } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
-import { requestGoogleTranslate } from "./translation/google";
-
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
 import { requestCaiyunTextTranslate } from "./translation/caiyun";
 import { requestDeepLTextTranslate } from "./translation/deepL";
+import { requestGoogleTranslate } from "./translation/google";
 import { requestTencentTextTranslate } from "./translation/tencent";
 import {
   AppleTranslateResult,
@@ -38,22 +38,20 @@ import {
   TranslationType,
   YoudaoDictionaryFormatResult,
 } from "./types";
-import { checkIfShowYoudaoDictionary, myPreferences } from "./utils";
+import { checkIfShowYoudaoDictionary, getServicesSortOrder, myPreferences } from "./utils";
 
-export class RequestResult {
+export class DataManager {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
-
   constructor(updateDisplaySections: (displaySections: SectionDisplayItem[]) => void) {
     this.updateDisplaySections = updateDisplaySections;
   }
 
   queryResults: QueryResult[] = [];
-
   private queryWordInfo?: QueryWordInfo;
-
   get getQueryWordInfo(): QueryWordInfo | undefined {
     return this.queryWordInfo;
   }
+  sortOrder = getServicesSortOrder();
 
   /**
    * when has new input text, need to cancel previous request.
@@ -73,17 +71,25 @@ export class RequestResult {
     // do nothing, it will be assigned later.
   }, 1000);
 
-  sortOrder = this.getServicesSortOrder();
+  /**
+   * update display result.
+   *
+   * 1.push new result to queryResults.
+   * 2.sort queryResults.
+   * 3.update dictionary section title.
+   * 4.callback update display sections.
+   */
+  updateQueryDisplayResults(queryResult: QueryResult) {
+    console.log(`---> update result: ${queryResult.type}`);
 
-  updateRequestDisplayResults(queryDisplayResult: QueryResult) {
-    this.queryResults.push(queryDisplayResult);
+    this.queryResults.push(queryResult);
     this.sortQueryResults();
+    this.updateDictionarySeparator();
 
     const displaySections: SectionDisplayItem[][] = [];
     for (const result of this.queryResults) {
       if (result.displayResult) {
         displaySections.push(result.displayResult);
-        console.log(`---> update result: ${result.type}`);
       }
     }
     if (displaySections.length) {
@@ -110,7 +116,7 @@ export class RequestResult {
             displayResult: lingueeDisplayResult,
             sourceResult: lingueeTypeResult,
           };
-          this.updateRequestDisplayResults(displayResult);
+          this.updateQueryDisplayResults(displayResult);
         })
         .catch((error) => {
           console.error("lingueeDictionaryResult error:", error);
@@ -145,7 +151,7 @@ export class RequestResult {
             displayResult: youdaoDisplayResult,
           };
           if (type === DicionaryType.Youdao && showYoudaoDictionary) {
-            this.updateRequestDisplayResults(displayResult);
+            this.updateQueryDisplayResults(displayResult);
           } else if (type === TranslationType.Youdao) {
             this.updateTranslationDisplay(displayResult);
           }
@@ -369,7 +375,7 @@ export class RequestResult {
     }
 
     if (translatedText) {
-      console.log(`---> translatedText: ${translatedText}`);
+      // console.log(`---> translatedText: ${translatedText}`);
       const displayItem: ListDisplayItem = {
         displayType: type,
         key: `${translatedText}-${type}`,
@@ -390,7 +396,7 @@ export class RequestResult {
         sourceResult: sourceResult,
         displayResult: [sectionDisplayItem],
       };
-      this.updateRequestDisplayResults(displayResult);
+      this.updateQueryDisplayResults(displayResult);
     }
   }
 
@@ -435,7 +441,8 @@ export class RequestResult {
     const translations = [] as TranslateItem[];
     for (const queryResults of this.queryResults) {
       const { type, sourceResult } = queryResults;
-      if (sourceResult && type in TranslationType) {
+      const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
+      if (sourceResult && isDictionaryType) {
         const type = sourceResult.type as TranslationType;
         const markdownTranslation = this.formatTranslationToMarkdown(sourceResult?.translation, type);
         translations.push({ type: type, text: markdownTranslation });
@@ -492,44 +499,61 @@ export class RequestResult {
   }
 
   /**
-   * Get services sord order. If user set the order manually, prioritize the order.
+   * Get query result according query type from queryResults.
    */
-  getServicesSortOrder(): string[] {
-    const defaultTypeOrder = [
-      DicionaryType.Linguee,
-      DicionaryType.Youdao,
+  getQueryResult(queryType: QueryType) {
+    for (const result of this.queryResults) {
+      if (queryType === result.type) {
+        return result;
+      }
+    }
+  }
 
-      TranslationType.DeepL,
-      TranslationType.Google,
-      TranslationType.Apple,
-      TranslationType.Baidu,
-      TranslationType.Tencent,
-      TranslationType.Youdao, // * Note: only one Youdao will be shown.
-      TranslationType.Caiyun,
-    ];
+  /**
+   * Add a separator line for the first dictionary section title.
+   */
+  updateDictionarySeparator() {
+    let showSeparator = false;
+    for (const result of this.queryResults) {
+      const type = result.type;
+      const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
+      if (isDictionaryType) {
+        this.addOrDeleteSeparator(type as DicionaryType, showSeparator);
+        showSeparator = true;
+      }
+    }
+  }
 
-    const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
+  /**
+   * Add dictionary separator.
+   */
+  addOrDeleteSeparator(dictionaryType: DicionaryType, isAdd: boolean) {
+    const dictionaryResult = this.getQueryResult(dictionaryType);
+    const displayResult = dictionaryResult?.displayResult;
+    if (displayResult) {
+      let sectionTitle = `${dictionaryType}`;
+      if (isAdd) {
+        sectionTitle = `${sectionTitle} ${dictionarySeparator}`;
+      }
+      displayResult[0].sectionTitle = sectionTitle;
+    }
+  }
 
-    const userOrder: string[] = [];
-    // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-    const manualOrder = myPreferences.translationOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
-
-    // console.log("manualOrder:", manualOrder);
-    if (manualOrder.length > 0) {
-      for (let translationName of manualOrder) {
-        translationName = translationName.trim();
-        // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
-        if (defaultOrder.includes(translationName)) {
-          userOrder.push(translationName);
-          defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
+  /**
+   * Get valid dictionary type from RequestTool. valid means the dictionary result is not empty.
+   */
+  getValidDictionaryTypes(): DicionaryType[] {
+    const dictionaryTypes: DicionaryType[] = [];
+    for (const queryResult of this.queryResults) {
+      const dictionaryType = queryResult.type;
+      const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType as DicionaryType);
+      if (isDictionaryType) {
+        const sourceResult = queryResult.sourceResult;
+        if (sourceResult && sourceResult.result) {
+          dictionaryTypes.push(queryResult.type as DicionaryType);
         }
       }
     }
-
-    const finalOrder = [...userOrder, ...defaultOrder];
-    // console.log("defaultNameOrder:", defaultOrder);
-    // console.log("userOrder:", userOrder);
-    // console.log("finalOrder:", finalOrder);
-    return finalOrder;
+    return dictionaryTypes;
   }
 }

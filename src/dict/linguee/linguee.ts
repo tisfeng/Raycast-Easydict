@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 00:30
+ * @lastEditTime: 2022-08-03 17:10
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,10 +13,9 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
 import { requestCostTime } from "../../axiosConfig";
-import { RequestTypeResult } from "../../types";
-import { getEnabledDictionaryServices, getLanguageItemFromYoudaoId } from "../../utils";
-import { dictionarySeparator, userAgent } from "./../../consts";
-import { DicionaryType, ListDisplayItem, RequestErrorInfo, SectionDisplayItem } from "./../../types";
+import { userAgent } from "../../consts";
+import { DicionaryType, ListDisplayItem, RequestErrorInfo, RequestTypeResult, SectionDisplayItem } from "../../types";
+import { getLanguageItemFromYoudaoId } from "../../utils";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult, LingueeDisplayType } from "./types";
@@ -137,11 +136,9 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       }
       const copyText = `${translation} ${word}`;
       const displayType = LingueeDisplayType.Translation;
-      const separator = getEnabledDictionaryServices().length > 1 ? dictionarySeparator : "";
-
       const lingueeTitleSection: SectionDisplayItem = {
         type: lingueeType,
-        sectionTitle: `${lingueeType} ${separator}`,
+        sectionTitle: `${lingueeType}`,
         items: [
           {
             key: copyText,

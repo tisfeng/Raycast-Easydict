@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 11:27
+ * @lastEditTime: 2022-08-03 22:01
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,14 +30,11 @@ import {
 } from "./types";
 import {
   checkIfNeedShowReleasePrompt,
-  defaultLanguage1,
-  defaultLanguage2,
   getDeepLWebTranslateURL,
   getEudicWebTranslateURL,
   getGoogleWebTranslateURL,
   getYoudaoWebTranslateURL,
   myPreferences,
-  preferredLanguages,
 } from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
@@ -356,8 +353,9 @@ function getWebTranslationItem(queryType: QueryType, queryTextInfo: QueryWordInf
   // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(queryTextInfo, null, 2)}`);
   let webUrl;
   let title = `${queryType} Translate`;
-  if (queryType in DicionaryType) {
-    title = `${queryType} Dictionary`;
+  const isDictionaryType = Object.values(DicionaryType).includes(queryType as DicionaryType);
+  if (isDictionaryType) {
+    title = `${queryType}`;
   }
   const icon = getQueryTypeIcon(queryType);
   switch (queryType.toString()) {
@@ -390,23 +388,4 @@ function WebTranslationAction(props: { webTranslationItem?: WebTranslationItem }
       url={props.webTranslationItem.webUrl}
     />
   ) : null;
-}
-
-/**
- * check first language and second language is the same
- */
-export function checkIfTwoPreferredLanguagesAreSame() {
-  console.log(`---> check perferred languages: ${JSON.stringify(preferredLanguages, null, 2)}`);
-  if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
-    console.log(`---> default language1 and language2 are the same: ${defaultLanguage1.youdaoLanguageId}`);
-    return (
-      <List>
-        <List.Item
-          title={"Language Conflict"}
-          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
-          subtitle={"Your first Language with second Language must be different."}
-        />
-      </List>
-    );
-  }
 }
