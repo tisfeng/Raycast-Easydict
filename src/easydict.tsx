@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:09
+ * @lastEditTime: 2022-08-03 11:42
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,8 +27,17 @@ import {
 let delayQueryTextTimer: NodeJS.Timeout;
 
 export default function () {
-  // console.log(`call default function`);
-  checkWhetherTwoPreferredLanguagesAreSame();
+  if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
+    return (
+      <List searchBarPlaceholder="Error">
+        <List.Item
+          title={"Preferrd Languages Conflict"}
+          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
+          subtitle={"Your First Language and Second Language must be different!"}
+        />
+      </List>
+    );
+  }
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
@@ -208,23 +217,6 @@ export default function () {
         })}
       </Fragment>
     );
-  }
-
-  /**
-   * check first language and second language is the same
-   */
-  function checkWhetherTwoPreferredLanguagesAreSame() {
-    if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
-      return (
-        <List>
-          <List.Item
-            title={"Language Conflict"}
-            icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
-            subtitle={"Your first Language with second Language must be different."}
-          />
-        </List>
-      );
-    }
   }
 
   /**

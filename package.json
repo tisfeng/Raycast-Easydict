@@ -392,13 +392,13 @@
       "default": true
     },
     {
-      "title": "Translation Display Order",
-      "name": "translationDisplayOrder",
+      "title": "Translation Order",
+      "name": "translationOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Linguee,Youdao,DeepL,Google,Apple,Baidu,Tencent,Caiyun",
+      "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",
       "default": "",
-      "placeholder": "linguee,youdao,deepl,google,apple,baidu,tencent,caiyun"
+      "placeholder": "deepl,google,apple,baidu,tencent,youdao,caiyun"
     },
     {
       "title": "Youdao App ID",

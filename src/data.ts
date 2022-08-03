@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:14
+ * @lastEditTime: 2022-08-03 11:10
  * @fileName: data.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,10 @@ import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./
 import { requestGoogleTranslate } from "./translation/google";
 
 import { appleTranslate } from "./scripts";
+import { requestBaiduTextTranslate } from "./translation/baidu";
+import { requestCaiyunTextTranslate } from "./translation/caiyun";
+import { requestDeepLTextTranslate } from "./translation/deepL";
+import { requestTencentTextTranslate } from "./translation/tencent";
 import {
   AppleTranslateResult,
   BaiduTranslateResult,
@@ -35,10 +39,6 @@ import {
   YoudaoDictionaryFormatResult,
 } from "./types";
 import { checkIfShowYoudaoDictionary, myPreferences } from "./utils";
-import { requestBaiduTextTranslate } from "./translation/baidu";
-import { requestCaiyunTextTranslate } from "./translation/caiyun";
-import { requestDeepLTextTranslate } from "./translation/deepL";
-import { requestTencentTextTranslate } from "./translation/tencent";
 
 export class RequestResult {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
@@ -46,6 +46,8 @@ export class RequestResult {
   constructor(updateDisplaySections: (displaySections: SectionDisplayItem[]) => void) {
     this.updateDisplaySections = updateDisplaySections;
   }
+
+  queryResults: QueryResult[] = [];
 
   private queryWordInfo?: QueryWordInfo;
 
@@ -61,7 +63,6 @@ export class RequestResult {
    * when input text is empty, need to cancel previous request, and clear result.
    */
   shouldCancelQuery = false;
-  startTime = Date.now();
 
   /**
    * Delay the time to call the query API. Since API has frequency limit.
@@ -72,12 +73,12 @@ export class RequestResult {
     // do nothing, it will be assigned later.
   }, 1000);
 
-  sortOrder = getTranslationResultOrder();
-
-  queryResults: QueryResult[] = [];
+  sortOrder = this.getServicesSortOrder();
 
   updateRequestDisplayResults(queryDisplayResult: QueryResult) {
     this.queryResults.push(queryDisplayResult);
+    this.sortQueryResults();
+
     const displaySections: SectionDisplayItem[][] = [];
     for (const result of this.queryResults) {
       if (result.displayResult) {
@@ -121,8 +122,6 @@ export class RequestResult {
       requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
-          // From the input text query, to the end of Youdao translation request.
-          console.warn(`---> Youdao request cost: ${Date.now() - this.startTime} ms`);
 
           if (this.shouldCancelQuery) {
             // updateTranslateDisplayResult(null);
@@ -475,67 +474,62 @@ export class RequestResult {
   `;
     return markdown;
   }
-}
 
-/**
- * Sort translation results by designated order.
- *
- * * NOTE: this function will be called many times, because translate results are async, so we need to sort every time.
- */
-// export function sortTranslationItems(
-//   formatResult: YoudaoTranslationFormatResult,
-//   sortedOrder: string[]
-// ): YoudaoTranslationFormatResult {
-//   const sortTranslations: TranslateItem[] = [];
-//   for (const translationItem of formatResult.translations) {
-//     const index = sortedOrder.indexOf(translationItem.type.toString().toLowerCase());
-//     sortTranslations[index] = translationItem;
-//   }
-//   // filter undefined
-//   const translations = sortTranslations.filter((item) => item);
-//   formatResult.translations = translations;
-//   return formatResult;
-// }
+  /**
+   * Sort query results by designated order.
+   *
+   * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
+   */
+  sortQueryResults() {
+    const queryResults: QueryResult[] = [];
+    for (const queryResult of this.queryResults) {
+      const index = this.sortOrder.indexOf(queryResult.type.toString().toLowerCase());
+      queryResults[index] = queryResult;
+    }
+    // filter undefined
+    const results = queryResults.filter((item) => item);
+    this.queryResults = results;
+  }
 
-/**
- * Get translation result order. If user set the order manually, prioritize the order.
- */
-export function getTranslationResultOrder(): string[] {
-  const defaultTypeOrder = [
-    DicionaryType.Linguee,
-    DicionaryType.Youdao,
+  /**
+   * Get services sord order. If user set the order manually, prioritize the order.
+   */
+  getServicesSortOrder(): string[] {
+    const defaultTypeOrder = [
+      DicionaryType.Linguee,
+      DicionaryType.Youdao,
 
-    TranslationType.DeepL,
-    TranslationType.Google,
-    TranslationType.Apple,
-    TranslationType.Baidu,
-    TranslationType.Tencent,
-    TranslationType.Youdao, // * Note: only one Youdao will be shown.
-    TranslationType.Caiyun,
-  ];
+      TranslationType.DeepL,
+      TranslationType.Google,
+      TranslationType.Apple,
+      TranslationType.Baidu,
+      TranslationType.Tencent,
+      TranslationType.Youdao, // * Note: only one Youdao will be shown.
+      TranslationType.Caiyun,
+    ];
 
-  const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
+    const defaultOrder = defaultTypeOrder.map((type) => type.toString().toLowerCase());
 
-  const userOrder: string[] = [];
-  // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-  const manualOrder = myPreferences.translationDisplayOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
+    const userOrder: string[] = [];
+    // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
+    const manualOrder = myPreferences.translationOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
 
-  // if contains DicionaryType.Youdao and TranslationType.Youdao, remove DicionaryType.Youdao
-
-  // console.log("manualOrder:", manualOrder);
-  if (manualOrder.length > 0) {
-    for (let translationName of manualOrder) {
-      translationName = translationName.trim();
-      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
-      if (defaultOrder.includes(translationName)) {
-        userOrder.push(translationName);
-        defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
+    // console.log("manualOrder:", manualOrder);
+    if (manualOrder.length > 0) {
+      for (let translationName of manualOrder) {
+        translationName = translationName.trim();
+        // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
+        if (defaultOrder.includes(translationName)) {
+          userOrder.push(translationName);
+          defaultOrder.splice(defaultOrder.indexOf(translationName), 1);
+        }
       }
     }
+
+    const finalOrder = [...userOrder, ...defaultOrder];
+    // console.log("defaultNameOrder:", defaultOrder);
+    // console.log("userOrder:", userOrder);
+    // console.log("finalOrder:", finalOrder);
+    return finalOrder;
   }
-  // console.log("defaultNameOrder:", defaultOrder);
-  // console.log("userOrder:", userOrder);
-  const finalOrder = [...userOrder, ...defaultOrder];
-  // console.log("finalOrder:", finalOrder);
-  return finalOrder;
 }
