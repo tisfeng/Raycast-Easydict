@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 00:29
+ * @lastEditTime: 2022-08-03 10:30
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -53,7 +53,7 @@ export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResul
 }
 
 /**
- * Update Youdao dictionary result.
+ * Update Youdao dictionary display result.
  */
 export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): SectionDisplayItem[] {
   const sectionResult: Array<SectionDisplayItem> = [];

@@ -12,6 +12,7 @@ import { environment } from "@raycast/api";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
+import { requestCostTime } from "../../axiosConfig";
 import { RequestTypeResult } from "../../types";
 import { getEnabledDictionaryServices, getLanguageItemFromYoudaoId } from "../../utils";
 import { dictionarySeparator, userAgent } from "./../../consts";
@@ -34,6 +35,7 @@ export async function rquestLingueeDictionary(
   targetLanguage: string,
   enableProxy = false
 ): Promise<RequestTypeResult> {
+  console.log(`---> start request Linguee`);
   let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";
@@ -91,7 +93,7 @@ export async function rquestLingueeDictionary(
     axios
       .get(lingueeUrl, config)
       .then((response) => {
-        console.warn(`---> linguee cost: ${response.headers["requestCostTime"]} ms`);
+        console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
         console.log(`--- headers: ${util.inspect(response.config.headers, { depth: null })}`);
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const contentType = response.headers["content-type"];

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 00:05
+ * @lastEditTime: 2022-08-03 10:14
  * @fileName: data.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,13 +13,8 @@ import { BaiduRequestStateCode } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
-import { requestGoogleTranslate } from "./google";
-import {
-  requestBaiduTextTranslate,
-  requestCaiyunTextTranslate,
-  requestDeepLTextTranslate,
-  requestTencentTextTranslate,
-} from "./request";
+import { requestGoogleTranslate } from "./translation/google";
+
 import { appleTranslate } from "./scripts";
 import {
   AppleTranslateResult,
@@ -40,6 +35,10 @@ import {
   YoudaoDictionaryFormatResult,
 } from "./types";
 import { checkIfShowYoudaoDictionary, myPreferences } from "./utils";
+import { requestBaiduTextTranslate } from "./translation/baidu";
+import { requestCaiyunTextTranslate } from "./translation/caiyun";
+import { requestDeepLTextTranslate } from "./translation/deepL";
+import { requestTencentTextTranslate } from "./translation/tencent";
 
 export class RequestResult {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
@@ -119,12 +118,11 @@ export class RequestResult {
 
     const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary;
     if (enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
-      console.log("---> request youdao dictionary");
       requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
           // From the input text query, to the end of Youdao translation request.
-          console.warn(`---> Entire request cost time: ${Date.now() - this.startTime} ms`);
+          console.warn(`---> Youdao request cost: ${Date.now() - this.startTime} ms`);
 
           if (this.shouldCancelQuery) {
             // updateTranslateDisplayResult(null);
@@ -166,7 +164,6 @@ export class RequestResult {
     }
 
     if (myPreferences.enableDeepLTranslate) {
-      console.log("---> deep translate start");
       requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
         .then((deepLTypeResult) => {
           // Todo: should use axios.CancelToken to cancel the request!
@@ -190,7 +187,6 @@ export class RequestResult {
 
     // check if enable google translate
     if (myPreferences.enableGoogleTranslate) {
-      console.log("---> google translate start");
       requestGoogleTranslate(queryText, fromLanguage, toLanguage)
         .then((googleTypeResult) => {
           if (!this.shouldCancelQuery) {
@@ -208,7 +204,6 @@ export class RequestResult {
 
     // check if enable apple translate
     if (myPreferences.enableAppleTranslate) {
-      console.log("apple translate start");
       appleTranslate(this.queryWordInfo)
         .then((translatedText) => {
           if (translatedText) {
@@ -234,7 +229,6 @@ export class RequestResult {
 
     // check if enable baidu translate
     if (myPreferences.enableBaiduTranslate) {
-      console.log("baidu translate start");
       requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
         .then((baiduTypeResult) => {
           if (!this.shouldCancelQuery) {
@@ -263,7 +257,6 @@ export class RequestResult {
 
     // check if enable tencent translate
     if (myPreferences.enableTencentTranslate) {
-      console.log(`tencent translate start`);
       requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
         .then((tencentTypeResult) => {
           if (!this.shouldCancelQuery) {
@@ -286,7 +279,6 @@ export class RequestResult {
 
     // check if enable caiyun translate
     if (myPreferences.enableCaiyunTranslate) {
-      console.log(`caiyun translate start`);
       requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
         .then((caiyunTypeResult) => {
           if (!this.shouldCancelQuery) {

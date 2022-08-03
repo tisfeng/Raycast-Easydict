@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 00:05
+ * @lastEditTime: 2022-08-03 10:29
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +12,7 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
+import { requestCostTime } from "../../axiosConfig";
 import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "../../consts";
 import { youdaoAppId, youdaoAppSecret } from "../../crypto";
 import { QueryWordInfo, RequestTypeResult, TranslationType, YoudaoDictionaryResult } from "../../types";
@@ -31,6 +32,7 @@ export function requestYoudaoDictionary(
   fromLanguage: string,
   targetLanguage: string
 ): Promise<RequestTypeResult> {
+  console.log(`---> start request Youdao`);
   function truncate(q: string): string {
     const len = q.length;
     return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
@@ -65,7 +67,7 @@ export function requestYoudaoDictionary(
           errorInfo: youdaoErrorInfo,
           translation: youdaoResult.translation.join(" "),
         };
-        console.warn(`---> Youdao translate cost: ${response.headers["requestCostTime"]} ms`);
+        console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
           reject(youdaoErrorInfo);
         } else {

@@ -3,7 +3,7 @@ import { RequestErrorInfo } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 23:03
+ * @lastEditTime: 2022-08-03 10:26
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,6 @@ import { RequestErrorInfo } from "./types";
 import { getPreferenceValues } from "@raycast/api";
 import { francAll } from "franc";
 import { languageItemList } from "./consts";
-import { tencentLanguageDetect } from "./request";
 import { appleLanguageDetect } from "./scripts";
 import { MyPreferences } from "./types";
 import {
@@ -25,6 +24,7 @@ import {
   myPreferences,
   preferredLanguages,
 } from "./utils";
+import { tencentLanguageDetect } from "./translation/tencent";
 
 export enum LanguageDetectType {
   Simple = "Simple",

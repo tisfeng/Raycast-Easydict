@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-07-16 17:47
+ * @lastEditTime: 2022-08-03 10:11
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,6 +54,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
  * Run apple Translate shortcuts with the given QueryWordInfo, return promise
  */
 export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | undefined> {
+  console.log(`---> start Apple translate`);
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
   const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
@@ -76,7 +77,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
-    console.log(
+    console.warn(
       `Apple translate currently not support translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
     );
   }
@@ -93,6 +94,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
     exec(command, (error, stdout, stderr) => {
+      console.log(`---> apple exec result: ${stdout}, error: ${error}`);
       if (error) {
         // console.error(`error: ${JSON.stringify(error, null, 4)}`);
         // console.error(`apple stderr: ${stderr}`);

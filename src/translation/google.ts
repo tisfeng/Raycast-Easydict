@@ -1,9 +1,9 @@
-import { userAgent } from "./consts";
+import { userAgent } from "../consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 22:00
+ * @lastEditTime: 2022-08-03 10:32
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,16 +11,17 @@ import { userAgent } from "./consts";
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 import querystring from "node:querystring";
-import { checkIfPreferredLanguagesContainedChinese } from "./detectLanguage";
-import { RequestErrorInfo, RequestTypeResult, TranslationType } from "./types";
-import { getLanguageItemFromYoudaoId } from "./utils";
+import { requestCostTime } from "../axiosConfig";
+import { checkIfPreferredLanguagesContainedChinese } from "../detectLanguage";
+import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { getLanguageItemFromYoudaoId } from "../utils";
 
 export async function requestGoogleTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
 ): Promise<RequestTypeResult> {
-  console.log(`---> request google`);
+  console.log(`---> start request Google`);
   // if has preferred Chinese language or ip in China, use cn, else use com.
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
@@ -64,7 +65,7 @@ async function getCurrentIpInfo() {
   try {
     const url = "https://ipinfo.io";
     const res = await axios.get(url);
-    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers["requestCostTime"]} ms`);
+    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers[requestCostTime]} ms`);
     return Promise.resolve(res.data);
   } catch (error) {
     console.error(`getCurrentIp error: ${error}`);
