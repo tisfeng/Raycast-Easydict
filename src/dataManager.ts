@@ -3,7 +3,7 @@ import { QueryType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:17
+ * @lastEditTime: 2022-08-03 22:34
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,7 +38,9 @@ import {
   TranslationType,
   YoudaoDictionaryFormatResult,
 } from "./types";
-import { checkIfShowYoudaoDictionary, getServicesSortOrder, myPreferences } from "./utils";
+import { checkIfShowYoudaoDictionary, getSortOrder, myPreferences } from "./utils";
+
+const sortOrder = getSortOrder();
 
 export class DataManager {
   private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
@@ -51,7 +53,6 @@ export class DataManager {
   get getQueryWordInfo(): QueryWordInfo | undefined {
     return this.queryWordInfo;
   }
-  sortOrder = getServicesSortOrder();
 
   /**
    * when has new input text, need to cancel previous request.
@@ -490,7 +491,7 @@ export class DataManager {
   sortQueryResults() {
     const queryResults: QueryResult[] = [];
     for (const queryResult of this.queryResults) {
-      const index = this.sortOrder.indexOf(queryResult.type.toString().toLowerCase());
+      const index = sortOrder.indexOf(queryResult.type.toString().toLowerCase());
       queryResults[index] = queryResult;
     }
     // filter undefined
@@ -555,5 +556,22 @@ export class DataManager {
       }
     }
     return dictionaryTypes;
+  }
+
+  /**
+   * Check if show one line translation.
+   *
+   *  Iterate QueryResult, if dictionary is not empty, return true.
+   */
+  checkIfShowOneLineTranslation(): boolean {
+    if (this.queryResults.length) {
+      for (const queryResult of this.queryResults) {
+        const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
+        if (isDictionaryType && queryResult.sourceResult?.result) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

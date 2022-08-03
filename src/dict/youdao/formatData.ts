@@ -13,8 +13,8 @@ import {
   QueryWordInfo,
   SectionDisplayItem,
   YoudaoDictionaryFormatResult,
+  YoudaoDictionaryListType,
   YoudaoDictionaryResult,
-  YoudaoDisplayType,
 } from "../../types";
 
 /**
@@ -70,7 +70,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     sectionTitle: `${youdaoType}`,
     items: [
       {
-        displayType: YoudaoDisplayType.Translation,
+        displayType: YoudaoDictionaryListType.Translation,
         key: oneLineTranslation + youdaoType,
         title: ` ${oneLineTranslation}`,
         subtitle: wordSubtitle,
@@ -92,15 +92,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
 
   formatResult.explanations?.forEach((explanation, i) => {
     sectionResult.push({
-      type: YoudaoDisplayType.Explanations,
+      type: YoudaoDictionaryListType.Explanations,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDisplayType.Explanations,
+          displayType: YoudaoDictionaryListType.Explanations,
           key: explanation + i,
           title: explanation,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDisplayType.Explanations,
+          tooltip: YoudaoDictionaryListType.Explanations,
           copyText: explanation,
         },
       ],
@@ -117,15 +117,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
   const wfsText = wfs?.join("   ") || "";
   if (wfsText.length) {
     sectionResult.push({
-      type: YoudaoDisplayType.Forms,
+      type: YoudaoDictionaryListType.Forms,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDisplayType.Forms,
+          displayType: YoudaoDictionaryListType.Forms,
           key: wfsText,
           title: "",
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDisplayType.Forms,
+          tooltip: YoudaoDictionaryListType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
         },
@@ -140,15 +140,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     const webResultValue = formatResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
     sectionResult.push({
-      type: YoudaoDisplayType.WebTranslation,
+      type: YoudaoDictionaryListType.WebTranslation,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDisplayType.WebTranslation,
+          displayType: YoudaoDictionaryListType.WebTranslation,
           key: copyText,
           title: webResultKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDisplayType.WebTranslation,
+          tooltip: YoudaoDictionaryListType.WebTranslation,
           subtitle: webResultValue,
           copyText: copyText,
         },
@@ -163,15 +163,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
     sectionResult.push({
-      type: YoudaoDisplayType.WebPhrase,
+      type: YoudaoDictionaryListType.WebPhrase,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDisplayType.WebPhrase,
+          displayType: YoudaoDictionaryListType.WebPhrase,
           key: copyText + i,
           title: phraseKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDisplayType.WebPhrase,
+          tooltip: YoudaoDictionaryListType.WebPhrase,
           subtitle: phraseValue,
           copyText: copyText,
         },

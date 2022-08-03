@@ -3,7 +3,7 @@ import { LingueeDisplayType } from "./dict/linguee/types";
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 21:16
+ * @lastEditTime: 2022-08-03 22:40
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 
-export enum YoudaoDisplayType {
+export enum YoudaoDictionaryListType {
   Translation = "Translate",
   Explanations = "Explanation",
   Forms = "Forms and Tenses",
@@ -24,13 +24,13 @@ export enum YoudaoDisplayType {
 }
 
 export enum TranslationType {
-  Youdao = "Youdao",
-  Baidu = "Baidu",
-  Tencent = "Tencent",
-  Caiyun = "Caiyun",
-  Apple = "Apple",
-  DeepL = "DeepL",
-  Google = "Google",
+  Youdao = "Youdao Translate",
+  Baidu = "Baidu Translate",
+  Tencent = "Tencent Translate",
+  Caiyun = "Caiyun Translate",
+  Apple = "Apple Translate",
+  DeepL = "DeepL Translate",
+  Google = "Google Translate",
 }
 
 export enum DicionaryType {
@@ -110,7 +110,7 @@ export interface YoudaoTranslateResultBasicFormItem {
 }
 
 export interface YoudaoTranslateReformatResult {
-  type: YoudaoDisplayType;
+  type: YoudaoDictionaryListType;
   children?: YoudaoTranslateReformatResultItem[];
 }
 export interface YoudaoTranslateReformatResultItem {
@@ -273,7 +273,12 @@ export interface ListAccessoryItem {
   example?: string; // French word example text
 }
 
-export type ListItemDisplayType = LingueeDisplayType | YoudaoDisplayType | QueryType | TranslationType | DicionaryType;
+export type ListItemDisplayType =
+  | LingueeDisplayType
+  | YoudaoDictionaryListType
+  | QueryType
+  | TranslationType
+  | DicionaryType;
 
 export interface ClipboardRecoredItem {
   key: string;

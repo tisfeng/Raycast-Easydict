@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:01
+ * @lastEditTime: 2022-08-03 22:47
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -26,7 +26,7 @@ import {
   QueryWordInfo,
   TranslationType,
   WebTranslationItem,
-  YoudaoDisplayType,
+  YoudaoDictionaryListType as YoudaoDictionaryDisplayType,
 } from "./types";
 import {
   checkIfNeedShowReleasePrompt,
@@ -196,11 +196,12 @@ export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.Ima
     tintColor: Color.PrimaryText,
   };
 
-  if (Object.values(YoudaoDisplayType).includes(listDisplayType as YoudaoDisplayType)) {
-    itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDisplayType);
+  if (Object.values(YoudaoDictionaryDisplayType).includes(listDisplayType as YoudaoDictionaryDisplayType)) {
+    itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDictionaryDisplayType);
   }
 
   if (Object.values(TranslationType).includes(listDisplayType as TranslationType)) {
+    // console.log(`---> TranslationType: ${listDisplayType}`);
     itemIcon = getQueryTypeIcon(listDisplayType as TranslationType);
   }
 
@@ -268,23 +269,23 @@ export function getLingueeListItemIcon(lingueeDisplayType: LingueeDisplayType): 
 /**
  * Get ImageLike based on YoudaoDisplayType
  */
-export function getYoudaoListItemIcon(youdaoListType: YoudaoDisplayType): Image.ImageLike {
+export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryDisplayType): Image.ImageLike {
   // console.log(`---> getYoudaoListItemIcon type: ${queryType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (youdaoListType) {
-    case YoudaoDisplayType.Translation: {
+    case YoudaoDictionaryDisplayType.Translation: {
       dotColor = Color.Red;
       break;
     }
-    case YoudaoDisplayType.Explanations: {
+    case YoudaoDictionaryDisplayType.Explanations: {
       dotColor = Color.Blue;
       break;
     }
-    case YoudaoDisplayType.WebTranslation: {
+    case YoudaoDictionaryDisplayType.WebTranslation: {
       dotColor = Color.Yellow;
       break;
     }
-    case YoudaoDisplayType.WebPhrase: {
+    case YoudaoDictionaryDisplayType.WebPhrase: {
       dotColor = "teal";
       break;
     }
@@ -296,7 +297,7 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDisplayType): Image.
     tintColor: dotColor,
   };
 
-  if (youdaoListType === YoudaoDisplayType.Forms) {
+  if (youdaoListType === YoudaoDictionaryDisplayType.Forms) {
     itemIcon = Icon.Receipt;
   }
 
@@ -352,11 +353,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
 function getWebTranslationItem(queryType: QueryType, queryTextInfo: QueryWordInfo): WebTranslationItem | undefined {
   // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(queryTextInfo, null, 2)}`);
   let webUrl;
-  let title = `${queryType} Translate`;
-  const isDictionaryType = Object.values(DicionaryType).includes(queryType as DicionaryType);
-  if (isDictionaryType) {
-    title = `${queryType}`;
-  }
+  const title = queryType;
   const icon = getQueryTypeIcon(queryType);
   switch (queryType.toString()) {
     case TranslationType.Google.toString(): {

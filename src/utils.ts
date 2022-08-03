@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 16:45
+ * @lastEditTime: 2022-08-03 22:37
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,6 @@
 import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
-import { DataManager } from "./dataManager";
 import { Easydict } from "./releaseVersion/versionInfo";
 import {
   DicionaryType,
@@ -258,23 +257,6 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
 }
 
 /**
- * Check if show one line translation.
- *
- *  Iterate QueryResult, if dictionary is not empty, return true.
- */
-export function checkIfShowOneLineTranslation(requestResult: DataManager): boolean {
-  if (requestResult.queryResults.length) {
-    for (const queryResult of requestResult.queryResults) {
-      const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
-      if (isDictionaryType && queryResult.sourceResult?.result) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-/**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
 export function isTranslationTooLong(translation: string, toLanguage: string): boolean {
@@ -322,7 +304,7 @@ export function checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormat
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
  */
-export function getServicesSortOrder(): string[] {
+export function getSortOrder(): string[] {
   const defaultTypeOrder = [
     DicionaryType.Linguee,
     DicionaryType.Youdao,
@@ -340,12 +322,11 @@ export function getServicesSortOrder(): string[] {
 
   const userOrder: string[] = [];
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-  const manualOrder = myPreferences.translationOrder.toLowerCase().split(","); // "Baidu,DeepL,Tencent"
-
-  // console.log("manualOrder:", manualOrder);
+  const manualOrder = myPreferences.translationOrder.split(","); // "Baidu,DeepL,Tencent"
+  console.log("manualOrder:", manualOrder);
   if (manualOrder.length > 0) {
     for (let translationName of manualOrder) {
-      translationName = translationName.trim();
+      translationName = `${translationName.trim()} Translate`.toLowerCase();
       // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
       if (defaultOrder.includes(translationName)) {
         userOrder.push(translationName);
@@ -355,9 +336,9 @@ export function getServicesSortOrder(): string[] {
   }
 
   const finalOrder = [...userOrder, ...defaultOrder];
-  // console.log("defaultNameOrder:", defaultOrder);
-  // console.log("userOrder:", userOrder);
-  // console.log("finalOrder:", finalOrder);
+  console.log("defaultNameOrder:", defaultOrder);
+  console.log("userOrder:", userOrder);
+  console.log("finalOrder:", finalOrder);
   return finalOrder;
 }
 
