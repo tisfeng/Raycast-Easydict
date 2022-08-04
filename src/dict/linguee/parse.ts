@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 21:32
+ * @lastEditTime: 2022-08-04 22:07
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -100,10 +100,10 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
 export function isLingueeDictionaryEmpty(lingueeResult: LingueeDictionaryResult): boolean {
   return (
     lingueeResult === null ||
-    lingueeResult.wordItems.length === 0 ||
-    lingueeResult.examples.length === 0 ||
-    lingueeResult.relatedWords.length === 0 ||
-    lingueeResult.wikipedias.length === 0
+    (lingueeResult.wordItems.length === 0 &&
+      lingueeResult.examples.length === 0 &&
+      lingueeResult.relatedWords.length === 0 &&
+      lingueeResult.wikipedias.length === 0)
   );
 }
 

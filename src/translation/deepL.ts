@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 21:53
+ * @lastEditTime: 2022-08-04 22:06
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -31,7 +31,7 @@ export async function requestDeepLTextTranslate(
 
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
-    console.warn(`DeepL translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.log(`DeepL translate not support language: ${fromLanguage} --> ${targetLanguage}`);
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: null,

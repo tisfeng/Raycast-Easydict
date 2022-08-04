@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 21:41
+ * @lastEditTime: 2022-08-04 22:11
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -507,7 +507,7 @@ export class DataManager {
         if (isDictionaryType) {
           const isDictionaryEmpty = this.checkIfDictionaryTypeEmpty(queryResult.type as DicionaryType);
           if (!isDictionaryEmpty) {
-            isShowDetail = true;
+            isShowDetail = false;
             break;
           }
         } else {

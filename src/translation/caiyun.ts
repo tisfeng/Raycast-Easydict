@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 17:45
+ * @lastEditTime: 2022-08-04 22:06
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,7 @@ export function requestCaiyunTextTranslate(
   // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
-    console.warn(`Caiyun translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.log(`Caiyun translate not support language: ${fromLanguage} --> ${targetLanguage}`);
     return Promise.resolve({
       type: TranslationType.Caiyun,
       result: null,

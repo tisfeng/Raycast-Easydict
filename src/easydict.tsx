@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 21:43
+ * @lastEditTime: 2022-08-04 22:32
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -183,6 +183,8 @@ export default function () {
         ...(requestResults.getQueryWordInfo as QueryWordInfo),
         toLanguage: selectedLanguageItem.youdaoLanguageId,
       };
+      console.log(`---> original queryWordInfo: ${JSON.stringify(requestResults.getQueryWordInfo, null, 2)}`);
+      console.log(`---> new queryWordInfo: ${JSON.stringify(quertWordInfo, null, 2)}`);
       requestResults.queryTextWithTextInfo(quertWordInfo);
     };
 
