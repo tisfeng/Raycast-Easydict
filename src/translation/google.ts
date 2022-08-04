@@ -3,7 +3,7 @@ import { userAgent } from "../consts";
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:32
+ * @lastEditTime: 2022-08-04 17:35
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -110,13 +110,13 @@ async function googleCrawlerTranslate(
     .then((res: AxiosResponse) => {
       try {
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
-        let result = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
-        result = decodeURI(result);
-        console.warn(`---> google result: ${result}, cost: ${res.headers["requestCostTime"]}ms`);
+        let translation = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
+        translation = decodeURI(translation);
+        console.warn(`---> google result: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
         return Promise.resolve({
           type: TranslationType.Google,
-          result: { translatedText: result },
-          translation: result,
+          result: { translatedText: translation },
+          translations: [translation],
         });
       } catch (error) {
         console.error(`googleTranslate error: ${error}`);

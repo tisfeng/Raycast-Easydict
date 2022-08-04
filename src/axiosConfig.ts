@@ -2,13 +2,15 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:25
+ * @lastEditTime: 2022-08-04 16:31
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import axios, { AxiosRequestConfig } from "axios";
+
+console.log(`---> process.env.PATH: ${process.env.PATH}`);
 
 /**
  * Caclulate axios request cost time

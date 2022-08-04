@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:28
+ * @lastEditTime: 2022-08-04 17:45
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,15 +36,15 @@ export function requestCaiyunTextTranslate(
     return Promise.resolve({
       type: TranslationType.Caiyun,
       result: null,
-      translation: "",
+      translations: [],
     });
   }
-
   const params = {
     source: queryText.split("\n"), // source can be text or array. if source is an array, it will be translated in parallel
     trans_type,
     detect: from === "auto",
   };
+  // console.log(`---> Caiyun params: ${JSON.stringify(params, null, 4)}`);
   const headers = {
     headers: {
       "content-type": "application/json",
@@ -56,12 +56,12 @@ export function requestCaiyunTextTranslate(
       .post(url, params, headers)
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
-        const translation = caiyunResult.target.join(" ");
-        console.log(`caiyun translate: ${translation}, cost: ${response.headers[requestCostTime]} ms`);
+        const translations = caiyunResult.target;
+        console.log(`caiyun translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
         resolve({
           type: TranslationType.Caiyun,
           result: caiyunResult,
-          translation: translation,
+          translations: translations,
         });
       })
       .catch((error) => {

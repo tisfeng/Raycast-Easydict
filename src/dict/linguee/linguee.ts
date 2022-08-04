@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 10:31
+ * @lastEditTime: 2022-08-04 18:18
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -63,7 +63,7 @@ export async function rquestLingueeDictionary(
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,
-      translation: "",
+      translations: [],
     });
   }
 
@@ -105,11 +105,12 @@ export async function rquestLingueeDictionary(
         console.log(`---> content-type: ${contentType}`);
         const html = data.toString(contentType.includes("iso-8859-15") ? "latin1" : "utf-8");
         const lingueeTypeResult = parseLingueeHTML(html);
+        console.log(`---> linguee result: ${util.inspect(lingueeTypeResult, { depth: null })}`);
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
-        // console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
+        console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
         console.error(`---> linguee error: ${error}`);
 
         let errorMessage = error.response?.statusText;

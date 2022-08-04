@@ -1,8 +1,8 @@
 /*
  * @author: tisfeng
- * @createTime: 2022-06-26 11:13
+ * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 00:18
+ * @lastEditTime: 2022-08-04 21:57
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,15 +12,7 @@ import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
 import { Easydict } from "./releaseVersion/versionInfo";
-import {
-  DicionaryType,
-  LanguageItem,
-  MyPreferences,
-  QueryRecoredItem,
-  QueryWordInfo,
-  TranslationType,
-  YoudaoDictionaryFormatResult,
-} from "./types";
+import { DicionaryType, LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslationType } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;
@@ -262,21 +254,21 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
 export function isTranslationTooLong(translation: string, toLanguage: string): boolean {
   const isChineseTextResult = toLanguage === "zh-CHS";
   const isEnglishTextResult = toLanguage === "en";
-
+  let isTooLong = false;
   const textLength = translation.length;
   if (isChineseTextResult) {
     if (textLength > maxLineLengthOfChineseTextDisplay) {
-      return true;
+      isTooLong = true;
     }
   } else if (isEnglishTextResult) {
     if (textLength > maxLineLengthOfEnglishTextDisplay) {
-      return true;
+      isTooLong = true;
     }
   } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
-    return true;
+    isTooLong = true;
   }
-
-  return false;
+  // console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+  return isTooLong;
 }
 
 /**
@@ -290,15 +282,6 @@ export function trimTextLength(text: string, length = 2000) {
     return text.substring(0, length) + "...";
   }
   return text.substring(0, length);
-}
-
-/**
- * Check if should show Youdao dictionary.
- *
- * If there is no result other than translation, then should not show Youdao dictionary.
- */
-export function checkIfShowYoudaoDictionary(formatResult: YoudaoDictionaryFormatResult) {
-  return formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation;
 }
 
 /**
@@ -325,7 +308,7 @@ export function getSortOrder(): string[] {
   const userOrder: string[] = [];
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
   const manualOrder = myPreferences.translationOrder.split(","); // "Baidu,DeepL,Tencent"
-  console.log("manualOrder:", manualOrder);
+  // console.log("---> manualOrder:", manualOrder);
   if (manualOrder.length > 0) {
     for (let translationName of manualOrder) {
       translationName = `${translationName.trim()} Translate`.toLowerCase();

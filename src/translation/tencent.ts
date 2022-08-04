@@ -50,7 +50,7 @@ export async function requestTencentTextTranslate(
     return Promise.resolve({
       type: TranslationType.Tencent,
       result: null,
-      translation: "",
+      translations: [],
     });
   }
   const params = {
@@ -65,10 +65,10 @@ export async function requestTencentTextTranslate(
     const response = await client.TextTranslate(params);
     const endTime = new Date().getTime();
     console.log(`Tencen translate: ${response.TargetText}, cost: ${endTime - startTime} ms`);
-    const typeResult = {
+    const typeResult: RequestTypeResult = {
       type: TranslationType.Tencent,
       result: response as TencentTranslateResult,
-      translation: response.TargetText,
+      translations: [response.TargetText],
     };
     return Promise.resolve(typeResult);
   } catch (err) {

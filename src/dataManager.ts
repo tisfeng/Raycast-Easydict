@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 10:20
+ * @lastEditTime: 2022-08-04 21:41
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,9 @@
 import { showToast, Toast } from "@raycast/api";
 import { BaiduRequestStateCode, dictionarySeparator } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
-import { updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
+import { isLingueeDictionaryEmpty } from "./dict/linguee/parse";
+import { LingueeDictionaryResult } from "./dict/linguee/types";
+import { isYoudaoDictionaryEmpty, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
@@ -20,12 +22,7 @@ import { requestDeepLTextTranslate } from "./translation/deepL";
 import { requestGoogleTranslate } from "./translation/google";
 import { requestTencentTextTranslate } from "./translation/tencent";
 import {
-  AppleTranslateResult,
-  BaiduTranslateResult,
-  CaiyunTranslateResult,
-  DeepLTranslateResult,
   DicionaryType,
-  GoogleTranslateResult,
   ListDisplayItem,
   QueryResult,
   QueryType,
@@ -33,12 +30,11 @@ import {
   RequestErrorInfo,
   RequestTypeResult,
   SectionDisplayItem,
-  TencentTranslateResult,
   TranslateItem,
   TranslationType,
   YoudaoDictionaryFormatResult,
 } from "./types";
-import { checkIfShowYoudaoDictionary, getSortOrder, myPreferences } from "./utils";
+import { getSortOrder, isTranslationTooLong, myPreferences } from "./utils";
 
 const sortOrder = getSortOrder();
 
@@ -72,6 +68,8 @@ export class DataManager {
     // do nothing, it will be assigned later.
   }, 1000);
 
+  isShowDetail = false;
+
   /**
    * update display result.
    *
@@ -86,10 +84,12 @@ export class DataManager {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
     this.updateDictionarySeparator();
+    this.isShowDetail = this.checkIfShowTranslationDetail();
 
     const displaySections: SectionDisplayItem[][] = [];
     for (const result of this.queryResults) {
       if (result.displayResult) {
+        this.updateTranslationMarkdown(result);
         displaySections.push(result.displayResult);
       }
     }
@@ -148,7 +148,7 @@ export class DataManager {
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
           const youdaoDisplayResult = updateYoudaoDictionaryDisplay(formatYoudaoResult);
-          const showYoudaoDictionary = checkIfShowYoudaoDictionary(formatYoudaoResult);
+          const showYoudaoDictionary = !isYoudaoDictionaryEmpty(formatYoudaoResult);
           console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
           const type = enableYoudaoDictionary ? DicionaryType.Youdao : TranslationType.Youdao;
 
@@ -228,7 +228,7 @@ export class DataManager {
             const appleTranslateResult: RequestTypeResult = {
               type: TranslationType.Apple,
               result: { translatedText: translatedText },
-              translation: translatedText,
+              translations: [translatedText],
             };
             if (!this.shouldCancelQuery) {
               const displayResult: QueryResult = {
@@ -336,116 +336,35 @@ export class DataManager {
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
 
     const { type, sourceResult } = queryResult;
-    let translatedText = "";
+    let oneLineTranslations = "";
     if (!sourceResult) {
       return;
     }
 
-    switch (type) {
-      case TranslationType.DeepL: {
-        const deepLResult = sourceResult.result as DeepLTranslateResult;
-        translatedText = deepLResult.translations[0].text;
-        break;
-      }
-      case TranslationType.Google: {
-        const googleResult = sourceResult.result as GoogleTranslateResult;
-        translatedText = googleResult.translatedText;
-        break;
-      }
-      case TranslationType.Apple: {
-        const appleResult = sourceResult.result as AppleTranslateResult;
-        translatedText = appleResult.translatedText;
-        break;
-      }
-      case TranslationType.Baidu: {
-        const baiduResult = sourceResult.result as BaiduTranslateResult;
-        if (baiduResult.trans_result) {
-          translatedText = baiduResult.trans_result.map((item) => item.dst).join("\n");
-        }
-        break;
-      }
-      case TranslationType.Tencent: {
-        const tencentResult = sourceResult.result as TencentTranslateResult;
-        if (tencentResult) {
-          translatedText = tencentResult.TargetText;
-        }
-        break;
-      }
-      case TranslationType.Youdao: {
-        const youdaoResult = sourceResult.result as YoudaoDictionaryFormatResult;
-        if (youdaoResult) {
-          translatedText = youdaoResult.translations.join("\n");
-        }
-        break;
-      }
-      case TranslationType.Caiyun: {
-        const caiyunResult = sourceResult.result as CaiyunTranslateResult;
-        if (caiyunResult) {
-          translatedText = caiyunResult?.target.join("\n");
-        }
-        break;
-      }
-    }
-
-    if (translatedText) {
-      // console.log(`---> translatedText: ${translatedText}`);
+    oneLineTranslations = sourceResult.translations.map((translation) => translation).join(" ");
+    sourceResult.oneLineTranslations = oneLineTranslations;
+    if (oneLineTranslations) {
       const displayItem: ListDisplayItem = {
         displayType: type,
-        key: `${translatedText}-${type}`,
-        title: translatedText,
-        copyText: translatedText,
+        key: `${oneLineTranslations}-${type}`,
+        title: oneLineTranslations,
+        copyText: oneLineTranslations,
         queryWordInfo: this.queryWordInfo as QueryWordInfo,
-        translationMarkdown: this.formatTranslationToMarkdown(translatedText, type as TranslationType),
       };
-
       const sectionDisplayItem: SectionDisplayItem = {
         type: type,
         sectionTitle: type,
         items: [displayItem],
       };
-
-      const displayResult: QueryResult = {
-        type: type,
-        sourceResult: sourceResult,
-        displayResult: [sectionDisplayItem],
-      };
-      this.updateQueryDisplayResults(displayResult);
+      const newQueryResult = { ...queryResult, displayResult: [sectionDisplayItem] };
+      this.updateQueryDisplayResults(newQueryResult);
     }
   }
 
   /**
-   * Convert multiple translated result texts to markdown format and display them in the same list details page.
-   */
-  // formatAllTypeTranslationToMarkdown(
-  //   queryDisplayResult: QueryResult,
-  //   type: TranslationType,
-  //   formatResult: YoudaoTranslationFormatResult
-  // ) {
-  //   const translations = [] as TranslateItem[];
-  //   for (const translation of formatResult.translations) {
-  //     const formatTranslation = this.formatTranslationToMarkdown(translation.type, translation.text);
-  //     translations.push({ type: translation.type, text: formatTranslation });
-  //   }
-  //   // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
-  //   for (let i = 0; i < translations.length; i++) {
-  //     if (translations[i].type === type) {
-  //       const temp = translations[i];
-  //       translations.splice(i, 1);
-  //       translations.unshift(temp);
-  //       break;
-  //     }
-  //   }
-  //   return translations
-  //     .map((translation) => {
-  //       return translation.text;
-  //     })
-  //     .join("\n");
-  // }
-
-  /**
    * Update translation markdown.
    */
-  UpdateTranslationMarkdown(queryResult: QueryResult) {
+  updateTranslationMarkdown(queryResult: QueryResult) {
     const { sourceResult, displayResult } = queryResult;
     if (!sourceResult || !displayResult?.length) {
       return;
@@ -454,10 +373,10 @@ export class DataManager {
     const translations = [] as TranslateItem[];
     for (const queryResults of this.queryResults) {
       const { type, sourceResult } = queryResults;
-      const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
-      if (sourceResult && isDictionaryType) {
+      const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
+      if (sourceResult && isTranslationType) {
         const type = sourceResult.type as TranslationType;
-        const markdownTranslation = this.formatTranslationToMarkdown(sourceResult?.translation, type);
+        const markdownTranslation = this.formatTranslationToMarkdown(sourceResult.translations, type);
         translations.push({ type: type, text: markdownTranslation });
       }
     }
@@ -470,11 +389,8 @@ export class DataManager {
         break;
       }
     }
-    const markdown = translations
-      .map((translation) => {
-        return translation.text;
-      })
-      .join("\n");
+    const markdown = translations.map((translation) => translation.text).join("\n");
+    // console.log(`---> type: ${queryResult.type},  markdown: ${markdown}`);
 
     const listDiplayItem = displayResult[0].items;
     if (listDiplayItem?.length) {
@@ -485,8 +401,13 @@ export class DataManager {
   /**
    *  format type translation result to markdown format.
    */
-  formatTranslationToMarkdown(text: string, type: TranslationType) {
-    const string = text.replace(/\n/g, "\n\n");
+  formatTranslationToMarkdown(translations: string[], type: TranslationType) {
+    const oneLineTranslation = translations.join("\n");
+    if (oneLineTranslation.trim().length === 0) {
+      return "";
+    }
+
+    const string = oneLineTranslation.replace(/\n/g, "\n\n");
     const markdown = `
   ## ${type}
   ---  
@@ -546,7 +467,7 @@ export class DataManager {
   addOrDeleteSeparator(dictionaryType: DicionaryType, isAdd: boolean) {
     const dictionaryResult = this.getQueryResult(dictionaryType);
     const displayResult = dictionaryResult?.displayResult;
-    if (displayResult) {
+    if (displayResult?.length) {
       let sectionTitle = `${dictionaryType}`;
       if (isAdd) {
         sectionTitle = `${sectionTitle} ${dictionarySeparator}`;
@@ -574,19 +495,63 @@ export class DataManager {
   }
 
   /**
-   * Check if show one line translation.
+   * Check if show translation detail.
    *
-   *  Iterate QueryResult, if dictionary is not empty, return true.
+   * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
    */
-  checkIfShowOneLineTranslation(): boolean {
+  checkIfShowTranslationDetail(): boolean {
+    let isShowDetail = false;
     if (this.queryResults.length) {
       for (const queryResult of this.queryResults) {
         const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
-        if (isDictionaryType && queryResult.sourceResult?.result) {
-          return true;
+        if (isDictionaryType) {
+          const isDictionaryEmpty = this.checkIfDictionaryTypeEmpty(queryResult.type as DicionaryType);
+          if (!isDictionaryEmpty) {
+            isShowDetail = true;
+            break;
+          }
+        } else {
+          // check if translation is too long
+          const oneLineTranslation = queryResult.sourceResult?.oneLineTranslations || "";
+          const toLanauge = this.queryWordInfo?.toLanguage as string;
+          const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
+          if (isTooLong) {
+            isShowDetail = true;
+            break;
+          }
         }
       }
     }
-    return false;
+    console.log(`---> isShowDetail: ${isShowDetail}`);
+    return isShowDetail;
+  }
+
+  /**
+   * Check if dictionary type is empty.
+   */
+  checkIfDictionaryTypeEmpty(dictionaryType: DicionaryType): boolean {
+    const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType);
+    if (!isDictionaryType) {
+      return false;
+    }
+
+    const dictionaryResult = this.getQueryResult(dictionaryType);
+    const sourceResult = dictionaryResult?.sourceResult;
+    if (!sourceResult) {
+      return true;
+    }
+
+    let isEmpty = true;
+    switch (dictionaryType) {
+      case DicionaryType.Linguee: {
+        isEmpty = isLingueeDictionaryEmpty(sourceResult.result as LingueeDictionaryResult);
+        break;
+      }
+      case DicionaryType.Youdao: {
+        isEmpty = isYoudaoDictionaryEmpty(sourceResult.result as YoudaoDictionaryFormatResult);
+        break;
+      }
+    }
+    return isEmpty;
   }
 }

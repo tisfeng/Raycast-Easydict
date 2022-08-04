@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:18
+ * @lastEditTime: 2022-08-04 17:45
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -41,18 +41,20 @@ export function requestBaiduTextTranslate(
     salt: salt,
     sign: sign,
   };
+  // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
   return new Promise((resolve, reject) => {
     axios
       .get(url, { params })
       .then((response) => {
         const baiduResult = response.data as BaiduTranslateResult;
+        // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
         if (baiduResult.trans_result) {
-          const translateText = baiduResult.trans_result.map((item) => item.dst).join(" ");
-          console.log(`Baidu translate: ${translateText}, cost: ${response.headers[requestCostTime]} ms`);
+          const translations = baiduResult.trans_result.map((item) => item.dst);
+          console.log(`Baidu translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
           resolve({
             type: TranslationType.Baidu,
             result: baiduResult,
-            translation: translateText,
+            translations: translations,
           });
         } else {
           console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`);

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 17:16
+ * @lastEditTime: 2022-08-04 18:21
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -182,4 +182,11 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
   });
 
   return sectionResult;
+}
+
+/**
+ * Check if Youdao dictionary empty.
+ */
+export function isYoudaoDictionaryEmpty(formatResult: YoudaoDictionaryFormatResult) {
+  return !(formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation);
 }

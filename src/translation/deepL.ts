@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:18
+ * @lastEditTime: 2022-08-04 21:53
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -35,7 +35,7 @@ export async function requestDeepLTextTranslate(
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: null,
-      translation: "",
+      translations: [],
     });
   }
 
@@ -49,21 +49,19 @@ export async function requestDeepLTextTranslate(
     source_lang: sourceLang,
     target_lang: targetLang,
   };
-  // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
+  console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
   try {
     const response = await axios.post(url, querystring.stringify(params));
     const deepLResult = response.data as DeepLTranslateResult;
     const translatedText = deepLResult.translations[0].text;
     console.log(
-      `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, length: ${translatedText.length}, cost: ${
-        response.headers["requestCostTime"]
-      } ms`
+      `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers["requestCostTime"]} ms`
     );
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: deepLResult,
-      translation: translatedText,
+      translations: [translatedText],
     });
   } catch (err) {
     const error = err as { response: AxiosResponse };

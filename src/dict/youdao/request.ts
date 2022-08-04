@@ -65,7 +65,7 @@ export function requestYoudaoDictionary(
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
           errorInfo: youdaoErrorInfo,
-          translation: youdaoResult.translation.join(" "),
+          translations: youdaoResult.translation,
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {

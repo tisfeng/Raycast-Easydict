@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 00:09
+ * @lastEditTime: 2022-08-04 17:59
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -93,9 +93,8 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
-    // console.log(`---> command: ${command}`);
     exec(command, (error, stdout, stderr) => {
-      console.log(`---> apple exec result: ${stdout}, error: ${error}`);
+      // console.log(`---> apple exec result: ${stdout}, error: ${error}`);
       if (error) {
         // console.error(`error: ${JSON.stringify(error, null, 4)}`);
         // console.error(`apple stderr: ${stderr}`);

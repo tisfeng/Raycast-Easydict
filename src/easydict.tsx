@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:59
+ * @lastEditTime: 2022-08-04 21:43
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,24 +54,26 @@ export default function () {
 
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
+  const requestResults = new DataManager(updateDisplaySections);
+
   function updateDisplaySections(result: SectionDisplayItem[]) {
     setDisplayResult(result);
     setLoadingState(false);
+
+    setIsShowingDetail(requestResults.isShowDetail);
   }
 
-  const requestResults = new DataManager(updateDisplaySections);
-
   /**
-     the language type of text, depending on the language type of the current input text.
-     */
+   * the language type of text, depending on the language type of the current input text.
+   */
   const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(defaultLanguage1);
-  /*
-    default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
-    */
+  /**
+   * default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
+   */
   const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(defaultLanguage1);
-  /*
-    the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
-    */
+  /**
+   * the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
+   */
   const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
