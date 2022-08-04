@@ -1,9 +1,8 @@
-import { QueryType } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 00:37
+ * @lastEditTime: 2022-08-04 10:20
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -29,6 +28,7 @@ import {
   GoogleTranslateResult,
   ListDisplayItem,
   QueryResult,
+  QueryType,
   QueryWordInfo,
   RequestErrorInfo,
   RequestTypeResult,
@@ -121,6 +121,12 @@ export class DataManager {
         })
         .catch((error) => {
           console.error("lingueeDictionaryResult error:", error);
+          const errorInfo = error as RequestErrorInfo;
+          showToast({
+            style: Toast.Style.Failure,
+            title: `Linguee: ${errorInfo.code}`,
+            message: errorInfo.message,
+          });
         });
     }
 
@@ -166,6 +172,12 @@ export class DataManager {
         })
         .catch((error) => {
           console.error("youdaoDictionaryResult error:", error);
+          const errorInfo = error as RequestErrorInfo;
+          showToast({
+            style: Toast.Style.Failure,
+            title: `${errorInfo.type}: ${errorInfo.code}`,
+            message: errorInfo.message,
+          });
         });
     }
 
@@ -181,8 +193,8 @@ export class DataManager {
             this.updateTranslationDisplay(displayResult);
           }
         })
-        .catch((err) => {
-          const errorInfo = err as RequestErrorInfo;
+        .catch((error) => {
+          const errorInfo = error as RequestErrorInfo;
           showToast({
             style: Toast.Style.Failure,
             title: `${errorInfo.type}: ${errorInfo.code}`,

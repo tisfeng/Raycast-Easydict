@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 17:10
+ * @lastEditTime: 2022-08-04 10:31
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { environment } from "@raycast/api";
+import { environment, LocalStorage } from "@raycast/api";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
@@ -19,6 +19,8 @@ import { getLanguageItemFromYoudaoId } from "../../utils";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult, LingueeDisplayType } from "./types";
+
+export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const htmlPath = `${environment.supportPath}/linguee.html`;
@@ -35,6 +37,7 @@ export async function rquestLingueeDictionary(
   enableProxy = false
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
+
   let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";
@@ -92,6 +95,8 @@ export async function rquestLingueeDictionary(
     axios
       .get(lingueeUrl, config)
       .then((response) => {
+        recordLingueeRequestTime();
+
         console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
         console.log(`--- headers: ${util.inspect(response.config.headers, { depth: null })}`);
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
@@ -104,15 +109,38 @@ export async function rquestLingueeDictionary(
       })
       .catch((error) => {
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
-        console.error(`request linguee error: ${error}`);
+        // console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
+        console.error(`---> linguee error: ${error}`);
+
+        let errorMessage = error.response?.statusText;
+        const errorCode: number = error.response.status;
+        if (errorCode === 503) {
+          errorMessage = "Your ip is banned by linguee for a few hours.";
+          resetLingueeRequestTime();
+        }
         const errorInfo: RequestErrorInfo = {
           type: DicionaryType.Linguee,
-          code: error.response?.status.toString(),
-          message: error.response?.statusText,
+          code: errorCode.toString(),
+          message: errorMessage,
         };
         reject(errorInfo);
       });
   });
+}
+
+/**
+ * Record linguee reqeust times.
+ */
+async function recordLingueeRequestTime() {
+  const lingueeRequestTime = (await LocalStorage.getItem<number>(lingueeRequestTimeKey)) || 1;
+  console.log(`---> linguee has request time: ${lingueeRequestTime}`);
+  LocalStorage.setItem(lingueeRequestTimeKey, lingueeRequestTime + 1);
+}
+/**
+ * Reset linguee request times.
+ */
+export async function resetLingueeRequestTime() {
+  LocalStorage.setItem(lingueeRequestTimeKey, 0);
 }
 
 /**
