@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 17:13
+ * @lastEditTime: 2022-08-04 23:50
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { QueryWordInfo } from "../../types";
+import { QueryWordInfo } from "../youdao/types";
 
 export interface LingueeDictionaryResult {
   queryWordInfo: QueryWordInfo;
@@ -39,7 +39,7 @@ export interface LingueeWordTranslation {
 
 export interface LingueeFrequencyTag {
   tagText: string; // (often used), (almost always used)
-  displayType: LingueeDisplayType; // as frequency use: AlmostAlways, OfenUsed, Common, LessCommon
+  displayType: LingueeListItemType; // as frequency use: AlmostAlways, OfenUsed, Common, LessCommon
 }
 
 export interface LingueeExample {
@@ -55,7 +55,7 @@ export interface LingueeWikipedia {
   sourceUrl: string;
 }
 
-export enum LingueeDisplayType {
+export enum LingueeListItemType {
   AlmostAlwaysUsed = "Almost Always Used", // also featured, eg. true
   OftenUsed = "Often Used", // also featured, eg. good
   Common = "Common", // also featured

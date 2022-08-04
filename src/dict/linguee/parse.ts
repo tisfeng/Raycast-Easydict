@@ -2,19 +2,20 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:07
+ * @lastEditTime: 2022-08-04 23:52
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { parse } from "node-html-parser";
-import { DicionaryType, QueryWordInfo, RequestTypeResult } from "../../types";
+import { DicionaryType, RequestTypeResult } from "../../types";
 import { getLanguageItemFromDeepLSourceId } from "../../utils";
+import { QueryWordInfo } from "../youdao/types";
 import {
   LingueeDictionaryResult,
-  LingueeDisplayType,
   LingueeExample,
+  LingueeListItemType,
   LingueeWikipedia,
   LingueeWordItem,
   LingueeWordTranslation,
@@ -165,7 +166,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const lemmaContent = lemma?.querySelector(".lemma_content");
       // console.log(`---> less common: ${translation_group?.textContent}`);
       const notascommon = lemmaContent?.querySelector(".line .notascommon");
-      const frequency = notascommon ? LingueeDisplayType.LessCommon : LingueeDisplayType.Common;
+      const frequency = notascommon ? LingueeListItemType.LessCommon : LingueeListItemType.Common;
       const lessCommonTranslations = lemmaContent?.querySelectorAll(".translation") as unknown as HTMLElement[];
       const lessCommonExplanations = getWordExplanationList(lessCommonTranslations, false, frequency);
 
@@ -198,7 +199,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
 function getWordExplanationList(
   translations: HTMLElement[] | undefined,
   isFeatured = false,
-  designatedFrequencey?: LingueeDisplayType
+  designatedFrequencey?: LingueeListItemType
 ) {
   console.log(`---> getWordExplanationList, length: ${translations?.length} , isFeatured: ${isFeatured}`);
   const explanationItems = [];
@@ -250,30 +251,30 @@ function getWordExplanationList(
 /**
  * Get linguee display type according to word frequency.
  */
-function getExplanationDisplayType(wordFrequency: string): LingueeDisplayType {
+function getExplanationDisplayType(wordFrequency: string): LingueeListItemType {
   // console.log(`---> word frequency: ${wordFrequency}`);
   // remove parentheses
   const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "").toLowerCase();
-  let wordDisplayType: LingueeDisplayType;
+  let wordDisplayType: LingueeListItemType;
   switch (wordFrequencyWithoutParentheses) {
-    case LingueeDisplayType.AlmostAlwaysUsed.toLowerCase(): {
-      wordDisplayType = LingueeDisplayType.AlmostAlwaysUsed;
+    case LingueeListItemType.AlmostAlwaysUsed.toLowerCase(): {
+      wordDisplayType = LingueeListItemType.AlmostAlwaysUsed;
       break;
     }
-    case LingueeDisplayType.OftenUsed.toLowerCase(): {
-      wordDisplayType = LingueeDisplayType.OftenUsed;
+    case LingueeListItemType.OftenUsed.toLowerCase(): {
+      wordDisplayType = LingueeListItemType.OftenUsed;
       break;
     }
-    case LingueeDisplayType.LessCommon.toLowerCase(): {
-      wordDisplayType = LingueeDisplayType.LessCommon;
+    case LingueeListItemType.LessCommon.toLowerCase(): {
+      wordDisplayType = LingueeListItemType.LessCommon;
       break;
     }
     default: {
       if (wordFrequencyWithoutParentheses.length) {
-        wordDisplayType = LingueeDisplayType.SpecialForms;
+        wordDisplayType = LingueeListItemType.SpecialForms;
         break;
       }
-      wordDisplayType = LingueeDisplayType.Common;
+      wordDisplayType = LingueeListItemType.Common;
       break;
     }
   }

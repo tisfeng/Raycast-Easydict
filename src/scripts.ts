@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 17:59
+ * @lastEditTime: 2022-08-04 23:44
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,8 @@ import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
 import { eudicBundleId } from "./components";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
-import { QueryWordInfo, RequestErrorInfo, TranslationType } from "./types";
+import { QueryWordInfo } from "./dict/youdao/types";
+import { RequestErrorInfo, TranslationType } from "./types";
 import { getLanguageItemFromYoudaoId } from "./utils";
 
 /**

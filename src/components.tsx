@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 22:47
+ * @lastEditTime: 2022-08-04 23:51
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,8 +12,9 @@ import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences }
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { languageItemList } from "./consts";
-import { LingueeDisplayType } from "./dict/linguee/types";
+import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import ReleaseLogDetail from "./releaseVersion/releaselog";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
@@ -23,10 +24,8 @@ import {
   ListDisplayItem,
   ListItemDisplayType,
   QueryType,
-  QueryWordInfo,
   TranslationType,
   WebTranslationItem,
-  YoudaoDictionaryListType as YoudaoDictionaryDisplayType,
 } from "./types";
 import {
   checkIfNeedShowReleasePrompt,
@@ -196,8 +195,8 @@ export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.Ima
     tintColor: Color.PrimaryText,
   };
 
-  if (Object.values(YoudaoDictionaryDisplayType).includes(listDisplayType as YoudaoDictionaryDisplayType)) {
-    itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDictionaryDisplayType);
+  if (Object.values(YoudaoDictionaryListItemType).includes(listDisplayType as YoudaoDictionaryListItemType)) {
+    itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDictionaryListItemType);
   }
 
   if (Object.values(TranslationType).includes(listDisplayType as TranslationType)) {
@@ -206,8 +205,8 @@ export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.Ima
   }
 
   // LingueeDisplayType is string enum, so we need to check if it is in the enum
-  if (Object.values(LingueeDisplayType).includes(listDisplayType as LingueeDisplayType)) {
-    itemIcon = getLingueeListItemIcon(listDisplayType as LingueeDisplayType);
+  if (Object.values(LingueeListItemType).includes(listDisplayType as LingueeListItemType)) {
+    itemIcon = getLingueeListItemIcon(listDisplayType as LingueeListItemType);
   }
 
   // console.log(`---> end list type: ${listDisplayType}`);
@@ -218,42 +217,42 @@ export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.Ima
 /**
  * Get ImageLike based on LingueeDisplayType
  */
-export function getLingueeListItemIcon(lingueeDisplayType: LingueeDisplayType): Image.ImageLike {
+export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType): Image.ImageLike {
   // console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
-    case LingueeDisplayType.Translation: {
+    case LingueeListItemType.Translation: {
       dotColor = Color.Red;
       break;
     }
 
-    case LingueeDisplayType.SpecialForms:
-    case LingueeDisplayType.AlmostAlwaysUsed:
-    case LingueeDisplayType.OftenUsed: {
+    case LingueeListItemType.SpecialForms:
+    case LingueeListItemType.AlmostAlwaysUsed:
+    case LingueeListItemType.OftenUsed: {
       dotColor = "#FF5151";
       break;
     }
-    case LingueeDisplayType.Common: {
+    case LingueeListItemType.Common: {
       dotColor = Color.Blue;
       break;
     }
-    case LingueeDisplayType.LessCommon: {
+    case LingueeListItemType.LessCommon: {
       dotColor = Color.Yellow;
       break;
     }
-    case LingueeDisplayType.Unfeatured: {
+    case LingueeListItemType.Unfeatured: {
       dotColor = "#CA8EC2";
       break;
     }
-    case LingueeDisplayType.Example: {
+    case LingueeListItemType.Example: {
       dotColor = "teal";
       break;
     }
-    case LingueeDisplayType.RelatedWord: {
+    case LingueeListItemType.RelatedWord: {
       dotColor = "gray";
       break;
     }
-    case LingueeDisplayType.Wikipedia: {
+    case LingueeListItemType.Wikipedia: {
       dotColor = "#8080C0";
       break;
     }
@@ -269,23 +268,23 @@ export function getLingueeListItemIcon(lingueeDisplayType: LingueeDisplayType): 
 /**
  * Get ImageLike based on YoudaoDisplayType
  */
-export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryDisplayType): Image.ImageLike {
+export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemType): Image.ImageLike {
   // console.log(`---> getYoudaoListItemIcon type: ${queryType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (youdaoListType) {
-    case YoudaoDictionaryDisplayType.Translation: {
+    case YoudaoDictionaryListItemType.Translation: {
       dotColor = Color.Red;
       break;
     }
-    case YoudaoDictionaryDisplayType.Explanations: {
+    case YoudaoDictionaryListItemType.Explanations: {
       dotColor = Color.Blue;
       break;
     }
-    case YoudaoDictionaryDisplayType.WebTranslation: {
+    case YoudaoDictionaryListItemType.WebTranslation: {
       dotColor = Color.Yellow;
       break;
     }
-    case YoudaoDictionaryDisplayType.WebPhrase: {
+    case YoudaoDictionaryListItemType.WebPhrase: {
       dotColor = "teal";
       break;
     }
@@ -297,7 +296,7 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryDisplayTyp
     tintColor: dotColor,
   };
 
-  if (youdaoListType === YoudaoDictionaryDisplayType.Forms) {
+  if (youdaoListType === YoudaoDictionaryListItemType.Forms) {
     itemIcon = Icon.Receipt;
   }
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:29
+ * @lastEditTime: 2022-08-04 23:45
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,8 +15,9 @@ import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudi
 import { requestCostTime } from "../../axiosConfig";
 import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "../../consts";
 import { youdaoAppId, youdaoAppSecret } from "../../crypto";
-import { QueryWordInfo, RequestTypeResult, TranslationType, YoudaoDictionaryResult } from "../../types";
+import { RequestTypeResult, TranslationType } from "../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
+import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
 
 /**
  * Max length of text to download youdao tts audio

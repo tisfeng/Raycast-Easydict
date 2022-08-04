@@ -1,9 +1,8 @@
-import { userAgent } from "../consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 17:35
+ * @lastEditTime: 2022-08-04 23:47
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +11,7 @@ import { userAgent } from "../consts";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
+import { userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainedChinese } from "../detectLanguage";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 import { getLanguageItemFromYoudaoId } from "../utils";

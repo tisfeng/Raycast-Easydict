@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 21:57
+ * @lastEditTime: 2022-08-04 23:29
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,8 +11,9 @@
 import { Clipboard, getApplications, getPreferenceValues, LocalStorage } from "@raycast/api";
 import { eudicBundleId } from "./components";
 import { clipboardQueryTextKey, languageItemList } from "./consts";
+import { QueryWordInfo } from "./dict/youdao/types";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { DicionaryType, LanguageItem, MyPreferences, QueryRecoredItem, QueryWordInfo, TranslationType } from "./types";
+import { DicionaryType, LanguageItem, MyPreferences, QueryRecoredItem, TranslationType } from "./types";
 
 // Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
 export const clipboardQueryInterval = 10 * 60 * 1000;

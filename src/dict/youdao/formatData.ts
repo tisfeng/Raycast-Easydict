@@ -8,14 +8,13 @@
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { DicionaryType, SectionDisplayItem } from "../../types";
 import {
-  DicionaryType,
   QueryWordInfo,
-  SectionDisplayItem,
   YoudaoDictionaryFormatResult,
-  YoudaoDictionaryListType,
+  YoudaoDictionaryListItemType,
   YoudaoDictionaryResult,
-} from "../../types";
+} from "./types";
 
 /**
  * Format the Youdao original data for later use.
@@ -70,7 +69,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     sectionTitle: `${youdaoType}`,
     items: [
       {
-        displayType: YoudaoDictionaryListType.Translation,
+        displayType: YoudaoDictionaryListItemType.Translation,
         key: oneLineTranslation + youdaoType,
         title: ` ${oneLineTranslation}`,
         subtitle: wordSubtitle,
@@ -92,15 +91,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
 
   formatResult.explanations?.forEach((explanation, i) => {
     sectionResult.push({
-      type: YoudaoDictionaryListType.Explanations,
+      type: YoudaoDictionaryListItemType.Explanations,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDictionaryListType.Explanations,
+          displayType: YoudaoDictionaryListItemType.Explanations,
           key: explanation + i,
           title: explanation,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDictionaryListType.Explanations,
+          tooltip: YoudaoDictionaryListItemType.Explanations,
           copyText: explanation,
         },
       ],
@@ -117,15 +116,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
   const wfsText = wfs?.join("   ") || "";
   if (wfsText.length) {
     sectionResult.push({
-      type: YoudaoDictionaryListType.Forms,
+      type: YoudaoDictionaryListItemType.Forms,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDictionaryListType.Forms,
+          displayType: YoudaoDictionaryListItemType.Forms,
           key: wfsText,
           title: "",
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDictionaryListType.Forms,
+          tooltip: YoudaoDictionaryListItemType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
         },
@@ -140,15 +139,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     const webResultValue = formatResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
     sectionResult.push({
-      type: YoudaoDictionaryListType.WebTranslation,
+      type: YoudaoDictionaryListItemType.WebTranslation,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDictionaryListType.WebTranslation,
+          displayType: YoudaoDictionaryListItemType.WebTranslation,
           key: copyText,
           title: webResultKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDictionaryListType.WebTranslation,
+          tooltip: YoudaoDictionaryListItemType.WebTranslation,
           subtitle: webResultValue,
           copyText: copyText,
         },
@@ -163,15 +162,15 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
     sectionResult.push({
-      type: YoudaoDictionaryListType.WebPhrase,
+      type: YoudaoDictionaryListItemType.WebPhrase,
       sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
       items: [
         {
-          displayType: YoudaoDictionaryListType.WebPhrase,
+          displayType: YoudaoDictionaryListItemType.WebPhrase,
           key: copyText + i,
           title: phraseKey,
           queryWordInfo: formatResult.queryWordInfo,
-          tooltip: YoudaoDictionaryListType.WebPhrase,
+          tooltip: YoudaoDictionaryListItemType.WebPhrase,
           subtitle: phraseValue,
           copyText: copyText,
         },

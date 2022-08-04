@@ -1,9 +1,8 @@
-import { RequestErrorInfo } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 18:19
+ * @lastEditTime: 2022-08-04 23:48
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +13,7 @@ import { francAll } from "franc";
 import { languageItemList } from "./consts";
 import { appleLanguageDetect } from "./scripts";
 import { tencentLanguageDetect } from "./translation/tencent";
-import { MyPreferences } from "./types";
+import { MyPreferences, RequestErrorInfo } from "./types";
 import {
   defaultLanguage1,
   defaultLanguage2,

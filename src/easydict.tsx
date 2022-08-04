@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:54
+ * @lastEditTime: 2022-08-04 23:44
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,8 @@ import { Fragment, useEffect, useState } from "react";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
 import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
-import { LanguageItem, QueryWordInfo, SectionDisplayItem } from "./types";
+import { QueryWordInfo } from "./dict/youdao/types";
+import { LanguageItem, SectionDisplayItem } from "./types";
 import {
   checkIfEudicIsInstalled,
   defaultLanguage1,
@@ -53,13 +54,10 @@ export default function () {
   const [searchText, setSearchText] = useState<string>("");
 
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
-
   const requestResults = new DataManager(updateDisplaySections);
-
   function updateDisplaySections(result: SectionDisplayItem[]) {
     setDisplayResult(result);
     setLoadingState(false);
-
     setIsShowingDetail(requestResults.isShowDetail);
   }
 
@@ -263,8 +261,6 @@ export default function () {
   function onInputChange(text: string) {
     updateInputTextAndQueryTextNow(text, false);
   }
-
-  // console.log(`render interface`);
 
   return (
     <List

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:46
+ * @lastEditTime: 2022-08-04 23:53
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,7 @@ import { isLingueeDictionaryEmpty } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { isYoudaoDictionaryEmpty, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
+import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
 import { requestCaiyunTextTranslate } from "./translation/caiyun";
@@ -26,13 +27,11 @@ import {
   ListDisplayItem,
   QueryResult,
   QueryType,
-  QueryWordInfo,
   RequestErrorInfo,
   RequestTypeResult,
   SectionDisplayItem,
-  TranslateItem,
+  TranslationItem,
   TranslationType,
-  YoudaoDictionaryFormatResult,
 } from "./types";
 import { getSortOrder, isTranslationTooLong, myPreferences } from "./utils";
 
@@ -76,9 +75,6 @@ export class DataManager {
    * 4.callback update display sections.
    */
   updateQueryDisplayResults(queryResult: QueryResult) {
-    console.log(`---> update result: ${queryResult.type}`);
-    console.log(`---> queryWordInfo: ${JSON.stringify(this.queryWordInfo, null, 2)}`);
-
     this.queryResults.push(queryResult);
     this.sortQueryResults();
     this.updateDictionarySeparator();
@@ -102,14 +98,12 @@ export class DataManager {
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
-    console.log(`---> queryWordInfo: ${JSON.stringify(this.queryWordInfo, null, 2)}`);
-
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     if (myPreferences.enableLingueeDictionary) {
-      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, true)
+      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, false)
         .then((lingueeTypeResult) => {
           const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
           const displayResult: QueryResult = {
@@ -370,7 +364,7 @@ export class DataManager {
       return;
     }
 
-    const translations = [] as TranslateItem[];
+    const translations = [] as TranslationItem[];
     for (const queryResults of this.queryResults) {
       const { type, sourceResult } = queryResults;
       const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
@@ -522,7 +516,7 @@ export class DataManager {
         }
       }
     }
-    console.log(`---> isShowDetail: ${isShowDetail}`);
+    // console.log(`---> isShowDetail: ${isShowDetail}`);
     return isShowDetail;
   }
 
