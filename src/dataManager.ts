@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:11
+ * @lastEditTime: 2022-08-04 22:46
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,10 +45,7 @@ export class DataManager {
   }
 
   queryResults: QueryResult[] = [];
-  private queryWordInfo?: QueryWordInfo;
-  get getQueryWordInfo(): QueryWordInfo | undefined {
-    return this.queryWordInfo;
-  }
+  queryWordInfo?: QueryWordInfo;
 
   /**
    * when has new input text, need to cancel previous request.
@@ -80,6 +77,7 @@ export class DataManager {
    */
   updateQueryDisplayResults(queryResult: QueryResult) {
     console.log(`---> update result: ${queryResult.type}`);
+    console.log(`---> queryWordInfo: ${JSON.stringify(this.queryWordInfo, null, 2)}`);
 
     this.queryResults.push(queryResult);
     this.sortQueryResults();
@@ -104,6 +102,8 @@ export class DataManager {
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
+    console.log(`---> queryWordInfo: ${JSON.stringify(this.queryWordInfo, null, 2)}`);
+
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
