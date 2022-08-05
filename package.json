@@ -42,6 +42,7 @@
     "crypto-js": "^4.1.1",
     "franc": "^6.0.0",
     "https-proxy-agent": "^5.0.1",
+    "mac-system-proxy": "^1.0.4",
     "node-html-parser": "^5.3.3",
     "play-sound": "^1.1.5",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
@@ -298,6 +299,14 @@
       "label": "Automatic Play Word Audio",
       "required": false,
       "description": "Automatic play audio after looking up a word",
+      "default": false
+    },
+    {
+      "name": "enableSystemProxy",
+      "type": "checkbox",
+      "label": "Enable System Proxy",
+      "required": false,
+      "description": "Enable system proxy",
       "default": false
     },
     {

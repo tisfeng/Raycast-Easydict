@@ -1,8 +1,9 @@
+import { KeyStore } from "../../preferences";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:45
+ * @lastEditTime: 2022-08-05 10:59
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,11 +14,11 @@ import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
-import { getYoudaoErrorInfo, YoudaoRequestStateCode } from "../../consts";
-import { youdaoAppId, youdaoAppSecret } from "../../crypto";
 import { RequestTypeResult, TranslationType } from "../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
+import { YoudaoRequestStateCode } from "../../consts";
+import { getYoudaoErrorInfo } from "../../language/languages";
 
 /**
  * Max length of text to download youdao tts audio
@@ -40,7 +41,8 @@ export function requestYoudaoDictionary(
   }
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
-  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + youdaoAppSecret;
+  const youdaoAppId = KeyStore.youdaoAppId;
+  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + KeyStore.youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:52
+ * @lastEditTime: 2022-08-05 15:39
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,8 +14,8 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
+import { getLanguageItemFromYoudaoId } from "../../language/languages";
 import { DicionaryType, ListDisplayItem, RequestErrorInfo, RequestTypeResult, SectionDisplayItem } from "../../types";
-import { getLanguageItemFromYoudaoId } from "../../utils";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult, LingueeListItemType } from "./types";
@@ -88,7 +88,7 @@ export async function rquestLingueeDictionary(
     };
     const config: AxiosRequestConfig = {
       headers: headers,
-      httpsAgent: enableProxy ? httpsAgent : undefined,
+      // httpsAgent: enableProxy ? httpsAgent : undefined,
       responseType: "arraybuffer", // handle French content-type iso-8859-15
     };
 
@@ -102,10 +102,8 @@ export async function rquestLingueeDictionary(
         console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const contentType = response.headers["content-type"];
         const data: Buffer = response.data;
-        console.log(`---> content-type: ${contentType}`);
         const html = data.toString(contentType.includes("iso-8859-15") ? "latin1" : "utf-8");
         const lingueeTypeResult = parseLingueeHTML(html);
-        console.log(`---> linguee result: ${util.inspect(lingueeTypeResult, { depth: null })}`);
         resolve(lingueeTypeResult);
       })
       .catch((error) => {

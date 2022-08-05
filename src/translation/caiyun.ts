@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:06
+ * @lastEditTime: 2022-08-05 11:21
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,9 +10,9 @@
 
 import axios from "axios";
 import { requestCostTime } from "../axiosConfig";
-import { caiyunToken } from "../crypto";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { KeyStore } from "../preferences";
 import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
-import { getLanguageItemFromYoudaoId } from "../utils";
 
 /**
  * 彩云小译
@@ -48,7 +48,7 @@ export function requestCaiyunTextTranslate(
   const headers = {
     headers: {
       "content-type": "application/json",
-      "x-authorization": "token " + caiyunToken,
+      "x-authorization": "token " + KeyStore.caiyunToken,
     },
   };
   return new Promise((resolve, reject) => {

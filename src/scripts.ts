@@ -14,8 +14,8 @@ import querystring from "node:querystring";
 import { eudicBundleId } from "./components";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { QueryWordInfo } from "./dict/youdao/types";
+import { getLanguageItemFromYoudaoId } from "./language/languages";
 import { RequestErrorInfo, TranslationType } from "./types";
-import { getLanguageItemFromYoudaoId } from "./utils";
 
 /**
  * run LanguageDetect shortcuts with the given text, return promise

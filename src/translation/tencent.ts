@@ -2,17 +2,17 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-03 10:26
+ * @lastEditTime: 2022-08-05 11:22
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { tencentSecretId, tencentSecretKey } from "../crypto";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanguage";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { KeyStore } from "../preferences";
 import { RequestErrorInfo, RequestTypeResult, TencentTranslateResult, TranslationType } from "../types";
-import { getLanguageItemFromYoudaoId } from "../utils";
 
 const tencentEndpoint = "tmt.tencentcloudapi.com";
 const tencentRegion = "ap-guangzhou";
@@ -21,8 +21,8 @@ const TmtClient = tencentcloud.tmt.v20180321.Client;
 
 const clientConfig = {
   credential: {
-    secretId: tencentSecretId,
-    secretKey: tencentSecretKey,
+    secretId: KeyStore.tencentSecretId,
+    secretKey: KeyStore.tencentSecretKey,
   },
   region: tencentRegion,
   profile: {

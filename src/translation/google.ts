@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:47
+ * @lastEditTime: 2022-08-05 15:44
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,8 +13,8 @@ import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainedChinese } from "../detectLanguage";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
-import { getLanguageItemFromYoudaoId } from "../utils";
 
 export async function requestGoogleTranslate(
   queryText: string,
@@ -26,6 +26,7 @@ export async function requestGoogleTranslate(
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
     tld = "cn";
+    console.log(`---> use cn, use Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
   }
   return googleCrawlerTranslate(queryText, fromLanguage, targetLanguage, tld);
 }

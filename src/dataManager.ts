@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:53
+ * @lastEditTime: 2022-08-05 11:11
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,7 @@ import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { isYoudaoDictionaryEmpty, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
+import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
 import { requestCaiyunTextTranslate } from "./translation/caiyun";
@@ -33,7 +34,7 @@ import {
   TranslationItem,
   TranslationType,
 } from "./types";
-import { getSortOrder, isTranslationTooLong, myPreferences } from "./utils";
+import { getSortOrder, isTranslationTooLong } from "./utils";
 
 const sortOrder = getSortOrder();
 

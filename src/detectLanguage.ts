@@ -2,28 +2,24 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:48
+ * @lastEditTime: 2022-08-05 15:51
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { getPreferenceValues } from "@raycast/api";
 import { francAll } from "franc";
-import { languageItemList } from "./consts";
-import { appleLanguageDetect } from "./scripts";
-import { tencentLanguageDetect } from "./translation/tencent";
-import { MyPreferences, RequestErrorInfo } from "./types";
+import { languageItemList } from "./language/consts";
 import {
-  defaultLanguage1,
-  defaultLanguage2,
   getLanguageItemFromAppleChineseTitle,
   getLanguageItemFromFrancId,
   getLanguageItemFromTencentId,
   isValidLanguageId,
-  myPreferences,
-  preferredLanguages,
-} from "./utils";
+} from "./language/languages";
+import { myPreferences, preferrdLanguages } from "./preferences";
+import { appleLanguageDetect } from "./scripts";
+import { tencentLanguageDetect } from "./translation/tencent";
+import { RequestErrorInfo } from "./types";
 
 export enum LanguageDetectType {
   Simple,
@@ -451,14 +447,14 @@ export function simpleDetectTextLanguage(text: string): LanguageDetectTypeResult
  * check if the language is preferred language
  */
 export function isPreferredLanguage(languageId: string): boolean {
-  return preferredLanguages.map((item) => item.youdaoLanguageId).includes(languageId);
+  return preferrdLanguages.map((item) => item.youdaoLanguageId).includes(languageId);
 }
 
 /**
  * check if preferred languages contains English language
  */
 export function checkIfPreferredLanguagesContainedEnglish(): boolean {
-  return defaultLanguage1.youdaoLanguageId === "en" || defaultLanguage2.youdaoLanguageId === "en";
+  return preferrdLanguages.find((item) => item.youdaoLanguageId === "en") !== undefined;
 }
 
 /**
@@ -466,11 +462,7 @@ export function checkIfPreferredLanguagesContainedEnglish(): boolean {
  */
 export function checkIfPreferredLanguagesContainedChinese(): boolean {
   const lanuguageIdPrefix = "zh";
-  const preferences: MyPreferences = getPreferenceValues();
-  if (preferences.language1.startsWith(lanuguageIdPrefix) || preferences.language2.startsWith(lanuguageIdPrefix)) {
-    return true;
-  }
-  return false;
+  return preferrdLanguages.find((item) => item.youdaoLanguageId.startsWith(lanuguageIdPrefix)) !== undefined;
 }
 
 /**

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:51
+ * @lastEditTime: 2022-08-05 11:23
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,10 +11,17 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { languageItemList } from "./consts";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
+import { languageItemList } from "./language/consts";
+import {
+  getDeepLWebTranslateURL,
+  getEudicWebTranslateURL,
+  getGoogleWebTranslateURL,
+  getYoudaoWebTranslateURL,
+} from "./language/languages";
+import { myPreferences } from "./preferences";
 import ReleaseLogDetail from "./releaseVersion/releaselog";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
@@ -27,14 +34,7 @@ import {
   TranslationType,
   WebTranslationItem,
 } from "./types";
-import {
-  checkIfNeedShowReleasePrompt,
-  getDeepLWebTranslateURL,
-  getEudicWebTranslateURL,
-  getGoogleWebTranslateURL,
-  getYoudaoWebTranslateURL,
-  myPreferences,
-} from "./utils";
+import { checkIfNeedShowReleasePrompt } from "./utils";
 
 export const eudicBundleId = "com.eusoft.freeeudic";
 

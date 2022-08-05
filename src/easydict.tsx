@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:44
+ * @lastEditTime: 2022-08-05 15:42
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,25 +10,20 @@
 
 import { Color, getSelectedText, Icon, List } from "@raycast/api";
 import { Fragment, useEffect, useState } from "react";
+import { configAxiosProxy } from "./axiosConfig";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
 import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { LanguageItem, SectionDisplayItem } from "./types";
-import {
-  checkIfEudicIsInstalled,
-  defaultLanguage1,
-  defaultLanguage2,
-  getAutoSelectedTargetLanguageId,
-  getLanguageItemFromYoudaoId,
-  myPreferences,
-  trimTextLength,
-} from "./utils";
+import { getAutoSelectedTargetLanguageId, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
+import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
+import { SectionDisplayItem } from "./types";
+import { checkIfEudicIsInstalled, trimTextLength } from "./utils";
 
 let delayQueryTextTimer: NodeJS.Timeout;
 
 export default function () {
-  if (defaultLanguage1.youdaoLanguageId === defaultLanguage2.youdaoLanguageId) {
+  if (preferrdLanguage1.youdaoLanguageId === preferrdLanguage2.youdaoLanguageId) {
     return (
       <List searchBarPlaceholder="Error">
         <List.Item
@@ -64,11 +59,11 @@ export default function () {
   /**
    * the language type of text, depending on the language type of the current input text.
    */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(defaultLanguage1);
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(preferrdLanguage1);
   /**
    * default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
    */
-  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(defaultLanguage1);
+  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(preferrdLanguage1);
   /**
    * the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
    */
@@ -98,6 +93,7 @@ export default function () {
       tryQuerySelecedtText();
     }
     checkIfEudicIsInstalled(setIsInstalledEudic);
+    configAxiosProxy();
   }
 
   /**
@@ -246,7 +242,7 @@ export default function () {
     clearTimeout(delayQueryTextTimer);
 
     if (text !== searchText) {
-      console.log(`update input text: ${text}, ${text.length}, isNow: ${isNow}`);
+      console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
       if (isNow) {
         setSearchText(trimText);
       } else {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:52
+ * @lastEditTime: 2022-08-05 11:00
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,61 +14,7 @@ import { LanguageDetectType } from "./detectLanguage";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult, LingueeListItemType } from "./dict/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "./dict/youdao/types";
-
-export interface MyPreferences {
-  language1: string;
-  language2: string;
-  isAutomaticQuerySelectedText: boolean;
-  isAutomaticPlayWordAudio: boolean;
-  isDisplayTargetTranslationLanguage: boolean;
-  translationOrder: string;
-
-  enableYoudaoDictionary: boolean;
-  enableYoudaoTranslate: boolean;
-
-  enableLingueeDictionary: boolean;
-
-  youdaoAppId: string;
-  youdaoAppSecret: string;
-
-  enableDeepLTranslate: boolean;
-  deepLAuthKey: string;
-
-  enableGoogleTranslate: boolean;
-
-  enableBaiduTranslate: boolean;
-  baiduAppId: string;
-  baiduAppSecret: string;
-
-  enableTencentTranslate: boolean;
-  tencentSecretId: string;
-  tencentSecretKey: string;
-
-  enableAppleLanguageDetect: boolean;
-  enableAppleTranslate: boolean;
-
-  enableCaiyunTranslate: boolean;
-  caiyunToken: string;
-}
-
-export interface LanguageItem {
-  youdaoLanguageId: string;
-  appleDetectChineseLanguageTitle?: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
-  appleLanguageId?: string; // used to translate, Apple translate support 12 languages?
-  deepLSourceLanguageId?: string; // deepL source language id
-  deepLTargetLanguageId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on.
-  francLanguageId: string; // the languages represented by ISO 639-3
-  aliyunLanguageId: string;
-  tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
-  tencentLanguageId?: string;
-  baiduLanguageId?: string;
-  caiyunLanguageId?: string;
-  languageTitle: string;
-  voiceList?: string[];
-  googleLanguageId?: string;
-  youdaoWebLanguageId?: string;
-  eudicWebLanguageId?: string;
-}
+import { LanguageItem } from "./language/languages";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:06
+ * @lastEditTime: 2022-08-05 15:30
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,9 +10,9 @@
 
 import axios, { AxiosResponse } from "axios";
 import querystring from "node:querystring";
-import { deepLAuthKey } from "../crypto";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { KeyStore } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
-import { getLanguageItemFromYoudaoId } from "../utils";
 
 /**
  * DeepL translate API
@@ -39,6 +39,7 @@ export async function requestDeepLTextTranslate(
     });
   }
 
+  const deepLAuthKey = KeyStore.deepLAuthKey;
   // * deepL api free and deepL pro api use different url host.
   const url = deepLAuthKey.endsWith(":fx")
     ? "https://api-free.deepl.com/v2/translate"
@@ -49,7 +50,7 @@ export async function requestDeepLTextTranslate(
     source_lang: sourceLang,
     target_lang: targetLang,
   };
-  console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
+  // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
   try {
     const response = await axios.post(url, querystring.stringify(params));

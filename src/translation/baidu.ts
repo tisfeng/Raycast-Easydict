@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:17
+ * @lastEditTime: 2022-08-05 11:20
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,11 +10,10 @@
 
 import axios from "axios";
 import CryptoJS from "crypto-js";
-
 import { requestCostTime } from "../axiosConfig";
-import { baiduAppId, baiduAppSecret } from "../crypto";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
-import { getLanguageItemFromYoudaoId } from "../utils";
 
 /**
  * 百度翻译API
@@ -27,7 +26,8 @@ export function requestBaiduTextTranslate(
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Baidu`);
   const salt = Math.round(new Date().getTime() / 1000);
-  const md5Content = baiduAppId + queryText + salt + baiduAppSecret;
+  const baiduAppId = KeyStore.baiduAppId;
+  const md5Content = baiduAppId + queryText + salt + KeyStore.baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from = getLanguageItemFromYoudaoId(fromLanguage).baiduLanguageId;

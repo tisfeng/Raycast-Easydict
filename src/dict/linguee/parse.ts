@@ -2,15 +2,15 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:52
+ * @lastEditTime: 2022-08-05 15:46
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { parse } from "node-html-parser";
+import { getLanguageItemFromDeepLSourceId } from "../../language/languages";
 import { DicionaryType, RequestTypeResult } from "../../types";
-import { getLanguageItemFromDeepLSourceId } from "../../utils";
 import { QueryWordInfo } from "../youdao/types";
 import {
   LingueeDictionaryResult,
@@ -152,7 +152,6 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       // * note: audio is not always exist.
       const audio = lemma.querySelector("h2[class=line] .audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
-      console.log(`--> ${words} ${placeholderText} : ${pos?.textContent}`);
 
       const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
       // 2. get word featured explanation
