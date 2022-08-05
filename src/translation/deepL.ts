@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:30
+ * @lastEditTime: 2022-08-05 16:56
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
@@ -65,12 +65,20 @@ export async function requestDeepLTextTranslate(
       translations: [translatedText],
     });
   } catch (err) {
-    const error = err as { response: AxiosResponse };
-    console.error("deepL error: ", JSON.stringify(error.response, null, 4));
+    console.error(`DeepL translate error: ${err}`);
+    const error = err as AxiosError;
+    console.error("error response: ", error.response);
+
+    const errorCode = error.response?.status;
+    let errorMessage = error.response?.statusText || "Something error 😭";
+    if (errorCode === 456) {
+      errorMessage = "Quota exceeded"; // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
+    }
+
     const errorInfo: RequestErrorInfo = {
       type: TranslationType.DeepL,
-      code: error.response?.status.toString(),
-      message: error.response?.statusText,
+      code: errorCode?.toString() || "",
+      message: errorMessage,
     };
     console.error("deepL error info: ", errorInfo);
     return Promise.reject(errorInfo);
