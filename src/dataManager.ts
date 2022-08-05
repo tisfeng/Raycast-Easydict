@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 11:11
+ * @lastEditTime: 2022-08-05 16:03
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -104,7 +104,7 @@ export class DataManager {
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     if (myPreferences.enableLingueeDictionary) {
-      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, false)
+      rquestLingueeDictionary(queryText, fromLanguage, toLanguage)
         .then((lingueeTypeResult) => {
           const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
           const displayResult: QueryResult = {

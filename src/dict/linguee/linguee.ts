@@ -2,15 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:39
+ * @lastEditTime: 2022-08-05 15:55
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { environment, LocalStorage } from "@raycast/api";
+import { LocalStorage } from "@raycast/api";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
-import { HttpsProxyAgent } from "https-proxy-agent";
 import util from "util";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
@@ -22,9 +21,6 @@ import { LingueeDictionaryResult, LingueeListItemType } from "./types";
 
 export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const htmlPath = `${environment.supportPath}/linguee.html`;
-
 /**
  * Get linguee dictionary result.
  *
@@ -33,8 +29,7 @@ const htmlPath = `${environment.supportPath}/linguee.html`;
 export async function rquestLingueeDictionary(
   queryWord: string,
   fromLanguage: string,
-  targetLanguage: string,
-  enableProxy = false
+  targetLanguage: string
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
 
@@ -77,9 +72,6 @@ export async function rquestLingueeDictionary(
     console.log(`---> linguee request: ${lingueeUrl}`);
 
     // * avoid linguee's anti-spider, otherwise it will reponse very slowly or even error.
-    const proxy = process.env.http_proxy || "http://127.0.0.1:6152"; // your proxy server
-    // console.log(`---> env https proxy: ${JSON.stringify(process.env)}`);
-    const httpsAgent = new HttpsProxyAgent(proxy);
     const headers: AxiosRequestHeaders = {
       "User-Agent": userAgent,
       // accept: "*/*",
@@ -88,7 +80,6 @@ export async function rquestLingueeDictionary(
     };
     const config: AxiosRequestConfig = {
       headers: headers,
-      // httpsAgent: enableProxy ? httpsAgent : undefined,
       responseType: "arraybuffer", // handle French content-type iso-8859-15
     };
 
