@@ -2,7 +2,11 @@
  * @author: tisfeng
  * @createTime: 2022-07-22 23:27
  * @lastEditor: tisfeng
+<<<<<<< HEAD:src/google.ts
  * @lastEditTime: 2022-08-01 00:01
+=======
+ * @lastEditTime: 2022-08-05 15:44
+>>>>>>> dev:src/translation/google.ts
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,20 +14,23 @@
 
 import axios, { AxiosError, AxiosResponse } from "axios";
 import querystring from "node:querystring";
-import { checkIfPreferredLanguagesContainedChinese } from "./detectLanguage";
-import { RequestErrorInfo, RequestTypeResult, TranslationType } from "./types";
-import { getLanguageItemFromYoudaoId } from "./utils";
+import { requestCostTime } from "../axiosConfig";
+import { userAgent } from "../consts";
+import { checkIfPreferredLanguagesContainedChinese } from "../detectLanguage";
+import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
 export async function requestGoogleTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string
 ): Promise<RequestTypeResult> {
-  console.warn(`---> request google`);
+  console.log(`---> start request Google`);
   // if has preferred Chinese language or ip in China, use cn, else use com.
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
     tld = "cn";
+    console.log(`---> use cn, use Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
   }
   return googleCrawlerTranslate(queryText, fromLanguage, targetLanguage, tld);
 }
@@ -63,7 +70,7 @@ async function getCurrentIpInfo() {
   try {
     const url = "https://ipinfo.io";
     const res = await axios.get(url);
-    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers["x-request-cost"]} ms`);
+    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers[requestCostTime]} ms`);
     return Promise.resolve(res.data);
   } catch (error) {
     console.error(`getCurrentIp error: ${error}`);
@@ -93,6 +100,9 @@ async function googleCrawlerTranslate(
     q: queryText,
   };
 
+  const headers = {
+    "User-Agent": userAgent,
+  };
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
   console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
   const errorInfo: RequestErrorInfo = {
@@ -101,16 +111,17 @@ async function googleCrawlerTranslate(
   };
 
   return axios
-    .get(url)
+    .get(url, { headers })
     .then((res: AxiosResponse) => {
       try {
         const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
-        let result = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
-        result = decodeURI(result);
-        console.warn(`---> google result: ${result}, cost: ${res.headers["x-request-cost"]}ms`);
+        let translation = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
+        translation = decodeURI(translation);
+        console.warn(`---> google result: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
         return Promise.resolve({
           type: TranslationType.Google,
-          result,
+          result: { translatedText: translation },
+          translations: [translation],
         });
       } catch (error) {
         console.error(`googleTranslate error: ${error}`);
@@ -131,7 +142,7 @@ export async function getCurrentIp(): Promise<string> {
   try {
     const res = await axios.get(url);
     const ip = res.data.trim();
-    console.warn(`---> current ip: ${ip}, cost ${res.headers["x-request-cost"]} ms`);
+    console.warn(`---> current ip: ${ip}, cost ${res.headers["requestCostTime"]} ms`);
     return Promise.resolve(ip);
   } catch (error) {
     console.error(`getCurrentIp error: ${error}`);

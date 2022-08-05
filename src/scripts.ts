@@ -2,7 +2,11 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
+<<<<<<< HEAD
  * @lastEditTime: 2022-07-31 15:50
+=======
+ * @lastEditTime: 2022-08-04 23:44
+>>>>>>> dev
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,8 +16,9 @@ import { showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
-import { QueryWordInfo, RequestErrorInfo, TranslationType } from "./types";
-import { getLanguageItemFromYoudaoId } from "./utils";
+import { QueryWordInfo } from "./dict/youdao/types";
+import { getLanguageItemFromYoudaoId } from "./language/languages";
+import { RequestErrorInfo, TranslationType } from "./types";
 
 /**
  * run LanguageDetect shortcuts with the given text, return promise
@@ -53,6 +58,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
  * Run apple Translate shortcuts with the given QueryWordInfo, return promise
  */
 export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | undefined> {
+  console.log(`---> start Apple translate`);
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
   const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
@@ -75,7 +81,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
-    console.log(
+    console.warn(
       `Apple translate currently not support translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
     );
   }
@@ -92,6 +98,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
     exec(command, (error, stdout, stderr) => {
+      // console.log(`---> apple exec result: ${stdout}, error: ${error}`);
       if (error) {
         // console.error(`error: ${JSON.stringify(error, null, 4)}`);
         // console.error(`apple stderr: ${stderr}`);

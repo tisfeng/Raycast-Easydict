@@ -2,7 +2,11 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
+<<<<<<< HEAD
  * @lastEditTime: 2022-07-31 23:55
+=======
+ * @lastEditTime: 2022-08-03 10:29
+>>>>>>> dev
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,6 +14,7 @@
 
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
+import { requestCostTime } from "../axiosConfig";
 import { changelog } from "./changelog";
 
 const versionInfoKey = "EasydictVersionInfoKey";
@@ -156,7 +161,7 @@ export class Easydict {
     try {
       // console.log(`fetch release url: ${releaseUrl}`);
       const response = await axios.get(releaseUrl);
-      console.log(`fetch github cost time: ${response.headers["x-request-cost"]} ms`);
+      console.log(`fetch github cost time: ${response.headers[requestCostTime]} ms`);
 
       return Promise.resolve(response.data);
     } catch (error) {
