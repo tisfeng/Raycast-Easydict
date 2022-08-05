@@ -2,14 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:15
+ * @lastEditTime: 2022-08-05 17:05
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { getPreferenceValues } from "@raycast/api";
-import { myDecrypt } from "./crypto";
+import { environment, getPreferenceValues } from "@raycast/api";
 import { getLanguageItemFromYoudaoId } from "./language/languages";
 
 export const myPreferences: MyPreferences = getPreferenceValues();
@@ -56,14 +55,12 @@ export interface MyPreferences {
   caiyunToken: string;
 }
 
-// export class PreferredLanguage {
-//   static language1 = getLanguageItemFromYoudaoId(myPreferences.language1);
-//   static language2 = getLanguageItemFromYoudaoId(myPreferences.language2);
-//   static languages = [this.language1, this.language2];
-// }
-
+/**
+ * Service keys.
+ *
+ * * NOTE: Please apply for your own keys as much as possible. Please do not abuse them, otherwise I have to revoke them 😑。
+ */
 export class KeyStore {
-  // * NOTE: Please apply for your own keys as much as possible. Please do not abuse them, otherwise I have to revoke them 😑。
   // Encrypted app id and key.
   private static defaultEncrytedYoudaoAppId = "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
   private static defaultEncrytedYoudaoAppKey =
@@ -123,4 +120,20 @@ export class KeyStore {
 
   static caiyunToken =
     myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : this.defaultCaiyunToken;
+}
+
+function myDecrypt(ciphertext: string) {
+  // console.warn("decrypt:", ciphertext);
+  const bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
+  const originalText = bytes.toString(CryptoJS.enc.Utf8);
+  // console.warn("originalText: ", originalText);
+  return originalText;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function myEncrypt(text: string) {
+  // console.warn("encrypt:", text);
+  const ciphertext = CryptoJS.AES.encrypt(text, environment.extensionName).toString();
+  // console.warn("ciphertext: ", ciphertext);
+  return ciphertext;
 }

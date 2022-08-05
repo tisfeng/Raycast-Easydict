@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:00
+ * @lastEditTime: 2022-08-05 17:07
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import { getMacSystemProxy } from "mac-system-proxy";
 import { myPreferences } from "./preferences";
 
 /**
- * Caclulate axios request cost time
+ * Caclulate axios request cost time.
  */
 export const requestCostTime = "requestCostTime";
 axios.interceptors.request.use(function (config: AxiosRequestConfig) {
@@ -40,7 +40,7 @@ export function configAxiosProxy() {
     const env = process.env;
     /**
      * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
-     * detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
+     * Detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
      */
     env.PATH = "/usr/sbin";
     // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
