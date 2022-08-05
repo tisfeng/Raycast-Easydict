@@ -2,13 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 17:05
+ * @lastEditTime: 2022-08-06 01:37
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { environment, getPreferenceValues } from "@raycast/api";
+import CryptoJS from "crypto-js";
 import { getLanguageItemFromYoudaoId } from "./language/languages";
 
 export const myPreferences: MyPreferences = getPreferenceValues();
@@ -61,7 +62,6 @@ export interface MyPreferences {
  * * NOTE: Please apply for your own keys as much as possible. Please do not abuse them, otherwise I have to revoke them 😑。
  */
 export class KeyStore {
-  // Encrypted app id and key.
   private static defaultEncrytedYoudaoAppId = "U2FsdGVkX19SpBCGxMeYKP0iS1PWKmvPeqIYNaZjAZC142Y5pLrOskw0gqHGpVS1";
   private static defaultEncrytedYoudaoAppKey =
     "U2FsdGVkX1/JF2ZMngmTw8Vm+P0pHWmHKLQhGpUtYiDc0kLZl6FKw1Vn3hMyl7iL7owwReGJCLsovDxztZKb9g==";
@@ -82,10 +82,10 @@ export class KeyStore {
 
   /**
    * This deepl key is from Github, we do not guarantee that it will work all the time.
-   * https://github.com/Exmaralda-Org/exmaralda/blob/c7a62214a6eb432ec25519b4c3ca9817efbe58fa/src/org/exmaralda/webservices/WordCloudConnector.java#L51
+   * https://github.com/search?p=1&q=deepl+key+%3Afx&type=Code
    */
-  private static defaultEncryptedDeepLAuthKey =
-    "U2FsdGVkX19Vg3zrZOyFiGrojAnw7cr5b96+nbzcJowqSpQX7wS00OkCa3dvpU3sQjCg9d519KOosa9/lsMzSA==";
+  static defaultEncryptedDeepLAuthKey =
+    "U2FsdGVkX1/ydx7tUqDRvfQICbuHbPOrkevlP70vUAYtgYL3YjLDge2FR6alqKZu2ybNlXJig3PIfDdBFGvVjg==";
   private static defaultDeepLAuthKey = myDecrypt(this.defaultEncryptedDeepLAuthKey);
 
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
@@ -122,7 +122,7 @@ export class KeyStore {
     myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : this.defaultCaiyunToken;
 }
 
-function myDecrypt(ciphertext: string) {
+export function myDecrypt(ciphertext: string) {
   // console.warn("decrypt:", ciphertext);
   const bytes = CryptoJS.AES.decrypt(ciphertext, environment.extensionName);
   const originalText = bytes.toString(CryptoJS.enc.Utf8);

@@ -1,12 +1,8 @@
 /*
  * @author: tisfeng
- * @createTime: 2022-07-22 23:27
+ * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
-<<<<<<< HEAD:src/google.ts
- * @lastEditTime: 2022-08-01 00:01
-=======
- * @lastEditTime: 2022-08-05 15:44
->>>>>>> dev:src/translation/google.ts
+ * @lastEditTime: 2022-08-05 22:22
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -124,12 +120,12 @@ async function googleCrawlerTranslate(
           translations: [translation],
         });
       } catch (error) {
-        console.error(`googleTranslate error: ${error}`);
+        console.error(`google translate error: ${error}`);
         return Promise.reject(errorInfo);
       }
     })
     .catch((err: AxiosError) => {
-      console.error(`googleTranslate error: ${err}`);
+      console.error(`google error: ${err}`);
       return Promise.reject(errorInfo);
     });
 }
