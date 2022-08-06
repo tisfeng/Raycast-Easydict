@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:55
+ * @lastEditTime: 2022-08-06 10:43
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,7 +54,7 @@ export async function rquestLingueeDictionary(
 
   const languagePairItem = validLanguagePairs[languagePairKey];
   if (!languagePairItem) {
-    console.warn(`----> linguee: ${languagePairKey} is not a valid language pair`);
+    console.log(`----> lingueeis not a valid language pair: ${languagePairKey} `);
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,

@@ -1,14 +1,14 @@
-import { LocalStorage } from "@raycast/api";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 02:02
+ * @lastEditTime: 2022-08-06 10:38
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { LocalStorage } from "@raycast/api";
 import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
@@ -171,7 +171,7 @@ export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise
         // remove key
         encryptedKeys.splice(encryptedKeys.indexOf(encryptedKey), 1);
         console.log(`---> find and store new key: ${key}`);
-        return LocalStorage.setItem(deepLAuthStoredKey, key);
+        LocalStorage.setItem(deepLAuthStoredKey, key);
       }
     }
   }

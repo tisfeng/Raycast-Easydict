@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:03
+ * @lastEditTime: 2022-08-06 10:58
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -125,8 +125,13 @@ export class DataManager {
         });
     }
 
-    const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary;
-    if (enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
+    // * Youdao dictionary only support chinese <--> english.
+    const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
+    const isValidYoudaoDictionaryQuery = youdaoDictionarySet.has(fromLanguage) && youdaoDictionarySet.has(toLanguage);
+    const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryQuery;
+    const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
+    console.log(`---> enableYoudaoDictionary: ${enableYoudaoDictionary}`);
+    if (enableYoudaoDictionary || enableYoudaoTranslate) {
       requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
@@ -145,20 +150,33 @@ export class DataManager {
           const youdaoDisplayResult = updateYoudaoDictionaryDisplay(formatYoudaoResult);
           const showYoudaoDictionary = !isYoudaoDictionaryEmpty(formatYoudaoResult);
           console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
-          const type = enableYoudaoDictionary ? DicionaryType.Youdao : TranslationType.Youdao;
 
+          let displayType;
+          if (enableYoudaoTranslate) {
+            displayType = TranslationType.Youdao;
+          }
+          if (enableYoudaoDictionary && showYoudaoDictionary) {
+            displayType = DicionaryType.Youdao;
+          }
+          if (displayType === undefined) {
+            console.log("---> no display, return");
+            return;
+          }
+
+          console.log(`---> type: ${displayType}`);
           const displayResult: QueryResult = {
-            type: type,
+            type: displayType,
             sourceResult: youdaoTypeResult,
             displayResult: youdaoDisplayResult,
           };
-          if (type === DicionaryType.Youdao && showYoudaoDictionary) {
-            this.updateQueryDisplayResults(displayResult);
-          } else if (type === TranslationType.Youdao) {
+
+          if (displayType === TranslationType.Youdao) {
             this.updateTranslationDisplay(displayResult);
+            return;
           }
 
-          // if enable automatic play audio and query is word, then download audio and play it
+          this.updateQueryDisplayResults(displayResult);
+          // if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
           const enableAutomaticDownloadAudio =
             myPreferences.enableAutomaticPlayWordAudio && formatYoudaoResult.queryWordInfo.isWord;
           if (enableAutomaticDownloadAudio && this.isLastQuery) {
