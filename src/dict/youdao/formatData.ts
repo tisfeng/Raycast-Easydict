@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 18:21
+ * @lastEditTime: 2022-08-06 21:21
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -26,7 +26,6 @@ export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResul
   const queryWordInfo: QueryWordInfo = {
     word: youdaoResult.query,
     phonetic: usPhonetic || youdaoResult.basic?.phonetic,
-    speech: youdaoResult.basic?.["us-speech"],
     fromLanguage: from,
     toLanguage: to,
     isWord: youdaoResult.isWord,
@@ -76,7 +75,6 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
         tooltip: `Translate`,
         copyText: oneLineTranslation,
         queryWordInfo: formatResult.queryWordInfo,
-        speech: formatResult.queryWordInfo.speech,
         // translationMarkdown: this.formatAllTypeTranslationToMarkdown(type, formatResult),
         accessoryItem: {
           phonetic: phoneticText,

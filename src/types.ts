@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:12
+ * @lastEditTime: 2022-08-06 22:23
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,8 +46,9 @@ export interface RequestTypeResult {
   type: RequestType;
   result: RequestResultType | null; // when not supported, result is null.
   translations: string[]; // each translation is a paragraph.
-  oneLineTranslations?: string; // one line translation.
+  oneLineTranslation?: string; // one line translation.
   errorInfo?: RequestErrorInfo;
+  wordInfo?: QueryWordInfo;
 }
 
 type RequestResultType =

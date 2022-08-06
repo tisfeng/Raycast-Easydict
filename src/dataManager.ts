@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 10:58
+ * @lastEditTime: 2022-08-06 22:27
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -67,6 +67,8 @@ export class DataManager {
 
   isShowDetail = false;
 
+  hasPlayAudio = false;
+
   /**
    * update display result.
    *
@@ -107,12 +109,16 @@ export class DataManager {
       rquestLingueeDictionary(queryText, fromLanguage, toLanguage)
         .then((lingueeTypeResult) => {
           const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
+          const type = DicionaryType.Linguee;
           const displayResult: QueryResult = {
-            type: DicionaryType.Linguee,
+            type: type,
             displayResult: lingueeDisplayResult,
             sourceResult: lingueeTypeResult,
           };
           this.updateQueryDisplayResults(displayResult);
+
+          const wordInfo = lingueeTypeResult.wordInfo as QueryWordInfo;
+          this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
           console.error("lingueeDictionaryResult error:", error);
@@ -177,11 +183,8 @@ export class DataManager {
 
           this.updateQueryDisplayResults(displayResult);
           // if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
-          const enableAutomaticDownloadAudio =
-            myPreferences.enableAutomaticPlayWordAudio && formatYoudaoResult.queryWordInfo.isWord;
-          if (enableAutomaticDownloadAudio && this.isLastQuery) {
-            playYoudaoWordAudioAfterDownloading(formatYoudaoResult.queryWordInfo);
-          }
+          const wordInfo = youdaoTypeResult.wordInfo as QueryWordInfo;
+          this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
           console.error("youdaoDictionaryResult error:", error);
@@ -242,6 +245,7 @@ export class DataManager {
               type: TranslationType.Apple,
               result: { translatedText: translatedText },
               translations: [translatedText],
+              wordInfo: this.queryWordInfo as QueryWordInfo,
             };
             if (!this.shouldCancelQuery) {
               const displayResult: QueryResult = {
@@ -355,7 +359,7 @@ export class DataManager {
     }
 
     oneLineTranslations = sourceResult.translations.map((translation) => translation).join(" ");
-    sourceResult.oneLineTranslations = oneLineTranslations;
+    sourceResult.oneLineTranslation = oneLineTranslations;
     if (oneLineTranslations) {
       const displayItem: ListDisplayItem = {
         displayType: type,
@@ -525,7 +529,7 @@ export class DataManager {
           }
         } else {
           // check if translation is too long
-          const oneLineTranslation = queryResult.sourceResult?.oneLineTranslations || "";
+          const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
           const toLanauge = this.queryWordInfo?.toLanguage as string;
           const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
           if (isTooLong) {
@@ -566,5 +570,16 @@ export class DataManager {
       }
     }
     return isEmpty;
+  }
+
+  /**
+   * Download word audio and play it.
+   */
+  downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
+    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo?.isWord;
+    if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayAudio) {
+      playYoudaoWordAudioAfterDownloading(wordInfo);
+      this.hasPlayAudio = true;
+    }
   }
 }

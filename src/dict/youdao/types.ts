@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 23:42
+ * @lastEditTime: 2022-08-06 22:22
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -48,7 +48,6 @@ export interface QueryWordInfo {
   isWord: boolean; // ! show web translation need this value.
   detectedLanguage?: LanguageDetectTypeResult;
   phonetic?: string; // ɡʊd
-  speech?: string; // youdao tts url
   examTypes?: string[];
   audioPath?: string;
   speechUrl?: string; // youdao tts url, some language not have tts url, such as "ຂາດ"

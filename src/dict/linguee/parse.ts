@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 18:32
+ * @lastEditTime: 2022-08-06 20:57
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,7 +38,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   console.log(`---> sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
 
   // 2. get the exact word list
-  const lingueeWordItems = getWordItemList(exactLemmaElement as unknown as HTMLElement[]);
+  const wordItems = getWordItemList(exactLemmaElement as unknown as HTMLElement[]);
 
   /**
    * try search examples, and related words if have.
@@ -73,24 +73,30 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const wikipediaElement = dictionaryElement?.querySelectorAll(".wikipedia .abstract");
   const wikipedia = getWikipedia(wikipediaElement as unknown as HTMLElement[]);
 
+  let speakUrl = "";
+  if (wordItems?.length) {
+    speakUrl = wordItems[0].audioUrl;
+  }
   const queryWordInfo: QueryWordInfo = {
     word: queryWord?.textContent ?? "",
     fromLanguage: sourceLanguage ?? "",
     toLanguage: targetLanguage ?? "",
-    isWord: lingueeWordItems.length > 0,
+    isWord: wordItems.length > 0,
+    speechUrl: speakUrl,
   };
   const lingueeResult: LingueeDictionaryResult = {
     queryWordInfo: queryWordInfo,
-    wordItems: lingueeWordItems,
+    wordItems: wordItems,
     examples: exampleItems,
     relatedWords: relatedWords,
     wikipedias: wikipedia,
   };
   const result = isLingueeDictionaryEmpty(lingueeResult) ? null : lingueeResult;
-  const lingueeTypeResult = {
+  const lingueeTypeResult: RequestTypeResult = {
     type: DicionaryType.Linguee,
     result: result,
     translations: [],
+    wordInfo: queryWordInfo,
   };
   return lingueeTypeResult;
 }
@@ -157,8 +163,10 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const pos = tag_wordtype ? posText : tag_type?.textContent ?? "";
       const featured = lemma.getAttribute("class")?.includes("featured") ?? false;
       // * note: audio is not always exist.
-      const audio = lemma.querySelector("h2[class=line] .audio")?.getAttribute("id");
+      const audio = tag_lemma?.querySelector(".audio")?.getAttribute("id");
+      // console.log(`---> audio: ${audio}`);
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
+      // console.log(`---> audioUrl: ${audioUrl}`);
 
       const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
       // 2. get word featured explanation

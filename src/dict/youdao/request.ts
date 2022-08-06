@@ -3,7 +3,7 @@ import { KeyStore } from "../../preferences";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 10:59
+ * @lastEditTime: 2022-08-06 21:00
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,11 +14,11 @@ import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
+import { YoudaoRequestStateCode } from "../../consts";
+import { getYoudaoErrorInfo } from "../../language/languages";
 import { RequestTypeResult, TranslationType } from "../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
-import { YoudaoRequestStateCode } from "../../consts";
-import { getYoudaoErrorInfo } from "../../language/languages";
 
 /**
  * Max length of text to download youdao tts audio
@@ -69,6 +69,7 @@ export function requestYoudaoDictionary(
           result: youdaoFormatResult,
           errorInfo: youdaoErrorInfo,
           translations: youdaoResult.translation,
+          wordInfo: youdaoFormatResult.queryWordInfo,
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
