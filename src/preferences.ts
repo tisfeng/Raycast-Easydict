@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 11:15
+ * @lastEditTime: 2022-08-06 12:41
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -111,8 +111,7 @@ export class KeyStore {
       ? myPreferences.tencentSecretKey.trim()
       : this.defaultTencentSecretKey;
 
-  static deepLAuthKey =
-    myPreferences.deepLAuthKey.trim().length > 0 ? myPreferences.deepLAuthKey.trim() : this.defaultDeepLAuthKey;
+  static userDeepLAuthKey = myPreferences.deepLAuthKey.trim();
 
   static caiyunToken =
     myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : this.defaultCaiyunToken;

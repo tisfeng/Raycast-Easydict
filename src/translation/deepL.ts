@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 11:48
+ * @lastEditTime: 2022-08-06 12:49
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -42,7 +42,7 @@ export async function requestDeepLTextTranslate(
     });
   }
 
-  const deepLAuthKey = await getValidDeepLKey();
+  const deepLAuthKey = await getDeepLAuthKey();
 
   // * deepL api free and deepL pro api use different url host.
   const url = deepLAuthKey.endsWith(":fx")
@@ -74,9 +74,14 @@ export async function requestDeepLTextTranslate(
     console.error("error response: ", error.response);
 
     const errorCode = error.response?.status;
-    let errorMessage = error.response?.statusText || "Something error 😭";
+    let errorMessage = error.response?.statusText || "Request error 😭";
+
+    // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
     if (errorCode === 456) {
-      errorMessage = "Quota exceeded"; // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
+      errorMessage = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
+    }
+    if (errorCode === 403) {
+      errorMessage = "Authorization failed"; //Authorization failed. Please supply a valid auth_key parameter.
     }
 
     const errorInfo: RequestErrorInfo = {
@@ -108,9 +113,18 @@ const wildEncryptedDeepLKeys = [
 ];
 
 /**
- * Get a valid deepL key.
+ * Get a deepL key.
+ *
+ * 1. try to get user's deepL key from preference.
+ * 2. if not found, try to get stored deepL key from local storage.
+ * 3. if not found, try to get a valid deepL key from wildEncryptedDeepLKeys.
  */
-export async function getValidDeepLKey(): Promise<string> {
+export async function getDeepLAuthKey(): Promise<string> {
+  const userKey = KeyStore.userDeepLAuthKey;
+  if (userKey) {
+    console.log(`---> user deepL key: ${userKey}`);
+    return Promise.resolve(userKey);
+  }
   const key = await LocalStorage.getItem<string>(deepLAuthStoredKey);
   if (key && (await checkIfKeyVaild(key))) {
     return Promise.resolve(key);
@@ -177,6 +191,7 @@ export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise
       }
     }
   }
-  console.log(`---> no valid key, use defatul key`);
-  return Promise.resolve(KeyStore.deepLAuthKey);
+  console.log(`---> no valid key, use defatul deepl key`);
+  const defaultDeepLAuthKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+  return Promise.resolve(defaultDeepLAuthKey);
 }
