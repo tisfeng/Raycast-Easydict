@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 11:23
+ * @lastEditTime: 2022-08-06 17:44
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -223,11 +223,14 @@ export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType):
       dotColor = Color.Red;
       break;
     }
-
-    case LingueeListItemType.SpecialForms:
     case LingueeListItemType.AlmostAlwaysUsed:
     case LingueeListItemType.OftenUsed: {
       dotColor = "#FF5151";
+      break;
+    }
+    case LingueeListItemType.SpecialForms: {
+      // French forms
+      dotColor = "#00BB00";
       break;
     }
     case LingueeListItemType.Common: {

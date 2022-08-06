@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 10:43
+ * @lastEditTime: 2022-08-06 16:28
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -193,7 +193,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               if (pos && (tagText || translation)) {
                 pos = `${pos}.`;
               }
-              const subtitle = `${pos}${tagText}     ${translation}`;
+              const subtitle = `${pos}${tagText}       ${translation}`;
               const copyText = `${title} ${subtitle}`;
               const displayType = explanationItem.frequencyTag.displayType;
               // console.log(`---> linguee copyText: ${copyText}`);

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:46
+ * @lastEditTime: 2022-08-06 17:57
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -118,6 +118,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
     for (const lemma of lemmas) {
       // console.log(`---> lemma: ${element}`);
 
+      // Todo: clean lemma?
       // 1. get top word and part of speech
       const placeholder = lemma?.querySelector(".dictLink .placeholder");
       let placeholderText = "";
@@ -145,9 +146,15 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         placeholderText = tag_lemma_context.textContent ?? "";
         console.log(`---> tag_lemma_context placeholder: ${placeholderText}`);
       }
-      const tag_wordtype = lemma?.querySelector(".tag_wordtype");
+      const tag_wordtype = lemma?.querySelector(".lemma_desc .tag_wordtype"); // "noun, feminine"
+      const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. femme in French, "(plural: femmes f)"
+      console.log(`---> tag_wordtype: ${tag_wordtype?.textContent ?? ""}`);
+      console.log(`---> tag_forms: ${tag_forms?.textContent ?? ""}`);
+      const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms?.textContent ?? ""}`;
+      //tag_wordtype?.textContent ?? "" + tag_forms?.textContent ?? "";
+      console.log(`---> posText: ${posText}`);
       const tag_type = lemma?.querySelector(".tag_type"); // related word pos
-      const pos = tag_wordtype ?? tag_type;
+      const pos = tag_wordtype ? posText : tag_type?.textContent ?? "";
       const featured = lemma.getAttribute("class")?.includes("featured") ?? false;
       // * note: audio is not always exist.
       const audio = lemma.querySelector("h2[class=line] .audio")?.getAttribute("id");
@@ -180,7 +187,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         word: words,
         title: tag_lemma?.textContent ?? "",
         featured: featured,
-        pos: pos?.textContent ?? "",
+        pos: pos,
         placeholder: placeholderText,
         translationItems: allExplanations,
         audioUrl: audioUrl,
@@ -210,7 +217,7 @@ function getWordExplanationList(
       const tag_type = translation?.querySelector(".tag_type"); // adj
       const tag_c = translation?.querySelector(".tag_c"); // (often used)
       const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
-      const tagText = tag_c?.textContent ?? tag_forms?.textContent ?? "";
+      const tagText = `${tag_c?.textContent ?? ""} ${tag_forms?.textContent ?? ""}`;
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
       const examples = translation?.querySelectorAll(".example");
@@ -252,30 +259,15 @@ function getWordExplanationList(
  */
 function getExplanationDisplayType(wordFrequency: string): LingueeListItemType {
   // console.log(`---> word frequency: ${wordFrequency}`);
-  // remove parentheses
-  const wordFrequencyWithoutParentheses = wordFrequency.trim().replace(/\(|\)/g, "").toLowerCase();
   let wordDisplayType: LingueeListItemType;
-  switch (wordFrequencyWithoutParentheses) {
-    case LingueeListItemType.AlmostAlwaysUsed.toLowerCase(): {
-      wordDisplayType = LingueeListItemType.AlmostAlwaysUsed;
-      break;
-    }
-    case LingueeListItemType.OftenUsed.toLowerCase(): {
-      wordDisplayType = LingueeListItemType.OftenUsed;
-      break;
-    }
-    case LingueeListItemType.LessCommon.toLowerCase(): {
-      wordDisplayType = LingueeListItemType.LessCommon;
-      break;
-    }
-    default: {
-      if (wordFrequencyWithoutParentheses.length) {
-        wordDisplayType = LingueeListItemType.SpecialForms;
-        break;
-      }
-      wordDisplayType = LingueeListItemType.Common;
-      break;
-    }
+  if (wordFrequency.includes("(often used)")) {
+    wordDisplayType = LingueeListItemType.OftenUsed;
+  } else if (wordFrequency.includes("(almost always used)")) {
+    wordDisplayType = LingueeListItemType.AlmostAlwaysUsed;
+  } else if (wordFrequency.length > 0) {
+    wordDisplayType = LingueeListItemType.SpecialForms;
+  } else {
+    wordDisplayType = LingueeListItemType.Common;
   }
   // console.log(`---> word display type: ${wordDisplayType}`);
   return wordDisplayType;
