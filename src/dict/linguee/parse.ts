@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 17:57
+ * @lastEditTime: 2022-08-06 18:32
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -148,10 +148,10 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       }
       const tag_wordtype = lemma?.querySelector(".lemma_desc .tag_wordtype"); // "noun, feminine"
       const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. femme in French, "(plural: femmes f)"
+      const tag_forms_text = getTagFormsText(tag_forms);
       console.log(`---> tag_wordtype: ${tag_wordtype?.textContent ?? ""}`);
-      console.log(`---> tag_forms: ${tag_forms?.textContent ?? ""}`);
-      const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms?.textContent ?? ""}`;
-      //tag_wordtype?.textContent ?? "" + tag_forms?.textContent ?? "";
+      console.log(`---> tag_forms: ${tag_forms_text}`);
+      const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms_text}`;
       console.log(`---> posText: ${posText}`);
       const tag_type = lemma?.querySelector(".tag_type"); // related word pos
       const pos = tag_wordtype ? posText : tag_type?.textContent ?? "";
@@ -217,7 +217,8 @@ function getWordExplanationList(
       const tag_type = translation?.querySelector(".tag_type"); // adj
       const tag_c = translation?.querySelector(".tag_c"); // (often used)
       const tag_forms = translation?.querySelector(".tag_forms"); // french forms, english-french
-      const tagText = `${tag_c?.textContent ?? ""} ${tag_forms?.textContent ?? ""}`;
+      const tag_forms_text = getTagFormsText(tag_forms);
+      const tagText = `${tag_c?.textContent ?? ""} ${tag_forms_text}`;
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
       const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
       const examples = translation?.querySelectorAll(".example");
@@ -271,6 +272,20 @@ function getExplanationDisplayType(wordFrequency: string): LingueeListItemType {
   }
   // console.log(`---> word display type: ${wordDisplayType}`);
   return wordDisplayType;
+}
+
+/**
+ * Get tag forms text.
+ *
+ *  <span class='tag_forms forms_t:pinyin'> ()</span>
+ */
+function getTagFormsText(tagForms: Element | null): string {
+  let tag_forms_text = tagForms?.textContent ?? "";
+  const tag_forms_trimText = tagForms?.textContent?.replace(/\(.*\)/, "").trim();
+  if (!tag_forms_trimText) {
+    tag_forms_text = "";
+  }
+  return tag_forms_text;
 }
 
 /**

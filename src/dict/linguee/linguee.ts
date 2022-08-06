@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 16:28
+ * @lastEditTime: 2022-08-06 18:27
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -233,7 +233,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             const unFeaturedDisplayItem: ListDisplayItem = {
               key: copyText,
               title: pos,
-              subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote}`,
+              subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote.toLowerCase()}`,
               copyText: copyText,
               queryWordInfo: queryWordInfo,
               displayType: displayType,
