@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 10:38
+ * @lastEditTime: 2022-08-06 11:48
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -42,21 +42,7 @@ export async function requestDeepLTextTranslate(
     });
   }
 
-  let deepLAuthKey = KeyStore.deepLAuthKey;
-
-  // Determine in advance whether the key is valid or not, and if it is invalid, get a new key
-  const isValidKey = await checkIfKeyVaild(deepLAuthKey);
-  if (!isValidKey) {
-    console.log(`---> no valid key, try to get a new key`);
-    await getAndStoreValidDeepLKey(wildEncryptedDeepLKeys);
-  }
-
-  // if has stored key, use it first.
-  const storedKey = await LocalStorage.getItem<string>(deepLAuthStoredKey);
-  if (storedKey) {
-    console.log(`---> use stored deepL key: ${storedKey}`);
-    deepLAuthKey = storedKey;
-  }
+  const deepLAuthKey = await getValidDeepLKey();
 
   // * deepL api free and deepL pro api use different url host.
   const url = deepLAuthKey.endsWith(":fx")
@@ -103,6 +89,10 @@ export async function requestDeepLTextTranslate(
   }
 }
 
+/**
+ * This deepl key is from Github, we do not guarantee that it will work all the time.
+ * https://github.com/search?p=1&q=deepl+key+%3Afx&type=Code
+ */
 const wildEncryptedDeepLKeys = [
   "U2FsdGVkX19Mt7cnRCJQINAzLGqqZAhqPcbxeKrBUV62/Dd0u1Qa0QxY8ljYWjmCAz8NwG+uOmD8Ez0HijCJnw==",
   "U2FsdGVkX1+7yAdmxTGWdRJ6oeDcZ+1YzndxtkdpuOk6jWBjNezThjj8NgT+flfxOPccJXXlIilvRssFzPnagg==",
@@ -116,6 +106,17 @@ const wildEncryptedDeepLKeys = [
   "U2FsdGVkX1+yGtuvj9lX2qJZXMiaAs1KMB3jwK0SPnVGfATSyXC8LGBnVTyX6TNyLvSvnINJQp1dLZzDb85bLQ==",
   "U2FsdGVkX1/61u2OfkPsFuw54CA3I1imQ5FwUymFsvkyaOXQkMm+sr+NGGlfLvHNcp6SvQgmrQuof8F/pRY51w==",
 ];
+
+/**
+ * Get a valid deepL key.
+ */
+export async function getValidDeepLKey(): Promise<string> {
+  const key = await LocalStorage.getItem<string>(deepLAuthStoredKey);
+  if (key && (await checkIfKeyVaild(key))) {
+    return Promise.resolve(key);
+  }
+  return getAndStoreValidDeepLKey(wildEncryptedDeepLKeys);
+}
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -143,7 +144,7 @@ function checkIfKeyVaild(key: string): Promise<boolean> {
       .post(url, querystring.stringify(params))
       .then((res) => {
         const usage = res.data as DeepLUsage;
-        console.log(`---> usage: ${JSON.stringify(usage)}`);
+        console.log(`---> deepL usage: ${JSON.stringify(usage)}`);
         if (usage.character_count < usage.character_limit) {
           console.log(`---> valid key: ${key}`);
           resolve(true);
@@ -163,7 +164,7 @@ function checkIfKeyVaild(key: string): Promise<boolean> {
 /**
  * Get a valid deepL key and store it.
  */
-export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise<void> {
+export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise<string> {
   if (encryptedKeys.length > 0) {
     for (const encryptedKey of encryptedKeys) {
       const key = myDecrypt(encryptedKey);
@@ -172,8 +173,10 @@ export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise
         encryptedKeys.splice(encryptedKeys.indexOf(encryptedKey), 1);
         console.log(`---> find and store new key: ${key}`);
         LocalStorage.setItem(deepLAuthStoredKey, key);
+        return Promise.resolve(key);
       }
     }
   }
   console.log(`---> no valid key, use defatul key`);
+  return Promise.resolve(KeyStore.deepLAuthKey);
 }

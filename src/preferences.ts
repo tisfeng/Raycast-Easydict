@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 11:10
+ * @lastEditTime: 2022-08-06 11:15
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -80,12 +80,8 @@ export class KeyStore {
   private static defaultTencentSecretId = myDecrypt(this.defaultEncryptedTencentSecretId);
   private static defaultTencentSecretKey = myDecrypt(this.defaultEncryptedTencentSecretKey);
 
-  /**
-   * This deepl key is from Github, we do not guarantee that it will work all the time.
-   * https://github.com/search?p=1&q=deepl+key+%3Afx&type=Code
-   */
   static defaultEncryptedDeepLAuthKey =
-    "U2FsdGVkX1/ydx7tUqDRvfQICbuHbPOrkevlP70vUAYtgYL3YjLDge2FR6alqKZu2ybNlXJig3PIfDdBFGvVjg==";
+    "U2FsdGVkX190UMu/gorJ/qgwhayFJilCPE5kSfOutkELsUnylfAZEtJGVPin3njGRwC2odphwTigbCzEcJ4kAw==";
   private static defaultDeepLAuthKey = myDecrypt(this.defaultEncryptedDeepLAuthKey);
 
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
