@@ -3,7 +3,7 @@ import { KeyStore } from "../../preferences";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 21:00
+ * @lastEditTime: 2022-08-07 17:49
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,8 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 export function requestYoudaoDictionary(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Youdao`);
   function truncate(q: string): string {
@@ -59,7 +60,7 @@ export function requestYoudaoDictionary(
 
   return new Promise((resolve, reject) => {
     axios
-      .post(url, params)
+      .post(url, params, { signal })
       .then((response) => {
         const youdaoResult = response.data as YoudaoDictionaryResult;
         const youdaoFormatResult = formatYoudaoDictionaryResult(youdaoResult);
@@ -79,6 +80,11 @@ export function requestYoudaoDictionary(
         }
       })
       .catch((error) => {
+        if (!error.response) {
+          console.log(`---> youdao cancelled`);
+          return;
+        }
+
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
         console.error(`youdao translate error: ${error}`);

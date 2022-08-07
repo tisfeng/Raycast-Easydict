@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 22:22
+ * @lastEditTime: 2022-08-07 18:04
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,8 @@ import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 export async function requestGoogleTranslate(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Google`);
   // if has preferred Chinese language or ip in China, use cn, else use com.
@@ -28,7 +29,7 @@ export async function requestGoogleTranslate(
     tld = "cn";
     console.log(`---> use cn, use Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
   }
-  return googleCrawlerTranslate(queryText, fromLanguage, targetLanguage, tld);
+  return googleCrawlerTranslate(queryText, fromLanguage, targetLanguage, tld, signal);
 }
 
 /**
@@ -83,7 +84,8 @@ async function googleCrawlerTranslate(
   queryText: string,
   fromLanguage: string,
   targetLanguage: string,
-  tld = "cn"
+  tld = "cn",
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   const fromLanguageItem = getLanguageItemFromYoudaoId(fromLanguage);
   const toLanguageItem = getLanguageItemFromYoudaoId(targetLanguage);
@@ -106,28 +108,36 @@ async function googleCrawlerTranslate(
     message: "Google translate error",
   };
 
-  return axios
-    .get(url, { headers })
-    .then((res: AxiosResponse) => {
-      try {
-        const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
-        let translation = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
-        translation = decodeURI(translation);
-        console.warn(`---> google result: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
-        return Promise.resolve({
-          type: TranslationType.Google,
-          result: { translatedText: translation },
-          translations: [translation],
-        });
-      } catch (error) {
-        console.error(`google translate error: ${error}`);
-        return Promise.reject(errorInfo);
-      }
-    })
-    .catch((err: AxiosError) => {
-      console.error(`google error: ${err}`);
-      return Promise.reject(errorInfo);
-    });
+  return new Promise<RequestTypeResult>((resolve, reject) => {
+    axios
+      .get(url, { headers, signal })
+      .then((res: AxiosResponse) => {
+        // Todo: use cheerio to parse html
+        try {
+          const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
+          let translation = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
+          translation = decodeURI(translation);
+          console.warn(`---> google result: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
+          resolve({
+            type: TranslationType.Google,
+            result: { translatedText: translation },
+            translations: [translation],
+          });
+        } catch (error) {
+          console.error(`google translate error: ${error}`);
+          reject(errorInfo);
+        }
+      })
+      .catch((error: AxiosError) => {
+        if (!error.response) {
+          console.log(`---> caiyun cancelled`);
+          return;
+        }
+
+        console.error(`google error: ${error}`);
+        reject(errorInfo);
+      });
+  });
 }
 
 /**

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 11:20
+ * @lastEditTime: 2022-08-07 17:22
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,7 +22,8 @@ import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationT
 export function requestBaiduTextTranslate(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Baidu`);
   const salt = Math.round(new Date().getTime() / 1000);
@@ -44,7 +45,7 @@ export function requestBaiduTextTranslate(
   // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
   return new Promise((resolve, reject) => {
     axios
-      .get(url, { params })
+      .get(url, { params, signal })
       .then((response) => {
         const baiduResult = response.data as BaiduTranslateResult;
         // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
@@ -67,6 +68,11 @@ export function requestBaiduTextTranslate(
         }
       })
       .catch((error) => {
+        if (!error.response) {
+          console.log(`---> baidu cancelled`);
+          return;
+        }
+
         // It seems that Baidu will never reject, always resolve...
         console.error(`---> baidu translate error: ${error}`);
         reject({

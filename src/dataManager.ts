@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 10:18
+ * @lastEditTime: 2022-08-07 23:22
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { BaiduRequestStateCode, dictionarySeparator } from "./consts";
+import { dictionarySeparator } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { isLingueeDictionaryEmpty } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
@@ -30,7 +30,7 @@ import {
   QueryType,
   RequestErrorInfo,
   RequestTypeResult,
-  SectionDisplayItem,
+  SectionDisplayItem as DisplaySection,
   TranslationItem,
   TranslationType,
 } from "./types";
@@ -39,11 +39,7 @@ import { getSortOrder, isTranslationTooLong } from "./utils";
 const sortOrder = getSortOrder();
 
 export class DataManager {
-  private updateDisplaySections: (displaySections: SectionDisplayItem[]) => void;
-  constructor(updateDisplaySections: (displaySections: SectionDisplayItem[]) => void) {
-    this.updateDisplaySections = updateDisplaySections;
-  }
-
+  updateDisplaySections?: (displaySections: DisplaySection[]) => void;
   queryResults: QueryResult[] = [];
   queryWordInfo?: QueryWordInfo;
 
@@ -54,16 +50,14 @@ export class DataManager {
   /**
    * when input text is empty, need to cancel previous request, and clear result.
    */
-  shouldCancelQuery = false;
+  shouldClearQuery = true;
+
+  controller = new AbortController();
 
   /**
    * Delay the time to call the query API. Since API has frequency limit.
    */
   delayRequestTime = 600;
-
-  delayQueryTextInfoTimer = setTimeout(() => {
-    // do nothing, it will be assigned later.
-  }, 1000);
 
   isShowDetail = false;
 
@@ -83,16 +77,15 @@ export class DataManager {
     this.updateDictionarySeparator();
     this.isShowDetail = this.checkIfShowTranslationDetail();
 
-    const displaySections: SectionDisplayItem[][] = [];
+    const displaySections: DisplaySection[][] = [];
     for (const result of this.queryResults) {
       if (result.displayResult) {
         this.updateTranslationMarkdown(result);
         displaySections.push(result.displayResult);
       }
     }
-    if (displaySections.length) {
-      const sections = displaySections.flat();
-      this.updateDisplaySections(sections);
+    if (this.updateDisplaySections) {
+      this.updateDisplaySections(displaySections.flat());
     }
   }
 
@@ -106,7 +99,7 @@ export class DataManager {
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     if (myPreferences.enableLingueeDictionary) {
-      rquestLingueeDictionary(queryText, fromLanguage, toLanguage)
+      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((lingueeTypeResult) => {
           const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
           const type = DicionaryType.Linguee;
@@ -138,19 +131,9 @@ export class DataManager {
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enableYoudaoDictionary: ${enableYoudaoDictionary}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {
-      requestYoudaoDictionary(queryText, fromLanguage, toLanguage)
+      requestYoudaoDictionary(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
-
-          if (this.shouldCancelQuery) {
-            // updateTranslateDisplayResult(null);
-            console.log("---> query canceled");
-            return;
-          }
-          if (!this.isLastQuery) {
-            console.log("---> queryTextWithTextInfo: isLastQuery is false, return");
-            return;
-          }
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
           const youdaoDisplayResult = updateYoudaoDictionaryDisplay(formatYoudaoResult);
@@ -182,7 +165,6 @@ export class DataManager {
           }
 
           this.updateQueryDisplayResults(displayResult);
-          // if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
           const wordInfo = youdaoTypeResult.wordInfo as QueryWordInfo;
           this.downloadAndPlayWordAudio(wordInfo);
         })
@@ -198,16 +180,13 @@ export class DataManager {
     }
 
     if (myPreferences.enableDeepLTranslate) {
-      requestDeepLTextTranslate(queryText, fromLanguage, toLanguage)
+      requestDeepLTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((deepLTypeResult) => {
-          // Todo: should use axios.CancelToken to cancel the request!
-          if (!this.shouldCancelQuery) {
-            const displayResult: QueryResult = {
-              type: TranslationType.DeepL,
-              sourceResult: deepLTypeResult,
-            };
-            this.updateTranslationDisplay(displayResult);
-          }
+          const displayResult: QueryResult = {
+            type: TranslationType.DeepL,
+            sourceResult: deepLTypeResult,
+          };
+          this.updateTranslationDisplay(displayResult);
         })
         .catch((error) => {
           const errorInfo = error as RequestErrorInfo;
@@ -221,15 +200,13 @@ export class DataManager {
 
     // check if enable google translate
     if (myPreferences.enableGoogleTranslate) {
-      requestGoogleTranslate(queryText, fromLanguage, toLanguage)
+      requestGoogleTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((googleTypeResult) => {
-          if (!this.shouldCancelQuery) {
-            const displayResult: QueryResult = {
-              type: TranslationType.Google,
-              sourceResult: googleTypeResult,
-            };
-            this.updateTranslationDisplay(displayResult);
-          }
+          const displayResult: QueryResult = {
+            type: TranslationType.Google,
+            sourceResult: googleTypeResult,
+          };
+          this.updateTranslationDisplay(displayResult);
         })
         .catch((err) => {
           console.error(`google error: ${JSON.stringify(err, null, 2)}`);
@@ -240,6 +217,10 @@ export class DataManager {
     if (myPreferences.enableAppleTranslate) {
       appleTranslate(this.queryWordInfo)
         .then((translatedText) => {
+          if (this.checkIfNeedCancelDisplay()) {
+            return;
+          }
+
           if (translatedText) {
             const appleTranslateResult: RequestTypeResult = {
               type: TranslationType.Apple,
@@ -247,13 +228,11 @@ export class DataManager {
               translations: [translatedText],
               wordInfo: this.queryWordInfo as QueryWordInfo,
             };
-            if (!this.shouldCancelQuery) {
-              const displayResult: QueryResult = {
-                type: TranslationType.Apple,
-                sourceResult: appleTranslateResult,
-              };
-              this.updateTranslationDisplay(displayResult);
-            }
+            const displayResult: QueryResult = {
+              type: TranslationType.Apple,
+              sourceResult: appleTranslateResult,
+            };
+            this.updateTranslationDisplay(displayResult);
           }
         })
         .catch((error) => {
@@ -264,24 +243,16 @@ export class DataManager {
 
     // check if enable baidu translate
     if (myPreferences.enableBaiduTranslate) {
-      requestBaiduTextTranslate(queryText, fromLanguage, toLanguage)
+      requestBaiduTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((baiduTypeResult) => {
-          if (!this.shouldCancelQuery) {
-            const displayResult: QueryResult = {
-              type: TranslationType.Baidu,
-              sourceResult: baiduTypeResult,
-            };
-            this.updateTranslationDisplay(displayResult);
-          }
+          const displayResult: QueryResult = {
+            type: TranslationType.Baidu,
+            sourceResult: baiduTypeResult,
+          };
+          this.updateTranslationDisplay(displayResult);
         })
         .catch((err) => {
           const errorInfo = err as RequestErrorInfo;
-          // * if error is access frequency limited, then delay request again
-          if (errorInfo.code === BaiduRequestStateCode.AccessFrequencyLimited.toString()) {
-            // Todo: only try request Baidu translate again.
-            this.delayQueryWithTextInfo(this.queryWordInfo as QueryWordInfo);
-            return;
-          }
           showToast({
             style: Toast.Style.Failure,
             title: `${errorInfo.type}: ${errorInfo.code}`,
@@ -294,13 +265,16 @@ export class DataManager {
     if (myPreferences.enableTencentTranslate) {
       requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
         .then((tencentTypeResult) => {
-          if (!this.shouldCancelQuery) {
-            const displayResult: QueryResult = {
-              type: TranslationType.Tencent,
-              sourceResult: tencentTypeResult,
-            };
-            this.updateTranslationDisplay(displayResult);
+          if (this.checkIfNeedCancelDisplay()) {
+            console.log("---> Tencent isLastQuery is false, return");
+            return;
           }
+
+          const displayResult: QueryResult = {
+            type: TranslationType.Tencent,
+            sourceResult: tencentTypeResult,
+          };
+          this.updateTranslationDisplay(displayResult);
         })
         .catch((err) => {
           const errorInfo = err as RequestErrorInfo;
@@ -314,15 +288,13 @@ export class DataManager {
 
     // check if enable caiyun translate
     if (myPreferences.enableCaiyunTranslate) {
-      requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage)
+      requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
         .then((caiyunTypeResult) => {
-          if (!this.shouldCancelQuery) {
-            const displayResult: QueryResult = {
-              type: TranslationType.Caiyun,
-              sourceResult: caiyunTypeResult,
-            };
-            this.updateTranslationDisplay(displayResult);
-          }
+          const displayResult: QueryResult = {
+            type: TranslationType.Caiyun,
+            sourceResult: caiyunTypeResult,
+          };
+          this.updateTranslationDisplay(displayResult);
         })
         .catch((err) => {
           const errorInfo = err as RequestErrorInfo;
@@ -333,15 +305,6 @@ export class DataManager {
           });
         });
     }
-  }
-
-  /**
-   * delay query search text, later can cancel the query
-   */
-  delayQueryWithTextInfo(quertWordInfo: QueryWordInfo) {
-    this.delayQueryTextInfoTimer = setTimeout(() => {
-      this.queryTextWithTextInfo(quertWordInfo);
-    }, this.delayRequestTime);
   }
 
   /**
@@ -368,7 +331,7 @@ export class DataManager {
         copyText: oneLineTranslations,
         queryWordInfo: this.queryWordInfo as QueryWordInfo,
       };
-      const sectionDisplayItem: SectionDisplayItem = {
+      const sectionDisplayItem: DisplaySection = {
         type: type,
         sectionTitle: type,
         items: [displayItem],
@@ -468,18 +431,19 @@ export class DataManager {
    * Show a separator line for the non-first dictionary section title.
    */
   updateDictionarySeparator() {
-    this.queryResults.forEach((result, i) => {
-      let showSeparator = true;
-      const type = result.type;
-      const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
-      // console.log(`---> updateDictionarySeparator: index: ${i}, ${type}`);
-      if (isDictionaryType) {
-        if (i === 0) {
-          showSeparator = false;
+    if (this.queryResults.length) {
+      this.queryResults.forEach((result, i) => {
+        let showSeparator = true;
+        const type = result.type;
+        const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
+        if (isDictionaryType) {
+          if (i === 0) {
+            showSeparator = false;
+          }
+          this.addOrDeleteSeparator(type as DicionaryType, showSeparator);
         }
-        this.addOrDeleteSeparator(type as DicionaryType, showSeparator);
-      }
-    });
+      });
+    }
   }
 
   /**
@@ -578,6 +542,8 @@ export class DataManager {
 
   /**
    * Download word audio and play it.
+   *
+   * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
   downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
     const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo?.isWord;
@@ -585,5 +551,31 @@ export class DataManager {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayAudio = true;
     }
+  }
+
+  /**
+   * Check if need to cancel or clear query.
+   */
+  checkIfNeedCancelDisplay() {
+    let isCancel = false;
+    console.log(`---> check if last query: ${this.isLastQuery}, should clear: ${this.shouldClearQuery}`);
+    if (!this.isLastQuery) {
+      isCancel = true;
+    }
+    if (this.shouldClearQuery) {
+      isCancel = true;
+      if (this.updateDisplaySections) {
+        this.updateDisplaySections([]);
+      }
+    }
+    return isCancel;
+  }
+
+  /**
+   * Cancel query.
+   */
+  cancelQuery() {
+    console.log(`---> cancel query`);
+    this.controller.abort();
   }
 }

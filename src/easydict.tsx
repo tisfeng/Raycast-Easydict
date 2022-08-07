@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:15
+ * @lastEditTime: 2022-08-07 23:23
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,6 +21,8 @@ import { SectionDisplayItem } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
 let delayQueryTextTimer: NodeJS.Timeout;
+const dataManager = new DataManager();
+let controller: AbortController;
 
 export default function () {
   if (preferrdLanguage1.youdaoLanguageId === preferrdLanguage2.youdaoLanguageId) {
@@ -49,12 +51,13 @@ export default function () {
   const [searchText, setSearchText] = useState<string>("");
 
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
-  const requestResults = new DataManager(updateDisplaySections);
+
   function updateDisplaySections(result: SectionDisplayItem[]) {
     setDisplayResult(result);
     setLoadingState(false);
-    setIsShowingDetail(requestResults.isShowDetail);
+    setIsShowingDetail(dataManager.isShowDetail);
   }
+  dataManager.updateDisplaySections = updateDisplaySections;
 
   /**
    * the language type of text, depending on the language type of the current input text.
@@ -124,8 +127,7 @@ export default function () {
     console.log("start queryText: " + text);
 
     setLoadingState(true);
-    clearTimeout(requestResults.delayQueryTextInfoTimer);
-    requestResults.isLastQuery = true;
+    dataManager.isLastQuery = true;
 
     detectLanguage(text, (detectedLanguageResult) => {
       console.log(
@@ -159,7 +161,7 @@ export default function () {
       detectedLanguage: detectedLanguageResult,
     };
 
-    requestResults.queryTextWithTextInfo(queryTextInfo);
+    dataManager.queryTextWithTextInfo(queryTextInfo);
   }
 
   function ListDetail() {
@@ -181,7 +183,7 @@ export default function () {
         fromLanguage: currentFromLanguageItem.youdaoLanguageId,
         toLanguage: selectedLanguageItem.youdaoLanguageId,
       };
-      requestResults.queryTextWithTextInfo(quertWordInfo);
+      dataManager.queryTextWithTextInfo(quertWordInfo);
     };
 
     return (
@@ -230,17 +232,24 @@ export default function () {
     const trimText = trimTextLength(text);
     if (trimText.length === 0) {
       // fix bug: if input text is empty, need to update search text to empty
-      requestResults.shouldCancelQuery = true;
+      dataManager.cancelQuery();
+      dataManager.isLastQuery = true;
+      dataManager.shouldClearQuery = true;
       if (searchText) {
         console.log(`set search text to empty`);
         setSearchText("");
+        dataManager.queryResults = [];
         updateDisplaySections([]);
       }
       return;
     }
 
-    requestResults.isLastQuery = false;
-    requestResults.shouldCancelQuery = false;
+    dataManager.cancelQuery();
+
+    controller = new AbortController();
+    dataManager.controller = controller;
+    dataManager.isLastQuery = false;
+    dataManager.shouldClearQuery = false;
     clearTimeout(delayQueryTextTimer);
 
     if (text !== searchText) {
@@ -251,7 +260,7 @@ export default function () {
         // start delay timer for fetch translate API
         delayQueryTextTimer = setTimeout(() => {
           setSearchText(trimText);
-        }, requestResults.delayRequestTime);
+        }, dataManager.delayRequestTime);
       }
     }
   }

@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 12:49
+ * @lastEditTime: 2022-08-07 18:00
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import querystring from "node:querystring";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore, myDecrypt } from "../preferences";
@@ -24,7 +24,8 @@ const deepLAuthStoredKey = "deepLAuthStoredKey";
 export async function requestDeepLTextTranslate(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start rquest DeepL`);
   const sourceLang = getLanguageItemFromYoudaoId(fromLanguage).deepLSourceLanguageId;
@@ -56,42 +57,51 @@ export async function requestDeepLTextTranslate(
   };
   console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
-  try {
-    const response = await axios.post(url, querystring.stringify(params));
-    const deepLResult = response.data as DeepLTranslateResult;
-    const translatedText = deepLResult.translations[0].text;
-    console.log(
-      `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers["requestCostTime"]} ms`
-    );
-    return Promise.resolve({
-      type: TranslationType.DeepL,
-      result: deepLResult,
-      translations: [translatedText],
-    });
-  } catch (err) {
-    console.error(`DeepL translate error: ${err}`);
-    const error = err as AxiosError;
-    console.error("error response: ", error.response);
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, querystring.stringify(params), { signal })
+      .then((response) => {
+        const deepLResult = response.data as DeepLTranslateResult;
+        const translatedText = deepLResult.translations[0].text;
+        console.log(
+          `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers["requestCostTime"]} ms`
+        );
 
-    const errorCode = error.response?.status;
-    let errorMessage = error.response?.statusText || "Request error 😭";
+        const deepLTypeResult: RequestTypeResult = {
+          type: TranslationType.DeepL,
+          result: deepLResult,
+          translations: [translatedText],
+        };
+        resolve(deepLTypeResult);
+      })
+      .catch((error) => {
+        if (!error.response) {
+          console.log(`---> caiyun cancelled`);
+          return;
+        }
 
-    // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
-    if (errorCode === 456) {
-      errorMessage = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
-    }
-    if (errorCode === 403) {
-      errorMessage = "Authorization failed"; //Authorization failed. Please supply a valid auth_key parameter.
-    }
+        console.error("error response: ", error.response);
 
-    const errorInfo: RequestErrorInfo = {
-      type: TranslationType.DeepL,
-      code: errorCode?.toString() || "",
-      message: errorMessage,
-    };
-    console.error("deepL error info: ", errorInfo);
-    return Promise.reject(errorInfo);
-  }
+        const errorCode = error.response?.status;
+        let errorMessage = error.response?.statusText || "Request error 😭";
+
+        // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
+        if (errorCode === 456) {
+          errorMessage = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
+        }
+        if (errorCode === 403) {
+          errorMessage = "Authorization failed"; //Authorization failed. Please supply a valid auth_key parameter.
+        }
+
+        const errorInfo: RequestErrorInfo = {
+          type: TranslationType.DeepL,
+          code: errorCode?.toString() || "",
+          message: errorMessage,
+        };
+        console.error("deepL error info: ", errorInfo);
+        reject(errorInfo);
+      });
+  });
 }
 
 /**

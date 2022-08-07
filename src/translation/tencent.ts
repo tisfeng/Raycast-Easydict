@@ -36,6 +36,8 @@ const client = new TmtClient(clientConfig);
 /**
  * 腾讯文本翻译，5次/秒
  * Docs: https://cloud.tencent.com/document/api/551/15619
+ *
+ * Todo: use axios to request. so that we can use AbortSignal to cancel request.
  */
 export async function requestTencentTextTranslate(
   queryText: string,

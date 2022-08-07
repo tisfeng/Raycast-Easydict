@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 10:06
+ * @lastEditTime: 2022-08-07 23:26
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -29,7 +29,8 @@ export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 export async function rquestLingueeDictionary(
   queryWord: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
 
@@ -81,6 +82,7 @@ export async function rquestLingueeDictionary(
     const config: AxiosRequestConfig = {
       headers: headers,
       responseType: "arraybuffer", // handle French content-type iso-8859-15
+      signal: signal,
     };
 
     axios
@@ -98,12 +100,17 @@ export async function rquestLingueeDictionary(
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
+        if (!error.response) {
+          console.log(`---> linguee cancelled`);
+          return;
+        }
+
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
         console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
         console.error(`---> linguee error: ${error}`);
 
         let errorMessage = error.response?.statusText;
-        const errorCode: number = error.response.status;
+        const errorCode: number = error.response?.status;
         if (errorCode === 503) {
           errorMessage = "Your ip is banned by linguee for a few hours.";
           resetLingueeRequestTime();
@@ -123,7 +130,7 @@ export async function rquestLingueeDictionary(
  */
 async function recordLingueeRequestTime() {
   const lingueeRequestTime = (await LocalStorage.getItem<number>(lingueeRequestTimeKey)) || 1;
-  console.log(`---> linguee has request time: ${lingueeRequestTime}`);
+  console.log(`---> linguee has requested times: ${lingueeRequestTime}`);
   LocalStorage.setItem(lingueeRequestTimeKey, lingueeRequestTime + 1);
 }
 /**

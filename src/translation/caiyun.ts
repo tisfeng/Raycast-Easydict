@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 11:21
+ * @lastEditTime: 2022-08-07 17:50
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,8 @@ import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, Translation
 export function requestCaiyunTextTranslate(
   queryText: string,
   fromLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
+  signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Caiyun`);
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
@@ -45,15 +46,16 @@ export function requestCaiyunTextTranslate(
     detect: from === "auto",
   };
   // console.log(`---> Caiyun params: ${JSON.stringify(params, null, 4)}`);
-  const headers = {
+  const config = {
     headers: {
       "content-type": "application/json",
       "x-authorization": "token " + KeyStore.caiyunToken,
     },
+    signal,
   };
   return new Promise((resolve, reject) => {
     axios
-      .post(url, params, headers)
+      .post(url, params, config)
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
         const translations = caiyunResult.target;
@@ -65,6 +67,11 @@ export function requestCaiyunTextTranslate(
         });
       })
       .catch((error) => {
+        if (!error.response) {
+          console.log(`---> caiyun cancelled`);
+          return;
+        }
+
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Caiyun,
           code: error.response?.status.toString(),
