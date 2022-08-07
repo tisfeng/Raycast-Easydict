@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 22:27
+ * @lastEditTime: 2022-08-07 10:18
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -445,8 +445,12 @@ export class DataManager {
       queryResults[index] = queryResult;
       // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
     }
-    // filter undefined
-    this.queryResults = queryResults.filter((item) => item);
+    // filter undefined, result is null.
+    this.queryResults = queryResults.filter((queryResult) => {
+      if (queryResult?.sourceResult?.result) {
+        return true;
+      }
+    });
   }
 
   /**

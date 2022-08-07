@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 21:05
+ * @lastEditTime: 2022-08-07 10:06
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,7 +76,7 @@ export async function rquestLingueeDictionary(
       "User-Agent": userAgent,
       // accept: "*/*",
       // connection: "keep-alive",
-      // withCredentials: true,
+      withCredentials: true,
     };
     const config: AxiosRequestConfig = {
       headers: headers,
