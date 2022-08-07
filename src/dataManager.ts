@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 23:22
+ * @lastEditTime: 2022-08-08 00:35
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -90,10 +90,13 @@ export class DataManager {
   }
 
   /**
-   * Query text with text info, query dictionary API or tranalsate API.
+   * Query text with text info, query dictionary API or translate API.
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
+    this.hasPlayAudio = false;
+    this.isLastQuery = true;
+
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
@@ -218,6 +221,7 @@ export class DataManager {
       appleTranslate(this.queryWordInfo)
         .then((translatedText) => {
           if (this.checkIfNeedCancelDisplay()) {
+            this.cancelCurrentQuery();
             return;
           }
 
@@ -266,6 +270,7 @@ export class DataManager {
       requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
         .then((tencentTypeResult) => {
           if (this.checkIfNeedCancelDisplay()) {
+            this.cancelCurrentQuery();
             console.log("---> Tencent isLastQuery is false, return");
             return;
           }
@@ -559,14 +564,8 @@ export class DataManager {
   checkIfNeedCancelDisplay() {
     let isCancel = false;
     console.log(`---> check if last query: ${this.isLastQuery}, should clear: ${this.shouldClearQuery}`);
-    if (!this.isLastQuery) {
+    if (!this.isLastQuery || this.shouldClearQuery) {
       isCancel = true;
-    }
-    if (this.shouldClearQuery) {
-      isCancel = true;
-      if (this.updateDisplaySections) {
-        this.updateDisplaySections([]);
-      }
     }
     return isCancel;
   }
@@ -574,8 +573,23 @@ export class DataManager {
   /**
    * Cancel query.
    */
-  cancelQuery() {
+  cancelCurrentQuery() {
     console.log(`---> cancel query`);
+
+    this.isLastQuery = false;
     this.controller.abort();
+  }
+
+  clearQueryResults() {
+    console.log(`---> clear query results`);
+    this.cancelCurrentQuery();
+
+    this.queryResults = [];
+    this.isShowDetail = false;
+    this.shouldClearQuery = true;
+
+    if (this.updateDisplaySections) {
+      this.updateDisplaySections([]);
+    }
   }
 }

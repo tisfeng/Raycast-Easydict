@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 18:00
+ * @lastEditTime: 2022-08-08 00:21
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,11 +76,11 @@ export async function requestDeepLTextTranslate(
       })
       .catch((error) => {
         if (!error.response) {
-          console.log(`---> caiyun cancelled`);
+          console.log(`---> deepL cancelled`);
           return;
         }
 
-        console.error("error response: ", error.response);
+        console.error("deepL error response: ", error.response);
 
         const errorCode = error.response?.status;
         let errorMessage = error.response?.statusText || "Request error 😭";
@@ -178,7 +178,7 @@ function checkIfKeyVaild(key: string): Promise<boolean> {
         }
       })
       .catch((err) => {
-        console.error(`---> isVaildKey error: ${err}`);
+        console.error(`---> isVaildKey deepL error: ${err}`);
         console.log(`---> error key: ${key}`);
         resolve(false);
       });

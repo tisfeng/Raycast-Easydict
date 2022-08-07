@@ -130,7 +130,7 @@ async function googleCrawlerTranslate(
       })
       .catch((error: AxiosError) => {
         if (!error.response) {
-          console.log(`---> caiyun cancelled`);
+          console.log(`---> google cancelled`);
           return;
         }
 

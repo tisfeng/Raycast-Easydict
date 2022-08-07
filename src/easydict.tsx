@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 23:23
+ * @lastEditTime: 2022-08-08 00:41
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,7 +22,6 @@ import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
 let delayQueryTextTimer: NodeJS.Timeout;
 const dataManager = new DataManager();
-let controller: AbortController;
 
 export default function () {
   if (preferrdLanguage1.youdaoLanguageId === preferrdLanguage2.youdaoLanguageId) {
@@ -53,8 +52,8 @@ export default function () {
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
   function updateDisplaySections(result: SectionDisplayItem[]) {
-    setDisplayResult(result);
     setLoadingState(false);
+    setDisplayResult(result);
     setIsShowingDetail(dataManager.isShowDetail);
   }
   dataManager.updateDisplaySections = updateDisplaySections;
@@ -75,16 +74,13 @@ export default function () {
 
   useEffect(() => {
     console.log("enter useEffect");
-
     if (inputText === undefined) {
       setup();
     }
-
     if (searchText) {
       queryText(searchText);
       return;
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
@@ -105,13 +101,11 @@ export default function () {
    * Try to detect the selected text, if detect success, then query the selected text.
    */
   function tryQuerySelecedtText() {
-    // calculate the selected text cost time
     console.log("try query selected text");
     const startTime = Date.now();
     getSelectedText()
       .then((selectedText) => {
         selectedText = trimTextLength(selectedText);
-        new Date().getTime;
         console.log(`getSelectedText: ${selectedText}, cost time: ${Date.now() - startTime} ms`);
         updateInputTextAndQueryTextNow(selectedText, true);
       })
@@ -125,9 +119,7 @@ export default function () {
    */
   function queryText(text: string) {
     console.log("start queryText: " + text);
-
     setLoadingState(true);
-    dataManager.isLastQuery = true;
 
     detectLanguage(text, (detectedLanguageResult) => {
       console.log(
@@ -160,7 +152,6 @@ export default function () {
       isWord: false,
       detectedLanguage: detectedLanguageResult,
     };
-
     dataManager.queryTextWithTextInfo(queryTextInfo);
   }
 
@@ -231,25 +222,16 @@ export default function () {
 
     const trimText = trimTextLength(text);
     if (trimText.length === 0) {
-      // fix bug: if input text is empty, need to update search text to empty
-      dataManager.cancelQuery();
-      dataManager.isLastQuery = true;
-      dataManager.shouldClearQuery = true;
-      if (searchText) {
-        console.log(`set search text to empty`);
-        setSearchText("");
-        dataManager.queryResults = [];
-        updateDisplaySections([]);
-      }
+      // If input text is empty, need to update search text to empty
+      setSearchText("");
+      dataManager.clearQueryResults();
       return;
     }
 
-    dataManager.cancelQuery();
-
-    controller = new AbortController();
-    dataManager.controller = controller;
-    dataManager.isLastQuery = false;
+    // clear old results before new query
+    dataManager.clearQueryResults();
     dataManager.shouldClearQuery = false;
+    dataManager.controller = new AbortController();
     clearTimeout(delayQueryTextTimer);
 
     if (text !== searchText) {
