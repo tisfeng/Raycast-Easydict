@@ -2,15 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 11:43
+ * @lastEditTime: 2022-08-08 18:36
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { RequestErrorInfo } from "./types";
-
-export const dictionarySeparator = "    ———————————————————————————————————————————— ";
 
 export const userAgent =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";

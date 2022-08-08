@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 10:57
+ * @lastEditTime: 2022-08-08 18:40
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -71,7 +71,7 @@ export interface BaiduTranslateResult {
   from?: string;
   to?: string;
   trans_result?: BaiduTranslateItem[];
-  error_code?: string;
+  error_code?: string; // has value when error happens
   error_msg?: string;
 }
 export interface BaiduTranslateItem {
@@ -117,7 +117,7 @@ export interface QueryResult {
 export interface SectionDisplayItem {
   type: ListItemDisplayType;
   sectionTitle?: string;
-  items?: ListDisplayItem[];
+  items: ListDisplayItem[];
 }
 
 export interface ListDisplayItem {

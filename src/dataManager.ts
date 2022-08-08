@@ -2,20 +2,20 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 16:22
+ * @lastEditTime: 2022-08-08 18:32
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { dictionarySeparator } from "./consts";
 import { formatLingueeDisplayResult, rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { isLingueeDictionaryEmpty } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { isYoudaoDictionaryEmpty, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
+import { getLanguageItemFromYoudaoId } from "./language/languages";
 import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
@@ -464,9 +464,15 @@ export class DataManager {
     const dictionaryResult = this.getQueryResult(dictionaryType);
     const displayResult = dictionaryResult?.displayResult;
     if (displayResult?.length) {
-      let sectionTitle = `${dictionaryType}`;
+      const wordInfo = displayResult[0].items[0].queryWordInfo;
+      const fromLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.fromLanguage).languageTitle;
+      const toLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.toLanguage).languageTitle;
+
+      const fromTo = `${fromLanguageTitle} --> ${toLanguageTitle}`;
+
+      let sectionTitle = `${dictionaryType}   (${fromTo})`;
       if (isAdd) {
-        sectionTitle = `${sectionTitle} ${dictionarySeparator}`;
+        sectionTitle = `${sectionTitle}`;
       }
       displayResult[0].sectionTitle = sectionTitle;
     }
