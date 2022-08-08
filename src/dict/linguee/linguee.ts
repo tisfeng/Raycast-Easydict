@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:29
+ * @lastEditTime: 2022-08-08 10:34
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,7 +34,7 @@ export async function rquestLingueeDictionary(
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
 
-  const lingueeUrl = getLingueeWebUrl(queryWord, fromLanguage, targetLanguage);
+  const lingueeUrl = getLingueeWebDictionaryUrl(queryWord, fromLanguage, targetLanguage);
   if (lingueeUrl.length === 0) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
@@ -100,7 +100,7 @@ export async function rquestLingueeDictionary(
 /**
  * Get linguee web url.
  */
-export function getLingueeWebUrl(queryWord: string, fromLanguage: string, targetLanguage: string): string {
+export function getLingueeWebDictionaryUrl(queryWord: string, fromLanguage: string, targetLanguage: string): string {
   let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";

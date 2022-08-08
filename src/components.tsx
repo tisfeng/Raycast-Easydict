@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 17:44
+ * @lastEditTime: 2022-08-08 10:31
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,15 +11,16 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
+import { getLingueeWebDictionaryUrl } from "./dict/linguee/linguee";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import { languageItemList } from "./language/consts";
 import {
   getDeepLWebTranslateURL,
-  getEudicWebTranslateURL,
+  getEudicWebTranslateURL as getEudicWebDictionaryURL,
   getGoogleWebTranslateURL,
-  getYoudaoWebTranslateURL,
+  getYoudaoWebTranslateURL as getYoudaoWebDictionaryURL,
 } from "./language/languages";
 import { myPreferences } from "./preferences";
 import ReleaseLogDetail from "./releaseVersion/releaseLog";
@@ -45,6 +46,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const queryWordInfo = props.displayItem.queryWordInfo;
   const googleWebItem = getWebTranslationItem(TranslationType.Google, queryWordInfo);
   const deepLWebItem = getWebTranslationItem(TranslationType.DeepL, queryWordInfo);
+  const lingueeWebItem = getWebTranslationItem(DicionaryType.Linguee, queryWordInfo);
   const youdaoWebItem = getWebTranslationItem(DicionaryType.Youdao, queryWordInfo);
   const eudicWebItem = getWebTranslationItem(DicionaryType.Eudic, queryWordInfo);
 
@@ -80,6 +82,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
       <ActionPanel.Section title="Search Query Text Online">
         <WebTranslationAction webTranslationItem={deepLWebItem} />
         <WebTranslationAction webTranslationItem={googleWebItem} />
+        {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={lingueeWebItem} />}
         {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={youdaoWebItem} />}
         {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={eudicWebItem} />}
       </ActionPanel.Section>
@@ -350,26 +353,30 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
 /**
  * Return WebTranslationItem according to the query type and info
  */
-function getWebTranslationItem(queryType: QueryType, queryTextInfo: QueryWordInfo): WebTranslationItem | undefined {
-  // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(queryTextInfo, null, 2)}`);
+function getWebTranslationItem(queryType: QueryType, wordInfo: QueryWordInfo): WebTranslationItem | undefined {
+  // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(wordInfo, null, 2)}`);
   let webUrl;
   const title = queryType;
   const icon = getQueryTypeIcon(queryType);
-  switch (queryType.toString()) {
-    case TranslationType.Google.toString(): {
-      webUrl = getGoogleWebTranslateURL(queryTextInfo);
+  switch (queryType) {
+    case TranslationType.Google: {
+      webUrl = getGoogleWebTranslateURL(wordInfo);
       break;
     }
-    case TranslationType.DeepL.toString(): {
-      webUrl = getDeepLWebTranslateURL(queryTextInfo);
+    case TranslationType.DeepL: {
+      webUrl = getDeepLWebTranslateURL(wordInfo);
       break;
     }
-    case DicionaryType.Youdao.toString(): {
-      webUrl = getYoudaoWebTranslateURL(queryTextInfo);
+    case DicionaryType.Linguee: {
+      webUrl = getLingueeWebDictionaryUrl(wordInfo.word, wordInfo.fromLanguage, wordInfo.toLanguage);
       break;
     }
-    case DicionaryType.Eudic.toString(): {
-      webUrl = getEudicWebTranslateURL(queryTextInfo);
+    case DicionaryType.Youdao: {
+      webUrl = getYoudaoWebDictionaryURL(wordInfo);
+      break;
+    }
+    case DicionaryType.Eudic: {
+      webUrl = getEudicWebDictionaryURL(wordInfo);
       break;
     }
   }
