@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 23:28
+ * @lastEditTime: 2022-08-08 10:29
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,28 +34,8 @@ export async function rquestLingueeDictionary(
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
 
-  let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
-  let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
-  const ChineseLanguageTitle = "Chinese";
-  if (fromLanguageTitle.startsWith(ChineseLanguageTitle)) {
-    fromLanguageTitle = ChineseLanguageTitle;
-  }
-  fromLanguageTitle = fromLanguageTitle.toLowerCase();
-  if (targetLanguageTitle.startsWith(ChineseLanguageTitle)) {
-    targetLanguageTitle = ChineseLanguageTitle;
-  }
-  targetLanguageTitle = targetLanguageTitle.toLowerCase();
-
-  const englishLanguageLowerTitle = "english";
-  let languagePairKey = `${fromLanguageTitle}-${targetLanguageTitle}` as ValidLanguagePairKey;
-  console.log(`---> language pair key: ${languagePairKey}`);
-  if (targetLanguageTitle === englishLanguageLowerTitle) {
-    languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}` as ValidLanguagePairKey;
-  }
-
-  const languagePairItem = validLanguagePairs[languagePairKey];
-  if (!languagePairItem) {
-    console.log(`----> lingueeis not a valid language pair: ${languagePairKey} `);
+  const lingueeUrl = getLingueeWebUrl(queryWord, fromLanguage, targetLanguage);
+  if (lingueeUrl.length === 0) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,
@@ -63,15 +43,7 @@ export async function rquestLingueeDictionary(
     });
   }
 
-  const languagePair = languagePairItem.pair;
-
   return new Promise((resolve, reject) => {
-    // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
-    const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
-      queryWord
-    )}`;
-    console.log(`---> linguee request: ${lingueeUrl}`);
-
     // * avoid linguee's anti-spider, otherwise it will reponse very slowly or even error.
     const headers: AxiosRequestHeaders = {
       "User-Agent": userAgent,
@@ -123,6 +95,44 @@ export async function rquestLingueeDictionary(
         reject(errorInfo);
       });
   });
+}
+
+/**
+ * Get linguee web url.
+ */
+export function getLingueeWebUrl(queryWord: string, fromLanguage: string, targetLanguage: string): string {
+  let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
+  let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
+  const ChineseLanguageTitle = "Chinese";
+  if (fromLanguageTitle.startsWith(ChineseLanguageTitle)) {
+    fromLanguageTitle = ChineseLanguageTitle;
+  }
+  fromLanguageTitle = fromLanguageTitle.toLowerCase();
+  if (targetLanguageTitle.startsWith(ChineseLanguageTitle)) {
+    targetLanguageTitle = ChineseLanguageTitle;
+  }
+  targetLanguageTitle = targetLanguageTitle.toLowerCase();
+
+  const englishLanguageLowerTitle = "english";
+  let languagePairKey = `${fromLanguageTitle}-${targetLanguageTitle}` as ValidLanguagePairKey;
+  console.log(`---> language pair key: ${languagePairKey}`);
+  if (targetLanguageTitle === englishLanguageLowerTitle) {
+    languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}` as ValidLanguagePairKey;
+  }
+
+  const languagePairItem = validLanguagePairs[languagePairKey];
+  if (!languagePairItem) {
+    console.log(`----> lingueeis not a valid language pair: ${languagePairKey}`);
+    return "";
+  }
+  const languagePair = languagePairItem.pair;
+  // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
+  const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
+    queryWord
+  )}`;
+  console.log(`---> linguee request: ${lingueeUrl}`);
+
+  return lingueeUrl;
 }
 
 /**
