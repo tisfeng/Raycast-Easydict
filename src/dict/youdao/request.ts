@@ -29,12 +29,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  * 有道翻译
  * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoDictionary(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string,
-  signal: AbortSignal
-): Promise<RequestTypeResult> {
+export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   console.log(`---> start request Youdao`);
   function truncate(q: string): string {
     const len = q.length;
@@ -43,18 +38,18 @@ export function requestYoudaoDictionary(
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const youdaoAppId = KeyStore.youdaoAppId;
-  const sha256Content = youdaoAppId + truncate(queryText) + salt + timestamp + KeyStore.youdaoAppSecret;
+  const sha256Content = youdaoAppId + truncate(queryWordInfo.word) + salt + timestamp + KeyStore.youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({
     sign,
     salt,
-    from: fromLanguage,
+    from: queryWordInfo.fromLanguage,
     signType: "v3",
-    q: queryText,
+    q: queryWordInfo.word,
     appKey: youdaoAppId,
     curtime: timestamp,
-    to: targetLanguage,
+    to: queryWordInfo.toLanguage,
   });
   // console.log(`---> youdao params: ${params}`);
 

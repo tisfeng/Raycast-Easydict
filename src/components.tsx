@@ -368,7 +368,7 @@ function getWebTranslationItem(queryType: QueryType, wordInfo: QueryWordInfo): W
       break;
     }
     case DicionaryType.Linguee: {
-      webUrl = getLingueeWebDictionaryUrl(wordInfo.word, wordInfo.fromLanguage, wordInfo.toLanguage);
+      webUrl = getLingueeWebDictionaryUrl(wordInfo);
       break;
     }
     case DicionaryType.Youdao: {

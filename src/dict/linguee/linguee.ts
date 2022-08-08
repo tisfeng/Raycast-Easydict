@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:34
+ * @lastEditTime: 2022-08-08 10:42
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
 import { getLanguageItemFromYoudaoId } from "../../language/languages";
 import { DicionaryType, ListDisplayItem, RequestErrorInfo, RequestTypeResult, SectionDisplayItem } from "../../types";
+import { QueryWordInfo } from "../youdao/types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult, LingueeListItemType } from "./types";
@@ -27,14 +28,12 @@ export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
  * eg. good: https://www.linguee.com/english-chinese/search?source=auto&query=good
  */
 export async function rquestLingueeDictionary(
-  queryWord: string,
-  fromLanguage: string,
-  targetLanguage: string,
+  queryWordInfo: QueryWordInfo,
   signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Linguee`);
 
-  const lingueeUrl = getLingueeWebDictionaryUrl(queryWord, fromLanguage, targetLanguage);
+  const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
   if (lingueeUrl.length === 0) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
@@ -100,9 +99,9 @@ export async function rquestLingueeDictionary(
 /**
  * Get linguee web url.
  */
-export function getLingueeWebDictionaryUrl(queryWord: string, fromLanguage: string, targetLanguage: string): string {
-  let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
-  let targetLanguageTitle = getLanguageItemFromYoudaoId(targetLanguage).languageTitle;
+export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string {
+  let fromLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.fromLanguage).languageTitle;
+  let targetLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.toLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";
   if (fromLanguageTitle.startsWith(ChineseLanguageTitle)) {
     fromLanguageTitle = ChineseLanguageTitle;
@@ -128,7 +127,7 @@ export function getLingueeWebDictionaryUrl(queryWord: string, fromLanguage: stri
   const languagePair = languagePairItem.pair;
   // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
   const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
-    queryWord
+    queryWordInfo.word
   )}`;
   console.log(`---> linguee request: ${lingueeUrl}`);
 

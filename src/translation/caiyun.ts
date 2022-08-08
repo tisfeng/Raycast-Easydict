@@ -10,6 +10,7 @@
 
 import axios from "axios";
 import { requestCostTime } from "../axiosConfig";
+import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
@@ -19,21 +20,21 @@ import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, Translation
  * Docs: https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
 export function requestCaiyunTextTranslate(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string,
+  queryWordInfo: QueryWordInfo,
   signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Caiyun`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
+
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
   const from = getLanguageItemFromYoudaoId(fromLanguage).caiyunLanguageId || "auto";
-  const to = getLanguageItemFromYoudaoId(targetLanguage).caiyunLanguageId;
+  const to = getLanguageItemFromYoudaoId(toLanguage).caiyunLanguageId;
   const trans_type = `${from}2${to}`; // "auto2xx";
 
   // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
-    console.log(`Caiyun translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
     return Promise.resolve({
       type: TranslationType.Caiyun,
       result: null,
@@ -41,7 +42,7 @@ export function requestCaiyunTextTranslate(
     });
   }
   const params = {
-    source: queryText.split("\n"), // source can be text or array. if source is an array, it will be translated in parallel
+    source: word.split("\n"), // source can be text or array. if source is an array, it will be translated in parallel
     trans_type,
     detect: from === "auto",
   };

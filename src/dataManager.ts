@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 00:35
+ * @lastEditTime: 2022-08-08 10:51
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -102,7 +102,7 @@ export class DataManager {
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     if (myPreferences.enableLingueeDictionary) {
-      rquestLingueeDictionary(queryText, fromLanguage, toLanguage, this.controller.signal)
+      rquestLingueeDictionary(queryWordInfo, this.controller.signal)
         .then((lingueeTypeResult) => {
           const lingueeDisplayResult = formatLingueeDisplayResult(lingueeTypeResult);
           const type = DicionaryType.Linguee;
@@ -134,7 +134,7 @@ export class DataManager {
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enableYoudaoDictionary: ${enableYoudaoDictionary}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {
-      requestYoudaoDictionary(queryText, fromLanguage, toLanguage, this.controller.signal)
+      requestYoudaoDictionary(queryWordInfo, this.controller.signal)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
@@ -183,7 +183,7 @@ export class DataManager {
     }
 
     if (myPreferences.enableDeepLTranslate) {
-      requestDeepLTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
+      requestDeepLTextTranslate(queryWordInfo, this.controller.signal)
         .then((deepLTypeResult) => {
           const displayResult: QueryResult = {
             type: TranslationType.DeepL,
@@ -203,7 +203,7 @@ export class DataManager {
 
     // check if enable google translate
     if (myPreferences.enableGoogleTranslate) {
-      requestGoogleTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
+      requestGoogleTranslate(queryWordInfo, this.controller.signal)
         .then((googleTypeResult) => {
           const displayResult: QueryResult = {
             type: TranslationType.Google,
@@ -247,7 +247,7 @@ export class DataManager {
 
     // check if enable baidu translate
     if (myPreferences.enableBaiduTranslate) {
-      requestBaiduTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
+      requestBaiduTextTranslate(queryWordInfo, this.controller.signal)
         .then((baiduTypeResult) => {
           const displayResult: QueryResult = {
             type: TranslationType.Baidu,
@@ -267,7 +267,7 @@ export class DataManager {
 
     // check if enable tencent translate
     if (myPreferences.enableTencentTranslate) {
-      requestTencentTextTranslate(queryText, fromLanguage, toLanguage)
+      requestTencentTextTranslate(queryWordInfo)
         .then((tencentTypeResult) => {
           if (this.checkIfNeedCancelDisplay()) {
             this.cancelCurrentQuery();
@@ -293,7 +293,7 @@ export class DataManager {
 
     // check if enable caiyun translate
     if (myPreferences.enableCaiyunTranslate) {
-      requestCaiyunTextTranslate(queryText, fromLanguage, toLanguage, this.controller.signal)
+      requestCaiyunTextTranslate(queryWordInfo, this.controller.signal)
         .then((caiyunTypeResult) => {
           const displayResult: QueryResult = {
             type: TranslationType.Caiyun,

@@ -10,6 +10,7 @@
 
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanguage";
+import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { RequestErrorInfo, RequestTypeResult, TencentTranslateResult, TranslationType } from "../types";
@@ -39,16 +40,14 @@ const client = new TmtClient(clientConfig);
  *
  * Todo: use axios to request. so that we can use AbortSignal to cancel request.
  */
-export async function requestTencentTextTranslate(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string
-): Promise<RequestTypeResult> {
+export async function requestTencentTextTranslate(queryWordInfo: QueryWordInfo): Promise<RequestTypeResult> {
   console.log(`---> start request Tencent translate`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
+
   const from = getLanguageItemFromYoudaoId(fromLanguage).tencentLanguageId;
-  const to = getLanguageItemFromYoudaoId(targetLanguage).tencentLanguageId;
+  const to = getLanguageItemFromYoudaoId(toLanguage).tencentLanguageId;
   if (!from || !to) {
-    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
     return Promise.resolve({
       type: TranslationType.Tencent,
       result: null,
@@ -56,7 +55,7 @@ export async function requestTencentTextTranslate(
     });
   }
   const params = {
-    SourceText: queryText,
+    SourceText: word,
     Source: from,
     Target: to,
     ProjectId: tencentProjectId,

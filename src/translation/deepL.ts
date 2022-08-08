@@ -11,6 +11,7 @@
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
 import querystring from "node:querystring";
+import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore, myDecrypt } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
@@ -22,20 +23,19 @@ const deepLAuthStoredKey = "deepLAuthStoredKey";
  * https://www.deepl.com/zh/docs-api/translating-text
  */
 export async function requestDeepLTextTranslate(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string,
+  queryWordInfo: QueryWordInfo,
   signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start rquest DeepL`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getLanguageItemFromYoudaoId(fromLanguage).deepLSourceLanguageId;
   const targetLang =
-    getLanguageItemFromYoudaoId(targetLanguage).deepLSourceLanguageId ||
-    getLanguageItemFromYoudaoId(targetLanguage).deepLTargetLanguageId;
+    getLanguageItemFromYoudaoId(toLanguage).deepLSourceLanguageId ||
+    getLanguageItemFromYoudaoId(toLanguage).deepLTargetLanguageId;
 
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
-    console.log(`DeepL translate not support language: ${fromLanguage} --> ${targetLanguage}`);
+    console.log(`DeepL translate not support language: ${fromLanguage} --> ${toLanguage}`);
     return Promise.resolve({
       type: TranslationType.DeepL,
       result: null,
@@ -51,7 +51,7 @@ export async function requestDeepLTextTranslate(
     : "https://api.deepl.com/v2/translate";
   const params = {
     auth_key: deepLAuthKey,
-    text: queryText,
+    text: word,
     source_lang: sourceLang,
     target_lang: targetLang,
   };

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 17:22
+ * @lastEditTime: 2022-08-08 10:50
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,6 +11,7 @@
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { requestCostTime } from "../axiosConfig";
+import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
@@ -20,20 +21,19 @@ import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationT
  * Docs: https://fanyi-api.baidu.com/doc/21
  */
 export function requestBaiduTextTranslate(
-  queryText: string,
-  fromLanguage: string,
-  targetLanguage: string,
+  queryWordInfo: QueryWordInfo,
   signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Baidu`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
   const salt = Math.round(new Date().getTime() / 1000);
   const baiduAppId = KeyStore.baiduAppId;
-  const md5Content = baiduAppId + queryText + salt + KeyStore.baiduAppSecret;
+  const md5Content = baiduAppId + word + salt + KeyStore.baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const from = getLanguageItemFromYoudaoId(fromLanguage).baiduLanguageId;
-  const to = getLanguageItemFromYoudaoId(targetLanguage).baiduLanguageId;
-  const encodeQueryText = Buffer.from(queryText, "utf8").toString();
+  const to = getLanguageItemFromYoudaoId(toLanguage).baiduLanguageId;
+  const encodeQueryText = Buffer.from(word, "utf8").toString();
   const params = {
     q: encodeQueryText,
     from: from,
