@@ -3,7 +3,7 @@ import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:50
+ * @lastEditTime: 2022-08-08 16:43
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -108,6 +108,10 @@ export function isValidLanguageId(languageId: string): boolean {
 
 export function getEudicWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
+  if (!languageId) {
+    return;
+  }
+
   const eudicWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
   if (eudicWebLanguageId) {
     return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
@@ -116,6 +120,10 @@ export function getEudicWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
 
 export function getYoudaoWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
+  if (!languageId) {
+    return;
+  }
+
   const youdaoWebLanguageId = getLanguageItemFromYoudaoId(languageId).youdaoWebLanguageId;
   if (youdaoWebLanguageId) {
     return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
@@ -125,8 +133,10 @@ export function getYoudaoWebTranslateURL(queryTextInfo: QueryWordInfo): string |
 /**
  * Get another language item expcept chinese from language item array
  */
-export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string]): string {
-  return youdaoLanguageIds[0] === "zh-CHS" ? youdaoLanguageIds[1] : youdaoLanguageIds[0];
+export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string]): string | undefined {
+  if (!youdaoLanguageIds.includes("zh-CHS")) {
+    return youdaoLanguageIds[0] === "zh-CHS" ? youdaoLanguageIds[1] : youdaoLanguageIds[0];
+  }
 }
 
 export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {

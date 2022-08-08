@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 16:17
+ * @lastEditTime: 2022-08-08 16:46
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -35,7 +35,7 @@ export async function rquestLingueeDictionary(
 
   const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
   console.log(`---> linguee url: ${lingueeUrl}`);
-  if (lingueeUrl.length === 0) {
+  if (!lingueeUrl) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
       result: null,
@@ -72,6 +72,8 @@ export async function rquestLingueeDictionary(
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
+        console.error(`---> linguee error: ${error}`);
+
         if (!error.response) {
           console.log(`---> linguee cancelled`);
           return;
@@ -79,7 +81,6 @@ export async function rquestLingueeDictionary(
 
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
         console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
-        console.error(`---> linguee error: ${error}`);
 
         let errorMessage = error.response?.statusText;
         const errorCode: number = error.response?.status;
@@ -100,7 +101,7 @@ export async function rquestLingueeDictionary(
 /**
  * Get linguee web url.
  */
-export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string {
+export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string | undefined {
   let fromLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.toLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";
@@ -122,7 +123,7 @@ export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string
   const languagePairItem = validLanguagePairs[languagePairKey];
   if (!languagePairItem) {
     console.log(`----> lingueeis not a valid language pair: ${languagePairKey}`);
-    return "";
+    return;
   }
   const languagePair = languagePairItem.pair;
   // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
