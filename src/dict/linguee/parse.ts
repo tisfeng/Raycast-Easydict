@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 20:57
+ * @lastEditTime: 2022-08-08 11:25
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -155,9 +155,9 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const tag_wordtype = lemma?.querySelector(".lemma_desc .tag_wordtype"); // "noun, feminine"
       const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. femme in French, "(plural: femmes f)"
       const tag_forms_text = getTagFormsText(tag_forms);
-      console.log(`---> tag_wordtype: ${tag_wordtype?.textContent ?? ""}`);
-      console.log(`---> tag_forms: ${tag_forms_text}`);
-      const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms_text}`;
+      const tag_area = lemma?.querySelector(".lemma_desc .tag_area"); // eg. heel in German, "heel. verb (nautical science)"
+      const tag_area_text = tag_area ? `${tag_area?.textContent}` : "";
+      const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms_text} ${tag_area_text}`;
       console.log(`---> posText: ${posText}`);
       const tag_type = lemma?.querySelector(".tag_type"); // related word pos
       const pos = tag_wordtype ? posText : tag_type?.textContent ?? "";
