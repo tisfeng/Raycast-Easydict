@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 00:41
+ * @lastEditTime: 2022-08-08 16:19
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -51,9 +51,9 @@ export default function () {
 
   const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
 
-  function updateDisplaySections(result: SectionDisplayItem[]) {
+  function updateDisplaySections(displayItems: SectionDisplayItem[]) {
     setLoadingState(false);
-    setDisplayResult(result);
+    setDisplayResult(displayItems);
     setIsShowingDetail(dataManager.isShowDetail);
   }
   dataManager.updateDisplaySections = updateDisplaySections;
@@ -222,16 +222,14 @@ export default function () {
 
     const trimText = trimTextLength(text);
     if (trimText.length === 0) {
-      // If input text is empty, need to update search text to empty
+      // If input text is empty, need to update search text to empty.
       setSearchText("");
-      dataManager.clearQueryResults();
+      dataManager.clearQueryResult();
       return;
     }
 
-    // clear old results before new query
-    dataManager.clearQueryResults();
-    dataManager.shouldClearQuery = false;
-    dataManager.controller = new AbortController();
+    // clear old results before new input text query.
+    dataManager.clearQueryResult();
     clearTimeout(delayQueryTextTimer);
 
     if (text !== searchText) {

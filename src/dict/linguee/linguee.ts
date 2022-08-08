@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:42
+ * @lastEditTime: 2022-08-08 16:17
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,6 +34,7 @@ export async function rquestLingueeDictionary(
   console.log(`---> start request Linguee`);
 
   const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
+  console.log(`---> linguee url: ${lingueeUrl}`);
   if (lingueeUrl.length === 0) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
@@ -114,7 +115,6 @@ export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string
 
   const englishLanguageLowerTitle = "english";
   let languagePairKey = `${fromLanguageTitle}-${targetLanguageTitle}` as ValidLanguagePairKey;
-  console.log(`---> language pair key: ${languagePairKey}`);
   if (targetLanguageTitle === englishLanguageLowerTitle) {
     languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}` as ValidLanguagePairKey;
   }
@@ -129,7 +129,6 @@ export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string
   const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
     queryWordInfo.word
   )}`;
-  console.log(`---> linguee request: ${lingueeUrl}`);
 
   return lingueeUrl;
 }

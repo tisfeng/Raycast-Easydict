@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 00:21
+ * @lastEditTime: 2022-08-08 12:22
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -75,6 +75,7 @@ export async function requestDeepLTextTranslate(
         resolve(deepLTypeResult);
       })
       .catch((error) => {
+        console.error(`DeepL translate error: ${error}`);
         if (!error.response) {
           console.log(`---> deepL cancelled`);
           return;

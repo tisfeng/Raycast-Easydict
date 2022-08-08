@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:51
+ * @lastEditTime: 2022-08-08 16:22
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -93,9 +93,15 @@ export class DataManager {
    * Query text with text info, query dictionary API or translate API.
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
+    // clear old results before new query
+    this.clearQueryResult();
+
+    // set new query params
     this.queryWordInfo = queryWordInfo;
     this.hasPlayAudio = false;
     this.isLastQuery = true;
+    this.shouldClearQuery = false;
+    this.controller = new AbortController();
 
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
@@ -132,7 +138,7 @@ export class DataManager {
     const isValidYoudaoDictionaryQuery = youdaoDictionarySet.has(fromLanguage) && youdaoDictionarySet.has(toLanguage);
     const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryQuery;
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
-    console.log(`---> enableYoudaoDictionary: ${enableYoudaoDictionary}`);
+    console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {
       requestYoudaoDictionary(queryWordInfo, this.controller.signal)
         .then((youdaoTypeResult) => {
@@ -562,31 +568,32 @@ export class DataManager {
    * Check if need to cancel or clear query.
    */
   checkIfNeedCancelDisplay() {
-    let isCancel = false;
     console.log(`---> check if last query: ${this.isLastQuery}, should clear: ${this.shouldClearQuery}`);
     if (!this.isLastQuery || this.shouldClearQuery) {
-      isCancel = true;
+      return true;
     }
-    return isCancel;
+    return false;
   }
 
   /**
-   * Cancel query.
+   * Cancel current query.
    */
   cancelCurrentQuery() {
-    console.log(`---> cancel query`);
-
-    this.isLastQuery = false;
+    console.log(`---> cancel current query`);
     this.controller.abort();
   }
 
-  clearQueryResults() {
-    console.log(`---> clear query results`);
+  /**
+   * Clear query result.
+   */
+  clearQueryResult() {
+    console.log(`---> clear query result`);
     this.cancelCurrentQuery();
 
     this.queryResults = [];
     this.isShowDetail = false;
     this.shouldClearQuery = true;
+    this.isLastQuery = false;
 
     if (this.updateDisplaySections) {
       this.updateDisplaySections([]);
