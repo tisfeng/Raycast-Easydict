@@ -1,8 +1,9 @@
+import { AxiosRequestConfig } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 12:22
+ * @lastEditTime: 2022-08-08 22:21
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,9 +58,14 @@ export async function requestDeepLTextTranslate(
   };
   console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
+  const config: AxiosRequestConfig = {
+    signal,
+    // timeout: 10000,
+  };
+
   return new Promise((resolve, reject) => {
     axios
-      .post(url, querystring.stringify(params), { signal })
+      .post(url, querystring.stringify(params), config)
       .then((response) => {
         const deepLResult = response.data as DeepLTranslateResult;
         const translatedText = deepLResult.translations[0].text;

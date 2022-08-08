@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 18:32
+ * @lastEditTime: 2022-08-08 22:22
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -74,8 +74,8 @@ export class DataManager {
   updateQueryDisplayResults(queryResult: QueryResult) {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
-    this.updateDictionarySeparator();
     this.isShowDetail = this.checkIfShowTranslationDetail();
+    this.updateAllSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
     for (const result of this.queryResults) {
@@ -439,47 +439,36 @@ export class DataManager {
   }
 
   /**
-   * Show a separator line for the non-first dictionary section title.
+   * Update Dictionary type section title.
+   *
+   * 1. Add fromTo language to each dictionary section title.
+   * 2. Add fromTo language to the first translation section title. (only when dictionary result is empyt)
    */
-  updateDictionarySeparator() {
-    if (this.queryResults.length) {
-      this.queryResults.forEach((result, i) => {
-        let showSeparator = true;
-        const type = result.type;
-        const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
-        if (isDictionaryType) {
-          if (i === 0) {
-            showSeparator = false;
-          }
-          this.addOrDeleteSeparator(type as DicionaryType, showSeparator);
+  updateAllSectionTitle() {
+    this.queryResults.forEach((queryResult, i) => {
+      const { type, sourceResult, displayResult } = queryResult;
+      const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
+      const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
+
+      if (sourceResult && displayResult?.length) {
+        const displaySection = displayResult[0];
+        const wordInfo = displaySection.items[0].queryWordInfo;
+        const fromLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.fromLanguage).languageTitle;
+        const toLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.toLanguage).languageTitle;
+
+        const fromTo = `${fromLanguageTitle} --> ${toLanguageTitle}`;
+        let sectionTitle = `${sourceResult.type}`;
+        const isShowTranslationTitle = i === 0 && isTranslationType && !this.isShowDetail;
+        if (isDictionaryType || isShowTranslationTitle) {
+          sectionTitle = `${sourceResult.type}   (${fromTo})`;
         }
-      });
-    }
-  }
-
-  /**
-   * add or remove a separator line.
-   */
-  addOrDeleteSeparator(dictionaryType: DicionaryType, isAdd: boolean) {
-    const dictionaryResult = this.getQueryResult(dictionaryType);
-    const displayResult = dictionaryResult?.displayResult;
-    if (displayResult?.length) {
-      const wordInfo = displayResult[0].items[0].queryWordInfo;
-      const fromLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.fromLanguage).languageTitle;
-      const toLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.toLanguage).languageTitle;
-
-      const fromTo = `${fromLanguageTitle} --> ${toLanguageTitle}`;
-
-      let sectionTitle = `${dictionaryType}   (${fromTo})`;
-      if (isAdd) {
-        sectionTitle = `${sectionTitle}`;
+        displaySection.sectionTitle = sectionTitle;
       }
-      displayResult[0].sectionTitle = sectionTitle;
-    }
+    });
   }
 
   /**
-   * Get valid dictionary type from RequestTool. valid means the dictionary result is not empty.
+   * Get valid dictionary type. valid means the dictionary result is not empty.
    */
   getValidDictionaryTypes(): DicionaryType[] {
     const dictionaryTypes: DicionaryType[] = [];
@@ -503,24 +492,22 @@ export class DataManager {
    */
   checkIfShowTranslationDetail(): boolean {
     let isShowDetail = false;
-    if (this.queryResults.length) {
-      for (const queryResult of this.queryResults) {
-        const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
-        if (isDictionaryType) {
-          const isDictionaryEmpty = this.checkIfDictionaryTypeEmpty(queryResult.type as DicionaryType);
-          if (!isDictionaryEmpty) {
-            isShowDetail = false;
-            break;
-          }
-        } else {
-          // check if translation is too long
-          const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
-          const toLanauge = this.queryWordInfo?.toLanguage as string;
-          const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
-          if (isTooLong) {
-            isShowDetail = true;
-            break;
-          }
+    for (const queryResult of this.queryResults) {
+      const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
+      if (isDictionaryType) {
+        const isDictionaryEmpty = this.checkIfDictionaryTypeEmpty(queryResult.type as DicionaryType);
+        if (!isDictionaryEmpty) {
+          isShowDetail = false;
+          break;
+        }
+      } else {
+        // check if translation is too long
+        const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
+        const toLanauge = this.queryWordInfo?.toLanguage as string;
+        const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
+        if (isTooLong) {
+          isShowDetail = true;
+          break;
         }
       }
     }

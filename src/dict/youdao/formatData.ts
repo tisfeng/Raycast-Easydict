@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 21:21
+ * @lastEditTime: 2022-08-08 22:12
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,15 +57,16 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     return sectionResult;
   }
 
+  const queryWordInfo = formatResult.queryWordInfo;
   const youdaoType = DicionaryType.Youdao;
   const oneLineTranslation = formatResult.translations.join(" ");
-  const phoneticText = formatResult.queryWordInfo.phonetic ? `[${formatResult.queryWordInfo.phonetic}]` : undefined;
-  const isShowWordSubtitle = phoneticText || formatResult.queryWordInfo.examTypes;
-  const wordSubtitle = isShowWordSubtitle ? formatResult.queryWordInfo.word : undefined;
+  const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
+  const isShowWordSubtitle = phoneticText || queryWordInfo.examTypes;
+  const wordSubtitle = isShowWordSubtitle ? queryWordInfo.word : undefined;
 
   sectionResult.push({
     type: youdaoType,
-    sectionTitle: `${youdaoType}`,
+    sectionTitle: youdaoType,
     items: [
       {
         displayType: YoudaoDictionaryListItemType.Translation,
@@ -74,11 +75,10 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
         subtitle: wordSubtitle,
         tooltip: `Translate`,
         copyText: oneLineTranslation,
-        queryWordInfo: formatResult.queryWordInfo,
-        // translationMarkdown: this.formatAllTypeTranslationToMarkdown(type, formatResult),
+        queryWordInfo: queryWordInfo,
         accessoryItem: {
           phonetic: phoneticText,
-          examTypes: formatResult.queryWordInfo.examTypes,
+          examTypes: queryWordInfo.examTypes,
         },
       },
     ],
@@ -96,7 +96,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
           displayType: YoudaoDictionaryListItemType.Explanations,
           key: explanation + i,
           title: explanation,
-          queryWordInfo: formatResult.queryWordInfo,
+          queryWordInfo: queryWordInfo,
           tooltip: YoudaoDictionaryListItemType.Explanations,
           copyText: explanation,
         },
@@ -121,7 +121,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
           displayType: YoudaoDictionaryListItemType.Forms,
           key: wfsText,
           title: "",
-          queryWordInfo: formatResult.queryWordInfo,
+          queryWordInfo: queryWordInfo,
           tooltip: YoudaoDictionaryListItemType.Forms,
           subtitle: `[ ${wfsText} ]`,
           copyText: wfsText,
@@ -144,7 +144,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
           displayType: YoudaoDictionaryListItemType.WebTranslation,
           key: copyText,
           title: webResultKey,
-          queryWordInfo: formatResult.queryWordInfo,
+          queryWordInfo: queryWordInfo,
           tooltip: YoudaoDictionaryListItemType.WebTranslation,
           subtitle: webResultValue,
           copyText: copyText,
@@ -167,7 +167,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
           displayType: YoudaoDictionaryListItemType.WebPhrase,
           key: copyText + i,
           title: phraseKey,
-          queryWordInfo: formatResult.queryWordInfo,
+          queryWordInfo: queryWordInfo,
           tooltip: YoudaoDictionaryListItemType.WebPhrase,
           subtitle: phraseValue,
           copyText: copyText,

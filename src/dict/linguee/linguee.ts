@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 16:46
+ * @lastEditTime: 2022-08-08 22:13
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -168,11 +168,12 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
       if (translations.length) {
         translation = translations[0].translation;
       }
+
       const copyText = `${translation} ${word}`;
       const displayType = LingueeListItemType.Translation;
       const lingueeTitleSection: SectionDisplayItem = {
         type: lingueeType,
-        sectionTitle: `${lingueeType}`,
+        sectionTitle: lingueeType,
         items: [
           {
             key: copyText,
