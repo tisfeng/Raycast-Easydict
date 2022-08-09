@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:52
+ * @lastEditTime: 2022-08-09 16:07
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -50,7 +50,7 @@ async function googleCrawlerTranslate(
     sl: fromLanguageId, // source language
     tl: toLanguageId, // target language
     hl: toLanguageId, // hope language? web ui language
-    q: encodeURIComponent(word), // query word
+    q: word, // query word
   };
 
   const headers = {
