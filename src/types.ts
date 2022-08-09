@@ -46,7 +46,7 @@ export interface RequestTypeResult {
   type: RequestType;
   result: RequestResultType | null; // when not supported, result is null.
   translations: string[]; // each translation is a paragraph.
-  oneLineTranslation?: string; // one line translation.
+  oneLineTranslation?: string; // one line translation. will automatically give value when updating if type is TranslationType.
   errorInfo?: RequestErrorInfo;
 }
 

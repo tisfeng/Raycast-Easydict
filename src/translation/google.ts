@@ -2,13 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 16:07
+ * @lastEditTime: 2022-08-09 17:03
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import axios, { AxiosError, AxiosResponse } from "axios";
+import * as cheerio from "cheerio";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { userAgent } from "../consts";
@@ -67,21 +68,18 @@ async function googleCrawlerTranslate(
     axios
       .get(url, { headers, signal })
       .then((res: AxiosResponse) => {
-        // Todo: use cheerio to parse html
-        try {
-          const resultRegex = /<div[^>]*?class="result-container"[^>]*>[\s\S]*?<\/div>/gi;
-          let translation = resultRegex.exec(res.data)?.[0]?.replace(/(<\/?[^>]+>)/gi, "") ?? "";
-          translation = decodeURI(translation);
-          console.warn(`---> google result: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
-          resolve({
-            type: TranslationType.Google,
-            result: { translatedText: translation },
-            translations: [translation],
-          });
-        } catch (error) {
-          console.error(`google translate error: ${error}`);
-          reject(errorInfo);
-        }
+        const hmlt = res.data;
+        const $ = cheerio.load(hmlt);
+
+        // <div class="result-container">好的</div>
+        const translation = $(".result-container").text();
+        console.warn(`---> google translation: ${translation}`);
+        const result: RequestTypeResult = {
+          type: TranslationType.Google,
+          result: { translatedText: translation },
+          translations: [translation],
+        };
+        resolve(result);
       })
       .catch((error: AxiosError) => {
         if (!error.response) {
