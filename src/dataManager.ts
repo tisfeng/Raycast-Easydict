@@ -112,6 +112,10 @@ export class DataManager {
       rquestLingueeDictionary(queryWordInfo, this.controller.signal)
         .then((lingueeTypeResult) => {
           const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
+          if (lingueeDisplaySections.length === 0) {
+            return;
+          }
+
           const type = DicionaryType.Linguee;
           const wordInfo = this.getWordInfoFromDisplaySections(lingueeDisplaySections);
           const queryResult: QueryResult = {
@@ -121,7 +125,6 @@ export class DataManager {
             wordInfo: wordInfo,
           };
           this.updateQueryDisplayResults(queryResult);
-
           this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
