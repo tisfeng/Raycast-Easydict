@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 13:18
+ * @lastEditTime: 2022-08-09 23:10
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -164,6 +164,7 @@ export class DataManager {
           }
           console.log(`---> type: ${displayType}`);
 
+          youdaoTypeResult.type = displayType;
           const wordInfo = this.getWordInfoFromDisplaySections(youdaoDisplaySections);
           const displayResult: QueryResult = {
             type: displayType,
@@ -235,10 +236,12 @@ export class DataManager {
           }
 
           if (translatedText) {
+            // * Note: apple translateText contains redundant blank line, we need to remove it.
+            const translations = translatedText.split("\n").filter((line) => line.length > 0);
             const appleTranslateResult: RequestTypeResult = {
               type: TranslationType.Apple,
               result: { translatedText: translatedText },
-              translations: [translatedText],
+              translations: translations,
             };
             const queryResult: QueryResult = {
               type: TranslationType.Apple,
@@ -334,7 +337,9 @@ export class DataManager {
       return;
     }
 
-    oneLineTranslations = sourceResult.translations.map((translation) => translation).join(" ");
+    console.log("---> translations:", sourceResult.translations);
+    oneLineTranslations = sourceResult.translations.map((translation) => translation).join(", ");
+    console.log(`---> oneLineTranslations: ${oneLineTranslations}`);
     sourceResult.oneLineTranslation = oneLineTranslations;
     if (oneLineTranslations) {
       const displayItem: ListDisplayItem = {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 17:03
+ * @lastEditTime: 2022-08-09 18:17
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -73,11 +73,12 @@ async function googleCrawlerTranslate(
 
         // <div class="result-container">好的</div>
         const translation = $(".result-container").text();
-        console.warn(`---> google translation: ${translation}`);
+        const translations = translation.split("\n");
+        console.warn(`---> google translation: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
         const result: RequestTypeResult = {
           type: TranslationType.Google,
           result: { translatedText: translation },
-          translations: [translation],
+          translations: translations,
         };
         resolve(result);
       })

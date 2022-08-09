@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 13:07
+ * @lastEditTime: 2022-08-09 23:06
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,9 +38,11 @@ export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResul
     webTranslation = youdaoResult.web[0];
   }
   const webPhrases = youdaoResult.web?.slice(1);
+  // * only use the first translation
+  const translations = youdaoResult.translation[0].split("\n");
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
-    translations: youdaoResult.translation,
+    translations: translations,
     explanations: youdaoResult.basic?.explains,
     forms: youdaoResult.basic?.wfs,
     webTranslation: webTranslation,
@@ -62,7 +64,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
 
   const queryWordInfo = formatResult.queryWordInfo;
   const youdaoType = DicionaryType.Youdao;
-  const oneLineTranslation = formatResult.translations.join(" ");
+  const oneLineTranslation = formatResult.translations.join(", ");
   const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
   const isShowWordSubtitle = phoneticText || queryWordInfo.examTypes;
   const wordSubtitle = isShowWordSubtitle ? queryWordInfo.word : undefined;

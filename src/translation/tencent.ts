@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 11:22
+ * @lastEditTime: 2022-08-09 17:13
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -69,7 +69,7 @@ export async function requestTencentTextTranslate(queryWordInfo: QueryWordInfo):
     const typeResult: RequestTypeResult = {
       type: TranslationType.Tencent,
       result: response as TencentTranslateResult,
-      translations: [response.TargetText],
+      translations: response.TargetText.split("\n"),
     };
     return Promise.resolve(typeResult);
   } catch (err) {

@@ -1,9 +1,10 @@
+import { DicionaryType } from "./../../types";
 import { KeyStore } from "../../preferences";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 10:41
+ * @lastEditTime: 2022-08-09 23:00
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -64,7 +65,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
           errorInfo: youdaoErrorInfo,
-          translations: youdaoResult.translation,
+          translations: youdaoFormatResult.translations,
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
@@ -74,6 +75,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
         }
       })
       .catch((error) => {
+        console.error(`---> Youdao translate error: ${error}`);
         if (!error.response) {
           console.log(`---> youdao cancelled`);
           return;
@@ -81,9 +83,8 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
 
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
-        console.error(`youdao translate error: ${error}`);
         reject({
-          type: TranslationType.Youdao,
+          type: DicionaryType.Youdao,
           code: error.response?.status.toString(),
           message: error.response?.statusText,
         });

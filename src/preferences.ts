@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 12:37
+ * @lastEditTime: 2022-08-09 23:07
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,7 @@ export const myPreferences: MyPreferences = getPreferenceValues();
 export const preferrdLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
 export const preferrdLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
 export const preferrdLanguages = [preferrdLanguage1, preferrdLanguage2];
-console.log("myPreferences: ", myPreferences);
+// console.log("myPreferences: ", myPreferences);
 
 export interface MyPreferences {
   language1: string;

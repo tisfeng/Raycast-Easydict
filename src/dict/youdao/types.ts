@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 13:12
+ * @lastEditTime: 2022-08-09 23:04
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,7 @@ export interface YoudaoDictionaryResult {
   query: string;
   returnPhrase: [];
   errorCode: string;
-  translation: string[];
+  translation: string[]; // ! do not change property name! current only has one translation.
   web?: TranslateResultKeyValueItem[];
   basic?: YoudaoTranslateResultBasicItem;
   isWord: boolean;
