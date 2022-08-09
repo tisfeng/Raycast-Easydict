@@ -3,7 +3,7 @@ import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 16:43
+ * @lastEditTime: 2022-08-09 12:31
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -134,7 +134,7 @@ export function getYoudaoWebTranslateURL(queryTextInfo: QueryWordInfo): string |
  * Get another language item expcept chinese from language item array
  */
 export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string]): string | undefined {
-  if (!youdaoLanguageIds.includes("zh-CHS")) {
+  if (youdaoLanguageIds.includes("zh-CHS")) {
     return youdaoLanguageIds[0] === "zh-CHS" ? youdaoLanguageIds[1] : youdaoLanguageIds[0];
   }
 }

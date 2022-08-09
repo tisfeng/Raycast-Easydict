@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 22:12
+ * @lastEditTime: 2022-08-09 13:07
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { DicionaryType, SectionDisplayItem } from "../../types";
+import { DicionaryType, DisplaySection } from "../../types";
 import {
   QueryWordInfo,
   YoudaoDictionaryFormatResult,
@@ -38,7 +38,7 @@ export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResul
     webTranslation = youdaoResult.web[0];
   }
   const webPhrases = youdaoResult.web?.slice(1);
-  return {
+  const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
     translations: youdaoResult.translation,
     explanations: youdaoResult.basic?.explains,
@@ -46,13 +46,16 @@ export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResul
     webTranslation: webTranslation,
     webPhrases: webPhrases,
   };
+  queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+
+  return formateResult;
 }
 
 /**
  * Update Youdao dictionary display result.
  */
-export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): SectionDisplayItem[] {
-  const sectionResult: Array<SectionDisplayItem> = [];
+export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): DisplaySection[] {
+  const sectionResult: Array<DisplaySection> = [];
   if (!formatResult) {
     return sectionResult;
   }
@@ -70,6 +73,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
     items: [
       {
         displayType: YoudaoDictionaryListItemType.Translation,
+        queryType: youdaoType,
         key: oneLineTranslation + youdaoType,
         title: ` ${oneLineTranslation}`,
         subtitle: wordSubtitle,
@@ -94,6 +98,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
       items: [
         {
           displayType: YoudaoDictionaryListItemType.Explanations,
+          queryType: youdaoType,
           key: explanation + i,
           title: explanation,
           queryWordInfo: queryWordInfo,
@@ -119,6 +124,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
       items: [
         {
           displayType: YoudaoDictionaryListItemType.Forms,
+          queryType: youdaoType,
           key: wfsText,
           title: "",
           queryWordInfo: queryWordInfo,
@@ -142,6 +148,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
       items: [
         {
           displayType: YoudaoDictionaryListItemType.WebTranslation,
+          queryType: youdaoType,
           key: copyText,
           title: webResultKey,
           queryWordInfo: queryWordInfo,
@@ -165,6 +172,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
       items: [
         {
           displayType: YoudaoDictionaryListItemType.WebPhrase,
+          queryType: youdaoType,
           key: copyText + i,
           title: phraseKey,
           queryWordInfo: queryWordInfo,
@@ -182,8 +190,11 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
 }
 
 /**
- * Check if Youdao dictionary empty.
+ * Check if Youdao dictionary has entries.
  */
-export function isYoudaoDictionaryEmpty(formatResult: YoudaoDictionaryFormatResult) {
-  return !(formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation);
+export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult) {
+  return (
+    (formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation) !==
+    undefined
+  );
 }

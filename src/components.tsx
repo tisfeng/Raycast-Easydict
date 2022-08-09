@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 21:23
+ * @lastEditTime: 2022-08-09 12:50
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,11 +45,13 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
   const queryWordInfo = props.displayItem.queryWordInfo;
   console.log(`---> list item type: ${props.displayItem.displayType}, title: ${props.displayItem.title}`);
+  console.log(`---> queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
   const googleWebItem = getWebTranslationItem(TranslationType.Google, queryWordInfo);
   const deepLWebItem = getWebTranslationItem(TranslationType.DeepL, queryWordInfo);
   const lingueeWebItem = getWebTranslationItem(DicionaryType.Linguee, queryWordInfo);
   const youdaoWebItem = getWebTranslationItem(DicionaryType.Youdao, queryWordInfo);
   const eudicWebItem = getWebTranslationItem(DicionaryType.Eudic, queryWordInfo);
+  const isShowDictionary = queryWordInfo.hasDictionaryEntries;
 
   checkIfNeedShowReleasePrompt((isShowing) => {
     setIsShowingReleasePrompt(isShowing);
@@ -83,9 +85,9 @@ export function ListActionPanel(props: ActionListPanelProps) {
       <ActionPanel.Section title="Search Query Text Online">
         <WebTranslationAction webTranslationItem={deepLWebItem} />
         <WebTranslationAction webTranslationItem={googleWebItem} />
-        {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={lingueeWebItem} />}
-        {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={youdaoWebItem} />}
-        {queryWordInfo.isWord && <WebTranslationAction webTranslationItem={eudicWebItem} />}
+        {isShowDictionary && <WebTranslationAction webTranslationItem={lingueeWebItem} />}
+        {isShowDictionary && <WebTranslationAction webTranslationItem={youdaoWebItem} />}
+        {isShowDictionary && <WebTranslationAction webTranslationItem={eudicWebItem} />}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">

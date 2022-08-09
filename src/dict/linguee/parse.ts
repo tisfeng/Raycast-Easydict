@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 11:25
+ * @lastEditTime: 2022-08-09 13:16
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -77,6 +77,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   if (wordItems?.length) {
     speakUrl = wordItems[0].audioUrl;
   }
+
   const queryWordInfo: QueryWordInfo = {
     word: queryWord?.textContent ?? "",
     fromLanguage: sourceLanguage ?? "",
@@ -91,26 +92,26 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     relatedWords: relatedWords,
     wikipedias: wikipedia,
   };
-  const result = isLingueeDictionaryEmpty(lingueeResult) ? null : lingueeResult;
+  const hasEntries = hasLingueeDictionaryEntries(lingueeResult);
+  queryWordInfo.hasDictionaryEntries = hasEntries;
+  const result = hasEntries ? lingueeResult : null;
   const lingueeTypeResult: RequestTypeResult = {
     type: DicionaryType.Linguee,
     result: result,
     translations: [],
-    wordInfo: queryWordInfo,
   };
   return lingueeTypeResult;
 }
 
 /**
- * Check linguee result is empty.
+ * Check linguee has dictionary entries.
  */
-export function isLingueeDictionaryEmpty(lingueeResult: LingueeDictionaryResult): boolean {
+export function hasLingueeDictionaryEntries(lingueeResult: LingueeDictionaryResult): boolean {
   return (
-    lingueeResult === null ||
-    (lingueeResult.wordItems.length === 0 &&
-      lingueeResult.examples.length === 0 &&
-      lingueeResult.relatedWords.length === 0 &&
-      lingueeResult.wikipedias.length === 0)
+    lingueeResult.wordItems.length > 0 ||
+    lingueeResult.examples.length > 0 ||
+    lingueeResult.relatedWords.length > 0 ||
+    lingueeResult.wikipedias.length > 0
   );
 }
 

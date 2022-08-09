@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 22:22
+ * @lastEditTime: 2022-08-09 13:12
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,12 +45,13 @@ export interface QueryWordInfo {
   word: string;
   fromLanguage: string; // ! must be Youdao language id.
   toLanguage: string;
-  isWord: boolean; // ! show web translation need this value.
+  isWord?: boolean; // * Dictionary Type should has value, show web url need this value.
+  hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
   detectedLanguage?: LanguageDetectTypeResult;
   phonetic?: string; // ɡʊd
   examTypes?: string[];
   audioPath?: string;
-  speechUrl?: string; // youdao tts url, some language not have tts url, such as "ຂາດ"
+  speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
 }
 
 export interface YoudaoTranslateResultBasicItem {

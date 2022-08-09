@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 18:40
+ * @lastEditTime: 2022-08-09 13:04
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -48,7 +48,6 @@ export interface RequestTypeResult {
   translations: string[]; // each translation is a paragraph.
   oneLineTranslation?: string; // one line translation.
   errorInfo?: RequestErrorInfo;
-  wordInfo?: QueryWordInfo;
 }
 
 type RequestResultType =
@@ -110,24 +109,26 @@ export interface TranslationItem {
 
 export interface QueryResult {
   type: QueryType;
-  sourceResult?: RequestTypeResult;
-  displayResult?: SectionDisplayItem[];
+  sourceResult: RequestTypeResult;
+  displaySections?: DisplaySection[]; // if sourceResult.result is not null, displaySections is not null.
+  wordInfo?: QueryWordInfo; // dictionary type should has wordInfo.
 }
 
-export interface SectionDisplayItem {
+export interface DisplaySection {
   type: ListItemDisplayType;
   sectionTitle?: string;
   items: ListDisplayItem[];
 }
 
 export interface ListDisplayItem {
+  queryWordInfo: QueryWordInfo;
   key: string;
   title: string;
-  displayType: ListItemDisplayType;
+  displayType: ListItemDisplayType; // LingueeListItemType.Example
+  queryType: QueryType; // LingueeListItemType
   copyText: string;
   tooltip?: string;
   subtitle?: string;
-  queryWordInfo: QueryWordInfo;
   speech?: string;
   translationMarkdown?: string;
 

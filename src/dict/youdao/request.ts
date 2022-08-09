@@ -3,7 +3,7 @@ import { KeyStore } from "../../preferences";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 00:11
+ * @lastEditTime: 2022-08-09 10:41
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -65,7 +65,6 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
           result: youdaoFormatResult,
           errorInfo: youdaoErrorInfo,
           translations: youdaoResult.translation,
-          wordInfo: youdaoFormatResult.queryWordInfo,
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {

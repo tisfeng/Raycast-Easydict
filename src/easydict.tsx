@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 16:19
+ * @lastEditTime: 2022-08-09 12:36
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { getAutoSelectedTargetLanguageId, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
 import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
-import { SectionDisplayItem } from "./types";
+import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
 let delayQueryTextTimer: NodeJS.Timeout;
@@ -49,9 +49,9 @@ export default function () {
    */
   const [searchText, setSearchText] = useState<string>("");
 
-  const [displayResult, setDisplayResult] = useState<SectionDisplayItem[]>([]);
+  const [displayResult, setDisplayResult] = useState<DisplaySection[]>([]);
 
-  function updateDisplaySections(displayItems: SectionDisplayItem[]) {
+  function updateDisplaySections(displayItems: DisplaySection[]) {
     setLoadingState(false);
     setDisplayResult(displayItems);
     setIsShowingDetail(dataManager.isShowDetail);
@@ -149,8 +149,7 @@ export default function () {
       word: searchText,
       fromLanguage: fromYoudaoLanguageId,
       toLanguage: targetLanguageId,
-      isWord: false,
-      detectedLanguage: detectedLanguageResult,
+      // detectedLanguage: detectedLanguageResult, // maybe use it later.
     };
     dataManager.queryTextWithTextInfo(queryTextInfo);
   }
@@ -170,7 +169,6 @@ export default function () {
 
       const quertWordInfo: QueryWordInfo = {
         word: searchText,
-        isWord: false,
         fromLanguage: currentFromLanguageItem.youdaoLanguageId,
         toLanguage: selectedLanguageItem.youdaoLanguageId,
       };

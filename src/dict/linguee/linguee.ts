@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 22:13
+ * @lastEditTime: 2022-08-09 10:18
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import util from "util";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
 import { getLanguageItemFromYoudaoId } from "../../language/languages";
-import { DicionaryType, ListDisplayItem, RequestErrorInfo, RequestTypeResult, SectionDisplayItem } from "../../types";
+import { DicionaryType, DisplaySection, ListDisplayItem, RequestErrorInfo, RequestTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
 import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
 import { parseLingueeHTML } from "./parse";
@@ -152,8 +152,8 @@ export async function resetLingueeRequestTime() {
 /**
  * Formate linguee display result
  */
-export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult): SectionDisplayItem[] {
-  const displayResults: SectionDisplayItem[] = [];
+export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResult): DisplaySection[] {
+  const displayResults: DisplaySection[] = [];
   if (lingueeTypeResult.result) {
     const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } =
       lingueeTypeResult.result as LingueeDictionaryResult;
@@ -171,7 +171,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
 
       const copyText = `${translation} ${word}`;
       const displayType = LingueeListItemType.Translation;
-      const lingueeTitleSection: SectionDisplayItem = {
+      const lingueeTitleSection: DisplaySection = {
         type: lingueeType,
         sectionTitle: lingueeType,
         items: [
@@ -181,6 +181,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
             subtitle: word,
             copyText: copyText,
             displayType: displayType,
+            queryType: lingueeType,
             queryWordInfo: queryWordInfo,
             tooltip: displayType,
           },
@@ -221,6 +222,7 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
                 copyText: copyText,
                 queryWordInfo: queryWordInfo,
                 displayType: displayType,
+                queryType: lingueeType,
                 tooltip: displayType,
               };
               displayItems.push(displayItem);
@@ -254,12 +256,13 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
               copyText: copyText,
               queryWordInfo: queryWordInfo,
               displayType: displayType,
+              queryType: lingueeType,
               tooltip: displayType,
             };
             displayItems.push(unFeaturedDisplayItem);
           }
         }
-        const displayResult: SectionDisplayItem = {
+        const displayResult: DisplaySection = {
           type: lingueeType,
           sectionTitle: sectionTitle,
           items: displayItems,
@@ -284,11 +287,12 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
           copyText: copyText,
           queryWordInfo: queryWordInfo,
           displayType: displayType,
+          queryType: lingueeType,
           tooltip: displayType,
         };
         return displayItem;
       });
-      const exampleSection: SectionDisplayItem = {
+      const exampleSection: DisplaySection = {
         type: DicionaryType.Linguee,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // show up to 3 examples.
@@ -317,12 +321,13 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
           copyText: copyText,
           queryWordInfo: queryWordInfo,
           displayType: displayType,
+          queryType: lingueeType,
           tooltip: displayType,
         };
         return displayItem;
       });
 
-      const displayResult: SectionDisplayItem = {
+      const displayResult: DisplaySection = {
         type: lingueeType,
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // only show 3 related words
@@ -342,11 +347,12 @@ export function formatLingueeDisplayResult(lingueeTypeResult: RequestTypeResult)
           copyText: title,
           queryWordInfo: queryWordInfo,
           displayType: displayType,
+          queryType: lingueeType,
           tooltip: displayType,
         };
         return displayItem;
       });
-      const displayResult: SectionDisplayItem = {
+      const displayResult: DisplaySection = {
         type: lingueeType,
         sectionTitle: sectionTitle,
         items: displayItems,
