@@ -3,7 +3,7 @@ import { AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 10:42
+ * @lastEditTime: 2022-08-10 11:53
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import axios from "axios";
 import querystring from "node:querystring";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
-import { KeyStore, myDecrypt } from "../preferences";
+import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
@@ -186,7 +186,12 @@ function checkIfKeyVaild(key: string): Promise<boolean> {
       })
       .catch((err) => {
         console.error(`---> isVaildKey deepL error: ${err}`);
-        console.log(`---> error key: ${key}`);
+
+        // if error, remove key from wildEncryptedDeepLKeys
+        const encryptedKey = myEncrypt(key);
+        wildEncryptedDeepLKeys.splice(wildEncryptedDeepLKeys.indexOf(encryptedKey), 1);
+        console.log(`---> remove error key: ${key}`);
+
         resolve(false);
       });
   });

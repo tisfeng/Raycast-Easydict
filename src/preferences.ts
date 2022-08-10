@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 23:07
+ * @lastEditTime: 2022-08-10 11:52
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -125,8 +125,7 @@ export function myDecrypt(ciphertext: string) {
   return originalText;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function myEncrypt(text: string) {
+export function myEncrypt(text: string) {
   // console.warn("encrypt:", text);
   const ciphertext = CryptoJS.AES.encrypt(text, environment.extensionName).toString();
   // console.warn("ciphertext: ", ciphertext);

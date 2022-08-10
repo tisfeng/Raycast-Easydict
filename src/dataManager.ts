@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 10:51
+ * @lastEditTime: 2022-08-10 11:48
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -145,7 +145,10 @@ export class DataManager {
             sourceResult: lingueeTypeResult,
             wordInfo: wordInfo,
           };
-          this.updateQueryDisplayResults(queryResult);
+
+          // it will update Linguee dictionary section after updating Linguee translation.
+          this.updateLingueeTranslation(queryResult);
+          // this.updateQueryDisplayResults(queryResult);
           this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
@@ -390,22 +393,22 @@ export class DataManager {
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
 
     const { type, sourceResult } = queryResult;
-    let oneLineTranslations = "";
+    let oneLineTranslation = "";
     if (!sourceResult) {
       return;
     }
 
     console.log("---> translations:", sourceResult.translations);
-    oneLineTranslations = sourceResult.translations.map((translation) => translation).join(", ");
-    console.log(`---> oneLineTranslations: ${oneLineTranslations}`);
-    sourceResult.oneLineTranslation = oneLineTranslations;
-    if (oneLineTranslations) {
+    oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
+    console.log(`---> oneLineTranslations: ${oneLineTranslation}`);
+    sourceResult.oneLineTranslation = oneLineTranslation;
+    if (oneLineTranslation) {
       const displayItem: ListDisplayItem = {
         displayType: type,
         queryType: queryResult.type,
-        key: `${oneLineTranslations}-${type}`,
-        title: oneLineTranslations,
-        copyText: oneLineTranslations,
+        key: `${oneLineTranslation}-${type}`,
+        title: oneLineTranslation,
+        copyText: oneLineTranslation,
         queryWordInfo: this.queryWordInfo as QueryWordInfo,
       };
       const displaySections: DisplaySection[] = [
@@ -420,7 +423,41 @@ export class DataManager {
         displaySections: displaySections,
         wordInfo: this.getWordInfoFromDisplaySections(displaySections),
       };
+
+      // this is Linguee dictionary query, we need to check to update Linguee translation.
+      if (type === TranslationType.DeepL && !myPreferences.enableDeepLTranslate) {
+        const lingueeQueryResult = this.getQueryResult(DicionaryType.Linguee);
+        this.updateLingueeTranslation(lingueeQueryResult, oneLineTranslation);
+        return;
+      }
       this.updateQueryDisplayResults(newQueryResult);
+    }
+  }
+
+  /**
+   * Update Linguee translation.
+   *
+   * @param translation the translation to update Linguee translation. if translation is empty, use DeepL translation.
+   */
+  private updateLingueeTranslation(lingueeQueryResult: QueryResult | undefined, translation?: string) {
+    if (!lingueeQueryResult) {
+      return;
+    }
+
+    const lingueeDisplaySections = lingueeQueryResult.displaySections;
+    if (lingueeDisplaySections?.length) {
+      const firstLingueeDisplayItem = lingueeDisplaySections[0].items[0];
+      if (!translation) {
+        const deepLQueryResult = this.getQueryResult(TranslationType.DeepL);
+        const deepLSections = deepLQueryResult?.displaySections;
+        if (deepLQueryResult && deepLSections?.length) {
+          const firstDeepLDisplayItem = deepLSections[0].items[0];
+          firstLingueeDisplayItem.title = firstDeepLDisplayItem.title;
+        }
+      } else {
+        firstLingueeDisplayItem.title = translation;
+      }
+      this.updateQueryDisplayResults(lingueeQueryResult);
     }
   }
 
