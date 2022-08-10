@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 23:10
+ * @lastEditTime: 2022-08-11 01:13
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -39,7 +39,13 @@ import { getSortOrder, isTranslationTooLong } from "./utils";
 const sortOrder = getSortOrder();
 
 export class DataManager {
-  updateDisplaySections?: (displaySections: DisplaySection[]) => void;
+  updateListDisplaySections: (displaySections: DisplaySection[]) => void = () => {
+    // later assign callback function.
+  };
+  updateLoadingState: (isLoadingState: boolean) => void = () => {
+    // later assign callback function.
+  };
+
   queryResults: QueryResult[] = [];
   queryWordInfo?: QueryWordInfo;
 
@@ -59,25 +65,41 @@ export class DataManager {
    */
   delayRequestTime = 600;
 
-  isLoadingState = false;
   isShowDetail = false;
 
   hasPlayAudio = false;
 
   /**
-   * update display result.
+   * Used for recording all the query types. If start a new query, push it to the array, when finish the query, remove it.
+   */
+  queryRecordList: QueryType[] = [];
+
+  /**
+   * Update query result and display sections.
+   */
+  updateQueryResultAndSections(queryResult: QueryResult) {
+    this.updateQueryResult(queryResult);
+    this.updateDataDisplaySections();
+  }
+
+  /**
+   * update query result.
    *
    * 1.push new result to queryResults.
    * 2.sort queryResults.
    * 3.update dictionary section title.
-   * 4.callback update display sections.
    */
-  updateQueryDisplayResults(queryResult: QueryResult) {
+  updateQueryResult(queryResult: QueryResult) {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
+    this.updateTypeSectionTitle();
+  }
+
+  /**
+   * Update display sections, and callback update display sections.
+   */
+  updateDataDisplaySections() {
     this.isShowDetail = this.checkIfShowTranslationDetail();
-    this.isLoadingState = false;
-    this.updateAllSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
     for (const result of this.queryResults) {
@@ -88,9 +110,7 @@ export class DataManager {
         displaySections.push(result.displaySections);
       }
     }
-    if (this.updateDisplaySections) {
-      this.updateDisplaySections(displaySections.flat());
-    }
+    this.updateListDisplaySections(displaySections.flat());
   }
 
   /**
@@ -104,8 +124,8 @@ export class DataManager {
     this.queryWordInfo = queryWordInfo;
     this.hasPlayAudio = false;
     this.isLastQuery = true;
-    this.isLoadingState = true;
     this.shouldClearQuery = false;
+    this.queryRecordList = [];
     this.controller = new AbortController();
 
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
@@ -134,6 +154,9 @@ export class DataManager {
    */
   private queryLingueeDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     if (myPreferences.enableLingueeDictionary) {
+      const type = DicionaryType.Linguee;
+      this.addQueryToRecordList(type);
+
       rquestLingueeDictionary(queryWordInfo, signal)
         .then((lingueeTypeResult) => {
           const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
@@ -141,7 +164,6 @@ export class DataManager {
             return;
           }
 
-          const type = DicionaryType.Linguee;
           const wordInfo = this.getWordInfoFromDisplaySections(lingueeDisplaySections);
           const queryResult: QueryResult = {
             type: type,
@@ -163,6 +185,10 @@ export class DataManager {
             title: `Linguee: ${errorInfo.code}`,
             message: errorInfo.message,
           });
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
+          this.updateDataDisplaySections();
         });
 
       // at the same time, query DeepL translate.
@@ -174,10 +200,13 @@ export class DataManager {
    * Query DeepL translate. If has enabled Linguee dictionary, don't need to query DeepL.
    */
   private queryDeepLTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+    const type = TranslationType.DeepL;
+    this.addQueryToRecordList(type);
+
     requestDeepLTranslate(queryWordInfo, signal)
       .then((deepLTypeResult) => {
         const queryResult: QueryResult = {
-          type: TranslationType.DeepL,
+          type: type,
           sourceResult: deepLTypeResult,
         };
         this.updateTranslationDisplay(queryResult);
@@ -189,6 +218,9 @@ export class DataManager {
           title: `${errorInfo.type}: ${errorInfo.code}`,
           message: errorInfo.message,
         });
+      })
+      .finally(() => {
+        this.removeQueryFromRecordList(type);
       });
   }
 
@@ -204,6 +236,9 @@ export class DataManager {
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {
+      const type = DicionaryType.Youdao;
+      this.addQueryToRecordList(type);
+
       requestYoudaoDictionary(queryWordInfo, signal)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
@@ -240,7 +275,7 @@ export class DataManager {
             return;
           }
 
-          this.updateQueryDisplayResults(displayResult);
+          this.updateQueryResultAndSections(displayResult);
           this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
@@ -251,6 +286,9 @@ export class DataManager {
             title: `${errorInfo.type}: ${errorInfo.code}`,
             message: errorInfo.message,
           });
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }
@@ -259,18 +297,23 @@ export class DataManager {
    * Query google translate.
    */
   private queryGoogleTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
-    // check if enable google translate
     if (myPreferences.enableGoogleTranslate) {
+      const type = TranslationType.Google;
+      this.addQueryToRecordList(type);
+
       requestGoogleTranslate(queryWordInfo, signal)
         .then((googleTypeResult) => {
           const queryResult: QueryResult = {
-            type: TranslationType.Google,
+            type: type,
             sourceResult: googleTypeResult,
           };
           this.updateTranslationDisplay(queryResult);
         })
         .catch((err) => {
           console.error(`google error: ${JSON.stringify(err, null, 2)}`);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }
@@ -280,6 +323,9 @@ export class DataManager {
    */
   private queryAppleTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableAppleTranslate) {
+      const type = TranslationType.Apple;
+      this.addQueryToRecordList(type);
+
       appleTranslate(queryWordInfo)
         .then((translatedText) => {
           if (this.checkIfNeedCancelDisplay()) {
@@ -291,12 +337,12 @@ export class DataManager {
             // * Note: apple translateText contains redundant blank line, we need to remove it.
             const translations = translatedText.split("\n").filter((line) => line.length > 0);
             const appleTranslateResult: RequestTypeResult = {
-              type: TranslationType.Apple,
+              type: type,
               result: { translatedText: translatedText },
               translations: translations,
             };
             const queryResult: QueryResult = {
-              type: TranslationType.Apple,
+              type: type,
               sourceResult: appleTranslateResult,
             };
             this.updateTranslationDisplay(queryResult);
@@ -305,6 +351,9 @@ export class DataManager {
         .catch((error) => {
           const errorInfo = error as RequestErrorInfo;
           console.error(`Apple translate error: ${JSON.stringify(errorInfo, null, 4)}`);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }
@@ -313,12 +362,14 @@ export class DataManager {
    * Query baidu translate API.
    */
   private queryBaiduTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
-    // check if enable baidu translate
     if (myPreferences.enableBaiduTranslate) {
+      const type = TranslationType.Baidu;
+      this.addQueryToRecordList(type);
+
       requestBaiduTextTranslate(queryWordInfo, signal)
         .then((baiduTypeResult) => {
           const queryResult: QueryResult = {
-            type: TranslationType.Baidu,
+            type: type,
             sourceResult: baiduTypeResult,
           };
           this.updateTranslationDisplay(queryResult);
@@ -330,6 +381,9 @@ export class DataManager {
             title: `${errorInfo.type}: ${errorInfo.code}`,
             message: errorInfo.message,
           });
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }
@@ -339,6 +393,9 @@ export class DataManager {
    */
   private queryTencentTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableTencentTranslate) {
+      const type = TranslationType.Tencent;
+      this.addQueryToRecordList(type);
+
       requestTencentTextTranslate(queryWordInfo)
         .then((tencentTypeResult) => {
           if (this.checkIfNeedCancelDisplay()) {
@@ -348,7 +405,7 @@ export class DataManager {
           }
 
           const queryResult: QueryResult = {
-            type: TranslationType.Tencent,
+            type: type,
             sourceResult: tencentTypeResult,
           };
           this.updateTranslationDisplay(queryResult);
@@ -357,9 +414,12 @@ export class DataManager {
           const errorInfo = err as RequestErrorInfo;
           showToast({
             style: Toast.Style.Failure,
-            title: `tencent translate error`,
+            title: `Tencent translate error`,
             message: errorInfo.message,
           });
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }
@@ -369,10 +429,13 @@ export class DataManager {
    */
   private queryCaiyunTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     if (myPreferences.enableCaiyunTranslate) {
+      const type = TranslationType.Caiyun;
+      this.addQueryToRecordList(type);
+
       requestCaiyunTextTranslate(queryWordInfo, signal)
         .then((caiyunTypeResult) => {
           const queryResult: QueryResult = {
-            type: TranslationType.Caiyun,
+            type: type,
             sourceResult: caiyunTypeResult,
           };
           this.updateTranslationDisplay(queryResult);
@@ -384,8 +447,30 @@ export class DataManager {
             title: `Caiyun translate error`,
             message: errorInfo.message,
           });
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
+  }
+
+  /**
+   * Add query to record list, and update loading status.
+   */
+  private addQueryToRecordList(type: QueryType) {
+    this.queryRecordList.push(type);
+    this.updateLoadingState(true);
+  }
+
+  /**
+   * Remove query type from queryRecordList, and update loading status.
+   */
+  private removeQueryFromRecordList(type: QueryType) {
+    // this.queryRecordList.splice(this.queryRecordList.indexOf(type), 1);
+    this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
+
+    const isLoadingState = this.queryRecordList.length > 0;
+    this.updateLoadingState(isLoadingState);
   }
 
   /**
@@ -431,7 +516,7 @@ export class DataManager {
         newQueryResult.disableDisplay = !myPreferences.enableDeepLTranslate;
         console.log(`---> update deepL transaltion, disableDisplay: ${newQueryResult.disableDisplay}`);
       }
-      this.updateQueryDisplayResults(newQueryResult);
+      this.updateQueryResultAndSections(newQueryResult);
     }
   }
 
@@ -463,7 +548,7 @@ export class DataManager {
       }
       console.log(`---> linguee translation: ${firstLingueeDisplayItem.title}`);
 
-      this.updateQueryDisplayResults(lingueeQueryResult);
+      this.updateQueryResultAndSections(lingueeQueryResult);
     }
   }
 
@@ -559,7 +644,7 @@ export class DataManager {
    * 1. Add fromTo language to each dictionary section title.
    * 2. Add fromTo language to the first translation section title. (only when dictionary result is empyt)
    */
-  updateAllSectionTitle() {
+  updateTypeSectionTitle() {
     this.queryResults.forEach((queryResult, i) => {
       const { type, sourceResult, displaySections } = queryResult;
       const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
@@ -713,12 +798,9 @@ export class DataManager {
     this.isShowDetail = false;
     this.shouldClearQuery = true;
     this.isLastQuery = false;
-    this.isLoadingState = false;
+    this.updateLoadingState(false);
 
-    // this.queryResults.length &&
-    if (this.updateDisplaySections) {
-      this.queryResults = [];
-      this.updateDisplaySections([]);
-    }
+    this.queryResults = [];
+    this.updateListDisplaySections([]);
   }
 }

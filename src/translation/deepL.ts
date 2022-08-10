@@ -60,7 +60,7 @@ export async function requestDeepLTextTranslate(
 
   const config: AxiosRequestConfig = {
     signal,
-    timeout: 5000,
+    timeout: 10000,
   };
 
   return new Promise((resolve, reject) => {

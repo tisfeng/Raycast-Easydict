@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 23:06
+ * @lastEditTime: 2022-08-11 00:57
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,12 +52,13 @@ export default function () {
   const [displayResult, setDisplayResult] = useState<DisplaySection[]>([]);
 
   function updateDisplaySections(displayItems: DisplaySection[]) {
-    console.log(`updateDisplaySections, isLoadingState: ${dataManager.isLoadingState}`);
-    setLoadingState(dataManager.isLoadingState);
+    console.log(`updateDisplaySections`);
     setIsShowingDetail(dataManager.isShowDetail);
     setDisplayResult(displayItems);
   }
-  dataManager.updateDisplaySections = updateDisplaySections;
+
+  dataManager.updateListDisplaySections = updateDisplaySections;
+  dataManager.updateLoadingState = setLoadingState;
 
   /**
    * the language type of text, depending on the language type of the current input text.
