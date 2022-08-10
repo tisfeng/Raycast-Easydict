@@ -3,7 +3,7 @@ import { AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 11:53
+ * @lastEditTime: 2022-08-10 12:57
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -95,9 +95,16 @@ export async function requestDeepLTextTranslate(
         // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
         if (errorCode === 456) {
           errorMessage = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
+
+          if (wildEncryptedDeepLKeys.length) {
+            getAndStoreDeepLKey(wildEncryptedDeepLKeys).then(() => {
+              requestDeepLTextTranslate(queryWordInfo, signal);
+              return;
+            });
+          }
         }
         if (errorCode === 403) {
-          errorMessage = "Authorization failed"; //Authorization failed. Please supply a valid auth_key parameter.
+          errorMessage = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
         }
 
         const errorInfo: RequestErrorInfo = {
@@ -134,19 +141,26 @@ const wildEncryptedDeepLKeys = [
  *
  * 1. try to get user's deepL key from preference.
  * 2. if not found, try to get stored deepL key from local storage.
- * 3. if not found, try to get a valid deepL key from wildEncryptedDeepLKeys.
+ * 3. if not found, use default deepL key.
  */
-export async function getDeepLAuthKey(): Promise<string> {
-  const userKey = KeyStore.userDeepLAuthKey;
-  if (userKey) {
-    console.log(`---> user deepL key: ${userKey}`);
-    return Promise.resolve(userKey);
-  }
-  const key = await LocalStorage.getItem<string>(deepLAuthStoredKey);
-  if (key && (await checkIfKeyVaild(key))) {
-    return Promise.resolve(key);
-  }
-  return getAndStoreValidDeepLKey(wildEncryptedDeepLKeys);
+export function getDeepLAuthKey(): Promise<string> {
+  return new Promise((resolve) => {
+    const userKey = KeyStore.userDeepLAuthKey;
+    if (userKey) {
+      console.log(`---> user deepL key: ${userKey}`);
+      resolve(userKey);
+    }
+
+    const decryptedKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+    LocalStorage.getItem<string>(deepLAuthStoredKey).then((key) => {
+      if (key) {
+        resolve(key);
+      } else {
+        console.error(`no stored deepL key, use default key`);
+        resolve(decryptedKey);
+      }
+    });
+  });
 }
 
 export function sleep(ms: number) {
@@ -195,6 +209,24 @@ function checkIfKeyVaild(key: string): Promise<boolean> {
         resolve(false);
       });
   });
+}
+
+/**
+ * Get a deepL key and store it. Do not check if key is valid.
+ */
+export async function getAndStoreDeepLKey(encryptedKeys: string[]): Promise<string> {
+  for (const encryptedKey of encryptedKeys) {
+    const key = myDecrypt(encryptedKey);
+    // remove key
+    encryptedKeys.splice(encryptedKeys.indexOf(encryptedKey), 1);
+    console.log(`---> find and store new key: ${key}`);
+    LocalStorage.setItem(deepLAuthStoredKey, key);
+    return Promise.resolve(key);
+  }
+
+  console.log(`---> no valid key, use defatul deepl key`);
+  const defaultDeepLAuthKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+  return Promise.resolve(defaultDeepLAuthKey);
 }
 
 /**

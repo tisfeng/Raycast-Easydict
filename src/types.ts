@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 23:09
+ * @lastEditTime: 2022-08-10 13:42
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -112,6 +112,7 @@ export interface QueryResult {
   sourceResult: RequestTypeResult;
   displaySections?: DisplaySection[]; // if sourceResult.result is not null, displaySections is not null.
   wordInfo?: QueryWordInfo; // dictionary type should has wordInfo.
+  disableDisplay?: boolean; // this value comes from preferences. if true, set displaySections to null.
 }
 
 export interface DisplaySection {

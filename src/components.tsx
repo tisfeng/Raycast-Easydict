@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 00:32
+ * @lastEditTime: 2022-08-10 17:23
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,7 +46,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const displayItem = props.displayItem;
   const queryWordInfo = displayItem.queryWordInfo;
   console.log(`---> list item type: ${displayItem.displayType}, title: ${displayItem.title}`);
-  console.log(`---> queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+  // console.log(`---> queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
   const googleWebItem = getWebTranslationItem(TranslationType.Google, queryWordInfo);
   const deepLWebItem = getWebTranslationItem(TranslationType.DeepL, queryWordInfo);
   const lingueeWebItem = getWebTranslationItem(DicionaryType.Linguee, queryWordInfo);

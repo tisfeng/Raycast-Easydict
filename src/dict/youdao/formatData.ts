@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 00:16
+ * @lastEditTime: 2022-08-10 17:32
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -77,7 +77,7 @@ export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryForm
         displayType: YoudaoDictionaryListItemType.Translation,
         queryType: youdaoType,
         key: oneLineTranslation + youdaoType,
-        title: ` ${oneLineTranslation}`,
+        title: oneLineTranslation,
         subtitle: wordSubtitle,
         tooltip: `Translate`,
         copyText: oneLineTranslation,

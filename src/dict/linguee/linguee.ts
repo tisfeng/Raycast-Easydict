@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 23:41
+ * @lastEditTime: 2022-08-10 17:37
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -62,13 +62,11 @@ export async function rquestLingueeDictionary(
       .then((response) => {
         recordLingueeRequestTime();
 
-        console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
-        console.log(`--- headers: ${util.inspect(response.config.headers, { depth: null })}`);
-        console.log(`--- httpsAgent: ${util.inspect(response.config.httpsAgent, { depth: null })}`);
         const contentType = response.headers["content-type"];
         const data: Buffer = response.data;
         const html = data.toString(contentType.includes("iso-8859-15") ? "latin1" : "utf-8");
         const lingueeTypeResult = parseLingueeHTML(html);
+        console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
@@ -297,7 +295,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResul
         sectionTitle: sectionTitle,
         items: displayItems.slice(0, 3), // show up to 3 examples.
       };
-      console.log(`---> linguee exampleSection: ${JSON.stringify(exampleSection, null, 2)}`);
+      // console.log(`---> linguee exampleSection: ${JSON.stringify(exampleSection, null, 2)}`);
       displayResults.push(exampleSection);
     }
 

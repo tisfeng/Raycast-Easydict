@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 11:48
+ * @lastEditTime: 2022-08-10 17:46
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -79,7 +79,8 @@ export class DataManager {
 
     const displaySections: DisplaySection[][] = [];
     for (const result of this.queryResults) {
-      if (result.displaySections) {
+      const shouldDisplay = !result.disableDisplay;
+      if (shouldDisplay && result.displaySections) {
         console.log(`---> update display sections: ${result.type}, length: ${result.displaySections.length}`);
         this.updateTranslationMarkdown(result);
         displaySections.push(result.displaySections);
@@ -390,16 +391,10 @@ export class DataManager {
    * * If sourceResult.result exist, then will call this.updateRequestDisplayResults()
    */
   updateTranslationDisplay(queryResult: QueryResult) {
-    console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
-
     const { type, sourceResult } = queryResult;
-    let oneLineTranslation = "";
-    if (!sourceResult) {
-      return;
-    }
-
+    console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
     console.log("---> translations:", sourceResult.translations);
-    oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
+    const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
     console.log(`---> oneLineTranslations: ${oneLineTranslation}`);
     sourceResult.oneLineTranslation = oneLineTranslation;
     if (oneLineTranslation) {
@@ -425,10 +420,13 @@ export class DataManager {
       };
 
       // this is Linguee dictionary query, we need to check to update Linguee translation.
-      if (type === TranslationType.DeepL && !myPreferences.enableDeepLTranslate) {
+      if (type === TranslationType.DeepL) {
         const lingueeQueryResult = this.getQueryResult(DicionaryType.Linguee);
         this.updateLingueeTranslation(lingueeQueryResult, oneLineTranslation);
-        return;
+
+        // * Check if need to display DeepL translation.
+        newQueryResult.disableDisplay = !myPreferences.enableDeepLTranslate;
+        console.log(`---> update deepL transaltion, disableDisplay: ${newQueryResult.disableDisplay}`);
       }
       this.updateQueryDisplayResults(newQueryResult);
     }
@@ -440,6 +438,7 @@ export class DataManager {
    * @param translation the translation to update Linguee translation. if translation is empty, use DeepL translation.
    */
   private updateLingueeTranslation(lingueeQueryResult: QueryResult | undefined, translation?: string) {
+    console.log(`---> updateLingueeTranslation: ${translation}`);
     if (!lingueeQueryResult) {
       return;
     }
@@ -449,14 +448,18 @@ export class DataManager {
       const firstLingueeDisplayItem = lingueeDisplaySections[0].items[0];
       if (!translation) {
         const deepLQueryResult = this.getQueryResult(TranslationType.DeepL);
-        const deepLSections = deepLQueryResult?.displaySections;
-        if (deepLQueryResult && deepLSections?.length) {
-          const firstDeepLDisplayItem = deepLSections[0].items[0];
-          firstLingueeDisplayItem.title = firstDeepLDisplayItem.title;
+        const deepLTranslation = deepLQueryResult?.sourceResult.oneLineTranslation;
+        if (deepLTranslation) {
+          firstLingueeDisplayItem.title = deepLTranslation;
+          console.log(
+            `---> deepL translation: ${deepLTranslation}, disableDisplay: ${deepLQueryResult?.disableDisplay}`
+          );
         }
       } else {
         firstLingueeDisplayItem.title = translation;
       }
+      console.log(`---> linguee translation: ${firstLingueeDisplayItem.title}`);
+
       this.updateQueryDisplayResults(lingueeQueryResult);
     }
   }
