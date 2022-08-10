@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 23:10
+ * @lastEditTime: 2022-08-10 10:51
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,7 +20,7 @@ import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
 import { requestCaiyunTextTranslate } from "./translation/caiyun";
-import { requestDeepLTextTranslate } from "./translation/deepL";
+import { requestDeepLTextTranslate as requestDeepLTranslate } from "./translation/deepL";
 import { requestGoogleTranslate } from "./translation/google";
 import { requestTencentTextTranslate } from "./translation/tencent";
 import {
@@ -108,8 +108,29 @@ export class DataManager {
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
+    this.queryLingueeDictionary(queryWordInfo, this.controller.signal);
+    this.queryYoudaoDictionary(queryWordInfo, this.controller.signal);
+
+    // * DeepL translate is used as part of Linguee dictionary.
+    if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
+      this.queryDeepLTranslate(queryWordInfo, this.controller.signal);
+    }
+
+    this.queryGoogleTranslate(queryWordInfo, this.controller.signal);
+    this.queryAppleTranslate(queryWordInfo);
+    this.queryBaiduTranslate(queryWordInfo, this.controller.signal);
+    this.queryTencentTranslate(queryWordInfo);
+    this.queryCaiyunTranslate(queryWordInfo, this.controller.signal);
+  }
+
+  /**
+   * Query Linguee dictionary.
+   *
+   * For better UI, we use DeepL translate result as Linguee translation result.
+   */
+  private queryLingueeDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     if (myPreferences.enableLingueeDictionary) {
-      rquestLingueeDictionary(queryWordInfo, this.controller.signal)
+      rquestLingueeDictionary(queryWordInfo, signal)
         .then((lingueeTypeResult) => {
           const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
           if (lingueeDisplaySections.length === 0) {
@@ -136,16 +157,47 @@ export class DataManager {
             message: errorInfo.message,
           });
         });
-    }
 
+      // at the same time, query DeepL translate.
+      this.queryDeepLTranslate(queryWordInfo, signal);
+    }
+  }
+
+  /**
+   * Query DeepL translate. If has enabled Linguee dictionary, don't need to query DeepL.
+   */
+  private queryDeepLTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+    requestDeepLTranslate(queryWordInfo, signal)
+      .then((deepLTypeResult) => {
+        const queryResult: QueryResult = {
+          type: TranslationType.DeepL,
+          sourceResult: deepLTypeResult,
+        };
+        this.updateTranslationDisplay(queryResult);
+      })
+      .catch((error) => {
+        const errorInfo = error as RequestErrorInfo;
+        showToast({
+          style: Toast.Style.Failure,
+          title: `${errorInfo.type}: ${errorInfo.code}`,
+          message: errorInfo.message,
+        });
+      });
+  }
+
+  /**
+   * Query Youdao dictionary.
+   */
+  private queryYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     // * Youdao dictionary only support chinese <--> english.
     const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
-    const isValidYoudaoDictionaryQuery = youdaoDictionarySet.has(fromLanguage) && youdaoDictionarySet.has(toLanguage);
+    const isValidYoudaoDictionaryQuery =
+      youdaoDictionarySet.has(queryWordInfo.fromLanguage) && youdaoDictionarySet.has(queryWordInfo.toLanguage);
     const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryQuery;
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {
-      requestYoudaoDictionary(queryWordInfo, this.controller.signal)
+      requestYoudaoDictionary(queryWordInfo, signal)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
@@ -194,29 +246,15 @@ export class DataManager {
           });
         });
     }
+  }
 
-    if (myPreferences.enableDeepLTranslate) {
-      requestDeepLTextTranslate(queryWordInfo, this.controller.signal)
-        .then((deepLTypeResult) => {
-          const queryResult: QueryResult = {
-            type: TranslationType.DeepL,
-            sourceResult: deepLTypeResult,
-          };
-          this.updateTranslationDisplay(queryResult);
-        })
-        .catch((error) => {
-          const errorInfo = error as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `${errorInfo.type}: ${errorInfo.code}`,
-            message: errorInfo.message,
-          });
-        });
-    }
-
+  /**
+   * Query google translate.
+   */
+  private queryGoogleTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     // check if enable google translate
     if (myPreferences.enableGoogleTranslate) {
-      requestGoogleTranslate(queryWordInfo, this.controller.signal)
+      requestGoogleTranslate(queryWordInfo, signal)
         .then((googleTypeResult) => {
           const queryResult: QueryResult = {
             type: TranslationType.Google,
@@ -228,10 +266,14 @@ export class DataManager {
           console.error(`google error: ${JSON.stringify(err, null, 2)}`);
         });
     }
+  }
 
-    // check if enable apple translate
+  /**
+   * Query apple translate.
+   */
+  private queryAppleTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableAppleTranslate) {
-      appleTranslate(this.queryWordInfo)
+      appleTranslate(queryWordInfo)
         .then((translatedText) => {
           if (this.checkIfNeedCancelDisplay()) {
             this.cancelCurrentQuery();
@@ -258,10 +300,15 @@ export class DataManager {
           console.error(`Apple translate error: ${JSON.stringify(errorInfo, null, 4)}`);
         });
     }
+  }
 
+  /**
+   * Query baidu translate API.
+   */
+  private queryBaiduTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     // check if enable baidu translate
     if (myPreferences.enableBaiduTranslate) {
-      requestBaiduTextTranslate(queryWordInfo, this.controller.signal)
+      requestBaiduTextTranslate(queryWordInfo, signal)
         .then((baiduTypeResult) => {
           const queryResult: QueryResult = {
             type: TranslationType.Baidu,
@@ -278,8 +325,12 @@ export class DataManager {
           });
         });
     }
+  }
 
-    // check if enable tencent translate
+  /**
+   * Query tencent translate.
+   */
+  private queryTencentTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableTencentTranslate) {
       requestTencentTextTranslate(queryWordInfo)
         .then((tencentTypeResult) => {
@@ -304,10 +355,14 @@ export class DataManager {
           });
         });
     }
+  }
 
-    // check if enable caiyun translate
+  /**
+   * Query caiyun translate.
+   */
+  private queryCaiyunTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     if (myPreferences.enableCaiyunTranslate) {
-      requestCaiyunTextTranslate(queryWordInfo, this.controller.signal)
+      requestCaiyunTextTranslate(queryWordInfo, signal)
         .then((caiyunTypeResult) => {
           const queryResult: QueryResult = {
             type: TranslationType.Caiyun,
