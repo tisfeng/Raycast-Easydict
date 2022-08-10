@@ -1,9 +1,9 @@
-import { AxiosRequestConfig } from "axios";
+import { AxiosError, AxiosRequestConfig } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 12:57
+ * @lastEditTime: 2022-08-10 23:14
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -60,7 +60,7 @@ export async function requestDeepLTextTranslate(
 
   const config: AxiosRequestConfig = {
     signal,
-    // timeout: 10000,
+    timeout: 5000,
   };
 
   return new Promise((resolve, reject) => {
@@ -76,21 +76,23 @@ export async function requestDeepLTextTranslate(
         const deepLTypeResult: RequestTypeResult = {
           type: TranslationType.DeepL,
           result: deepLResult,
-          translations: [translatedText],
+          translations: translatedText.split("\n"),
         };
         resolve(deepLTypeResult);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         console.error(`DeepL translate error: ${error}`);
-        if (!error.response) {
-          console.log(`---> deepL cancelled`);
+        console.error(`error: ${JSON.stringify(error, null, 4)}`);
+
+        if (error.message === "canceled") {
+          console.log(`---> deepL cancelled, error: ${error}`);
           return;
         }
 
         console.error("deepL error response: ", error.response);
 
         const errorCode = error.response?.status;
-        let errorMessage = error.response?.statusText || "Request error 😭";
+        let errorMessage = error.message || "Request error 😭";
 
         // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
         if (errorCode === 456) {

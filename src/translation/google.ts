@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 18:17
+ * @lastEditTime: 2022-08-10 18:29
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -83,12 +83,12 @@ async function googleCrawlerTranslate(
         resolve(result);
       })
       .catch((error: AxiosError) => {
-        if (!error.response) {
+        console.error(`google error: ${error}`);
+
+        if (error.message === "canceled") {
           console.log(`---> google cancelled`);
           return;
         }
-
-        console.error(`google error: ${error}`);
         reject(errorInfo);
       });
   });

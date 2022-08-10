@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 17:46
+ * @lastEditTime: 2022-08-10 23:10
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -59,6 +59,7 @@ export class DataManager {
    */
   delayRequestTime = 600;
 
+  isLoadingState = false;
   isShowDetail = false;
 
   hasPlayAudio = false;
@@ -75,6 +76,7 @@ export class DataManager {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
     this.isShowDetail = this.checkIfShowTranslationDetail();
+    this.isLoadingState = false;
     this.updateAllSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
@@ -102,6 +104,7 @@ export class DataManager {
     this.queryWordInfo = queryWordInfo;
     this.hasPlayAudio = false;
     this.isLastQuery = true;
+    this.isLoadingState = true;
     this.shouldClearQuery = false;
     this.controller = new AbortController();
 
@@ -707,12 +710,14 @@ export class DataManager {
     console.log(`---> clear query result`);
     this.cancelCurrentQuery();
 
-    this.queryResults = [];
     this.isShowDetail = false;
     this.shouldClearQuery = true;
     this.isLastQuery = false;
+    this.isLoadingState = false;
 
+    // this.queryResults.length &&
     if (this.updateDisplaySections) {
+      this.queryResults = [];
       this.updateDisplaySections([]);
     }
   }

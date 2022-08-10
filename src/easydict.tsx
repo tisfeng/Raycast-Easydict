@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 12:36
+ * @lastEditTime: 2022-08-10 23:06
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,9 +52,10 @@ export default function () {
   const [displayResult, setDisplayResult] = useState<DisplaySection[]>([]);
 
   function updateDisplaySections(displayItems: DisplaySection[]) {
-    setLoadingState(false);
-    setDisplayResult(displayItems);
+    console.log(`updateDisplaySections, isLoadingState: ${dataManager.isLoadingState}`);
+    setLoadingState(dataManager.isLoadingState);
     setIsShowingDetail(dataManager.isShowDetail);
+    setDisplayResult(displayItems);
   }
   dataManager.updateDisplaySections = updateDisplaySections;
 
@@ -226,12 +227,15 @@ export default function () {
       return;
     }
 
-    // clear old results before new input text query.
-    dataManager.clearQueryResult();
     clearTimeout(delayQueryTextTimer);
+    console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
 
+    // Todo: need to check
     if (text !== searchText) {
-      console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
+      // clear old results before new input text query.
+      if (trimText !== searchText) {
+        dataManager.clearQueryResult();
+      }
       if (isNow) {
         setSearchText(trimText);
       } else {

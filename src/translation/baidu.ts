@@ -68,13 +68,14 @@ export function requestBaiduTextTranslate(
         }
       })
       .catch((error) => {
-        if (!error.response) {
+        console.error(`---> baidu translate error: ${error}`);
+
+        if (error.message === "canceled") {
           console.log(`---> baidu cancelled`);
           return;
         }
 
         // It seems that Baidu will never reject, always resolve...
-        console.error(`---> baidu translate error: ${error}`);
         reject({
           type: TranslationType.Baidu,
           code: error.response?.status.toString(),

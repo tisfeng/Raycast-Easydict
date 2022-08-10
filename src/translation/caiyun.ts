@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-07 17:50
+ * @lastEditTime: 2022-08-10 23:03
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -68,7 +68,9 @@ export function requestCaiyunTextTranslate(
         });
       })
       .catch((error) => {
-        if (!error.response) {
+        console.error(`---> caiyun translate error: ${error}`);
+
+        if (error.message === "canceled") {
           console.log(`---> caiyun cancelled`);
           return;
         }

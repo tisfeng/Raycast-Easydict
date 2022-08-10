@@ -76,7 +76,8 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
       })
       .catch((error) => {
         console.error(`---> Youdao translate error: ${error}`);
-        if (!error.response) {
+
+        if (error.message === "canceled") {
           console.log(`---> youdao cancelled`);
           return;
         }

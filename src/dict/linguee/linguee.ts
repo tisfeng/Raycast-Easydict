@@ -72,7 +72,7 @@ export async function rquestLingueeDictionary(
       .catch((error) => {
         console.error(`---> linguee error: ${error}`);
 
-        if (!error.response) {
+        if (error.message === "canceled") {
           console.log(`---> linguee cancelled`);
           return;
         }
