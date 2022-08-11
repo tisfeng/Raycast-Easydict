@@ -3,7 +3,7 @@ import { LingueePosText } from "./types";
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 17:51
+ * @lastEditTime: 2022-08-11 18:21
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -254,7 +254,7 @@ function getWordExplanationList(
         audioUrl: audioUrl,
         examples: exampleItems,
         frequencyTag: {
-          tagText: tag,
+          tagForms: tag,
           displayType: designatedFrequencey ?? wordFrequency,
         },
       };
@@ -286,15 +286,17 @@ function getExplanationDisplayType(wordFrequency: string): LingueeListItemType {
 
 /**
  * Get tag forms text.
- *
- *  <span class='tag_forms forms_t:pinyin'> ()</span>
  */
 function getTagFormsText(tagForms: Element | null): string {
+  console.log(`---> getTagFormsText: ${tagForms}, ${tagForms?.textContent}`);
   let tag_forms_text = tagForms?.textContent ?? "";
-  const tag_forms_trimText = tagForms?.textContent?.replace(/\(.*\)/, "").trim();
+
+  // try remove blank (), <span class='tag_forms forms_t:pinyin'> ()</span>
+  const tag_forms_trimText = tagForms?.textContent?.replace(/\(/g, "").replace(/\)/g, "").trim();
   if (!tag_forms_trimText) {
     tag_forms_text = "";
   }
+  console.log(`---> tag_forms_text: ${tag_forms_text}`);
   return tag_forms_text;
 }
 

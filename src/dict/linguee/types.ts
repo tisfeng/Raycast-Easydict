@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 17:18
+ * @lastEditTime: 2022-08-11 17:59
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,7 +38,7 @@ export interface LingueeWordExplanation {
 }
 
 export interface LingueeFrequencyTag {
-  tagText: string; // (often used), (almost always used)
+  tagForms: string; // (often used), (almost always used), "good" in French: (bonne f sl, bons m pl, bonnes f pl)
   displayType: LingueeListItemType; // as frequency use: AlmostAlways, OfenUsed, Common, LessCommon
 }
 

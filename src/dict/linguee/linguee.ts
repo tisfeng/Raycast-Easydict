@@ -203,7 +203,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResul
             if (explanationItem.featured) {
               const title = `${explanationItem.translation}`;
               const isCommon = explanationItem.frequencyTag.displayType === LingueeListItemType.Common;
-              const tagText = isCommon ? "" : `  ${explanationItem.frequencyTag.tagText}`;
+              const tagText = isCommon ? "" : `  ${explanationItem.frequencyTag.tagForms}`;
               let translation = "";
               if (explanationItem.examples.length) {
                 translation = explanationItem.examples[0].translations[0].text;
