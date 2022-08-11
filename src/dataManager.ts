@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 19:15
+ * @lastEditTime: 2022-08-11 21:22
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -650,10 +650,11 @@ export class DataManager {
    * Update Dictionary type section title.
    *
    * 1. Add fromTo language to each dictionary section title.
-   * 2. Add fromTo language to the first translation section title. (only when dictionary result is empyt)
+   * 2. Add fromTo language to the first translation section title.
    */
   updateTypeSectionTitle() {
-    this.queryResults.forEach((queryResult, i) => {
+    let isFirstTranslation = true;
+    this.queryResults.forEach((queryResult) => {
       const { type, sourceResult, displaySections } = queryResult;
       const isDictionaryType = Object.values(DicionaryType).includes(type as DicionaryType);
       const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
@@ -666,9 +667,12 @@ export class DataManager {
 
         const fromTo = `${fromLanguageItem.languageTitle}${fromLanguageItem.emoji} --> ${toLanguageItem.languageTitle}${toLanguageItem.emoji}`;
         let sectionTitle = `${sourceResult.type}`;
-        const isShowTranslationTitle = i === 0 && isTranslationType && !this.isShowDetail;
-        if (isDictionaryType || isShowTranslationTitle) {
+        const isShowingTranslationFromTo = isFirstTranslation && isTranslationType && !this.isShowDetail;
+        if (isDictionaryType || isShowingTranslationFromTo) {
           sectionTitle = `${sourceResult.type}   (${fromTo})`;
+          if (isShowingTranslationFromTo) {
+            isFirstTranslation = false;
+          }
         }
         displaySection.sectionTitle = sectionTitle;
       }
