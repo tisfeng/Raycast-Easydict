@@ -2,15 +2,15 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 16:46
+ * @lastEditTime: 2022-08-11 19:15
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { formatLingueeDisplaySections, rquestLingueeDictionary } from "./dict/linguee/linguee";
-import { hasLingueeDictionaryEntries } from "./dict/linguee/parse";
+import { rquestLingueeDictionary } from "./dict/linguee/linguee";
+import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
@@ -682,8 +682,10 @@ export class DataManager {
   getWordInfoFromDisplaySections(displaySections: DisplaySection[]) {
     if (displaySections.length) {
       const displaySection = displaySections[0];
-      const wordInfo = displaySection.items[0].queryWordInfo;
-      return wordInfo;
+      if (displaySection.items.length) {
+        const wordInfo = displaySection.items[0].queryWordInfo;
+        return wordInfo;
+      }
     }
     return this.queryWordInfo as QueryWordInfo;
   }

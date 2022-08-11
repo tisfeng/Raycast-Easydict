@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 15:47
+ * @lastEditTime: 2022-08-11 19:15
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { getLingueeWebDictionaryUrl } from "./dict/linguee/linguee";
+import { getLingueeWebDictionaryUrl } from "./dict/linguee/parse";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
