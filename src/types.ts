@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 13:42
+ * @lastEditTime: 2022-08-11 21:32
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,7 +44,7 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 
 export interface RequestTypeResult {
   type: RequestType;
-  result: RequestResultType | null; // when not supported, result is null.
+  result?: RequestResultType; // when language is not supported, result is undefined.
   translations: string[]; // each translation is a paragraph.
   oneLineTranslation?: string; // one line translation. will automatically give value when updating if type is TranslationType.
   errorInfo?: RequestErrorInfo;

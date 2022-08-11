@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 19:20
+ * @lastEditTime: 2022-08-11 21:33
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,7 +96,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   };
   const hasEntries = hasLingueeDictionaryEntries(lingueeResult);
   queryWordInfo.hasDictionaryEntries = hasEntries;
-  const result = hasEntries ? lingueeResult : null;
+  const result = hasEntries ? lingueeResult : undefined;
   const lingueeTypeResult: RequestTypeResult = {
     type: DicionaryType.Linguee,
     result: result,

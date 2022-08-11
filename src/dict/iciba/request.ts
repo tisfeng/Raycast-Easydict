@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-27 10:26
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-04 22:01
+ * @lastEditTime: 2022-08-11 21:35
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -37,7 +37,7 @@ export function icibaDictionary(word: string): Promise<RequestTypeResult> {
       .catch((error) => {
         resolve({
           type: DicionaryType.Iciba,
-          result: null,
+          result: undefined,
           errorInfo: {
             code: error.response?.status,
             message: error.response?.statusText,

@@ -37,7 +37,7 @@ export function requestCaiyunTextTranslate(
     console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
     return Promise.resolve({
       type: TranslationType.Caiyun,
-      result: null,
+      result: undefined,
       translations: [],
     });
   }

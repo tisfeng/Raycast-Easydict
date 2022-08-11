@@ -36,7 +36,7 @@ export async function rquestLingueeDictionary(
   if (!lingueeUrl) {
     return Promise.resolve({
       type: DicionaryType.Linguee,
-      result: null,
+      result: undefined,
       translations: [],
     });
   }
