@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 01:13
+ * @lastEditTime: 2022-08-11 15:42
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -128,7 +128,7 @@ function getShortcutsScript(shortcutName: string, input: string): string {
           run the shortcut named "${shortcutName}" with input "${escapedInput}"
         end tell
       `;
-  console.log(`apple script: ${appleScriptContent}`);
+  // console.log(`apple script: ${appleScriptContent}`);
   return appleScriptContent;
 }
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 10:31
+ * @lastEditTime: 2022-08-11 15:45
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -105,7 +105,7 @@ export class DataManager {
     for (const result of this.queryResults) {
       const shouldDisplay = !result.disableDisplay;
       if (shouldDisplay && result.displaySections) {
-        console.log(`---> update display sections: ${result.type}, length: ${result.displaySections.length}`);
+        // console.log(`---> update display sections: ${result.type}, length: ${result.displaySections.length}`);
         this.updateTranslationMarkdown(result);
         displaySections.push(result.displaySections);
       }
@@ -491,9 +491,9 @@ export class DataManager {
   updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
-    console.log("---> translations:", sourceResult.translations);
+    // console.log("---> translations:", sourceResult.translations);
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
-    console.log(`---> oneLineTranslations: ${oneLineTranslation}`);
+    // console.log(`---> oneLineTranslations: ${oneLineTranslation}`);
     sourceResult.oneLineTranslation = oneLineTranslation;
     if (oneLineTranslation) {
       const displayItem: ListDisplayItem = {
@@ -536,7 +536,6 @@ export class DataManager {
    * @param translation the translation to update Linguee translation. if translation is empty, use DeepL translation.
    */
   private updateLingueeTranslation(lingueeQueryResult: QueryResult | undefined, translation?: string) {
-    console.log(`---> updateLingueeTranslation: ${translation}`);
     if (!lingueeQueryResult) {
       return;
     }

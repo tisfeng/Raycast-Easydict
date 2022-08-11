@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 15:51
+ * @lastEditTime: 2022-08-11 15:40
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,10 +22,10 @@ import { tencentLanguageDetect } from "./translation/tencent";
 import { RequestErrorInfo } from "./types";
 
 export enum LanguageDetectType {
-  Simple,
-  Franc,
-  Apple,
-  Tencent,
+  Simple = "Simple",
+  Franc = "Franc",
+  Apple = "Apple",
+  Tencent = "Tencent",
 }
 
 export interface LanguageDetectTypeResult {
@@ -171,7 +171,7 @@ function raceDetectTextLanguage(
 
       const errorInfo = error as RequestErrorInfo;
       const errorType = errorInfo.type as LanguageDetectType;
-      if (errorType && errorType in LanguageDetectType) {
+      if (Object.values(LanguageDetectType).includes(errorType)) {
         const detectTypeResult = {
           type: errorType,
           youdaoLanguageId: "",
