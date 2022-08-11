@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 15:40
+ * @lastEditTime: 2022-08-11 23:36
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -302,9 +302,9 @@ function getFinalLanguageDetectResult(
  *  * NOTE: Only preferred language confidence > highConfidence will mark as confirmed.
  *
  *  First, if franc detect language is confirmed, use it directly.
- *  Second, if detect preferred language confidence > lowConfidence, use it.
- *  Third, if simple detect language is preferred language, use it.
- *  Finally, if franc detect language is valid, use it, else use "auto".
+ *  Second, if detect preferred language confidence > lowConfidence, use it, but not confirmed.
+ *  Third, if franc detect language is valid, use it, but not confirmed.
+ *  Finally, if simple detect language is preferred language, use it. else use "auto".
  */
 function getLocalTextLanguageDetectResult(
   text: string,
@@ -319,7 +319,7 @@ function getLocalTextLanguageDetectResult(
     return francDetectResult;
   }
 
-  // if detect preferred language confidence > lowConfidence, use it.
+  // if detect preferred language confidence > lowConfidence, use it, mark it as unconfirmed.
   const detectedLanguageArray = francDetectResult.detectedLanguageArray;
   if (detectedLanguageArray) {
     for (const [languageId, confidence] of detectedLanguageArray) {
@@ -327,7 +327,7 @@ function getLocalTextLanguageDetectResult(
         console.log(
           `franc detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence} (>${lowConfidence})`
         );
-        const lowConfidenceDetectTypeResult = {
+        const lowConfidenceDetectTypeResult: LanguageDetectTypeResult = {
           type: francDetectResult.type,
           youdaoLanguageId: languageId,
           confirmed: false,
@@ -338,18 +338,18 @@ function getLocalTextLanguageDetectResult(
     }
   }
 
+  // if franc detect language is valid, use it, such as 'fr', 'it'.
+  const youdaoLanguageId = francDetectResult.youdaoLanguageId;
+  if (isValidLanguageId(youdaoLanguageId)) {
+    console.log(`final use franc unconfirmed but valid detect: ${youdaoLanguageId}`);
+    return francDetectResult;
+  }
+
   // if simple detect is preferred language, use simple detect language('en', 'zh').
   const simpleDetectLangTypeResult = simpleDetectTextLanguage(text);
   if (isPreferredLanguage(simpleDetectLangTypeResult.youdaoLanguageId)) {
     console.log(`use simple detect: ${JSON.stringify(simpleDetectLangTypeResult, null, 4)}`);
     return simpleDetectLangTypeResult;
-  }
-
-  // if franc detect language is valid, use it, such as 'fr', 'it'.
-  const youdaoLanguageId = francDetectResult.youdaoLanguageId;
-  if (isValidLanguageId(youdaoLanguageId)) {
-    console.log(`final use franc unconfirmed but valid detect: ${francDetectResult.youdaoLanguageId}`);
-    return francDetectResult;
   }
 
   // finally, use "auto" as fallback.
