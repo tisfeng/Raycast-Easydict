@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 15:45
+ * @lastEditTime: 2022-08-11 16:46
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -661,10 +661,10 @@ export class DataManager {
       if (sourceResult && displaySections?.length) {
         const displaySection = displaySections[0];
         const wordInfo = displaySection.items[0].queryWordInfo;
-        const fromLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.fromLanguage).languageTitle;
-        const toLanguageTitle = getLanguageItemFromYoudaoId(wordInfo.toLanguage).languageTitle;
+        const fromLanguageItem = getLanguageItemFromYoudaoId(wordInfo.fromLanguage);
+        const toLanguageItem = getLanguageItemFromYoudaoId(wordInfo.toLanguage);
 
-        const fromTo = `${fromLanguageTitle} --> ${toLanguageTitle}`;
+        const fromTo = `${fromLanguageItem.languageTitle}${fromLanguageItem.emoji} --> ${toLanguageItem.languageTitle}${toLanguageItem.emoji}`;
         let sectionTitle = `${sourceResult.type}`;
         const isShowTranslationTitle = i === 0 && isTranslationType && !this.isShowDetail;
         if (isDictionaryType || isShowTranslationTitle) {
@@ -678,7 +678,6 @@ export class DataManager {
    * Get word info from displaySections.
    *
    * First, get wordInfo from the first item of the first section. If displaySections is empty, return current query word info.
-   *
    */
   getWordInfoFromDisplaySections(displaySections: DisplaySection[]) {
     if (displaySections.length) {
