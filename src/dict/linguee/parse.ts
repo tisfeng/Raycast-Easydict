@@ -2,17 +2,17 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 21:33
+ * @lastEditTime: 2022-08-11 23:03
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { parse } from "node-html-parser";
-import { getLanguageItemFromDeepLSourceId, getLanguageItemFromYoudaoId } from "../../language/languages";
+import { getLanguageItemFromDeepLSourceId } from "../../language/languages";
 import { DicionaryType, DisplaySection, ListDisplayItem, RequestTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
-import { ValidLanguagePairKey, validLanguagePairs } from "./consts";
+import { isValidLingueeLanguagePair } from "./languages";
 import {
   LingueeDictionaryResult,
   LingueeExample,
@@ -427,35 +427,18 @@ export const parseGuessWord = (dom: ReturnType<typeof parse>) => {
  * Get linguee web url.
  */
 export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string | undefined {
-  let fromLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.fromLanguage).languageTitle;
-  let targetLanguageTitle = getLanguageItemFromYoudaoId(queryWordInfo.toLanguage).languageTitle;
-  const ChineseLanguageTitle = "Chinese";
-  if (fromLanguageTitle.startsWith(ChineseLanguageTitle)) {
-    fromLanguageTitle = ChineseLanguageTitle;
-  }
-  fromLanguageTitle = fromLanguageTitle.toLowerCase();
-  if (targetLanguageTitle.startsWith(ChineseLanguageTitle)) {
-    targetLanguageTitle = ChineseLanguageTitle;
-  }
-  targetLanguageTitle = targetLanguageTitle.toLowerCase();
-
-  const englishLanguageLowerTitle = "english";
-  let languagePairKey = `${fromLanguageTitle}-${targetLanguageTitle}` as ValidLanguagePairKey;
-  if (targetLanguageTitle === englishLanguageLowerTitle) {
-    languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}` as ValidLanguagePairKey;
-  }
-
-  const languagePairItem = validLanguagePairs[languagePairKey];
-  if (!languagePairItem) {
-    console.log(`----> lingueeis not a valid language pair: ${languagePairKey}`);
+  const { fromLanguage, toLanguage } = queryWordInfo;
+  const languagePair = `${fromLanguage}-${toLanguage}`;
+  const isValidLanguage = isValidLingueeLanguagePair(fromLanguage, toLanguage);
+  if (!isValidLanguage) {
+    console.log(`----> lingueeis not a valid language pair: ${languagePair}`);
     return;
   }
-  const languagePair = languagePairItem.pair;
+
   // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
   const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
     queryWordInfo.word
   )}`;
-
   return lingueeUrl;
 }
 
