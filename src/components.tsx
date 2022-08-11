@@ -148,7 +148,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
                 key={selectedLanguageItem.youdaoLanguageId}
                 title={selectedLanguageItem.languageTitle}
                 onAction={() => props.onLanguageUpdate(selectedLanguageItem)}
-                icon={isSameWithTargetLanguage ? Icon.ArrowRight : Icon.Globe}
+                icon={isSameWithTargetLanguage ? Icon.ArrowRight : { source: selectedLanguageItem.emoji }}
               />
             );
           })}

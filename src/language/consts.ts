@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 10:58
+ * @lastEditTime: 2022-08-11 16:23
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,6 +27,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "auto",
     googleLanguageId: "auto",
     languageTitle: "Auto Language",
+    emoji: "🌐",
   },
   {
     youdaoLanguageId: "zh-CHS",
@@ -41,6 +42,7 @@ export const languageItemList: LanguageItem[] = [
     googleLanguageId: "zh-CN",
     languageTitle: "Chinese-Simplified",
     voiceList: ["Ting-Ting"],
+    emoji: "🇨🇳",
   },
   {
     youdaoLanguageId: "zh-CHT",
@@ -53,6 +55,7 @@ export const languageItemList: LanguageItem[] = [
     googleLanguageId: "zh-TW",
     languageTitle: "Chinese-Traditional",
     voiceList: ["Ting-Ting"],
+    emoji: "🇹🇼",
   },
   {
     youdaoLanguageId: "en",
@@ -69,6 +72,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "en",
     languageTitle: "English",
     voiceList: ["Alex", "Samantha"],
+    emoji: "🇺🇸",
   },
   {
     youdaoLanguageId: "ja",
@@ -84,6 +88,7 @@ export const languageItemList: LanguageItem[] = [
     caiyunLanguageId: "ja",
     languageTitle: "Japanese",
     voiceList: ["Kyoko"],
+    emoji: "🇯🇵",
   },
   {
     youdaoLanguageId: "ko",
@@ -97,6 +102,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "kor",
     languageTitle: "Korean",
     voiceList: ["Yuna"],
+    emoji: "🇰🇷",
   },
   {
     youdaoLanguageId: "fr",
@@ -111,6 +117,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "fra",
     languageTitle: "French",
     voiceList: ["Amelie", "Thomas"],
+    emoji: "🇫🇷",
   },
   {
     youdaoLanguageId: "es",
@@ -124,6 +131,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "spa",
     languageTitle: "Spanish",
     voiceList: ["Jorge", "Juan", "Diego", "Monica", "Paulina"],
+    emoji: "🇪🇸",
   },
   {
     youdaoLanguageId: "pt",
@@ -137,6 +145,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "pt",
     languageTitle: "Portuguese",
     voiceList: ["Joana", "Luciana"],
+    emoji: "🇵🇹",
   },
   {
     youdaoLanguageId: "it",
@@ -149,6 +158,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "it",
     languageTitle: "Italian",
     voiceList: ["Alice", "Luca"],
+    emoji: "🇮🇹",
   },
   {
     youdaoLanguageId: "de",
@@ -162,6 +172,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "de",
     languageTitle: "German",
     voiceList: ["Anna"],
+    emoji: "🇩🇪",
   },
   {
     youdaoLanguageId: "ru",
@@ -174,6 +185,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "ru",
     languageTitle: "Russian",
     voiceList: ["Milena", "Yuri"],
+    emoji: "🇷🇺",
   },
   {
     youdaoLanguageId: "ar",
@@ -185,6 +197,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "ara",
     languageTitle: "Arabic",
     voiceList: ["Maged"],
+    emoji: "🇦🇪",
   },
   {
     youdaoLanguageId: "sv",
@@ -195,6 +208,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "swe",
     languageTitle: "Swedish",
     voiceList: ["Alva"],
+    emoji: "🇸🇪",
   },
   {
     youdaoLanguageId: "ro",
@@ -205,6 +219,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "rom",
     languageTitle: "Romanian",
     voiceList: ["Ioana"],
+    emoji: "🇷🇴",
   },
   {
     youdaoLanguageId: "th",
@@ -215,6 +230,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "th",
     languageTitle: "Thai",
     voiceList: ["Kanya"],
+    emoji: "🇹🇭",
   },
   {
     youdaoLanguageId: "sk",
@@ -225,6 +241,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "slo",
     languageTitle: "Slovak",
     voiceList: ["Laura"],
+    emoji: "🇸🇰",
   },
   {
     youdaoLanguageId: "nl",
@@ -235,6 +252,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "nl",
     languageTitle: "Dutch",
     voiceList: ["Ellen", "Xander"],
+    emoji: "🇳🇱",
   },
   {
     youdaoLanguageId: "hu",
@@ -245,6 +263,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "hu",
     languageTitle: "Hungarian",
     voiceList: ["Mariska"],
+    emoji: "🇭🇺",
   },
   {
     youdaoLanguageId: "el",
@@ -255,6 +274,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "el",
     languageTitle: "Greek",
     voiceList: ["Melina"],
+    emoji: "🇬🇷",
   },
   {
     youdaoLanguageId: "da",
@@ -265,6 +285,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "dan",
     languageTitle: "Danish",
     voiceList: ["Sara"],
+    emoji: "🇩🇰",
   },
   {
     youdaoLanguageId: "fi",
@@ -275,6 +296,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "fin",
     languageTitle: "Finnish",
     voiceList: ["Satu"],
+    emoji: "🇫🇮",
   },
   {
     youdaoLanguageId: "pl",
@@ -285,6 +307,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "pl",
     languageTitle: "Polish",
     voiceList: ["Zosia"],
+    emoji: "🇵🇱",
   },
   {
     youdaoLanguageId: "cs",
@@ -295,5 +318,6 @@ export const languageItemList: LanguageItem[] = [
     baiduLanguageId: "cs",
     languageTitle: "Czech",
     voiceList: ["Zuzana"],
+    emoji: "🇨🇿",
   },
 ];

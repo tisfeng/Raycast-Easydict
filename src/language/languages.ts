@@ -3,7 +3,7 @@ import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 00:33
+ * @lastEditTime: 2022-08-11 16:24
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -31,6 +31,7 @@ export interface LanguageItem {
   googleLanguageId?: string;
   youdaoWebLanguageId?: string;
   eudicWebLanguageId?: string;
+  emoji: string;
 }
 
 export const maxLineLengthOfChineseTextDisplay = 45;
