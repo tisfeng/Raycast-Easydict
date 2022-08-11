@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 10:14
+ * @lastEditTime: 2022-08-11 11:49
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { showToast, Toast } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
 import { HttpsProxyAgent, HttpsProxyAgentOptions } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
@@ -37,12 +38,14 @@ axios.interceptors.response.use(function (response) {
  */
 export function configAxiosProxy() {
   if (myPreferences.enableSystemProxy) {
-    const env = process.env;
     /**
      * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
      * Detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
      */
-    env.PATH = "/usr/sbin"; // $ where scutil
+
+    const env = process.env;
+    // env.PATH = "/usr/sbin"; // $ where scutil
+    env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
     // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
 
     getMacSystemProxy()
@@ -62,10 +65,15 @@ export function configAxiosProxy() {
       })
       .catch((err) => {
         console.error(`---> get system proxy error: ${JSON.stringify(err, null, 2)}`);
+        showToast({
+          style: Toast.Style.Failure,
+          title: `Get system proxy error`,
+          message: `${JSON.stringify(err)}`,
+        });
       })
       .finally(() => {
         // ! need to reset env.PATH, otherwise, will throw error: '/bin/sh: osascript: command not found'
-        delete env.PATH; // env.PATH = "/usr/sbin:/usr/bin:/bin";
+        delete env.PATH; // env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
       });
   } else {
     console.log("disable system proxy");
