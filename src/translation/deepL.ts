@@ -3,7 +3,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 23:14
+ * @lastEditTime: 2022-08-11 10:20
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 10:07
+ * @lastEditTime: 2022-08-11 10:31
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -40,10 +40,10 @@ const sortOrder = getSortOrder();
 
 export class DataManager {
   updateListDisplaySections: (displaySections: DisplaySection[]) => void = () => {
-    // later assign callback function.
+    // later will assign callback.
   };
   updateLoadingState: (isLoadingState: boolean) => void = () => {
-    // later assign callback function.
+    // later will assign callback.
   };
 
   queryResults: QueryResult[] = [];
@@ -218,6 +218,10 @@ export class DataManager {
         this.updateTranslationDisplay(queryResult);
       })
       .catch((error) => {
+        if (!myPreferences.enableDeepLTranslate) {
+          return;
+        }
+
         const errorInfo = error as RequestErrorInfo;
         showToast({
           style: Toast.Style.Failure,
@@ -553,7 +557,6 @@ export class DataManager {
         firstLingueeDisplayItem.title = translation;
       }
       console.log(`---> linguee translation: ${firstLingueeDisplayItem.title}`);
-
       this.updateQueryResultAndSections(lingueeQueryResult);
     }
   }
@@ -806,6 +809,7 @@ export class DataManager {
     this.isLastQuery = false;
     this.updateLoadingState(false);
 
+    this.queryRecordList = [];
     this.queryResults = [];
     this.updateListDisplaySections([]);
   }
