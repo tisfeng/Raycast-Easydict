@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 17:07
+ * @lastEditTime: 2022-08-11 10:14
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -42,13 +42,13 @@ export function configAxiosProxy() {
      * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
      * Detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
      */
-    env.PATH = "/usr/sbin";
+    env.PATH = "/usr/sbin"; // $ where scutil
     // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
 
     getMacSystemProxy()
       .then((systemProxy) => {
         if (systemProxy) {
-          console.log(`---> system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
+          // console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
           if (systemProxy.HTTPEnable) {
             const proxyOptions: HttpsProxyAgentOptions = {
               host: systemProxy.HTTPProxy,
@@ -56,7 +56,7 @@ export function configAxiosProxy() {
             };
             const httpsAgent = new HttpsProxyAgent(proxyOptions);
             axios.defaults.httpsAgent = httpsAgent;
-            // console.log(`---> use https agent: ${JSON.stringify(proxyOptions, null, 4)}`);
+            console.log(`---> use http system proxy: ${JSON.stringify(proxyOptions, null, 4)}`);
           }
         }
       })
