@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 17:37
+ * @lastEditTime: 2022-08-11 17:32
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -204,7 +204,10 @@ export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResul
               const title = `${explanationItem.translation}`;
               const isCommon = explanationItem.frequencyTag.displayType === LingueeListItemType.Common;
               const tagText = isCommon ? "" : `  ${explanationItem.frequencyTag.tagText}`;
-              const translation = explanationItem.examples.length ? explanationItem.examples[0].translation : "";
+              let translation = "";
+              if (explanationItem.examples.length) {
+                translation = explanationItem.examples[0].translations[0].text;
+              }
               let pos = explanationItem.pos;
               if (pos && (tagText || translation)) {
                 pos = `${pos}.`;
@@ -274,9 +277,10 @@ export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResul
       const sectionTitle = `Examples:`;
       const displayItems = examples.map((example) => {
         const displayType = LingueeListItemType.Example;
-        const pos = example.pos ? `${example.pos}.  ` : "";
-        const title = `${example.example}`;
-        const subtitle = `${pos}—  ${example.translation}`;
+        const title = `${example.example.text}`;
+        const pos = example.example.pos ? `${example.example.pos}.  ` : "";
+        const translations = example.translations.map((translation) => `${translation.text}`).join(";  ");
+        const subtitle = `${pos}—  ${translations}`;
         const copyText = `${title} ${subtitle}`;
         const displayItem: ListDisplayItem = {
           key: copyText,

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 12:55
+ * @lastEditTime: 2022-08-11 17:18
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,10 +25,10 @@ export interface LingueeWordItem {
   pos: string; // part of speech, e.g. noun, verb, adj, etc.
   placeholder: string; // eg. (sth. ~), sth.
   audioUrl: string; // may have value when search English word, there are US and UK audio, we use US audio
-  translationItems: LingueeWordTranslation[];
+  translationItems: LingueeWordExplanation[];
 }
 
-export interface LingueeWordTranslation {
+export interface LingueeWordExplanation {
   featured?: boolean;
   translation: string;
   pos: string;
@@ -43,9 +43,15 @@ export interface LingueeFrequencyTag {
 }
 
 export interface LingueeExample {
-  example: string;
-  translation: string;
-  pos: string;
+  example: LingueePosText;
+  // translation: string;
+  // pos: string;
+  translations: LingueePosText[];
+}
+
+export interface LingueePosText {
+  text: string; // good
+  pos: string; // adj
 }
 
 export interface LingueeWikipedia {

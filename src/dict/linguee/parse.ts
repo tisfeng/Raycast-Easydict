@@ -1,8 +1,9 @@
+import { LingueePosText } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 13:16
+ * @lastEditTime: 2022-08-11 17:51
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,8 +18,8 @@ import {
   LingueeExample,
   LingueeListItemType,
   LingueeWikipedia,
+  LingueeWordExplanation,
   LingueeWordItem,
-  LingueeWordTranslation,
 } from "./types";
 
 /**
@@ -154,7 +155,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         console.log(`---> tag_lemma_context placeholder: ${placeholderText}`);
       }
       const tag_wordtype = lemma?.querySelector(".lemma_desc .tag_wordtype"); // "noun, feminine"
-      const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. femme in French, "(plural: femmes f)"
+      const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. "good" in French, "(bonne f sl, bons m pl, bonnes f pl)"
       const tag_forms_text = getTagFormsText(tag_forms);
       const tag_area = lemma?.querySelector(".lemma_desc .tag_area"); // eg. heel in German, "heel. verb (nautical science)"
       const tag_area_text = tag_area ? `${tag_area?.textContent}` : "";
@@ -170,6 +171,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       // console.log(`---> audioUrl: ${audioUrl}`);
 
       const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
+
       // 2. get word featured explanation
       const explanations = getWordExplanationList(featuredTranslations as unknown as HTMLElement[], true);
       // remove featured explanation to get unfeatured explanation
@@ -237,16 +239,15 @@ function getWordExplanationList(
           const tag_s = example?.querySelector(".tag_s");
           const tag_t = example?.querySelector(".tag_t");
           const exampleItem: LingueeExample = {
-            example: tag_s?.textContent ?? "",
-            translation: tag_t?.textContent ?? "",
-            pos: "",
+            example: { text: tag_s?.textContent ?? "", pos: "" },
+            translations: [{ text: tag_t?.textContent ?? "", pos: "" }],
           };
           exampleItems.push(exampleItem);
         });
       }
       const tag = tagText.trim();
       const wordFrequency = getExplanationDisplayType(tag);
-      const explanation: LingueeWordTranslation = {
+      const explanation: LingueeWordExplanation = {
         translation: explanationElement?.textContent ?? "",
         pos: tag_type?.textContent ?? "",
         featured: isFeatured,
@@ -257,7 +258,7 @@ function getWordExplanationList(
           displayType: designatedFrequencey ?? wordFrequency,
         },
       };
-      // console.log(`---> ${JSON.stringify(explanation, null, 2)}`);
+      console.log(`---> explanation: ${JSON.stringify(explanation, null, 2)}`);
       explanationItems.push(explanation);
     }
   }
@@ -307,19 +308,27 @@ function getExampleList(exampleLemma: HTMLElement[] | undefined) {
     for (const lemma of exampleLemma) {
       const exampleElement = lemma.querySelector(".line .dictLink");
       const tagType = lemma.querySelector(".line .tag_type");
+      const exmaple: LingueePosText = {
+        pos: tagType?.textContent ?? "",
+        text: exampleElement?.textContent ?? "",
+      };
+
       // * may have multiple translations.
       const translationElement = lemma.querySelectorAll(".lemma_content .dictLink");
-      const translations: string[] = [];
+      const translations: LingueePosText[] = [];
       translationElement.forEach((element) => {
         if (element.textContent) {
-          translations.push(element.textContent);
+          const translation: LingueePosText = {
+            text: element.textContent,
+            pos: tagType?.textContent ?? "",
+          };
+          translations.push(translation);
         }
       });
-      // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
+      console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
       const lingueeExample: LingueeExample = {
-        example: exampleElement?.textContent ?? "",
-        pos: tagType?.textContent ?? "",
-        translation: translations.join(";  "),
+        example: exmaple,
+        translations: translations,
       };
       exampleItems.push(lingueeExample);
     }
