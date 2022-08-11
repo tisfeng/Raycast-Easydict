@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 17:23
+ * @lastEditTime: 2022-08-11 15:47
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -75,14 +75,18 @@ export function ListActionPanel(props: ActionListPanelProps) {
           <ActionRecentUpdate title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
 
-        {props.isInstalledEudic && (
-          <Action icon={Icon.MagnifyingGlass} title="Open In Eudic" onAction={() => openInEudic(queryWordInfo.word)} />
-        )}
-
         {isShowingLingueeTop && <OpenInWebQueryAction webTranslationItem={lingueeWebItem} />}
         {isShowingYoudaoDictioanryTop && <OpenInWebQueryAction webTranslationItem={youdaoWebItem} />}
         {isShowingDeepLTop && <OpenInWebQueryAction webTranslationItem={deepLWebItem} />}
         {isShowingGoogleTop && <OpenInWebQueryAction webTranslationItem={googleWebItem} />}
+
+        {props.isInstalledEudic && (
+          <Action
+            icon={Icon.MagnifyingGlass}
+            title="Open In Eudic App"
+            onAction={() => openInEudic(queryWordInfo.word)}
+          />
+        )}
 
         <Action.CopyToClipboard
           onCopy={() => {
