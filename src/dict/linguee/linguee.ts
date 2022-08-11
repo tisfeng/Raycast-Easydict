@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 20:51
+ * @lastEditTime: 2022-08-11 21:16
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -66,11 +66,15 @@ export async function rquestLingueeDictionary(
         const lingueeTypeResult = parseLingueeHTML(html);
         console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
 
-        // linguee detect language may be wrong, so we use queryWordInfo language. eg. sql, auto detect is chinese -> english.
-        const lingueeDictionaryresult = lingueeTypeResult.result as LingueeDictionaryResult;
-        if (lingueeDictionaryresult) {
-          const wordInfo = lingueeDictionaryresult.queryWordInfo;
-          lingueeDictionaryresult.queryWordInfo = {
+        /**
+         * Generally, the language of the queryWordInfo is the language of the dictionary result.
+         * But sometimes, linguee detect language may be wrong when word item is empty, so we use queryWordInfo language.
+         * eg. sql, auto detect is chinese -> english.
+         */
+        const lingueeDictionaryResult = lingueeTypeResult.result as LingueeDictionaryResult;
+        if (lingueeDictionaryResult && lingueeDictionaryResult.wordItems.length === 0) {
+          const wordInfo = lingueeDictionaryResult.queryWordInfo;
+          lingueeDictionaryResult.queryWordInfo = {
             ...wordInfo,
             word: queryWordInfo.word,
             fromLanguage: queryWordInfo.fromLanguage,
