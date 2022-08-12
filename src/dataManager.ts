@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 13:22
+ * @lastEditTime: 2022-08-12 17:37
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -797,7 +797,6 @@ export class DataManager {
    * Cancel current query.
    */
   cancelCurrentQuery() {
-    console.log(`---> cancel current query`);
     this.controller.abort();
   }
 
@@ -805,7 +804,6 @@ export class DataManager {
    * Clear query result.
    */
   clearQueryResult() {
-    console.log(`---> clear query result`);
     this.cancelCurrentQuery();
 
     this.isShowDetail = false;

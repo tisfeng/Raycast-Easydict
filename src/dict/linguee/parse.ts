@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 23:03
+ * @lastEditTime: 2022-08-12 17:33
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -289,7 +289,7 @@ function getExplanationDisplayType(wordFrequency: string): LingueeListItemType {
  * Get tag forms text.
  */
 function getTagFormsText(tagForms: Element | null): string {
-  console.log(`---> getTagFormsText: ${tagForms}, ${tagForms?.textContent}`);
+  // console.log(`---> getTagFormsText: ${tagForms}, ${tagForms?.textContent}`);
   let tag_forms_text = tagForms?.textContent ?? "";
 
   // try remove blank (), <span class='tag_forms forms_t:pinyin'> ()</span>
@@ -328,7 +328,7 @@ function getExampleList(exampleLemma: HTMLElement[] | undefined) {
           translations.push(translation);
         }
       });
-      console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
+      // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
       const lingueeExample: LingueeExample = {
         example: exmaple,
         translations: translations,

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 16:43
+ * @lastEditTime: 2022-08-12 17:30
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { getLanguageItemFromAppleChineseTitle, getLanguageItemFromYoudaoId } from "./language/languages";
+import { getLanguageItemFromAppleId, getLanguageItemFromYoudaoId } from "./language/languages";
 import { RequestErrorInfo, TranslationType } from "./types";
 
 /**
@@ -101,7 +101,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
       }
 
       const appleLanaugeId = stdout.trim(); // * maybe have line break, so trim it.
-      const youdaoLanguageId = getLanguageItemFromAppleChineseTitle(appleLanaugeId).youdaoLanguageId;
+      const youdaoLanguageId = getLanguageItemFromAppleId(appleLanaugeId).youdaoLanguageId;
       const detectTypeResult: LanguageDetectTypeResult = {
         type: LanguageDetectType.Apple,
         sourceLanguageId: appleLanaugeId,

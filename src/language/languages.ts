@@ -72,17 +72,48 @@ export function getLanguageItemFromBaiduId(baiduLanguageId: string): LanguageIte
 }
 
 /**
- * return language item from apple Chinese title, such as "中文" --> LanguageItem
+ * Get language item from apple detect language id, this value is depend on the system language.
  *
- * Todo: currently only support Chinese, later support other languages
+ * Example: if system language is English, then the value is "English", if system language is Chinese, then the value is "中文".
+ *
+ * Todo: currently only support Chinese and English, later support other languages.
+ *
+ * Todo: use franc to detect language, then use franc language id to get language item.
  */
-export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem {
+export function getLanguageItemFromAppleId(appleLanguageId: string): LanguageItem {
+  const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
+  if (chineseLanguageItem) {
+    return chineseLanguageItem;
+  }
+
+  const englishLanguageItem = getLanguageItemFromAppleEnglishTitle(appleLanguageId);
+  if (englishLanguageItem) {
+    return englishLanguageItem;
+  }
+
+  return languageItemList[0];
+}
+
+/**
+ * Get language item from apple Chinese title, such as "中文" --> LanguageItem
+ */
+export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
     if (langItem.appleDetectChineseLanguageTitle === chineseTitle) {
       return langItem;
     }
   }
-  return languageItemList[0];
+}
+
+/**
+ * Get language item from apple English title, such as "English" --> LanguageItem
+ */
+export function getLanguageItemFromAppleEnglishTitle(englishTitle: string): LanguageItem | undefined {
+  for (const langItem of languageItemList) {
+    if (langItem.languageTitle === englishTitle) {
+      return langItem;
+    }
+  }
 }
 
 /**
