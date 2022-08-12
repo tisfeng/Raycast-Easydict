@@ -1,8 +1,9 @@
+import { LanguageDetectType } from "./../detectLanguage";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 10:50
+ * @lastEditTime: 2022-08-12 17:18
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,8 +12,9 @@
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { requestCostTime } from "../axiosConfig";
+import { LanguageDetectTypeResult } from "../detectLanguage";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { getLanguageItemFromBaiduId, getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
@@ -83,4 +85,53 @@ export function requestBaiduTextTranslate(
         });
       });
   });
+}
+
+/**
+ * Baidu language detect.
+ *
+ * Although Baidu provides a dedicated language recognition interface, the number of supported languages is too small, so we directly use Baidu Translate's automatic language recognition instead.
+ *
+ * 百度语种识别API https://fanyi-api.baidu.com/doc/24
+ */
+export async function requestBaiduLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+  console.log(`---> start request Baidu language detect`);
+
+  const queryWordInfo: QueryWordInfo = {
+    fromLanguage: "auto",
+    toLanguage: "zh",
+    word: text,
+  };
+
+  try {
+    const baiduTypeResult = await requestBaiduTextTranslate(queryWordInfo, new AbortController().signal);
+    const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
+    const baiduLanaugeId = baiduResult.from || "";
+    const languageId = getLanguageItemFromBaiduId(baiduLanaugeId).youdaoLanguageId;
+    console.warn(`---> Baidu detect languageId: ${baiduLanaugeId}, ${languageId}`);
+
+    /**
+     * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
+     * Baidu language recognition is inaccurate in very few cases, such as "ragazza", it should be Italian, but Baidu auto detect is en.
+     * In this case, trans_result's src === dst.
+     */
+    let confirmed = true;
+    const transResult = baiduResult.trans_result;
+    if (transResult?.length) {
+      const firstTransResult = transResult[0];
+      confirmed = firstTransResult.dst !== firstTransResult.src;
+    }
+
+    const detectedLanguageResult: LanguageDetectTypeResult = {
+      type: LanguageDetectType.Baidu,
+      sourceLanguageId: baiduLanaugeId,
+      youdaoLanguageId: languageId,
+      confirmed: confirmed,
+    };
+    return Promise.resolve(detectedLanguageResult);
+  } catch (error) {
+    console.error(`---> requestBaiduLanguageDetect error: ${error}`);
+    const errorInfo = error as RequestErrorInfo;
+    return Promise.reject(errorInfo);
+  }
 }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 21:37
+ * @lastEditTime: 2022-08-12 16:47
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanguage";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { getLanguageItemFromTencentId, getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { RequestErrorInfo, RequestTypeResult, TencentTranslateResult, TranslationType } from "../types";
 
@@ -98,10 +98,15 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
   try {
     const response = await client.LanguageDetect(params);
     const endTime = new Date().getTime();
-    console.warn(`tencent detect cost time: ${endTime - startTime} ms`);
-    const typeResult = {
+    const tencentLanguageId = response.Lang || "";
+    const youdaoLanguageId = getLanguageItemFromTencentId(tencentLanguageId).youdaoLanguageId;
+    console.warn(
+      `tencent detect language id: ${tencentLanguageId}, ${youdaoLanguageId}, cost time: ${endTime - startTime} ms`
+    );
+    const typeResult: LanguageDetectTypeResult = {
       type: LanguageDetectType.Tencent,
-      youdaoLanguageId: response.Lang || "",
+      sourceLanguageId: tencentLanguageId,
+      youdaoLanguageId: youdaoLanguageId,
       confirmed: false,
     };
     return Promise.resolve(typeResult);

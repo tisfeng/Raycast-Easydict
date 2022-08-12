@@ -1,9 +1,8 @@
-import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 16:24
+ * @lastEditTime: 2022-08-12 17:16
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +11,7 @@ import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
 import { youdaoErrorList } from "../consts";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { RequestErrorInfo } from "../types";
+import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
 import { languageItemList } from "./consts";
 
 export interface LanguageItem {
@@ -26,7 +26,7 @@ export interface LanguageItem {
   tencentLanguageId?: string;
   baiduLanguageId?: string;
   caiyunLanguageId?: string;
-  languageTitle: string;
+  languageTitle: string; // * when system language is English, Apple detect language is equal to languageTitle.
   voiceList?: string[];
   googleLanguageId?: string;
   youdaoWebLanguageId?: string;
@@ -53,6 +53,18 @@ export function getLanguageItemFromTencentId(tencentLanguageId: string): Languag
   for (const langItem of languageItemList) {
     const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
     if (tencentDetectLanguageId === tencentLanguageId) {
+      return langItem;
+    }
+  }
+  return languageItemList[0];
+}
+
+/**
+ * get language item from baidu language id.
+ */
+export function getLanguageItemFromBaiduId(baiduLanguageId: string): LanguageItem {
+  for (const langItem of languageItemList) {
+    if (langItem.baiduLanguageId === baiduLanguageId) {
       return langItem;
     }
   }

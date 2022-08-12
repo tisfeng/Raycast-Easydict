@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 23:36
+ * @lastEditTime: 2022-08-12 17:07
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,14 +10,10 @@
 
 import { francAll } from "franc";
 import { languageItemList } from "./language/consts";
-import {
-  getLanguageItemFromAppleChineseTitle,
-  getLanguageItemFromFrancId,
-  getLanguageItemFromTencentId,
-  isValidLanguageId,
-} from "./language/languages";
+import { getLanguageItemFromFrancId, getLanguageItemFromYoudaoId, isValidLanguageId } from "./language/languages";
 import { myPreferences, preferrdLanguages } from "./preferences";
 import { appleLanguageDetect } from "./scripts";
+import { requestBaiduLanguageDetect } from "./translation/baidu";
 import { tencentLanguageDetect } from "./translation/tencent";
 import { RequestErrorInfo } from "./types";
 
@@ -26,11 +22,13 @@ export enum LanguageDetectType {
   Franc = "Franc",
   Apple = "Apple",
   Tencent = "Tencent",
+  Baidu = "Baidu",
 }
 
 export interface LanguageDetectTypeResult {
   type: LanguageDetectType;
-  youdaoLanguageId: string;
+  youdaoLanguageId: string; // pl
+  sourceLanguageId: string; // eg. apple detect 波兰语
   confirmed: boolean;
   detectedLanguageArray?: [string, number][]; // [['ita', 1], ['fra', 0.6]]
 }
@@ -79,7 +77,7 @@ export function detectLanguage(
     callback(localDetectResult);
   }, delayDetectLanguageTime);
 
-  // covert the input text to lowercase, because tencentLanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
+  // covert the input text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
   console.log("detect queryText:", text);
   console.log("detect lowerCaseText:", lowerCaseText);
@@ -90,6 +88,7 @@ export function detectLanguage(
   if (myPreferences.enableAppleLanguageDetect) {
     detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
+  detectActionMap.set(LanguageDetectType.Baidu, requestBaiduLanguageDetect(lowerCaseText));
 
   // if local detect language is not confirmed, use API language detect
   try {
@@ -129,40 +128,7 @@ function raceDetectTextLanguage(
       isDetectedLanguage = true;
       clearTimeout(delayLocalDetectLanguageTimer);
 
-      if (typeResult.type === LanguageDetectType.Apple) {
-        const appleLanguageId = typeResult.youdaoLanguageId as string;
-        const languageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
-        console.log(`---> apple detect language: ${appleLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
-
-        const detectTypeResult = {
-          type: typeResult.type,
-          youdaoLanguageId: languageItem.youdaoLanguageId,
-          confirmed: false, // default false, later to confirm whether preferred language.
-        };
-        handleDetectedLanguageTypeResult(
-          detectTypeResult,
-          localLanguageDetectTypeResult,
-          detectLanguageActionMap,
-          callback
-        );
-      }
-
-      if (typeResult.type === LanguageDetectType.Tencent) {
-        const tencentLanguageId = typeResult.youdaoLanguageId || "";
-        const languageItem = getLanguageItemFromTencentId(tencentLanguageId);
-        console.log(`---> tencent detect language: ${tencentLanguageId}, youdao: ${languageItem.youdaoLanguageId}`);
-        const detectTypeResult = {
-          type: typeResult.type,
-          youdaoLanguageId: languageItem.youdaoLanguageId,
-          confirmed: false, // default false, use handleDetectedLanguageTypeResult to judge.
-        };
-        handleDetectedLanguageTypeResult(
-          detectTypeResult,
-          localLanguageDetectTypeResult,
-          detectLanguageActionMap,
-          callback
-        );
-      }
+      handleDetectedLanguageTypeResult(typeResult, localLanguageDetectTypeResult, detectLanguageActionMap, callback);
     })
     .catch((error) => {
       // If current API detect error, remove it from the detectActionMap, and try next detect API.
@@ -172,8 +138,9 @@ function raceDetectTextLanguage(
       const errorInfo = error as RequestErrorInfo;
       const errorType = errorInfo.type as LanguageDetectType;
       if (Object.values(LanguageDetectType).includes(errorType)) {
-        const detectTypeResult = {
+        const detectTypeResult: LanguageDetectTypeResult = {
           type: errorType,
+          sourceLanguageId: "",
           youdaoLanguageId: "",
           confirmed: false,
         };
@@ -329,6 +296,7 @@ function getLocalTextLanguageDetectResult(
         );
         const lowConfidenceDetectTypeResult: LanguageDetectTypeResult = {
           type: francDetectResult.type,
+          sourceLanguageId: francDetectResult.sourceLanguageId,
           youdaoLanguageId: languageId,
           confirmed: false,
           detectedLanguageArray: francDetectResult.detectedLanguageArray,
@@ -356,6 +324,7 @@ function getLocalTextLanguageDetectResult(
   console.log(`final use auto`);
   const finalAutoLanguageTypeResult: LanguageDetectTypeResult = {
     type: LanguageDetectType.Simple,
+    sourceLanguageId: "",
     youdaoLanguageId: "auto",
     confirmed: false,
   };
@@ -373,7 +342,7 @@ function getLocalTextLanguageDetectResult(
  * @reutn confirmed: Only mark confirmed = true when > confirmedConfidence && is preferred language.
  * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
  */
-function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): LanguageDetectTypeResult {
+function francDetectTextLangauge(text: string, confirmedConfidence = 0.8): LanguageDetectTypeResult {
   const startTime = new Date().getTime();
   console.log(`start franc detect`);
   let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
@@ -384,17 +353,17 @@ function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): Langu
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
   console.log(`franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
-  const detectedLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
+  const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
     // * NOTE: when francLanguageId = 'und' or detected unsupported language, the youdaoLanguageId will be 'auto'
     const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoLanguageId;
     return [youdaoLanguageId, confidence];
   });
 
-  console.log("franc detected language array:", detectedLanguageArray);
+  console.log("franc detected language array:", detectedYoudaoLanguageArray);
 
   // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
-  for (const [languageId, confidence] of detectedLanguageArray) {
+  for (const [languageId, confidence] of detectedYoudaoLanguageArray) {
     if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
       console.log(
         `---> franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`
@@ -407,14 +376,15 @@ function francDetectTextLangauge(text: string, confirmedConfidence = 0.6): Langu
 
   // if not confirmed, use the first language in the detectLanguageIdList.
   if (!confirmed) {
-    [detectedLanguageId] = detectedLanguageArray[0];
+    [detectedLanguageId] = detectedYoudaoLanguageArray[0];
   }
 
   const detectTypeResult: LanguageDetectTypeResult = {
     type: LanguageDetectType.Franc,
+    sourceLanguageId: getLanguageItemFromYoudaoId(detectedLanguageId).francLanguageId,
     youdaoLanguageId: detectedLanguageId,
     confirmed: confirmed,
-    detectedLanguageArray: detectedLanguageArray,
+    detectedLanguageArray: detectedYoudaoLanguageArray,
   };
 
   return detectTypeResult;
@@ -437,6 +407,7 @@ export function simpleDetectTextLanguage(text: string): LanguageDetectTypeResult
   console.log("simple detect language -->:", fromYoudaoLanguageId);
   const detectTypeResult = {
     type: LanguageDetectType.Simple,
+    sourceLanguageId: fromYoudaoLanguageId,
     youdaoLanguageId: fromYoudaoLanguageId,
     confirmed: false,
   };
