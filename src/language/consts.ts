@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:38
+ * @lastEditTime: 2022-08-12 22:40
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "zh-CHS",
     appleLanguageId: "zh_CN",
-    appleDetectChineseLanguageTitle: "中文",
+    appleDetectChineseLanguageTitle: "简体中文",
     deepLSourceLanguageId: "ZH",
     francLanguageId: "cmn",
     aliyunLanguageId: "zh",
@@ -47,7 +47,7 @@ export const languageItemList: LanguageItem[] = [
   {
     youdaoLanguageId: "zh-CHT",
     appleLanguageId: "zh-TW",
-    appleDetectChineseLanguageTitle: "中文",
+    appleDetectChineseLanguageTitle: "繁体中文",
     francLanguageId: "cmn",
     aliyunLanguageId: "zh-tw",
     tencentLanguageId: "zh-TW",

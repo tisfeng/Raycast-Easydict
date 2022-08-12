@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:35
+ * @lastEditTime: 2022-08-12 22:46
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -102,10 +102,12 @@ export function getLanguageItemFromAppleId(appleLanguageTitle: string): Language
 
 /**
  * Get language item from apple Chinese title, such as "中文" --> LanguageItem
+ *
+ * * Note: There are two kinds of Chinese, 简体中文 and 繁体中文, but Apple only has one kind of 中文.
  */
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
-    if (langItem.appleDetectChineseLanguageTitle === chineseTitle) {
+    if (langItem.appleDetectChineseLanguageTitle.includes(chineseTitle)) {
       return langItem;
     }
   }
@@ -113,10 +115,12 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
 
 /**
  * Get language item from apple English title, such as "English" --> LanguageItem
+ *
+ * * Note: There are two kinds of Chinese, Chinese-Simplified and Chinese-Traditional, but Apple only has one kind of Chinese.
  */
 export function getLanguageItemFromAppleEnglishTitle(englishTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
-    if (langItem.languageTitle === englishTitle) {
+    if (langItem.languageTitle.includes(englishTitle)) {
       return langItem;
     }
   }

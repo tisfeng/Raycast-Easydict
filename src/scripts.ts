@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:10
+ * @lastEditTime: 2022-08-12 22:48
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -110,7 +110,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
         confirmed: false,
       };
       resolve(detectTypeResult);
-      console.warn(`apple detect, youdaoId: ${youdaoLanguageId}`);
+      console.warn(`final apple detect language: ${appleLanaugeId}, youdaoId: ${youdaoLanguageId}`);
     });
   });
 }
