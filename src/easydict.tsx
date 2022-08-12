@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 18:36
+ * @lastEditTime: 2022-08-12 22:29
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,7 @@ import { DataManager } from "./dataManager";
 import { detectLanguage } from "./detectLanauge/detect";
 import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { getAutoSelectedTargetLanguageId, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
 import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
@@ -143,9 +143,10 @@ export default function () {
     let targetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
     console.log("userSelectedTargetLanguage:", targetLanguageId);
     if (fromYoudaoLanguageId === targetLanguageId) {
-      targetLanguageId = getAutoSelectedTargetLanguageId(fromYoudaoLanguageId);
-      setAutoSelectedTargetLanguageItem(getLanguageItemFromYoudaoId(targetLanguageId));
-      console.log("autoSelectedTargetLanguage: ", targetLanguageId);
+      const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
+      setAutoSelectedTargetLanguageItem(targetLanguageItem);
+      targetLanguageId = targetLanguageItem.youdaoLanguageId;
+      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
     }
     const queryTextInfo: QueryWordInfo = {
       word: searchText,

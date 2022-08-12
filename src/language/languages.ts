@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 21:58
+ * @lastEditTime: 2022-08-12 22:35
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,7 @@ import { youdaoErrorList } from "../consts";
 import { francDetectTextLangauge } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { RequestErrorInfo } from "../types";
-import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
+import { preferrdLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
 
 export interface LanguageItem {
@@ -85,7 +85,7 @@ export function getLanguageItemFromAppleId(appleLanguageTitle: string): Language
   const francTypeResult = francDetectTextLangauge(appleLanguageTitle);
   const youdaoLanguageId = francTypeResult.youdaoLanguageId;
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  console.log(`---> getLanguageItemFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}}`);
+  console.log(`---> getLanguageItemFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}`);
 
   const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
   if (chineseLanguageItem) {
@@ -225,18 +225,12 @@ export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
 }
 
 /**
- * return and update the autoSelectedTargetLanguage according to the languageId
+ * Get auto select target language according to the languageId.
  */
-export function getAutoSelectedTargetLanguageId(accordingLanguageId: string): string {
-  let targetLanguageId = "auto";
-  if (accordingLanguageId === preferrdLanguage1.youdaoLanguageId) {
-    targetLanguageId = preferrdLanguage2.youdaoLanguageId;
-  } else if (accordingLanguageId === preferrdLanguage2.youdaoLanguageId) {
-    targetLanguageId = preferrdLanguage1.youdaoLanguageId;
-  }
-
-  const targetLanguage = getLanguageItemFromYoudaoId(targetLanguageId);
-
-  console.log(`languageId: ${accordingLanguageId}, auto selected target: ${targetLanguage.youdaoLanguageId}`);
-  return targetLanguage.youdaoLanguageId;
+export function getAutoSelectedTargetLanguageItem(fromLanguageId: string): LanguageItem {
+  const targetLanguageItem = preferrdLanguages.find(
+    (languageItem) => languageItem.youdaoLanguageId !== fromLanguageId
+  ) as LanguageItem;
+  console.log(`fromLanguageId: ${fromLanguageId}, auto selected target: ${targetLanguageItem.youdaoLanguageId}`);
+  return targetLanguageItem;
 }
