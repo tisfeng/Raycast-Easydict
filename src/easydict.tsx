@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 15:44
+ * @lastEditTime: 2022-08-12 18:36
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,8 @@ import { Fragment, useEffect, useState } from "react";
 import { configAxiosProxy } from "./axiosConfig";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
-import { detectLanguage, LanguageDetectTypeResult } from "./detectLanguage";
+import { detectLanguage } from "./detectLanauge/detect";
+import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { getAutoSelectedTargetLanguageId, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
 import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";

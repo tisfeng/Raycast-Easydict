@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 13:05
+ * @lastEditTime: 2022-08-12 21:50
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { Image } from "@raycast/api";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import { LanguageDetectType } from "./detectLanguage";
+import { LanguageDetectType } from "./detectLanauge/types";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult, LingueeListItemType } from "./dict/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "./dict/youdao/types";

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:30
+ * @lastEditTime: 2022-08-12 18:40
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
-import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanguage";
+import { LanguageDetectTypeResult, LanguageDetectType } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { getLanguageItemFromAppleId, getLanguageItemFromYoudaoId } from "./language/languages";
 import { RequestErrorInfo, TranslationType } from "./types";

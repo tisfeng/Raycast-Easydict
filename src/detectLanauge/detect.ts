@@ -2,36 +2,27 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:07
+ * @lastEditTime: 2022-08-12 18:39
  * @fileName: detectLanguage.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { francAll } from "franc";
-import { languageItemList } from "./language/consts";
-import { getLanguageItemFromFrancId, getLanguageItemFromYoudaoId, isValidLanguageId } from "./language/languages";
-import { myPreferences, preferrdLanguages } from "./preferences";
-import { appleLanguageDetect } from "./scripts";
-import { requestBaiduLanguageDetect } from "./translation/baidu";
-import { tencentLanguageDetect } from "./translation/tencent";
-import { RequestErrorInfo } from "./types";
-
-export enum LanguageDetectType {
-  Simple = "Simple",
-  Franc = "Franc",
-  Apple = "Apple",
-  Tencent = "Tencent",
-  Baidu = "Baidu",
-}
-
-export interface LanguageDetectTypeResult {
-  type: LanguageDetectType;
-  youdaoLanguageId: string; // pl
-  sourceLanguageId: string; // eg. apple detect 波兰语
-  confirmed: boolean;
-  detectedLanguageArray?: [string, number][]; // [['ita', 1], ['fra', 0.6]]
-}
+import { isValidLanguageId } from "../language/languages";
+import { myPreferences } from "../preferences";
+import { appleLanguageDetect } from "../scripts";
+import { requestBaiduLanguageDetect } from "../translation/baidu";
+import { tencentLanguageDetect } from "../translation/tencent";
+import { RequestErrorInfo } from "../types";
+import { francDetectTextLangauge } from "./franc";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./types";
+import {
+  checkIfPreferredLanguagesContainedChinese,
+  checkIfPreferredLanguagesContainedEnglish,
+  isChinese,
+  isEnglishOrNumber,
+  isPreferredLanguage,
+} from "./utils";
 
 /**
  * * For a better user experience, a maximum of 2 seconds is set to request language detect API, and the local language check is used for timeout.
@@ -332,65 +323,6 @@ function getLocalTextLanguageDetectResult(
 }
 
 /**
- * Use franc to detect text language.
- * if franc detect language list contains preferred language && confidence > confirmedConfidence, use it and mark it as confirmed = true.
- * else use the first language in franc detect language list, and mark it as confirmed = false.
- *
- * @confirmedConfidence the minimum confidence of franc detect language.
- *
- * @return detectedLanguageArray: All detected languages will recorded.
- * @reutn confirmed: Only mark confirmed = true when > confirmedConfidence && is preferred language.
- * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
- */
-function francDetectTextLangauge(text: string, confirmedConfidence = 0.8): LanguageDetectTypeResult {
-  const startTime = new Date().getTime();
-  console.log(`start franc detect`);
-  let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
-  let confirmed = false;
-
-  // get all franc language id from languageItemList
-  const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLanguageId);
-  const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
-  console.log(`franc detect cost time: ${new Date().getTime() - startTime} ms`);
-
-  const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
-    const [francLanguageId, confidence] = languageTuple;
-    // * NOTE: when francLanguageId = 'und' or detected unsupported language, the youdaoLanguageId will be 'auto'
-    const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoLanguageId;
-    return [youdaoLanguageId, confidence];
-  });
-
-  console.log("franc detected language array:", detectedYoudaoLanguageArray);
-
-  // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
-  for (const [languageId, confidence] of detectedYoudaoLanguageArray) {
-    if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
-      console.log(
-        `---> franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`
-      );
-      detectedLanguageId = languageId;
-      confirmed = true;
-      break;
-    }
-  }
-
-  // if not confirmed, use the first language in the detectLanguageIdList.
-  if (!confirmed) {
-    [detectedLanguageId] = detectedYoudaoLanguageArray[0];
-  }
-
-  const detectTypeResult: LanguageDetectTypeResult = {
-    type: LanguageDetectType.Franc,
-    sourceLanguageId: getLanguageItemFromYoudaoId(detectedLanguageId).francLanguageId,
-    youdaoLanguageId: detectedLanguageId,
-    confirmed: confirmed,
-    detectedLanguageArray: detectedYoudaoLanguageArray,
-  };
-
-  return detectTypeResult;
-}
-
-/**
  * Get simple detect language id according to text, priority to use English and Chinese, and then auto.
  *
  * * NOTE: simple detect language, always set confirmed = false.
@@ -412,80 +344,4 @@ export function simpleDetectTextLanguage(text: string): LanguageDetectTypeResult
     confirmed: false,
   };
   return detectTypeResult;
-}
-
-/**
- * check if the language is preferred language
- */
-export function isPreferredLanguage(languageId: string): boolean {
-  return preferrdLanguages.map((item) => item.youdaoLanguageId).includes(languageId);
-}
-
-/**
- * check if preferred languages contains English language
- */
-export function checkIfPreferredLanguagesContainedEnglish(): boolean {
-  return preferrdLanguages.find((item) => item.youdaoLanguageId === "en") !== undefined;
-}
-
-/**
- * check if preferred languages contains Chinese language
- */
-export function checkIfPreferredLanguagesContainedChinese(): boolean {
-  const lanuguageIdPrefix = "zh";
-  return preferrdLanguages.find((item) => item.youdaoLanguageId.startsWith(lanuguageIdPrefix)) !== undefined;
-}
-
-/**
- * return remove all punctuation from the text
- */
-export function removeEnglishPunctuation(text: string) {
-  return text.replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~·]/g, "");
-}
-
-/**
- * return remove all Chinese punctuation and blank space from the text
- */
-export function removeChinesePunctuation(text: string) {
-  return text.replace(
-    /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/g,
-    ""
-  );
-}
-
-/**
- * return remove remove all punctuation from the text
- */
-export function removePunctuation(text: string) {
-  return removeEnglishPunctuation(removeChinesePunctuation(text));
-}
-
-/**
- * return remove all blank space from the text
- */
-export function removeBlankSpace(text: string) {
-  return text.replace(/\s/g, "");
-}
-
-/**
- * check if the text contains Chinese characters
- */
-export function isContainChinese(text: string) {
-  return /[\u4e00-\u9fa5]/g.test(text);
-}
-
-/**
- * check text is chinese
- */
-export function isChinese(text: string) {
-  return /^[\u4e00-\u9fa5]+$/.test(text);
-}
-
-/**
- * check if text isEnglish or isNumber
- */
-export function isEnglishOrNumber(text: string) {
-  const pureText = removePunctuation(removeBlankSpace(text));
-  console.log("pureText: " + pureText);
-  return /^[a-zA-Z0-9]+$/.test(pureText);
 }

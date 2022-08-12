@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 16:47
+ * @lastEditTime: 2022-08-12 18:40
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanguage";
+import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromTencentId, getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";

@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 23:00
+ * @lastEditTime: 2022-08-12 21:50
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { LanguageDetectTypeResult } from "../../detectLanguage";
+import { LanguageDetectTypeResult } from "../../detectLanauge/types";
 
 export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;

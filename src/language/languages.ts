@@ -2,13 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:56
+ * @lastEditTime: 2022-08-12 18:35
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { youdaoErrorList } from "../consts";
+import { francDetectTextLangauge } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { RequestErrorInfo } from "../types";
 import { preferrdLanguage1, preferrdLanguage2 } from "./../preferences";
@@ -80,18 +81,23 @@ export function getLanguageItemFromBaiduId(baiduLanguageId: string): LanguageIte
  *
  * Todo: use franc to detect language, then use franc language id to get language item.
  */
-export function getLanguageItemFromAppleId(appleLanguageId: string): LanguageItem {
-  const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageId);
+export function getLanguageItemFromAppleId(appleLanguageTitle: string): LanguageItem {
+  const francTypeResult = francDetectTextLangauge(appleLanguageTitle);
+  const youdaoLanguageId = francTypeResult.youdaoLanguageId;
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  console.log(`---> getLanguageItemFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}}`);
+
+  const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
   if (chineseLanguageItem) {
     return chineseLanguageItem;
   }
 
-  const englishLanguageItem = getLanguageItemFromAppleEnglishTitle(appleLanguageId);
+  const englishLanguageItem = getLanguageItemFromAppleEnglishTitle(appleLanguageTitle);
   if (englishLanguageItem) {
     return englishLanguageItem;
   }
 
-  return languageItemList[0];
+  return languageItem;
 }
 
 /**

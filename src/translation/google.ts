@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 18:29
+ * @lastEditTime: 2022-08-12 18:41
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import * as cheerio from "cheerio";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { userAgent } from "../consts";
-import { checkIfPreferredLanguagesContainedChinese } from "../detectLanguage";
+import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";

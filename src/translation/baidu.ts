@@ -1,9 +1,8 @@
-import { LanguageDetectType } from "./../detectLanguage";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:18
+ * @lastEditTime: 2022-08-12 18:40
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +11,7 @@ import { LanguageDetectType } from "./../detectLanguage";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { requestCostTime } from "../axiosConfig";
-import { LanguageDetectTypeResult } from "../detectLanguage";
+import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromBaiduId, getLanguageItemFromYoudaoId } from "../language/languages";
 import { KeyStore } from "../preferences";
