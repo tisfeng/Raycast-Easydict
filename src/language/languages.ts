@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:16
+ * @lastEditTime: 2022-08-12 17:56
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,7 @@ import { languageItemList } from "./consts";
 
 export interface LanguageItem {
   youdaoLanguageId: string;
-  appleDetectChineseLanguageTitle?: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
+  appleDetectChineseLanguageTitle: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
   appleLanguageId?: string; // used to translate, Apple translate support 12 languages?
   deepLSourceLanguageId?: string; // deepL source language id
   deepLTargetLanguageId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on.
@@ -24,7 +24,7 @@ export interface LanguageItem {
   aliyunLanguageId: string;
   tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
   tencentLanguageId?: string;
-  baiduLanguageId?: string;
+  baiduLanguageId: string;
   caiyunLanguageId?: string;
   languageTitle: string; // * when system language is English, Apple detect language is equal to languageTitle.
   voiceList?: string[];

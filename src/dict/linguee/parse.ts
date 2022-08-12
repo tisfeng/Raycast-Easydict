@@ -12,7 +12,7 @@ import { parse } from "node-html-parser";
 import { getLanguageItemFromDeepLSourceId } from "../../language/languages";
 import { DicionaryType, DisplaySection, ListDisplayItem, RequestTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
-import { isValidLingueeLanguagePair } from "./languages";
+import { getValidLingueeLanguagePair } from "./languages";
 import {
   LingueeDictionaryResult,
   LingueeExample,
@@ -428,15 +428,14 @@ export const parseGuessWord = (dom: ReturnType<typeof parse>) => {
  */
 export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string | undefined {
   const { fromLanguage, toLanguage } = queryWordInfo;
-  const languagePair = `${fromLanguage}-${toLanguage}`;
-  const isValidLanguage = isValidLingueeLanguagePair(fromLanguage, toLanguage);
-  if (!isValidLanguage) {
-    console.log(`----> lingueeis not a valid language pair: ${languagePair}`);
+  const validLanguage = getValidLingueeLanguagePair(fromLanguage, toLanguage);
+  if (!validLanguage) {
+    console.log(`----> lingueeis not a valid language pair: ${validLanguage}`);
     return;
   }
 
   // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
-  const lingueeUrl = `https://www.linguee.com/${languagePair}/search?source=auto&query=${encodeURIComponent(
+  const lingueeUrl = `https://www.linguee.com/${validLanguage}/search?source=auto&query=${encodeURIComponent(
     queryWordInfo.word
   )}`;
   return lingueeUrl;
