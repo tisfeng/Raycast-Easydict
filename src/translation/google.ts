@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 18:41
+ * @lastEditTime: 2022-08-12 21:56
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,9 +27,11 @@ export async function requestGoogleTranslate(
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
     tld = "cn";
-    console.log(`---> use cn, use Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
+    console.log(`---> China, or Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
   }
-  return googleCrawlerTranslate(queryWordInfo, tld, signal);
+  console.log(`---> google tld: ${tld}`);
+  queryWordInfo.tld = tld;
+  return googleCrawlerTranslate(queryWordInfo, signal);
 }
 
 /**
@@ -37,11 +39,7 @@ export async function requestGoogleTranslate(
  *
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  */
-async function googleCrawlerTranslate(
-  queryWordInfo: QueryWordInfo,
-  tld = "cn",
-  signal: AbortSignal
-): Promise<RequestTypeResult> {
+async function googleCrawlerTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const fromLanguageItem = getLanguageItemFromYoudaoId(fromLanguage);
   const toLanguageItem = getLanguageItemFromYoudaoId(toLanguage);
@@ -53,7 +51,7 @@ async function googleCrawlerTranslate(
     hl: toLanguageId, // hope language? web ui language
     q: word, // query word
   };
-
+  const tld = queryWordInfo.tld;
   const headers = {
     "User-Agent": userAgent,
   };

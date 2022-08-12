@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 18:35
+ * @lastEditTime: 2022-08-12 21:58
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -195,9 +195,8 @@ export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string |
   const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
   const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
   const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
-  if (fromLanguageId && toLanguageId) {
-    return `https://translate.google.cn/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
-  }
+  const tld = queryTextInfo.tld || "cn";
+  return `https://translate.google.${tld}/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
 }
 
 /**

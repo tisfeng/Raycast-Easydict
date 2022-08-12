@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 21:50
+ * @lastEditTime: 2022-08-12 21:51
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,6 +52,7 @@ export interface QueryWordInfo {
   examTypes?: string[];
   audioPath?: string;
   speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
+  tld?: string; // google tld
 }
 
 export interface YoudaoTranslateResultBasicItem {
