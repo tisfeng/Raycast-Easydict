@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 01:10
+ * @lastEditTime: 2022-08-13 18:02
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,7 +44,7 @@ const defaultConfirmedConfidence = 0.8;
 /**
  * Detect language with the given text, callback with LanguageDetectTypeResult.
  *
- * Prioritize the local language detection, then the language detection API.
+ * Prioritize the API language detection, if over time, try to use local language detection.
  */
 export function detectLanguage(
   text: string,
@@ -52,25 +52,23 @@ export function detectLanguage(
 ): void {
   console.log(`start detectLanguage`);
   const localDetectResult = getLocalTextLanguageDetectResult(text, defaultConfirmedConfidence);
-  if (localDetectResult.confirmed) {
-    console.log("use local detect confirmed:", localDetectResult.type, localDetectResult.youdaoLanguageId);
-    // Todo: may be do not need to clear timeout, when API detect success, callback once again.
-    clearTimeout(delayLocalDetectLanguageTimer);
-    callback(localDetectResult);
-    return;
-  }
 
   // Start a delay timer to detect local language, use it only if API detect over time.
   clearTimeout(delayLocalDetectLanguageTimer);
   delayLocalDetectLanguageTimer = setTimeout(() => {
-    isDetectedLanguage = true;
-    console.log(`API detect over time, use local detect language --->: ${localDetectResult}`);
-    callback(localDetectResult);
+    console.log(`API detect over time, try to use local detect language if preferred.`);
+
+    if (localDetectResult.confirmed) {
+      console.log("use local detect confirmed:", localDetectResult.type, localDetectResult.youdaoLanguageId);
+
+      isDetectedLanguage = true;
+      callback(localDetectResult);
+    }
   }, delayDetectLanguageTime);
 
-  // covert the input text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
+  // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
-  console.log("detect queryText:", text);
+  console.log("api detect queryText:", text);
   console.log("detect lowerCaseText:", lowerCaseText);
 
   // new a action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
@@ -90,7 +88,7 @@ export function detectLanguage(
   } catch (error) {
     // ? Never to enter here
     // if API detect error, use local detect language
-    console.error(`detect language error: ${error}`);
+    console.error(`detect language error: ${error}, callback localDetectResult`);
     callback(localDetectResult);
   }
 }
@@ -171,8 +169,8 @@ function handleDetectedLanguageTypeResult(
     ) {
       languageTypeReuslt.confirmed = true;
       console.warn(
-        `---> API: ${languageTypeReuslt.type} -- ${
-          apiLanguageDetectTypeResult.type
+        `---> API: ${apiLanguageDetectTypeResult.type} && ${
+          languageTypeReuslt.type
         }, detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`
       );
       callback && callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
