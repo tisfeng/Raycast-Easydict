@@ -1,10 +1,9 @@
-import { KeyStore } from "../../preferences";
-import { DicionaryType } from "./../../types";
+import { RequestErrorInfo } from "./../../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 13:47
+ * @lastEditTime: 2022-08-13 19:01
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,14 +12,15 @@ import { DicionaryType } from "./../../types";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
+import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
-import { YoudaoRequestStateCode } from "../../consts";
 import { getYoudaoErrorInfo } from "../../language/languages";
+import { KeyStore } from "../../preferences";
 import { RequestTypeResult, TranslationType } from "../../types";
+import { DicionaryType } from "./../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
-
 /**
  * Max length of text to download youdao tts audio
  */
@@ -59,8 +59,21 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
       .post(url, params, { signal })
       .then((response) => {
         const youdaoResult = response.data as YoudaoDictionaryResult;
+        // console.log(`---> youdao result: ${util.inspect(youdaoResult, { depth: null })}`);
+
+        const errorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
+        const youdaoErrorInfo: RequestErrorInfo = {
+          ...errorInfo,
+          type: DicionaryType.Youdao,
+        };
         const youdaoFormatResult = formatYoudaoDictionaryResult(youdaoResult);
-        const youdaoErrorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
+
+        if (!youdaoFormatResult) {
+          console.error(`---> youdao error: ${util.inspect(youdaoResult, { depth: null })}`);
+          reject(youdaoErrorInfo);
+          return;
+        }
+
         const youdaoTypeResult: RequestTypeResult = {
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
@@ -68,11 +81,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
           translations: youdaoFormatResult.translations,
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
-        if (youdaoResult.errorCode !== YoudaoRequestStateCode.Success.toString()) {
-          reject(youdaoErrorInfo);
-        } else {
-          resolve(youdaoTypeResult);
-        }
+        resolve(youdaoTypeResult);
       })
       .catch((error) => {
         console.error(`---> Youdao translate error: ${error}`);
@@ -84,11 +93,13 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
 
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
-        reject({
+
+        const youdaoErrorInfo: RequestErrorInfo = {
           type: DicionaryType.Youdao,
           code: error.response?.status.toString(),
-          message: error.response?.statusText,
-        });
+          message: error.response?.statusText ?? error.message ?? "",
+        };
+        reject(youdaoErrorInfo);
       });
   });
 }

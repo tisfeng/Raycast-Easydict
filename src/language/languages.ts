@@ -1,8 +1,9 @@
+import { DicionaryType } from "./../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 12:58
+ * @lastEditTime: 2022-08-13 18:53
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -234,6 +235,7 @@ export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
 export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
   return (
     youdaoErrorList.find((item) => item.code === errorCode) || {
+      type: DicionaryType.Youdao,
       code: errorCode,
       message: "",
     }

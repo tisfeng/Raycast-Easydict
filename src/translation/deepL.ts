@@ -3,7 +3,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 13:47
+ * @lastEditTime: 2022-08-13 18:24
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -84,9 +84,7 @@ export async function requestDeepLTextTranslate(
           return;
         }
 
-        console.error(`DeepL error: ${JSON.stringify(error, null, 4)}`);
-        console.error("deepL error response: ", error.response);
-
+        console.error("deepL error: ", error);
         const errorCode = error.response?.status;
         let errorMessage = error.message || "Request error 😭";
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 17:32
+ * @lastEditTime: 2022-08-13 18:43
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,14 @@ import {
 /**
  * Format the Youdao original data for later use.
  */
-export function formatYoudaoDictionaryResult(youdaoResult: YoudaoDictionaryResult): YoudaoDictionaryFormatResult {
+export function formatYoudaoDictionaryResult(
+  youdaoResult: YoudaoDictionaryResult
+): YoudaoDictionaryFormatResult | undefined {
+  // when youdao request error, query is not exist.
+  if (!youdaoResult.query) {
+    return;
+  }
+
   const [from, to] = youdaoResult.l.split("2"); // from2to
   let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
   usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;

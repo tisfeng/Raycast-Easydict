@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 22:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-08 18:36
+ * @lastEditTime: 2022-08-13 19:05
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,10 +17,12 @@ export const clipboardQueryTextKey = "clipboardQueryTextKey";
 
 export enum YoudaoRequestStateCode {
   Success = "0",
-  AccessFrequencyLimited = "207",
-  InsufficientAccountBalance = "401",
   TargetLanguageNotSupported = "102",
+  InvalidApplicationID = "108", // 应用ID无效
+  InvalidSignature = "202", // 签名无效，AppSecret不正确
+  AccessFrequencyLimited = "207",
   TranslationQueryFailed = "302", // 翻译查询失败, such as 'con' 😓
+  InsufficientAccountBalance = "401",
 }
 
 // https://fanyi-api.baidu.com/doc/21
@@ -41,19 +43,27 @@ export const youdaoErrorList: RequestErrorInfo[] = [
     message: "Success",
   },
   {
-    code: YoudaoRequestStateCode.AccessFrequencyLimited,
-    message: "Access frequency limited",
-  },
-  {
-    code: YoudaoRequestStateCode.InsufficientAccountBalance,
-    message: "Insufficient account balance",
-  },
-  {
     code: YoudaoRequestStateCode.TargetLanguageNotSupported,
     message: "Target language not supported",
   },
   {
+    code: YoudaoRequestStateCode.InvalidApplicationID,
+    message: "Authorization failed",
+  },
+  {
+    code: YoudaoRequestStateCode.InvalidSignature,
+    message: "Invalid signature",
+  },
+  {
+    code: YoudaoRequestStateCode.AccessFrequencyLimited,
+    message: "Access frequency limited",
+  },
+  {
     code: YoudaoRequestStateCode.TranslationQueryFailed,
     message: "Translation query failed",
+  },
+  {
+    code: YoudaoRequestStateCode.InsufficientAccountBalance,
+    message: "Insufficient account balance",
   },
 ];

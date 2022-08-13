@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 17:16
+ * @lastEditTime: 2022-08-13 18:10
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -184,13 +184,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
-          console.error("lingueeDictionaryResult error:", error);
-          const errorInfo = error as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `Linguee: ${errorInfo.code}`,
-            message: errorInfo.message,
-          });
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -222,12 +216,7 @@ export class DataManager {
           return;
         }
 
-        const errorInfo = error as RequestErrorInfo;
-        showToast({
-          style: Toast.Style.Failure,
-          title: `${errorInfo.type}: ${errorInfo.code}`,
-          message: errorInfo.message,
-        });
+        this.showErrorInfoToast(error);
       })
       .finally(() => {
         this.removeQueryFromRecordList(type);
@@ -289,13 +278,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(wordInfo);
         })
         .catch((error) => {
-          console.error("youdaoDictionaryResult error:", error);
-          const errorInfo = error as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `${errorInfo.type}: ${errorInfo.code}`,
-            message: errorInfo.message,
-          });
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -319,8 +302,8 @@ export class DataManager {
           };
           this.updateTranslationDisplay(queryResult);
         })
-        .catch((err) => {
-          console.error(`google error: ${JSON.stringify(err, null, 2)}`);
+        .catch((error) => {
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -359,8 +342,7 @@ export class DataManager {
           }
         })
         .catch((error) => {
-          const errorInfo = error as RequestErrorInfo;
-          console.error(`Apple translate error: ${JSON.stringify(errorInfo, null, 4)}`);
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -385,12 +367,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((err) => {
-          const errorInfo = err as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `${errorInfo.type}: ${errorInfo.code}`,
-            message: errorInfo.message,
-          });
+          this.showErrorInfoToast(err);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -420,13 +397,8 @@ export class DataManager {
           };
           this.updateTranslationDisplay(queryResult);
         })
-        .catch((err) => {
-          const errorInfo = err as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `Tencent translate error`,
-            message: errorInfo.message,
-          });
+        .catch((error) => {
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -450,18 +422,24 @@ export class DataManager {
           };
           this.updateTranslationDisplay(queryResult);
         })
-        .catch((err) => {
-          const errorInfo = err as RequestErrorInfo;
-          showToast({
-            style: Toast.Style.Failure,
-            title: `Caiyun translate error`,
-            message: errorInfo.message,
-          });
+        .catch((error) => {
+          this.showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
         });
     }
+  }
+
+  /**
+   * Show error toast according to errorInfo.
+   */
+  private showErrorInfoToast(errorInfo: RequestErrorInfo) {
+    showToast({
+      style: Toast.Style.Failure,
+      title: `${errorInfo.type} error: ${errorInfo.code || ""}`,
+      message: errorInfo.message,
+    });
   }
 
   /**
