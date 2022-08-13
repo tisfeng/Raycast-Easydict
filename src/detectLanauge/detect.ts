@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 23:17
+ * @lastEditTime: 2022-08-14 00:33
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,8 @@
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
-import { requestBaiduLanguageDetect } from "../translation/baidu";
+import { baiduLanguageDetect } from "../translation/baidu";
+import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
 import { francDetectTextLangauge } from "./franc";
@@ -77,7 +78,8 @@ export function detectLanguage(
   if (myPreferences.enableAppleLanguageDetect) {
     detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
-  detectActionMap.set(LanguageDetectType.Baidu, requestBaiduLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText));
 
   // if local detect language is not confirmed, use API language detect
   try {

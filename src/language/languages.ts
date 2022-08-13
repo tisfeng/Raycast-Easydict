@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 22:32
+ * @lastEditTime: 2022-08-14 00:17
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -202,7 +202,7 @@ export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string
 /**
  * Get google language id from youdao language id.
  */
-export function getGoogleLanguageId(youdaoLanguageId: string): string | undefined {
+export function getGoogleLanguageId(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
   return languageItem.googleLanguageId || languageItem.youdaoLanguageId;
 }

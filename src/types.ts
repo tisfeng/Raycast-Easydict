@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 19:06
+ * @lastEditTime: 2022-08-14 00:02
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -51,7 +51,7 @@ export interface RequestTypeResult {
   errorInfo?: RequestErrorInfo;
 }
 
-type RequestResultType =
+export type RequestResultType =
   | YoudaoDictionaryFormatResult
   | BaiduTranslateResult
   | TencentTranslateResult

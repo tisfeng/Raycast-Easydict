@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 16:35
+ * @lastEditTime: 2022-08-14 00:46
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,6 +19,8 @@ import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/util
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getGoogleLanguageId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
+import { GoogleTranslateResult } from "./../types";
 
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
@@ -37,8 +39,9 @@ export async function requestGoogleTranslate(
  * Google RPC translate, can get richer word dictionary and automatic recognition feature.
  */
 async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+  const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
-  const tld = await getTld();
+  const tld = queryWordInfo.tld ?? (await getTld());
   queryWordInfo.tld = tld;
 
   const proxy = process.env.PROXY || undefined;
@@ -47,15 +50,13 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
 
   return new Promise((resolve, reject) => {
     const startTime = new Date().getTime();
-    googleTranslateApi(queryWordInfo.word, { to: toLanguageId, tld: tld }, { signal, agent: httpsAgent })
+    googleTranslateApi(
+      queryWordInfo.word,
+      { from: fromLanguageId, to: toLanguageId, tld: tld },
+      { signal, agent: httpsAgent }
+    )
       .then((res) => {
-        const detectFromLanguage = res.from.language.iso;
-        console.warn(
-          `---> Google RPC translate: ${res.text}, ${detectFromLanguage} => ${toLanguageId}, cost ${
-            new Date().getTime() - startTime
-          } ms`
-        );
-
+        console.warn(`---> Google RPC translate: ${res.text}, cost ${new Date().getTime() - startTime} ms`);
         const result: RequestTypeResult = {
           type: TranslationType.Google,
           result: res,
@@ -78,6 +79,44 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
         reject(errorInfo);
       });
   });
+}
+
+/**
+ * Google language detect.
+ */
+export async function googleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+  console.log(`---> start google language detect: ${text}`);
+  const startTime = new Date().getTime();
+  const queryWord: QueryWordInfo = {
+    word: text,
+    fromLanguage: "auto",
+    toLanguage: "en",
+  };
+
+  try {
+    const googleTypeResult = await googleRPCTranslate(queryWord, new AbortController().signal);
+    const googleResult = googleTypeResult.result as GoogleTranslateResult;
+    const googleDetectLanaugeId = googleResult.from.language.iso;
+    const youdaoLanguageId = getGoogleLanguageId(googleDetectLanaugeId);
+    console.warn(
+      `---> Google detect language: ${googleDetectLanaugeId}, youdaoId: ${youdaoLanguageId}, cost ${
+        new Date().getTime() - startTime
+      } ms`
+    );
+    const languagedDetectResult: LanguageDetectTypeResult = {
+      type: LanguageDetectType.Google,
+      sourceLanguageId: googleDetectLanaugeId,
+      youdaoLanguageId: youdaoLanguageId,
+      confirmed: true,
+      result: googleResult,
+    };
+    return Promise.resolve(languagedDetectResult);
+  } catch (error) {
+    console.error(`googleLanguageDetect error: ${JSON.stringify(error)}`);
+    const errorInfo = error as RequestErrorInfo;
+    errorInfo.type = LanguageDetectType.Google;
+    return Promise.reject(errorInfo);
+  }
 }
 
 /**

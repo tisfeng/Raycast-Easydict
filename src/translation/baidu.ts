@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 23:21
+ * @lastEditTime: 2022-08-14 00:27
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -92,7 +92,7 @@ export function requestBaiduTextTranslate(
  *
  * 百度语种识别API https://fanyi-api.baidu.com/doc/24
  */
-export async function requestBaiduLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+export async function baiduLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   console.log(`---> start request Baidu language detect`);
 
   const queryWordInfo: QueryWordInfo = {
@@ -106,7 +106,7 @@ export async function requestBaiduLanguageDetect(text: string): Promise<Language
     const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
     const baiduLanaugeId = baiduResult.from || "";
     const languageId = getLanguageItemFromBaiduId(baiduLanaugeId).youdaoLanguageId;
-    console.warn(`---> Baidu detect languageId: ${baiduLanaugeId}, ${languageId}`);
+    console.warn(`---> Baidu detect languageId: ${baiduLanaugeId}, youdaoId: ${languageId}`);
 
     /**
      * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
@@ -119,12 +119,12 @@ export async function requestBaiduLanguageDetect(text: string): Promise<Language
       const firstTransResult = transResult[0];
       confirmed = firstTransResult.dst !== firstTransResult.src;
     }
-
     const detectedLanguageResult: LanguageDetectTypeResult = {
       type: LanguageDetectType.Baidu,
       sourceLanguageId: baiduLanaugeId,
       youdaoLanguageId: languageId,
       confirmed: confirmed,
+      result: baiduResult,
     };
     return Promise.resolve(detectedLanguageResult);
   } catch (error) {
