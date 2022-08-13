@@ -37,6 +37,7 @@
   ],
   "dependencies": {
     "@raycast/api": "^1.38.0",
+    "@vitalets/google-translate-api": "^8.0.0",
     "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",

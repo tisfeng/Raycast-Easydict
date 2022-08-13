@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 21:56
+ * @lastEditTime: 2022-08-13 11:48
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import googleTranslateApi from "@vitalets/google-translate-api";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import querystring from "node:querystring";
@@ -17,6 +18,48 @@ import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/util
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getLanguageItemFromYoudaoId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+
+test();
+
+async function test() {
+  const res = await googleTranslateApi("good", { to: "zh-CN", tld: "cn" });
+
+  console.log(res.text); //=> I speak English
+  console.log(res.from.language.iso); //=> nl
+  console.log(JSON.stringify(res.raw, null, 4));
+}
+
+async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+  const { word, toLanguage } = queryWordInfo;
+
+  return new Promise((resolve, reject) => {
+    googleTranslateApi(word, { to: toLanguage, tld: "cn" }, { signal })
+      .then((res) => {
+        const detectFromLanguage = res.from.language.iso;
+        console.warn(`---> google rpc translate: ${res.text}, ${detectFromLanguage} => ${toLanguage}`);
+
+        const result: RequestTypeResult = {
+          type: TranslationType.Google,
+          result: res,
+          translations: res.text.split("\n"),
+        };
+        resolve(result);
+      })
+      .catch((error) => {
+        if (error.message === "canceled") {
+          console.log(`---> google cancelled`);
+          return;
+        }
+
+        console.error(`googleRPCTranslate error: ${error}`);
+        const errorInfo: RequestErrorInfo = {
+          type: TranslationType.Google,
+          message: "Google RPC translate error",
+        };
+        reject(errorInfo);
+      });
+  });
+}
 
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
@@ -31,7 +74,9 @@ export async function requestGoogleTranslate(
   }
   console.log(`---> google tld: ${tld}`);
   queryWordInfo.tld = tld;
-  return googleCrawlerTranslate(queryWordInfo, signal);
+
+  return googleRPCTranslate(queryWordInfo, signal);
+  return googleWebranslate(queryWordInfo, signal);
 }
 
 /**
@@ -39,7 +84,7 @@ export async function requestGoogleTranslate(
  *
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  */
-async function googleCrawlerTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const fromLanguageItem = getLanguageItemFromYoudaoId(fromLanguage);
   const toLanguageItem = getLanguageItemFromYoudaoId(toLanguage);
@@ -57,10 +102,6 @@ async function googleCrawlerTranslate(queryWordInfo: QueryWordInfo, signal: Abor
   };
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
   console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
-  const errorInfo: RequestErrorInfo = {
-    type: TranslationType.Google,
-    message: "Google translate error",
-  };
 
   return new Promise<RequestTypeResult>((resolve, reject) => {
     axios
@@ -72,7 +113,7 @@ async function googleCrawlerTranslate(queryWordInfo: QueryWordInfo, signal: Abor
         // <div class="result-container">好的</div>
         const translation = $(".result-container").text();
         const translations = translation.split("\n");
-        console.warn(`---> google translation: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
+        console.warn(`---> google web translation: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
         const result: RequestTypeResult = {
           type: TranslationType.Google,
           result: { translatedText: translation },
@@ -81,12 +122,17 @@ async function googleCrawlerTranslate(queryWordInfo: QueryWordInfo, signal: Abor
         resolve(result);
       })
       .catch((error: AxiosError) => {
-        console.error(`google error: ${error}`);
-
         if (error.message === "canceled") {
           console.log(`---> google cancelled`);
           return;
         }
+        console.error(`google web error: ${error}`);
+
+        const errorInfo: RequestErrorInfo = {
+          type: TranslationType.Google,
+          message: "Google web translate error",
+        };
+
         reject(errorInfo);
       });
   });

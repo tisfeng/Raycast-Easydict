@@ -2,8 +2,8 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 18:39
- * @fileName: detectLanguage.ts
+ * @lastEditTime: 2022-08-13 01:10
+ * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
@@ -170,7 +170,11 @@ function handleDetectedLanguageTypeResult(
       isValidLanguageId(detectedYoudaoLanguageId)
     ) {
       languageTypeReuslt.confirmed = true;
-      console.warn(`---> API detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
+      console.warn(
+        `---> API: ${languageTypeReuslt.type} -- ${
+          apiLanguageDetectTypeResult.type
+        }, detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`
+      );
       callback && callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
       return;
     }
