@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 11:53
+ * @lastEditTime: 2022-08-13 17:16
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -491,17 +491,21 @@ export class DataManager {
   updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
-    // console.log("---> translations:", sourceResult.translations);
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
-    // console.log(`---> oneLineTranslations: ${oneLineTranslation}`);
     sourceResult.oneLineTranslation = oneLineTranslation;
+    const copyText = oneLineTranslation;
+    // if (type === TranslationType.Google) {
+    //   const googleResult = sourceResult.result as GoogleTranslateResult;
+    //   copyText = JSON.stringify(googleResult, null, 4);
+    // }
+
     if (oneLineTranslation) {
       const displayItem: ListDisplayItem = {
         displayType: type,
         queryType: queryResult.type,
         key: `${oneLineTranslation}-${type}`,
         title: oneLineTranslation,
-        copyText: oneLineTranslation,
+        copyText: copyText,
         queryWordInfo: this.queryWordInfo as QueryWordInfo,
       };
       const displaySections: DisplaySection[] = [
