@@ -114,7 +114,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     const error = err as { code: string; message: string };
     console.error(`tencent detect error, code: ${error.code}, message: ${error.message}`);
     const errorInfo: RequestErrorInfo = {
-      type: TranslationType.Tencent,
+      type: LanguageDetectType.Tencent,
       code: error.code,
       message: error.message,
     };

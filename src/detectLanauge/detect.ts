@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:02
+ * @lastEditTime: 2022-08-13 23:17
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -101,7 +101,7 @@ export function detectLanguage(
 function raceDetectTextLanguage(
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
   localLanguageDetectTypeResult: LanguageDetectTypeResult,
-  callback?: (detectTypeResult: LanguageDetectTypeResult) => void
+  callback: (detectTypeResult: LanguageDetectTypeResult) => void
 ) {
   console.log(`start raceDetectTextLanguage: ${[...detectLanguageActionMap.keys()]}`);
   // console.log("race local detect language: ", localLanguageDetectTypeResult);
@@ -122,7 +122,6 @@ function raceDetectTextLanguage(
     .catch((error) => {
       // If current API detect error, remove it from the detectActionMap, and try next detect API.
       console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
-      console.log(`typeof error: ${typeof error}`);
 
       const errorInfo = error as RequestErrorInfo;
       const errorType = errorInfo.type as LanguageDetectType;
@@ -147,8 +146,9 @@ function handleDetectedLanguageTypeResult(
   apiLanguageDetectTypeResult: LanguageDetectTypeResult,
   localLanguageDetectTypeResult: LanguageDetectTypeResult,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
-  callback?: (detectTypeResult: LanguageDetectTypeResult) => void
+  callback: (detectTypeResult: LanguageDetectTypeResult) => void
 ) {
+  console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiLanguageDetectTypeResult, null, 4)}`);
   // First, check if the language is preferred language, if true, use it directly, else remove it from the action map.
   const checkIsPreferredLanguage = checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
     apiLanguageDetectTypeResult,
@@ -156,7 +156,7 @@ function handleDetectedLanguageTypeResult(
   );
   if (checkIsPreferredLanguage) {
     apiLanguageDetectTypeResult.confirmed = true;
-    callback && callback(apiLanguageDetectTypeResult);
+    callback(apiLanguageDetectTypeResult);
     return;
   }
 
@@ -173,7 +173,7 @@ function handleDetectedLanguageTypeResult(
           languageTypeReuslt.type
         }, detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`
       );
-      callback && callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
+      callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
       return;
     }
   }
@@ -199,7 +199,7 @@ function handleDetectedLanguageTypeResult(
           if (confidence > 0 && languageTypeReuslt.youdaoLanguageId === languageId && isValidLanguageId(languageId)) {
             languageTypeReuslt.confirmed = true;
             console.warn(`---> local detect identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
-            callback && callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
+            callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
             return;
           }
         }
@@ -207,7 +207,7 @@ function handleDetectedLanguageTypeResult(
     }
 
     apiLanguageDetectTypeResult.confirmed = false;
-    callback && callback(apiLanguageDetectTypeResult);
+    callback(apiLanguageDetectTypeResult);
     return;
   }
 

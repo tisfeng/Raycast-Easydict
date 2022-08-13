@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 22:44
+ * @lastEditTime: 2022-08-13 23:04
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -459,6 +459,8 @@ export class DataManager {
 
     const isLoadingState = this.queryRecordList.length > 0;
     this.updateLoadingState(isLoadingState);
+
+    console.log(`---> query record list: [${this.queryRecordList}]`);
   }
 
   /**

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 13:34
+ * @lastEditTime: 2022-08-13 23:21
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -59,7 +59,7 @@ export function requestBaiduTextTranslate(
             translations: translations,
           });
         } else {
-          console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`);
+          console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`); //  {"error_code":"54001","error_msg":"Invalid Sign"}
           const errorInfo: RequestErrorInfo = {
             type: TranslationType.Baidu,
             code: baiduResult.error_code || "",
@@ -128,8 +128,9 @@ export async function requestBaiduLanguageDetect(text: string): Promise<Language
     };
     return Promise.resolve(detectedLanguageResult);
   } catch (error) {
-    console.error(`---> requestBaiduLanguageDetect error: ${error}`);
+    console.error(`---> baidu language detect error: ${JSON.stringify(error)}`);
     const errorInfo = error as RequestErrorInfo;
+    errorInfo.type = LanguageDetectType.Baidu;
     return Promise.reject(errorInfo);
   }
 }
