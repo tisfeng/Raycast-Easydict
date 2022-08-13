@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 21:16
+ * @lastEditTime: 2022-08-13 13:47
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,12 +85,11 @@ export async function rquestLingueeDictionary(
         resolve(lingueeTypeResult);
       })
       .catch((error) => {
-        console.error(`---> linguee error: ${error}`);
-
         if (error.message === "canceled") {
-          console.log(`---> linguee cancelled`);
+          console.log(`---> linguee canceled`);
           return;
         }
+        console.error(`---> linguee error: ${error}`);
 
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
         console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);

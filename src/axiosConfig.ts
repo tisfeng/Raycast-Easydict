@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 11:49
+ * @lastEditTime: 2022-08-13 13:50
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -59,6 +59,7 @@ export function configAxiosProxy() {
             };
             const httpsAgent = new HttpsProxyAgent(proxyOptions);
             axios.defaults.httpsAgent = httpsAgent;
+            env.PROXY = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
             console.log(`---> use http system proxy: ${JSON.stringify(proxyOptions, null, 4)}`);
           }
         }
@@ -78,5 +79,6 @@ export function configAxiosProxy() {
   } else {
     console.log("disable system proxy");
     axios.defaults.httpsAgent = undefined;
+    delete process.env.PROXY;
   }
 }

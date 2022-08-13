@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 18:40
+ * @lastEditTime: 2022-08-13 13:34
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -69,12 +69,11 @@ export function requestBaiduTextTranslate(
         }
       })
       .catch((error) => {
-        console.error(`---> baidu translate error: ${error}`);
-
         if (error.message === "canceled") {
-          console.log(`---> baidu cancelled`);
+          console.log(`---> baidu canceled`);
           return;
         }
+        console.error(`---> baidu translate error: ${error}`);
 
         // It seems that Baidu will never reject, always resolve...
         reject({

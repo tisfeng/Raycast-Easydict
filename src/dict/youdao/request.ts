@@ -1,10 +1,10 @@
-import { DicionaryType } from "./../../types";
 import { KeyStore } from "../../preferences";
+import { DicionaryType } from "./../../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-09 23:00
+ * @lastEditTime: 2022-08-13 13:47
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -78,7 +78,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
         console.error(`---> Youdao translate error: ${error}`);
 
         if (error.message === "canceled") {
-          console.log(`---> youdao cancelled`);
+          console.log(`---> youdao canceled`);
           return;
         }
 

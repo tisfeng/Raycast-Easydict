@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:46
+ * @lastEditTime: 2022-08-13 12:58
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,7 +20,7 @@ export interface LanguageItem {
   appleDetectChineseLanguageTitle: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
   appleLanguageId?: string; // used to translate, Apple translate support 12 languages?
   deepLSourceLanguageId?: string; // deepL source language id
-  deepLTargetLanguageId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on.
+  deepLTargetLanguageId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on. "EN" = "EN-US"
   francLanguageId: string; // the languages represented by ISO 639-3
   aliyunLanguageId: string;
   tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
@@ -139,6 +139,14 @@ export function getLanguageItemFromDeepLSourceId(deepLLanguageId: string): Langu
 }
 
 /**
+ * Get deepL language id from youdao language id.
+ */
+export function getDeepLLanguageId(youdaoLanguageId: string): string | undefined {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.deepLSourceLanguageId;
+}
+
+/**
  * Get language item from franc language id
  */
 export function getLanguageItemFromFrancId(francLanguageId: string): LanguageItem {
@@ -193,12 +201,18 @@ export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string
   }
 }
 
+/**
+ * Get google language id from youdao language id.
+ */
+export function getGoogleLanguageId(youdaoLanguageId: string): string | undefined {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.googleLanguageId || languageItem.youdaoLanguageId;
+}
+
 export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
   const text = encodeURIComponent(queryTextInfo.word);
-  const fromLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage);
-  const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
-  const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
-  const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
+  const fromLanguageId = getGoogleLanguageId(queryTextInfo.fromLanguage);
+  const toLanguageId = getGoogleLanguageId(queryTextInfo.toLanguage);
   const tld = queryTextInfo.tld || "cn";
   return `https://translate.google.${tld}/?sl=${fromLanguageId}&tl=${toLanguageId}&text=${text}&op=translate`;
 }
@@ -208,10 +222,8 @@ export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string |
  * https://www.deepl.com/translator#en/zh/look
  */
 export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const fromLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage);
-  const toLanguageItem = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage);
-  const fromLanguageId = fromLanguageItem.deepLSourceLanguageId;
-  const toLanguageId = toLanguageItem.deepLSourceLanguageId;
+  const fromLanguageId = getDeepLLanguageId(queryTextInfo.fromLanguage);
+  const toLanguageId = getDeepLLanguageId(queryTextInfo.toLanguage);
   if (fromLanguageId && toLanguageId) {
     return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${encodeURIComponent(
       queryTextInfo.word

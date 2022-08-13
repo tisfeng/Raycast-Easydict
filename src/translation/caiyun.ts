@@ -68,12 +68,11 @@ export function requestCaiyunTextTranslate(
         });
       })
       .catch((error) => {
-        console.error(`---> caiyun translate error: ${error}`);
-
         if (error.message === "canceled") {
-          console.log(`---> caiyun cancelled`);
+          console.log(`---> caiyun canceled`);
           return;
         }
+        console.error(`---> caiyun translate error: ${error}`);
 
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Caiyun,

@@ -2,41 +2,71 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 11:48
+ * @lastEditTime: 2022-08-13 13:48
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import googleTranslateApi from "@vitalets/google-translate-api";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
+import { HttpsProxyAgent } from "https-proxy-agent";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { getGoogleLanguageId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
 test();
 
 async function test() {
+  console.warn(`---> test`);
   const res = await googleTranslateApi("good", { to: "zh-CN", tld: "cn" });
 
-  console.log(res.text); //=> I speak English
-  console.log(res.from.language.iso); //=> nl
+  console.log(`---> res.text: ${res.text}`);
+  console.log(res.from.language.iso);
   console.log(JSON.stringify(res.raw, null, 4));
 }
 
+/**
+ * Get google tld.
+ */
+async function getTld(): Promise<string> {
+  // if has preferred Chinese language or ip in China, use cn, else use com.
+  let tld = "com"; // cn,com
+  if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
+    tld = "cn";
+    console.log(`---> China, or Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
+  }
+  console.log(`---> google tld: ${tld}`);
+  return tld;
+}
+
+/**
+ * Google RPC translate.
+ */
 async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
-  const { word, toLanguage } = queryWordInfo;
+  const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
+  const tld = await getTld();
+  queryWordInfo.tld = tld;
+
+  const proxy = process.env.PROXY || undefined;
+  const httpsAgent = proxy ? new HttpsProxyAgent(proxy) : undefined;
+  // console.warn(`---> proxy: ${proxy}, httpsAgent: ${JSON.stringify(httpsAgent, null, 4)}`);
 
   return new Promise((resolve, reject) => {
-    googleTranslateApi(word, { to: toLanguage, tld: "cn" }, { signal })
+    const startTime = new Date().getTime();
+    googleTranslateApi(queryWordInfo.word, { to: toLanguageId, tld: tld }, { signal, agent: httpsAgent })
       .then((res) => {
         const detectFromLanguage = res.from.language.iso;
-        console.warn(`---> google rpc translate: ${res.text}, ${detectFromLanguage} => ${toLanguage}`);
+        console.warn(
+          `---> Google rpc translate: ${res.text}, ${detectFromLanguage} => ${toLanguageId}, cost ${
+            new Date().getTime() - startTime
+          } ms`
+        );
 
         const result: RequestTypeResult = {
           type: TranslationType.Google,
@@ -46,12 +76,13 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
         resolve(result);
       })
       .catch((error) => {
-        if (error.message === "canceled") {
-          console.log(`---> google cancelled`);
+        // got use a different error meassage from axios.
+        if (error.message === "The operation was aborted") {
+          console.log(`---> google rpc aborted`);
           return;
         }
 
-        console.error(`googleRPCTranslate error: ${error}`);
+        console.error(`googleRPCTranslate error: ${JSON.stringify(error)}`);
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Google,
           message: "Google RPC translate error",
@@ -66,13 +97,7 @@ export async function requestGoogleTranslate(
   signal: AbortSignal
 ): Promise<RequestTypeResult> {
   console.log(`---> start request Google`);
-  // if has preferred Chinese language or ip in China, use cn, else use com.
-  let tld = "com"; // cn,com
-  if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
-    tld = "cn";
-    console.log(`---> China, or Chinese: ${checkIfPreferredLanguagesContainedChinese()}`);
-  }
-  console.log(`---> google tld: ${tld}`);
+  const tld = await getTld();
   queryWordInfo.tld = tld;
 
   return googleRPCTranslate(queryWordInfo, signal);
@@ -85,16 +110,13 @@ export async function requestGoogleTranslate(
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  */
 async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const fromLanguageItem = getLanguageItemFromYoudaoId(fromLanguage);
-  const toLanguageItem = getLanguageItemFromYoudaoId(toLanguage);
-  const fromLanguageId = fromLanguageItem.googleLanguageId || fromLanguageItem.youdaoLanguageId;
-  const toLanguageId = toLanguageItem.googleLanguageId || toLanguageItem.youdaoLanguageId;
+  const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
+  const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
     sl: fromLanguageId, // source language
     tl: toLanguageId, // target language
     hl: toLanguageId, // hope language? web ui language
-    q: word, // query word
+    q: queryWordInfo.word, // query word
   };
   const tld = queryWordInfo.tld;
   const headers = {
@@ -113,7 +135,7 @@ async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSign
         // <div class="result-container">好的</div>
         const translation = $(".result-container").text();
         const translations = translation.split("\n");
-        console.warn(`---> google web translation: ${translation}, cost: ${res.headers["requestCostTime"]}ms`);
+        console.warn(`---> google web translation: ${translation}, cost: ${res.headers["requestCostTime"]} ms`);
         const result: RequestTypeResult = {
           type: TranslationType.Google,
           result: { translatedText: translation },
@@ -121,7 +143,7 @@ async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSign
         };
         resolve(result);
       })
-      .catch((error: AxiosError) => {
+      .catch((error) => {
         if (error.message === "canceled") {
           console.log(`---> google cancelled`);
           return;

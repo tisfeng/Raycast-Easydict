@@ -3,7 +3,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 21:37
+ * @lastEditTime: 2022-08-13 13:47
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { LocalStorage } from "@raycast/api";
 import axios from "axios";
 import querystring from "node:querystring";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { getDeepLLanguageId } from "../language/languages";
 import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
@@ -29,10 +29,8 @@ export async function requestDeepLTextTranslate(
 ): Promise<RequestTypeResult> {
   console.log(`---> start rquest DeepL`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const sourceLang = getLanguageItemFromYoudaoId(fromLanguage).deepLSourceLanguageId;
-  const targetLang =
-    getLanguageItemFromYoudaoId(toLanguage).deepLSourceLanguageId ||
-    getLanguageItemFromYoudaoId(toLanguage).deepLTargetLanguageId;
+  const sourceLang = getDeepLLanguageId(fromLanguage);
+  const targetLang = getDeepLLanguageId(toLanguage);
 
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
@@ -81,14 +79,12 @@ export async function requestDeepLTextTranslate(
         resolve(deepLTypeResult);
       })
       .catch((error: AxiosError) => {
-        console.error(`DeepL translate error: ${error}`);
-        console.error(`error: ${JSON.stringify(error, null, 4)}`);
-
         if (error.message === "canceled") {
-          console.log(`---> deepL cancelled, error: ${error}`);
+          console.log(`---> deepL canceled, error: ${error}`);
           return;
         }
 
+        console.error(`DeepL error: ${JSON.stringify(error, null, 4)}`);
         console.error("deepL error response: ", error.response);
 
         const errorCode = error.response?.status;
