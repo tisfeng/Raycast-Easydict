@@ -3,7 +3,7 @@ import { RequestErrorInfo } from "./../../types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 19:01
+ * @lastEditTime: 2022-08-13 22:40
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import querystring from "node:querystring";
 import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
-import { getYoudaoErrorInfo } from "../../language/languages";
+import { YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { RequestTypeResult, TranslationType } from "../../types";
 import { DicionaryType } from "./../../types";
@@ -102,6 +102,47 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
         reject(youdaoErrorInfo);
       });
   });
+}
+
+function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
+  let errorMessage = "";
+  switch (errorCode) {
+    case YoudaoErrorCode.Success: {
+      errorMessage = "Success";
+      break;
+    }
+    case YoudaoErrorCode.TargetLanguageNotSupported: {
+      errorMessage = "Target language not supported";
+      break;
+    }
+    case YoudaoErrorCode.InvalidApplicationID: {
+      errorMessage = "Invalid application ID";
+      break;
+    }
+    case YoudaoErrorCode.InvalidSignature: {
+      errorMessage = "Invalid signature";
+      break;
+    }
+    case YoudaoErrorCode.AccessFrequencyLimited: {
+      errorMessage = "Access frequency limited";
+      break;
+    }
+    case YoudaoErrorCode.TranslationQueryFailed: {
+      errorMessage = "Translation query failed";
+      break;
+    }
+    case YoudaoErrorCode.InsufficientAccountBalance: {
+      errorMessage = "Insufficient account balance";
+      break;
+    }
+  }
+
+  const errorInfo: RequestErrorInfo = {
+    type: DicionaryType.Youdao,
+    code: errorCode,
+    message: errorMessage,
+  };
+  return errorInfo;
 }
 
 /**

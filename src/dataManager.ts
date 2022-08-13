@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:10
+ * @lastEditTime: 2022-08-13 22:44
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -437,7 +437,7 @@ export class DataManager {
   private showErrorInfoToast(errorInfo: RequestErrorInfo) {
     showToast({
       style: Toast.Style.Failure,
-      title: `${errorInfo.type} error: ${errorInfo.code || ""}`,
+      title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
       message: errorInfo.message,
     });
   }

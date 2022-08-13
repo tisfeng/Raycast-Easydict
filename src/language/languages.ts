@@ -1,18 +1,15 @@
-import { DicionaryType } from "./../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:53
+ * @lastEditTime: 2022-08-13 22:32
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { youdaoErrorList } from "../consts";
 import { francDetectTextLangauge } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { RequestErrorInfo } from "../types";
 import { preferrdLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
 
@@ -230,16 +227,6 @@ export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
       queryTextInfo.word
     )}`;
   }
-}
-
-export function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
-  return (
-    youdaoErrorList.find((item) => item.code === errorCode) || {
-      type: DicionaryType.Youdao,
-      code: errorCode,
-      message: "",
-    }
-  );
 }
 
 /**

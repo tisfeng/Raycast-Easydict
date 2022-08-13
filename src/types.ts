@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:55
+ * @lastEditTime: 2022-08-13 19:06
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -63,7 +63,7 @@ type RequestResultType =
   | GoogleTranslateResult;
 
 export interface RequestErrorInfo {
-  type?: RequestType;
+  type: RequestType;
   message: string;
   code?: string;
 }

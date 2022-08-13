@@ -223,7 +223,7 @@ function checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
   detectTypeResult: LanguageDetectTypeResult,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
 ) {
-  console.log(`---> check detected language type result: ${JSON.stringify(detectTypeResult, null, 4)}`);
+  console.log(`---> check detected language is perferred: ${JSON.stringify(detectTypeResult, null, 4)}`);
   const youdaoLanguageId = detectTypeResult.youdaoLanguageId;
   if (youdaoLanguageId.length === 0 || !isPreferredLanguage(youdaoLanguageId)) {
     for (const [type] of detectLanguageActionMap) {
