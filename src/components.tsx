@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:33
+ * @lastEditTime: 2022-08-14 12:40
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,10 +11,17 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
+import { getLingueeWebDictionaryUrl } from "./dict/linguee/parse";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import { languageItemList } from "./language/consts";
+import {
+  getDeepLWebTranslateURL,
+  getEudicWebDictionaryURL,
+  getGoogleWebTranslateURL,
+  getYoudaoWebDictionaryURL,
+} from "./language/languages";
 import { myPreferences } from "./preferences";
 import ReleaseLogDetail from "./releaseVersion/releaseLog";
 import { Easydict } from "./releaseVersion/versionInfo";
@@ -362,12 +369,36 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
 }
 
 /**
- * Return WebTranslationItem according to the query type and info
+ * Get WebQueryItem according to the query type and info
  */
 function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQueryItem | undefined {
-  const webUrl = wordInfo.webUrl;
   const title = `Open In ${queryType}`;
   const icon = getQueryTypeIcon(queryType);
+
+  let webUrl;
+  switch (queryType) {
+    case TranslationType.Google: {
+      webUrl = getGoogleWebTranslateURL(wordInfo);
+      break;
+    }
+    case TranslationType.DeepL: {
+      webUrl = getDeepLWebTranslateURL(wordInfo);
+      break;
+    }
+    case DicionaryType.Linguee: {
+      webUrl = getLingueeWebDictionaryUrl(wordInfo);
+      break;
+    }
+    case DicionaryType.Youdao: {
+      webUrl = getYoudaoWebDictionaryURL(wordInfo);
+      break;
+    }
+    case DicionaryType.Eudic: {
+      webUrl = getEudicWebDictionaryURL(wordInfo);
+      break;
+    }
+  }
+  // console.log(`---> type: ${queryResult.type}, webUrl: ${webUrl}`);
   return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
 }
 

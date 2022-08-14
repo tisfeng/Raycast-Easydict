@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:14
+ * @lastEditTime: 2022-08-14 12:39
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,22 +10,12 @@
 
 import { showToast, Toast } from "@raycast/api";
 import { rquestLingueeDictionary } from "./dict/linguee/linguee";
-import {
-  formatLingueeDisplaySections,
-  getLingueeWebDictionaryUrl,
-  hasLingueeDictionaryEntries,
-} from "./dict/linguee/parse";
+import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
-import {
-  getDeepLWebTranslateURL,
-  getEudicWebDictionaryURL,
-  getGoogleWebTranslateURL,
-  getLanguageItemFromYoudaoId,
-  getYoudaoWebDictionaryURL,
-} from "./language/languages";
+import { getLanguageItemFromYoudaoId } from "./language/languages";
 import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
@@ -103,7 +93,6 @@ export class DataManager {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
     this.updateTypeSectionTitle();
-    this.updateQueryWordInfo();
   }
 
   /**
@@ -122,48 +111,6 @@ export class DataManager {
       }
     }
     this.updateListDisplaySections(displaySections.flat());
-  }
-
-  /**
-   * Update word info. Especially, update web url, open in browser.
-   */
-  private updateQueryWordInfo() {
-    for (const result of this.queryResults) {
-      const wordInfo = result.wordInfo as QueryWordInfo;
-      wordInfo.webUrl = this.getQueryTypeWebUrl(result);
-    }
-  }
-
-  /**
-   * Get web url according to queryType.
-   */
-  private getQueryTypeWebUrl(queryResult: QueryResult): string | undefined {
-    const wordInfo = queryResult.wordInfo ?? this.queryWordInfo;
-    let webUrl;
-    switch (queryResult.type) {
-      case TranslationType.Google: {
-        webUrl = getGoogleWebTranslateURL(wordInfo);
-        break;
-      }
-      case TranslationType.DeepL: {
-        webUrl = getDeepLWebTranslateURL(wordInfo);
-        break;
-      }
-      case DicionaryType.Linguee: {
-        webUrl = getLingueeWebDictionaryUrl(wordInfo);
-        break;
-      }
-      case DicionaryType.Youdao: {
-        webUrl = getYoudaoWebDictionaryURL(wordInfo);
-        break;
-      }
-      case DicionaryType.Eudic: {
-        webUrl = getEudicWebDictionaryURL(wordInfo);
-        break;
-      }
-    }
-    // console.log(`---> type: ${queryResult.type}, webUrl: ${webUrl}`);
-    return webUrl;
   }
 
   /**
