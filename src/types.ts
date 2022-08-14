@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:27
+ * @lastEditTime: 2022-08-14 11:54
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import { LanguageDetectType } from "./detectLanauge/types";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
 import { LingueeDictionaryResult, LingueeListItemType } from "./dict/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "./dict/youdao/types";
-import { LanguageItem } from "./language/languages";
+import { LanguageItem } from "./language/type";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;

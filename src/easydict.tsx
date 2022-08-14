@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:29
+ * @lastEditTime: 2022-08-14 11:57
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,8 @@ import { DataManager } from "./dataManager";
 import { detectLanguage } from "./detectLanauge/detect";
 import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId, LanguageItem } from "./language/languages";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "./language/languages";
+import { LanguageItem } from "./language/type";
 import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";

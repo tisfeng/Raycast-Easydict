@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:22
+ * @lastEditTime: 2022-08-14 11:45
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { LanguageItem } from "./languages";
+import { LanguageItem } from "./type";
 
 /**
  * Language item list.
@@ -66,7 +66,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "eng",
     aliyunLanguageId: "en",
     tencentLanguageId: "en",
-    youdaoWebLanguageId: "eng",
     eudicWebLanguageId: "en",
     baiduLanguageId: "en",
     caiyunLanguageId: "en",
@@ -83,7 +82,6 @@ export const languageItemList: LanguageItem[] = [
     aliyunLanguageId: "ja",
     tencentDetectLanguageId: "jp",
     tencentLanguageId: "ja",
-    youdaoWebLanguageId: "jap",
     baiduLanguageId: "jp",
     caiyunLanguageId: "ja",
     languageTitle: "Japanese",
@@ -98,7 +96,6 @@ export const languageItemList: LanguageItem[] = [
     aliyunLanguageId: "ko",
     tencentDetectLanguageId: "kr",
     tencentLanguageId: "ko",
-    youdaoWebLanguageId: "ko",
     baiduLanguageId: "kor",
     languageTitle: "Korean",
     voiceList: ["Yuna"],
@@ -112,7 +109,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "fra",
     aliyunLanguageId: "fr",
     tencentLanguageId: "fr",
-    youdaoWebLanguageId: "fr",
     eudicWebLanguageId: "fr",
     baiduLanguageId: "fra",
     languageTitle: "French",

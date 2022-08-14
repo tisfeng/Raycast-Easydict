@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:01
+ * @lastEditTime: 2022-08-14 11:54
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,26 +12,7 @@ import { francDetectTextLangauge } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { preferrdLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
-
-export interface LanguageItem {
-  youdaoLanguageId: string;
-  appleDetectChineseLanguageTitle: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
-  appleLanguageId?: string; // used to translate, Apple translate support 12 languages?
-  deepLSourceLanguageId?: string; // deepL source language id
-  deepLTargetLanguageId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on. "EN" = "EN-US"
-  francLanguageId: string; // the languages represented by ISO 639-3
-  aliyunLanguageId: string;
-  tencentDetectLanguageId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
-  tencentLanguageId?: string;
-  baiduLanguageId: string;
-  caiyunLanguageId?: string;
-  languageTitle: string; // * when system language is English, Apple detect language is equal to languageTitle.
-  voiceList?: string[];
-  googleLanguageId?: string;
-  youdaoWebLanguageId?: string;
-  eudicWebLanguageId?: string;
-  emoji: string;
-}
+import { LanguageItem } from "./type";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 95;
@@ -182,8 +163,8 @@ export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string |
 /**
  * Get youdao web dictionary URL.
  *
- * https://dict.youdao.com/result?word=good&lang=en
- * https://www.youdao.com/w/eng/good
+ * new: https://dict.youdao.com/result?word=good&lang=en
+ * old: https://www.youdao.com/w/eng/good
  */
 export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
@@ -191,11 +172,10 @@ export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string 
     return;
   }
 
-  const youdaoWebLanguageId = getLanguageItemFromYoudaoId(languageId).youdaoWebLanguageId;
-  if (youdaoWebLanguageId) {
+  const youdaoDictionaryLanguages = ["en", "ja", "ko", "fr"];
+  if (youdaoDictionaryLanguages.includes(languageId)) {
     const word = encodeURIComponent(queryTextInfo.word);
-    return `https://dict.youdao.com/result?word=${word}&lang=${youdaoWebLanguageId}`;
-    return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
+    return `https://dict.youdao.com/result?word=${word}&lang=${languageId}`;
   }
 }
 
