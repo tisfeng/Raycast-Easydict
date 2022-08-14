@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 18:20
+ * @lastEditTime: 2022-08-14 18:30
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -144,7 +144,7 @@ export class DataManager {
     this.queryGoogleTranslate(queryWordInfo, this.controller.signal);
     this.queryAppleTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo, this.controller.signal);
-    this.queryTencentTranslate(queryWordInfo);
+    this.queryTencentTranslate(queryWordInfo, this.controller.signal);
     this.queryCaiyunTranslate(queryWordInfo, this.controller.signal);
 
     // If no query, stop loading.
@@ -378,19 +378,13 @@ export class DataManager {
   /**
    * Query tencent translate.
    */
-  private queryTencentTranslate(queryWordInfo: QueryWordInfo) {
+  private queryTencentTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
     if (myPreferences.enableTencentTranslate) {
       const type = TranslationType.Tencent;
       this.addQueryToRecordList(type);
 
-      requestTencentTranslate(queryWordInfo)
+      requestTencentTranslate(queryWordInfo, signal)
         .then((tencentTypeResult) => {
-          if (this.checkIfNeedCancelDisplay()) {
-            this.cancelCurrentQuery();
-            console.log("---> Tencent isLastQuery is false, return");
-            return;
-          }
-
           const queryResult: QueryResult = {
             type: type,
             sourceResult: tencentTypeResult,

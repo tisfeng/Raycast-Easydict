@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:46
+ * @lastEditTime: 2022-08-14 18:32
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,7 +85,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
  * Google language detect.
  */
 export async function googleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
-  console.log(`---> start google language detect: ${text}`);
+  console.log(`---> start Google language detect: ${text}`);
   const startTime = new Date().getTime();
   const queryWord: QueryWordInfo = {
     word: text,
