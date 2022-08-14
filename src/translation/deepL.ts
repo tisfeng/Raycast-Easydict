@@ -3,7 +3,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:24
+ * @lastEditTime: 2022-08-14 00:50
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -58,7 +58,7 @@ export async function requestDeepLTextTranslate(
 
   const config: AxiosRequestConfig = {
     signal,
-    timeout: 10000,
+    timeout: 15000,
   };
 
   return new Promise((resolve, reject) => {

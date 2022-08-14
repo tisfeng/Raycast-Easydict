@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:33
+ * @lastEditTime: 2022-08-14 10:28
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,7 +38,7 @@ let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 /**
  * Record all API detected language, if has detected two identical language id, use it.
  */
-const detectedAPILanguageTypeResultList: LanguageDetectTypeResult[] = [];
+let apiDetectedLanguageList: LanguageDetectTypeResult[];
 
 const defaultConfirmedConfidence = 0.8;
 
@@ -46,6 +46,8 @@ const defaultConfirmedConfidence = 0.8;
  * Detect language with the given text, callback with LanguageDetectTypeResult.
  *
  * Prioritize the API language detection, if over time, try to use local language detection.
+ *
+ * Todo: use class to rewrite.
  */
 export function detectLanguage(
   text: string,
@@ -53,6 +55,7 @@ export function detectLanguage(
 ): void {
   console.log(`start detectLanguage`);
   const localDetectResult = getLocalTextLanguageDetectResult(text, defaultConfirmedConfidence);
+  apiDetectedLanguageList = [];
 
   // Start a delay timer to detect local language, use it only if API detect over time.
   clearTimeout(delayLocalDetectLanguageTimer);
@@ -145,33 +148,21 @@ function raceDetectTextLanguage(
 }
 
 function handleDetectedLanguageTypeResult(
-  apiLanguageDetectTypeResult: LanguageDetectTypeResult,
+  apiDetectLanguage: LanguageDetectTypeResult,
   localLanguageDetectTypeResult: LanguageDetectTypeResult,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
   callback: (detectTypeResult: LanguageDetectTypeResult) => void
 ) {
-  console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiLanguageDetectTypeResult, null, 4)}`);
-  // First, check if the language is preferred language, if true, use it directly, else remove it from the action map.
-  const checkIsPreferredLanguage = checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
-    apiLanguageDetectTypeResult,
-    detectLanguageActionMap
-  );
-  if (checkIsPreferredLanguage) {
-    apiLanguageDetectTypeResult.confirmed = true;
-    callback(apiLanguageDetectTypeResult);
-    return;
-  }
-
-  // Second, iterate detectedLanguageTypeList, check if has detected two identical language id, if true, use it.
-  for (const languageTypeReuslt of detectedAPILanguageTypeResultList as LanguageDetectTypeResult[]) {
-    const detectedYoudaoLanguageId = apiLanguageDetectTypeResult.youdaoLanguageId;
+  // First, iterate detectedLanguageTypeList, check if has detected two identical language id, if true, use it.
+  for (const languageTypeReuslt of apiDetectedLanguageList) {
+    const detectedYoudaoLanguageId = apiDetectLanguage.youdaoLanguageId;
     if (
       languageTypeReuslt.youdaoLanguageId === detectedYoudaoLanguageId &&
       isValidLanguageId(detectedYoudaoLanguageId)
     ) {
       languageTypeReuslt.confirmed = true;
       console.warn(
-        `---> API: ${apiLanguageDetectTypeResult.type} && ${
+        `---> API: ${apiDetectLanguage.type} && ${
           languageTypeReuslt.type
         }, detected identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`
       );
@@ -181,62 +172,47 @@ function handleDetectedLanguageTypeResult(
   }
 
   // If this API detected language is not confirmed, record it in the detectedLanguageTypeList.
-  detectedAPILanguageTypeResultList.push(apiLanguageDetectTypeResult);
+  apiDetectedLanguageList.push(apiDetectLanguage);
 
   /**
-   * Finally, iterate API detectedLanguageTypeList, to compare with the local detect language list, if true, use it.
-   * If matched, mark it as confirmed, else use it directly, but not confirmed.
+   * If only one action left, iterate API Detected Language List to compare with the Local Detect Language List.
+   * If matched, and the language is preferred, mark it as confirmed. else use it directly, but not confirmed.
    */
-  if (detectLanguageActionMap.size === 0) {
+  if (detectLanguageActionMap.size === 1) {
     console.log(`try compare API detected language list with local deteced list`);
-    console.log(`---> API detected language list: ${JSON.stringify(detectedAPILanguageTypeResultList, null, 4)}`);
+    console.log(`---> API detected language list: ${JSON.stringify(apiDetectedLanguageList, null, 4)}`);
 
-    const detectedLocalLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
+    const localDetectedLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
     // console.log(`---> local detected language list: ${JSON.stringify(detectedLocalLanguageArray, null, 4)}`);
-    if (detectedLocalLanguageArray?.length) {
-      for (const [languageId, confidence] of detectedLocalLanguageArray) {
-        // console.log(`---> local detected language: ${languageId}, confidence: ${confidence}`);
-        for (const languageTypeReuslt of detectedAPILanguageTypeResultList) {
-          // console.log(`---> API detected language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
-          if (confidence > 0 && languageTypeReuslt.youdaoLanguageId === languageId && isValidLanguageId(languageId)) {
+    if (localDetectedLanguageArray?.length) {
+      for (const [languageId, confidence] of localDetectedLanguageArray) {
+        for (const languageTypeReuslt of apiDetectedLanguageList) {
+          if (languageTypeReuslt.youdaoLanguageId === languageId && isPreferredLanguage(languageId) && confidence > 0) {
             languageTypeReuslt.confirmed = true;
-            console.warn(`---> local detect identical language: ${JSON.stringify(languageTypeReuslt, null, 4)}`);
-            callback(languageTypeReuslt); // use the first detected language type, the speed of response is important.
+            console.warn(
+              `---> API and Local detect identical preferrd language: ${JSON.stringify(languageTypeReuslt, null, 4)}`
+            );
+            callback(languageTypeReuslt);
             return;
           }
         }
       }
     }
 
-    apiLanguageDetectTypeResult.confirmed = false;
-    callback(apiLanguageDetectTypeResult);
+    apiDetectLanguage.confirmed = false;
+    console.log(`---> finally, the last API: ${apiDetectLanguage.type}, not confirmed, but hava to callback use it.`);
+    callback(apiDetectLanguage);
     return;
   }
 
-  console.log(`---> continue to detect next action`);
-  // if current action detect language has no result, continue to detect next action
-  raceDetectTextLanguage(detectLanguageActionMap, localLanguageDetectTypeResult, callback);
-}
+  console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiDetectLanguage, null, 4)}`);
 
-/**
- * Check if the detected language type result is preferred language, if not, remove it from the action map.
- */
-function checkDetectedLanguageTypeResultIsPreferredAndIfNeedRemove(
-  detectTypeResult: LanguageDetectTypeResult,
-  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
-) {
-  console.log(`---> check detected language is perferred: ${JSON.stringify(detectTypeResult, null, 4)}`);
-  const youdaoLanguageId = detectTypeResult.youdaoLanguageId;
-  if (youdaoLanguageId.length === 0 || !isPreferredLanguage(youdaoLanguageId)) {
-    for (const [type] of detectLanguageActionMap) {
-      if (type === detectTypeResult.type) {
-        detectLanguageActionMap.delete(type);
-      }
-    }
-    console.warn(`${detectTypeResult.type} check not preferred language: ${youdaoLanguageId}`);
-    return false;
-  }
-  return true;
+  // If this API detected language is not confirmed, remove it from the detectActionMap, and try next detect API.
+  detectLanguageActionMap.delete(apiDetectLanguage.type);
+  console.log(`---> remove unconfirmed language: ${JSON.stringify(apiDetectLanguage, null, 4)}`);
+
+  console.log(`---> continue to detect next action`);
+  raceDetectTextLanguage(detectLanguageActionMap, localLanguageDetectTypeResult, callback);
 }
 
 /**
