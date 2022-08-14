@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:17
+ * @lastEditTime: 2022-08-14 11:01
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -174,10 +174,17 @@ export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string |
 
   const eudicWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
   if (eudicWebLanguageId) {
-    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
+    const word = encodeURIComponent(queryTextInfo.word);
+    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${word}`;
   }
 }
 
+/**
+ * Get youdao web dictionary URL.
+ *
+ * https://dict.youdao.com/result?word=good&lang=en
+ * https://www.youdao.com/w/eng/good
+ */
 export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
   if (!languageId) {
@@ -186,6 +193,8 @@ export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string 
 
   const youdaoWebLanguageId = getLanguageItemFromYoudaoId(languageId).youdaoWebLanguageId;
   if (youdaoWebLanguageId) {
+    const word = encodeURIComponent(queryTextInfo.word);
+    return `https://dict.youdao.com/result?word=${word}&lang=${youdaoWebLanguageId}`;
     return `https://www.youdao.com/w/${youdaoWebLanguageId}/${encodeURIComponent(queryTextInfo.word)}`;
   }
 }

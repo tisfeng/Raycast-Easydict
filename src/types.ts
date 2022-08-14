@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:02
+ * @lastEditTime: 2022-08-14 11:27
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -156,7 +156,7 @@ export interface QueryRecoredItem {
   result?: string;
 }
 
-export interface WebTranslationItem {
+export interface WebQueryItem {
   type: QueryType;
   webUrl: string;
   icon: Image.ImageLike;

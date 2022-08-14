@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 23:04
+ * @lastEditTime: 2022-08-14 11:14
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,12 +10,22 @@
 
 import { showToast, Toast } from "@raycast/api";
 import { rquestLingueeDictionary } from "./dict/linguee/linguee";
-import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "./dict/linguee/parse";
+import {
+  formatLingueeDisplaySections,
+  getLingueeWebDictionaryUrl,
+  hasLingueeDictionaryEntries,
+} from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "./language/languages";
+import {
+  getDeepLWebTranslateURL,
+  getEudicWebDictionaryURL,
+  getGoogleWebTranslateURL,
+  getLanguageItemFromYoudaoId,
+  getYoudaoWebDictionaryURL,
+} from "./language/languages";
 import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
@@ -47,7 +57,7 @@ export class DataManager {
   };
 
   queryResults: QueryResult[] = [];
-  queryWordInfo?: QueryWordInfo;
+  queryWordInfo = {} as QueryWordInfo; // later will must assign value
 
   /**
    * when has new input text, need to cancel previous request.
@@ -93,6 +103,7 @@ export class DataManager {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
     this.updateTypeSectionTitle();
+    this.updateQueryWordInfo();
   }
 
   /**
@@ -111,6 +122,48 @@ export class DataManager {
       }
     }
     this.updateListDisplaySections(displaySections.flat());
+  }
+
+  /**
+   * Update word info. Especially, update web url, open in browser.
+   */
+  private updateQueryWordInfo() {
+    for (const result of this.queryResults) {
+      const wordInfo = result.wordInfo as QueryWordInfo;
+      wordInfo.webUrl = this.getQueryTypeWebUrl(result);
+    }
+  }
+
+  /**
+   * Get web url according to queryType.
+   */
+  private getQueryTypeWebUrl(queryResult: QueryResult): string | undefined {
+    const wordInfo = queryResult.wordInfo ?? this.queryWordInfo;
+    let webUrl;
+    switch (queryResult.type) {
+      case TranslationType.Google: {
+        webUrl = getGoogleWebTranslateURL(wordInfo);
+        break;
+      }
+      case TranslationType.DeepL: {
+        webUrl = getDeepLWebTranslateURL(wordInfo);
+        break;
+      }
+      case DicionaryType.Linguee: {
+        webUrl = getLingueeWebDictionaryUrl(wordInfo);
+        break;
+      }
+      case DicionaryType.Youdao: {
+        webUrl = getYoudaoWebDictionaryURL(wordInfo);
+        break;
+      }
+      case DicionaryType.Eudic: {
+        webUrl = getEudicWebDictionaryURL(wordInfo);
+        break;
+      }
+    }
+    // console.log(`---> type: ${queryResult.type}, webUrl: ${webUrl}`);
+    return webUrl;
   }
 
   /**
@@ -486,7 +539,7 @@ export class DataManager {
         key: `${oneLineTranslation}-${type}`,
         title: oneLineTranslation,
         copyText: copyText,
-        queryWordInfo: this.queryWordInfo as QueryWordInfo,
+        queryWordInfo: this.queryWordInfo,
       };
       const displaySections: DisplaySection[] = [
         {
@@ -667,7 +720,7 @@ export class DataManager {
    *
    * First, get wordInfo from the first item of the first section. If displaySections is empty, return current query word info.
    */
-  getWordInfoFromDisplaySections(displaySections: DisplaySection[]) {
+  getWordInfoFromDisplaySections(displaySections: DisplaySection[]): QueryWordInfo {
     if (displaySections.length) {
       const displaySection = displaySections[0];
       if (displaySection.items.length) {
@@ -675,7 +728,7 @@ export class DataManager {
         return wordInfo;
       }
     }
-    return this.queryWordInfo as QueryWordInfo;
+    return this.queryWordInfo;
   }
 
   /**
@@ -715,7 +768,7 @@ export class DataManager {
       } else {
         // check if translation is too long
         const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
-        const toLanauge = this.queryWordInfo?.toLanguage as string;
+        const toLanauge = this.queryWordInfo.toLanguage;
         const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
         if (isTooLong) {
           isShowDetail = true;

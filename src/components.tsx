@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 19:15
+ * @lastEditTime: 2022-08-14 11:33
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,17 +11,10 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { getLingueeWebDictionaryUrl } from "./dict/linguee/parse";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import { languageItemList } from "./language/consts";
-import {
-  getDeepLWebTranslateURL,
-  getEudicWebDictionaryURL,
-  getGoogleWebTranslateURL,
-  getYoudaoWebDictionaryURL,
-} from "./language/languages";
 import { myPreferences } from "./preferences";
 import ReleaseLogDetail from "./releaseVersion/releaseLog";
 import { Easydict } from "./releaseVersion/versionInfo";
@@ -33,7 +26,7 @@ import {
   ListItemDisplayType,
   QueryType,
   TranslationType,
-  WebTranslationItem,
+  WebQueryItem,
 } from "./types";
 import { checkIfNeedShowReleasePrompt } from "./utils";
 
@@ -45,13 +38,13 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
   const displayItem = props.displayItem;
   const queryWordInfo = displayItem.queryWordInfo;
-  console.log(`---> list item type: ${displayItem.displayType}, title: ${displayItem.title}`);
-  // console.log(`---> queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
-  const googleWebItem = getWebTranslationItem(TranslationType.Google, queryWordInfo);
-  const deepLWebItem = getWebTranslationItem(TranslationType.DeepL, queryWordInfo);
-  const lingueeWebItem = getWebTranslationItem(DicionaryType.Linguee, queryWordInfo);
-  const youdaoWebItem = getWebTranslationItem(DicionaryType.Youdao, queryWordInfo);
-  const eudicWebItem = getWebTranslationItem(DicionaryType.Eudic, queryWordInfo);
+  console.log(`---> current list type: ${displayItem.queryType}, title: ${displayItem.title}`);
+  console.log(`---> web url: ${queryWordInfo.webUrl}`);
+  const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
+  const deepLWebItem = getWebQueryItem(TranslationType.DeepL, queryWordInfo);
+  const lingueeWebItem = getWebQueryItem(DicionaryType.Linguee, queryWordInfo);
+  const youdaoWebItem = getWebQueryItem(DicionaryType.Youdao, queryWordInfo);
+  const eudicWebItem = getWebQueryItem(DicionaryType.Eudic, queryWordInfo);
   const isShowingLingueeTop = displayItem.queryType === DicionaryType.Linguee;
   const isShowingYoudaoDictioanryTop = displayItem.queryType === DicionaryType.Youdao;
   const isShowingDeepLTop = displayItem.queryType === TranslationType.DeepL;
@@ -75,10 +68,10 @@ export function ListActionPanel(props: ActionListPanelProps) {
           <ActionRecentUpdate title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
 
-        {isShowingLingueeTop && <OpenInWebQueryAction webTranslationItem={lingueeWebItem} />}
-        {isShowingYoudaoDictioanryTop && <OpenInWebQueryAction webTranslationItem={youdaoWebItem} />}
-        {isShowingDeepLTop && <OpenInWebQueryAction webTranslationItem={deepLWebItem} />}
-        {isShowingGoogleTop && <OpenInWebQueryAction webTranslationItem={googleWebItem} />}
+        {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
+        {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
+        {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
+        {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
 
         {props.isInstalledEudic && (
           <Action
@@ -98,11 +91,11 @@ export function ListActionPanel(props: ActionListPanelProps) {
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
-        {!isShowingDeepLTop && <OpenInWebQueryAction webTranslationItem={deepLWebItem} />}
-        {!isShowingGoogleTop && <OpenInWebQueryAction webTranslationItem={googleWebItem} />}
-        {!isShowingLingueeTop && <OpenInWebQueryAction webTranslationItem={lingueeWebItem} />}
-        {!isShowingYoudaoDictioanryTop && <OpenInWebQueryAction webTranslationItem={youdaoWebItem} />}
-        {<OpenInWebQueryAction webTranslationItem={eudicWebItem} />}
+        {!isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
+        {!isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
+        {!isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
+        {!isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
+        {<WebQueryAction webQueryItem={eudicWebItem} />}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">
@@ -371,43 +364,19 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
 /**
  * Return WebTranslationItem according to the query type and info
  */
-function getWebTranslationItem(queryType: QueryType, wordInfo: QueryWordInfo): WebTranslationItem | undefined {
-  // console.log(`---> getWebTranslationItem: ${queryType}, ${JSON.stringify(wordInfo, null, 2)}`);
-  let webUrl;
+function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQueryItem | undefined {
+  const webUrl = wordInfo.webUrl;
   const title = `Open In ${queryType}`;
   const icon = getQueryTypeIcon(queryType);
-  switch (queryType) {
-    case TranslationType.Google: {
-      webUrl = getGoogleWebTranslateURL(wordInfo);
-      break;
-    }
-    case TranslationType.DeepL: {
-      webUrl = getDeepLWebTranslateURL(wordInfo);
-      break;
-    }
-    case DicionaryType.Linguee: {
-      webUrl = getLingueeWebDictionaryUrl(wordInfo);
-      break;
-    }
-    case DicionaryType.Youdao: {
-      webUrl = getYoudaoWebDictionaryURL(wordInfo);
-      break;
-    }
-    case DicionaryType.Eudic: {
-      webUrl = getEudicWebDictionaryURL(wordInfo);
-      break;
-    }
-  }
-  // console.log(`---> type: ${queryType}, webUrl: ${webUrl}`);
   return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
 }
 
-function OpenInWebQueryAction(props: { webTranslationItem?: WebTranslationItem }) {
-  return props.webTranslationItem?.webUrl ? (
+function WebQueryAction(props: { webQueryItem?: WebQueryItem }) {
+  return props.webQueryItem?.webUrl ? (
     <Action.OpenInBrowser
-      icon={props.webTranslationItem.icon}
-      title={props.webTranslationItem.title}
-      url={props.webTranslationItem.webUrl}
+      icon={props.webQueryItem.icon}
+      title={props.webQueryItem.title}
+      url={props.webQueryItem.webUrl}
     />
   ) : null;
 }
