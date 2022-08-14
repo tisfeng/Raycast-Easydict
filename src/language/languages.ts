@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:49
+ * @lastEditTime: 2022-08-14 12:53
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -126,6 +126,14 @@ export function getDeepLLanguageId(youdaoLanguageId: string): string | undefined
 }
 
 /**
+ * Get baidu language id from youdao language id.
+ */
+export function getBaiduLanguageId(youdaoLanguageId: string): string {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.baiduLanguageId;
+}
+
+/**
  * Get language item from franc language id
  */
 export function getLanguageItemFromFrancId(francLanguageId: string): LanguageItem {
@@ -147,6 +155,11 @@ export function isValidLanguageId(languageId: string): boolean {
   return true;
 }
 
+/**
+ * Get eudic web dictionary url.
+ *
+ * https://dict.eudic.net/dicts/en/good
+ */
 export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
   if (!languageId) {
@@ -209,12 +222,26 @@ export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string |
  * https://www.deepl.com/translator#en/zh/look
  */
 export function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
+  const text = encodeURIComponent(queryTextInfo.word);
+
   const fromLanguageId = getDeepLLanguageId(queryTextInfo.fromLanguage);
   const toLanguageId = getDeepLLanguageId(queryTextInfo.toLanguage);
   if (fromLanguageId && toLanguageId) {
-    return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${encodeURIComponent(
-      queryTextInfo.word
-    )}`;
+    return `https://www.deepl.com/translator#${fromLanguageId}/${toLanguageId}/${text}`;
+  }
+}
+
+/**
+ * Get Baidu web translate url.
+ *
+ * https://fanyi.baidu.com/#en/zh/good
+ */
+export function getBaiduWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
+  const text = encodeURIComponent(queryTextInfo.word);
+  const fromLanguageId = getBaiduLanguageId(queryTextInfo.fromLanguage);
+  const toLanguageId = getBaiduLanguageId(queryTextInfo.toLanguage);
+  if (fromLanguageId && toLanguageId) {
+    return `https://fanyi.baidu.com/#${fromLanguageId}/${toLanguageId}/${text}`;
   }
 }
 

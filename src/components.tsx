@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:40
+ * @lastEditTime: 2022-08-14 13:03
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,12 +11,13 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { getLingueeWebDictionaryUrl } from "./dict/linguee/parse";
+import { getLingueeWebDictionaryUrl as getLingueeWebDictionaryURL } from "./dict/linguee/parse";
 import { LingueeListItemType } from "./dict/linguee/types";
 import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import { languageItemList } from "./language/consts";
 import {
+  getBaiduWebTranslateURL,
   getDeepLWebTranslateURL,
   getEudicWebDictionaryURL,
   getGoogleWebTranslateURL,
@@ -48,14 +49,21 @@ export function ListActionPanel(props: ActionListPanelProps) {
   console.log(`---> current list type: ${displayItem.queryType}, title: ${displayItem.title}`);
   console.log(`---> web url: ${queryWordInfo.webUrl}`);
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
-  const deepLWebItem = getWebQueryItem(TranslationType.DeepL, queryWordInfo);
-  const lingueeWebItem = getWebQueryItem(DicionaryType.Linguee, queryWordInfo);
-  const youdaoWebItem = getWebQueryItem(DicionaryType.Youdao, queryWordInfo);
-  const eudicWebItem = getWebQueryItem(DicionaryType.Eudic, queryWordInfo);
-  const isShowingLingueeTop = displayItem.queryType === DicionaryType.Linguee;
-  const isShowingYoudaoDictioanryTop = displayItem.queryType === DicionaryType.Youdao;
-  const isShowingDeepLTop = displayItem.queryType === TranslationType.DeepL;
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
+
+  const deepLWebItem = getWebQueryItem(TranslationType.DeepL, queryWordInfo);
+  const isShowingDeepLTop = displayItem.queryType === TranslationType.DeepL;
+
+  const baiduWebItem = getWebQueryItem(TranslationType.Baidu, queryWordInfo);
+  const isShowingBaiduTop = displayItem.queryType === TranslationType.Baidu;
+
+  const lingueeWebItem = getWebQueryItem(DicionaryType.Linguee, queryWordInfo);
+  const isShowingLingueeTop = displayItem.queryType === DicionaryType.Linguee;
+
+  const youdaoWebItem = getWebQueryItem(DicionaryType.Youdao, queryWordInfo);
+  const isShowingYoudaoDictioanryTop = displayItem.queryType === DicionaryType.Youdao;
+
+  const eudicWebItem = getWebQueryItem(DicionaryType.Eudic, queryWordInfo);
 
   checkIfNeedShowReleasePrompt((isShowing) => {
     setIsShowingReleasePrompt(isShowing);
@@ -79,6 +87,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
         {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
         {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
+        {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
 
         {props.isInstalledEudic && (
           <Action
@@ -98,10 +107,13 @@ export function ListActionPanel(props: ActionListPanelProps) {
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
-        {!isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
-        {!isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {!isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
         {!isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
+
+        {!isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
+        {!isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
+        {!isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
+
         {<WebQueryAction webQueryItem={eudicWebItem} />}
       </ActionPanel.Section>
 
@@ -385,8 +397,12 @@ function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQuer
       webUrl = getDeepLWebTranslateURL(wordInfo);
       break;
     }
+    case TranslationType.Baidu: {
+      webUrl = getBaiduWebTranslateURL(wordInfo);
+      break;
+    }
     case DicionaryType.Linguee: {
-      webUrl = getLingueeWebDictionaryUrl(wordInfo);
+      webUrl = getLingueeWebDictionaryURL(wordInfo);
       break;
     }
     case DicionaryType.Youdao: {
