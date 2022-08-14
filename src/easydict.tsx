@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 23:37
+ * @lastEditTime: 2022-08-15 00:20
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,10 +13,7 @@ import { Fragment, useEffect, useState } from "react";
 import { configAxiosProxy } from "./axiosConfig";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
-import { detectLanguage } from "./detectLanauge/detect";
-import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "./language/languages";
 import { LanguageItem } from "./language/type";
 import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
 import { DisplaySection } from "./types";
@@ -53,14 +50,6 @@ export default function () {
 
   const [displayResult, setDisplayResult] = useState<DisplaySection[]>([]);
 
-  function updateDisplaySections(displayItems: DisplaySection[]) {
-    setIsShowingDetail(dataManager.isShowDetail);
-    setDisplayResult(displayItems);
-  }
-
-  dataManager.updateListDisplaySections = updateDisplaySections;
-  dataManager.updateLoadingState = setLoadingState;
-
   /**
    * the language type of text, depending on the language type of the current input text.
    */
@@ -70,10 +59,21 @@ export default function () {
    */
   const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(preferrdLanguage1);
   /**
-   * the user selected translation language, for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
+   * the user selected translation language, used for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
    */
   const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
+
+  function updateDisplaySections(displayItems: DisplaySection[]) {
+    setIsShowingDetail(dataManager.isShowDetail);
+    setDisplayResult(displayItems);
+  }
+
+  // Todo: need to optimize these callbacks.
+  dataManager.updateLoadingState = setLoadingState;
+  dataManager.updateListDisplaySections = updateDisplaySections;
+  dataManager.updateCurrentFromLanguageItem = setCurrentFromLanguageItem;
+  dataManager.updateAutoSelectedTargetLanguageItem = setAutoSelectedTargetLanguageItem;
 
   useEffect(() => {
     console.log("enter useEffect");
@@ -81,7 +81,8 @@ export default function () {
       setup();
     }
     if (searchText) {
-      queryText(searchText);
+      const toLanguage = userSelectedTargetLanguageItem.youdaoLanguageId;
+      dataManager.queryText(searchText, toLanguage);
       return;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,48 +118,10 @@ export default function () {
       });
   }
 
-  /**
-   * Query text, automatically detect the language of input text
-   */
-  function queryText(text: string) {
-    console.log("start queryText: " + text);
-    setLoadingState(true);
-
-    detectLanguage(text, (detectedLanguageResult) => {
-      console.log(
-        `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
-      );
-      queryTextFromDetectedLanguage(detectedLanguageResult);
-    });
-  }
-
-  /**
-   * Query text with from detected language
-   */
-  function queryTextFromDetectedLanguage(detectedLanguageResult: LanguageDetectTypeResult) {
-    const fromYoudaoLanguageId = detectedLanguageResult.youdaoLanguageId;
-    console.log("queryTextWithFromLanguageId:", fromYoudaoLanguageId);
-    setCurrentFromLanguageItem(getLanguageItemFromYoudaoId(fromYoudaoLanguageId));
-
-    // priority to use user selected target language, if conflict, use auto selected target language
-    let targetLanguageId = userSelectedTargetLanguageItem.youdaoLanguageId;
-    console.log("userSelectedTargetLanguage:", targetLanguageId);
-    if (fromYoudaoLanguageId === targetLanguageId) {
-      const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
-      setAutoSelectedTargetLanguageItem(targetLanguageItem);
-      targetLanguageId = targetLanguageItem.youdaoLanguageId;
-      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
-    }
-    const queryTextInfo: QueryWordInfo = {
-      word: searchText,
-      fromLanguage: fromYoudaoLanguageId,
-      toLanguage: targetLanguageId,
-      // detectedLanguage: detectedLanguageResult, // maybe use it later.
-    };
-    dataManager.queryTextWithTextInfo(queryTextInfo);
-  }
-
   function ListDetail() {
+    /**
+     * User select target language manually.
+     */
     const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
       console.log(
         `selected language: ${selectedLanguageItem.youdaoLanguageId}, current target language: ${userSelectedTargetLanguageItem.youdaoLanguageId}`

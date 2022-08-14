@@ -2,20 +2,23 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 23:17
+ * @lastEditTime: 2022-08-15 00:30
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
+import { detectLanguage } from "./detectLanauge/detect";
+import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { rquestLingueeDictionary } from "./dict/linguee/linguee";
 import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "./dict/linguee/parse";
 import { LingueeDictionaryResult } from "./dict/linguee/types";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "./language/languages";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "./language/languages";
+import { LanguageItem } from "./language/type";
 import { myPreferences } from "./preferences";
 import { appleTranslate } from "./scripts";
 import { requestBaiduTextTranslate } from "./translation/baidu";
@@ -37,6 +40,7 @@ import {
 } from "./types";
 import { getSortOrder, isTranslationTooLong } from "./utils";
 
+// Todo: need to optimize.
 const sortOrder = getSortOrder();
 
 export class DataManager {
@@ -44,6 +48,12 @@ export class DataManager {
     // later will assign callback.
   };
   updateLoadingState: (isLoadingState: boolean) => void = () => {
+    // later will assign callback.
+  };
+  updateCurrentFromLanguageItem: (languageItem: LanguageItem) => void = () => {
+    // later will assign callback.
+  };
+  updateAutoSelectedTargetLanguageItem: (languageItem: LanguageItem) => void = () => {
     // later will assign callback.
   };
 
@@ -114,6 +124,47 @@ export class DataManager {
       }
     }
     this.updateListDisplaySections(displaySections.flat());
+  }
+
+  /**
+   * Query text, automatically detect the language of input text
+   */
+  queryText(text: string, toLanguage: string) {
+    console.log("start queryText: " + text);
+    this.updateLoadingState(true);
+
+    detectLanguage(text, (detectedLanguageResult) => {
+      console.log(
+        `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
+      );
+      this.queryTextWithDetectedLanguage(text, toLanguage, detectedLanguageResult);
+    });
+  }
+
+  /**
+   * Query text with with detected language
+   */
+  queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguageResult: LanguageDetectTypeResult) {
+    const fromYoudaoLanguageId = detectedLanguageResult.youdaoLanguageId;
+    console.log("queryTextWithFromLanguageId:", fromYoudaoLanguageId);
+    this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoId(fromYoudaoLanguageId));
+
+    // priority to use user selected target language, if conflict, use auto selected target language
+    let targetLanguageId = toLanguage;
+    console.log("userSelectedTargetLanguage:", targetLanguageId);
+    if (fromYoudaoLanguageId === targetLanguageId) {
+      const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
+      this.updateAutoSelectedTargetLanguageItem(targetLanguageItem);
+      targetLanguageId = targetLanguageItem.youdaoLanguageId;
+      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
+    }
+
+    const queryTextInfo: QueryWordInfo = {
+      word: text,
+      fromLanguage: fromYoudaoLanguageId,
+      toLanguage: targetLanguageId,
+    };
+    this.queryTextWithTextInfo(queryTextInfo);
   }
 
   /**
