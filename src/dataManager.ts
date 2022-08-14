@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:39
+ * @lastEditTime: 2022-08-14 18:20
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,7 +22,7 @@ import { requestBaiduTextTranslate } from "./translation/baidu";
 import { requestCaiyunTextTranslate } from "./translation/caiyun";
 import { requestDeepLTextTranslate as requestDeepLTranslate } from "./translation/deepL";
 import { requestGoogleTranslate } from "./translation/google";
-import { requestTencentTextTranslate } from "./translation/tencent";
+import { requestTencentTranslate } from "./translation/tencent";
 import {
   DicionaryType,
   DisplaySection,
@@ -383,7 +383,7 @@ export class DataManager {
       const type = TranslationType.Tencent;
       this.addQueryToRecordList(type);
 
-      requestTencentTextTranslate(queryWordInfo)
+      requestTencentTranslate(queryWordInfo)
         .then((tencentTypeResult) => {
           if (this.checkIfNeedCancelDisplay()) {
             this.cancelCurrentQuery();

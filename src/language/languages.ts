@@ -134,6 +134,14 @@ export function getBaiduLanguageId(youdaoLanguageId: string): string {
 }
 
 /**
+ * Get tencent language id from youdao language id.
+ */
+export function getTencentLanguageId(youdaoLanguageId: string): string | undefined {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.tencentLanguageId;
+}
+
+/**
  * Get language item from franc language id
  */
 export function getLanguageItemFromFrancId(francLanguageId: string): LanguageItem {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:54
+ * @lastEditTime: 2022-08-14 17:34
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -81,6 +81,11 @@ export interface BaiduTranslateItem {
 }
 
 export type TencentTranslateResult = TextTranslateResponse;
+
+// export interface TencentTranslateResult {
+//   Response: TencentTranslateResponse;
+// }
+// export type TencentTranslateResponse = TextTranslateResponse;
 
 export interface CaiyunTranslateResult {
   rc: string;

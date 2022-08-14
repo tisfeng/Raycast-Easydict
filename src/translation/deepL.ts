@@ -16,6 +16,7 @@ import { QueryWordInfo } from "../dict/youdao/types";
 import { getDeepLLanguageId } from "../language/languages";
 import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { requestCostTime } from "../axiosConfig";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
 
@@ -68,7 +69,7 @@ export async function requestDeepLTextTranslate(
         const deepLResult = response.data as DeepLTranslateResult;
         const translatedText = deepLResult.translations[0].text;
         console.log(
-          `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers["requestCostTime"]} ms`
+          `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers[requestCostTime]} ms`
         );
 
         const deepLTypeResult: RequestTypeResult = {
