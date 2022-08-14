@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 17:34
+ * @lastEditTime: 2022-08-14 23:03
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,6 +10,7 @@
 
 import { Image } from "@raycast/api";
 import googleTranslateApi from "@vitalets/google-translate-api";
+import { ChildProcess } from "child_process";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { LanguageDetectType } from "./detectLanauge/types";
 import { IcibaDictionaryResult } from "./dict/iciba/interface";
@@ -166,4 +167,9 @@ export interface WebQueryItem {
   webUrl: string;
   icon: Image.ImageLike;
   title: string;
+}
+
+export interface AbortObject {
+  abortController: AbortController;
+  childProcess?: ChildProcess;
 }

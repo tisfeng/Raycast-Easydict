@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:48
+ * @lastEditTime: 2022-08-14 23:13
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,12 +14,12 @@ import querystring from "node:querystring";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { getLanguageItemFromAppleId, getLanguageItemFromYoudaoId } from "./language/languages";
-import { RequestErrorInfo, TranslationType } from "./types";
+import { AbortObject, RequestErrorInfo, TranslationType } from "./types";
 
 /**
  * Run apple Translate shortcuts with the given QueryWordInfo, return promise
  */
-export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | undefined> {
+export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortObject): Promise<string | undefined> {
   console.log(`---> start Apple translate`);
   const startTime = new Date().getTime();
   const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
@@ -59,8 +59,14 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
-    exec(command, (error, stdout, stderr) => {
+    abortObject.childProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
+        if (error.killed) {
+          error.signal;
+          console.warn(`---> apple translate canceld`);
+          return;
+        }
+
         console.error(`apple error: ${JSON.stringify(error, null, 4)}`);
         console.warn(`Apple translate error: ${command}`);
         const errorInfo: RequestErrorInfo = {
@@ -68,9 +74,9 @@ export function appleTranslate(queryTextInfo: QueryWordInfo): Promise<string | u
           message: stderr,
         };
         reject(errorInfo);
+        return;
       }
 
-      console.log(`stdout: ${stdout}`);
       const translateText = stdout.trim();
       console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
       resolve(translateText);

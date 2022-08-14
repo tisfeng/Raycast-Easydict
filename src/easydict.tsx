@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:57
+ * @lastEditTime: 2022-08-14 23:37
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -219,8 +219,11 @@ export default function () {
    * @isNow if true, query text right now, false will delay query.
    */
   function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
-    // console.log("---> update:", text);
+    console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
+
     setInputText(text);
+    console.warn(`---> delayQueryTextTimer: ${delayQueryTextTimer}`);
+    clearTimeout(delayQueryTextTimer);
 
     const trimText = trimTextLength(text);
     if (trimText.length === 0) {
@@ -229,9 +232,6 @@ export default function () {
       dataManager.clearQueryResult();
       return;
     }
-
-    clearTimeout(delayQueryTextTimer);
-    console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
 
     // Todo: need to check
     if (text !== searchText) {
@@ -244,8 +244,10 @@ export default function () {
       } else {
         // start delay timer for fetch translate API
         delayQueryTextTimer = setTimeout(() => {
+          console.warn(`---> start delayQueryTextTimer`);
           setSearchText(trimText);
         }, dataManager.delayRequestTime);
+        console.warn(`---> assign delayQueryTextTimer: ${delayQueryTextTimer}`);
       }
     }
   }

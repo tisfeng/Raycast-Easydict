@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 18:30
+ * @lastEditTime: 2022-08-14 23:17
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,6 +24,7 @@ import { requestDeepLTextTranslate as requestDeepLTranslate } from "./translatio
 import { requestGoogleTranslate } from "./translation/google";
 import { requestTencentTranslate } from "./translation/tencent";
 import {
+  AbortObject,
   DicionaryType,
   DisplaySection,
   ListDisplayItem,
@@ -58,8 +59,6 @@ export class DataManager {
    */
   shouldClearQuery = true;
 
-  controller = new AbortController();
-
   /**
    * Delay the time to call the query API. Since API has frequency limit.
    */
@@ -68,6 +67,10 @@ export class DataManager {
   isShowDetail = false;
 
   hasPlayAudio = false;
+
+  abortObject: AbortObject = {
+    abortController: new AbortController(),
+  };
 
   /**
    * Used for recording all the query types. If start a new query, push it to the array, when finish the query, remove it.
@@ -127,25 +130,25 @@ export class DataManager {
     this.shouldClearQuery = false;
     this.queryRecordList = [];
     this.updateLoadingState(true);
-    this.controller = new AbortController();
+    this.abortObject.abortController = new AbortController();
 
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    this.queryLingueeDictionary(queryWordInfo, this.controller.signal);
-    this.queryYoudaoDictionary(queryWordInfo, this.controller.signal);
+    this.queryLingueeDictionary(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryYoudaoDictionary(queryWordInfo, this.abortObject.abortController.signal);
 
     // * DeepL translate is used as part of Linguee dictionary.
     if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
-      this.queryDeepLTranslate(queryWordInfo, this.controller.signal);
+      this.queryDeepLTranslate(queryWordInfo, this.abortObject.abortController.signal);
     }
 
-    this.queryGoogleTranslate(queryWordInfo, this.controller.signal);
-    this.queryAppleTranslate(queryWordInfo);
-    this.queryBaiduTranslate(queryWordInfo, this.controller.signal);
-    this.queryTencentTranslate(queryWordInfo, this.controller.signal);
-    this.queryCaiyunTranslate(queryWordInfo, this.controller.signal);
+    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryAppleTranslate(queryWordInfo, this.abortObject);
+    this.queryBaiduTranslate(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryTencentTranslate(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryCaiyunTranslate(queryWordInfo, this.abortObject.abortController.signal);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -314,12 +317,12 @@ export class DataManager {
   /**
    * Query apple translate.
    */
-  private queryAppleTranslate(queryWordInfo: QueryWordInfo) {
+  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortObject: AbortObject) {
     if (myPreferences.enableAppleTranslate) {
       const type = TranslationType.Apple;
       this.addQueryToRecordList(type);
 
-      appleTranslate(queryWordInfo)
+      appleTranslate(queryWordInfo, abortObject)
         .then((translatedText) => {
           if (this.checkIfNeedCancelDisplay()) {
             this.cancelCurrentQuery();
@@ -775,7 +778,9 @@ export class DataManager {
    * Cancel current query.
    */
   cancelCurrentQuery() {
-    this.controller.abort();
+    console.warn(`---> cancel current query: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
+    this.abortObject.abortController.abort();
+    this.abortObject.childProcess?.kill();
   }
 
   /**
