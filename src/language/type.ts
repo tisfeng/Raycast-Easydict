@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-14 11:50
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:50
+ * @lastEditTime: 2022-08-14 12:48
  * @fileName: type.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,5 @@ export interface LanguageItem {
   languageTitle: string; // * when system language is English, Apple detect language is equal to languageTitle.
   voiceList?: string[];
   googleLanguageId?: string;
-  eudicWebLanguageId?: string;
   emoji: string;
 }

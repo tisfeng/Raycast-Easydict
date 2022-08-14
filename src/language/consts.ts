@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:45
+ * @lastEditTime: 2022-08-14 12:48
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -66,7 +66,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "eng",
     aliyunLanguageId: "en",
     tencentLanguageId: "en",
-    eudicWebLanguageId: "en",
     baiduLanguageId: "en",
     caiyunLanguageId: "en",
     languageTitle: "English",
@@ -109,7 +108,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "fra",
     aliyunLanguageId: "fr",
     tencentLanguageId: "fr",
-    eudicWebLanguageId: "fr",
     baiduLanguageId: "fra",
     languageTitle: "French",
     voiceList: ["Amelie", "Thomas"],
@@ -123,7 +121,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "spa",
     aliyunLanguageId: "es",
     tencentLanguageId: "es",
-    eudicWebLanguageId: "es",
     baiduLanguageId: "spa",
     languageTitle: "Spanish",
     voiceList: ["Jorge", "Juan", "Diego", "Monica", "Paulina"],
@@ -164,7 +161,6 @@ export const languageItemList: LanguageItem[] = [
     francLanguageId: "deu",
     aliyunLanguageId: "de",
     tencentLanguageId: "de",
-    eudicWebLanguageId: "de",
     baiduLanguageId: "de",
     languageTitle: "German",
     voiceList: ["Anna"],

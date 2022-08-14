@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 11:54
+ * @lastEditTime: 2022-08-14 12:49
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -153,10 +153,10 @@ export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string |
     return;
   }
 
-  const eudicWebLanguageId = getLanguageItemFromYoudaoId(languageId).eudicWebLanguageId;
-  if (eudicWebLanguageId) {
+  const eudicDictionaryLanguages = ["en", "fr", "de", "es"]; // 英语，法语，德语，西班牙语
+  if (eudicDictionaryLanguages.includes(languageId)) {
     const word = encodeURIComponent(queryTextInfo.word);
-    return `https://dict.eudic.net/dicts/${eudicWebLanguageId}/${word}`;
+    return `https://dict.eudic.net/dicts/${languageId}/${word}`;
   }
 }
 
@@ -172,7 +172,7 @@ export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string 
     return;
   }
 
-  const youdaoDictionaryLanguages = ["en", "ja", "ko", "fr"];
+  const youdaoDictionaryLanguages = ["en", "fr", "ja", "ko"]; // 英语，法语，日语，韩语
   if (youdaoDictionaryLanguages.includes(languageId)) {
     const word = encodeURIComponent(queryTextInfo.word);
     return `https://dict.youdao.com/result?word=${word}&lang=${languageId}`;
