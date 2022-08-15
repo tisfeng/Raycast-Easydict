@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 00:20
+ * @lastEditTime: 2022-08-15 09:40
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -81,6 +81,7 @@ export default function () {
       setup();
     }
     if (searchText) {
+      // Todo: need to optimize this. move timer to dataManager.
       const toLanguage = userSelectedTargetLanguageItem.youdaoLanguageId;
       dataManager.queryText(searchText, toLanguage);
       return;
@@ -139,6 +140,9 @@ export default function () {
         fromLanguage: currentFromLanguageItem.youdaoLanguageId,
         toLanguage: selectedLanguageItem.youdaoLanguageId,
       };
+
+      // * Clean up previous query results before new query.
+      dataManager.clearQueryResult();
       dataManager.queryTextWithTextInfo(quertWordInfo);
     };
 

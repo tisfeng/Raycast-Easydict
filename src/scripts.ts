@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 23:13
+ * @lastEditTime: 2022-08-15 10:34
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -62,7 +62,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortO
     abortObject.childProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
         if (error.killed) {
-          error.signal;
+          // error:{ "killed": true, "signal": "SIGTERM" }
           console.warn(`---> apple translate canceld`);
           return;
         }

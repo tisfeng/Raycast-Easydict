@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 00:30
+ * @lastEditTime: 2022-08-15 10:43
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -43,6 +43,14 @@ import { getSortOrder, isTranslationTooLong } from "./utils";
 // Todo: need to optimize.
 const sortOrder = getSortOrder();
 
+/**
+ * The data manager is used to manage the data.
+ *
+ * Todo: need to optimize.
+ * - data manager.
+ * - data request.
+ * - data handle.
+ */
 export class DataManager {
   updateListDisplaySections: (displaySections: DisplaySection[]) => void = () => {
     // later will assign callback.
@@ -111,7 +119,7 @@ export class DataManager {
   /**
    * Update display sections, and callback update display sections.
    */
-  updateDataDisplaySections() {
+  private updateDataDisplaySections() {
     this.isShowDetail = this.checkIfShowTranslationDetail();
 
     const displaySections: DisplaySection[][] = [];
@@ -132,11 +140,21 @@ export class DataManager {
   queryText(text: string, toLanguage: string) {
     console.log("start queryText: " + text);
     this.updateLoadingState(true);
+    this.resetProperties();
 
+    // Todo: need to optimize. Eable to cancel language detect.
     detectLanguage(text, (detectedLanguageResult) => {
       console.log(
         `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
       );
+
+      // * It takes time to detect the language, in the meantime, the user may have cancelled the query.
+      if (this.shouldClearQuery) {
+        console.log(`---> query has been canceld`);
+        this.updateLoadingState(false);
+        return;
+      }
+
       this.queryTextWithDetectedLanguage(text, toLanguage, detectedLanguageResult);
     });
   }
@@ -144,8 +162,8 @@ export class DataManager {
   /**
    * Query text with with detected language
    */
-  queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguageResult: LanguageDetectTypeResult) {
-    const fromYoudaoLanguageId = detectedLanguageResult.youdaoLanguageId;
+  private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: LanguageDetectTypeResult) {
+    const fromYoudaoLanguageId = detectedLanguage.youdaoLanguageId;
     console.log("queryTextWithFromLanguageId:", fromYoudaoLanguageId);
     this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoId(fromYoudaoLanguageId));
 
@@ -169,19 +187,11 @@ export class DataManager {
 
   /**
    * Query text with text info, query dictionary API or translate API.
+   *
+   * * Note: please do not change this function.
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
-    // clear old results before new query
-    this.clearQueryResult();
-
-    // set new query params
     this.queryWordInfo = queryWordInfo;
-    this.hasPlayAudio = false;
-    this.isLastQuery = true;
-    this.shouldClearQuery = false;
-    this.queryRecordList = [];
-    this.updateLoadingState(true);
-    this.abortObject.abortController = new AbortController();
 
     const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
     console.log(`---> query text: ${queryText}`);
@@ -205,6 +215,17 @@ export class DataManager {
     if (this.queryRecordList.length === 0) {
       this.updateLoadingState(false);
     }
+  }
+
+  /**
+   * Rest properyies before each query.
+   */
+  private resetProperties() {
+    this.hasPlayAudio = false;
+    this.isLastQuery = true;
+    this.shouldClearQuery = false;
+    this.queryRecordList = [];
+    this.abortObject.abortController = new AbortController();
   }
 
   /**
@@ -375,11 +396,6 @@ export class DataManager {
 
       appleTranslate(queryWordInfo, abortObject)
         .then((translatedText) => {
-          if (this.checkIfNeedCancelDisplay()) {
-            this.cancelCurrentQuery();
-            return;
-          }
-
           if (translatedText) {
             // * Note: apple translateText contains redundant blank line, we need to remove it.
             const translations = translatedText.split("\n").filter((line) => line.length > 0);
@@ -806,7 +822,7 @@ export class DataManager {
    *
    * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
-  downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
+  private downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
     const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo?.isWord;
     if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
@@ -817,7 +833,7 @@ export class DataManager {
   /**
    * Check if need to cancel or clear query.
    */
-  checkIfNeedCancelDisplay() {
+  private checkIfNeedCancelDisplay() {
     console.log(`---> check if last query: ${this.isLastQuery}, should clear: ${this.shouldClearQuery}`);
     if (!this.isLastQuery || this.shouldClearQuery) {
       return true;
@@ -828,8 +844,8 @@ export class DataManager {
   /**
    * Cancel current query.
    */
-  cancelCurrentQuery() {
-    console.warn(`---> cancel current query: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
+  private cancelCurrentQuery() {
+    console.warn(`---> cancel current query`);
     this.abortObject.abortController.abort();
     this.abortObject.childProcess?.kill();
   }
@@ -838,6 +854,8 @@ export class DataManager {
    * Clear query result.
    */
   clearQueryResult() {
+    console.log(`---> clear query result`);
+
     this.cancelCurrentQuery();
 
     this.isShowDetail = false;
