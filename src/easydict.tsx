@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:00
+ * @lastEditTime: 2022-08-15 18:32
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,23 +15,16 @@ import { getListItemIcon, getWordAccessories, ListActionPanel } from "./componen
 import { DataManager } from "./dataManager";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { LanguageItem } from "./language/type";
-import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferences";
+import { myPreferences, referredLanguage1, referredLanguage2 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
 const dataManager = new DataManager();
 
 export default function () {
-  if (preferrdLanguage1.youdaoLanguageId === preferrdLanguage2.youdaoLanguageId) {
-    return (
-      <List searchBarPlaceholder="Error">
-        <List.Item
-          title={"Preferrd Languages Conflict"}
-          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
-          subtitle={"Your First Language and Second Language must be different!"}
-        />
-      </List>
-    );
+  const isConflict = checkIfPreferredLanguagesConflict();
+  if (isConflict) {
+    return isConflict;
   }
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
@@ -52,11 +45,11 @@ export default function () {
   /**
    * the language type of text, depending on the language type of the current input text.
    */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(preferrdLanguage1);
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(referredLanguage1);
   /**
    * default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
    */
-  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(preferrdLanguage1);
+  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(referredLanguage1);
   /**
    * the user selected translation language, used for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
    */
@@ -104,9 +97,23 @@ export default function () {
         console.log(`getSelectedText: ${selectedText}`); // cost about 20 ms
         updateInputTextAndQueryText(selectedText, false);
       })
-      .catch(() => {
-        // do nothing
-      });
+      .catch((e) => e);
+  }
+
+  function checkIfPreferredLanguagesConflict() {
+    if (referredLanguage1.youdaoLanguageId === referredLanguage2.youdaoLanguageId) {
+      console.log("referredLanguage1 and referredLanguage2 are the same language");
+      return (
+        <List searchBarPlaceholder="Error">
+          <List.Item
+            title={"Preferred Languages Conflict"}
+            icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
+            subtitle={"Your First Language and Second Language must be different!"}
+          />
+        </List>
+      );
+    }
+    return null;
   }
 
   /**
@@ -130,7 +137,7 @@ export default function () {
       toLanguage: selectedLanguageItem.youdaoLanguageId,
     };
 
-    // * Clean up previous query results immediately before new query.
+    // Clean up previous query results immediately before new query.
     dataManager.clearQueryResult();
     dataManager.queryTextWithTextInfo(quertWordInfo);
   };

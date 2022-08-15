@@ -10,7 +10,7 @@
 
 import { francDetectTextLangauge } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { preferrdLanguages } from "./../preferences";
+import { referredLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
 import { LanguageItem } from "./type";
 
@@ -257,7 +257,7 @@ export function getBaiduWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
  * Get auto select target language according to the languageId.
  */
 export function getAutoSelectedTargetLanguageItem(fromLanguageId: string): LanguageItem {
-  const targetLanguageItem = preferrdLanguages.find(
+  const targetLanguageItem = referredLanguages.find(
     (languageItem) => languageItem.youdaoLanguageId !== fromLanguageId
   ) as LanguageItem;
   console.log(`fromLanguageId: ${fromLanguageId}, auto selected target: ${targetLanguageItem.youdaoLanguageId}`);

@@ -13,9 +13,9 @@ import CryptoJS from "crypto-js";
 import { getLanguageItemFromYoudaoId } from "./language/languages";
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const preferrdLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
-export const preferrdLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
-export const preferrdLanguages = [preferrdLanguage1, preferrdLanguage2];
+export const referredLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
+export const referredLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
+export const referredLanguages = [referredLanguage1, referredLanguage2];
 // console.log("myPreferences: ", myPreferences);
 
 export interface MyPreferences {

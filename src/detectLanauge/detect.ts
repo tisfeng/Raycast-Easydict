@@ -203,7 +203,7 @@ function handleDetectedLanguageTypeResult(
           ) {
             apiLanguage.confirmed = true;
             console.warn(
-              `---> API and Local detect identical preferrd language: ${JSON.stringify(apiLanguage, null, 4)}`
+              `---> API and Local detect identical referred language: ${JSON.stringify(apiLanguage, null, 4)}`
             );
             callback(apiLanguage);
             return;
