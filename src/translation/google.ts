@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 18:32
+ * @lastEditTime: 2022-08-15 12:44
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -71,7 +71,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
           return;
         }
 
-        console.error(`googleRPCTranslate error: ${JSON.stringify(error)}`);
+        console.error(`googleRPCTranslate error: ${JSON.stringify(error, null, 4)}`);
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Google,
           message: "Google RPC translate error",

@@ -3,7 +3,7 @@ import { RequestErrorInfo } from "./../../types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 22:40
+ * @lastEditTime: 2022-08-15 12:44
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -84,12 +84,12 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
         resolve(youdaoTypeResult);
       })
       .catch((error) => {
-        console.error(`---> Youdao translate error: ${error}`);
-
         if (error.message === "canceled") {
           console.log(`---> youdao canceled`);
           return;
         }
+
+        console.error(`---> Youdao translate error: ${error}`);
 
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:

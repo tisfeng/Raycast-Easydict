@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 23:04
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 10:38
+ * @lastEditTime: 2022-08-15 16:24
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,7 +45,6 @@ const validLanguagePairKeys = ["english-chinese", "english-japanese", "english-r
  * Get valid language pair keys.
  */
 export function getValidLingueeLanguagePair(fromLanguage: string, toLanguage: string): string | undefined {
-  console.log(`---> try get valid linguee language pair: ${fromLanguage} -> ${toLanguage}`);
   let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
   let targetLanguageTitle = getLanguageItemFromYoudaoId(toLanguage).languageTitle;
   const ChineseLanguageTitle = "Chinese";
@@ -63,8 +62,6 @@ export function getValidLingueeLanguagePair(fromLanguage: string, toLanguage: st
   if (targetLanguageTitle === englishLanguageLowercaseTitle) {
     languagePairKey = `${targetLanguageTitle}-${fromLanguageTitle}`;
   }
-
-  console.log(`---> test linguee language pair: ${languagePairKey}`);
 
   if (validLanguagePairKeys.includes(languagePairKey)) {
     return languagePairKey;

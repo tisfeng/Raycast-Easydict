@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 11:05
+ * @lastEditTime: 2022-08-15 16:41
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -78,17 +78,20 @@ export class DataManager {
   shouldClearQuery = true;
 
   /**
-   * Delay the time to call the query API. Since API has frequency limit.
+   * Show detail of translation. Only dictionary is empty, and translation is too long, then show detail.
    */
-  delayRequestTime = 600;
-
   isShowDetail = false;
-
   hasPlayAudio = false;
 
   abortObject: AbortObject = {
     abortController: new AbortController(),
   };
+
+  delayQueryTimer?: NodeJS.Timeout;
+  /**
+   * Delay the time to call the query API. Since API has frequency limit.
+   */
+  delayRequestTime = 600;
 
   /**
    * Used for recording all the query types. If start a new query, push it to the array, when finish the query, remove it.
@@ -135,9 +138,19 @@ export class DataManager {
   }
 
   /**
+   * Delay the time to call the query API. Since API has frequency limit.
+   */
+  delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
+    const delayTime = isDelay ? this.delayRequestTime : 0;
+    this.delayQueryTimer = setTimeout(() => {
+      this.queryText(text, toLanguage);
+    }, delayTime);
+  }
+
+  /**
    * Query text, automatically detect the language of input text
    */
-  queryText(text: string, toLanguage: string) {
+  private queryText(text: string, toLanguage: string) {
     console.log("start queryText: " + text);
     this.updateLoadingState(true);
     this.resetProperties();
@@ -858,6 +871,10 @@ export class DataManager {
     console.log(`---> clear query result`);
 
     this.cancelCurrentQuery();
+
+    if (this.delayQueryTimer) {
+      clearTimeout(this.delayQueryTimer);
+    }
 
     this.isShowDetail = false;
     this.shouldClearQuery = true;

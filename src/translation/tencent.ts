@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 18:29
+ * @lastEditTime: 2022-08-15 15:58
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -167,7 +167,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
       })
       .catch((err) => {
         if (err.message === "canceled") {
-          console.log(`---> Tencent canceled, error: ${err}`);
+          console.log(`---> Tencent canceled`);
           return;
         }
 

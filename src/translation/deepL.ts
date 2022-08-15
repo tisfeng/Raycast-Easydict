@@ -3,7 +3,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:50
+ * @lastEditTime: 2022-08-15 15:58
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,11 +12,11 @@ import { AxiosError, AxiosRequestConfig } from "axios";
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
 import querystring from "node:querystring";
+import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getDeepLLanguageId } from "../language/languages";
 import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
 import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
-import { requestCostTime } from "../axiosConfig";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
 
@@ -81,7 +81,7 @@ export async function requestDeepLTextTranslate(
       })
       .catch((error: AxiosError) => {
         if (error.message === "canceled") {
-          console.log(`---> deepL canceled, error: ${error}`);
+          console.log(`---> deepL canceled`);
           return;
         }
 

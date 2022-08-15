@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 11:23
+ * @lastEditTime: 2022-08-15 16:43
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,6 @@ import { myPreferences, preferrdLanguage1, preferrdLanguage2 } from "./preferenc
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
-let delayQueryTextTimer: NodeJS.Timeout;
 const dataManager = new DataManager();
 
 export default function () {
@@ -80,12 +79,6 @@ export default function () {
     if (inputText === undefined) {
       setup();
     }
-    if (searchText) {
-      // Todo: need to optimize this. move timer to dataManager.
-      const toLanguage = userSelectedTargetLanguageItem.youdaoLanguageId;
-      dataManager.queryText(searchText, toLanguage);
-      return;
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
@@ -106,13 +99,12 @@ export default function () {
    * Try to detect the selected text, if detect success, then query the selected text.
    */
   function tryQuerySelecedtText() {
-    console.log("try query selected text");
     const startTime = Date.now();
     getSelectedText()
       .then((selectedText) => {
         selectedText = trimTextLength(selectedText);
         console.log(`getSelectedText: ${selectedText}, cost time: ${Date.now() - startTime} ms`);
-        updateInputTextAndQueryTextNow(selectedText, true);
+        updateInputTextAndQueryText(selectedText, false);
       })
       .catch(() => {
         // do nothing
@@ -140,52 +132,40 @@ export default function () {
       toLanguage: selectedLanguageItem.youdaoLanguageId,
     };
 
-    // * Clean up previous query results before new query.
+    // * Clean up previous query results immediately before new query.
     dataManager.clearQueryResult();
     dataManager.queryTextWithTextInfo(quertWordInfo);
   };
 
   /**
-   * Update input text and search text, then query text according to @isNow
-   *
-   * @isNow if true, query text right now, false will delay query.
+   * Update input text and search text, then query text according to @isDelay
    */
-  function updateInputTextAndQueryTextNow(text: string, isNow: boolean) {
-    console.log(`update input text: ${text}, length: ${text.length}, isNow: ${isNow}`);
+  function updateInputTextAndQueryText(text: string, isDelay: boolean) {
+    console.log(`update input text: ${text}, length: ${text.length}`);
 
     setInputText(text);
-    console.warn(`---> delayQueryTextTimer: ${delayQueryTextTimer}`);
-    clearTimeout(delayQueryTextTimer);
-
     const trimText = trimTextLength(text);
+    setSearchText(trimText);
+
+    // If trimText is empty, then do not query.
     if (trimText.length === 0) {
-      // If input text is empty, need to update search text to empty.
-      setSearchText("");
+      console.log("trimText is empty, do not query");
       dataManager.clearQueryResult();
       return;
     }
 
-    // Todo: need to check
-    if (text !== searchText) {
-      // clear old results before new input text query.
-      if (trimText !== searchText) {
-        dataManager.clearQueryResult();
-      }
-      if (isNow) {
-        setSearchText(trimText);
-      } else {
-        // start delay timer for fetch translate API
-        delayQueryTextTimer = setTimeout(() => {
-          console.warn(`---> start delayQueryTextTimer`);
-          setSearchText(trimText);
-        }, dataManager.delayRequestTime);
-        console.warn(`---> assign delayQueryTextTimer: ${delayQueryTextTimer}`);
-      }
+    // Only different input text, then clear old results before new input text query.
+    if (trimText !== searchText) {
+      dataManager.clearQueryResult();
+
+      const toLanguage = userSelectedTargetLanguageItem.youdaoLanguageId;
+      dataManager.delayQueryText(trimText, toLanguage, isDelay);
     }
   }
 
   function onInputChange(text: string) {
-    updateInputTextAndQueryTextNow(text, false);
+    // Delay query text.
+    updateInputTextAndQueryText(text, true);
   }
 
   return (
