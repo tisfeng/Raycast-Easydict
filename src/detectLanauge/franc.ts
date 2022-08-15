@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-12 18:34
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:43
+ * @lastEditTime: 2022-08-15 23:42
  * @fileName: franc.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,6 +44,9 @@ export function francLangaugeDetect(text: string, confirmedConfidence = 0.8): La
   });
 
   console.log("franc detected language array:", detectedYoudaoLanguageArray);
+  if (detectedYoudaoLanguageArray.length === 1) {
+    console.log(`---> franc detected language: ${francDetectLanguageList[0]}`);
+  }
 
   // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
   for (const [languageId, confidence] of detectedYoudaoLanguageArray) {

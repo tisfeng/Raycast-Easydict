@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:10
+ * @lastEditTime: 2022-08-15 23:33
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -40,8 +40,9 @@ export async function requestGoogleTranslate(
  * * Google RPC cost more time than web translate. almost 1s > 0.3s.
  */
 async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
-  const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
-  const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
+  const { word, fromLanguage, toLanguage } = queryWordInfo;
+  const fromLanguageId = getGoogleLanguageId(fromLanguage);
+  const toLanguageId = getGoogleLanguageId(toLanguage);
   const tld = queryWordInfo.tld ?? (await getTld());
   queryWordInfo.tld = tld;
 
@@ -51,11 +52,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
 
   return new Promise((resolve, reject) => {
     const startTime = new Date().getTime();
-    googleTranslateApi(
-      queryWordInfo.word,
-      { from: fromLanguageId, to: toLanguageId, tld: tld },
-      { signal, agent: httpsAgent }
-    )
+    googleTranslateApi(word, { from: fromLanguageId, to: toLanguageId, tld: tld }, { signal, agent: httpsAgent })
       .then((res) => {
         console.warn(`---> Google RPC translate: ${res.text}, cost ${new Date().getTime() - startTime} ms`);
         const result: RequestTypeResult = {
@@ -97,16 +94,16 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
   try {
     const googleTypeResult = await googleRPCTranslate(queryWordInfo, new AbortController().signal);
     const googleResult = googleTypeResult.result as GoogleTranslateResult;
-    const googleLanaugeId = googleResult.from.language.iso;
-    const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanaugeId);
+    const googleLanguageId = googleResult.from.language.iso;
+    const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanguageId);
     console.warn(
-      `---> Google detect language: ${googleLanaugeId}, youdaoId: ${youdaoLanguageId}, cost ${
+      `---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}, cost ${
         new Date().getTime() - startTime
       } ms`
     );
     const languagedDetectResult: LanguageDetectTypeResult = {
       type: LanguageDetectType.Google,
-      sourceLanguageId: googleLanaugeId,
+      sourceLanguageId: googleLanguageId,
       youdaoLanguageId: youdaoLanguageId,
       confirmed: true,
       result: googleResult,

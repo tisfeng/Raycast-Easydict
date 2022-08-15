@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:22
+ * @lastEditTime: 2022-08-15 23:47
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -106,17 +106,18 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
         reject(errorInfo);
       }
 
-      const appleLanaugeId = stdout.trim(); // * maybe have line break, so trim it.
-      console.warn(`apple detect language: ${appleLanaugeId}, cost: ${new Date().getTime() - startTime} ms`);
-      const youdaoLanguageId = getYoudaoLanguageIdFromAppleId(appleLanaugeId);
+      // * maybe have line break, so trim it.
+      const appleLanguageId = stdout.trim(); // will be "" when detect language is not support, eg. ꯅꯨꯄꯤꯃꯆꯥ
+      console.warn(`apple detect language: ${appleLanguageId}, cost: ${new Date().getTime() - startTime} ms`);
+      const youdaoLanguageId = getYoudaoLanguageIdFromAppleId(appleLanguageId);
       const detectTypeResult: LanguageDetectTypeResult = {
         type: LanguageDetectType.Apple,
-        sourceLanguageId: appleLanaugeId,
+        sourceLanguageId: appleLanguageId,
         youdaoLanguageId: youdaoLanguageId,
         confirmed: false,
       };
+      console.warn(`final apple detect language: ${appleLanguageId}, youdaoId: ${youdaoLanguageId}`);
       resolve(detectTypeResult);
-      console.warn(`final apple detect language: ${appleLanaugeId}, youdaoId: ${youdaoLanguageId}`);
     });
   });
 }

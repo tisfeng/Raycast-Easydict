@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:13
+ * @lastEditTime: 2022-08-15 23:45
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -75,8 +75,8 @@ export function getYoudaoLanguageIdFromBaiduId(baiduLanguageId: string): string 
  * Todo: currently only support Chinese and English, later support other languages.
  */
 export function getYoudaoLanguageIdFromAppleId(appleLanguageTitle: string): string {
-  const francResult = francLangaugeDetect(appleLanguageTitle);
-  const youdaoLanguageId = francResult.youdaoLanguageId;
+  const francLanguage = francLangaugeDetect(appleLanguageTitle);
+  const youdaoLanguageId = francLanguage.youdaoLanguageId;
   console.log(`---> getYoudaoLanguageIdFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}`);
 
   const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
