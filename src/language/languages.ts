@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:53
+ * @lastEditTime: 2022-08-15 18:35
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -139,6 +139,14 @@ export function getBaiduLanguageId(youdaoLanguageId: string): string {
 export function getTencentLanguageId(youdaoLanguageId: string): string | undefined {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
   return languageItem.tencentLanguageId;
+}
+
+/**
+ * Get language title from youdao language id. eg. en -> English
+ */
+export function getLanguageTitle(youdaoLanguageId: string): string {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.languageTitle;
 }
 
 /**

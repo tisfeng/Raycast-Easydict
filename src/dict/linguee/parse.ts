@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 17:33
+ * @lastEditTime: 2022-08-15 18:46
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { parse } from "node-html-parser";
-import { getLanguageItemFromDeepLSourceId } from "../../language/languages";
+import { getLanguageItemFromDeepLSourceId, getLanguageTitle } from "../../language/languages";
 import { DicionaryType, DisplaySection, ListDisplayItem, RequestTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
 import { getValidLingueeLanguagePair } from "./languages";
@@ -428,14 +428,14 @@ export const parseGuessWord = (dom: ReturnType<typeof parse>) => {
  */
 export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string | undefined {
   const { fromLanguage, toLanguage } = queryWordInfo;
-  const validLanguage = getValidLingueeLanguagePair(fromLanguage, toLanguage);
-  if (!validLanguage) {
-    console.log(`----> lingueeis not a valid language pair: ${validLanguage}`);
+  const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
+  if (!validLanguagePair) {
+    console.log(`----> lingueeis not a valid language pair: ${validLanguagePair}`);
     return;
   }
 
-  // Todo: source should be fromLanguage, but current detected fromLanguage may be inaccurate, so have to use auto...
-  const lingueeUrl = `https://www.linguee.com/${validLanguage}/search?source=auto&query=${encodeURIComponent(
+  const sourceLanguage = getLanguageTitle(fromLanguage).toLowerCase();
+  const lingueeUrl = `https://www.linguee.com/${validLanguagePair}/search?source=${sourceLanguage}&query=${encodeURIComponent(
     queryWordInfo.word
   )}`;
   return lingueeUrl;

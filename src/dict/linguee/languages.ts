@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-07-25 23:04
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 16:24
+ * @lastEditTime: 2022-08-15 18:43
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { getLanguageItemFromYoudaoId } from "../../language/languages";
+import { getLanguageTitle } from "../../language/languages";
 
 /**
  * This is the list of general languages supported by Linguee dictionary, they can query each other at will.
@@ -45,8 +45,8 @@ const validLanguagePairKeys = ["english-chinese", "english-japanese", "english-r
  * Get valid language pair keys.
  */
 export function getValidLingueeLanguagePair(fromLanguage: string, toLanguage: string): string | undefined {
-  let fromLanguageTitle = getLanguageItemFromYoudaoId(fromLanguage).languageTitle;
-  let targetLanguageTitle = getLanguageItemFromYoudaoId(toLanguage).languageTitle;
+  let fromLanguageTitle = getLanguageTitle(fromLanguage);
+  let targetLanguageTitle = getLanguageTitle(toLanguage);
   const ChineseLanguageTitle = "Chinese";
   if (fromLanguageTitle.startsWith(ChineseLanguageTitle)) {
     fromLanguageTitle = ChineseLanguageTitle;
