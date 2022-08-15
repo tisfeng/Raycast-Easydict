@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 10:58
+ * @lastEditTime: 2022-08-15 11:23
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Color, getSelectedText, Icon, List } from "@raycast/api";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { configAxiosProxy } from "./axiosConfig";
 import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
@@ -145,41 +145,6 @@ export default function () {
     dataManager.queryTextWithTextInfo(quertWordInfo);
   };
 
-  function ListDetail() {
-    return (
-      <Fragment>
-        {displayResult.map((resultItem, idx) => {
-          return (
-            <List.Section key={idx} title={resultItem.sectionTitle}>
-              {resultItem.items?.map((item) => {
-                return (
-                  <List.Item
-                    key={item.key}
-                    icon={{
-                      value: getListItemIcon(item.displayType),
-                      tooltip: item.tooltip || "",
-                    }}
-                    title={item.title}
-                    subtitle={item.subtitle}
-                    accessories={getWordAccessories(item)}
-                    detail={<List.Item.Detail markdown={item.translationMarkdown} />}
-                    actions={
-                      <ListActionPanel
-                        displayItem={item}
-                        isInstalledEudic={isInstalledEudic && myPreferences.enableOpenInEudic}
-                        onLanguageUpdate={updateSelectedTargetLanguageItem}
-                      />
-                    }
-                  />
-                );
-              })}
-            </List.Section>
-          );
-        })}
-      </Fragment>
-    );
-  }
-
   /**
    * Update input text and search text, then query text according to @isNow
    *
@@ -232,14 +197,41 @@ export default function () {
       onSearchTextChange={onInputChange}
       actions={null}
     >
+      {displayResult.map((resultItem, idx) => {
+        return (
+          <List.Section key={idx} title={resultItem.sectionTitle}>
+            {resultItem.items?.map((item) => {
+              return (
+                <List.Item
+                  key={item.key}
+                  icon={{
+                    value: getListItemIcon(item.displayType),
+                    tooltip: item.tooltip || "",
+                  }}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  accessories={getWordAccessories(item)}
+                  detail={<List.Item.Detail markdown={item.translationMarkdown} />}
+                  actions={
+                    <ListActionPanel
+                      displayItem={item}
+                      isInstalledEudic={isInstalledEudic && myPreferences.enableOpenInEudic}
+                      onLanguageUpdate={updateSelectedTargetLanguageItem}
+                    />
+                  }
+                />
+              );
+            })}
+          </List.Section>
+        );
+      })}
       <List.EmptyView icon={Icon.BlankDocument} title="Type a word to look up or translate" />
-      <ListDetail />
     </List>
   );
 }
 
 /**
- * Easter egg: if you use PopClip and have added a shortcut for `Easydict`, such as `Cmd + E`, then you can use PopClip to open Easydict!
+ * Easter egg: if you use PopClip and have added a shortcut for `Easydict`, such as `Cmd + E`, then you can use PopClip to quickly open Easydict!
  * 
  * Reference: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
  * 

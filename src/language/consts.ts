@@ -11,9 +11,9 @@
 import { LanguageItem } from "./type";
 
 /**
- * Language item list.
- * Currently support 23 languages.
- * Todo: add more translation supported languages.
+ * Language item list. Currently support 23 languages.
+ *
+ * Todo: add more translation supported languages. such as Google support more languages.
  */
 export const languageItemList: LanguageItem[] = [
   {
