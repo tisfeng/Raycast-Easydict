@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 16:41
+ * @lastEditTime: 2022-08-15 16:52
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -152,16 +152,17 @@ export class DataManager {
    */
   private queryText(text: string, toLanguage: string) {
     console.log("start queryText: " + text);
+
     this.updateLoadingState(true);
     this.resetProperties();
 
-    // Todo: need to optimize. Eable to cancel language detect.
+    // Todo: need to optimize. Enable to cancel language detect.
     detectLanguage(text, (detectedLanguageResult) => {
       console.log(
         `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
       );
 
-      // * It takes time to detect the language, in the meantime, the user may have cancelled the query.
+      // * It takes time to detect the language, in the meantime, user may have cancelled the query.
       if (this.shouldClearQuery) {
         console.log(`---> query has been canceld`);
         this.updateLoadingState(false);

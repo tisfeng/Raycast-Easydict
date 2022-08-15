@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 12:44
+ * @lastEditTime: 2022-08-15 17:31
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,13 +30,15 @@ export async function requestGoogleTranslate(
   const tld = await getTld();
   queryWordInfo.tld = tld;
 
-  googleWebranslate(queryWordInfo, signal);
+  googleWebTranslate(queryWordInfo, signal);
 
   return googleRPCTranslate(queryWordInfo, signal);
 }
 
 /**
  * Google RPC translate, can get richer word dictionary and automatic recognition feature.
+ *
+ * * Google RPC cost more time than web translate. almost 1s > 0.3s.
  */
 async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
@@ -124,7 +126,7 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
  *
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  */
-async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
@@ -176,10 +178,9 @@ async function googleWebranslate(queryWordInfo: QueryWordInfo, signal: AbortSign
 }
 
 /**
- * Get google tld.
+ * Get tld. if user has preferred Chinese language or ip in China, use cn, else use com.
  */
 async function getTld(): Promise<string> {
-  // if has preferred Chinese language or ip in China, use cn, else use com.
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainedChinese() || (await checkIfIpInChina())) {
     tld = "cn";
