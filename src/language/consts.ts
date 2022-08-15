@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:48
+ * @lastEditTime: 2022-08-15 11:14
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,7 +55,7 @@ export const languageItemList: LanguageItem[] = [
     googleLanguageId: "zh-TW",
     languageTitle: "Chinese-Traditional",
     voiceList: ["Ting-Ting"],
-    emoji: "🇹🇼",
+    emoji: "🇭🇰",
   },
   {
     youdaoLanguageId: "en",
