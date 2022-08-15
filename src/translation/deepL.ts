@@ -1,16 +1,15 @@
-import { AxiosError, AxiosRequestConfig } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 15:58
+ * @lastEditTime: 2022-08-15 21:11
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage } from "@raycast/api";
-import axios from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";

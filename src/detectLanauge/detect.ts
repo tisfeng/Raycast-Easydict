@@ -15,7 +15,7 @@ import { baiduLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
-import { francDetectTextLangauge } from "./franc";
+import { francLangaugeDetect } from "./franc";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./types";
 import {
   checkIfPreferredLanguagesContainedChinese,
@@ -262,7 +262,7 @@ function getLocalTextLanguageDetectResult(
   console.log(`start local detect language, confirmed confidence (>${confirmedConfidence})`);
 
   // if detect preferred language confidence > confirmedConfidence.
-  const francDetectResult = francDetectTextLangauge(text, confirmedConfidence);
+  const francDetectResult = francLangaugeDetect(text, confirmedConfidence);
   if (francDetectResult.confirmed) {
     return francDetectResult;
   }

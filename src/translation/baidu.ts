@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 00:27
+ * @lastEditTime: 2022-08-15 21:38
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import CryptoJS from "crypto-js";
 import { requestCostTime } from "../axiosConfig";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromBaiduId, getLanguageItemFromYoudaoId } from "../language/languages";
+import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
@@ -32,8 +32,8 @@ export function requestBaiduTextTranslate(
   const md5Content = baiduAppId + word + salt + KeyStore.baiduAppSecret;
   const sign = CryptoJS.MD5(md5Content).toString();
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
-  const from = getLanguageItemFromYoudaoId(fromLanguage).baiduLanguageId;
-  const to = getLanguageItemFromYoudaoId(toLanguage).baiduLanguageId;
+  const from = getBaiduLanguageId(fromLanguage);
+  const to = getBaiduLanguageId(toLanguage);
   const encodeQueryText = Buffer.from(word, "utf8").toString();
   const params = {
     q: encodeQueryText,
@@ -105,8 +105,8 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
     const baiduTypeResult = await requestBaiduTextTranslate(queryWordInfo, new AbortController().signal);
     const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
     const baiduLanaugeId = baiduResult.from || "";
-    const languageId = getLanguageItemFromBaiduId(baiduLanaugeId).youdaoLanguageId;
-    console.warn(`---> Baidu detect languageId: ${baiduLanaugeId}, youdaoId: ${languageId}`);
+    const youdaoLanguageId = getYoudaoLanguageIdFromBaiduId(baiduLanaugeId);
+    console.warn(`---> Baidu detect languageId: ${baiduLanaugeId}, youdaoId: ${youdaoLanguageId}`);
 
     /**
      * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
@@ -122,7 +122,7 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
     const detectedLanguageResult: LanguageDetectTypeResult = {
       type: LanguageDetectType.Baidu,
       sourceLanguageId: baiduLanaugeId,
-      youdaoLanguageId: languageId,
+      youdaoLanguageId: youdaoLanguageId,
       confirmed: confirmed,
       result: baiduResult,
     };
@@ -130,7 +130,7 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
   } catch (error) {
     console.error(`---> baidu language detect error: ${JSON.stringify(error)}`);
     const errorInfo = error as RequestErrorInfo;
-    errorInfo.type = LanguageDetectType.Baidu;
+    errorInfo.type = LanguageDetectType.Baidu; // * Note: need to set language detect type.
     return Promise.reject(errorInfo);
   }
 }

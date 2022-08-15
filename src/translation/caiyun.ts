@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-10 23:03
+ * @lastEditTime: 2022-08-15 21:18
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import axios from "axios";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromYoudaoId } from "../language/languages";
+import { getCaiyunLanguageId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 
@@ -27,8 +27,8 @@ export function requestCaiyunTextTranslate(
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-  const from = getLanguageItemFromYoudaoId(fromLanguage).caiyunLanguageId || "auto";
-  const to = getLanguageItemFromYoudaoId(toLanguage).caiyunLanguageId;
+  const from = getCaiyunLanguageId(fromLanguage);
+  const to = getCaiyunLanguageId(toLanguage);
   const trans_type = `${from}2${to}`; // "auto2xx";
 
   // Note that Caiyun Translate only supports these types of translation at present.
@@ -73,6 +73,7 @@ export function requestCaiyunTextTranslate(
           return;
         }
         console.error(`---> caiyun translate error: ${error}`);
+        console.error("caiyun error response: ", error.response);
 
         const errorInfo: RequestErrorInfo = {
           type: TranslationType.Caiyun,
@@ -80,7 +81,6 @@ export function requestCaiyunTextTranslate(
           message: error.response?.statusText,
         };
         reject(errorInfo);
-        console.error("caiyun error response: ", error.response);
       });
   });
 }

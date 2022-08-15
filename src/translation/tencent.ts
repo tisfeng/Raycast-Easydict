@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 15:58
+ * @lastEditTime: 2022-08-15 21:27
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import util from "util";
 import { requestCostTime } from "../axiosConfig";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getLanguageItemFromTencentId, getTencentLanguageId } from "../language/languages";
+import { getTencentLanguageId, getYoudaoLanguageIdFromTencentId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { RequestErrorInfo, RequestTypeResult, TencentTranslateResult, TranslationType } from "../types";
 
@@ -249,7 +249,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     const response = await client.LanguageDetect(params);
     const endTime = new Date().getTime();
     const tencentLanguageId = response.Lang || "";
-    const youdaoLanguageId = getLanguageItemFromTencentId(tencentLanguageId).youdaoLanguageId;
+    const youdaoLanguageId = getYoudaoLanguageIdFromTencentId(tencentLanguageId);
     console.warn(
       `tencent detect language id: ${tencentLanguageId}, ${youdaoLanguageId}, cost time: ${endTime - startTime} ms`
     );

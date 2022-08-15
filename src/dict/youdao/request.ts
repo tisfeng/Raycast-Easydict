@@ -1,9 +1,8 @@
-import { RequestErrorInfo } from "./../../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 12:44
+ * @lastEditTime: 2022-08-15 21:21
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,9 +17,10 @@ import { requestCostTime } from "../../axiosConfig";
 import { YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { RequestTypeResult, TranslationType } from "../../types";
-import { DicionaryType } from "./../../types";
+import { DicionaryType, RequestErrorInfo } from "./../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
+
 /**
  * Max length of text to download youdao tts audio
  */
@@ -32,6 +32,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  */
 export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
   console.log(`---> start request Youdao`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
   function truncate(q: string): string {
     const len = q.length;
     return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len);
@@ -39,18 +40,18 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
   const youdaoAppId = KeyStore.youdaoAppId;
-  const sha256Content = youdaoAppId + truncate(queryWordInfo.word) + salt + timestamp + KeyStore.youdaoAppSecret;
+  const sha256Content = youdaoAppId + truncate(word) + salt + timestamp + KeyStore.youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = "https://openapi.youdao.com/api";
   const params = querystring.stringify({
     sign,
     salt,
-    from: queryWordInfo.fromLanguage,
+    from: fromLanguage,
     signType: "v3",
-    q: queryWordInfo.word,
+    q: word,
     appKey: youdaoAppId,
     curtime: timestamp,
-    to: queryWordInfo.toLanguage,
+    to: toLanguage,
   });
   // console.log(`---> youdao params: ${params}`);
 
@@ -177,10 +178,11 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
 }
 
 /**
-  * * Note: this function is only used to download `isWord` audio file from web youdao, if not a word, the pronunciation audio is not accurate.
-  
-  this is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
-  Example: https://dict.youdao.com/dictvoice?type=0&audio=good
+ * * Note: this function is only used to download `isWord` audio file from web youdao, if not a word, the pronunciation audio is not accurate.
+ *
+ * This is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
+ *
+ * Example: https://dict.youdao.com/dictvoice?type=0&audio=good
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;

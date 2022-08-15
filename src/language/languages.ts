@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:35
+ * @lastEditTime: 2022-08-15 21:44
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { francDetectTextLangauge } from "../detectLanauge/franc";
+import { francLangaugeDetect } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { referredLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
@@ -27,56 +27,69 @@ export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageI
 }
 
 /**
- * get language item from tencent language id, if not found, return auto language item
+ * Get youdao language id from tencent language id.
  */
-export function getLanguageItemFromTencentId(tencentLanguageId: string): LanguageItem {
+export function getYoudaoLanguageIdFromTencentId(tencentLanguageId: string): string {
   for (const langItem of languageItemList) {
     const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
     if (tencentDetectLanguageId === tencentLanguageId) {
-      return langItem;
+      return langItem.youdaoLanguageId;
     }
   }
-  return languageItemList[0];
+  return languageItemList[0].youdaoLanguageId;
 }
 
 /**
- * get language item from baidu language id.
+ * Get tencent language id from youdao language id.
  */
-export function getLanguageItemFromBaiduId(baiduLanguageId: string): LanguageItem {
+export function getTencentLanguageId(youdaoLanguageId: string): string | undefined {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.tencentLanguageId;
+}
+
+/**
+ * Get baidu language id from youdao language id.
+ */
+export function getBaiduLanguageId(youdaoLanguageId: string): string {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.baiduLanguageId;
+}
+
+/**
+ * Get youdao language id from baidu language id.
+ */
+export function getYoudaoLanguageIdFromBaiduId(baiduLanguageId: string): string {
   for (const langItem of languageItemList) {
     if (langItem.baiduLanguageId === baiduLanguageId) {
-      return langItem;
+      return langItem.youdaoLanguageId;
     }
   }
-  return languageItemList[0];
+  return languageItemList[0].youdaoLanguageId;
 }
 
 /**
- * Get language item from apple detect language id, this value is depend on the system language.
+ * Get youdao language id from apple detect language id. this value is depend on the system language.
  *
  * Example: if system language is English, then the value is "English", if system language is Chinese, then the value is "中文".
  *
  * Todo: currently only support Chinese and English, later support other languages.
- *
- * Todo: use franc to detect language, then use franc language id to get language item.
  */
-export function getLanguageItemFromAppleId(appleLanguageTitle: string): LanguageItem {
-  const francTypeResult = francDetectTextLangauge(appleLanguageTitle);
-  const youdaoLanguageId = francTypeResult.youdaoLanguageId;
-  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  console.log(`---> getLanguageItemFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}`);
+export function getYoudaoLanguageIdFromAppleId(appleLanguageTitle: string): string {
+  const francResult = francLangaugeDetect(appleLanguageTitle);
+  const youdaoLanguageId = francResult.youdaoLanguageId;
+  console.log(`---> getYoudaoLanguageIdFromAppleId: ${appleLanguageTitle}, franc detect youdaoId: ${youdaoLanguageId}`);
 
   const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
   if (chineseLanguageItem) {
-    return chineseLanguageItem;
+    return chineseLanguageItem.youdaoLanguageId;
   }
 
   const englishLanguageItem = getLanguageItemFromAppleEnglishTitle(appleLanguageTitle);
   if (englishLanguageItem) {
-    return englishLanguageItem;
+    return englishLanguageItem.youdaoLanguageId;
   }
 
-  return languageItem;
+  return youdaoLanguageId;
 }
 
 /**
@@ -116,7 +129,6 @@ export function getLanguageItemFromDeepLSourceId(deepLLanguageId: string): Langu
   }
   return languageItemList[0];
 }
-
 /**
  * Get deepL language id from youdao language id.
  */
@@ -126,27 +138,39 @@ export function getDeepLLanguageId(youdaoLanguageId: string): string | undefined
 }
 
 /**
- * Get baidu language id from youdao language id.
- */
-export function getBaiduLanguageId(youdaoLanguageId: string): string {
-  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.baiduLanguageId;
-}
-
-/**
- * Get tencent language id from youdao language id.
- */
-export function getTencentLanguageId(youdaoLanguageId: string): string | undefined {
-  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.tencentLanguageId;
-}
-
-/**
  * Get language title from youdao language id. eg. en -> English
  */
 export function getLanguageTitle(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
   return languageItem.languageTitle;
+}
+
+/**
+ * Get caiyun language id from youdao language id.
+ */
+export function getCaiyunLanguageId(youdaoLanguageId: string): string | undefined {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.caiyunLanguageId;
+}
+
+/**
+ * Get youdao language id from google language id.
+ */
+export function getYoudaoLanguageIdFromGoogleId(googleLanguageId: string): string {
+  for (const langItem of languageItemList) {
+    if (langItem.googleLanguageId === googleLanguageId) {
+      return langItem.youdaoLanguageId;
+    }
+  }
+  return languageItemList[0].youdaoLanguageId;
+}
+
+/**
+ * Get google language id from youdao language id.
+ */
+export function getGoogleLanguageId(youdaoLanguageId: string): string {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.googleLanguageId || languageItem.youdaoLanguageId;
 }
 
 /**
@@ -215,14 +239,6 @@ export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string
   if (youdaoLanguageIds.includes("zh-CHS")) {
     return youdaoLanguageIds[0] === "zh-CHS" ? youdaoLanguageIds[1] : youdaoLanguageIds[0];
   }
-}
-
-/**
- * Get google language id from youdao language id.
- */
-export function getGoogleLanguageId(youdaoLanguageId: string): string {
-  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.googleLanguageId || languageItem.youdaoLanguageId;
 }
 
 export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {

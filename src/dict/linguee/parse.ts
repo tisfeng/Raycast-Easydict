@@ -375,8 +375,7 @@ function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string
   const textJavascript = rootElement.querySelector("script[type=text/javascript]");
   const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
   if (sourceLang) {
-    // remove "'"
-    const sourceLanguage = sourceLang.replace(/'/g, "");
+    const sourceLanguage = sourceLang.replace(/'/g, ""); // remove "'"
     return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLanguageId;
   }
 }

@@ -17,7 +17,7 @@ import { requestCostTime } from "../axiosConfig";
 import { userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dict/youdao/types";
-import { getGoogleLanguageId } from "../language/languages";
+import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
 import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
@@ -88,25 +88,25 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
 export async function googleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   console.log(`---> start Google language detect: ${text}`);
   const startTime = new Date().getTime();
-  const queryWord: QueryWordInfo = {
+  const queryWordInfo: QueryWordInfo = {
     word: text,
     fromLanguage: "auto",
     toLanguage: "en",
   };
 
   try {
-    const googleTypeResult = await googleRPCTranslate(queryWord, new AbortController().signal);
+    const googleTypeResult = await googleRPCTranslate(queryWordInfo, new AbortController().signal);
     const googleResult = googleTypeResult.result as GoogleTranslateResult;
-    const googleDetectLanaugeId = googleResult.from.language.iso;
-    const youdaoLanguageId = getGoogleLanguageId(googleDetectLanaugeId);
+    const googleLanaugeId = googleResult.from.language.iso;
+    const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanaugeId);
     console.warn(
-      `---> Google detect language: ${googleDetectLanaugeId}, youdaoId: ${youdaoLanguageId}, cost ${
+      `---> Google detect language: ${googleLanaugeId}, youdaoId: ${youdaoLanguageId}, cost ${
         new Date().getTime() - startTime
       } ms`
     );
     const languagedDetectResult: LanguageDetectTypeResult = {
       type: LanguageDetectType.Google,
-      sourceLanguageId: googleDetectLanaugeId,
+      sourceLanguageId: googleLanaugeId,
       youdaoLanguageId: youdaoLanguageId,
       confirmed: true,
       result: googleResult,
