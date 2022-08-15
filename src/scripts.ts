@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:44
+ * @lastEditTime: 2022-08-15 23:22
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,24 +13,25 @@ import { exec, execFile } from "child_process";
 import querystring from "node:querystring";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dict/youdao/types";
-import { getLanguageItemFromYoudaoId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
+import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
 import { AbortObject, RequestErrorInfo, TranslationType } from "./types";
 
 /**
- * Run apple Translate shortcuts with the given QueryWordInfo, return promise
+ * Run apple Translate shortcuts with the given QueryWordInfo.
  */
 export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortObject): Promise<string | undefined> {
   console.log(`---> start Apple translate`);
+  const { word, fromLanguage, toLanguage } = queryTextInfo;
   const startTime = new Date().getTime();
-  const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleId;
-  const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleId;
+  const appleFromLanguageId = getAppleLanguageId(fromLanguage);
+  const appleToLanguageId = getAppleLanguageId(toLanguage);
   if (!appleFromLanguageId || !appleToLanguageId) {
-    console.warn(`apple translate language not support: ${queryTextInfo.fromLanguage} -> ${queryTextInfo.toLanguage}`);
+    console.warn(`apple translate language not support: ${fromLanguage} -> ${toLanguage}`);
     return Promise.resolve(undefined);
   }
 
   const map = new Map([
-    ["text", queryTextInfo.word],
+    ["text", word],
     ["from", appleFromLanguageId], // * NOTE: if no from language, it will auto detect
     ["to", appleToLanguageId],
   ]);
@@ -43,9 +44,8 @@ export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortO
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
-    console.warn(
-      `Apple translate currently not support translate language: ${appleFromLanguageId} -> ${appleToLanguageId}`
-    );
+    console.warn(`Apple translate currently not support auto detect this language: ${word}`);
+    return Promise.resolve(undefined);
   }
 
   const object = Object.fromEntries(map.entries());
@@ -62,7 +62,7 @@ export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortO
     abortObject.childProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
         if (error.killed) {
-          // error:{ "killed": true, "signal": "SIGTERM" }
+          // error: { "killed": true, "signal": "SIGTERM" }
           console.warn(`---> apple translate canceld`);
           return;
         }

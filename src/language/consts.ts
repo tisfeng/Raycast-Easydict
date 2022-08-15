@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 22:22
+ * @lastEditTime: 2022-08-15 22:55
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { LanguageItem } from "./type";
  */
 export const languageItemList: LanguageItem[] = [
   {
-    googleId: "auto",
+    googleId: "auto", // "auto" means this API support auto detect language.
     youdaoId: "auto",
     appleDetectChineseTitle: "自动识别",
     appleId: "auto",
@@ -26,7 +26,7 @@ export const languageItemList: LanguageItem[] = [
     tencentId: "auto",
     baiduLanguageId: "auto",
     caiyunId: "auto",
-    englishName: "Auto Language",
+    englishName: "Auto",
     emoji: "🌐",
   },
   {
