@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 09:40
+ * @lastEditTime: 2022-08-15 10:58
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -119,33 +119,33 @@ export default function () {
       });
   }
 
-  function ListDetail() {
-    /**
-     * User select target language manually.
-     */
-    const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
-      console.log(
-        `selected language: ${selectedLanguageItem.youdaoLanguageId}, current target language: ${userSelectedTargetLanguageItem.youdaoLanguageId}`
-      );
-      if (selectedLanguageItem.youdaoLanguageId === userSelectedTargetLanguageItem.youdaoLanguageId) {
-        return;
-      }
+  /**
+   * User select target language manually.
+   */
+  const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
+    console.log(
+      `selected language: ${selectedLanguageItem.youdaoLanguageId}, current target language: ${userSelectedTargetLanguageItem.youdaoLanguageId}`
+    );
+    if (selectedLanguageItem.youdaoLanguageId === userSelectedTargetLanguageItem.youdaoLanguageId) {
+      return;
+    }
 
-      console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLanguageId}`);
-      setAutoSelectedTargetLanguageItem(selectedLanguageItem);
-      setUserSelectedTargetLanguageItem(selectedLanguageItem);
+    console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLanguageId}`);
+    setAutoSelectedTargetLanguageItem(selectedLanguageItem);
+    setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
-      const quertWordInfo: QueryWordInfo = {
-        word: searchText,
-        fromLanguage: currentFromLanguageItem.youdaoLanguageId,
-        toLanguage: selectedLanguageItem.youdaoLanguageId,
-      };
-
-      // * Clean up previous query results before new query.
-      dataManager.clearQueryResult();
-      dataManager.queryTextWithTextInfo(quertWordInfo);
+    const quertWordInfo: QueryWordInfo = {
+      word: searchText,
+      fromLanguage: currentFromLanguageItem.youdaoLanguageId,
+      toLanguage: selectedLanguageItem.youdaoLanguageId,
     };
 
+    // * Clean up previous query results before new query.
+    dataManager.clearQueryResult();
+    dataManager.queryTextWithTextInfo(quertWordInfo);
+  };
+
+  function ListDetail() {
     return (
       <Fragment>
         {displayResult.map((resultItem, idx) => {
