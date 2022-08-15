@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 17:23
+ * @lastEditTime: 2022-08-15 17:51
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -162,7 +162,7 @@ function handleDetectedLanguageTypeResult(
    * So we have to try to use other types of language detection first.
    */
   if (apiDetectedLanguage.type === LanguageDetectType.Google) {
-    console.log(`use Google detect language: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
+    console.log(`use Google detect language`);
     apiDetectedLanguage.confirmed = true;
     callback(apiDetectedLanguage);
     return;

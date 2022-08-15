@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-05 16:11
+ * @lastEditTime: 2022-08-15 18:03
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -73,12 +73,10 @@ export function saveQueryClipboardRecord(text: string) {
  * traverse all applications, check if Eudic is installed
  */
 export async function checkIfInstalledEudic(): Promise<boolean> {
-  const startTime = new Date().getTime();
-  const installedApplications = await getApplications();
+  const installedApplications = await getApplications(); // cost time: 20 ms
   for (const application of installedApplications) {
     const appBundleId = application.bundleId;
     if (appBundleId && eudicBundleIds.includes(appBundleId)) {
-      console.log(`checkIfEudicInstalled cost time: ${new Date().getTime() - startTime} ms`); // cost time: 22 ms
       return Promise.resolve(true);
     }
   }

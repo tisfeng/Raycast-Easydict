@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 16:43
+ * @lastEditTime: 2022-08-15 18:00
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -75,7 +75,6 @@ export default function () {
   dataManager.updateAutoSelectedTargetLanguageItem = setAutoSelectedTargetLanguageItem;
 
   useEffect(() => {
-    console.log("enter useEffect");
     if (inputText === undefined) {
       setup();
     }
@@ -99,11 +98,10 @@ export default function () {
    * Try to detect the selected text, if detect success, then query the selected text.
    */
   function tryQuerySelecedtText() {
-    const startTime = Date.now();
     getSelectedText()
       .then((selectedText) => {
         selectedText = trimTextLength(selectedText);
-        console.log(`getSelectedText: ${selectedText}, cost time: ${Date.now() - startTime} ms`);
+        console.log(`getSelectedText: ${selectedText}`); // cost about 20 ms
         updateInputTextAndQueryText(selectedText, false);
       })
       .catch(() => {

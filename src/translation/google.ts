@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 17:31
+ * @lastEditTime: 2022-08-15 18:10
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,8 +30,7 @@ export async function requestGoogleTranslate(
   const tld = await getTld();
   queryWordInfo.tld = tld;
 
-  googleWebTranslate(queryWordInfo, signal);
-
+  // googleWebTranslate(queryWordInfo, signal);
   return googleRPCTranslate(queryWordInfo, signal);
 }
 
@@ -122,11 +121,14 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
 }
 
 /**
- * Use crawler to get google web translate. Just simple translate result.
+ * Use crawler to get google web translate. Only simple translate result.
  *
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  */
-async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+export async function googleWebTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal: AbortSignal
+): Promise<RequestTypeResult> {
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
@@ -135,7 +137,9 @@ async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
     hl: toLanguageId, // hope language? web ui language
     q: queryWordInfo.word, // query word
   };
-  const tld = queryWordInfo.tld;
+  const tld = queryWordInfo.tld ?? (await getTld());
+  queryWordInfo.tld = tld;
+
   const headers = {
     "User-Agent": userAgent,
   };

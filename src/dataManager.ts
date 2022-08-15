@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 16:52
+ * @lastEditTime: 2022-08-15 18:06
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -157,6 +157,7 @@ export class DataManager {
     this.resetProperties();
 
     // Todo: need to optimize. Enable to cancel language detect.
+    // Todo: record all detect result, maybe can use it as translation result.
     detectLanguage(text, (detectedLanguageResult) => {
       console.log(
         `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
@@ -533,13 +534,10 @@ export class DataManager {
    * Remove query type from queryRecordList, and update loading status.
    */
   private removeQueryFromRecordList(type: QueryType) {
-    // this.queryRecordList.splice(this.queryRecordList.indexOf(type), 1);
     this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
 
     const isLoadingState = this.queryRecordList.length > 0;
     this.updateLoadingState(isLoadingState);
-
-    console.log(`---> query record list: [${this.queryRecordList}]`);
   }
 
   /**
@@ -860,7 +858,7 @@ export class DataManager {
    * Cancel current query.
    */
   private cancelCurrentQuery() {
-    console.warn(`---> cancel current query`);
+    // console.warn(`---> cancel current query`);
     this.abortObject.abortController.abort();
     this.abortObject.childProcess?.kill();
   }
@@ -869,7 +867,7 @@ export class DataManager {
    * Clear query result.
    */
   clearQueryResult() {
-    console.log(`---> clear query result`);
+    // console.log(`---> clear query result`);
 
     this.cancelCurrentQuery();
 
