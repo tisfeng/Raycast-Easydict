@@ -14,14 +14,14 @@ import { referredLanguages } from "../preferences";
  * check if the language is preferred language
  */
 export function isPreferredLanguage(languageId: string): boolean {
-  return referredLanguages.map((item) => item.youdaoLanguageId).includes(languageId);
+  return referredLanguages.map((item) => item.youdaoId).includes(languageId);
 }
 
 /**
  * check if preferred languages contains English language
  */
 export function checkIfPreferredLanguagesContainedEnglish(): boolean {
-  return referredLanguages.find((item) => item.youdaoLanguageId === "en") !== undefined;
+  return referredLanguages.find((item) => item.youdaoId === "en") !== undefined;
 }
 
 /**
@@ -29,7 +29,7 @@ export function checkIfPreferredLanguagesContainedEnglish(): boolean {
  */
 export function checkIfPreferredLanguagesContainedChinese(): boolean {
   const lanuguageIdPrefix = "zh";
-  return referredLanguages.find((item) => item.youdaoLanguageId.startsWith(lanuguageIdPrefix)) !== undefined;
+  return referredLanguages.find((item) => item.youdaoId.startsWith(lanuguageIdPrefix)) !== undefined;
 }
 
 /**

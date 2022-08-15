@@ -145,18 +145,18 @@ export function ListActionPanel(props: ActionListPanelProps) {
         <ActionPanel.Section title="Target Language">
           {languageItemList.map((selectedLanguageItem) => {
             // hide auto language
-            const isAutoLanguage = selectedLanguageItem.youdaoLanguageId === "auto";
+            const isAutoLanguage = selectedLanguageItem.youdaoId === "auto";
             // hide current detected language
-            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoLanguageId === queryWordInfo.fromLanguage;
-            const isSameWithTargetLanguage = selectedLanguageItem.youdaoLanguageId === queryWordInfo.toLanguage;
+            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoId === queryWordInfo.fromLanguage;
+            const isSameWithTargetLanguage = selectedLanguageItem.youdaoId === queryWordInfo.toLanguage;
             if (isAutoLanguage || isSameWithDetectedLanguage) {
               return null;
             }
 
             return (
               <Action
-                key={selectedLanguageItem.youdaoLanguageId}
-                title={selectedLanguageItem.languageTitle}
+                key={selectedLanguageItem.youdaoId}
+                title={selectedLanguageItem.englishName}
                 onAction={() => props.onLanguageUpdate(selectedLanguageItem)}
                 icon={isSameWithTargetLanguage ? Icon.ArrowRight : { source: selectedLanguageItem.emoji }}
               />

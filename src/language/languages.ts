@@ -19,7 +19,7 @@ export const maxLineLengthOfEnglishTextDisplay = 95;
 
 export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.youdaoLanguageId === youdaoLanguageId) {
+    if (langItem.youdaoId === youdaoLanguageId) {
       return langItem;
     }
   }
@@ -31,12 +31,12 @@ export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageI
  */
 export function getYoudaoLanguageIdFromTencentId(tencentLanguageId: string): string {
   for (const langItem of languageItemList) {
-    const tencentDetectLanguageId = langItem.tencentDetectLanguageId || langItem.tencentLanguageId;
+    const tencentDetectLanguageId = langItem.tencentDetectId || langItem.tencentId;
     if (tencentDetectLanguageId === tencentLanguageId) {
-      return langItem.youdaoLanguageId;
+      return langItem.youdaoId;
     }
   }
-  return languageItemList[0].youdaoLanguageId;
+  return languageItemList[0].youdaoId;
 }
 
 /**
@@ -44,7 +44,7 @@ export function getYoudaoLanguageIdFromTencentId(tencentLanguageId: string): str
  */
 export function getTencentLanguageId(youdaoLanguageId: string): string | undefined {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.tencentLanguageId;
+  return languageItem.tencentId;
 }
 
 /**
@@ -61,10 +61,10 @@ export function getBaiduLanguageId(youdaoLanguageId: string): string {
 export function getYoudaoLanguageIdFromBaiduId(baiduLanguageId: string): string {
   for (const langItem of languageItemList) {
     if (langItem.baiduLanguageId === baiduLanguageId) {
-      return langItem.youdaoLanguageId;
+      return langItem.youdaoId;
     }
   }
-  return languageItemList[0].youdaoLanguageId;
+  return languageItemList[0].youdaoId;
 }
 
 /**
@@ -81,12 +81,12 @@ export function getYoudaoLanguageIdFromAppleId(appleLanguageTitle: string): stri
 
   const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
   if (chineseLanguageItem) {
-    return chineseLanguageItem.youdaoLanguageId;
+    return chineseLanguageItem.youdaoId;
   }
 
   const englishLanguageItem = getLanguageItemFromAppleEnglishTitle(appleLanguageTitle);
   if (englishLanguageItem) {
-    return englishLanguageItem.youdaoLanguageId;
+    return englishLanguageItem.youdaoId;
   }
 
   return youdaoLanguageId;
@@ -99,7 +99,7 @@ export function getYoudaoLanguageIdFromAppleId(appleLanguageTitle: string): stri
  */
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
-    if (langItem.appleDetectChineseLanguageTitle.includes(chineseTitle)) {
+    if (langItem.appleDetectChineseTitle.includes(chineseTitle)) {
       return langItem;
     }
   }
@@ -112,7 +112,7 @@ export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): Lang
  */
 export function getLanguageItemFromAppleEnglishTitle(englishTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
-    if (langItem.languageTitle.includes(englishTitle)) {
+    if (langItem.englishName.includes(englishTitle)) {
       return langItem;
     }
   }
@@ -123,7 +123,7 @@ export function getLanguageItemFromAppleEnglishTitle(englishTitle: string): Lang
  */
 export function getLanguageItemFromDeepLSourceId(deepLLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.deepLSourceLanguageId === deepLLanguageId) {
+    if (langItem.deepLSourceId === deepLLanguageId) {
       return langItem;
     }
   }
@@ -134,7 +134,7 @@ export function getLanguageItemFromDeepLSourceId(deepLLanguageId: string): Langu
  */
 export function getDeepLLanguageId(youdaoLanguageId: string): string | undefined {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.deepLSourceLanguageId;
+  return languageItem.deepLSourceId;
 }
 
 /**
@@ -142,7 +142,7 @@ export function getDeepLLanguageId(youdaoLanguageId: string): string | undefined
  */
 export function getLanguageTitle(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.languageTitle;
+  return languageItem.englishName;
 }
 
 /**
@@ -150,7 +150,7 @@ export function getLanguageTitle(youdaoLanguageId: string): string {
  */
 export function getCaiyunLanguageId(youdaoLanguageId: string): string | undefined {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.caiyunLanguageId;
+  return languageItem.caiyunId;
 }
 
 /**
@@ -158,11 +158,11 @@ export function getCaiyunLanguageId(youdaoLanguageId: string): string | undefine
  */
 export function getYoudaoLanguageIdFromGoogleId(googleLanguageId: string): string {
   for (const langItem of languageItemList) {
-    if (langItem.googleLanguageId === googleLanguageId) {
-      return langItem.youdaoLanguageId;
+    if (langItem.googleId === googleLanguageId) {
+      return langItem.youdaoId;
     }
   }
-  return languageItemList[0].youdaoLanguageId;
+  return languageItemList[0].youdaoId;
 }
 
 /**
@@ -170,7 +170,7 @@ export function getYoudaoLanguageIdFromGoogleId(googleLanguageId: string): strin
  */
 export function getGoogleLanguageId(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.googleLanguageId;
+  return languageItem.googleId;
 }
 
 /**
@@ -178,7 +178,7 @@ export function getGoogleLanguageId(youdaoLanguageId: string): string {
  */
 export function getLanguageItemFromFrancId(francLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {
-    if (langItem.francLanguageId === francLanguageId) {
+    if (langItem.francId === francLanguageId) {
       return langItem;
     }
   }
@@ -282,8 +282,8 @@ export function getBaiduWebTranslateURL(queryTextInfo: QueryWordInfo): string | 
  */
 export function getAutoSelectedTargetLanguageItem(fromLanguageId: string): LanguageItem {
   const targetLanguageItem = referredLanguages.find(
-    (languageItem) => languageItem.youdaoLanguageId !== fromLanguageId
+    (languageItem) => languageItem.youdaoId !== fromLanguageId
   ) as LanguageItem;
-  console.log(`fromLanguageId: ${fromLanguageId}, auto selected target: ${targetLanguageItem.youdaoLanguageId}`);
+  console.log(`fromLanguageId: ${fromLanguageId}, auto selected target: ${targetLanguageItem.youdaoId}`);
   return targetLanguageItem;
 }

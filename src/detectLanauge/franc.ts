@@ -32,14 +32,14 @@ export function francLangaugeDetect(text: string, confirmedConfidence = 0.8): La
   let confirmed = false;
 
   // get all franc language id from languageItemList
-  const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLanguageId);
+  const onlyFrancLanguageIdList = languageItemList.map((item) => item.francId);
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
   console.log(`franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
   const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
     // * NOTE: when francLanguageId = 'und' or detected unsupported language, the youdaoLanguageId will be 'auto'
-    const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoLanguageId;
+    const youdaoLanguageId = getLanguageItemFromFrancId(francLanguageId).youdaoId;
     return [youdaoLanguageId, confidence];
   });
 
@@ -64,7 +64,7 @@ export function francLangaugeDetect(text: string, confirmedConfidence = 0.8): La
 
   const detectTypeResult: LanguageDetectTypeResult = {
     type: LanguageDetectType.Franc,
-    sourceLanguageId: getLanguageItemFromYoudaoId(detectedLanguageId).francLanguageId,
+    sourceLanguageId: getLanguageItemFromYoudaoId(detectedLanguageId).francId,
     youdaoLanguageId: detectedLanguageId,
     confirmed: confirmed,
     detectedLanguageArray: detectedYoudaoLanguageArray,

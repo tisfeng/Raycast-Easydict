@@ -74,7 +74,7 @@ export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
 */
 function sayCommand(text: string, youdaoLanguageId: string) {
   if (youdaoLanguageId && text) {
-    const languageItem = languageItemList.find((languageItem) => languageItem.youdaoLanguageId === youdaoLanguageId);
+    const languageItem = languageItemList.find((languageItem) => languageItem.youdaoId === youdaoLanguageId);
     if (!languageItem || !languageItem.voiceList) {
       console.warn(`say command language not supported: ${youdaoLanguageId}`);
       return;

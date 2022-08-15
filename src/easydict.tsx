@@ -101,7 +101,7 @@ export default function () {
   }
 
   function checkIfPreferredLanguagesConflict() {
-    if (referredLanguage1.youdaoLanguageId === referredLanguage2.youdaoLanguageId) {
+    if (referredLanguage1.youdaoId === referredLanguage2.youdaoId) {
       console.log("referredLanguage1 and referredLanguage2 are the same language");
       return (
         <List searchBarPlaceholder="Error">
@@ -121,20 +121,20 @@ export default function () {
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
     console.log(
-      `selected language: ${selectedLanguageItem.youdaoLanguageId}, current target language: ${userSelectedTargetLanguageItem.youdaoLanguageId}`
+      `selected language: ${selectedLanguageItem.youdaoId}, current target language: ${userSelectedTargetLanguageItem.youdaoId}`
     );
-    if (selectedLanguageItem.youdaoLanguageId === userSelectedTargetLanguageItem.youdaoLanguageId) {
+    if (selectedLanguageItem.youdaoId === userSelectedTargetLanguageItem.youdaoId) {
       return;
     }
 
-    console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLanguageId}`);
+    console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoId}`);
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
     const quertWordInfo: QueryWordInfo = {
       word: searchText,
-      fromLanguage: currentFromLanguageItem.youdaoLanguageId,
-      toLanguage: selectedLanguageItem.youdaoLanguageId,
+      fromLanguage: currentFromLanguageItem.youdaoId,
+      toLanguage: selectedLanguageItem.youdaoId,
     };
 
     // Clean up previous query results immediately before new query.
@@ -163,7 +163,7 @@ export default function () {
     if (trimText !== searchText) {
       dataManager.clearQueryResult();
 
-      const toLanguage = userSelectedTargetLanguageItem.youdaoLanguageId;
+      const toLanguage = userSelectedTargetLanguageItem.youdaoId;
       dataManager.delayQueryText(trimText, toLanguage, isDelay);
     }
   }

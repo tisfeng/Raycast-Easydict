@@ -22,8 +22,8 @@ import { AbortObject, RequestErrorInfo, TranslationType } from "./types";
 export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortObject): Promise<string | undefined> {
   console.log(`---> start Apple translate`);
   const startTime = new Date().getTime();
-  const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleLanguageId;
-  const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleLanguageId;
+  const appleFromLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.fromLanguage).appleId;
+  const appleToLanguageId = getLanguageItemFromYoudaoId(queryTextInfo.toLanguage).appleId;
   if (!appleFromLanguageId || !appleToLanguageId) {
     console.warn(`apple translate language not support: ${queryTextInfo.fromLanguage} -> ${queryTextInfo.toLanguage}`);
     return Promise.resolve(undefined);

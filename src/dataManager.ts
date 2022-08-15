@@ -188,7 +188,7 @@ export class DataManager {
     if (fromYoudaoLanguageId === targetLanguageId) {
       const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
       this.updateAutoSelectedTargetLanguageItem(targetLanguageItem);
-      targetLanguageId = targetLanguageItem.youdaoLanguageId;
+      targetLanguageId = targetLanguageItem.youdaoId;
       console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
     }
 
@@ -726,7 +726,7 @@ export class DataManager {
         const fromLanguageItem = getLanguageItemFromYoudaoId(wordInfo.fromLanguage);
         const toLanguageItem = getLanguageItemFromYoudaoId(wordInfo.toLanguage);
 
-        const fromTo = `${fromLanguageItem.languageTitle}${fromLanguageItem.emoji} --> ${toLanguageItem.languageTitle}${toLanguageItem.emoji}`;
+        const fromTo = `${fromLanguageItem.englishName}${fromLanguageItem.emoji} --> ${toLanguageItem.englishName}${toLanguageItem.emoji}`;
         let sectionTitle = `${sourceResult.type}`;
         const isShowingTranslationFromTo = isFirstTranslation && isTranslationType && !this.isShowDetail;
         if (isDictionaryType || isShowingTranslationFromTo) {
