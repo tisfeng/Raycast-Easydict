@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 16:03
+ * @lastEditTime: 2022-08-15 21:51
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -108,12 +108,11 @@ export function ListActionPanel(props: ActionListPanelProps) {
       <ActionPanel.Section title="Search Query Text Online">
         {!isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
         {!isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
+        {<WebQueryAction webQueryItem={eudicWebItem} />}
 
         {!isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
         {!isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {!isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
-
-        {<WebQueryAction webQueryItem={eudicWebItem} />}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">

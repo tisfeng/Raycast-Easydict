@@ -2,13 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-14 11:50
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 12:48
+ * @lastEditTime: 2022-08-15 22:09
  * @fileName: type.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 export interface LanguageItem {
+  googleLanguageId: string; // ISO 639-1 codes, https://developers.google.com/admin-sdk/directory/v1/languages
   youdaoLanguageId: string;
   appleDetectChineseLanguageTitle: string; // such as 中文，英语. ⚠️: Apple detect more languages than apple translate.
   appleLanguageId?: string; // used to translate, Apple translate support 12 languages?
@@ -22,6 +23,5 @@ export interface LanguageItem {
   caiyunLanguageId?: string;
   languageTitle: string; // * when system language is English, Apple detect language is equal to languageTitle.
   voiceList?: string[];
-  googleLanguageId?: string;
   emoji: string;
 }

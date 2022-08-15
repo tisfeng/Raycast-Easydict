@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 11:14
+ * @lastEditTime: 2022-08-15 22:22
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,6 +17,7 @@ import { LanguageItem } from "./type";
  */
 export const languageItemList: LanguageItem[] = [
   {
+    googleLanguageId: "auto",
     youdaoLanguageId: "auto",
     appleDetectChineseLanguageTitle: "自动识别",
     appleLanguageId: "auto",
@@ -25,11 +26,11 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "auto",
     baiduLanguageId: "auto",
     caiyunLanguageId: "auto",
-    googleLanguageId: "auto",
     languageTitle: "Auto Language",
     emoji: "🌐",
   },
   {
+    googleLanguageId: "zh-CN",
     youdaoLanguageId: "zh-CHS",
     appleLanguageId: "zh_CN",
     appleDetectChineseLanguageTitle: "简体中文",
@@ -39,12 +40,12 @@ export const languageItemList: LanguageItem[] = [
     tencentLanguageId: "zh",
     baiduLanguageId: "zh",
     caiyunLanguageId: "zh",
-    googleLanguageId: "zh-CN",
     languageTitle: "Chinese-Simplified",
     voiceList: ["Ting-Ting"],
     emoji: "🇨🇳",
   },
   {
+    googleLanguageId: "zh-TW",
     youdaoLanguageId: "zh-CHT",
     appleLanguageId: "zh-TW",
     appleDetectChineseLanguageTitle: "繁体中文",
@@ -52,12 +53,12 @@ export const languageItemList: LanguageItem[] = [
     aliyunLanguageId: "zh-tw",
     tencentLanguageId: "zh-TW",
     baiduLanguageId: "cht",
-    googleLanguageId: "zh-TW",
     languageTitle: "Chinese-Traditional",
     voiceList: ["Ting-Ting"],
     emoji: "🇭🇰",
   },
   {
+    googleLanguageId: "en",
     youdaoLanguageId: "en",
     appleLanguageId: "en_US",
     appleDetectChineseLanguageTitle: "英语",
@@ -73,6 +74,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇺🇸",
   },
   {
+    googleLanguageId: "ja",
     youdaoLanguageId: "ja",
     appleLanguageId: "ja_JP",
     appleDetectChineseLanguageTitle: "日语",
@@ -88,6 +90,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇯🇵",
   },
   {
+    googleLanguageId: "ko",
     youdaoLanguageId: "ko",
     appleLanguageId: "ko_KR",
     appleDetectChineseLanguageTitle: "韩语",
@@ -101,6 +104,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇰🇷",
   },
   {
+    googleLanguageId: "fr",
     youdaoLanguageId: "fr",
     appleLanguageId: "fr_FR",
     appleDetectChineseLanguageTitle: "法语",
@@ -114,6 +118,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇫🇷",
   },
   {
+    googleLanguageId: "es",
     youdaoLanguageId: "es",
     appleLanguageId: "es_ES",
     appleDetectChineseLanguageTitle: "西班牙语",
@@ -127,6 +132,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇪🇸",
   },
   {
+    googleLanguageId: "pt-PT",
     youdaoLanguageId: "pt",
     appleLanguageId: "pt_BR",
     appleDetectChineseLanguageTitle: "葡萄牙语",
@@ -141,6 +147,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇵🇹",
   },
   {
+    googleLanguageId: "it",
     youdaoLanguageId: "it",
     appleLanguageId: "it_IT",
     appleDetectChineseLanguageTitle: "意大利语",
@@ -154,6 +161,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇮🇹",
   },
   {
+    googleLanguageId: "de",
     youdaoLanguageId: "de",
     appleLanguageId: "de_DE",
     appleDetectChineseLanguageTitle: "德语",
@@ -167,6 +175,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇩🇪",
   },
   {
+    googleLanguageId: "ru",
     youdaoLanguageId: "ru",
     appleLanguageId: "ru_RU",
     appleDetectChineseLanguageTitle: "俄语",
@@ -180,6 +189,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇷🇺",
   },
   {
+    googleLanguageId: "ar",
     youdaoLanguageId: "ar",
     appleLanguageId: "ar_AE",
     appleDetectChineseLanguageTitle: "阿拉伯语",
@@ -192,6 +202,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇦🇪",
   },
   {
+    googleLanguageId: "sv",
     youdaoLanguageId: "sv",
     appleDetectChineseLanguageTitle: "瑞典语",
     deepLSourceLanguageId: "SV",
@@ -203,6 +214,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇸🇪",
   },
   {
+    googleLanguageId: "ro",
     youdaoLanguageId: "ro",
     appleDetectChineseLanguageTitle: "罗马尼亚语",
     deepLSourceLanguageId: "RO",
@@ -214,6 +226,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇷🇴",
   },
   {
+    googleLanguageId: "th",
     youdaoLanguageId: "th",
     appleDetectChineseLanguageTitle: "泰语",
     francLanguageId: "tha",
@@ -225,6 +238,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇹🇭",
   },
   {
+    googleLanguageId: "sk",
     youdaoLanguageId: "sk",
     appleDetectChineseLanguageTitle: "斯洛伐克语",
     deepLSourceLanguageId: "SK",
@@ -236,6 +250,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇸🇰",
   },
   {
+    googleLanguageId: "nl",
     youdaoLanguageId: "nl",
     appleDetectChineseLanguageTitle: "荷兰语",
     deepLSourceLanguageId: "NL",
@@ -247,6 +262,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇳🇱",
   },
   {
+    googleLanguageId: "hu",
     youdaoLanguageId: "hu",
     appleDetectChineseLanguageTitle: "匈牙利语",
     deepLSourceLanguageId: "HU",
@@ -258,6 +274,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇭🇺",
   },
   {
+    googleLanguageId: "el",
     youdaoLanguageId: "el",
     appleDetectChineseLanguageTitle: "希腊语",
     deepLSourceLanguageId: "EL",
@@ -269,6 +286,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇬🇷",
   },
   {
+    googleLanguageId: "da",
     youdaoLanguageId: "da",
     appleDetectChineseLanguageTitle: "丹麦语",
     deepLSourceLanguageId: "DA",
@@ -280,6 +298,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇩🇰",
   },
   {
+    googleLanguageId: "fi",
     youdaoLanguageId: "fi",
     appleDetectChineseLanguageTitle: "芬兰语",
     deepLSourceLanguageId: "FI",
@@ -291,6 +310,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇫🇮",
   },
   {
+    googleLanguageId: "pl",
     youdaoLanguageId: "pl",
     appleDetectChineseLanguageTitle: "波兰语",
     deepLSourceLanguageId: "PL",
@@ -302,6 +322,7 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇵🇱",
   },
   {
+    googleLanguageId: "cs",
     youdaoLanguageId: "cs",
     appleDetectChineseLanguageTitle: "捷克语",
     deepLSourceLanguageId: "CS",

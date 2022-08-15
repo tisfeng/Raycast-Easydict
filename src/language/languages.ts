@@ -170,7 +170,7 @@ export function getYoudaoLanguageIdFromGoogleId(googleLanguageId: string): strin
  */
 export function getGoogleLanguageId(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.googleLanguageId || languageItem.youdaoLanguageId;
+  return languageItem.googleLanguageId;
 }
 
 /**
