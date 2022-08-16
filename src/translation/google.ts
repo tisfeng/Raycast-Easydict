@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:33
+ * @lastEditTime: 2022-08-16 12:18
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,6 +22,20 @@ import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
 
+testGoogleTranslateApi();
+
+async function testGoogleTranslateApi() {
+  console.log(`---> test google translate api`);
+  const res = await googleTranslateApi("Emily Dickinson", {
+    to: "zh-CN",
+    tld: "cn",
+  });
+
+  console.log(`---> google translate: ${res.text}`);
+  console.log(`---> from google id: ${res.from.language.iso}`);
+  console.log(`---> raw: ${res.raw}`);
+}
+
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
   signal: AbortSignal
@@ -30,8 +44,8 @@ export async function requestGoogleTranslate(
   const tld = await getTld();
   queryWordInfo.tld = tld;
 
-  // googleWebTranslate(queryWordInfo, signal);
-  return googleRPCTranslate(queryWordInfo, signal);
+  // googleRPCTranslate(queryWordInfo, signal);
+  return googleWebTranslate(queryWordInfo, signal);
 }
 
 /**
@@ -80,7 +94,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
 }
 
 /**
- * Google language detect.
+ * Google language detect. Actually, it uses google RPC translate api to detect language.
  */
 export async function googleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   console.log(`---> start Google language detect: ${text}`);
@@ -121,6 +135,8 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
  * Use crawler to get google web translate. Only simple translate result.
  *
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
+ *
+ * Another wild google translate api: http://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
 export async function googleWebTranslate(
   queryWordInfo: QueryWordInfo,

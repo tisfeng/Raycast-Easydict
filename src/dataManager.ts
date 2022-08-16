@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:06
+ * @lastEditTime: 2022-08-16 12:43
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -99,7 +99,8 @@ export class DataManager {
   queryRecordList: QueryType[] = [];
 
   /**
-   * Update query result and display sections.
+   * 1. Update query result.
+   * 2. Update display sections.
    */
   updateQueryResultAndSections(queryResult: QueryResult) {
     this.updateQueryResult(queryResult);
@@ -113,17 +114,20 @@ export class DataManager {
    * 2.sort queryResults.
    * 3.update dictionary section title.
    */
-  updateQueryResult(queryResult: QueryResult) {
+  private updateQueryResult(queryResult: QueryResult) {
     this.queryResults.push(queryResult);
     this.sortQueryResults();
-    this.updateTypeSectionTitle();
   }
 
   /**
-   * Update display sections, and callback update display sections.
+   * 1. Update isShowDetail。
+   * 2. Update section title.
+   * 3. Update displaySections
+   * 4. callback updateListDisplaySections.
    */
   private updateDataDisplaySections() {
     this.isShowDetail = this.checkIfShowTranslationDetail();
+    this.updateTypeSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
     for (const result of this.queryResults) {
@@ -659,7 +663,7 @@ export class DataManager {
   }
 
   /**
-   *  format type translation result to markdown format.
+   * Format translation string to markdown.
    */
   formatTranslationToMarkdown(translations: string[], type: TranslationType) {
     const oneLineTranslation = translations.join("\n");
@@ -668,8 +672,13 @@ export class DataManager {
     }
 
     const string = oneLineTranslation.replace(/\n/g, "\n\n");
+
+    // Since language title is too long for detail page, so we use short google id.
+    const wordInfo = this.getWordInfo(type);
+    const fromTo = this.getLanguageFromToTitle(wordInfo.fromLanguage, wordInfo.toLanguage, true);
+
     const markdown = `
-  ## ${type}
+  ## ${type}   (${fromTo})
   ---  
   ${string}
   `;
@@ -708,6 +717,30 @@ export class DataManager {
   }
 
   /**
+   * Get word info according to query type.
+   */
+  getWordInfo(queryType: QueryType) {
+    const queryResult = this.getQueryResult(queryType);
+    return queryResult?.wordInfo ?? this.queryWordInfo;
+  }
+
+  /**
+   * Get word info from displaySections.
+   *
+   * First, get wordInfo from the first item of the first section. If displaySections is empty, return current query word info.
+   */
+  getWordInfoFromDisplaySections(displaySections: DisplaySection[]): QueryWordInfo {
+    if (displaySections.length) {
+      const displaySection = displaySections[0];
+      if (displaySection.items.length) {
+        const wordInfo = displaySection.items[0].queryWordInfo;
+        return wordInfo;
+      }
+    }
+    return this.queryWordInfo;
+  }
+
+  /**
    * Update Dictionary type section title.
    *
    * 1. Add fromTo language to each dictionary section title.
@@ -723,36 +756,36 @@ export class DataManager {
       if (sourceResult && displaySections?.length) {
         const displaySection = displaySections[0];
         const wordInfo = displaySection.items[0].queryWordInfo;
-        const fromLanguageItem = getLanguageItemFromYoudaoId(wordInfo.fromLanguage);
-        const toLanguageItem = getLanguageItemFromYoudaoId(wordInfo.toLanguage);
-
-        const fromTo = `${fromLanguageItem.englishName}${fromLanguageItem.emoji} --> ${toLanguageItem.englishName}${toLanguageItem.emoji}`;
-        let sectionTitle = `${sourceResult.type}`;
-        const isShowingTranslationFromTo = isFirstTranslation && isTranslationType && !this.isShowDetail;
-        if (isDictionaryType || isShowingTranslationFromTo) {
-          sectionTitle = `${sourceResult.type}   (${fromTo})`;
+        const onlyShowEmoji = this.isShowDetail;
+        const fromTo = this.getLanguageFromToTitle(wordInfo.fromLanguage, wordInfo.toLanguage, onlyShowEmoji);
+        const simpleSectionTitle = `${sourceResult.type}`;
+        const fromToSectionTitle = `${simpleSectionTitle}   (${fromTo})`;
+        let sectionTitle = simpleSectionTitle;
+        if (isTranslationType) {
+          const isShowingTranslationFromTo = isFirstTranslation;
           if (isShowingTranslationFromTo) {
-            isFirstTranslation = false;
+            sectionTitle = fromToSectionTitle;
           }
+          isFirstTranslation = false;
+        } else if (isDictionaryType) {
+          sectionTitle = fromToSectionTitle;
         }
         displaySection.sectionTitle = sectionTitle;
       }
     });
   }
+
   /**
-   * Get word info from displaySections.
+   * Get fromTo language title according from and to language id.  eg. zh-CHS --> en, return: Chinese-Simplified🇨🇳 --> English🇬🇧
    *
-   * First, get wordInfo from the first item of the first section. If displaySections is empty, return current query word info.
+   * * Since language title is too long for detail page, so we use short emoji instead.  eg. zh-CHS --> en, return: 🇨🇳 --> 🇬🇧
    */
-  getWordInfoFromDisplaySections(displaySections: DisplaySection[]): QueryWordInfo {
-    if (displaySections.length) {
-      const displaySection = displaySections[0];
-      if (displaySection.items.length) {
-        const wordInfo = displaySection.items[0].queryWordInfo;
-        return wordInfo;
-      }
-    }
-    return this.queryWordInfo;
+  getLanguageFromToTitle(from: string, to: string, onlyEmoji = false) {
+    const fromLanguageItem = getLanguageItemFromYoudaoId(from);
+    const toLanguageItem = getLanguageItemFromYoudaoId(to);
+    const fromToEmoji = `${fromLanguageItem.emoji} --> ${toLanguageItem.emoji}`;
+    const fromToLanguageNameAndEmoji = `${fromLanguageItem.englishName}${fromLanguageItem.emoji} --> ${toLanguageItem.englishName}${toLanguageItem.emoji}`;
+    return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
   }
 
   /**

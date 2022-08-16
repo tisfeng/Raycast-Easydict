@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:03
+ * @lastEditTime: 2022-08-16 11:27
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { DicionaryType, QueryRecoredItem, TranslationType } from "./types";
 /**
  * Eudic bundleIds.
  *
- * There are two Eudic versions on the Mac, one free version bundleId is `com.eusoft.freeeudic`, and the other paid version bundleId is `com.eusoft.eudic`. But their direct links are the same, eudic://
+ * There are two Eudic versions on the Mac, one free version bundleId is `com.eusoft.freeeudic`, and the other paid version bundleId is `com.eusoft.eudic`. But their URL Schemes are the same, eudic://
  */
 const eudicBundleIds = ["com.eusoft.freeeudic", "com.eusoft.eudic"];
 
@@ -111,7 +111,7 @@ export function isTranslationTooLong(translation: string, toLanguage: string): b
   } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
     isTooLong = true;
   }
-  // console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+  console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
   return isTooLong;
 }
 
