@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 12:43
+ * @lastEditTime: 2022-08-16 16:37
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -265,18 +265,16 @@ export class DataManager {
             return;
           }
 
-          const wordInfo = this.getWordInfoFromDisplaySections(lingueeDisplaySections);
           const queryResult: QueryResult = {
             type: type,
             displaySections: lingueeDisplaySections,
             sourceResult: lingueeTypeResult,
-            wordInfo: wordInfo,
           };
 
           // it will update Linguee dictionary section after updating Linguee translation.
           this.updateLingueeTranslation(queryResult);
           // this.updateQueryDisplayResults(queryResult);
-          this.downloadAndPlayWordAudio(wordInfo);
+          this.downloadAndPlayWordAudio(lingueeTypeResult.wordInfo);
         })
         .catch((error) => {
           this.showErrorInfoToast(error);
@@ -356,12 +354,10 @@ export class DataManager {
           console.log(`---> type: ${displayType}`);
 
           youdaoTypeResult.type = displayType;
-          const wordInfo = this.getWordInfoFromDisplaySections(youdaoDisplaySections);
           const displayResult: QueryResult = {
             type: displayType,
             sourceResult: youdaoTypeResult,
             displaySections: youdaoDisplaySections,
-            wordInfo: wordInfo,
           };
 
           if (displayType === TranslationType.Youdao) {
@@ -370,7 +366,7 @@ export class DataManager {
           }
 
           this.updateQueryResultAndSections(displayResult);
-          this.downloadAndPlayWordAudio(wordInfo);
+          this.downloadAndPlayWordAudio(youdaoTypeResult.wordInfo);
         })
         .catch((error) => {
           this.showErrorInfoToast(error);
@@ -423,6 +419,7 @@ export class DataManager {
               type: type,
               result: { translatedText: translatedText },
               translations: translations,
+              wordInfo: queryWordInfo,
             };
             const queryResult: QueryResult = {
               type: type,
@@ -579,7 +576,6 @@ export class DataManager {
       const newQueryResult: QueryResult = {
         ...queryResult,
         displaySections: displaySections,
-        wordInfo: this.getWordInfoFromDisplaySections(displaySections),
       };
 
       // this is Linguee dictionary query, we need to check to update Linguee translation.
@@ -721,23 +717,7 @@ export class DataManager {
    */
   getWordInfo(queryType: QueryType) {
     const queryResult = this.getQueryResult(queryType);
-    return queryResult?.wordInfo ?? this.queryWordInfo;
-  }
-
-  /**
-   * Get word info from displaySections.
-   *
-   * First, get wordInfo from the first item of the first section. If displaySections is empty, return current query word info.
-   */
-  getWordInfoFromDisplaySections(displaySections: DisplaySection[]): QueryWordInfo {
-    if (displaySections.length) {
-      const displaySection = displaySections[0];
-      if (displaySection.items.length) {
-        const wordInfo = displaySection.items[0].queryWordInfo;
-        return wordInfo;
-      }
-    }
-    return this.queryWordInfo;
+    return queryResult?.sourceResult.wordInfo ?? this.queryWordInfo;
   }
 
   /**

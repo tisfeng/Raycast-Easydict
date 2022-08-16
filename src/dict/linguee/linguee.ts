@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 13:47
+ * @lastEditTime: 2022-08-16 15:51
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,11 +34,13 @@ export async function rquestLingueeDictionary(
   const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
   console.log(`---> linguee url: ${lingueeUrl}`);
   if (!lingueeUrl) {
-    return Promise.resolve({
+    const result: RequestTypeResult = {
       type: DicionaryType.Linguee,
       result: undefined,
       translations: [],
-    });
+      wordInfo: queryWordInfo,
+    };
+    return Promise.resolve(result);
   }
 
   return new Promise((resolve, reject) => {

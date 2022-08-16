@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-14 23:03
+ * @lastEditTime: 2022-08-16 16:03
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,6 +46,7 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 
 export interface RequestTypeResult {
   type: RequestType;
+  wordInfo: QueryWordInfo; // dictionary type must has own word info.
   result?: RequestResultType; // when language is not supported, result is undefined.
   translations: string[]; // each translation is a paragraph.
   oneLineTranslation?: string; // one line translation. will automatically give value when updating if type is TranslationType.
@@ -117,7 +118,6 @@ export interface QueryResult {
   type: QueryType;
   sourceResult: RequestTypeResult;
   displaySections?: DisplaySection[]; // if sourceResult.result is not null, displaySections is not null.
-  wordInfo?: QueryWordInfo; // dictionary type should has wordInfo.
   disableDisplay?: boolean; // this value comes from preferences. if true, set displaySections to null.
 }
 

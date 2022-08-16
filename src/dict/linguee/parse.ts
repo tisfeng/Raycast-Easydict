@@ -101,6 +101,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
     type: DicionaryType.Linguee,
     result: result,
     translations: [],
+    wordInfo: queryWordInfo,
   };
   return lingueeTypeResult;
 }

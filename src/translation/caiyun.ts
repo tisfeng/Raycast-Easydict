@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:18
+ * @lastEditTime: 2022-08-16 15:54
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -35,11 +35,13 @@ export function requestCaiyunTextTranslate(
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
     console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    return Promise.resolve({
+    const result: RequestTypeResult = {
       type: TranslationType.Caiyun,
       result: undefined,
       translations: [],
-    });
+      wordInfo: queryWordInfo,
+    };
+    return Promise.resolve(result);
   }
   const params = {
     source: word.split("\n"), // source can be text or array. if source is an array, it will be translated in parallel
@@ -65,6 +67,7 @@ export function requestCaiyunTextTranslate(
           type: TranslationType.Caiyun,
           result: caiyunResult,
           translations: translations,
+          wordInfo: queryWordInfo,
         });
       })
       .catch((error) => {

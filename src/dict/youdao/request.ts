@@ -78,6 +78,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
         const youdaoTypeResult: RequestTypeResult = {
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
+          wordInfo: youdaoFormatResult.queryWordInfo,
           errorInfo: youdaoErrorInfo,
           translations: youdaoFormatResult.translations,
         };

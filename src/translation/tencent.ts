@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:48
+ * @lastEditTime: 2022-08-16 15:56
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -58,6 +58,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
       type: TranslationType.Tencent,
       result: undefined,
       translations: [],
+      wordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -160,6 +161,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
           type: TranslationType.Tencent,
           result: tencentResult,
           translations: tencentResult.TargetText.split("\n"),
+          wordInfo: queryWordInfo,
         };
         resolve(typeResult);
       })
@@ -199,6 +201,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
       type: TranslationType.Tencent,
       result: undefined,
       translations: [],
+      wordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -218,6 +221,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
       type: TranslationType.Tencent,
       result: tencentResult as TencentTranslateResult,
       translations: tencentResult.TargetText.split("\n"),
+      wordInfo: queryWordInfo,
     };
     return Promise.resolve(typeResult);
   } catch (err) {

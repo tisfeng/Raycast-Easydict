@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 12:18
+ * @lastEditTime: 2022-08-16 15:56
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -73,6 +73,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
           type: TranslationType.Google,
           result: res,
           translations: res.text.split("\n"),
+          wordInfo: queryWordInfo,
         };
         resolve(result);
       })
@@ -174,6 +175,7 @@ export async function googleWebTranslate(
           type: TranslationType.Google,
           result: { translatedText: translation },
           translations: translations,
+          wordInfo: queryWordInfo,
         };
         resolve(result);
       })

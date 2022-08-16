@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:11
+ * @lastEditTime: 2022-08-16 15:55
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -35,11 +35,13 @@ export async function requestDeepLTextTranslate(
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
     console.log(`DeepL translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    return Promise.resolve({
+    const result: RequestTypeResult = {
       type: TranslationType.DeepL,
       result: undefined,
       translations: [],
-    });
+      wordInfo: queryWordInfo,
+    };
+    return Promise.resolve(result);
   }
 
   const deepLAuthKey = await getDeepLAuthKey();
@@ -75,6 +77,7 @@ export async function requestDeepLTextTranslate(
           type: TranslationType.DeepL,
           result: deepLResult,
           translations: translatedText.split("\n"),
+          wordInfo: queryWordInfo,
         };
         resolve(deepLTypeResult);
       })
