@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:32
+ * @lastEditTime: 2022-08-16 17:06
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -72,7 +72,7 @@ export default function () {
       setup();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchText]);
+  }, [inputText]);
 
   /**
    * Do something setup when the extension is activated. Only run once.
