@@ -18,7 +18,7 @@ import { userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
-import { RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
 
@@ -39,7 +39,7 @@ async function testGoogleTranslateApi() {
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
   signal: AbortSignal
-): Promise<RequestTypeResult> {
+): Promise<QueryTypeResult> {
   console.log(`---> start request Google`);
   const tld = await getTld();
   queryWordInfo.tld = tld;
@@ -53,7 +53,7 @@ export async function requestGoogleTranslate(
  *
  * * Google RPC cost more time than web translate. almost 1s > 0.3s.
  */
-async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const fromLanguageId = getGoogleLanguageId(fromLanguage);
   const toLanguageId = getGoogleLanguageId(toLanguage);
@@ -69,7 +69,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
     googleTranslateApi(word, { from: fromLanguageId, to: toLanguageId, tld: tld }, { signal, agent: httpsAgent })
       .then((res) => {
         console.warn(`---> Google RPC translate: ${res.text}, cost ${new Date().getTime() - startTime} ms`);
-        const result: RequestTypeResult = {
+        const result: QueryTypeResult = {
           type: TranslationType.Google,
           result: res,
           translations: res.text.split("\n"),
@@ -139,10 +139,7 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
  *
  * Another wild google translate api: http://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
-export async function googleWebTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
-): Promise<RequestTypeResult> {
+export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
@@ -160,7 +157,7 @@ export async function googleWebTranslate(
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
   console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
-  return new Promise<RequestTypeResult>((resolve, reject) => {
+  return new Promise<QueryTypeResult>((resolve, reject) => {
     axios
       .get(url, { headers, signal })
       .then((res: AxiosResponse) => {
@@ -171,7 +168,7 @@ export async function googleWebTranslate(
         const translation = $(".result-container").text();
         const translations = translation.split("\n");
         console.warn(`---> google web translation: ${translation}, cost: ${res.headers["requestCostTime"]} ms`);
-        const result: RequestTypeResult = {
+        const result: QueryTypeResult = {
           type: TranslationType.Google,
           result: { translatedText: translation },
           translations: translations,

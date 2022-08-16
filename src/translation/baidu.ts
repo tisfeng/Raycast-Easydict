@@ -15,16 +15,13 @@ import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/t
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId } from "../language/languages";
 import { KeyStore } from "../preferences";
-import { BaiduTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 
 /**
  * 百度翻译API
  * Docs: https://fanyi-api.baidu.com/doc/21
  */
-export function requestBaiduTextTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
-): Promise<RequestTypeResult> {
+export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const salt = Math.round(new Date().getTime() / 1000);
@@ -53,7 +50,7 @@ export function requestBaiduTextTranslate(
         if (baiduResult.trans_result) {
           const translations = baiduResult.trans_result.map((item) => item.dst);
           console.log(`Baidu translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
-          const result: RequestTypeResult = {
+          const result: QueryTypeResult = {
             type: TranslationType.Baidu,
             result: baiduResult,
             translations: translations,

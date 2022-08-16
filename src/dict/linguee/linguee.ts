@@ -13,7 +13,7 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import util from "util";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
-import { DicionaryType, RequestErrorInfo, RequestTypeResult } from "../../types";
+import { DicionaryType, QueryTypeResult, RequestErrorInfo } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
 import { getLingueeWebDictionaryUrl, parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult } from "./types";
@@ -28,13 +28,13 @@ export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 export async function rquestLingueeDictionary(
   queryWordInfo: QueryWordInfo,
   signal: AbortSignal
-): Promise<RequestTypeResult> {
+): Promise<QueryTypeResult> {
   console.log(`---> start request Linguee`);
 
   const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
   console.log(`---> linguee url: ${lingueeUrl}`);
   if (!lingueeUrl) {
-    const result: RequestTypeResult = {
+    const result: QueryTypeResult = {
       type: DicionaryType.Linguee,
       result: undefined,
       translations: [],

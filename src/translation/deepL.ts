@@ -15,7 +15,7 @@ import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getDeepLLanguageId } from "../language/languages";
 import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
-import { DeepLTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
 
@@ -26,7 +26,7 @@ const deepLAuthStoredKey = "deepLAuthStoredKey";
 export async function requestDeepLTextTranslate(
   queryWordInfo: QueryWordInfo,
   signal: AbortSignal
-): Promise<RequestTypeResult> {
+): Promise<QueryTypeResult> {
   console.log(`---> start rquest DeepL`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLanguageId(fromLanguage);
@@ -35,7 +35,7 @@ export async function requestDeepLTextTranslate(
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
     console.log(`DeepL translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    const result: RequestTypeResult = {
+    const result: QueryTypeResult = {
       type: TranslationType.DeepL,
       result: undefined,
       translations: [],
@@ -73,7 +73,7 @@ export async function requestDeepLTextTranslate(
           `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers[requestCostTime]} ms`
         );
 
-        const deepLTypeResult: RequestTypeResult = {
+        const deepLTypeResult: QueryTypeResult = {
           type: TranslationType.DeepL,
           result: deepLResult,
           translations: translatedText.split("\n"),

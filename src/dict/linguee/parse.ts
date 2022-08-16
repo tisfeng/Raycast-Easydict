@@ -10,7 +10,7 @@
 
 import { parse } from "node-html-parser";
 import { getLanguageItemFromDeepLSourceId, getLanguageTitle } from "../../language/languages";
-import { DicionaryType, DisplaySection, ListDisplayItem, RequestTypeResult } from "../../types";
+import { DicionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
 import { getValidLingueeLanguagePair } from "./languages";
 import {
@@ -28,7 +28,7 @@ import {
  *
  * Todo: use cheerio to parse html.
  */
-export function parseLingueeHTML(html: string): RequestTypeResult {
+export function parseLingueeHTML(html: string): QueryTypeResult {
   const rootElement = parse(html);
   const dictionaryElement = rootElement.querySelector("#dictionary");
   const exactLemmaElement = dictionaryElement?.querySelectorAll(".exact .lemma");
@@ -97,7 +97,7 @@ export function parseLingueeHTML(html: string): RequestTypeResult {
   const hasEntries = hasLingueeDictionaryEntries(lingueeResult);
   queryWordInfo.hasDictionaryEntries = hasEntries;
   const result = hasEntries ? lingueeResult : undefined;
-  const lingueeTypeResult: RequestTypeResult = {
+  const lingueeTypeResult: QueryTypeResult = {
     type: DicionaryType.Linguee,
     result: result,
     translations: [],
@@ -444,7 +444,7 @@ export function getLingueeWebDictionaryUrl(queryWordInfo: QueryWordInfo): string
 /**
  * Formate linguee display result
  */
-export function formatLingueeDisplaySections(lingueeTypeResult: RequestTypeResult): DisplaySection[] {
+export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult): DisplaySection[] {
   const displayResults: DisplaySection[] = [];
   if (!lingueeTypeResult.result) {
     return displayResults;

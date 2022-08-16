@@ -16,7 +16,7 @@ import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/t
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getTencentLanguageId, getYoudaoLanguageIdFromTencentId } from "../language/languages";
 import { KeyStore } from "../preferences";
-import { RequestErrorInfo, RequestTypeResult, TencentTranslateResult, TranslationType } from "../types";
+import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "../types";
 
 const TmtClient = tencentcloud.tmt.v20180321.Client;
 
@@ -47,14 +47,14 @@ const client = new TmtClient(clientConfig);
  * Docs: https://cloud.tencent.com/document/api/551/15619
  * Ref: https://github.com/raycast/extensions/blob/8ec3e04197695a78691e508f33db2044dce3e16f/extensions/itranslate/src/itranslate.shared.tsx#L426
  */
-export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
   console.log(`---> start request Tencent translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLanguageId(fromLanguage);
   const to = getTencentLanguageId(toLanguage);
   if (!from || !to) {
     console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    const result: RequestTypeResult = {
+    const result: QueryTypeResult = {
       type: TranslationType.Tencent,
       result: undefined,
       translations: [],
@@ -157,7 +157,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
         const tencentResult = response.data.Response as TencentTranslateResult;
         const translations = tencentResult.TargetText.split("\n");
         console.warn(`---> Tencent translate: ${translations}, cost: ${response.headers[requestCostTime]}`);
-        const typeResult: RequestTypeResult = {
+        const typeResult: QueryTypeResult = {
           type: TranslationType.Tencent,
           result: tencentResult,
           translations: tencentResult.TargetText.split("\n"),
@@ -190,14 +190,14 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
  * 腾讯文本翻译，5次/秒
  * Docs: https://cloud.tencent.com/document/api/551/15619
  */
-export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): Promise<RequestTypeResult> {
+export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Tencent translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLanguageId(fromLanguage);
   const to = getTencentLanguageId(toLanguage);
   if (!from || !to) {
     console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    const result: RequestTypeResult = {
+    const result: QueryTypeResult = {
       type: TranslationType.Tencent,
       result: undefined,
       translations: [],
@@ -217,7 +217,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
     const tencentResult = (await client.TextTranslate(params)) as TencentTranslateResult;
     const endTime = new Date().getTime();
     console.log(`Tencen translate: ${tencentResult.TargetText}, cost: ${endTime - startTime} ms`);
-    const typeResult: RequestTypeResult = {
+    const typeResult: QueryTypeResult = {
       type: TranslationType.Tencent,
       result: tencentResult as TencentTranslateResult,
       translations: tencentResult.TargetText.split("\n"),

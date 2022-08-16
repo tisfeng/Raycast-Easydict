@@ -8,7 +8,7 @@
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { RequestResultType } from "../types";
+import { QueryResponse } from "../types";
 
 export enum LanguageDetectType {
   Simple = "Simple",
@@ -25,5 +25,5 @@ export interface LanguageDetectTypeResult {
   sourceLanguageId: string; // eg. apple detect 波兰语
   confirmed: boolean;
   detectedLanguageArray?: [string, number][]; // [['ita', 1], ['fra', 0.6]]
-  result?: RequestResultType;
+  result?: QueryResponse;
 }

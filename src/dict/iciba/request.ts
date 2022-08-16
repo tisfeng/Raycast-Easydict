@@ -11,14 +11,14 @@ import { RequestErrorInfo } from "./../../types";
 
 import axios from "axios";
 import { downloadAudio, getWordAudioPath } from "../../audio";
-import { DicionaryType, RequestTypeResult } from "../../types";
+import { DicionaryType, QueryTypeResult } from "../../types";
 import { QueryWordInfo } from "../youdao/types";
 import { IcibaDictionaryResult } from "./interface";
 
 /**
  * request iciba dictionary
  */
-export function icibaDictionary(queryWordInfo: QueryWordInfo): Promise<RequestTypeResult> {
+export function icibaDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   const url = "http://dict-co.iciba.com/api/dictionary.php";
   const params = {
     key: "0EAE08A016D6688F64AB3EBB2337BFB0",
@@ -30,7 +30,7 @@ export function icibaDictionary(queryWordInfo: QueryWordInfo): Promise<RequestTy
     axios
       .get(url, { params })
       .then((response) => {
-        const result: RequestTypeResult = {
+        const result: QueryTypeResult = {
           type: DicionaryType.Iciba,
           result: response.data,
           translations: [],

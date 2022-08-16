@@ -33,8 +33,8 @@ import {
   ListDisplayItem,
   QueryResult,
   QueryType,
+  QueryTypeResult,
   RequestErrorInfo,
-  RequestTypeResult,
   TranslationItem,
   TranslationType,
 } from "./types";
@@ -415,7 +415,7 @@ export class DataManager {
           if (translatedText) {
             // * Note: apple translateText contains redundant blank line, we need to remove it.
             const translations = translatedText.split("\n").filter((line) => line.length > 0);
-            const appleTranslateResult: RequestTypeResult = {
+            const appleTranslateResult: QueryTypeResult = {
               type: type,
               result: { translatedText: translatedText },
               translations: translations,

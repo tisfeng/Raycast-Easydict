@@ -13,7 +13,7 @@ import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getCaiyunLanguageId } from "../language/languages";
 import { KeyStore } from "../preferences";
-import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, TranslationType } from "../types";
+import { CaiyunTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 
 /**
  * 彩云小译
@@ -22,7 +22,7 @@ import { CaiyunTranslateResult, RequestErrorInfo, RequestTypeResult, Translation
 export function requestCaiyunTextTranslate(
   queryWordInfo: QueryWordInfo,
   signal: AbortSignal
-): Promise<RequestTypeResult> {
+): Promise<QueryTypeResult> {
   console.log(`---> start request Caiyun`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
@@ -35,7 +35,7 @@ export function requestCaiyunTextTranslate(
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
     console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    const result: RequestTypeResult = {
+    const result: QueryTypeResult = {
       type: TranslationType.Caiyun,
       result: undefined,
       translations: [],

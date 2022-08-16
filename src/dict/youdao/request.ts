@@ -16,7 +16,7 @@ import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudi
 import { requestCostTime } from "../../axiosConfig";
 import { YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
-import { RequestTypeResult, TranslationType } from "../../types";
+import { QueryTypeResult, TranslationType } from "../../types";
 import { DicionaryType, RequestErrorInfo } from "./../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
@@ -30,7 +30,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  * 有道翻译
  * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<RequestTypeResult> {
+export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   function truncate(q: string): string {
@@ -75,7 +75,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
           return;
         }
 
-        const youdaoTypeResult: RequestTypeResult = {
+        const youdaoTypeResult: QueryTypeResult = {
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
           wordInfo: youdaoFormatResult.queryWordInfo,
