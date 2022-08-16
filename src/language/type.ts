@@ -19,7 +19,7 @@ export interface LanguageItem {
   aliyunId: string;
   tencentDetectId?: string; // tencent detect language id, [Japanese is "jp", Korean is "kr"] different from tencentLanguageId
   tencentId?: string;
-  baiduLanguageId: string;
+  baiduId: string;
   caiyunId?: string;
   englishName: string; // eg "English". When system language is English, Apple detect language is equal to languageTitle.
   voiceList?: string[]; // eg. ["Ting-Ting"] for Chinese-Simplified.

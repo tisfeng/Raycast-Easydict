@@ -52,7 +52,7 @@ export function getTencentLanguageId(youdaoLanguageId: string): string | undefin
  */
 export function getBaiduLanguageId(youdaoLanguageId: string): string {
   const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
-  return languageItem.baiduLanguageId;
+  return languageItem.baiduId;
 }
 
 /**
@@ -60,7 +60,7 @@ export function getBaiduLanguageId(youdaoLanguageId: string): string {
  */
 export function getYoudaoLanguageIdFromBaiduId(baiduLanguageId: string): string {
   for (const langItem of languageItemList) {
-    if (langItem.baiduLanguageId === baiduLanguageId) {
+    if (langItem.baiduId === baiduLanguageId) {
       return langItem.youdaoId;
     }
   }
