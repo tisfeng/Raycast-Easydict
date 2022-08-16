@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-12 22:24
+ * @lastEditTime: 2022-08-16 21:49
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,9 +13,9 @@ import CryptoJS from "crypto-js";
 import { getLanguageItemFromYoudaoId } from "./language/languages";
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const referredLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
-export const referredLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
-export const referredLanguages = [referredLanguage1, referredLanguage2];
+export const preferredLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
+export const preferredLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
+export const preferredLanguages = [preferredLanguage1, preferredLanguage2];
 // console.log("myPreferences: ", myPreferences);
 
 export interface MyPreferences {

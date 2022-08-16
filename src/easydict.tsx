@@ -2,20 +2,20 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 17:06
+ * @lastEditTime: 2022-08-16 21:57
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { Color, getSelectedText, Icon, List } from "@raycast/api";
+import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { configAxiosProxy } from "./axiosConfig";
-import { getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
+import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager";
 import { QueryWordInfo } from "./dict/youdao/types";
 import { LanguageItem } from "./language/type";
-import { myPreferences, referredLanguage1, referredLanguage2 } from "./preferences";
+import { myPreferences, preferredLanguage1 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, trimTextLength } from "./utils";
 
@@ -45,11 +45,12 @@ export default function () {
   /**
    * the language type of text, depending on the language type of the current input text.
    */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(referredLanguage1);
+  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(preferredLanguage1);
   /**
    * default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
    */
-  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] = useState<LanguageItem>(referredLanguage1);
+  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] =
+    useState<LanguageItem>(preferredLanguage1);
   /**
    * the user selected translation language, used for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
    */
@@ -100,22 +101,6 @@ export default function () {
       .catch((e) => e);
   }
 
-  function checkIfPreferredLanguagesConflict() {
-    if (referredLanguage1.youdaoId === referredLanguage2.youdaoId) {
-      console.log("referredLanguage1 and referredLanguage2 are the same language");
-      return (
-        <List searchBarPlaceholder="Error">
-          <List.Item
-            title={"Preferred Languages Conflict"}
-            icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
-            subtitle={"Your First Language and Second Language must be different!"}
-          />
-        </List>
-      );
-    }
-    return null;
-  }
-
   /**
    * User select target language manually.
    */
@@ -131,7 +116,7 @@ export default function () {
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
-    const quertWordInfo: QueryWordInfo = {
+    const queryWordInfo: QueryWordInfo = {
       word: searchText,
       fromLanguage: currentFromLanguageItem.youdaoId,
       toLanguage: selectedLanguageItem.youdaoId,
@@ -139,7 +124,7 @@ export default function () {
 
     // Clean up previous query results immediately before new query.
     dataManager.clearQueryResult();
-    dataManager.queryTextWithTextInfo(quertWordInfo);
+    dataManager.queryTextWithTextInfo(queryWordInfo);
   };
 
   /**
@@ -162,14 +147,12 @@ export default function () {
     // Only different input text, then clear old results before new input text query.
     if (trimText !== searchText) {
       dataManager.clearQueryResult();
-
       const toLanguage = userSelectedTargetLanguageItem.youdaoId;
       dataManager.delayQueryText(trimText, toLanguage, isDelay);
     }
   }
 
   function onInputChange(text: string) {
-    // Delay query text.
     updateInputTextAndQueryText(text, true);
   }
 

@@ -23,7 +23,7 @@ import {
   getGoogleWebTranslateURL,
   getYoudaoWebDictionaryURL,
 } from "./language/languages";
-import { myPreferences } from "./preferences";
+import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./preferences";
 import ReleaseLogDetail from "./releaseVersion/releaseLog";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
@@ -424,4 +424,20 @@ function WebQueryAction(props: { webQueryItem?: WebQueryItem }) {
       url={props.webQueryItem.webUrl}
     />
   ) : null;
+}
+
+export function checkIfPreferredLanguagesConflict() {
+  if (preferredLanguage1.youdaoId === preferredLanguage2.youdaoId) {
+    console.log("referredLanguage1 and referredLanguage2 are the same language");
+    return (
+      <List searchBarPlaceholder="Error">
+        <List.Item
+          title={"Preferred Languages Conflict"}
+          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
+          subtitle={"Your First Language and Second Language must be different!"}
+        />
+      </List>
+    );
+  }
+  return null;
 }

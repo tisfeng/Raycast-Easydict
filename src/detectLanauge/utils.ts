@@ -8,20 +8,20 @@
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { referredLanguages } from "../preferences";
+import { preferredLanguages } from "../preferences";
 
 /**
  * check if the language is preferred language
  */
 export function isPreferredLanguage(languageId: string): boolean {
-  return referredLanguages.map((item) => item.youdaoId).includes(languageId);
+  return preferredLanguages.map((item) => item.youdaoId).includes(languageId);
 }
 
 /**
  * check if preferred languages contains English language
  */
 export function checkIfPreferredLanguagesContainedEnglish(): boolean {
-  return referredLanguages.find((item) => item.youdaoId === "en") !== undefined;
+  return preferredLanguages.find((item) => item.youdaoId === "en") !== undefined;
 }
 
 /**
@@ -29,7 +29,7 @@ export function checkIfPreferredLanguagesContainedEnglish(): boolean {
  */
 export function checkIfPreferredLanguagesContainedChinese(): boolean {
   const lanuguageIdPrefix = "zh";
-  return referredLanguages.find((item) => item.youdaoId.startsWith(lanuguageIdPrefix)) !== undefined;
+  return preferredLanguages.find((item) => item.youdaoId.startsWith(lanuguageIdPrefix)) !== undefined;
 }
 
 /**
