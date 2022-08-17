@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:52
+ * @lastEditTime: 2022-08-17 17:52
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.

@@ -2,31 +2,31 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:29
+ * @lastEditTime: 2022-08-17 17:54
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { environment, showToast, Toast } from "@raycast/api";
+import { environment } from "@raycast/api";
 import axios from "axios";
-import { detectLanguage } from "./detectLanauge/detect";
-import { LanguageDetectTypeResult } from "./detectLanauge/types";
-import { rquestLingueeDictionary } from "./dict/linguee/linguee";
-import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "./dict/linguee/parse";
-import { LingueeDictionaryResult } from "./dict/linguee/types";
-import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "./dict/youdao/formatData";
-import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "./dict/youdao/request";
-import { QueryWordInfo, YoudaoDictionaryFormatResult } from "./dict/youdao/types";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "./language/languages";
-import { LanguageItem } from "./language/type";
-import { myPreferences } from "./preferences";
-import { appleTranslate } from "./scripts";
-import { requestBaiduTextTranslate } from "./translation/baidu";
-import { requestCaiyunTextTranslate } from "./translation/caiyun";
-import { requestDeepLTextTranslate as requestDeepLTranslate } from "./translation/deepL";
-import { requestGoogleTranslate } from "./translation/google";
-import { requestTencentTranslate } from "./translation/tencent";
+import { detectLanguage } from "../detectLanauge/detect";
+import { LanguageDetectTypeResult } from "../detectLanauge/types";
+import { rquestLingueeDictionary } from "../dict/linguee/linguee";
+import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "../dict/linguee/parse";
+import { LingueeDictionaryResult } from "../dict/linguee/types";
+import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dict/youdao/formatData";
+import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dict/youdao/request";
+import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dict/youdao/types";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
+import { LanguageItem } from "../language/type";
+import { myPreferences } from "../preferences";
+import { appleTranslate } from "../scripts";
+import { requestBaiduTextTranslate } from "../translation/baidu";
+import { requestCaiyunTextTranslate } from "../translation/caiyun";
+import { requestDeepLTextTranslate as requestDeepLTranslate } from "../translation/deepL";
+import { requestGoogleTranslate } from "../translation/google";
+import { requestTencentTranslate } from "../translation/tencent";
 import {
   AbortObject,
   DicionaryType,
@@ -35,17 +35,13 @@ import {
   QueryResult,
   QueryType,
   QueryTypeResult,
-  RequestErrorInfo,
   TranslationItem,
   TranslationType,
-} from "./types";
-import { getSortOrder, isTranslationTooLong } from "./utils";
-
-// Todo: need to optimize.
-const sortOrder = getSortOrder();
+} from "../types";
+import { getSortOrder, isTranslationTooLong, showErrorInfoToast } from "./utils";
 
 /**
- * The data manager is used to manage the data.
+ * Data manager.
  *
  * Todo: need to optimize.
  * - data manager.
@@ -53,6 +49,7 @@ const sortOrder = getSortOrder();
  * - data handle.
  */
 export class DataManager {
+  // some callback functions.
   updateListDisplaySections: (displaySections: DisplaySection[]) => void = () => {
     // later will assign callback.
   };
@@ -67,6 +64,7 @@ export class DataManager {
   };
 
   queryResults: QueryResult[] = [];
+  sortOrder = getSortOrder();
   queryWordInfo = {} as QueryWordInfo; // later will must assign value
 
   /**
@@ -280,7 +278,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(lingueeTypeResult.wordInfo);
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -312,7 +310,7 @@ export class DataManager {
           return;
         }
 
-        this.showErrorInfoToast(error);
+        showErrorInfoToast(error);
       })
       .finally(() => {
         this.removeQueryFromRecordList(type);
@@ -372,7 +370,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(youdaoTypeResult.wordInfo);
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -397,7 +395,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -432,7 +430,7 @@ export class DataManager {
           }
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -457,7 +455,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((err) => {
-          this.showErrorInfoToast(err);
+          showErrorInfoToast(err);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -482,7 +480,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -507,23 +505,12 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          this.showErrorInfoToast(error);
+          showErrorInfoToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
         });
     }
-  }
-
-  /**
-   * Show error toast according to errorInfo.
-   */
-  private showErrorInfoToast(errorInfo: RequestErrorInfo) {
-    showToast({
-      style: Toast.Style.Failure,
-      title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
-      message: errorInfo.message,
-    });
   }
 
   /**
@@ -694,7 +681,7 @@ export class DataManager {
   sortQueryResults() {
     const queryResults: QueryResult[] = [];
     for (const queryResult of this.queryResults) {
-      const index = sortOrder.indexOf(queryResult.type.toString().toLowerCase());
+      const index = this.sortOrder.indexOf(queryResult.type.toString().toLowerCase());
       queryResults[index] = queryResult;
       // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
     }
@@ -774,24 +761,6 @@ export class DataManager {
   }
 
   /**
-   * Get valid dictionary type. valid means the dictionary result is not empty.
-   */
-  getValidDictionaryTypes(): DicionaryType[] {
-    const dictionaryTypes: DicionaryType[] = [];
-    for (const queryResult of this.queryResults) {
-      const dictionaryType = queryResult.type;
-      const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType as DicionaryType);
-      if (isDictionaryType) {
-        const sourceResult = queryResult.sourceResult;
-        if (sourceResult && sourceResult.result) {
-          dictionaryTypes.push(queryResult.type as DicionaryType);
-        }
-      }
-    }
-    return dictionaryTypes;
-  }
-
-  /**
    * Check if show translation detail.
    *
    * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
@@ -859,17 +828,6 @@ export class DataManager {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayAudio = true;
     }
-  }
-
-  /**
-   * Check if need to cancel or clear query.
-   */
-  private checkIfNeedCancelDisplay() {
-    console.log(`---> check if last query: ${this.isLastQuery}, should clear: ${this.shouldClearQuery}`);
-    if (!this.isLastQuery || this.shouldClearQuery) {
-      return true;
-    }
-    return false;
   }
 
   /**
