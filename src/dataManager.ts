@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 16:37
+ * @lastEditTime: 2022-08-17 13:04
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { showToast, Toast } from "@raycast/api";
+import { environment, showToast, Toast } from "@raycast/api";
 import { detectLanguage } from "./detectLanauge/detect";
 import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { rquestLingueeDictionary } from "./dict/linguee/linguee";
@@ -551,11 +551,13 @@ export class DataManager {
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
     sourceResult.oneLineTranslation = oneLineTranslation;
-    const copyText = oneLineTranslation;
-    // if (type === TranslationType.Google) {
-    //   const googleResult = sourceResult.result as GoogleTranslateResult;
-    //   copyText = JSON.stringify(googleResult, null, 4);
-    // }
+    let copyText = oneLineTranslation;
+
+    // Debug: used for viewing long text log.
+    if (environment.isDevelopment && type === TranslationType.Google) {
+      const googleResult = sourceResult.result;
+      copyText = JSON.stringify(googleResult, null, 4);
+    }
 
     if (oneLineTranslation) {
       const displayItem: ListDisplayItem = {

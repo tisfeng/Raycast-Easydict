@@ -143,7 +143,9 @@ function getShortcutsScript(shortcutName: string, input: string): string {
 }
 
 /**
- * open Eudic App with queryText
+ * Open Eudic App with queryText.
+ *
+ * eudic://dict/good
  */
 export const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
