@@ -141,7 +141,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         />
       </ActionPanel.Section>
 
-      {myPreferences.enableDisplayTargetTranslationLanguage && (
+      {myPreferences.enableSelectTargetLanguage && (
         <ActionPanel.Section title="Target Language">
           {languageItemList.map((selectedLanguageItem) => {
             // hide auto language

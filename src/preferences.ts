@@ -23,7 +23,7 @@ export interface MyPreferences {
   language2: string;
   enableAutomaticQuerySelectedText: boolean;
   enableAutomaticPlayWordAudio: boolean;
-  enableDisplayTargetTranslationLanguage: boolean;
+  enableSelectTargetLanguage: boolean;
   translationOrder: string;
   enableOpenInEudic: boolean;
   enableSystemProxy: boolean;

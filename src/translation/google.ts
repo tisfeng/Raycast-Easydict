@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:22
+ * @lastEditTime: 2022-08-17 22:27
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,20 +21,6 @@ import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../languag
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
-
-testGoogleTranslateApi();
-
-async function testGoogleTranslateApi() {
-  console.log(`---> test google translate api`);
-  const res = await googleTranslateApi("Emily Dickinson", {
-    to: "zh-CN",
-    tld: "cn",
-  });
-
-  console.log(`---> google translate: ${res.text}`);
-  console.log(`---> from google id: ${res.from.language.iso}`);
-  console.log(`---> raw: ${res.raw}`);
-}
 
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
@@ -227,7 +213,7 @@ async function getTld(): Promise<string> {
 }
 
 /**
- * Get current ip address
+ * Get current ip address.
  */
 export async function getCurrentIp(): Promise<string> {
   const url = "http://icanhazip.com/"; // from https://blog.csdn.net/uikoo9/article/details/113820051
@@ -243,7 +229,7 @@ export async function getCurrentIp(): Promise<string> {
 }
 
 /**
- *  Check if ip is in China
+ *  Check if ip is in China.
  *
  *  Todo: should store ip in LocalStorage.
  */
@@ -260,7 +246,8 @@ async function checkIfIpInChina(): Promise<boolean> {
 }
 
 /**
- * Get current ip info
+ * Get current ip info.
+ * 
  * curl https://ipinfo.io
 {
   "ip": "120.240.53.42",

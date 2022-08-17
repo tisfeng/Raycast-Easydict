@@ -319,11 +319,11 @@
       "default": false
     },
     {
-      "name": "enableDisplayTargetTranslationLanguage",
+      "name": "enableSelectTargetLanguage",
       "type": "checkbox",
-      "label": "Select Target Translation Language",
+      "label": "Select Target Language",
       "required": false,
-      "description": "Select target translation language in action panel manually",
+      "description": "Select target language in action panel manually",
       "default": false
     },
     {

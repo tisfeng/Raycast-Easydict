@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 11:27
+ * @lastEditTime: 2022-08-17 23:08
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -29,6 +29,8 @@ import {
  * Todo: use cheerio to parse html.
  *
  * Reference: https://github.com/felipe-augusto/linguee/blob/master/src/responseTransformer/word.js
+ *
+ * https://github.com/javierdwd/linguee-client/blob/master/lib/extractors/WordExtractor.js
  */
 export function parseLingueeHTML(html: string): QueryTypeResult {
   const rootElement = parse(html);
