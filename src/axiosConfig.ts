@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 13:50
+ * @lastEditTime: 2022-08-17 16:02
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,6 +13,9 @@ import axios, { AxiosRequestConfig } from "axios";
 import { HttpsProxyAgent, HttpsProxyAgentOptions } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
 import { myPreferences } from "./preferences";
+
+// Set axios timeout to 15s, since we start a loading when request is sent.
+axios.defaults.timeout = 15000;
 
 /**
  * Caclulate axios request cost time.

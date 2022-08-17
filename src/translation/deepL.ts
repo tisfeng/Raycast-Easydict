@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:55
+ * @lastEditTime: 2022-08-17 16:06
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -60,7 +60,6 @@ export async function requestDeepLTextTranslate(
 
   const config: AxiosRequestConfig = {
     signal,
-    timeout: 15000,
   };
 
   return new Promise((resolve, reject) => {
