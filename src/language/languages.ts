@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:45
+ * @lastEditTime: 2022-08-17 11:08
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -225,6 +225,8 @@ export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string |
  *
  * new: https://dict.youdao.com/result?word=good&lang=en
  * old: https://www.youdao.com/w/eng/good
+ *
+ * crawler parser: https://github.com/keenwon/eazydict-youdao/blob/master/lib/parser.js
  */
 export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);

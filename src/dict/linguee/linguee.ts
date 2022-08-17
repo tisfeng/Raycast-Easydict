@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:51
+ * @lastEditTime: 2022-08-17 11:30
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,7 @@ import { LingueeDictionaryResult } from "./types";
 export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 
 /**
- * Get linguee dictionary result.
+ * Get linguee dictionary result. cost time: > 2s.
  *
  * eg. good: https://www.linguee.com/english-chinese/search?source=auto&query=good
  */
