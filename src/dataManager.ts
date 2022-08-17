@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:25
+ * @lastEditTime: 2022-08-17 17:29
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -84,9 +84,7 @@ export class DataManager {
   isShowDetail = false;
   hasPlayAudio = false;
 
-  abortObject: AbortObject = {
-    abortController: new AbortController(),
-  };
+  abortObject: AbortObject = {};
 
   delayQueryTimer?: NodeJS.Timeout;
   /**
@@ -227,7 +225,7 @@ export class DataManager {
     }
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
-    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
     this.queryAppleTranslate(queryWordInfo, this.abortObject);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
@@ -879,7 +877,7 @@ export class DataManager {
    */
   private cancelCurrentQuery() {
     // console.warn(`---> cancel current query`);
-    this.abortObject.abortController.abort();
+    this.abortObject.abortController?.abort();
     this.abortObject.childProcess?.kill();
   }
 
