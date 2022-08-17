@@ -2,16 +2,25 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:43
+ * @lastEditTime: 2022-08-17 18:24
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { showToast, Toast } from "@raycast/api";
-import { maxLineLengthOfChineseTextDisplay, maxLineLengthOfEnglishTextDisplay } from "../language/languages";
+import { hasLingueeDictionaryEntries } from "../dict/linguee/parse";
+import { LingueeDictionaryResult } from "../dict/linguee/types";
+import { hasYoudaoDictionaryEntries } from "../dict/youdao/formatData";
+import { YoudaoDictionaryFormatResult } from "../dict/youdao/types";
+import {
+  getLanguageItemFromYoudaoId,
+  maxLineLengthOfChineseTextDisplay,
+  maxLineLengthOfEnglishTextDisplay,
+} from "../language/languages";
 import { myPreferences } from "../preferences";
-import { DicionaryType, RequestErrorInfo, TranslationType } from "../types";
+import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { QueryResult } from "./../types";
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
@@ -90,4 +99,90 @@ export function showErrorInfoToast(errorInfo: RequestErrorInfo) {
     title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
     message: errorInfo.message,
   });
+}
+
+/**
+ * Check if show translation detail.
+ *
+ * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
+ */
+export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boolean {
+  let isShowDetail = false;
+  for (const queryResult of queryResults) {
+    const wordInfo = queryResult.sourceResult.wordInfo;
+    const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
+    if (isDictionaryType) {
+      if (wordInfo.hasDictionaryEntries) {
+        isShowDetail = false;
+        break;
+      }
+    } else {
+      // check if translation is too long
+      const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
+      const isTooLong = isTranslationTooLong(oneLineTranslation, wordInfo.toLanguage);
+      if (isTooLong) {
+        isShowDetail = true;
+        break;
+      }
+    }
+  }
+  // console.log(`---> isShowDetail: ${isShowDetail}`);
+  return isShowDetail;
+}
+
+/**
+ * Check if dictionary has entries.
+ */
+export function checkIfDictionaryHasEntries(dictionaryResult: QueryResult): boolean {
+  const { type: dictionaryType } = dictionaryResult;
+  const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType as DicionaryType);
+  if (!isDictionaryType) {
+    return false;
+  }
+
+  const sourceResult = dictionaryResult.sourceResult;
+
+  let hasEntries = false;
+  switch (dictionaryType) {
+    case DicionaryType.Linguee: {
+      hasEntries = hasLingueeDictionaryEntries(sourceResult.result as LingueeDictionaryResult);
+      break;
+    }
+    case DicionaryType.Youdao: {
+      hasEntries = hasYoudaoDictionaryEntries(sourceResult.result as YoudaoDictionaryFormatResult);
+      break;
+    }
+  }
+  return hasEntries;
+}
+
+/**
+ * Get fromTo language title according from and to language id.  eg. zh-CHS --> en, return: Chinese-Simplified🇨🇳 --> English🇬🇧
+ *
+ * * Since language title is too long for detail page, so we use short emoji instead.  eg. zh-CHS --> en, return: 🇨🇳 --> 🇬🇧
+ */
+export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = false) {
+  const fromLanguageItem = getLanguageItemFromYoudaoId(from);
+  const toLanguageItem = getLanguageItemFromYoudaoId(to);
+  const fromToEmoji = `${fromLanguageItem.emoji} --> ${toLanguageItem.emoji}`;
+  const fromToLanguageNameAndEmoji = `${fromLanguageItem.englishName}${fromLanguageItem.emoji} --> ${toLanguageItem.englishName}${toLanguageItem.emoji}`;
+  return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
+}
+
+export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
+  const { type, translations, wordInfo } = sourceResult;
+  const oneLineTranslation = translations.join("\n");
+  if (oneLineTranslation.trim().length === 0) {
+    return "";
+  }
+
+  const string = oneLineTranslation.replace(/\n/g, "\n\n");
+  const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, true);
+
+  const markdown = `
+  ## ${type}   (${fromTo})
+  ---  
+  ${string}
+  `;
+  return markdown;
 }

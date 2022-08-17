@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:54
+ * @lastEditTime: 2022-08-17 18:12
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,8 +13,7 @@ import axios from "axios";
 import { detectLanguage } from "../detectLanauge/detect";
 import { LanguageDetectTypeResult } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dict/linguee/linguee";
-import { formatLingueeDisplaySections, hasLingueeDictionaryEntries } from "../dict/linguee/parse";
-import { LingueeDictionaryResult } from "../dict/linguee/types";
+import { formatLingueeDisplaySections } from "../dict/linguee/parse";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dict/youdao/formatData";
 import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dict/youdao/types";
@@ -38,7 +37,13 @@ import {
   TranslationItem,
   TranslationType,
 } from "../types";
-import { getSortOrder, isTranslationTooLong, showErrorInfoToast } from "./utils";
+import {
+  checkIfShowTranslationDetail,
+  formatTranslationToMarkdown,
+  getFromToLanguageTitle,
+  getSortOrder,
+  showErrorInfoToast,
+} from "./utils";
 
 /**
  * Data manager.
@@ -96,10 +101,76 @@ export class DataManager {
   queryRecordList: QueryType[] = [];
 
   /**
+   * Delay the time to call the query API. Since API has frequency limit.
+   */
+  public delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
+    const delayTime = isDelay ? this.delayRequestTime : 0;
+    this.delayQueryTimer = setTimeout(() => {
+      this.queryText(text, toLanguage);
+    }, delayTime);
+  }
+
+  /**
+   * Query text with text info, query dictionary API or translate API.
+   *
+   * * Note: please do not change this function pararm.
+   */
+  public queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
+    this.queryWordInfo = queryWordInfo;
+    this.resetProperties();
+
+    const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
+    console.log(`---> query text: ${queryText}`);
+    console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
+
+    this.queryLingueeDictionary(queryWordInfo);
+    this.queryYoudaoDictionary(queryWordInfo);
+
+    // * DeepL translate is used as part of Linguee dictionary.
+    if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
+      this.queryDeepLTranslate(queryWordInfo);
+    }
+
+    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
+    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
+    this.queryAppleTranslate(queryWordInfo, this.abortObject);
+    this.queryBaiduTranslate(queryWordInfo);
+    this.queryTencentTranslate(queryWordInfo);
+    this.queryCaiyunTranslate(queryWordInfo);
+
+    // If no query, stop loading.
+    if (this.queryRecordList.length === 0) {
+      this.updateLoadingState(false);
+    }
+  }
+
+  /**
+   * Clear query result.
+   */
+  public clearQueryResult() {
+    // console.log(`---> clear query result`);
+
+    this.cancelCurrentQuery();
+
+    if (this.delayQueryTimer) {
+      clearTimeout(this.delayQueryTimer);
+    }
+
+    this.isShowDetail = false;
+    this.shouldClearQuery = true;
+    this.isLastQuery = false;
+    this.updateLoadingState(false);
+
+    this.queryRecordList = [];
+    this.queryResults = [];
+    this.updateListDisplaySections([]);
+  }
+
+  /**
    * 1. Update query result.
    * 2. Update display sections.
    */
-  updateQueryResultAndSections(queryResult: QueryResult) {
+  private updateQueryResultAndSections(queryResult: QueryResult) {
     this.updateQueryResult(queryResult);
     this.updateDataDisplaySections();
   }
@@ -123,7 +194,7 @@ export class DataManager {
    * 4. callback updateListDisplaySections.
    */
   private updateDataDisplaySections() {
-    this.isShowDetail = this.checkIfShowTranslationDetail();
+    this.isShowDetail = checkIfShowTranslationDetail(this.queryResults);
     this.updateTypeSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
@@ -136,16 +207,6 @@ export class DataManager {
       }
     }
     this.updateListDisplaySections(displaySections.flat());
-  }
-
-  /**
-   * Delay the time to call the query API. Since API has frequency limit.
-   */
-  delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
-    const delayTime = isDelay ? this.delayRequestTime : 0;
-    this.delayQueryTimer = setTimeout(() => {
-      this.queryText(text, toLanguage);
-    }, delayTime);
   }
 
   /**
@@ -199,40 +260,6 @@ export class DataManager {
       toLanguage: targetLanguageId,
     };
     this.queryTextWithTextInfo(queryTextInfo);
-  }
-
-  /**
-   * Query text with text info, query dictionary API or translate API.
-   *
-   * * Note: please do not change this function pararm.
-   */
-  queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
-    this.queryWordInfo = queryWordInfo;
-    this.resetProperties();
-
-    const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
-    console.log(`---> query text: ${queryText}`);
-    console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
-
-    this.queryLingueeDictionary(queryWordInfo);
-    this.queryYoudaoDictionary(queryWordInfo);
-
-    // * DeepL translate is used as part of Linguee dictionary.
-    if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
-      this.queryDeepLTranslate(queryWordInfo);
-    }
-
-    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
-    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
-    this.queryAppleTranslate(queryWordInfo, this.abortObject);
-    this.queryBaiduTranslate(queryWordInfo);
-    this.queryTencentTranslate(queryWordInfo);
-    this.queryCaiyunTranslate(queryWordInfo);
-
-    // If no query, stop loading.
-    if (this.queryRecordList.length === 0) {
-      this.updateLoadingState(false);
-    }
   }
 
   /**
@@ -536,7 +563,7 @@ export class DataManager {
    *
    * * If sourceResult.result exist, then will call this.updateRequestDisplayResults()
    */
-  updateTranslationDisplay(queryResult: QueryResult) {
+  private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
     console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
@@ -616,7 +643,7 @@ export class DataManager {
   /**
    * Update translation markdown.
    */
-  updateTranslationMarkdown(queryResult: QueryResult) {
+  private updateTranslationMarkdown(queryResult: QueryResult) {
     const { sourceResult, displaySections: displayResult } = queryResult;
     if (!sourceResult || !displayResult?.length) {
       return;
@@ -628,7 +655,7 @@ export class DataManager {
       const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
       if (sourceResult && isTranslationType) {
         const type = sourceResult.type as TranslationType;
-        const markdownTranslation = this.formatTranslationToMarkdown(sourceResult.translations, type);
+        const markdownTranslation = formatTranslationToMarkdown(sourceResult);
         translations.push({ type: type, text: markdownTranslation });
       }
     }
@@ -651,34 +678,11 @@ export class DataManager {
   }
 
   /**
-   * Format translation string to markdown.
-   */
-  formatTranslationToMarkdown(translations: string[], type: TranslationType) {
-    const oneLineTranslation = translations.join("\n");
-    if (oneLineTranslation.trim().length === 0) {
-      return "";
-    }
-
-    const string = oneLineTranslation.replace(/\n/g, "\n\n");
-
-    // Since language title is too long for detail page, so we use short google id.
-    const wordInfo = this.getWordInfo(type);
-    const fromTo = this.getLanguageFromToTitle(wordInfo.fromLanguage, wordInfo.toLanguage, true);
-
-    const markdown = `
-  ## ${type}   (${fromTo})
-  ---  
-  ${string}
-  `;
-    return markdown;
-  }
-
-  /**
    * Sort query results by designated order.
    *
    * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
    */
-  sortQueryResults() {
+  private sortQueryResults() {
     const queryResults: QueryResult[] = [];
     for (const queryResult of this.queryResults) {
       const index = this.sortOrder.indexOf(queryResult.type.toString().toLowerCase());
@@ -696,7 +700,7 @@ export class DataManager {
   /**
    * Get query result according query type from queryResults.
    */
-  getQueryResult(queryType: QueryType) {
+  private getQueryResult(queryType: QueryType) {
     for (const result of this.queryResults) {
       if (queryType === result.type) {
         return result;
@@ -707,7 +711,7 @@ export class DataManager {
   /**
    * Get word info according to query type.
    */
-  getWordInfo(queryType: QueryType) {
+  private getWordInfo(queryType: QueryType) {
     const queryResult = this.getQueryResult(queryType);
     return queryResult?.sourceResult.wordInfo ?? this.queryWordInfo;
   }
@@ -718,7 +722,7 @@ export class DataManager {
    * 1. Add fromTo language to each dictionary section title.
    * 2. Add fromTo language to the first translation section title.
    */
-  updateTypeSectionTitle() {
+  private updateTypeSectionTitle() {
     let isFirstTranslation = true;
     this.queryResults.forEach((queryResult) => {
       const { type, sourceResult, displaySections } = queryResult;
@@ -729,7 +733,7 @@ export class DataManager {
         const displaySection = displaySections[0];
         const wordInfo = displaySection.items[0].queryWordInfo;
         const onlyShowEmoji = this.isShowDetail;
-        const fromTo = this.getLanguageFromToTitle(wordInfo.fromLanguage, wordInfo.toLanguage, onlyShowEmoji);
+        const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, onlyShowEmoji);
         const simpleSectionTitle = `${sourceResult.type}`;
         const fromToSectionTitle = `${simpleSectionTitle}   (${fromTo})`;
         let sectionTitle = simpleSectionTitle;
@@ -745,76 +749,6 @@ export class DataManager {
         displaySection.sectionTitle = sectionTitle;
       }
     });
-  }
-
-  /**
-   * Get fromTo language title according from and to language id.  eg. zh-CHS --> en, return: Chinese-Simplified🇨🇳 --> English🇬🇧
-   *
-   * * Since language title is too long for detail page, so we use short emoji instead.  eg. zh-CHS --> en, return: 🇨🇳 --> 🇬🇧
-   */
-  getLanguageFromToTitle(from: string, to: string, onlyEmoji = false) {
-    const fromLanguageItem = getLanguageItemFromYoudaoId(from);
-    const toLanguageItem = getLanguageItemFromYoudaoId(to);
-    const fromToEmoji = `${fromLanguageItem.emoji} --> ${toLanguageItem.emoji}`;
-    const fromToLanguageNameAndEmoji = `${fromLanguageItem.englishName}${fromLanguageItem.emoji} --> ${toLanguageItem.englishName}${toLanguageItem.emoji}`;
-    return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
-  }
-
-  /**
-   * Check if show translation detail.
-   *
-   * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
-   */
-  checkIfShowTranslationDetail(): boolean {
-    let isShowDetail = false;
-    for (const queryResult of this.queryResults) {
-      const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
-      if (isDictionaryType) {
-        // Todo: need to optimize. use wordInfo to check.
-        const hasDictionaryEntries = this.checkIfDictionaryHasEntries(queryResult.type as DicionaryType);
-        if (hasDictionaryEntries) {
-          isShowDetail = false;
-          break;
-        }
-      } else {
-        // check if translation is too long
-        const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
-        const toLanauge = this.queryWordInfo.toLanguage;
-        const isTooLong = isTranslationTooLong(oneLineTranslation, toLanauge);
-        if (isTooLong) {
-          isShowDetail = true;
-          break;
-        }
-      }
-    }
-    // console.log(`---> isShowDetail: ${isShowDetail}`);
-    return isShowDetail;
-  }
-
-  /**
-   * Check if dictionary has entries.
-   */
-  checkIfDictionaryHasEntries(dictionaryType: DicionaryType): boolean {
-    const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType);
-    if (!isDictionaryType) {
-      return false;
-    }
-
-    const dictionaryResult = this.getQueryResult(dictionaryType) as QueryResult;
-    const sourceResult = dictionaryResult.sourceResult;
-
-    let hasEntries = false;
-    switch (dictionaryType) {
-      case DicionaryType.Linguee: {
-        hasEntries = hasLingueeDictionaryEntries(sourceResult.result as LingueeDictionaryResult);
-        break;
-      }
-      case DicionaryType.Youdao: {
-        hasEntries = hasYoudaoDictionaryEntries(sourceResult.result as YoudaoDictionaryFormatResult);
-        break;
-      }
-    }
-    return hasEntries;
   }
 
   /**
@@ -837,27 +771,5 @@ export class DataManager {
     // console.warn(`---> cancel current query`);
     this.abortObject.abortController?.abort();
     this.abortObject.childProcess?.kill();
-  }
-
-  /**
-   * Clear query result.
-   */
-  clearQueryResult() {
-    // console.log(`---> clear query result`);
-
-    this.cancelCurrentQuery();
-
-    if (this.delayQueryTimer) {
-      clearTimeout(this.delayQueryTimer);
-    }
-
-    this.isShowDetail = false;
-    this.shouldClearQuery = true;
-    this.isLastQuery = false;
-    this.updateLoadingState(false);
-
-    this.queryRecordList = [];
-    this.queryResults = [];
-    this.updateListDisplaySections([]);
   }
 }
