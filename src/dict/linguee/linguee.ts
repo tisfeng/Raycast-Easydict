@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 11:30
+ * @lastEditTime: 2022-08-17 17:15
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,10 +25,7 @@ export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
  *
  * eg. good: https://www.linguee.com/english-chinese/search?source=auto&query=good
  */
-export async function rquestLingueeDictionary(
-  queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
-): Promise<QueryTypeResult> {
+export async function rquestLingueeDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Linguee`);
 
   const lingueeUrl = getLingueeWebDictionaryUrl(queryWordInfo);
@@ -54,7 +51,6 @@ export async function rquestLingueeDictionary(
     const config: AxiosRequestConfig = {
       headers: headers,
       responseType: "arraybuffer", // handle French content-type iso-8859-15
-      signal: signal,
     };
 
     axios

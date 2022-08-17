@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:54
+ * @lastEditTime: 2022-08-17 16:56
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,7 @@ import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationTyp
  * 百度翻译API
  * Docs: https://fanyi-api.baidu.com/doc/21
  */
-export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
+export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const salt = Math.round(new Date().getTime() / 1000);
@@ -43,7 +43,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo, signal: 
   // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
   return new Promise((resolve, reject) => {
     axios
-      .get(url, { params, signal })
+      .get(url, { params })
       .then((response) => {
         const baiduResult = response.data as BaiduTranslateResult;
         // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
@@ -101,7 +101,7 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
   };
 
   try {
-    const baiduTypeResult = await requestBaiduTextTranslate(queryWordInfo, new AbortController().signal);
+    const baiduTypeResult = await requestBaiduTextTranslate(queryWordInfo);
     const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
     const baiduLanaugeId = baiduResult.from || "";
     const youdaoLanguageId = getYoudaoLanguageIdFromBaiduId(baiduLanaugeId);

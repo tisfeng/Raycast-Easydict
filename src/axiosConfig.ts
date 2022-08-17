@@ -62,6 +62,7 @@ export function configAxiosProxy() {
             };
             const httpsAgent = new HttpsProxyAgent(proxyOptions);
             axios.defaults.httpsAgent = httpsAgent;
+            // set proxy to env, so we can use it in other modules.
             env.PROXY = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
             console.log(`---> use http system proxy: ${JSON.stringify(proxyOptions, null, 4)}`);
           }

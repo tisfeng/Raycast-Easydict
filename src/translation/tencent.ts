@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:56
+ * @lastEditTime: 2022-08-17 17:11
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -47,7 +47,7 @@ const client = new TmtClient(clientConfig);
  * Docs: https://cloud.tencent.com/document/api/551/15619
  * Ref: https://github.com/raycast/extensions/blob/8ec3e04197695a78691e508f33db2044dce3e16f/extensions/itranslate/src/itranslate.shared.tsx#L426
  */
-export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
+export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Tencent translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLanguageId(fromLanguage);
@@ -151,7 +151,6 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal: Ab
           "X-TC-Version": version,
           "X-TC-Region": region,
         },
-        signal,
       })
       .then((response) => {
         const tencentResult = response.data.Response as TencentTranslateResult;
@@ -240,6 +239,8 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
 /**
  * 腾讯语种识别，5次/秒
  * Docs: https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
+ *
+ * Todo: use axios to rewrite.
  */
 export async function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   const params = {

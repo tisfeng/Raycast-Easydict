@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 17:51
+ * @lastEditTime: 2022-08-17 17:20
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import axios from "axios";
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
@@ -82,7 +83,7 @@ export function detectLanguage(
     detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
   detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
 
   // if local detect language is not confirmed, use API language detect
   try {

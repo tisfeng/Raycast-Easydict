@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:54
+ * @lastEditTime: 2022-08-17 17:16
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,10 +19,7 @@ import { CaiyunTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationTy
  * 彩云小译
  * Docs: https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
-export function requestCaiyunTextTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
-): Promise<QueryTypeResult> {
+export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Caiyun`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
@@ -54,7 +51,6 @@ export function requestCaiyunTextTranslate(
       "content-type": "application/json",
       "x-authorization": "token " + KeyStore.caiyunToken,
     },
-    signal,
   };
   return new Promise((resolve, reject) => {
     axios

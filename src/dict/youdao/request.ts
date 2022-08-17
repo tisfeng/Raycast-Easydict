@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:21
+ * @lastEditTime: 2022-08-17 17:15
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  * 有道翻译
  * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
+export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   function truncate(q: string): string {
@@ -57,7 +57,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: Ab
 
   return new Promise((resolve, reject) => {
     axios
-      .post(url, params, { signal })
+      .post(url, params)
       .then((response) => {
         const youdaoResult = response.data as YoudaoDictionaryResult;
         // console.log(`---> youdao result: ${util.inspect(youdaoResult, { depth: null })}`);

@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 16:06
+ * @lastEditTime: 2022-08-17 16:57
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
@@ -23,10 +23,7 @@ const deepLAuthStoredKey = "deepLAuthStoredKey";
  * DeepL translate API
  * https://www.deepl.com/zh/docs-api/translating-text
  */
-export async function requestDeepLTextTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
-): Promise<QueryTypeResult> {
+export async function requestDeepLTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start rquest DeepL`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLanguageId(fromLanguage);
@@ -58,13 +55,9 @@ export async function requestDeepLTextTranslate(
   };
   console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
-  const config: AxiosRequestConfig = {
-    signal,
-  };
-
   return new Promise((resolve, reject) => {
     axios
-      .post(url, querystring.stringify(params), config)
+      .post(url, querystring.stringify(params))
       .then((response) => {
         const deepLResult = response.data as DeepLTranslateResult;
         const translatedText = deepLResult.translations[0].text;
@@ -96,7 +89,7 @@ export async function requestDeepLTextTranslate(
 
           if (wildEncryptedDeepLKeys.length) {
             getAndStoreDeepLKey(wildEncryptedDeepLKeys).then(() => {
-              requestDeepLTextTranslate(queryWordInfo, signal);
+              requestDeepLTextTranslate(queryWordInfo);
               return;
             });
           }

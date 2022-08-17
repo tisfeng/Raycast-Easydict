@@ -2,13 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 13:04
+ * @lastEditTime: 2022-08-17 17:25
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { environment, showToast, Toast } from "@raycast/api";
+import axios from "axios";
 import { detectLanguage } from "./detectLanauge/detect";
 import { LanguageDetectTypeResult } from "./detectLanauge/types";
 import { rquestLingueeDictionary } from "./dict/linguee/linguee";
@@ -207,7 +208,7 @@ export class DataManager {
   /**
    * Query text with text info, query dictionary API or translate API.
    *
-   * * Note: please do not change this function.
+   * * Note: please do not change this function pararm.
    */
   queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
@@ -217,19 +218,20 @@ export class DataManager {
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-    this.queryLingueeDictionary(queryWordInfo, this.abortObject.abortController.signal);
-    this.queryYoudaoDictionary(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryLingueeDictionary(queryWordInfo);
+    this.queryYoudaoDictionary(queryWordInfo);
 
     // * DeepL translate is used as part of Linguee dictionary.
     if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
-      this.queryDeepLTranslate(queryWordInfo, this.abortObject.abortController.signal);
+      this.queryDeepLTranslate(queryWordInfo);
     }
 
+    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
     this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController.signal);
     this.queryAppleTranslate(queryWordInfo, this.abortObject);
-    this.queryBaiduTranslate(queryWordInfo, this.abortObject.abortController.signal);
-    this.queryTencentTranslate(queryWordInfo, this.abortObject.abortController.signal);
-    this.queryCaiyunTranslate(queryWordInfo, this.abortObject.abortController.signal);
+    this.queryBaiduTranslate(queryWordInfo);
+    this.queryTencentTranslate(queryWordInfo);
+    this.queryCaiyunTranslate(queryWordInfo);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -245,7 +247,10 @@ export class DataManager {
     this.isLastQuery = true;
     this.shouldClearQuery = false;
     this.queryRecordList = [];
-    this.abortObject.abortController = new AbortController();
+
+    const abortController = new AbortController();
+    this.abortObject.abortController = abortController;
+    axios.defaults.signal = abortController.signal;
   }
 
   /**
@@ -253,12 +258,12 @@ export class DataManager {
    *
    * For better UI, we use DeepL translate result as Linguee translation result.
    */
-  private queryLingueeDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryLingueeDictionary(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableLingueeDictionary) {
       const type = DicionaryType.Linguee;
       this.addQueryToRecordList(type);
 
-      rquestLingueeDictionary(queryWordInfo, signal)
+      rquestLingueeDictionary(queryWordInfo)
         .then((lingueeTypeResult) => {
           const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
           if (lingueeDisplaySections.length === 0) {
@@ -285,18 +290,18 @@ export class DataManager {
         });
 
       // at the same time, query DeepL translate.
-      this.queryDeepLTranslate(queryWordInfo, signal);
+      this.queryDeepLTranslate(queryWordInfo);
     }
   }
 
   /**
    * Query DeepL translate. If has enabled Linguee dictionary, don't need to query DeepL.
    */
-  private queryDeepLTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryDeepLTranslate(queryWordInfo: QueryWordInfo) {
     const type = TranslationType.DeepL;
     this.addQueryToRecordList(type);
 
-    requestDeepLTranslate(queryWordInfo, signal)
+    requestDeepLTranslate(queryWordInfo)
       .then((deepLTypeResult) => {
         const queryResult: QueryResult = {
           type: type,
@@ -319,7 +324,7 @@ export class DataManager {
   /**
    * Query Youdao dictionary.
    */
-  private queryYoudaoDictionary(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryYoudaoDictionary(queryWordInfo: QueryWordInfo) {
     // * Youdao dictionary only support chinese <--> english.
     const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
     const isValidYoudaoDictionaryQuery =
@@ -331,7 +336,7 @@ export class DataManager {
       const type = DicionaryType.Youdao;
       this.addQueryToRecordList(type);
 
-      requestYoudaoDictionary(queryWordInfo, signal)
+      requestYoudaoDictionary(queryWordInfo)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
@@ -380,7 +385,7 @@ export class DataManager {
   /**
    * Query google translate.
    */
-  private queryGoogleTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryGoogleTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal | undefined) {
     if (myPreferences.enableGoogleTranslate) {
       const type = TranslationType.Google;
       this.addQueryToRecordList(type);
@@ -440,12 +445,12 @@ export class DataManager {
   /**
    * Query baidu translate API.
    */
-  private queryBaiduTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryBaiduTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableBaiduTranslate) {
       const type = TranslationType.Baidu;
       this.addQueryToRecordList(type);
 
-      requestBaiduTextTranslate(queryWordInfo, signal)
+      requestBaiduTextTranslate(queryWordInfo)
         .then((baiduTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -465,12 +470,12 @@ export class DataManager {
   /**
    * Query tencent translate.
    */
-  private queryTencentTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryTencentTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableTencentTranslate) {
       const type = TranslationType.Tencent;
       this.addQueryToRecordList(type);
 
-      requestTencentTranslate(queryWordInfo, signal)
+      requestTencentTranslate(queryWordInfo)
         .then((tencentTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -490,12 +495,12 @@ export class DataManager {
   /**
    * Query caiyun translate.
    */
-  private queryCaiyunTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal) {
+  private queryCaiyunTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableCaiyunTranslate) {
       const type = TranslationType.Caiyun;
       this.addQueryToRecordList(type);
 
-      requestCaiyunTextTranslate(queryWordInfo, signal)
+      requestCaiyunTextTranslate(queryWordInfo)
         .then((caiyunTypeResult) => {
           const queryResult: QueryResult = {
             type: type,

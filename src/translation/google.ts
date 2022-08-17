@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:56
+ * @lastEditTime: 2022-08-17 17:22
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -38,7 +38,7 @@ async function testGoogleTranslateApi() {
 
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
-  signal: AbortSignal
+  signal: AbortSignal | undefined
 ): Promise<QueryTypeResult> {
   console.log(`---> start request Google`);
   const tld = await getTld();
@@ -53,7 +53,10 @@ export async function requestGoogleTranslate(
  *
  * * Google RPC cost more time than web translate. almost 1s > 0.3s.
  */
-async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
+async function googleRPCTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal: AbortSignal | undefined
+): Promise<QueryTypeResult> {
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const fromLanguageId = getGoogleLanguageId(fromLanguage);
   const toLanguageId = getGoogleLanguageId(toLanguage);
@@ -78,8 +81,10 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
         resolve(result);
       })
       .catch((error) => {
+        console.error(`error message: ${error.message}`);
+
         // * got use a different error meassage from axios.
-        if (error.message === "The operation was aborted") {
+        if (error.message.includes("The operation was aborted")) {
           console.log(`---> google rpc aborted`);
           return;
         }
@@ -97,7 +102,10 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal: AbortSig
 /**
  * Google language detect. Actually, it uses google RPC translate api to detect language.
  */
-export async function googleLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+export async function googleLanguageDetect(
+  text: string,
+  signal: AbortSignal | undefined
+): Promise<LanguageDetectTypeResult> {
   console.log(`---> start Google language detect: ${text}`);
   const startTime = new Date().getTime();
   const queryWordInfo: QueryWordInfo = {
@@ -106,30 +114,39 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
     toLanguage: "en",
   };
 
-  try {
-    const googleTypeResult = await googleRPCTranslate(queryWordInfo, new AbortController().signal);
-    const googleResult = googleTypeResult.result as GoogleTranslateResult;
-    const googleLanguageId = googleResult.from.language.iso;
-    const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanguageId);
-    console.warn(
-      `---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}, cost ${
-        new Date().getTime() - startTime
-      } ms`
-    );
-    const languagedDetectResult: LanguageDetectTypeResult = {
-      type: LanguageDetectType.Google,
-      sourceLanguageId: googleLanguageId,
-      youdaoLanguageId: youdaoLanguageId,
-      confirmed: true,
-      result: googleResult,
-    };
-    return Promise.resolve(languagedDetectResult);
-  } catch (error) {
-    console.error(`googleLanguageDetect error: ${JSON.stringify(error)}`);
-    const errorInfo = error as RequestErrorInfo;
-    errorInfo.type = LanguageDetectType.Google;
-    return Promise.reject(errorInfo);
-  }
+  return new Promise((resolve, reject) => {
+    googleRPCTranslate(queryWordInfo, signal)
+      .then((googleTypeResult) => {
+        const googleResult = googleTypeResult.result as GoogleTranslateResult;
+        const googleLanguageId = googleResult.from.language.iso;
+        const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanguageId);
+        console.warn(
+          `---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}, cost ${
+            new Date().getTime() - startTime
+          } ms`
+        );
+        const languagedDetectResult: LanguageDetectTypeResult = {
+          type: LanguageDetectType.Google,
+          sourceLanguageId: googleLanguageId,
+          youdaoLanguageId: youdaoLanguageId,
+          confirmed: true,
+          result: googleResult,
+        };
+        resolve(languagedDetectResult);
+      })
+      .catch((error) => {
+        // * got use a different error meassage from axios.
+        if (error.message.includes("The operation was aborted")) {
+          console.log(`---> google detect aborted`);
+          return;
+        }
+
+        console.error(`googleLanguageDetect error: ${JSON.stringify(error)}`);
+        const errorInfo = error as RequestErrorInfo;
+        errorInfo.type = LanguageDetectType.Google;
+        reject(errorInfo);
+      });
+  });
 }
 
 /**
@@ -139,7 +156,10 @@ export async function googleLanguageDetect(text: string): Promise<LanguageDetect
  *
  * Another wild google translate api: http://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
-export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal): Promise<QueryTypeResult> {
+export async function googleWebTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal: AbortSignal | undefined
+): Promise<QueryTypeResult> {
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
