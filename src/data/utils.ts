@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 18:24
+ * @lastEditTime: 2022-08-17 21:58
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,7 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
 import { myPreferences } from "../preferences";
-import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationItem, TranslationType } from "../types";
 import { QueryResult } from "./../types";
 
 /**
@@ -169,6 +169,9 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
   return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
 }
 
+/**
+ * Format translation to markdown.
+ */
 export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
   const { type, translations, wordInfo } = sourceResult;
   const oneLineTranslation = translations.join("\n");
@@ -185,4 +188,62 @@ export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
   ${string}
   `;
   return markdown;
+}
+
+/**
+ * Update translation markdown.
+ */
+export function updateTranslationMarkdown(queryResult: QueryResult, queryResults: QueryResult[]) {
+  const { sourceResult, displaySections } = queryResult;
+  if (!sourceResult || !displaySections?.length) {
+    return;
+  }
+
+  const translations = [] as TranslationItem[];
+  for (const queryResult of queryResults) {
+    const { type, sourceResult } = queryResult;
+    const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
+    if (sourceResult && isTranslationType) {
+      const type = sourceResult.type as TranslationType;
+      const markdownTranslation = formatTranslationToMarkdown(sourceResult);
+      translations.push({ type: type, text: markdownTranslation });
+    }
+  }
+  // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
+  for (let i = 0; i < translations.length; i++) {
+    if (translations[i].type === queryResult.type) {
+      const temp = translations[i];
+      translations.splice(i, 1);
+      translations.unshift(temp);
+      break;
+    }
+  }
+  const markdown = translations.map((translation) => translation.text).join("\n");
+  // console.log(`---> type: ${queryResult.type},  markdown: ${markdown}`);
+
+  const listDiplayItem = displaySections[0].items;
+  if (listDiplayItem?.length) {
+    listDiplayItem[0].translationMarkdown = markdown;
+  }
+}
+
+/**
+ * Sort query results by designated order.
+ *
+ * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
+ */
+export function sortedQueryResults(queryResults: QueryResult[]) {
+  const sortedQueryResults: QueryResult[] = [];
+  for (const queryResult of queryResults) {
+    const typeString = queryResult.type.toString().toLowerCase();
+    const index = getSortOrder().indexOf(typeString);
+    sortedQueryResults[index] = queryResult;
+    // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
+  }
+  // filter undefined, or result is undefined.
+  return sortedQueryResults.filter((queryResult) => {
+    if (queryResult?.sourceResult.result) {
+      return true;
+    }
+  });
 }

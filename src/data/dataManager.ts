@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 18:12
+ * @lastEditTime: 2022-08-17 21:58
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,15 +34,14 @@ import {
   QueryResult,
   QueryType,
   QueryTypeResult,
-  TranslationItem,
   TranslationType,
 } from "../types";
 import {
   checkIfShowTranslationDetail,
-  formatTranslationToMarkdown,
   getFromToLanguageTitle,
-  getSortOrder,
   showErrorInfoToast,
+  sortedQueryResults,
+  updateTranslationMarkdown,
 } from "./utils";
 
 /**
@@ -69,7 +68,6 @@ export class DataManager {
   };
 
   queryResults: QueryResult[] = [];
-  sortOrder = getSortOrder();
   queryWordInfo = {} as QueryWordInfo; // later will must assign value
 
   /**
@@ -184,7 +182,7 @@ export class DataManager {
    */
   private updateQueryResult(queryResult: QueryResult) {
     this.queryResults.push(queryResult);
-    this.sortQueryResults();
+    this.queryResults = sortedQueryResults(this.queryResults);
   }
 
   /**
@@ -198,12 +196,12 @@ export class DataManager {
     this.updateTypeSectionTitle();
 
     const displaySections: DisplaySection[][] = [];
-    for (const result of this.queryResults) {
-      const shouldDisplay = !result.disableDisplay;
-      if (shouldDisplay && result.displaySections) {
+    for (const queryResult of this.queryResults) {
+      const shouldDisplay = !queryResult.disableDisplay;
+      if (shouldDisplay && queryResult.displaySections) {
         // console.log(`---> update display sections: ${result.type}, length: ${result.displaySections.length}`);
-        this.updateTranslationMarkdown(result);
-        displaySections.push(result.displaySections);
+        updateTranslationMarkdown(queryResult, this.queryResults);
+        displaySections.push(queryResult.displaySections);
       }
     }
     this.updateListDisplaySections(displaySections.flat());
@@ -565,7 +563,7 @@ export class DataManager {
    */
   private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
-    console.log(`---> updateTranslationDisplay: ${queryResult.type}`);
+    console.log(`---> updateTranslationDisplay: ${type}`);
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
     sourceResult.oneLineTranslation = oneLineTranslation;
     let copyText = oneLineTranslation;
@@ -578,12 +576,12 @@ export class DataManager {
 
     if (oneLineTranslation) {
       const displayItem: ListDisplayItem = {
-        displayType: type,
-        queryType: queryResult.type,
+        displayType: type, // TranslationType
+        queryType: type,
         key: `${oneLineTranslation}-${type}`,
         title: oneLineTranslation,
         copyText: copyText,
-        queryWordInfo: this.queryWordInfo,
+        queryWordInfo: sourceResult.wordInfo,
       };
       const displaySections: DisplaySection[] = [
         {
@@ -641,82 +639,6 @@ export class DataManager {
   }
 
   /**
-   * Update translation markdown.
-   */
-  private updateTranslationMarkdown(queryResult: QueryResult) {
-    const { sourceResult, displaySections: displayResult } = queryResult;
-    if (!sourceResult || !displayResult?.length) {
-      return;
-    }
-
-    const translations = [] as TranslationItem[];
-    for (const queryResults of this.queryResults) {
-      const { type, sourceResult } = queryResults;
-      const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
-      if (sourceResult && isTranslationType) {
-        const type = sourceResult.type as TranslationType;
-        const markdownTranslation = formatTranslationToMarkdown(sourceResult);
-        translations.push({ type: type, text: markdownTranslation });
-      }
-    }
-    // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
-    for (let i = 0; i < translations.length; i++) {
-      if (translations[i].type === queryResult.type) {
-        const temp = translations[i];
-        translations.splice(i, 1);
-        translations.unshift(temp);
-        break;
-      }
-    }
-    const markdown = translations.map((translation) => translation.text).join("\n");
-    // console.log(`---> type: ${queryResult.type},  markdown: ${markdown}`);
-
-    const listDiplayItem = displayResult[0].items;
-    if (listDiplayItem?.length) {
-      listDiplayItem[0].translationMarkdown = markdown;
-    }
-  }
-
-  /**
-   * Sort query results by designated order.
-   *
-   * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
-   */
-  private sortQueryResults() {
-    const queryResults: QueryResult[] = [];
-    for (const queryResult of this.queryResults) {
-      const index = this.sortOrder.indexOf(queryResult.type.toString().toLowerCase());
-      queryResults[index] = queryResult;
-      // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
-    }
-    // filter undefined, result is null.
-    this.queryResults = queryResults.filter((queryResult) => {
-      if (queryResult?.sourceResult?.result) {
-        return true;
-      }
-    });
-  }
-
-  /**
-   * Get query result according query type from queryResults.
-   */
-  private getQueryResult(queryType: QueryType) {
-    for (const result of this.queryResults) {
-      if (queryType === result.type) {
-        return result;
-      }
-    }
-  }
-
-  /**
-   * Get word info according to query type.
-   */
-  private getWordInfo(queryType: QueryType) {
-    const queryResult = this.getQueryResult(queryType);
-    return queryResult?.sourceResult.wordInfo ?? this.queryWordInfo;
-  }
-
-  /**
    * Update Dictionary type section title.
    *
    * 1. Add fromTo language to each dictionary section title.
@@ -731,7 +653,7 @@ export class DataManager {
 
       if (sourceResult && displaySections?.length) {
         const displaySection = displaySections[0];
-        const wordInfo = displaySection.items[0].queryWordInfo;
+        const wordInfo = sourceResult.wordInfo;
         const onlyShowEmoji = this.isShowDetail;
         const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, onlyShowEmoji);
         const simpleSectionTitle = `${sourceResult.type}`;
@@ -761,6 +683,17 @@ export class DataManager {
     if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayAudio = true;
+    }
+  }
+
+  /**
+   * Get query result according query type from queryResults.
+   */
+  private getQueryResult(queryType: QueryType) {
+    for (const result of this.queryResults) {
+      if (queryType === result.type) {
+        return result;
+      }
     }
   }
 
