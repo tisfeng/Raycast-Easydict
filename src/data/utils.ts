@@ -2,13 +2,12 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 09:57
+ * @lastEditTime: 2022-08-18 16:51
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { showToast, Toast } from "@raycast/api";
 import { hasLingueeDictionaryEntries } from "../dict/linguee/parse";
 import { LingueeDictionaryResult } from "../dict/linguee/types";
 import { hasYoudaoDictionaryEntries } from "../dict/youdao/formatData";
@@ -19,7 +18,7 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
 import { myPreferences } from "../preferences";
-import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationItem, TranslationType } from "../types";
+import { DicionaryType, QueryTypeResult, TranslationItem, TranslationType } from "../types";
 import { QueryResult } from "./../types";
 
 /**
@@ -88,17 +87,6 @@ export function isTranslationTooLong(translation: string, toLanguage: string): b
   }
   //   console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
   return isTooLong;
-}
-
-/**
- * Show error toast according to errorInfo.
- */
-export function showErrorInfoToast(errorInfo: RequestErrorInfo) {
-  showToast({
-    style: Toast.Style.Failure,
-    title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
-    message: errorInfo.message,
-  });
 }
 
 /**

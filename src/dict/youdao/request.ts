@@ -1,8 +1,9 @@
+import { AxiosError } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 11:20
+ * @lastEditTime: 2022-08-18 16:59
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,6 +18,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { QueryTypeResult, TranslationType } from "../../types";
+import { getTypeErrorInfo } from "../../utils";
 import { DicionaryType, RequestErrorInfo } from "./../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
@@ -86,7 +88,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         resolve(youdaoTypeResult);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> youdao canceled`);
           return;
@@ -97,12 +99,8 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
 
-        const youdaoErrorInfo: RequestErrorInfo = {
-          type: DicionaryType.Youdao,
-          code: error.response?.status.toString(),
-          message: error.response?.statusText ?? error.message ?? "",
-        };
-        reject(youdaoErrorInfo);
+        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        reject(errorInfo);
       });
   });
 }

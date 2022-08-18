@@ -1,8 +1,9 @@
+import { AxiosError } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 10:09
+ * @lastEditTime: 2022-08-18 16:59
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +17,7 @@ import { QueryWordInfo } from "../dict/youdao/types";
 import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId } from "../language/languages";
 import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { getTypeErrorInfo } from "../utils";
 
 /**
  * Baidu translate. Cost time: ~0.4s
@@ -68,19 +70,16 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
           reject(errorInfo);
         }
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> baidu canceled`);
           return;
         }
-        console.error(`---> baidu translate error: ${error}`);
 
         // It seems that Baidu will never reject, always resolve...
-        reject({
-          type: TranslationType.Baidu,
-          code: error.response?.status.toString(),
-          message: error.response?.statusText,
-        });
+        console.error(`---> baidu translate error: ${error}`);
+        const errorInfo = getTypeErrorInfo(TranslationType.Baidu, error);
+        reject(errorInfo);
       });
   });
 }

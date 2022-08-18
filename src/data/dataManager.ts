@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 11:25
+ * @lastEditTime: 2022-08-18 16:58
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,10 +36,10 @@ import {
   QueryTypeResult,
   TranslationType,
 } from "../types";
+import { showErrorToast } from "../utils";
 import {
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
-  showErrorInfoToast,
   sortedQueryResults,
   updateTranslationMarkdown,
 } from "./utils";
@@ -310,7 +310,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(lingueeTypeResult.wordInfo);
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -342,7 +342,7 @@ export class DataManager {
           return;
         }
 
-        showErrorInfoToast(error);
+        showErrorToast(error);
       })
       .finally(() => {
         this.removeQueryFromRecordList(type);
@@ -402,7 +402,7 @@ export class DataManager {
           this.downloadAndPlayWordAudio(youdaoTypeResult.wordInfo);
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -427,7 +427,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -462,7 +462,7 @@ export class DataManager {
           }
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -487,7 +487,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((err) => {
-          showErrorInfoToast(err);
+          showErrorToast(err);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -512,7 +512,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
@@ -537,7 +537,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          showErrorInfoToast(error);
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);

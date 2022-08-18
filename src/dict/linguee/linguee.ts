@@ -2,18 +2,19 @@
  * @author: tisfeng
  * @createTime: 2022-07-24 17:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:15
+ * @lastEditTime: 2022-08-18 17:08
  * @fileName: linguee.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import util from "util";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent } from "../../consts";
-import { DicionaryType, QueryTypeResult, RequestErrorInfo } from "../../types";
+import { DicionaryType, QueryTypeResult } from "../../types";
+import { getTypeErrorInfo } from "../../utils";
 import { QueryWordInfo } from "../youdao/types";
 import { getLingueeWebDictionaryUrl, parseLingueeHTML } from "./parse";
 import { LingueeDictionaryResult } from "./types";
@@ -82,27 +83,21 @@ export async function rquestLingueeDictionary(queryWordInfo: QueryWordInfo): Pro
 
         resolve(lingueeTypeResult);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> linguee canceled`);
           return;
         }
         console.error(`---> linguee error: ${error}`);
+        console.error(`---> error response: ${util.inspect(error.response, { depth: null })}`);
 
+        const errorInfo = getTypeErrorInfo(DicionaryType.Linguee, error);
+        const errorCode = error.response?.status;
         // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
-        console.error(`---> request error: ${util.inspect(error.response, { depth: null })}`);
-
-        let errorMessage = error.response?.statusText;
-        const errorCode: number = error.response?.status;
         if (errorCode === 503) {
-          errorMessage = "Your ip is banned by linguee for a few hours.";
+          errorInfo.message = "Your ip is banned by linguee for a few hours. Please try to use proxy.";
           resetLingueeRequestTime();
         }
-        const errorInfo: RequestErrorInfo = {
-          type: DicionaryType.Linguee,
-          code: errorCode.toString(),
-          message: errorMessage,
-        };
         reject(errorInfo);
       });
   });

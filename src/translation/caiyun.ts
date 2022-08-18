@@ -2,18 +2,19 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 10:17
+ * @lastEditTime: 2022-08-18 17:00
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getCaiyunLanguageId } from "../language/languages";
 import { KeyStore } from "../preferences";
-import { CaiyunTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "../types";
+import { getTypeErrorInfo } from "../utils";
 
 /**
  * Caiyun translate API. Cost time: 0.2s
@@ -67,19 +68,15 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
           wordInfo: queryWordInfo,
         });
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> caiyun canceled`);
           return;
         }
+
         console.error(`---> Caiyun translate error: ${error}`);
         console.error("caiyun error response: ", error.response);
-
-        const errorInfo: RequestErrorInfo = {
-          type: TranslationType.Caiyun,
-          code: error.response?.status.toString(),
-          message: error.response?.statusText,
-        };
+        const errorInfo = getTypeErrorInfo(TranslationType.Caiyun, error);
         reject(errorInfo);
       });
   });

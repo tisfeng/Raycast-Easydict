@@ -2,17 +2,18 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:43
+ * @lastEditTime: 2022-08-18 17:09
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { Clipboard, getApplications, LocalStorage } from "@raycast/api";
+import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
+import { AxiosError } from "axios";
 import { clipboardQueryTextKey } from "./consts";
 import { myPreferences } from "./preferences";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { DicionaryType, QueryRecoredItem } from "./types";
+import { DicionaryType, QueryRecoredItem, QueryType, RequestErrorInfo } from "./types";
 
 /**
  * Eudic bundleIds.
@@ -116,4 +117,29 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
     enabledDictionaryServices.push(DicionaryType.Youdao);
   }
   return enabledDictionaryServices;
+}
+
+/**
+ * Show error toast according to errorInfo.
+ */
+export function showErrorToast(errorInfo: RequestErrorInfo) {
+  showToast({
+    style: Toast.Style.Failure,
+    title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
+    message: errorInfo.message,
+  });
+}
+
+/**
+ * Get request error info.
+ */
+export function getTypeErrorInfo(type: QueryType, error: AxiosError) {
+  const errorCode = error.response?.status;
+  const errorMessage = error.message || error.response?.statusText || "Response error";
+  const errorInfo: RequestErrorInfo = {
+    type: type,
+    code: `${errorCode || ""}`,
+    message: errorMessage,
+  };
+  return errorInfo;
 }

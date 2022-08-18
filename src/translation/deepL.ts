@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 16:57
+ * @lastEditTime: 2022-08-18 17:05
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,8 @@ import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getDeepLLanguageId } from "../language/languages";
 import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
-import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { DeepLTranslateResult, QueryTypeResult, TranslationType } from "../types";
+import { getTypeErrorInfo } from "../utils";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
 
@@ -81,13 +82,13 @@ export async function requestDeepLTextTranslate(queryWordInfo: QueryWordInfo): P
         }
 
         console.error("deepL error: ", error);
+
+        const errorInfo = getTypeErrorInfo(TranslationType.DeepL, error);
         const errorCode = error.response?.status;
-        let errorMessage = error.message || "Request error 😭";
 
         // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
         if (errorCode === 456) {
-          errorMessage = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
-
+          errorInfo.message = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
           if (wildEncryptedDeepLKeys.length) {
             getAndStoreDeepLKey(wildEncryptedDeepLKeys).then(() => {
               requestDeepLTextTranslate(queryWordInfo);
@@ -96,14 +97,9 @@ export async function requestDeepLTextTranslate(queryWordInfo: QueryWordInfo): P
           }
         }
         if (errorCode === 403) {
-          errorMessage = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
+          errorInfo.message = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
         }
 
-        const errorInfo: RequestErrorInfo = {
-          type: TranslationType.DeepL,
-          code: errorCode?.toString() || "",
-          message: errorMessage,
-        };
         console.error("deepL error info: ", errorInfo);
         reject(errorInfo);
       });

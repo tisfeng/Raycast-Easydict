@@ -19,6 +19,7 @@ import { checkIfPreferredLanguagesContainedChinese } from "../detectLanauge/util
 import { QueryWordInfo } from "../dict/youdao/types";
 import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { getTypeErrorInfo } from "../utils";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
 
@@ -76,10 +77,7 @@ async function googleRPCTranslate(
         }
 
         console.error(`googleRPCTranslate error: ${JSON.stringify(error, null, 4)}`);
-        const errorInfo: RequestErrorInfo = {
-          type: TranslationType.Google,
-          message: "Google RPC translate error",
-        };
+        const errorInfo = getTypeErrorInfo(TranslationType.Google, error);
         reject(errorInfo);
       });
   });
