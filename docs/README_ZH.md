@@ -14,7 +14,7 @@
 
 ## Easydict（易词典）
 
-`Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入的文本语言，目前支持 Linguee 和有道词典查询，支持**苹果 🍎 系统翻译**，DeepL，Google，百度，腾讯，有道和彩云翻译。
+`Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入的文本语言，目前支持 **Linguee** 和有道词典查询，支持**苹果 🍎 系统翻译**，DeepL，Google，百度，腾讯，有道和彩云翻译。
 
 ![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1658309667-1658309686.png)
 
@@ -22,16 +22,17 @@
 
 - [x] 开箱即用，便捷查找单词或翻译文本。
 - [x] 自动识别输入语言，自动查询目标偏好语言。
-- [x] 提供丰富的单词查询信息，包括基本翻译，包含该单词的考试类型，发音，多种词性和解释，形式和时态，网络翻译和网络短语（有道词典）。
+- [x] 提供丰富的单词查询信息，包括基本翻译，包含该单词的考试类型，发音，多种词性和解释，形式和时态，网络翻译和网络短语。
 - [x] 支持划词查询，默认启用。
 - [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上有安装）。
 - [x] 支持自动播放单词发音，可在设置中开启。使用 `Cmd + S` 手动播放单词发音。
 - [x] 支持有道文本合成语音（TTS）。
 - [x] 支持手动排序翻译结果显示。
+- [x] 支持使系统代理。
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 **MacOS 系统翻译**。详情请看 [如何在 Easydict 中使用 macOS 🍎 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
 - [x] 支持 DeepL，谷歌，百度，腾讯，有道和彩云翻译。
-- [x] 支持 23 种翻译语言。
+- [x] 支持 23 种语言。
 
 下一步：
 
@@ -56,7 +57,21 @@
 
 ![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2022-07-16_18.57.16.png)
 
-### 翻译语言支持
+### 语言支持
+
+#### 语言识别
+
+- 腾讯语种识别：中文，英语，日语，韩语，法语，西班牙语，葡萄牙语，意大利语，俄语，德语。
+- 百度语种识别：中文，英语，日语，韩语，法语，西班牙语，葡萄牙语，意大利语，德语，俄语，阿拉伯语，瑞典语，罗马尼亚语，泰语，斯洛伐克语，荷兰语，匈牙利语，希腊语，丹麦语，芬兰语，波兰语，捷克语。
+- 苹果 🍎 语种识别：中文，英语，日语，韩语，法语，西班牙语，葡萄牙语，意大利语，德语，俄语，阿拉伯语，瑞典语，罗马尼亚语，泰语，斯洛伐克语，荷兰语，匈牙利语，希腊语，丹麦语，芬兰语，波兰语，捷克语。
+- 谷歌语种识别：简体中文，繁体中文，英语，日语，韩语，法语，西班牙语，意大利语，德语，俄语，阿拉伯语，瑞典语，罗马尼亚语，泰语，斯洛伐克语，荷兰语，匈牙利语，希腊语，丹麦语，芬兰语，波兰语，捷克语。
+
+#### 词典
+
+有道：简体中文，繁体中文，英语。
+Linguee:（中文，日语，俄语），英语，德语，法语，意大利语，西班牙语，葡萄牙语，荷兰语，波兰语，丹麦语，芬兰语，瑞典语，希腊语，捷克语，匈牙利语，罗马尼亚语，斯洛伐克语。
+
+#### 翻译
 
 当前支持 23 种翻译语言: 简体中文，繁体中文，英语，日语，韩语，法语，西班牙语，葡萄牙语，意大利语，德语，俄语，阿拉伯语，瑞典语，罗马尼亚语，泰语，斯洛伐克语，荷兰语，匈牙利语，希腊语，丹麦语，芬兰语，波兰语，捷克语。
 
@@ -150,9 +165,9 @@
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1658321887.png)
 
-### 选择目标翻译语言
+### 选择目标语言
 
-<details> <summary> 指定目标翻译语言功能。默认关闭。 </summary>
+<details> <summary> 指定目标语言功能。默认关闭。 </summary>
 
 <p>
 
@@ -164,11 +179,11 @@
 
 ### 手动排序翻译结果显示
 
-<details> <summary> 你可以按照自己的偏好对翻译结果显示进行排序，默认是 DeepL,Apple,Baidu,Tencent,Youdao,Caiyun。 </summary>
+<details> <summary> 你可以按照自己的偏好对翻译结果显示进行排序，默认是 DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun。 </summary>
 
 <p>
 
-名称大小写不敏感，使用逗号分隔开。例如：`deepl,apple,baidu,tencent,youdao,caiyun`。也可仅指定部分排序，如：`apple,tencent`，这时程序实际排序是：`apple,tencent,deepl,baidu,youdao,caiyun`。
+名称大小写不敏感，使用逗号分隔开。例如：`deepl,google,apple,baidu,tencent,youdao,caiyun`。也可仅指定部分排序，如：`apple,tencent`，这时程序实际排序是：`apple,tencent,deepl,google,baidu,youdao,caiyun`。
 
 > 注意：以上排序是总体排序，若某项翻译服务未开启，排序会自动忽略。
 
@@ -179,6 +194,10 @@
 ### 苹果 🍎 系统翻译
 
 `Easydict` 支持 MacOS 系统翻译，需搭配快捷指令食用，详情请看 [如何在 Easydict 中使用 macOS 苹果系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+
+### 支持系统代理
+
+开启该功能后，`Easydict` 会尝试获取电脑系统代理，若成功，则后续的网络请求都会使用系统代理发送。（此功能是为了对抗 IP 封锁，因为某些服务如 Linguee 对 IP 有频率限制）
 
 ### 翻译服务
 
@@ -195,6 +214,8 @@
 - [腾讯翻译](https://v0.bobtranslate.com/#/service/translate/tencent)
 
 - [彩云小译](https://v0.bobtranslate.com/#/service/translate/caiyun)
+
+- [DeepL](https://www.deepl.com/pro-api)
 
 ![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
 
