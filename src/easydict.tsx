@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:44
+ * @lastEditTime: 2022-08-18 11:16
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,6 +44,8 @@ export default function () {
 
   /**
    * the language type of text, depending on the language type of the current input text.
+   *
+   * Todo: directly use language id.
    */
   const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(preferredLanguage1);
   /**
@@ -103,6 +105,8 @@ export default function () {
 
   /**
    * User select target language manually.
+   *
+   * Todo: move it to dataManager.
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
     console.log(

@@ -20,7 +20,8 @@ import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationTyp
 const deepLAuthStoredKey = "deepLAuthStoredKey";
 
 /**
- * DeepL translate API
+ * DeepL translate API. Cost time: > 1s
+ *
  * https://www.deepl.com/zh/docs-api/translating-text
  */
 export async function requestDeepLTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 09:59
+ * @lastEditTime: 2022-08-18 10:09
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,8 +18,9 @@ import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 
 /**
- * 百度翻译API
- * Docs: https://fanyi-api.baidu.com/doc/21
+ * Baidu translate. Cost time: ~0.4s
+ *
+ * 百度翻译API https://fanyi-api.baidu.com/doc/21
  */
 export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu`);
@@ -85,7 +86,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
 }
 
 /**
- * Baidu language detect.
+ * Baidu language detect. Cost time: ~0.4s
  *
  * Although Baidu provides a dedicated language recognition interface, the number of supported languages is too small, so we directly use Baidu Translate's automatic language recognition instead.
  *

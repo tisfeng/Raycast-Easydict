@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 23:47
+ * @lastEditTime: 2022-08-18 10:20
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,9 +17,12 @@ import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/l
 import { AbortObject, RequestErrorInfo, TranslationType } from "./types";
 
 /**
- * Run apple Translate shortcuts with the given QueryWordInfo.
+ * Run apple Translate shortcuts with the given QueryWordInfo. Cost time: ~0.5s.
  */
-export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortObject): Promise<string | undefined> {
+export function appleTranslate(
+  queryTextInfo: QueryWordInfo,
+  abortObject: AbortObject | undefined
+): Promise<string | undefined> {
   console.log(`---> start Apple translate`);
   const { word, fromLanguage, toLanguage } = queryTextInfo;
   const startTime = new Date().getTime();
@@ -59,7 +62,8 @@ export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortO
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
   return new Promise((resolve, reject) => {
     const command = `osascript -e '${appleScript}'`;
-    abortObject.childProcess = exec(command, (error, stdout, stderr) => {
+
+    const clideProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
         if (error.killed) {
           // error: { "killed": true, "signal": "SIGTERM" }
@@ -81,11 +85,14 @@ export function appleTranslate(queryTextInfo: QueryWordInfo, abortObject: AbortO
       console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
       resolve(translateText);
     });
+    if (abortObject) {
+      abortObject.childProcess = clideProcess;
+    }
   });
 }
 
 /**
- * run LanguageDetect shortcuts with the given text, return promise
+ * run LanguageDetect shortcuts with the given text. Cost time: ~0.4s
  *
  * * NOTE: Apple language detect support more languages than apple translate!
  */
@@ -123,7 +130,7 @@ export function appleLanguageDetect(text: string): Promise<LanguageDetectTypeRes
 }
 
 /**
- * get shortcuts script template string according to shortcut name and input
+ * Get shortcuts script template string according to shortcut name and input.
  *
  * * NOTE: To run a shortcut in the background, without opening the Shortcuts app, tell 'Shortcuts Events' instead of 'Shortcuts'.
  */

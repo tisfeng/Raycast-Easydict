@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:16
+ * @lastEditTime: 2022-08-18 10:17
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,8 +16,9 @@ import { KeyStore } from "../preferences";
 import { CaiyunTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 
 /**
- * 彩云小译
- * Docs: https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
+ * Caiyun translate API. Cost time: 0.2s
+ *
+ * 彩云小译  https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
 export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Caiyun`);
@@ -58,7 +59,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
       .then((response) => {
         const caiyunResult = response.data as CaiyunTranslateResult;
         const translations = caiyunResult.target;
-        console.log(`caiyun translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
+        console.log(`Caiyun translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
         resolve({
           type: TranslationType.Caiyun,
           result: caiyunResult,
@@ -71,7 +72,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
           console.log(`---> caiyun canceled`);
           return;
         }
-        console.error(`---> caiyun translate error: ${error}`);
+        console.error(`---> Caiyun translate error: ${error}`);
         console.error("caiyun error response: ", error.response);
 
         const errorInfo: RequestErrorInfo = {

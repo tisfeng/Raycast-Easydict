@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 09:56
+ * @lastEditTime: 2022-08-18 11:25
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -90,11 +90,17 @@ export class DataManager {
   delayQueryTimer?: NodeJS.Timeout;
   /**
    * Delay the time to call the query API. Since API has frequency limit.
+   *
+   * * Note
+   * In the actual test, the request interval of 600ms is more appropriate。
+   * But due to the addition of language recognition function in the middle, it takes about 400ms.
+   * Considering that the language recognition api also needs to be frequency limited.
+   * In the end, conservative, we still set delayRequestTime to 600ms.
    */
   delayRequestTime = 600;
 
   /**
-   * Used for recording all the query types. If start a new query, push it to the array, when finish the query, remove it.
+   * Used for recording all the query types. If start a new query, push it to the array, when finished, remove it.
    */
   queryRecordList: QueryType[] = [];
 
@@ -102,6 +108,7 @@ export class DataManager {
    * Delay the time to call the query API. Since API has frequency limit.
    */
   public delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
+    console.log(`---> delay query text: ${text}`);
     const delayTime = isDelay ? this.delayRequestTime : 0;
     this.delayQueryTimer = setTimeout(() => {
       this.queryText(text, toLanguage);
@@ -359,7 +366,7 @@ export class DataManager {
 
       requestYoudaoDictionary(queryWordInfo)
         .then((youdaoTypeResult) => {
-          // console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
+          console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
@@ -431,7 +438,7 @@ export class DataManager {
   /**
    * Query apple translate.
    */
-  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortObject: AbortObject) {
+  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortObject: AbortObject | undefined) {
     if (myPreferences.enableAppleTranslate) {
       const type = TranslationType.Apple;
       this.addQueryToRecordList(type);

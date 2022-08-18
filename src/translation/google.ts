@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 22:27
+ * @lastEditTime: 2022-08-18 10:32
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -37,7 +37,7 @@ export async function requestGoogleTranslate(
 /**
  * Google RPC translate, can get richer word dictionary and automatic recognition feature.
  *
- * * Google RPC cost more time than web translate. almost 1s > 0.3s.
+ * * Google RPC cost more time than web translate. almost 1s > 0.4s.
  */
 async function googleRPCTranslate(
   queryWordInfo: QueryWordInfo,
@@ -67,7 +67,7 @@ async function googleRPCTranslate(
         resolve(result);
       })
       .catch((error) => {
-        console.error(`error message: ${error.message}`);
+        // console.error(`error message: ${error.message}`);
 
         // * got use a different error meassage from axios.
         if (error.message.includes("The operation was aborted")) {

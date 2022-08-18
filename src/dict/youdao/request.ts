@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:15
+ * @lastEditTime: 2022-08-18 11:20
  * @fileName: request.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,8 +27,9 @@ import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
 export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 /**
- * 有道翻译
- * Docs: https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+ * Youdao translate, use ofical API. Cost time: 0.2s
+ *
+ * 有道翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
 export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao`);
