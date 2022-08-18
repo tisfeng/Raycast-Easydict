@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 21:58
+ * @lastEditTime: 2022-08-18 09:56
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -359,7 +359,7 @@ export class DataManager {
 
       requestYoudaoDictionary(queryWordInfo)
         .then((youdaoTypeResult) => {
-          console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
+          // console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);

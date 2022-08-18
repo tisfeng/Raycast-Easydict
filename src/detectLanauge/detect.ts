@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 17:20
+ * @lastEditTime: 2022-08-18 09:54
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -150,7 +150,7 @@ function raceDetectTextLanguage(
 
 function handleDetectedLanguageTypeResult(
   apiDetectedLanguage: LanguageDetectTypeResult,
-  localLanguageDetectTypeResult: LanguageDetectTypeResult,
+  localDetectedLanguage: LanguageDetectTypeResult,
   detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
   callback: (detectTypeResult: LanguageDetectTypeResult) => void
 ) {
@@ -192,7 +192,7 @@ function handleDetectedLanguageTypeResult(
     console.log(`try compare API detected language list with local deteced list`);
     console.log(`---> API detected language list: ${JSON.stringify(apiDetectedLanguageList, null, 4)}`);
 
-    const localDetectedLanguageArray = localLanguageDetectTypeResult.detectedLanguageArray;
+    const localDetectedLanguageArray = localDetectedLanguage.detectedLanguageArray;
     // console.log(`---> local detected language list: ${JSON.stringify(detectedLocalLanguageArray, null, 4)}`);
     if (localDetectedLanguageArray?.length) {
       for (const [localLanguageId, confidence] of localDetectedLanguageArray) {
@@ -204,7 +204,7 @@ function handleDetectedLanguageTypeResult(
           ) {
             apiLanguage.confirmed = true;
             console.warn(
-              `---> API and Local detect identical referred language: ${JSON.stringify(apiLanguage, null, 4)}`
+              `---> API and Local detect identical preferred language: ${JSON.stringify(apiLanguage, null, 4)}`
             );
             callback(apiLanguage);
             return;
@@ -223,7 +223,7 @@ function handleDetectedLanguageTypeResult(
   detectLanguageActionMap.delete(apiDetectedLanguage.type);
   console.log(`---> remove unconfirmed detect action: ${apiDetectedLanguage.type}`);
   console.log(`---> continue to detect next action`);
-  raceDetectTextLanguage(detectLanguageActionMap, localLanguageDetectTypeResult, callback);
+  raceDetectTextLanguage(detectLanguageActionMap, localDetectedLanguage, callback);
 }
 
 /**
@@ -247,13 +247,16 @@ function getFinalLanguageDetectResult(
 
 /**
  *  Get local detect language result.
- *  @highConfidence if local detect preferred language confidence > highConfidence, give priority to use it.
- *  * NOTE: Only preferred language confidence > highConfidence will mark as confirmed.
+ *
+ *  @confirmedConfidence if local detect preferred language confidence > confirmedConfidence, give priority to use it.
+ *  * NOTE: Only preferred language confidence > confirmedConfidence will mark as confirmed.
  *
  *  First, if franc detect language is confirmed, use it directly.
  *  Second, if detect preferred language confidence > lowConfidence, use it, but not confirmed.
  *  Third, if franc detect language is valid, use it, but not confirmed.
  *  Finally, if simple detect language is preferred language, use it. else use "auto".
+ *
+ * * Todo: need to optimize.
  */
 function getLocalTextLanguageDetectResult(
   text: string,

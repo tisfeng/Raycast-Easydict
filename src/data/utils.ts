@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 21:58
+ * @lastEditTime: 2022-08-18 09:57
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -86,7 +86,7 @@ export function isTranslationTooLong(translation: string, toLanguage: string): b
   } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
     isTooLong = true;
   }
-  console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+  //   console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
   return isTooLong;
 }
 

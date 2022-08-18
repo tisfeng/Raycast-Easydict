@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 16:56
+ * @lastEditTime: 2022-08-18 09:59
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -49,7 +49,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
         // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
         if (baiduResult.trans_result) {
           const translations = baiduResult.trans_result.map((item) => item.dst);
-          console.log(`Baidu translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
+          console.warn(`Baidu translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
           const result: QueryTypeResult = {
             type: TranslationType.Baidu,
             result: baiduResult,

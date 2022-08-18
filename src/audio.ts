@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-06 22:07
+ * @lastEditTime: 2022-08-18 10:00
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -31,7 +31,7 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
       return sayTruncateCommand(word, fromLanguage);
     }
   }
-  console.log(`play word: ${word}`);
+  console.log(`play audio: ${word}`);
 
   return player.play(audioPath, (err) => {
     if (err) {

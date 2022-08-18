@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-17 23:08
+ * @lastEditTime: 2022-08-18 09:58
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,7 +166,6 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const tag_area = lemma?.querySelector(".lemma_desc .tag_area"); // eg. heel in German, "heel. verb (nautical science)"
       const tag_area_text = tag_area ? `${tag_area?.textContent}` : "";
       const posText = `${tag_wordtype?.textContent ?? ""} ${tag_forms_text} ${tag_area_text}`;
-      console.log(`---> posText: ${posText}`);
       const tag_type = lemma?.querySelector(".tag_type"); // related word pos
       const pos = tag_wordtype ? posText : tag_type?.textContent ?? "";
       const featured = lemma.getAttribute("class")?.includes("featured") ?? false;
@@ -209,7 +208,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         translationItems: allExplanations,
         audioUrl: audioUrl,
       };
-      console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
+      // console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
       wordItemList.push(lingueeWordItem);
     }
   }
@@ -224,7 +223,7 @@ function getWordExplanationList(
   isFeatured = false,
   designatedFrequencey?: LingueeListItemType
 ) {
-  console.log(`---> getWordExplanationList, length: ${translations?.length} , isFeatured: ${isFeatured}`);
+  // console.log(`---> getWordExplanationList, length: ${translations?.length} , isFeatured: ${isFeatured}`);
   const explanationItems = [];
   if (translations?.length) {
     for (const translation of translations) {
@@ -264,7 +263,7 @@ function getWordExplanationList(
           displayType: designatedFrequencey ?? wordFrequency,
         },
       };
-      console.log(`---> explanation: ${JSON.stringify(explanation, null, 2)}`);
+      // console.log(`---> explanation: ${JSON.stringify(explanation, null, 2)}`);
       explanationItems.push(explanation);
     }
   }
@@ -302,7 +301,7 @@ function getTagFormsText(tagForms: Element | null): string {
   if (!tag_forms_trimText) {
     tag_forms_text = "";
   }
-  console.log(`---> tag_forms_text: ${tag_forms_text}`);
+  // console.log(`---> tag_forms_text: ${tag_forms_text}`);
   return tag_forms_text;
 }
 
