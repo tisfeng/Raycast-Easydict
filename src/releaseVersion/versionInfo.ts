@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 10:44
+ * @lastEditTime: 2022-08-19 23:42
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,7 @@ export class Easydict {
   // * NOTE: this is new version info, don't use it directly. Use getCurrentStoredVersionInfo() instead.
   version = "2.0.0";
   buildNumber = 8;
-  versionDate = "2022-08-19";
+  versionDate = "2022-08-20";
   isNeedPrompt = true;
   hasPrompted = false; // always default false, only show once, then should be set to true.
   releaseMarkdown = releaseNote;
@@ -50,6 +50,8 @@ export class Easydict {
   getCurrentReleaseTagUrl() {
     return `${this.getRepoUrl()}/releases/tag/${this.version}`;
   }
+
+  chineseREADMEUrl = "https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/README_ZH.md";
 
   /**
    * Chinese Wiki: https://github.com/tisfeng/Raycast-Easydict/wiki

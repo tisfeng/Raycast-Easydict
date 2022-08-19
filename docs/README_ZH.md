@@ -44,11 +44,19 @@
 
 ![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1660919430.png)
 
+### [void](https://www.linguee.com/english-chinese/search?query=void)
+
+![void](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/void-1660921305.png)
+
 ### Linguee 词典：英语 <--> 法语
 
 ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
 
 ![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
+
+### [good](https://www.linguee.com/english-french/search?query=good)
+
+![good-French](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/good-French-1660921471.png)
 
 ### 文本翻译
 
@@ -135,6 +143,8 @@
 例如，如果您任意输入一个句子，它将被翻译成第一种偏好语言。如果输入句子自动识别的语言与第一种偏好语言相同，它将自动翻译为第二种偏好语言。
 
 </p>
+
+</details>
 
 ### 划词查询
 

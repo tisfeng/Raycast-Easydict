@@ -167,7 +167,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
       <ActionPanel.Section>
         {!isShowingReleasePrompt && <ReleaseNotesAction />}
-        <ActionCurrentVersion />
+        <CurrentVersionAction />
         <ActionOpenCommandPreferences />
         <ActionFeedback />
       </ActionPanel.Section>
@@ -195,7 +195,7 @@ function ReleaseNotesAction(props: { title?: string; onPush?: () => void }) {
   );
 }
 
-function ActionCurrentVersion() {
+function CurrentVersionAction() {
   const easydict = new Easydict();
   return (
     <Action.OpenInBrowser

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 21:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 10:48
+ * @lastEditTime: 2022-08-19 23:14
  * @fileName: releaseNotePage.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,7 +33,7 @@ export default function ReleaseNotesPage(props: { fallbackMarkdown?: string }) {
       markdown={releaseMarkdown || props.fallbackMarkdown}
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser icon={Icon.Eye} title="View on GitHub" url={easydict.getChineseWikiUrl()} />
+          <Action.OpenInBrowser icon={Icon.Eye} title="View on GitHub" url={easydict.chineseREADMEUrl} />
         </ActionPanel>
       }
     />

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 22:46
+ * @lastEditTime: 2022-08-19 23:13
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -144,7 +144,7 @@ export function getDeepLAuthKey(): Promise<string> {
       if (key) {
         resolve(key);
       } else {
-        console.error(`no stored deepL key, use default key`);
+        console.warn(`no stored deepL key, use default key`);
         resolve(decryptedKey);
       }
     });

@@ -10,6 +10,7 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
+
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/README_ZH.md)
 
 `Easydict` is an easy dictionary, for looking up words or easily translating text. Use it out of the box, automatically detect the input text language, and support **Linguee** and Youdao dictionary, **MacOS system translate**, DeepL, Google, Baidu, Tencent, Youdao, and Caiyun translation.
@@ -28,7 +29,7 @@
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort translation results manually.
 - [x] Support system proxy.
-- [x] Support **macOS system translation**. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How%20to%20use%20macOS%20%F0%9F%8D%8E%20system%20translation%20in%20Easydict%3F.md)_)
+- [x] Support **macOS system translation**. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
 - [x] Support DeepL, Google, Baidu, Tencent, Youdao, and Caiyun translation.
 - [x] Support 23 languages.
 
@@ -43,11 +44,19 @@ Next:
 
 ![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1660919430.png)
 
+### [void](https://www.linguee.com/english-chinese/search?query=void)
+
+![void](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/void-1660921305.png)
+
 ### Linguee Dictionary：English <--> French
 
 ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
 
 ![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
+
+### [good](https://www.linguee.com/english-french/search?query=good)
+
+![good-French](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/good-French-1660921471.png)
 
 ### Translation
 
@@ -195,7 +204,7 @@ Name case are insensitive, use comma to separate. Example: `deepl,google,apple,b
 
 ### 🍎 Apple Translate
 
-`Easydict` support MacOS system translate, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%E8%8B%B9%E6%9E%9C%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+`Easydict` support MacOS system translate, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)
 
 ### System Proxy
 
