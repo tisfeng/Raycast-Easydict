@@ -139,6 +139,8 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
     "Signature=" +
     signature;
 
+  const type = TranslationType.Tencent;
+
   return new Promise((resolve, reject) => {
     axios
       .post(`https://${endpoint}`, payload, {
@@ -157,7 +159,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
         const translations = tencentResult.TargetText.split("\n");
         console.warn(`---> Tencent translate: ${translations}, cost: ${response.headers[requestCostTime]}`);
         const typeResult: QueryTypeResult = {
-          type: TranslationType.Tencent,
+          type: type,
           result: tencentResult,
           translations: tencentResult.TargetText.split("\n"),
           wordInfo: queryWordInfo,
@@ -174,7 +176,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
         const error = err as { code: string; message: string };
         console.error(`Tencent translate error, code: ${error.code}, message: ${error.message}`);
         const errorInfo: RequestErrorInfo = {
-          type: TranslationType.Tencent,
+          type: type,
           code: error.code,
           message: error.message,
         };
@@ -193,10 +195,12 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLanguageId(fromLanguage);
   const to = getTencentLanguageId(toLanguage);
+  const type = TranslationType.Tencent;
+
   if (!from || !to) {
     console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
-      type: TranslationType.Tencent,
+      type: type,
       result: undefined,
       translations: [],
       wordInfo: queryWordInfo,
@@ -216,7 +220,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
     const endTime = new Date().getTime();
     console.log(`Tencen translate: ${tencentResult.TargetText}, cost: ${endTime - startTime} ms`);
     const typeResult: QueryTypeResult = {
-      type: TranslationType.Tencent,
+      type: type,
       result: tencentResult as TencentTranslateResult,
       translations: tencentResult.TargetText.split("\n"),
       wordInfo: queryWordInfo,
@@ -227,7 +231,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
     const error = err as { code: string; message: string };
     console.error(`Tencent translate error, code: ${error.code}, message: ${error.message}`);
     const errorInfo: RequestErrorInfo = {
-      type: TranslationType.Tencent,
+      type: type,
       code: error.code,
       message: error.message,
     };
@@ -248,6 +252,8 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     ProjectId: projectId,
   };
   const startTime = new Date().getTime();
+  const type = LanguageDetectType.Tencent;
+
   try {
     const response = await client.LanguageDetect(params);
     const endTime = new Date().getTime();
@@ -259,7 +265,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
       } ms`
     );
     const typeResult: LanguageDetectTypeResult = {
-      type: LanguageDetectType.Tencent,
+      type: type,
       sourceLanguageId: tencentLanguageId,
       youdaoLanguageId: youdaoLanguageId,
       confirmed: false,
@@ -269,7 +275,7 @@ export async function tencentLanguageDetect(text: string): Promise<LanguageDetec
     const error = err as { code: string; message: string };
     console.error(`tencent detect error, code: ${error.code}, message: ${error.message}`);
     const errorInfo: RequestErrorInfo = {
-      type: LanguageDetectType.Tencent,
+      type: type,
       code: error.code,
       message: error.message,
     };

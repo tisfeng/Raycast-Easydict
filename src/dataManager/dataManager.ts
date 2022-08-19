@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 16:58
+ * @lastEditTime: 2022-08-19 16:29
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,8 +15,8 @@ import { LanguageDetectTypeResult } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dict/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dict/linguee/parse";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dict/youdao/formatData";
-import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dict/youdao/request";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dict/youdao/types";
+import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dict/youdao/youdao";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
 import { LanguageItem } from "../language/type";
 import { myPreferences } from "../preferences";
@@ -206,7 +206,9 @@ export class DataManager {
     for (const queryResult of this.queryResults) {
       const shouldDisplay = !queryResult.disableDisplay;
       if (shouldDisplay && queryResult.displaySections) {
-        // console.log(`---> update display sections: ${result.type}, length: ${result.displaySections.length}`);
+        console.log(
+          `---> update display sections: ${queryResult.type}, section title: ${queryResult.displaySections[0].sectionTitle},  length: ${queryResult.displaySections.length}`
+        );
         updateTranslationMarkdown(queryResult, this.queryResults);
         displaySections.push(queryResult.displaySections);
       }

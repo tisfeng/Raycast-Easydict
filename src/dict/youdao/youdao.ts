@@ -19,7 +19,7 @@ import { YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { QueryTypeResult, TranslationType } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
-import { DicionaryType, RequestErrorInfo } from "./../../types";
+import { DicionaryType, RequestErrorInfo } from "../../types";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
 
@@ -63,7 +63,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
       .post(url, params)
       .then((response) => {
         const youdaoResult = response.data as YoudaoDictionaryResult;
-        // console.log(`---> youdao result: ${util.inspect(youdaoResult, { depth: null })}`);
+        // console.log(`---> youdao res: ${util.inspect(youdaoResult, { depth: null })}`);
 
         const errorInfo = getYoudaoErrorInfo(youdaoResult.errorCode);
         const youdaoErrorInfo: RequestErrorInfo = {

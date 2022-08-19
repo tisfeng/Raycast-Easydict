@@ -2,44 +2,56 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 10:47
+ * @lastEditTime: 2022-08-19 11:18
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 export const releaseNote = `
-## [v1.4.1] - 2022-08-01
+## [v2.0.0] - 2022-08-19
+
+## ✨ New
+
+- 添加支持 Linguee 词典，支持 19 种查询语言。
+- 添加谷歌语种识别和百度语种识别。
+- 支持系统代理。
+- 新增置顶显示打开当前查询网络词典、翻译 action。
+- 支持查询单词时，同时显示词典和翻译内容。
+- 新增显示查询语言 from-to，如 English🇺🇸 --> Chinese-Simplified🇨🇳。
 
 ## 💎 优化
 
-- 新增是否显示 Open In Eudic 选项，默认开启。
-- 改进了 DeepL 请求错误时的处理，增加超出翻译限额的提示。
+- 重构了项目代码结构。
+- 提升了自动识别语言的精度。
+- 使用了新的有道词典网页。
 
 ### 🐞 修复
 
-- 修复了从网页下载的 Eudic 没有被正确识别 Bug。
+- 修复了许多已知问题。
 
-### ✅ 最近更新
-
-- 支持 DeepL, Google, Apple 🍎 翻译。
-- 支持手动排序翻译结果显示。
 
 ---
 
-## [v1.4.1] - 2022-08-01
 
-### 💎 Improvements
+## [v2.0.0] - 2022-08-19
 
-- Added show open in eudic preference switch option, default is true.
-- Improved the handling of DeepL request errors, and added a toast for exceeding the translation quota limit.
+## ✨ New
+
+- Added support for Linguee dictionary, supporting 19 languages.
+- Added support for Google language detection and Baidu language detection.
+- Added system proxy.
+- Added top show open current query network dictionary and translation action.
+- Added query word and show dictionary and translation at the same time.
+- Added show query language from-to, like English🇺🇸 --> Chinese-Simplified🇨🇳.
+
+## 💎 Improvements
+
+- Refactored the project code structure.
+- Improved the accuracy of automatic language detection.
+- Used the new Youdao dictionary web page.
 
 ### 🐞 Fixes
 
-- Fixed a bug that Eudic downloaded from the web was not recognized correctly.
-
-### ✅ Recent Updates
-
-- Added support for DeepL, Google, Apple 🍎 translation.
-- Supported to sort translation results manually.
+- Fixed many known issues.
 `;

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 10:38
+ * @lastEditTime: 2022-08-19 10:48
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { getLingueeWebDictionaryUrl as getLingueeWebDictionaryURL } from "./dict/linguee/parse";
 import { LingueeListItemType } from "./dict/linguee/types";
-import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/request";
+import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/youdao";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
 import { languageItemList } from "./language/consts";
 import {
@@ -24,7 +24,7 @@ import {
   getYoudaoWebDictionaryURL,
 } from "./language/languages";
 import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./preferences";
-import ReleaseNotesPage from "./releaseVersion/releaseNotesPage";
+import ReleaseNotesPage from "./releaseVersion/releaseNotePage";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
 import {
@@ -308,7 +308,7 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemTy
       dotColor = Color.Red;
       break;
     }
-    case YoudaoDictionaryListItemType.Explanations: {
+    case YoudaoDictionaryListItemType.Explanation: {
       dotColor = Color.Blue;
       break;
     }

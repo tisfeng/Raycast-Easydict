@@ -2,8 +2,8 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 21:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 10:40
- * @fileName: releaseNotesPage.tsx
+ * @lastEditTime: 2022-08-19 10:48
+ * @fileName: releaseNotePage.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */

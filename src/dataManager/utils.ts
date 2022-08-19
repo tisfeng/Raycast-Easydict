@@ -19,7 +19,7 @@ import {
 } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { DicionaryType, QueryTypeResult, TranslationItem, TranslationType } from "../types";
-import { QueryResult } from "./../types";
+import { QueryResult } from "../types";
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.

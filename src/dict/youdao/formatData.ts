@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-13 18:43
+ * @lastEditTime: 2022-08-19 16:21
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { DicionaryType, DisplaySection } from "../../types";
+import { DicionaryType, DisplaySection, ListDisplayItem } from "../../types";
 import {
   QueryWordInfo,
   YoudaoDictionaryFormatResult,
@@ -63,139 +63,142 @@ export function formatYoudaoDictionaryResult(
 /**
  * Update Youdao dictionary display result.
  */
-export function updateYoudaoDictionaryDisplay(formatResult: YoudaoDictionaryFormatResult | null): DisplaySection[] {
-  const sectionResult: Array<DisplaySection> = [];
+export function updateYoudaoDictionaryDisplay(
+  formatResult: YoudaoDictionaryFormatResult | undefined
+): DisplaySection[] {
+  const displaySections: Array<DisplaySection> = [];
   if (!formatResult) {
-    return sectionResult;
+    return displaySections;
   }
 
   const queryWordInfo = formatResult.queryWordInfo;
-  const youdaoType = DicionaryType.Youdao;
+  const youdaoDictionaryType = DicionaryType.Youdao;
   const oneLineTranslation = formatResult.translations.join(", ");
   const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
   const isShowWordSubtitle = phoneticText || queryWordInfo.examTypes;
   const wordSubtitle = isShowWordSubtitle ? queryWordInfo.word : undefined;
 
-  sectionResult.push({
-    type: youdaoType,
-    sectionTitle: youdaoType,
-    items: [
-      {
-        displayType: YoudaoDictionaryListItemType.Translation,
-        queryType: youdaoType,
-        key: oneLineTranslation + youdaoType,
-        title: oneLineTranslation,
-        subtitle: wordSubtitle,
-        tooltip: `Translate`,
-        copyText: oneLineTranslation,
-        queryWordInfo: queryWordInfo,
-        accessoryItem: {
-          phonetic: phoneticText,
-          examTypes: queryWordInfo.examTypes,
-        },
-      },
-    ],
+  // 1. Translation.
+  const translationType = YoudaoDictionaryListItemType.Translation;
+  const translationItem: ListDisplayItem = {
+    displayType: translationType,
+    queryType: youdaoDictionaryType,
+    key: oneLineTranslation + youdaoDictionaryType,
+    title: oneLineTranslation,
+    subtitle: wordSubtitle,
+    tooltip: translationType,
+    copyText: oneLineTranslation,
+    queryWordInfo: queryWordInfo,
+    accessoryItem: {
+      phonetic: phoneticText,
+      examTypes: queryWordInfo.examTypes,
+    },
+  };
+  displaySections.push({
+    type: youdaoDictionaryType,
+    sectionTitle: youdaoDictionaryType,
+    items: [translationItem],
   });
 
-  let hasShowDetailsSectionTitle = false;
-  const detailsSectionTitle = "Details";
-
-  formatResult.explanations?.forEach((explanation, i) => {
-    sectionResult.push({
-      type: YoudaoDictionaryListItemType.Explanations,
-      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-      items: [
-        {
-          displayType: YoudaoDictionaryListItemType.Explanations,
-          queryType: youdaoType,
-          key: explanation + i,
-          title: explanation,
-          queryWordInfo: queryWordInfo,
-          tooltip: YoudaoDictionaryListItemType.Explanations,
-          copyText: explanation,
-        },
-      ],
+  // 2. Explanation.
+  const explanationType = YoudaoDictionaryListItemType.Explanation;
+  const explanationItems = formatResult.explanations?.map((explanation, i) => {
+    const displayItem: ListDisplayItem = {
+      displayType: explanationType,
+      queryType: youdaoDictionaryType,
+      key: explanation + i,
+      title: explanation,
+      queryWordInfo: queryWordInfo,
+      tooltip: explanationType,
+      copyText: explanation,
+    };
+    return displayItem;
+  });
+  if (explanationItems) {
+    displaySections.push({
+      type: youdaoDictionaryType,
+      items: explanationItems,
     });
-
-    hasShowDetailsSectionTitle = true;
-  });
-
-  const wfs = formatResult.forms?.map((wfItem) => {
-    return wfItem.wf?.name + " " + wfItem.wf?.value;
-  });
-
-  // [ 复数 goods   比较级 better   最高级 best ]
-  const wfsText = wfs?.join("   ") || "";
-  if (wfsText.length) {
-    sectionResult.push({
-      type: YoudaoDictionaryListItemType.Forms,
-      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-      items: [
-        {
-          displayType: YoudaoDictionaryListItemType.Forms,
-          queryType: youdaoType,
-          key: wfsText,
-          title: "",
-          queryWordInfo: queryWordInfo,
-          tooltip: YoudaoDictionaryListItemType.Forms,
-          subtitle: `[ ${wfsText} ]`,
-          copyText: wfsText,
-        },
-      ],
-    });
-
-    hasShowDetailsSectionTitle = true;
   }
 
+  // 3. Forms.
+  const formsType = YoudaoDictionaryListItemType.Forms;
+  const wfs = formatResult.forms?.map((wfItem) => {
+    return wfItem.wf?.name + ": " + wfItem.wf?.value;
+  });
+  // [ 复数: goods   比较级: better   最高级: best ]
+  const wfsText = wfs?.join("   ");
+  if (wfsText) {
+    const formsItem: ListDisplayItem = {
+      displayType: formsType,
+      queryType: youdaoDictionaryType,
+      key: wfsText,
+      title: "",
+      queryWordInfo: queryWordInfo,
+      tooltip: formsType,
+      subtitle: `[ ${wfsText} ]`,
+      copyText: wfsText,
+    };
+    displaySections.push({
+      type: youdaoDictionaryType,
+      items: [formsItem],
+    });
+  }
+
+  // 4. Web Translation.
   if (formatResult.webTranslation) {
-    const webResultKey = formatResult.webTranslation?.key;
+    const webResultKey = formatResult.webTranslation.key;
     const webResultValue = formatResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
-    sectionResult.push({
-      type: YoudaoDictionaryListItemType.WebTranslation,
-      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-      items: [
-        {
-          displayType: YoudaoDictionaryListItemType.WebTranslation,
-          queryType: youdaoType,
-          key: copyText,
-          title: webResultKey,
-          queryWordInfo: queryWordInfo,
-          tooltip: YoudaoDictionaryListItemType.WebTranslation,
-          subtitle: webResultValue,
-          copyText: copyText,
-        },
-      ],
-    });
 
-    hasShowDetailsSectionTitle = true;
+    const webTranslationItem: ListDisplayItem = {
+      displayType: YoudaoDictionaryListItemType.WebTranslation,
+      queryType: youdaoDictionaryType,
+      key: copyText,
+      title: webResultKey,
+      queryWordInfo: queryWordInfo,
+      tooltip: YoudaoDictionaryListItemType.WebTranslation,
+      subtitle: webResultValue,
+      copyText: copyText,
+    };
+    displaySections.push({
+      type: YoudaoDictionaryListItemType.WebTranslation,
+      items: [webTranslationItem],
+    });
   }
 
-  formatResult.webPhrases?.forEach((phrase, i) => {
+  // 5. Web Phrases.
+  const webPhraseItems = formatResult.webPhrases?.map((phrase, i) => {
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
-    sectionResult.push({
-      type: YoudaoDictionaryListItemType.WebPhrase,
-      sectionTitle: !hasShowDetailsSectionTitle ? detailsSectionTitle : undefined,
-      items: [
-        {
-          displayType: YoudaoDictionaryListItemType.WebPhrase,
-          queryType: youdaoType,
-          key: copyText + i,
-          title: phraseKey,
-          queryWordInfo: queryWordInfo,
-          tooltip: YoudaoDictionaryListItemType.WebPhrase,
-          subtitle: phraseValue,
-          copyText: copyText,
-        },
-      ],
-    });
 
-    hasShowDetailsSectionTitle = true;
+    const webPhraseItem: ListDisplayItem = {
+      displayType: YoudaoDictionaryListItemType.WebPhrase,
+      queryType: youdaoDictionaryType,
+      key: copyText + i,
+      title: phraseKey,
+      queryWordInfo: queryWordInfo,
+      tooltip: YoudaoDictionaryListItemType.WebPhrase,
+      subtitle: phraseValue,
+      copyText: copyText,
+    };
+    return webPhraseItem;
   });
+  if (webPhraseItems) {
+    displaySections.push({
+      type: YoudaoDictionaryListItemType.WebPhrase,
+      items: webPhraseItems,
+    });
+  }
 
-  return sectionResult;
+  // Add section title: "Details"
+  if (displaySections.length > 1) {
+    const secondSection = displaySections[1];
+    secondSection.sectionTitle = "Details";
+  }
+
+  return displaySections;
 }
 
 /**
