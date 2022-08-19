@@ -2,13 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-01 01:06
- * @fileName: changelog.ts
+ * @lastEditTime: 2022-08-19 10:47
+ * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-export const changelog = `
+export const releaseNote = `
 ## [v1.4.1] - 2022-08-01
 
 ## 💎 优化
@@ -18,7 +18,7 @@ export const changelog = `
 
 ### 🐞 修复
 
-- 修复了从网页下载的 Eudic 没有被正确识别的 Bug。
+- 修复了从网页下载的 Eudic 没有被正确识别 Bug。
 
 ### ✅ 最近更新
 

@@ -2,15 +2,15 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 21:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-02 00:22
- * @fileName: releaseLog.tsx
+ * @lastEditTime: 2022-08-19 10:40
+ * @fileName: releaseNotesPage.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
 import { useState } from "react";
-import { changelog } from "./changelog";
+import { releaseNote } from "./releaseNote";
 import { Easydict } from "./versionInfo";
 
 /**
@@ -18,8 +18,8 @@ import { Easydict } from "./versionInfo";
  *
  * @fallbackMarkdown The placeholder markdown content before fetching from GitHub.
  */
-export default function ReleaseLogDetail(props: { fallbackMarkdown?: string }) {
-  const [releaseMarkdown, setReleaseMarkdown] = useState<string>(changelog);
+export default function ReleaseNotesPage(props: { fallbackMarkdown?: string }) {
+  const [releaseMarkdown, setReleaseMarkdown] = useState<string>(releaseNote);
 
   console.log(`call ReleaseDetail function`);
   const easydict = new Easydict();
@@ -29,6 +29,7 @@ export default function ReleaseLogDetail(props: { fallbackMarkdown?: string }) {
 
   return (
     <Detail
+      navigationTitle="Release Notes"
       markdown={releaseMarkdown || props.fallbackMarkdown}
       actions={
         <ActionPanel>

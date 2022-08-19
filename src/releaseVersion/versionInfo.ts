@@ -2,11 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
-<<<<<<< HEAD
- * @lastEditTime: 2022-07-31 23:55
-=======
- * @lastEditTime: 2022-08-03 10:29
->>>>>>> dev
+ * @lastEditTime: 2022-08-19 10:44
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +11,7 @@
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
 import { requestCostTime } from "../axiosConfig";
-import { changelog } from "./changelog";
+import { releaseNote } from "./releaseNote";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";
@@ -37,7 +33,7 @@ export class Easydict {
   versionDate = "2022-08-01";
   isNeedPrompt = true;
   hasPrompted = false; // always default false, only show once, then should be set to true.
-  releaseMarkdown = changelog;
+  releaseMarkdown = releaseNote;
 
   getRepoUrl() {
     return `${githubUrl}/${Easydict.author}/${Easydict.repo}`;

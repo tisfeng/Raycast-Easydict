@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 21:51
+ * @lastEditTime: 2022-08-19 10:38
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,7 +24,7 @@ import {
   getYoudaoWebDictionaryURL,
 } from "./language/languages";
 import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./preferences";
-import ReleaseLogDetail from "./releaseVersion/releaseLog";
+import ReleaseNotesPage from "./releaseVersion/releaseNotesPage";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
 import {
@@ -79,7 +79,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
     <ActionPanel>
       <ActionPanel.Section>
         {isShowingReleasePrompt && (
-          <ActionRecentUpdate title="✨ New Version Released" onPush={onNewReleasePromptClick} />
+          <ReleaseNotesAction title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
 
         {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
@@ -166,7 +166,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
       )}
 
       <ActionPanel.Section>
-        {!isShowingReleasePrompt && <ActionRecentUpdate />}
+        {!isShowingReleasePrompt && <ReleaseNotesAction />}
         <ActionCurrentVersion />
         <ActionOpenCommandPreferences />
         <ActionFeedback />
@@ -184,12 +184,12 @@ function ActionOpenCommandPreferences() {
   return <Action icon={Icon.Gear} title="Preferences" onAction={openCommandPreferences} />;
 }
 
-function ActionRecentUpdate(props: { title?: string; onPush?: () => void }) {
+function ReleaseNotesAction(props: { title?: string; onPush?: () => void }) {
   return (
     <Action.Push
       icon={Icon.Stars}
       title={props.title || "Recent Updates"}
-      target={<ReleaseLogDetail />}
+      target={<ReleaseNotesPage />}
       onPush={props.onPush}
     />
   );
