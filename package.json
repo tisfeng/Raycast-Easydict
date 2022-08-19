@@ -11,7 +11,7 @@
       "name": "easydict",
       "title": "Search Word",
       "subtitle": "Easydict",
-      "description": "Automatically identify the input text language, query preferred language dictionary or translate the text.",
+      "description": "Automatically detect the input text language, and query preferred language dictionary or translate the text.",
       "mode": "view"
     }
   ],
