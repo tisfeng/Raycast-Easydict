@@ -11,12 +11,11 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
-
 ## Easydict（易词典）
 
 `Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入的文本语言，目前支持 **Linguee** 和有道词典查询，支持**苹果 🍎 系统翻译**，DeepL，Google，百度，腾讯，有道和彩云翻译。
 
-![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1658309667-1658309686.png)
+![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1660916219.png)
 
 ## 功能
 
@@ -41,13 +40,21 @@
 
 **_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧～_**
 
-![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1658309750.png)
+### Linguee 词典：英语 <--> 中文
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1658584128.png)
+![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1660919430.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1658584144.png)
+### Linguee 词典：英语 <--> 法语
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1658584150.png)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
+
+![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
+
+### 文本翻译
+
+![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1660916386.png)
+
+![easydict-6](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1660916492.png)
 
 ---
 
@@ -55,7 +62,7 @@
 
 实际上，你不需要做任何额外设置它就能工作得很好。 以下是进阶文档，面向那些希望更好地使用 `Easydict` 或想了解该扩展工作原理的用户。
 
-![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2022-07-16_18.57.16.png)
+![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
 
 ### 语言支持
 
@@ -129,14 +136,6 @@
 
 </p>
 
-</details>
-
-[有道翻译](https://fanyi.youdao.com/?keyfrom=dict2.top)
-
-![image-20220531223631425](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220531223631425.png)
-
-![heel](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/heel-1658321695.png)
-
 ### 划词查询
 
 <details> <summary> 自动查询最前应用程序选定的文本，默认开启。 </summary>
@@ -163,7 +162,7 @@
 
 使用快捷键 `Cmd + S` 播放单词发音。
 
-![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1658321887.png)
+![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
 ### 选择目标语言
 
@@ -183,7 +182,7 @@
 
 <p>
 
-名称大小写不敏感，使用逗号分隔开。例如：`deepl,google,apple,baidu,tencent,youdao,caiyun`。也可仅指定部分排序，如：`apple,tencent`，这时程序实际排序是：`apple,tencent,deepl,google,baidu,youdao,caiyun`。
+名称大小写不敏感，使用逗号分隔开。例如：`deepl,google,apple,baidu,tencent,youdao,caiyun`。也可仅指定部分排序，如：`apple,tencent`，此时程序实际排序是：`apple,tencent,deepl,google,baidu,youdao,caiyun`。
 
 > 注意：以上排序是总体排序，若某项翻译服务未开启，排序会自动忽略。
 

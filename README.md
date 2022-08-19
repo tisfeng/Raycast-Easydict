@@ -10,11 +10,12 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
+
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/wiki)
 
 `Easydict` is an easy dictionary, for looking up words or easily translating text. Use it out of the box, automatically detect the input text language, and support **Linguee** and Youdao dictionary, **MacOS system translate**, DeepL, Google, Baidu, Tencent, Youdao, and Caiyun translation.
 
-![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1658309667-1658309686.png)
+![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1660916219.png)
 
 ## Features
 
@@ -39,13 +40,21 @@ Next:
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
-![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1658309750.png)
+### Linguee Dictionary：English <--> Chinese
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1658584128.png)
+![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1660919430.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1658584144.png)
+### Linguee Dictionary：English <--> French
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1658584150.png)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
+
+![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
+
+### Translation
+
+![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1660916386.png)
+
+![easydict-6](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1660916492.png)
 
 ---
 
@@ -53,7 +62,7 @@ Next:
 
 Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydict` better or understand how the extension works.
 
-![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2022-07-16_18.57.16.png)
+![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
 
 ### Supported Languages
 
@@ -129,12 +138,6 @@ For example, if you input a sentence arbitrarily, it will be translated into the
 
 </details>
 
-[Youdao translation](https://fanyi.youdao.com/?keyfrom=dict2.top)
-
-![image-20220531223631425](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220531223631425.png)
-
-![heel](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/heel-1658321695.png)
-
 ### Automatic Query Selected Text
 
 <details><summary> Automatic query selected text of the frontmost application, this option is turned on by default. </summary>
@@ -163,7 +166,7 @@ Play audio content: English words are preferred to be pronounced in an online yo
 
 Use `Cmd + S` to play the pronunciation of words manually.
 
-![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1658321887.png)
+![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
 ### Select Target Translation Language
 
