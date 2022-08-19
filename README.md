@@ -40,6 +40,8 @@ Next:
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
+---
+
 ### Linguee Dictionary：English <--> Chinese
 
 [void](https://www.linguee.com/english-chinese/search?query=void)

@@ -41,6 +41,8 @@
 
 **_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧～_**
 
+---
+
 ### Linguee 词典：英语 <--> 中文
 
 [void](https://www.linguee.com/english-chinese/search?query=void)
