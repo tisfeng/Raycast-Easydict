@@ -52,7 +52,7 @@
 
 ### ✨ New
 
-- Added Apple 🍎 system translation. (Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/wiki/How-to-use--macOS-%F0%9F%8D%8E-system-translation-in-Easydict%3F))
+- Added Apple 🍎 system translation. (Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How%20to%20use%20macOS%20%F0%9F%8D%8E%20system%20translation%20in%20Easydict%3F.md))
 - Added Apple 🍎 system language detection.
 - Added view recent version changelog feature.
 

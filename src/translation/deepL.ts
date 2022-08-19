@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 17:05
+ * @lastEditTime: 2022-08-19 22:46
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,7 +55,7 @@ export async function requestDeepLTextTranslate(queryWordInfo: QueryWordInfo): P
     source_lang: sourceLang,
     target_lang: targetLang,
   };
-  console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
+  // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
   return new Promise((resolve, reject) => {
     axios
@@ -135,7 +135,7 @@ export function getDeepLAuthKey(): Promise<string> {
   return new Promise((resolve) => {
     const userKey = KeyStore.userDeepLAuthKey;
     if (userKey) {
-      console.log(`---> user deepL key: ${userKey}`);
+      // console.log(`---> user deepL key: ${userKey}`);
       resolve(userKey);
     }
 

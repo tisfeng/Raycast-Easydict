@@ -29,7 +29,7 @@
 - [x] 支持手动排序翻译结果显示。
 - [x] 支持使系统代理。
 - [x] 支持 Linguee 和有道词典查询。
-- [x] 支持 **MacOS 系统翻译**。详情请看 [如何在 Easydict 中使用 macOS 🍎 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+- [x] 支持 **MacOS 系统翻译**。详情请看 [如何在 Easydict 中使用 macOS 🍎 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8%20Easydict%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20macOS%20%F0%9F%8D%8E%20%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F.md)
 - [x] 支持 DeepL，谷歌，百度，腾讯，有道和彩云翻译。
 - [x] 支持 23 种语言。
 
