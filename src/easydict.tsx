@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-19 11:49
+ * @lastEditTime: 2022-08-19 17:18
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -170,8 +170,9 @@ export default function () {
       actions={null}
     >
       {displayResult.map((resultItem, idx) => {
+        const sectionKey = `${resultItem.type}${idx}`;
         return (
-          <List.Section key={idx} title={resultItem.sectionTitle}>
+          <List.Section key={sectionKey} title={resultItem.sectionTitle}>
             {resultItem.items?.map((item) => {
               return (
                 <List.Item
