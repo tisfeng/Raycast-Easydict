@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/eudic-icon.png" height="128">
   <h1 align="center">Easydict</h1>
   <h4 align="center"> Easy to look up words or translate text</p>
-<p align="center">🇨🇳 🇬🇧 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿</p>
+<p align="center">🇨🇳 🇺🇸 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿</p>
 
 </p>
 
@@ -22,7 +22,7 @@
 
 - [x] 开箱即用，便捷查找单词或翻译文本。
 - [x] 自动识别输入语言，自动查询目标偏好语言。
-- [x] 提供丰富的单词查询信息，包括基本翻译，包含该单词的考试类型，发音，多种词性和解释，形式和时态，网络翻译和网络短语。
+- [x] 提供丰富的单词查询信息，包括基本翻译，包含该单词的考试类型，发音，多种词性和释义，形式和时态，网络翻译和网络短语。
 - [x] 支持划词查询，默认启用。
 - [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上有安装）。
 - [x] 支持自动播放单词发音，可在设置中开启。使用 `Cmd + S` 手动播放单词发音。
@@ -68,8 +68,8 @@
 
 #### 词典
 
-有道：简体中文，繁体中文，英语。
-Linguee:（中文，日语，俄语），英语，德语，法语，意大利语，西班牙语，葡萄牙语，荷兰语，波兰语，丹麦语，芬兰语，瑞典语，希腊语，捷克语，匈牙利语，罗马尼亚语，斯洛伐克语。
+- 有道词典：简体中文，繁体中文，英语。
+- Linguee:（中文，日语，俄语），英语，法语，西班牙语，葡萄牙语，意大利语，德语，瑞典语，罗马尼亚语，斯洛伐克语，荷兰语，匈牙利语，希腊语，丹麦语，芬兰语，波兰语，捷克语。
 
 #### 翻译
 
@@ -197,7 +197,7 @@ Linguee:（中文，日语，俄语），英语，德语，法语，意大利语
 
 ### 支持系统代理
 
-开启该功能后，`Easydict` 会尝试获取电脑系统代理，若成功，则后续的网络请求都会使用系统代理发送。（此功能是为了对抗 IP 封锁，因为某些服务如 Linguee 对 IP 有频率限制）
+开启该功能后，`Easydict` 会尝试获取 Mac 系统代理，若成功，则后续的网络请求都会使用系统代理发送。（此功能是为了对抗 IP 封锁，因为某些服务如 Linguee 对 IP 有频率限制）
 
 ### 翻译服务
 
@@ -215,7 +215,7 @@ Linguee:（中文，日语，俄语），英语，德语，法语，意大利语
 
 - [彩云小译](https://v0.bobtranslate.com/#/service/translate/caiyun)
 
-- [DeepL](https://www.deepl.com/pro-api)
+- [DeepL](https://www.deepl.com/translator)
 
 ![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
 

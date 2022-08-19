@@ -59,16 +59,15 @@ Actually, it works well without you having to do any extra work. The next are ad
 
 #### Language Detection
 
-Tencent: Chinese, English, Japanese, K
-
-#### Dictionary
-
-- Youdao: Chinese (Simplified), Chinese (Traditional), English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian.
+- Tencent: Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, Russian, German.
 - Baidu: Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 - 🍎Apple: Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 - Google: Chinese (Simplified), Chinese (Traditional), English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
-Linguee: (Chinese, Japanese, Russian), English, German, French, Italian, Spanish, Portuguese, Dutch, Polish, Danish, Finnish, Swedish, Greek, Czech, Hungarian, Romanian, Slovak.
+#### Dictionary
+
+- Youdao: Chinese (Simplified), Chinese (Traditional), English.
+- Linguee: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
 #### Translator
 
@@ -198,7 +197,7 @@ Name case are insensitive, use comma to separate. Example: `deepl,google,apple,b
 
 ### System Proxy
 
-When this feature is enabled, `Easydict` will try to get the computer system proxy. If it succeeds, all subsequent network requests will be sent using the system proxy. (This feature is to counteract IP blocking, because some services like Linguee have frequency restrictions on IPs)
+When this feature is enabled, `Easydict` will try to get the Mac system proxy. If succeeds, all subsequent network requests will be sent using the system proxy. (This feature is to counteract IP blocking, because some services like Linguee have frequency restrictions on IPs)
 
 ### Translation Services
 
@@ -215,7 +214,7 @@ The following application tutorial is from [`Bob`](https://v0.bobtranslate.com/#
 
 - [Caiyun Translate](https://v0.bobtranslate.com/#/service/translate/caiyun)
 
-- [DeepL](https://www.deepl.com/pro-api)
+- [DeepL](https://www.deepl.com/translator)
 
 ![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
 
