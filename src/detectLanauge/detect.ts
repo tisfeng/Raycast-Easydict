@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-20 16:34
+ * @lastEditTime: 2022-08-20 16:38
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -178,10 +178,13 @@ function handleDetectedLanguageTypeResult(
     }
   }
 
-  // 3. Iterate API detected language List, check if has detected two identical language id, if true, use it.
+  // 3. Iterate API detected language List, check if has detected two identical language id, if true and is preferred language, use it.
   for (const language of apiDetectedLanguageList) {
     const detectedYoudaoLanguageId = apiDetectedLanguage.youdaoLanguageId;
-    if (language.youdaoLanguageId === detectedYoudaoLanguageId && isValidLanguageId(detectedYoudaoLanguageId)) {
+    if (
+      language.youdaoLanguageId === detectedYoudaoLanguageId &&
+      isPreferredLanguage(apiDetectedLanguage.youdaoLanguageId)
+    ) {
       language.confirmed = true;
       console.warn(`---> API: ${apiDetectedLanguage.type} && ${language.type}, detected identical language`);
       console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
