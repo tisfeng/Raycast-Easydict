@@ -11,10 +11,10 @@
 import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { getLingueeWebDictionaryUrl as getLingueeWebDictionaryURL } from "./dict/linguee/parse";
-import { LingueeListItemType } from "./dict/linguee/types";
-import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dict/youdao/types";
-import { playYoudaoWordAudioAfterDownloading } from "./dict/youdao/youdao";
+import { getLingueeWebDictionaryUrl as getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
+import { LingueeListItemType } from "./dictionary/linguee/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
+import { playYoudaoWordAudioAfterDownloading } from "./dictionary/youdao/youdao";
 import { languageItemList } from "./language/consts";
 import {
   getBaiduWebTranslateURL,

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-20 10:47
+ * @lastEditTime: 2022-08-22 23:32
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,11 +12,11 @@ import { environment } from "@raycast/api";
 import axios from "axios";
 import { detectLanguage } from "../detectLanauge/detect";
 import { LanguageDetectTypeResult } from "../detectLanauge/types";
-import { rquestLingueeDictionary } from "../dict/linguee/linguee";
-import { formatLingueeDisplaySections } from "../dict/linguee/parse";
-import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dict/youdao/formatData";
-import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dict/youdao/types";
-import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dict/youdao/youdao";
+import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
+import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
+import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
+import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dictionary/youdao/youdao";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
 import { LanguageItem } from "../language/type";
 import { myPreferences } from "../preferences";

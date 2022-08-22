@@ -8,10 +8,10 @@
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { hasLingueeDictionaryEntries } from "../dict/linguee/parse";
-import { LingueeDictionaryResult } from "../dict/linguee/types";
-import { hasYoudaoDictionaryEntries } from "../dict/youdao/formatData";
-import { YoudaoDictionaryFormatResult } from "../dict/youdao/types";
+import { hasLingueeDictionaryEntries } from "../dictionary/linguee/parse";
+import { LingueeDictionaryResult } from "../dictionary/linguee/types";
+import { hasYoudaoDictionaryEntries } from "../dictionary/youdao/formatData";
+import { YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import {
   getLanguageItemFromYoudaoId,
   maxLineLengthOfChineseTextDisplay,

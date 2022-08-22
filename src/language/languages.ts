@@ -9,7 +9,7 @@
  */
 
 import { francLangaugeDetect } from "../detectLanauge/franc";
-import { QueryWordInfo } from "../dict/youdao/types";
+import { QueryWordInfo } from "../dictionary/youdao/types";
 import { preferredLanguages } from "./../preferences";
 import { languageItemList } from "./consts";
 import { LanguageItem } from "./type";

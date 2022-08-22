@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 21:49
+ * @lastEditTime: 2022-08-22 23:29
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -88,8 +88,7 @@ export class KeyStore {
   private static defaultCaiyunToken = myDecrypt(this.defaultEncryptedCaiyunToken);
 
   // youdao app id and appsecret
-  static youdaoAppId =
-    myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : this.defaultYoudaoAppId;
+  static youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : undefined;
   static youdaoAppSecret =
     myPreferences.youdaoAppSecret.trim().length > 0
       ? myPreferences.youdaoAppSecret.trim()
