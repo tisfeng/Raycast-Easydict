@@ -29,7 +29,7 @@
 - [x] Support to sort translation results manually.
 - [x] Support system proxy.
 - [x] Support Linguee and Youdao Dictionary.
-- [x] Support **macOS system translation**. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
+- [x] Support macOS system translation. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
 - [x] Support DeepL, Google, Baidu, Tencent, Youdao, and Caiyun translation.
 - [x] Support 23 languages.
 
@@ -106,7 +106,7 @@ Actually, it works well without you having to do any extra work. The next are ad
 - Youdao: Chinese (Simplified), Chinese (Traditional), English.
 - Linguee: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
-#### Translator
+#### Translation
 
 Currently we support 23 languages: Chinese (Simplified), Chinese (Traditional), English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 

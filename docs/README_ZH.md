@@ -26,10 +26,10 @@
 - [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上有安装）。
 - [x] 支持自动播放单词发音。使用 `Cmd + S` 手动播放单词发音。
 - [x] 支持有道文本合成语音（TTS）。
-- [x] 支持手动排序翻译结果显示。
+- [x] 支持手动排序翻译结果。
 - [x] 支持使系统代理。
 - [x] 支持 Linguee 和有道词典查询。
-- [x] 支持 **MacOS 系统翻译**。详情请看 [如何在 Easydict 中使用 macOS 🍎 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
+- [x] 支持 MacOS 系统翻译。详情请看 [如何在 Easydict 中使用 macOS 🍎 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
 - [x] 支持 DeepL，谷歌，百度，腾讯，有道和彩云翻译。
 - [x] 支持 23 种语言。
 
@@ -207,7 +207,7 @@ npm install && npm run dev
 
 </details>
 
-### 手动排序翻译结果显示
+### 手动排序翻译结果
 
 <details> <summary> 你可以按照自己的偏好对翻译结果显示进行排序，默认是 DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun。 </summary>
 
