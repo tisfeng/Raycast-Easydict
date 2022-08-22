@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-22 23:53
+ * @lastEditTime: 2022-08-23 00:17
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -54,7 +54,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
     curtime: timestamp,
     to: toLanguage,
   });
-  console.log(`---> youdao params: ${params}`);
+  // console.log(`---> youdao params: ${params}`);
 
   return new Promise((resolve, reject) => {
     axios

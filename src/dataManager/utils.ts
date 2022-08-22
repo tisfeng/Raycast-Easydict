@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 16:51
+ * @lastEditTime: 2022-08-23 00:08
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,8 +18,7 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
 import { myPreferences } from "../preferences";
-import { DicionaryType, QueryTypeResult, TranslationItem, TranslationType } from "../types";
-import { QueryResult } from "../types";
+import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, TranslationType } from "../types";
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
@@ -85,7 +84,9 @@ export function isTranslationTooLong(translation: string, toLanguage: string): b
   } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
     isTooLong = true;
   }
-  //   console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+  if (isTooLong) {
+    console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+  }
   return isTooLong;
 }
 
