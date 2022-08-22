@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-22 23:32
+ * @lastEditTime: 2022-08-23 00:40
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,7 +36,7 @@ import {
   QueryTypeResult,
   TranslationType,
 } from "../types";
-import { showErrorToast } from "../utils";
+import { checkIsWord, showErrorToast } from "../utils";
 import {
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
@@ -355,9 +355,11 @@ export class DataManager {
   private queryYoudaoDictionary(queryWordInfo: QueryWordInfo) {
     // * Youdao dictionary only support chinese <--> english.
     const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
-    const isValidYoudaoDictionaryQuery =
+    const isValidYoudaoDictionaryLanguageQuery =
       youdaoDictionarySet.has(queryWordInfo.fromLanguage) && youdaoDictionarySet.has(queryWordInfo.toLanguage);
-    const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryQuery;
+    const isWord = checkIsWord(queryWordInfo.word);
+    const enableYoudaoDictionary =
+      myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
     if (enableYoudaoDictionary || enableYoudaoTranslate) {

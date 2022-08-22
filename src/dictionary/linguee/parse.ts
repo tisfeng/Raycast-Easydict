@@ -11,6 +11,7 @@
 import { parse } from "node-html-parser";
 import { getLanguageItemFromDeepLSourceId, getLanguageTitle } from "../../language/languages";
 import { DicionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from "../../types";
+import { checkIsWord } from "../../utils";
 import { QueryWordInfo } from "../youdao/types";
 import { getValidLingueeLanguagePair } from "./languages";
 import {
@@ -390,7 +391,7 @@ function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string
 export function getLingueeWebDictionaryURL(queryWordInfo: QueryWordInfo): string | undefined {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
-  const isWord = word.length < 20; // Linguee is only used for `word` looking dictionary.
+  const isWord = checkIsWord(word); // Linguee is only used for `word` looking dictionary.
   if (!validLanguagePair || !isWord) {
     console.log(`check linguee, not a valid language pair: ${validLanguagePair}, or not word: ${word}`);
     return;

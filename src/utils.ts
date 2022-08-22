@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 17:09
+ * @lastEditTime: 2022-08-23 00:36
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,11 @@ import { clipboardQueryTextKey } from "./consts";
 import { myPreferences } from "./preferences";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { DicionaryType, QueryRecoredItem, QueryType, RequestErrorInfo } from "./types";
+
+/**
+ * Max length for word to query dictionary.
+ */
+const maxWordLength = 20;
 
 /**
  * Eudic bundleIds.
@@ -142,4 +147,11 @@ export function getTypeErrorInfo(type: QueryType, error: AxiosError) {
     message: errorMessage,
   };
   return errorInfo;
+}
+
+/**
+ * Check is word, only word.length < 20 is valid.
+ */
+export function checkIsWord(word: string) {
+  return word.trim().length < maxWordLength;
 }
