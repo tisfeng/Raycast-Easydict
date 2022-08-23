@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 00:36
+ * @lastEditTime: 2022-08-23 10:33
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -98,11 +98,13 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
 }
 
 /**
- * Trim the text to the max length, default 2000.
+ * Trim the text to the max length, default 1830.
+ *
+ * * Note: google web translate max length is 1830.
  *
  * 例如，百度翻译 query 长度限制：为保证翻译质量，请将单次请求长度控制在 6000 bytes 以内（汉字约为输入参数 2000 个）
  */
-export function trimTextLength(text: string, length = 2000) {
+export function trimTextLength(text: string, length = 1830) {
   text = text.trim();
   if (text.length > length) {
     return text.substring(0, length) + "...";
