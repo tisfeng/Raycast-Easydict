@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 00:17
+ * @lastEditTime: 2022-08-23 10:51
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -28,6 +28,8 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 /**
  * Youdao translate, use official API. Cost time: 0.2s
+ *
+ * * Note: max length of text to translate must <= 1000, otherwise, will get error: "103	翻译文本过长"
  *
  * 有道翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
@@ -108,6 +110,10 @@ function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
     }
     case YoudaoErrorCode.TargetLanguageNotSupported: {
       errorMessage = "Target language not supported";
+      break;
+    }
+    case YoudaoErrorCode.TranslatedTextTooLong: {
+      errorMessage = "Translated text too long";
       break;
     }
     case YoudaoErrorCode.InvalidApplicationID: {
