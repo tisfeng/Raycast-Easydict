@@ -10,10 +10,9 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
-
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/README_ZH.md)
 
-`Easydict` is an easy dictionary, for looking up words or easily translating text. Use it out of the box, automatically detect the input text language, and support [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/), **MacOS system translation**, [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.cn), [Baidu](https://fanyi.baidu.com/), [Tencent](https://fanyi.qq.com/), [Youdao](https://fanyi.youdao.com/), and [Caiyun translation](https://fanyi.caiyunapp.com/#/).
+`Easydict` is an easy dictionary, for looking up words or translating text easily. Use it out of the box, automatically detect the input text language, and support [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/), **🍎 MacOS system translation**, [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.cn), [Baidu](https://fanyi.baidu.com/), [Tencent](https://fanyi.qq.com/), [Youdao](https://fanyi.youdao.com/), and [Caiyun translation](https://fanyi.caiyunapp.com/#/).
 
 ![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1660916219.png)
 
@@ -29,7 +28,7 @@
 - [x] Support to sort translation results manually.
 - [x] Support system proxy.
 - [x] Support Linguee and Youdao Dictionary.
-- [x] Support macOS system translation. (_Please see [How to use macOS 🍎 system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
+- [x] Support macOS system translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
 - [x] Support DeepL, Google, Baidu, Tencent, Youdao, and Caiyun translation.
 - [x] Support 23 languages.
 
@@ -50,7 +49,7 @@ Next:
 
 ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png)
 
-### [Linguee Dictionary](<(https://www.linguee.com/)>)：English <--> French
+### [Linguee Dictionary](https://www.linguee.com/)：English <--> French
 
 ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
 
