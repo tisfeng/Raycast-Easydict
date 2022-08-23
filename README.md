@@ -66,7 +66,7 @@ Next:
 
 ![easydict-6](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1660916492.png)
 
-### Installation
+## Installation
 
 [`Easydict`](<(https://www.raycast.com/isfeng/easydict)>) is an extension of Raycast, so you need to install [Raycast](https://www.raycast.com/) first.
 
