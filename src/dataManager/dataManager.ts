@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 11:19
+ * @lastEditTime: 2022-08-23 11:28
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -83,7 +83,7 @@ export class DataManager {
    * Show detail of translation. Only dictionary is empty, and translation is too long, then show detail.
    */
   isShowDetail = false;
-  hasPlayAudio = false;
+  hasPlayedAudio = false;
 
   abortObject: AbortObject = {};
 
@@ -271,7 +271,7 @@ export class DataManager {
    * Rest properyies before each query.
    */
   private resetProperties() {
-    this.hasPlayAudio = false;
+    this.hasPlayedAudio = false;
     this.isLastQuery = true;
     this.shouldClearQuery = false;
     this.queryRecordList = [];
@@ -688,10 +688,11 @@ export class DataManager {
    * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
   private downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
-    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo?.isWord;
-    if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayAudio) {
+    const isWord = checkIsWord(wordInfo);
+    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && isWord;
+    if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
-      this.hasPlayAudio = true;
+      this.hasPlayedAudio = true;
     }
   }
 
