@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 10:33
+ * @lastEditTime: 2022-08-23 11:22
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,6 +11,7 @@
 import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
 import { AxiosError } from "axios";
 import { clipboardQueryTextKey } from "./consts";
+import { QueryWordInfo } from "./dictionary/youdao/types";
 import { myPreferences } from "./preferences";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { DicionaryType, QueryRecoredItem, QueryType, RequestErrorInfo } from "./types";
@@ -154,6 +155,16 @@ export function getTypeErrorInfo(type: QueryType, error: AxiosError) {
 /**
  * Check is word, only word.length < 20 is valid.
  */
-export function checkIsWord(word: string) {
+export function checkIsWordLength(word: string) {
   return word.trim().length < maxWordLength;
+}
+
+/**
+ * Check queryWordInfo is word.
+ */
+export function checkIsWord(queryWordInfo: QueryWordInfo) {
+  // If there is no dictionary to check if it is a word, default as word, then use word length to check.
+  const isWord = queryWordInfo.isWord === undefined ? true : queryWordInfo.isWord;
+  const isWordLength = checkIsWordLength(queryWordInfo.word);
+  return isWord && isWordLength;
 }

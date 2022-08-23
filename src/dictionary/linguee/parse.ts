@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 00:29
+ * @lastEditTime: 2022-08-23 11:15
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -391,7 +391,7 @@ function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string
 export function getLingueeWebDictionaryURL(queryWordInfo: QueryWordInfo): string | undefined {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
-  const isWord = checkIsWord(word); // Linguee is only used for `word` looking dictionary.
+  const isWord = checkIsWord(queryWordInfo); // Linguee is only used for `word` looking dictionary.
   if (!validLanguagePair || !isWord) {
     console.log(`check linguee, not a valid language pair: ${validLanguagePair}, or not word: ${word}`);
     return;

@@ -74,6 +74,9 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
           return;
         }
 
+        // use Youdao dictionary check if query text is a word.
+        queryWordInfo.isWord = youdaoResult.isWord;
+
         const youdaoTypeResult: QueryTypeResult = {
           type: TranslationType.Youdao,
           result: youdaoFormatResult,

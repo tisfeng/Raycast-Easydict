@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 00:40
+ * @lastEditTime: 2022-08-23 11:19
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -357,7 +357,7 @@ export class DataManager {
     const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
     const isValidYoudaoDictionaryLanguageQuery =
       youdaoDictionarySet.has(queryWordInfo.fromLanguage) && youdaoDictionarySet.has(queryWordInfo.toLanguage);
-    const isWord = checkIsWord(queryWordInfo.word);
+    const isWord = checkIsWord(queryWordInfo);
     const enableYoudaoDictionary =
       myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
