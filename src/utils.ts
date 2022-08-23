@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 11:22
+ * @lastEditTime: 2022-08-23 12:33
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -163,8 +163,9 @@ export function checkIsWordLength(word: string) {
  * Check queryWordInfo is word.
  */
 export function checkIsWord(queryWordInfo: QueryWordInfo) {
-  // If there is no dictionary to check if it is a word, default as word, then use word length to check.
-  const isWord = queryWordInfo.isWord === undefined ? true : queryWordInfo.isWord;
-  const isWordLength = checkIsWordLength(queryWordInfo.word);
-  return isWord && isWordLength;
+  // If there is no dictionary to check if it is a word, then use word length to check.
+  if (queryWordInfo.isWord === undefined) {
+    return checkIsWordLength(queryWordInfo.word);
+  }
+  return queryWordInfo.isWord;
 }
