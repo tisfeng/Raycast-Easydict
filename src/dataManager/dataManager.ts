@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 11:28
+ * @lastEditTime: 2022-08-26 01:01
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,11 @@ import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
 import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
-import { playYoudaoWordAudioAfterDownloading, requestYoudaoDictionary } from "../dictionary/youdao/youdao";
+import {
+  playYoudaoWordAudioAfterDownloading,
+  requestYoudaoDictionary,
+  youdaoWebTranslate,
+} from "../dictionary/youdao/youdao";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
 import { LanguageItem } from "../language/type";
 import { myPreferences } from "../preferences";

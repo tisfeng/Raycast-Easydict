@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-20 11:13
+ * @lastEditTime: 2022-08-26 00:44
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,12 @@ import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/
 import { LanguageDetectType } from "./detectLanauge/types";
 import { IcibaDictionaryResult } from "./dictionary/iciba/interface";
 import { LingueeDictionaryResult, LingueeListItemType } from "./dictionary/linguee/types";
-import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
+import {
+  QueryWordInfo,
+  YoudaoDictionaryFormatResult,
+  YoudaoDictionaryListItemType,
+  YoudaoWebTranslateResult,
+} from "./dictionary/youdao/types";
 import { LanguageItem } from "./language/type";
 
 export interface ActionListPanelProps {
@@ -56,6 +61,7 @@ export interface QueryTypeResult {
 
 export type QueryResponse =
   | YoudaoDictionaryFormatResult
+  | YoudaoWebTranslateResult
   | BaiduTranslateResult
   | TencentTranslateResult
   | CaiyunTranslateResult

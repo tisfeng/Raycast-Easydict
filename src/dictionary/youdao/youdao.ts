@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 10:51
+ * @lastEditTime: 2022-08-26 01:28
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,12 +14,26 @@ import querystring from "node:querystring";
 import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
-import { YoudaoErrorCode } from "../../consts";
+import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
 import { formatYoudaoDictionaryResult } from "./formatData";
-import { QueryWordInfo, YoudaoDictionaryResult } from "./types";
+import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebTranslateResult } from "./types";
+
+const youdaoTranslatURL = "https://fanyi.youdao.com";
+let youdaoCookie =
+  "OUTFOX_SEARCH_USER_ID=362474716@10.108.162.139; Domain=.youdao.com; Expires=Sat, 17-Aug-2052 15:39:50 GMT";
+
+/**
+ * Get youdao cookie from youdao web.
+ */
+axios.get(youdaoTranslatURL).then((response) => {
+  if (response.headers["set-cookie"]) {
+    youdaoCookie = response.headers["set-cookie"]?.join(";");
+    console.warn(`youdaoCookie: ${youdaoCookie}`);
+  }
+});
 
 /**
  * Max length of text to download youdao tts audio
@@ -57,6 +71,8 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
     to: toLanguage,
   });
   // console.log(`---> youdao params: ${params}`);
+
+  youdaoWebTranslate(queryWordInfo);
 
   return new Promise((resolve, reject) => {
     axios
@@ -98,6 +114,81 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
 
+        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        reject(errorInfo);
+      });
+  });
+}
+
+/**
+ * Youdao translate, use web API. Cost time: 0.2s
+ *
+ * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
+ */
+export function youdaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
+
+  const timestamp = new Date().getTime();
+  const lts = timestamp.toString(); // 1661435375537
+  const salt = timestamp.toString() + Math.round(Math.random() * 10); // 16614353755371
+  const bv = CryptoJS.MD5(userAgent).toString();
+  const sign = CryptoJS.MD5("fanyideskweb" + word + salt + "Ygy_4c=r#e#4EX^NUGUc5").toString();
+
+  const url = `${youdaoTranslatURL}/translate_o?smartresult=dict&smartresult=rule`;
+  const headers = {
+    "User-Agent": userAgent,
+    Referer: youdaoTranslatURL,
+    Cookie: youdaoCookie,
+  };
+  const data = {
+    salt,
+    sign,
+    lts,
+    bv,
+    i: word,
+    from: fromLanguage,
+    to: toLanguage,
+    smartresult: "dict",
+    client: "fanyideskweb",
+    doctype: "json",
+    version: "2.1",
+    keyfrom: "fanyi.web",
+    action: "FY_BY_REALTlME",
+  };
+  console.log(`---> youdao data: ${util.inspect(data, { depth: null })}`);
+
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, querystring.stringify(data), { headers })
+      .then((response) => {
+        console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
+        const youdaoWebResult = response.data as YoudaoWebTranslateResult;
+        if (youdaoWebResult.errorCode === 0) {
+          const translatedText = youdaoWebResult.translateResult[0][0].tgt as string;
+          console.log(`youdao web translatedText: ${translatedText}, cost: ${response.headers[requestCostTime]} ms`);
+          const youdaoTypeResult: QueryTypeResult = {
+            type: TranslationType.Youdao,
+            result: youdaoWebResult,
+            wordInfo: queryWordInfo,
+            translations: translatedText.split("\n"),
+          };
+          resolve(youdaoTypeResult);
+        } else {
+          const errorInfo: RequestErrorInfo = {
+            type: TranslationType.Youdao,
+            code: youdaoWebResult.errorCode.toString(),
+            message: "",
+          };
+          reject(errorInfo);
+        }
+      })
+      .catch((error) => {
+        if (error.message === "canceled") {
+          console.log(`---> youdao canceled`);
+          return;
+        }
+
+        console.log(`---> youdao translate error: ${error}`);
         const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
         reject(errorInfo);
       });
