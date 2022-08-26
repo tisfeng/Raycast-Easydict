@@ -29,7 +29,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.GMAIL_BOT_USERNAME }}
           password: ${{ secrets.GMAIL_BOT_PASSWORD }}
-          subject: ✨ Github repo has been ${{env.event_name}}
+          subject: ✨ GitHub repo has been ${{env.event_name}}!
           # List stargazers  https://github.com/tisfeng/Raycast-Easydict/stargazers
           body: "Your repo [${{ github.repository }}] was ${{env.event_name}} ✨ by {${{ github.actor }}} ${{ github.server_url }}/${{ github.actor }},  stargazers list: ${{ github.server_url }}/${{ github.repository }}/stargazers"
           to: ${{ secrets.EMAIL_ADDRESS }}
