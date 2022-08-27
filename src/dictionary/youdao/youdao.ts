@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-27 10:49
+ * @lastEditTime: 2022-08-27 19:40
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,8 +18,8 @@ import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { copyToClipboard, getTypeErrorInfo } from "../../utils";
-import { formatYoudaoDictionaryResult } from "./formatData";
-import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebTranslateResult } from "./types";
+import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
+import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
 
 const youdaoTranslatURL = "https://fanyi.youdao.com";
 let youdaoCookie =
@@ -31,7 +31,7 @@ let youdaoCookie =
 axios.get(youdaoTranslatURL).then((response) => {
   if (response.headers["set-cookie"]) {
     youdaoCookie = response.headers["set-cookie"]?.join(";");
-    console.warn(`youdaoCookie: ${youdaoCookie}`);
+    // console.warn(`youdaoCookie: ${youdaoCookie}`);
   }
 });
 
@@ -45,7 +45,7 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
  *
  * * Note: max length of text to translate must <= 1000, otherwise, will get error: "103	翻译文本过长"
  *
- * 有道翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
+ * 有道（词典）翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
 export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao`);
@@ -131,100 +131,86 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
 /**
  * Youdao web dictionary, zh <--> targetLanguage, supported target language: en, fr, ja, ko
  */
-export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo) {
-  console.log(`---> start request Youdao`);
+export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+  console.log(`---> start requestYoudaoWebDictionary`);
   const { fromLanguage, word } = queryWordInfo;
-  const dicts = [
-    [
-      "longman",
-      // "web_trans",
-      // "video_sents",
-      // "simple",
-      // "phrs",
-      // "syno",
-      // "collins",
-      // "word_video",
-      // "discriminate",
-      "ec",
-      // "ee",
-      // "blng_sents_part",
-      // "individual",
-      // "collins_primary",
-      // "rel_word",
-      // "auth_sents_part",
-      // "media_sents_part",
-      // "expand_ec",
-      // "etym",
-      // "special",
-      // "baike",
-      // "meta",
+  const dicts = [["web_trans", "ec"]];
 
-      // "senior",
-      // "webster",
-      // "oxford",
-      // "oxfordAdvance",
-      // "oxfordAdvanceHtml",
-    ],
-  ];
+  // dicts: ["web_trans","video_sents", "simple", "phrs",  "syno", "collins", "word_video",  "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special","baike", "meta", "senior", "webster","oxford", "oxfordAdvance", "oxfordAdvanceHtml"]
 
-  // dicts: ["web_trans", "oxfordAdvanceHtml", "video_sents", "simple", "phrs", "oxford", "syno", "collins", "word_video", "webster", "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special", "senior", "baike", "meta", "oxfordAdvance"]
-
-  /**
-   jsonversion: 2
-client: mobile
-q: good
-dicts: {"count":99,"dicts":[["ec","ce","newcj","newjc","kc","ck","fc","cf","multle","jtj","pic_dict","tc","ct","typos","special","tcb","baike","lang","simple","wordform","exam_dict","ctc","web_search","auth_sents_part","ec21","phrs","input","wikipedia_digest","ee","collins","ugc","media_sents_part","syno","rel_word","longman","ce_new","le","newcj_sents","blng_sents_part","hh"],["ugc"],["longman"],["newjc"],["newcj"],["web_trans"],["fanyi"]]}
-keyfrom: mdict.7.2.0.android
-model: honor
-mid: 5.6.1
-imei: 659135764921685
-vendor: wandoujia
-screen: 1080x1800
-ssid: superman
-network: wifi
-abtest: 2
-xmlVersion: 5.1
-   */
   const params = {
     q: word,
     le: fromLanguage,
-    jsonversion: 2,
-    client: "mobile",
-    dicts: `{"count":3 ,"dicts":${JSON.stringify(dicts)}}`,
-    keyfrom: "mdict.7.2.0.android",
-    model: "honor",
-    mid: "5.6.1",
-    imei: "659135764921685",
-    vendor: "wandoujia",
-    screen: "1080x1800",
-    ssid: "superman",
-    network: "wifi",
-    abtest: 2,
-    xmlVersion: "5.1",
+    dicts: `{"count":99 ,"dicts":${JSON.stringify(dicts)}}`,
+
+    // jsonversion: 2,
+    // client: "mobile",
+    // keyfrom: "mdict.7.2.0.android",
+    // model: "honor",
+    // mid: "5.6.1",
+    // imei: "659135764921685",
+    // vendor: "wandoujia",
+    // screen: "1080x1800",
+    // ssid: "superman",
+    // network: "wifi",
+    // abtest: 2,
+    // xmlVersion: "5.1",
   };
   console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
   const queryString = querystring.stringify(params);
-  const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
-  console.log(`---> youdao web dict url: ${dictUrl}`);
-
-  const headers = {
-    "User-Agent": userAgent,
-    Cookie: `JSESSIONID=abcSAn2OeFFV9e-wmnVfy; OUTFOX_SEARCH_USER_ID_NCOO=2137554906.8611808; OUTFOX_SEARCH_USER_ID="-1875619241@10.110.96.157"; search-popup-show=-1; PICUGC_FLASH=; PICUGC_SESSION=90fbe28fda40b5ff04f343a261160ce83d3439fc-%00_TS%3Asession%00; DICT_UGC=e65c970572f2dfea58db3393d069ae1c|m13397671157@163.com; webDict_HdAD=%7B%22req%22%3A%22http%3A//dict.youdao.com%22%2C%22width%22%3A960%2C%22height%22%3A240%2C%22showtime%22%3A5000%2C%22fadetime%22%3A500%2C%22notShowInterval%22%3A3%2C%22notShowInDays%22%3Afalse%2C%22lastShowDate%22%3A%22Mon%20Nov%2008%202010%22%7D; NTES_SESS=L_s6j5LsoBJ9gXmGNBURQ9BzCjFZq2CICS5dvKEkJpJqG3kH0hJnwBABNxnnTAX811Zu19Nf9ZQq83pNGVmQ77HvnjJSLol0oF_pnYDR6i03p2p2MNXy1kU4jxf8S_dMTaR7ESwo18XxK227hp3dkVLsrBP5bkRhHB.pUyk6ggwKE2uSEAQ9clIw9Y.g9rzo.pMgzr8qDjmgdqjJQOqsPSpwriUZnnUeQ; NTES_PASSPORT=bFlHWmiuaZgBM5R9EOx8moLoPEHhfYM3JrHr8PTtysFGlgDdIRry4UKUibyy.Ka_tRzYS_5EDbWJYujHU3NTvBWK3vPNzU91bG5iPqmqTlq73UZkVMgnRLpTX8Hg3hvujpYGNLTFrn_1vwsN8_5jnbK2rcjmjQC02IK2aGLanhbqxz_.y31qD1qQKK3Vv8Vet3w89Qpmridmd; S_INFO=1661229725|0|3&80##|m13397671157#ffdevolfxw#wxflovedff; P_INFO=m13397671157@163.com|1661229725|1|youdao_zhiyun2018|00&99|gud&1661222971&youdao_zhiyun2018#gud&441900#10#0#0|133157&1|youdao_zhiyun2018&search&cloudmusic&newsclient|13397671157@163.com; YOUDAO_MOBILE_ACCESS_TYPE=1; ___rl__test__cookies=1661442828116`,
-  };
+  const url = `https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4`;
+  console.log(`---> youdao web dict url: ${url}`);
 
   return new Promise((resolve, reject) => {
     axios
-      .get(dictUrl, { headers })
+      .post(url, queryString)
       .then((res) => {
-        // log response headers
-        console.log(`---> youdao web dict response headers: ${JSON.stringify(res.headers, null, 2)}`);
-
         console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
+
         const json = JSON.stringify(res.data, null, 4);
         copyToClipboard(json);
+
+        const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
+        const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
+        console.log(`---> youdao web dict ec: ${util.inspect(youdaoWebModel.ec, { depth: null })}`);
+
+        const type = DicionaryType.Youdao;
+        if (!youdaoFormatResult) {
+          console.error(`---> youdao web dict error: ${util.inspect(res, { depth: null })}`);
+          const errorInfo: RequestErrorInfo = {
+            type: type,
+            code: "",
+            message: "error 😭",
+          };
+          reject(errorInfo);
+          return;
+        }
+
+        // use Youdao dictionary check if query text is a word.
+        queryWordInfo.isWord = youdaoFormatResult.queryWordInfo.isWord;
+
+        const youdaoTypeResult: QueryTypeResult = {
+          type: type,
+          result: youdaoFormatResult,
+          wordInfo: youdaoFormatResult.queryWordInfo,
+          translations: youdaoFormatResult.translations,
+        };
+        console.warn(`---> youdao web dict e cost: ${res.headers[requestCostTime]} ms`);
+        resolve(youdaoTypeResult);
       })
-      .catch((error) => {
-        console.log(`---> youdao web dict error: ${error}`);
+      .catch((error: AxiosError) => {
+        if (error.message === "canceled") {
+          console.log(`---> youdao canceled`);
+          return;
+        }
+
+        console.error(`---> Youdao web dict error: ${error}`);
+
+        // It seems that Youdao will never reject, always resolve...
+        // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
+
+        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        reject(errorInfo);
       });
   });
 }

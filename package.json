@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "easydict",
   "title": "Easy Dictionary",
-  "description": "Easily look up words or translate text, support 23 languages, support Linguee and Youdao dictionary, support DeepL, Google, Apple Baidu, Tencent, Youdao and Caiyun translation.",
+  "description": "Easily look up words or translate text, support 23 languages, support Linguee and Youdao dictionary, support DeepL, Google, Apple, Baidu, Tencent, Youdao and Caiyun translation.",
   "icon": "Eudic.png",
   "author": "isfeng",
   "license": "MIT",

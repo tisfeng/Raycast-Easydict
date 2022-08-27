@@ -1,8 +1,9 @@
+import { KeyStore } from "./../preferences";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-27 11:11
+ * @lastEditTime: 2022-08-27 19:16
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,6 +20,7 @@ import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youda
 import {
   playYoudaoWordAudioAfterDownloading,
   requestYoudaoDictionary,
+  requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
@@ -367,11 +369,12 @@ export class DataManager {
       myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
     const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
     console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
-    if (enableYoudaoDictionary || enableYoudaoTranslate) {
+    if (enableYoudaoDictionary) {
       const type = DicionaryType.Youdao;
       this.addQueryToRecordList(type);
 
-      requestYoudaoDictionary(queryWordInfo)
+      const youdaoFnPtr = KeyStore.youdaoAppId ? requestYoudaoDictionary : requestYoudaoWebDictionary;
+      youdaoFnPtr(queryWordInfo)
         .then((youdaoTypeResult) => {
           console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
