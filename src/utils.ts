@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 12:33
+ * @lastEditTime: 2022-08-26 18:08
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -168,4 +168,11 @@ export function checkIsWord(queryWordInfo: QueryWordInfo) {
     return checkIsWordLength(queryWordInfo.word);
   }
   return queryWordInfo.isWord;
+}
+
+/**
+ * Copy text to Clipboard.
+ */
+export function copyToClipboard(text: string) {
+  Clipboard.copy(text);
 }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-26 01:28
+ * @lastEditTime: 2022-08-27 10:49
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
+import { copyToClipboard, getTypeErrorInfo } from "../../utils";
 import { formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebTranslateResult } from "./types";
 
@@ -72,7 +72,15 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
   });
   // console.log(`---> youdao params: ${params}`);
 
-  youdaoWebTranslate(queryWordInfo);
+  requestYoudaoWebDictionary(queryWordInfo);
+
+  requestYoudaoWebTranslate(queryWordInfo)
+    .then((result) => {
+      console.log(`---> youdao translate result: ${util.inspect(result)}`);
+    })
+    .catch((error) => {
+      console.error(`---> youdao translate error: ${util.inspect(error)}`);
+    });
 
   return new Promise((resolve, reject) => {
     axios
@@ -121,11 +129,112 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
 }
 
 /**
+ * Youdao web dictionary, zh <--> targetLanguage, supported target language: en, fr, ja, ko
+ */
+export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo) {
+  console.log(`---> start request Youdao`);
+  const { fromLanguage, word } = queryWordInfo;
+  const dicts = [
+    [
+      "longman",
+      // "web_trans",
+      // "video_sents",
+      // "simple",
+      // "phrs",
+      // "syno",
+      // "collins",
+      // "word_video",
+      // "discriminate",
+      "ec",
+      // "ee",
+      // "blng_sents_part",
+      // "individual",
+      // "collins_primary",
+      // "rel_word",
+      // "auth_sents_part",
+      // "media_sents_part",
+      // "expand_ec",
+      // "etym",
+      // "special",
+      // "baike",
+      // "meta",
+
+      // "senior",
+      // "webster",
+      // "oxford",
+      // "oxfordAdvance",
+      // "oxfordAdvanceHtml",
+    ],
+  ];
+
+  // dicts: ["web_trans", "oxfordAdvanceHtml", "video_sents", "simple", "phrs", "oxford", "syno", "collins", "word_video", "webster", "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special", "senior", "baike", "meta", "oxfordAdvance"]
+
+  /**
+   jsonversion: 2
+client: mobile
+q: good
+dicts: {"count":99,"dicts":[["ec","ce","newcj","newjc","kc","ck","fc","cf","multle","jtj","pic_dict","tc","ct","typos","special","tcb","baike","lang","simple","wordform","exam_dict","ctc","web_search","auth_sents_part","ec21","phrs","input","wikipedia_digest","ee","collins","ugc","media_sents_part","syno","rel_word","longman","ce_new","le","newcj_sents","blng_sents_part","hh"],["ugc"],["longman"],["newjc"],["newcj"],["web_trans"],["fanyi"]]}
+keyfrom: mdict.7.2.0.android
+model: honor
+mid: 5.6.1
+imei: 659135764921685
+vendor: wandoujia
+screen: 1080x1800
+ssid: superman
+network: wifi
+abtest: 2
+xmlVersion: 5.1
+   */
+  const params = {
+    q: word,
+    le: fromLanguage,
+    jsonversion: 2,
+    client: "mobile",
+    dicts: `{"count":3 ,"dicts":${JSON.stringify(dicts)}}`,
+    keyfrom: "mdict.7.2.0.android",
+    model: "honor",
+    mid: "5.6.1",
+    imei: "659135764921685",
+    vendor: "wandoujia",
+    screen: "1080x1800",
+    ssid: "superman",
+    network: "wifi",
+    abtest: 2,
+    xmlVersion: "5.1",
+  };
+  console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
+  const queryString = querystring.stringify(params);
+  const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
+  console.log(`---> youdao web dict url: ${dictUrl}`);
+
+  const headers = {
+    "User-Agent": userAgent,
+    Cookie: `JSESSIONID=abcSAn2OeFFV9e-wmnVfy; OUTFOX_SEARCH_USER_ID_NCOO=2137554906.8611808; OUTFOX_SEARCH_USER_ID="-1875619241@10.110.96.157"; search-popup-show=-1; PICUGC_FLASH=; PICUGC_SESSION=90fbe28fda40b5ff04f343a261160ce83d3439fc-%00_TS%3Asession%00; DICT_UGC=e65c970572f2dfea58db3393d069ae1c|m13397671157@163.com; webDict_HdAD=%7B%22req%22%3A%22http%3A//dict.youdao.com%22%2C%22width%22%3A960%2C%22height%22%3A240%2C%22showtime%22%3A5000%2C%22fadetime%22%3A500%2C%22notShowInterval%22%3A3%2C%22notShowInDays%22%3Afalse%2C%22lastShowDate%22%3A%22Mon%20Nov%2008%202010%22%7D; NTES_SESS=L_s6j5LsoBJ9gXmGNBURQ9BzCjFZq2CICS5dvKEkJpJqG3kH0hJnwBABNxnnTAX811Zu19Nf9ZQq83pNGVmQ77HvnjJSLol0oF_pnYDR6i03p2p2MNXy1kU4jxf8S_dMTaR7ESwo18XxK227hp3dkVLsrBP5bkRhHB.pUyk6ggwKE2uSEAQ9clIw9Y.g9rzo.pMgzr8qDjmgdqjJQOqsPSpwriUZnnUeQ; NTES_PASSPORT=bFlHWmiuaZgBM5R9EOx8moLoPEHhfYM3JrHr8PTtysFGlgDdIRry4UKUibyy.Ka_tRzYS_5EDbWJYujHU3NTvBWK3vPNzU91bG5iPqmqTlq73UZkVMgnRLpTX8Hg3hvujpYGNLTFrn_1vwsN8_5jnbK2rcjmjQC02IK2aGLanhbqxz_.y31qD1qQKK3Vv8Vet3w89Qpmridmd; S_INFO=1661229725|0|3&80##|m13397671157#ffdevolfxw#wxflovedff; P_INFO=m13397671157@163.com|1661229725|1|youdao_zhiyun2018|00&99|gud&1661222971&youdao_zhiyun2018#gud&441900#10#0#0|133157&1|youdao_zhiyun2018&search&cloudmusic&newsclient|13397671157@163.com; YOUDAO_MOBILE_ACCESS_TYPE=1; ___rl__test__cookies=1661442828116`,
+  };
+
+  return new Promise((resolve, reject) => {
+    axios
+      .get(dictUrl, { headers })
+      .then((res) => {
+        // log response headers
+        console.log(`---> youdao web dict response headers: ${JSON.stringify(res.headers, null, 2)}`);
+
+        console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
+        const json = JSON.stringify(res.data, null, 4);
+        copyToClipboard(json);
+      })
+      .catch((error) => {
+        console.log(`---> youdao web dict error: ${error}`);
+      });
+  });
+}
+
+/**
  * Youdao translate, use web API. Cost time: 0.2s
  *
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
-export function youdaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const timestamp = new Date().getTime();
@@ -284,3 +393,19 @@ export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => vo
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }
+
+/**
+ 
+1: 8
+2: 9
+3: 0
+4: 1
+5: 2
+6: 3, result
+7: 4, article
+8: 5, download
+9: 6, developer
+10: 7, successful
+11: 8
+12: 9, successfully
+ */

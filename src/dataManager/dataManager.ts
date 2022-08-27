@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-26 01:01
+ * @lastEditTime: 2022-08-27 11:11
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,7 @@ import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youda
 import {
   playYoudaoWordAudioAfterDownloading,
   requestYoudaoDictionary,
-  youdaoWebTranslate,
+  requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
 import { LanguageItem } from "../language/type";
@@ -134,6 +134,7 @@ export class DataManager {
 
     this.queryLingueeDictionary(queryWordInfo);
     this.queryYoudaoDictionary(queryWordInfo);
+    this.queryYoudaoTranslate(queryWordInfo);
 
     // * DeepL translate is used as part of Linguee dictionary.
     if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
@@ -478,6 +479,8 @@ export class DataManager {
 
   /**
    * Query baidu translate API.
+   *
+   * Todo: need to optimize, thoese translation functions are similar.
    */
   private queryBaiduTranslate(queryWordInfo: QueryWordInfo) {
     if (myPreferences.enableBaiduTranslate) {
@@ -524,6 +527,29 @@ export class DataManager {
           this.removeQueryFromRecordList(type);
         });
     }
+  }
+
+  /**
+   * Query Youdao translate.
+   */
+  private queryYoudaoTranslate(queryWordInfo: QueryWordInfo) {
+    const type = TranslationType.Youdao;
+    this.addQueryToRecordList(type);
+
+    requestYoudaoWebTranslate(queryWordInfo)
+      .then((youdaoTypeResult) => {
+        const queryResult: QueryResult = {
+          type: type,
+          sourceResult: youdaoTypeResult,
+        };
+        this.updateTranslationDisplay(queryResult);
+      })
+      .catch((error) => {
+        showErrorToast(error);
+      })
+      .finally(() => {
+        this.removeQueryFromRecordList(type);
+      });
   }
 
   /**
