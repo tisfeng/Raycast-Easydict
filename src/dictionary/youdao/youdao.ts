@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:38
+ * @lastEditTime: 2022-08-28 22:57
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -250,7 +250,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
     axios
       .post(url, querystring.stringify(data), { headers })
       .then((response) => {
-        // console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
+        console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
           const translatedText = youdaoWebResult.translateResult[0][0].tgt as string;

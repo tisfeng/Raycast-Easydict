@@ -864,7 +864,7 @@ export interface CeWord {
 export interface PurpleTr {
   voice: string;
   "#text": string;
-  "#tran": string;
+  "#tran"?: string;
 }
 
 export interface CeNew {

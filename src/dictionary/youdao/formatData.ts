@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:35
+ * @lastEditTime: 2022-08-28 22:55
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -79,8 +79,7 @@ export function updateYoudaoDictionaryDisplay(
   const youdaoDictionaryType = DicionaryType.Youdao;
   const oneLineTranslation = formatResult.translation.split("\n").join(", ");
   const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
-  const isShowWordSubtitle = phoneticText || queryWordInfo.examTypes;
-  const wordSubtitle = isShowWordSubtitle ? queryWordInfo.word : undefined;
+  const subtitle = queryWordInfo.word.split("\n").join(" ");
 
   // 1. Translation.
   const translationType = YoudaoDictionaryListItemType.Translation;
@@ -89,7 +88,7 @@ export function updateYoudaoDictionaryDisplay(
     queryType: youdaoDictionaryType,
     key: oneLineTranslation + youdaoDictionaryType,
     title: oneLineTranslation,
-    subtitle: wordSubtitle,
+    subtitle: subtitle,
     tooltip: translationType,
     copyText: oneLineTranslation,
     queryWordInfo: queryWordInfo,
@@ -303,7 +302,10 @@ export function formateYoudaoWebDictionaryModel(
     console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
     const explanationItems = model.ce.word.trs;
-    const explanations = explanationItems.map((item) => `${item["#text"]}：${item["#tran"]}`);
+    const explanations = explanationItems.map((item) => {
+      const tran = item["#tran"] ? `：${item["#tran"]}` : "";
+      return `${item["#text"]}${tran}`;
+    });
     console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
     const formateResult: YoudaoDictionaryFormatResult = {
