@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 23:09
+ * @lastEditTime: 2022-08-29 01:10
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,16 +166,21 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
         copyToClipboard(JSON.stringify(youdaoWebModel, null, 4));
 
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
-        console.log(`---> youdao web dict ec: ${util.inspect(youdaoWebModel.ec, { depth: null })}`);
 
-        if (!youdaoFormatResult) {
+        const isValidResult = youdaoWebModel.input === queryWordInfo.word;
+        if (!isValidResult) {
+          console.warn(`---> invalid result : ${util.inspect(youdaoWebModel.meta, { depth: null })}`);
+        }
+
+        if (!youdaoFormatResult || !isValidResult) {
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
             result: undefined,
             wordInfo: queryWordInfo,
             translations: [],
           };
-          return resolve(youdaoTypeResult);
+          resolve(youdaoTypeResult);
+          return;
         }
 
         // use Youdao dictionary check if query text is a word.
@@ -187,10 +192,12 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
           wordInfo: youdaoFormatResult.queryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
-        console.warn(`---> youdao web dict e cost: ${res.headers[requestCostTime]} ms`);
+        console.warn(`---> youdao web dict cost: ${res.headers[requestCostTime]} ms`);
         resolve(youdaoTypeResult);
       })
       .catch((error: AxiosError) => {
+        console.error(`---> Youdao web dict error: ${error}`);
+
         if (error.message === "canceled") {
           console.log(`---> youdao canceled`);
           return;

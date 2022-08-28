@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 00:02
+ * @lastEditTime: 2022-08-29 01:17
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,7 @@ import { KeyStore, myPreferences } from "../preferences";
 import { appleTranslate } from "../scripts";
 import { requestBaiduTextTranslate } from "../translation/baidu";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
-import { requestDeepLTextTranslate as requestDeepLTranslate } from "../translation/deepL";
+import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestTencentTranslate } from "../translation/tencent";
 import {
@@ -376,9 +376,9 @@ export class DataManager {
       const youdaoFnPtr = KeyStore.youdaoAppId ? requestYoudaoDictionary : requestYoudaoWebDictionary;
       youdaoFnPtr(queryWordInfo)
         .then((youdaoTypeResult) => {
-          // console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
+          console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
-          const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
+          const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult | undefined;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
           const showYoudaoDictionary = hasYoudaoDictionaryEntries(formatYoudaoResult);
           console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);

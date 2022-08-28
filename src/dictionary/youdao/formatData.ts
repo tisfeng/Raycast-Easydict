@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:55
+ * @lastEditTime: 2022-08-29 01:17
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -207,7 +207,11 @@ export function updateYoudaoDictionaryDisplay(
 /**
  * Check if Youdao dictionary has entries.
  */
-export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult) {
+export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult | undefined) {
+  if (!formatResult) {
+    return false;
+  }
+
   return (
     (formatResult.explanations || formatResult.forms || formatResult.webPhrases || formatResult.webTranslation) !==
     undefined
@@ -265,12 +269,16 @@ export function formateYoudaoWebDictionaryModel(
       examTypes: model.ec.exam_type,
       speechUrl: audioUrl,
     };
-    console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+    console.log(`ec, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
-    const explanations = model.ec.word.trs.map((tr) => {
-      const pos = tr.pos ? `${tr.pos} ` : "";
-      return `${pos}${tr.tran}`;
-    });
+    let explanations: string[] = [];
+    const trs = model.ec.word.trs;
+    if (trs) {
+      explanations = trs.map((tr) => {
+        const pos = tr.pos ? `${tr.pos} ` : "";
+        return `${pos}${tr.tran}`;
+      });
+    }
     console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
     const formateResult: YoudaoDictionaryFormatResult = {
@@ -299,7 +307,7 @@ export function formateYoudaoWebDictionaryModel(
       toLanguage: to,
       isWord: model.ce.word !== undefined,
     };
-    console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+    console.log(`ce, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
     const explanationItems = model.ce.word.trs;
     const explanations = explanationItems.map((item) => {
