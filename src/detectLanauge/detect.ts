@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-20 16:38
+ * @lastEditTime: 2022-08-28 01:59
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -162,7 +162,7 @@ function handleDetectedLanguageTypeResult(
    * Generally speaking, Google language detect is the most accurate, but it is too slow, it takes more than 1s.
    * So we have to try to use other types of language detection first.
    */
-  if (apiDetectedLanguage.type === LanguageDetectType.Google) {
+  if (apiDetectedLanguage.type === LanguageDetectType.Google && apiDetectedLanguage.sourceLanguageId.length > 0) {
     console.log(`use Google detect language`);
     apiDetectedLanguage.confirmed = true;
     callback(apiDetectedLanguage);

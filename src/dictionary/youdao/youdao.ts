@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-27 19:40
+ * @lastEditTime: 2022-08-28 21:22
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,10 +11,12 @@
 import axios, { AxiosError } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
+import qs from "qs";
 import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
+import { getYoudaoWebDictionaryLanguageId } from "../../language/languages";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { copyToClipboard, getTypeErrorInfo } from "../../utils";
@@ -72,16 +74,6 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
   });
   // console.log(`---> youdao params: ${params}`);
 
-  requestYoudaoWebDictionary(queryWordInfo);
-
-  requestYoudaoWebTranslate(queryWordInfo)
-    .then((result) => {
-      console.log(`---> youdao translate result: ${util.inspect(result)}`);
-    })
-    .catch((error) => {
-      console.error(`---> youdao translate error: ${util.inspect(error)}`);
-    });
-
   return new Promise((resolve, reject) => {
     axios
       .post(url, params)
@@ -133,48 +125,49 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
  */
 export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebDictionary`);
-  const { fromLanguage, word } = queryWordInfo;
-  const dicts = [["web_trans", "ec"]];
 
-  // dicts: ["web_trans","video_sents", "simple", "phrs",  "syno", "collins", "word_video",  "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special","baike", "meta", "senior", "webster","oxford", "oxfordAdvance", "oxfordAdvanceHtml"]
+  const type = DicionaryType.Youdao;
+  const dicts = [["web_trans", "ec", "ce", "ce_new", "newhh"]];
+
+  // English --> Chinese
+  // ["web_trans","video_sents", "simple", "phrs",  "syno", "collins", "word_video",  "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special","baike", "meta", "senior", "webster","oxford", "oxfordAdvance", "oxfordAdvanceHtml"]
+
+  // Chinese --> English
+  // ["web_trans", "blng_sents_part", "ce", "wuguanghua", "ce_new", "simple", "media_sents_part", "special", "baike", "meta", "newhh"]
+
+  const queryYoudaoDictLanguageId = getYoudaoWebDictionaryLanguageId(queryWordInfo);
+  if (!queryYoudaoDictLanguageId) {
+    console.error(`Youdao dict not supported language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`);
+    const errorInfo: RequestErrorInfo = {
+      type: type,
+      code: "",
+      message: "not supported language 😭",
+    };
+    return Promise.reject(errorInfo);
+  }
 
   const params = {
-    q: word,
-    le: fromLanguage,
-    dicts: `{"count":99 ,"dicts":${JSON.stringify(dicts)}}`,
-
-    // jsonversion: 2,
-    // client: "mobile",
-    // keyfrom: "mdict.7.2.0.android",
-    // model: "honor",
-    // mid: "5.6.1",
-    // imei: "659135764921685",
-    // vendor: "wandoujia",
-    // screen: "1080x1800",
-    // ssid: "superman",
-    // network: "wifi",
-    // abtest: 2,
-    // xmlVersion: "5.1",
+    q: queryWordInfo.word,
+    le: queryYoudaoDictLanguageId,
+    dicts: JSON.stringify({ count: 99, dicts: dicts }),
   };
-  console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
-  const queryString = querystring.stringify(params);
-  const url = `https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4`;
-  console.log(`---> youdao web dict url: ${url}`);
 
+  const queryString = qs.stringify(params);
+  console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
+  console.log(`---> youdao web dict queryString: ${queryString}`);
+
+  const dictUrl = `https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4`;
   return new Promise((resolve, reject) => {
     axios
-      .post(url, queryString)
+      .post(dictUrl, queryString)
       .then((res) => {
         console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
-
-        const json = JSON.stringify(res.data, null, 4);
-        copyToClipboard(json);
-
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
+        copyToClipboard(JSON.stringify(youdaoWebModel, null, 4));
+
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
         console.log(`---> youdao web dict ec: ${util.inspect(youdaoWebModel.ec, { depth: null })}`);
 
-        const type = DicionaryType.Youdao;
         if (!youdaoFormatResult) {
           console.error(`---> youdao web dict error: ${util.inspect(res, { depth: null })}`);
           const errorInfo: RequestErrorInfo = {
@@ -221,6 +214,8 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
 export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+  console.log(`---> start requestYoudaoWebTranslate`);
+
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const timestamp = new Date().getTime();
@@ -250,13 +245,13 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
     keyfrom: "fanyi.web",
     action: "FY_BY_REALTlME",
   };
-  console.log(`---> youdao data: ${util.inspect(data, { depth: null })}`);
+  // console.log(`---> youdao data: ${util.inspect(data, { depth: null })}`);
 
   return new Promise((resolve, reject) => {
     axios
       .post(url, querystring.stringify(data), { headers })
       .then((response) => {
-        console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
+        // console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
           const translatedText = youdaoWebResult.translateResult[0][0].tgt as string;

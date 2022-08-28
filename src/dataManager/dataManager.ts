@@ -1,9 +1,8 @@
-import { KeyStore } from "./../preferences";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-27 19:16
+ * @lastEditTime: 2022-08-28 00:02
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,9 +22,13 @@ import {
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
+import {
+  getAutoSelectedTargetLanguageItem,
+  getLanguageItemFromYoudaoId,
+  getYoudaoWebDictionaryURL,
+} from "../language/languages";
 import { LanguageItem } from "../language/type";
-import { myPreferences } from "../preferences";
+import { KeyStore, myPreferences } from "../preferences";
 import { appleTranslate } from "../scripts";
 import { requestBaiduTextTranslate } from "../translation/baidu";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
@@ -360,10 +363,7 @@ export class DataManager {
    * Query Youdao dictionary.
    */
   private queryYoudaoDictionary(queryWordInfo: QueryWordInfo) {
-    // * Youdao dictionary only support chinese <--> english.
-    const youdaoDictionarySet = new Set(["zh-CHS", "zh-CHT", "en"]);
-    const isValidYoudaoDictionaryLanguageQuery =
-      youdaoDictionarySet.has(queryWordInfo.fromLanguage) && youdaoDictionarySet.has(queryWordInfo.toLanguage);
+    const isValidYoudaoDictionaryLanguageQuery = getYoudaoWebDictionaryURL(queryWordInfo) !== undefined;
     const isWord = checkIsWord(queryWordInfo);
     const enableYoudaoDictionary =
       myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
@@ -376,7 +376,7 @@ export class DataManager {
       const youdaoFnPtr = KeyStore.youdaoAppId ? requestYoudaoDictionary : requestYoudaoWebDictionary;
       youdaoFnPtr(queryWordInfo)
         .then((youdaoTypeResult) => {
-          console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
+          // console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
 
           const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);

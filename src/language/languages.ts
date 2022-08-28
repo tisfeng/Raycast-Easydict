@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 11:24
+ * @lastEditTime: 2022-08-28 00:35
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { francLangaugeDetect } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { preferredLanguages } from "./../preferences";
-import { languageItemList } from "./consts";
+import { chineseLanguageItem, languageItemList } from "./consts";
 import { LanguageItem } from "./type";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
@@ -242,7 +242,32 @@ export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string 
 }
 
 /**
+ * Get Youdao web dictionary query language according to fromLanguage.
+ *
+ * eg: en --> zh-CHS, return: en
+ * eg: zh-CHS --> fr, return: fr
+ */
+export function getYoudaoWebDictionaryLanguageId(queryTextInfo: QueryWordInfo): string | undefined {
+  if (getYoudaoWebDictionaryURL(queryTextInfo) === undefined) {
+    return;
+  }
+
+  const { fromLanguage, toLanguage } = queryTextInfo;
+  let from = chineseLanguageItem.youdaoId;
+  let to = chineseLanguageItem.youdaoId;
+  if (fromLanguage === from) {
+    to = toLanguage;
+  } else {
+    from = fromLanguage;
+  }
+  return getLanguageOfTwoExceptChinese([from, to]);
+}
+
+/**
  * Get another language item expcept chinese from language item array.
+ *
+ * eg: [en, zh-CHS] --> en
+ * eg: [zh-CHS, fr] --> fr
  */
 export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string]): string | undefined {
   if (youdaoLanguageIds.includes("zh-CHS")) {

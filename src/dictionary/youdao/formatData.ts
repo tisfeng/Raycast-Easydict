@@ -2,16 +2,18 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-27 21:37
+ * @lastEditTime: 2022-08-28 21:37
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { chineseLanguageItem } from "../../language/consts";
 import { DicionaryType, DisplaySection, ListDisplayItem } from "../../types";
+import { copyToClipboard } from "../../utils";
 import {
+  KeyValueItem,
   QueryWordInfo,
-  TranslateResultKeyValueItem,
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
   YoudaoDictionaryResult,
@@ -214,67 +216,118 @@ export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatR
 }
 
 /**
- * Formate YoudaoWebDictionaryModel to YoudaoDictionaryFormatResult.
+ * Format YoudaoWebDictionaryModel to YoudaoDictionaryFormatResult.
  */
 export function formateYoudaoWebDictionaryModel(
   model: YoudaoWebDictionaryModel
 ): YoudaoDictionaryFormatResult | undefined {
-  // when youdao request error, query is not exist.
-  if (!model.ec) {
+  // when youdao request error, return undefined.
+  if (model.meta.dicts.length === 0) {
     return;
   }
 
-  // word audio url:  https://dict.youdao.com/dictvoice?audio=good?type=2
-  const usspeech = model.ec.word.usspeech;
-  const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
-
-  const from = model.le === "en" ? "zh-CHS" : "en";
-  const queryWordInfo: QueryWordInfo = {
-    word: model.input,
-    phonetic: model.ec.word.usphone,
-    fromLanguage: from,
-    toLanguage: model.le,
-    isWord: model.ec.word !== undefined,
-    examTypes: model.ec.exam_type,
-    speechUrl: audioUrl,
-  };
-  console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
-
   const webTranslationItems = model.web_trans["web-translation"];
-  const transList: TranslateResultKeyValueItem[] = [];
-  if (webTranslationItems.length > 0) {
+  const webTransList: KeyValueItem[] = [];
+  if (webTranslationItems?.length) {
     for (const translationItem of webTranslationItems) {
       const transTextList = translationItem.trans.map((trans) => trans.value);
-      const trans: TranslateResultKeyValueItem = {
+      const trans: KeyValueItem = {
         key: translationItem.key,
         value: transTextList,
       };
-      transList.push(trans);
+      webTransList.push(trans);
     }
   }
-  console.log(`transList: ${JSON.stringify(transList, null, 4)}`);
+  console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);
 
-  const webTranslation = transList.length ? transList[0] : undefined;
-  const webPhrases = transList.slice(1);
-  const translations = webTranslation ? [webTranslation.value[0]] : [];
+  const webTranslation = webTransList.length ? webTransList[0] : undefined;
+  const webPhrases = webTransList.slice(1, 4); // only get 3 web phrases.
+  const firstWebTranslation = webTranslation ? webTranslation.value[0] : undefined;
+  const firstTranslation = firstWebTranslation?.split("; ")[0];
+  const translations = firstTranslation ? [firstTranslation] : [];
 
-  console.log(`trs: ${JSON.stringify(model.ec.word, null, 4)}`);
+  // format ec dictionary.
+  if (model.ec) {
+    // word audio url:  https://dict.youdao.com/dictvoice?audio=good?type=2
+    const usspeech = model.ec.word.usspeech;
+    const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
+    const [from, to] = getFromToLanguage(model);
 
-  const explanations = model.ec.word.trs.map((tr) => {
-    const pos = tr.pos ? `${tr.pos} ` : "";
-    return `${pos}${tr.tran}`;
-  });
-  console.log(`explanations: ${JSON.stringify(explanations, null, 4)}`);
+    const queryWordInfo: QueryWordInfo = {
+      word: model.input,
+      phonetic: model.ec.word.usphone,
+      fromLanguage: from,
+      toLanguage: to,
+      isWord: model.ec.word !== undefined,
+      examTypes: model.ec.exam_type,
+      speechUrl: audioUrl,
+    };
+    console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
-  const formateResult: YoudaoDictionaryFormatResult = {
-    queryWordInfo: queryWordInfo,
-    translations: translations,
-    explanations: explanations,
-    forms: model.ec.word.wfs,
-    webTranslation: webTranslation,
-    webPhrases: webPhrases,
-  };
-  queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+    const explanations = model.ec.word.trs.map((tr) => {
+      const pos = tr.pos ? `${tr.pos} ` : "";
+      return `${pos}${tr.tran}`;
+    });
+    console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
-  return formateResult;
+    const formateResult: YoudaoDictionaryFormatResult = {
+      queryWordInfo: queryWordInfo,
+      translations: translations,
+      explanations: explanations,
+      forms: model.ec.word.wfs,
+      webTranslation: webTranslation,
+      webPhrases: webPhrases,
+    };
+    queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+
+    copyToClipboard(JSON.stringify(formateResult, null, 4));
+
+    return formateResult;
+  }
+
+  // format ce dictionary.
+  if (model.ce) {
+    console.log(`model.ce: ${JSON.stringify(model.ce, null, 2)}`);
+    const [from, to] = getFromToLanguage(model);
+    const queryWordInfo: QueryWordInfo = {
+      word: model.input,
+      phonetic: model.ce.word.phone,
+      fromLanguage: from,
+      toLanguage: to,
+      isWord: model.ce.word !== undefined,
+    };
+    console.log(`queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+
+    const explanationItems = model.ce.word.trs;
+    const explanations = explanationItems.map((item) => `${item["#text"]}：${item["#tran"]}`);
+    console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
+
+    const formateResult: YoudaoDictionaryFormatResult = {
+      queryWordInfo: queryWordInfo,
+      translations: translations,
+      explanations: explanations,
+      webTranslation: webTranslation,
+      webPhrases: webPhrases,
+    };
+    queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+
+    copyToClipboard(JSON.stringify(formateResult, null, 4));
+
+    return formateResult;
+  }
+}
+
+/**
+ * Get from to language.
+ */
+export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: string, to: string] {
+  let from = chineseLanguageItem.youdaoId;
+  let to = chineseLanguageItem.youdaoId;
+  const guessLanguage = model.meta.guessLanguage;
+  if (guessLanguage === "zh") {
+    to = model.le;
+  } else {
+    from = model.le;
+  }
+  return [from, to];
 }

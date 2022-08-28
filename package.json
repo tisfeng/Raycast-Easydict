@@ -46,6 +46,7 @@
     "mac-system-proxy": "^1.0.4",
     "node-html-parser": "^5.3.3",
     "play-sound": "^1.1.5",
+    "qs": "^6.11.0",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
   "devDependencies": {
@@ -54,6 +55,7 @@
     "@types/crypto-js": "^4.1.1",
     "@types/node": "~16.10.0",
     "@types/play-sound": "^1.1.0",
+    "@types/qs": "^6.9.7",
     "@types/react": "^17.0.28",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
