@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 21:37
+ * @lastEditTime: 2022-08-28 22:09
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -50,10 +50,10 @@ export function formatYoudaoDictionaryResult(
   }
   const webPhrases = youdaoResult.web?.slice(1);
   // * only use the first translation
-  const translations = youdaoResult.translation[0].split("\n");
+  const translation = youdaoResult.translation[0].split("\n")[0];
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
-    translations: translations,
+    translation: translation,
     explanations: youdaoResult.basic?.explains,
     forms: youdaoResult.basic?.wfs,
     webTranslation: webTranslation,
@@ -77,7 +77,7 @@ export function updateYoudaoDictionaryDisplay(
 
   const queryWordInfo = formatResult.queryWordInfo;
   const youdaoDictionaryType = DicionaryType.Youdao;
-  const oneLineTranslation = formatResult.translations.join(", ");
+  const oneLineTranslation = formatResult.translation.split("\n").join(", ");
   const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
   const isShowWordSubtitle = phoneticText || queryWordInfo.examTypes;
   const wordSubtitle = isShowWordSubtitle ? queryWordInfo.word : undefined;
@@ -244,7 +244,7 @@ export function formateYoudaoWebDictionaryModel(
   const webPhrases = webTransList.slice(1, 4); // only get 3 web phrases.
   const firstWebTranslation = webTranslation ? webTranslation.value[0] : undefined;
   const firstTranslation = firstWebTranslation?.split("; ")[0];
-  const translations = firstTranslation ? [firstTranslation] : [];
+  const translations = firstTranslation ?? "";
 
   // format ec dictionary.
   if (model.ec) {
@@ -272,7 +272,7 @@ export function formateYoudaoWebDictionaryModel(
 
     const formateResult: YoudaoDictionaryFormatResult = {
       queryWordInfo: queryWordInfo,
-      translations: translations,
+      translation: translations,
       explanations: explanations,
       forms: model.ec.word.wfs,
       webTranslation: webTranslation,
@@ -304,7 +304,7 @@ export function formateYoudaoWebDictionaryModel(
 
     const formateResult: YoudaoDictionaryFormatResult = {
       queryWordInfo: queryWordInfo,
-      translations: translations,
+      translation: translations,
       explanations: explanations,
       webTranslation: webTranslation,
       webPhrases: webPhrases,

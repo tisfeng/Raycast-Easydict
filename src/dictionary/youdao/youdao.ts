@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 21:22
+ * @lastEditTime: 2022-08-28 22:10
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -98,7 +98,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
           result: youdaoFormatResult,
           wordInfo: youdaoFormatResult.queryWordInfo,
           errorInfo: errorInfo,
-          translations: youdaoFormatResult.translations,
+          translations: youdaoFormatResult.translation.split("\n"),
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
         resolve(youdaoTypeResult);
@@ -186,7 +186,7 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
           type: type,
           result: youdaoFormatResult,
           wordInfo: youdaoFormatResult.queryWordInfo,
-          translations: youdaoFormatResult.translations,
+          translations: youdaoFormatResult.translation.split("\n"),
         };
         console.warn(`---> youdao web dict e cost: ${res.headers[requestCostTime]} ms`);
         resolve(youdaoTypeResult);
