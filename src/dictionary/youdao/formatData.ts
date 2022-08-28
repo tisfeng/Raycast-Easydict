@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:09
+ * @lastEditTime: 2022-08-28 22:35
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -222,20 +222,24 @@ export function formateYoudaoWebDictionaryModel(
   model: YoudaoWebDictionaryModel
 ): YoudaoDictionaryFormatResult | undefined {
   // when youdao request error, return undefined.
-  if (model.meta.dicts.length === 0) {
+  if (model.meta.dicts.length < 2) {
+    // dicts always has at least one dict: meta.
     return;
   }
 
-  const webTranslationItems = model.web_trans["web-translation"];
+  const webTrans = model.web_trans;
   const webTransList: KeyValueItem[] = [];
-  if (webTranslationItems?.length) {
-    for (const translationItem of webTranslationItems) {
-      const transTextList = translationItem.trans.map((trans) => trans.value);
-      const trans: KeyValueItem = {
-        key: translationItem.key,
-        value: transTextList,
-      };
-      webTransList.push(trans);
+  if (webTrans) {
+    const webTransItems = webTrans["web-translation"];
+    if (webTransItems) {
+      for (const webTransItem of webTransItems) {
+        const transTextList = webTransItem.trans.map((trans) => trans.value);
+        const trans: KeyValueItem = {
+          key: webTransItem.key,
+          value: transTextList,
+        };
+        webTransList.push(trans);
+      }
     }
   }
   console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);

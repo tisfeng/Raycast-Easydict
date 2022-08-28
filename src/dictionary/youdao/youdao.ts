@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:10
+ * @lastEditTime: 2022-08-28 22:38
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -169,14 +169,13 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
         console.log(`---> youdao web dict ec: ${util.inspect(youdaoWebModel.ec, { depth: null })}`);
 
         if (!youdaoFormatResult) {
-          console.error(`---> youdao web dict error: ${util.inspect(res, { depth: null })}`);
-          const errorInfo: RequestErrorInfo = {
+          const youdaoTypeResult: QueryTypeResult = {
             type: type,
-            code: "",
-            message: "error 😭",
+            result: undefined,
+            wordInfo: queryWordInfo,
+            translations: [],
           };
-          reject(errorInfo);
-          return;
+          return resolve(youdaoTypeResult);
         }
 
         // use Youdao dictionary check if query text is a word.
