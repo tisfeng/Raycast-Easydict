@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-29 01:17
+ * @lastEditTime: 2022-08-30 00:40
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -621,7 +621,7 @@ export class DataManager {
         displayType: type, // TranslationType
         queryType: type,
         key: `${oneLineTranslation}-${type}`,
-        title: oneLineTranslation,
+        title: ` ${oneLineTranslation}`,
         copyText: copyText,
         queryWordInfo: sourceResult.wordInfo,
       };
