@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:24
+ * @lastEditTime: 2022-08-30 00:00
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -104,8 +104,21 @@ export interface YoudaoWebTranslateResult {
 /**
  * Youdao web dictionary model.
  *
+ * See: https://dict.youdao.com/jsonapi?q=good&le=
+ *
  * Ref: https://www.showdoc.com.cn/justapi/957479750776060#explain
  */
+
+/**
+ *
+
+ */
+// To parse this data:
+//
+//   import { Convert, Welcome } from "./file";
+//
+//   const welcome = Convert.toWelcome(json);
+
 export interface YoudaoWebDictionaryModel {
   // English --> Chinese.
   auth_sents_part?: AuthSentsPart; // 权威例句
@@ -124,18 +137,18 @@ export interface YoudaoWebDictionaryModel {
   le: string; // 目标语言，en
   media_sents_part?: MediaSentsPart; // 原声例句
   meta: Meta; // 元数据
-  oxford?: Oxford; // 牛津辞典
-  oxfordAdvance?: OxfordAdvance; // 新版牛津辞典
-  oxfordAdvanceHtml?: OxfordAdvanceHtml;
+  oxford?: EncryptedObject; // 牛津辞典
+  oxfordAdvance?: EncryptedObject; // 新版牛津辞典
+  oxfordAdvanceHtml?: EncryptedObject;
   phrs?: Phrs; // 词组短语
   rel_word?: RelWord; // 同根词
   senior?: Senior; // 高级？
   simple: Simple; // 简易词典
   special?: Special; // 专业释义
-  syno?: SynoModal; // 同近义词
+  syno?: Syno; // 同近义词
   video_sents?: VideoSents; // 视频例句
   web_trans?: WebTrans; // 网络释义
-  webster?: Webster; // 韦氏词典
+  webster?: EncryptedObject; // 韦氏词典
   word_video?: WordVideo; // 单词视频资料
 
   // Chinese --> English
@@ -143,450 +156,471 @@ export interface YoudaoWebDictionaryModel {
   wuguanghua?: Wuguanghua; // 吴光华汉英大辞典
   ce_new?: CeNew; // 新汉英大辞典
   newhh?: Newhh; // 现代汉语规范词典
+
+  // web_trans?: WebTrans;
+  // oxfordAdvanceHtml?: Oxford;
+  // video_sents?: VideoSents;
+  // simple?: Simple;
+  // phrs?: Phrs;
+  // oxford?: Oxford;
+  // syno?: WelcomeSyno;
+  // collins?: Collins;
+  // word_video?: WelcomeWordVideo;
+  // webster?: Oxford;
+  // discriminate?: Discriminate;
+  // lang?: string;
+  // ec?: Ec;
+  // ee?: Ee;
+  // blng_sents_part?: BlngSentsPart;
+  // individual?: Individual;
+  // collins_primary?: CollinsPrimary;
+  // rel_word?: RelWordClass;
+  // auth_sents_part?: AuthSentsPart;
+  // media_sents_part?: MediaSentsPart;
+  // expand_ec?: ExpandEc;
+  // etym?: Etym;
+  // special?: Special;
+  // senior?: Senior;
+  // input?: string;
+  // baike?: Baike;
+  // meta?: Meta;
+  // le?: string;
+  // oxfordAdvance?: Oxford;
 }
 
-/**
- * 权威例句
- */
 export interface AuthSentsPart {
-  more: string;
-  sent: AuthSentsPartSent[];
-  "sentence-count": number;
+  "sentence-count"?: number;
+  more?: string;
+  sent?: AuthSentsPartSent[];
 }
 
 export interface AuthSentsPartSent {
-  foreign: string;
-  score: number;
-  source: string;
-  speech: string;
-  "speech-size": string;
-  url: string;
+  score?: number;
+  speech?: string;
+  "speech-size"?: string;
+  source?: string;
+  url?: string;
+  foreign?: string;
 }
 
 export interface Baike {
-  source?: BaikeSource;
   summarys?: SummaryElement[];
+  source?: BaikeSource;
 }
 
 export interface BaikeSource {
-  name: string;
-  url: string;
+  name?: string;
+  url?: string;
 }
 
 export interface SummaryElement {
-  key?: string;
   summary?: string;
+  key?: string;
 }
 
 export interface BlngSentsPart {
-  more: string;
-  "sentence-count": number;
-  "sentence-pair": SentencePair[];
-  "trs-classify": TrsClassify[];
+  "sentence-count"?: number;
+  "sentence-pair"?: SentencePair[];
+  more?: string;
+  "trs-classify"?: TrsClassify[];
 }
 
 export interface SentencePair {
-  "aligned-words": AlignedWords;
-  sentence: string;
-  "sentence-eng": string;
-  "sentence-speech": string;
-  "sentence-translation": string;
-  source: string;
-  "speech-size": string;
-  url: string;
+  sentence?: string;
+  "sentence-eng"?: string;
+  "sentence-translation"?: string;
+  "speech-size"?: string;
+  "aligned-words"?: AlignedWords;
+  source?: string;
+  url?: string;
+  "sentence-speech"?: string;
 }
 
 export interface AlignedWords {
-  src: Src;
-  tran: AlignedWordsTran;
+  src?: Src;
+  tran?: Src;
 }
 
 export interface Src {
-  chars: SrcChar[];
+  chars?: Char[];
 }
 
-export interface SrcChar {
-  "@e": string;
-  "@id": string;
-  "@s": string;
-  aligns: PurpleAligns;
+export interface Char {
+  "@s"?: string;
+  "@e"?: string;
+  aligns?: Aligns;
+  "@id"?: string;
 }
 
-export interface PurpleAligns {
-  sc: PurpleSc[];
-  tc: PurpleTc[];
+export interface Aligns {
+  sc?: Sc[];
+  tc?: Sc[];
 }
 
-export interface PurpleSc {
-  "@id": string;
-}
-
-export interface PurpleTc {
-  "@id": string;
-}
-
-export interface AlignedWordsTran {
-  chars: TranChar[];
-}
-
-export interface TranChar {
-  "@e": string;
-  "@id": string;
-  "@s": string;
-  aligns: FluffyAligns;
-}
-
-export interface FluffyAligns {
-  sc: FluffySc[];
-  tc: FluffyTc[];
-}
-
-export interface FluffySc {
-  "@id": string;
-}
-
-export interface FluffyTc {
-  "@id": string;
+export interface Sc {
+  "@id"?: string;
 }
 
 export interface TrsClassify {
-  proportion: string;
-  tr: string;
+  proportion?: string;
+  tr?: string;
 }
 
 export interface Collins {
-  collins_entries: CollinsEntry[];
-  super_headwords: SuperHeadwords;
+  super_headwords?: SuperHeadwords;
+  collins_entries?: CollinsEntry[];
 }
 
 export interface CollinsEntry {
-  basic_entries: BasicEntries;
-  entries: Entries;
-  headword: string;
-  phonetic: string;
-  star: string;
-  super_headword: string;
+  super_headword?: string;
+  entries?: Entries;
+  phonetic?: string;
+  basic_entries?: BasicEntries;
+  headword?: string;
+  star?: string;
 }
 
 export interface BasicEntries {
-  basic_entry: BasicEntry[];
+  basic_entry?: BasicEntry[];
 }
 
 export interface BasicEntry {
   cet?: string;
-  headword: string;
-  wordforms: Wordforms;
+  headword?: string;
+  wordforms?: Wordforms;
 }
 
 export interface Wordforms {
-  wordform: Wordform[];
+  wordform?: Wordform[];
 }
 
 export interface Wordform {
-  word: string;
+  word?: string;
 }
 
 export interface Entries {
-  entry: EntriesEntry[];
+  entry?: EntriesEntry[];
 }
 
 export interface EntriesEntry {
-  tran_entry: TranEntry[];
+  tran_entry?: TranEntry[];
 }
 
 export interface TranEntry {
-  box_extra: string;
-  exam_sents: ExamSents;
-  gram: string;
-  headword: string;
+  pos_entry?: PosEntry;
+  exam_sents?: ExamSents;
+  tran?: string;
+  gram?: string;
+  box_extra?: string;
+  seeAlsos?: SeeAlsos;
+  headword?: string;
+  sees?: Sees;
   loc?: string;
-  pos_entry: PosEntry;
-  seeAlsos: SeeAlsos;
-  sees: Sees;
-  tran: string;
 }
 
 export interface ExamSents {
-  sent: ExamSentsSent[];
+  sent?: ExamSentsSent[];
 }
 
 export interface ExamSentsSent {
-  chn_sent: string;
-  eng_sent: string;
+  chn_sent?: string;
+  eng_sent?: string;
 }
 
 export interface PosEntry {
-  pos: string;
-  pos_tips: string;
+  pos?: Pos;
+  pos_tips?: PosTips;
+}
+
+export enum Pos {
+  Adj = "ADJ",
+  Convention = "CONVENTION",
+  NSing = "N-SING",
+  NUncount = "N-UNCOUNT",
+  Phrase = "PHRASE",
+}
+
+export enum PosTips {
+  不可数名词 = "不可数名词",
+  习惯表达 = "习惯表达",
+  习语 = "习语",
+  单数型名词 = "单数型名词",
+  形容词 = "形容词",
 }
 
 export interface SeeAlsos {
-  seealso: string;
-  seeAlso: SeeAlso[];
-}
-
-export interface SeeAlso {
-  seeword: string;
-}
-
-export interface Sees {
-  see: See[];
+  seealso?: string;
+  seeAlso?: See[];
 }
 
 export interface See {
-  seeword: string;
+  seeword?: string;
+}
+
+export interface Sees {
+  see?: See[];
 }
 
 export interface SuperHeadwords {
-  super_headword: string[];
+  super_headword?: string[];
 }
 
 export interface CollinsPrimary {
-  gramcat: Gramcat[];
-  words: Words;
+  words?: Words;
+  gramcat?: Gramcat[];
 }
 
 export interface Gramcat {
-  audio: string;
-  audiourl: string;
-  forms: Form[];
-  partofspeech: string;
+  audiourl?: string;
+  pronunciation?: string;
+  senses?: GramcatSense[];
+  partofspeech?: string;
+  audio?: string;
+  forms?: Form[];
   phrases?: Phrase[];
-  pronunciation: string;
-  senses: GramcatSense[];
 }
 
 export interface Form {
-  form: string;
+  form?: string;
 }
 
 export interface Phrase {
-  phrase: string;
-  senses: PhraseSense[];
+  phrase?: string;
+  senses?: PhraseSense[];
 }
 
 export interface PhraseSense {
-  definition: string;
-  examples: PurpleExample[];
-  lang: string;
-  word: string;
+  examples?: Example[];
+  definition?: string;
+  lang?: Lang;
+  word?: string;
 }
 
-export interface PurpleExample {
-  example: string;
-  sense: PurpleSense;
+export interface Example {
+  sense?: ExampleSense;
+  example?: string;
 }
 
-export interface PurpleSense {
-  lang: string;
-  word: string;
+export interface ExampleSense {
+  lang?: Lang;
+  word?: string;
+}
+
+export enum Lang {
+  ZhCN = "ZH-CN",
 }
 
 export interface GramcatSense {
-  definition: string;
-  examples: FluffyExample[];
+  sensenumber?: string;
+  examples?: Example[];
+  definition?: string;
+  lang?: Lang;
+  word?: string;
   labelgrammar?: string;
-  lang: string;
-  sensenumber: string;
-  word: string;
-}
-
-export interface FluffyExample {
-  example: string;
-  sense: FluffySense;
-}
-
-export interface FluffySense {
-  lang: string;
-  word: string;
 }
 
 export interface Words {
-  indexforms: string[];
-  word: string;
+  indexforms?: string[];
+  word?: string;
 }
 
 export interface Discriminate {
-  data: Datum[];
-  "return-phrase": string;
+  data?: Datum[];
+  "return-phrase"?: string;
 }
 
 export interface Datum {
-  headwords?: string[];
   source?: string;
   usages?: DatumUsage[];
+  headwords?: string[];
 }
 
 export interface DatumUsage {
-  headword: string;
-  usage: string;
+  headword?: string;
+  usage?: string;
 }
 
 export interface Ec {
-  exam_type: string[];
-  source: EcSource;
-  special: SpecialElement[];
-  web_trans: string[];
-  word: EcWord;
-}
-
-export interface EcSource {
-  name: string;
-  url: string;
-}
-
-export interface SpecialElement {
-  major: string;
-  nat: string;
+  exam_type?: string[];
+  source?: BaikeSource;
+  word?: EcWord[];
 }
 
 export interface EcWord {
-  "return-phrase": string;
-  trs: PurpleTr[];
-  ukphone: string;
-  ukspeech: string;
-  usphone: string; // ɡʊd
-  usspeech: string; // good&type=2
-  wfs: WordForms[];
+  usphone?: string;
+  ukphone?: string;
+  ukspeech?: string;
+  trs?: PurpleTr[];
+  wfs?: WordForms[];
+  "return-phrase"?: EC_ReturnPhrase;
+  usspeech?: string;
+}
+
+export interface EC_ReturnPhrase {
+  l?: EE_I;
+}
+
+export interface EE_I {
+  i?: string;
 }
 
 export interface PurpleTr {
-  pos?: string;
-  tran: string;
-}
-
-export interface Ee {
-  source: EeSource;
-  word: EeWord;
-}
-
-export interface EeSource {
-  name: string;
-  url: string;
-}
-
-export interface EeWord {
-  phone: string;
-  "return-phrase": string;
-  speech: string;
-  trs: FluffyTr[];
+  tr?: FluffyTr[];
 }
 
 export interface FluffyTr {
-  pos: string;
-  tr: TentacledTr[];
+  l?: PurpleL;
 }
 
-export interface TentacledTr {
-  examples: string[];
-  "similar-words": string[];
-  tran: string;
+export interface PurpleL {
+  i?: string[];
+}
+
+export interface WfWf {
+  name?: string;
+  value?: string;
+}
+
+export interface Ee {
+  source?: BaikeSource;
+  word?: EeWord;
+}
+
+export interface EeWord {
+  trs?: EE_PosTr[];
+  phone?: string;
+  speech?: string;
+  "return-phrase"?: EC_ReturnPhrase;
+}
+
+export interface EE_PosTr {
+  pos?: string;
+  tr?: EE_Tr[];
+}
+
+export interface EE_Tr {
+  exam?: EE_Exam;
+  l?: EE_I;
+  "similar-words"?: SimilarWord[];
+}
+
+export interface EE_Exam {
+  i?: EE_I;
+}
+
+export interface EE_I {
+  f?: EE_F;
+}
+
+export interface EE_F {
+  l?: EE_I[];
+}
+
+export interface SimilarWord {
+  similar?: string;
 }
 
 export interface Etym {
-  etyms: Etyms;
-  word: string;
+  etyms?: Etyms;
+  word?: string;
 }
 
 export interface Etyms {
-  zh: Zh[];
+  zh?: Zh[];
 }
 
 export interface Zh {
-  desc: string;
-  source: string;
-  url: string;
-  value: string;
-  word: string;
+  source?: string;
+  word?: string;
+  value?: string;
+  url?: string;
+  desc?: string;
 }
 
 export interface ExpandEc {
-  "return-phrase": string;
-  source: ExpandEcSource;
-  word: ExpandEcWord[];
-}
-
-export interface ExpandEcSource {
-  name: string;
-  url: string;
+  "return-phrase"?: string;
+  source?: BaikeSource;
+  word?: ExpandEcWord[];
 }
 
 export interface ExpandEcWord {
-  pos: string;
-  transList: TransList[];
-  wfs: FluffyWf[];
+  transList?: TransList[];
+  pos?: string;
+  wfs?: WfWf[];
 }
 
 export interface TransList {
-  content: Content;
-  trans: string;
+  content?: Content;
+  trans?: string;
 }
 
 export interface Content {
-  detailPos: string;
-  examType?: ExamType[];
+  detailPos?: string;
+  examType?: Colloc[];
   sents?: ContentSent[];
 }
 
-export interface ExamType {
-  en: string;
-  zh: string;
+export interface Colloc {
+  en?: string;
+  zh?: string;
 }
 
 export interface ContentSent {
-  sentOrig: string;
-  sentSpeech: string;
-  sentTrans: string;
-  source: string;
-  sourceType: string;
-  type: string;
-  usages: SentUsage[];
+  sentOrig?: string;
+  sourceType?: SourceType;
+  sentSpeech?: string;
+  sentTrans?: string;
+  source?: string;
+  usages?: SentUsage[];
+  type?: Type;
+}
+
+export enum SourceType {
+  权威 = "权威",
+  真题 = "真题",
+}
+
+export enum Type {
+  Cet4 = "CET4",
+  Cet6 = "CET6",
+  Graduateexam = "GRADUATEEXAM",
+  Senior = "SENIOR",
 }
 
 export interface SentUsage {
-  phrase: string;
-  phraseTrans: string;
-}
-
-export interface FluffyWf {
-  name: string;
-  value: string;
+  phrase?: string;
+  phraseTrans?: string;
 }
 
 export interface Individual {
-  examInfo: ExamInfo;
-  idiomatic: Idiomatic[];
-  level: string;
-  pastExamSents: PastExamSent[];
-  "return-phrase": string;
-  trs: IndividualTr[];
+  trs?: IndividualTr[];
+  idiomatic?: Idiomatic[];
+  level?: string;
+  examInfo?: ExamInfo;
+  "return-phrase"?: string;
+  pastExamSents?: PastExamSent[];
 }
 
 export interface ExamInfo {
-  frequency: number;
-  questionTypeInfo: QuestionTypeInfo[];
-  recommendationRate: number;
-  year: number;
+  year?: number;
+  questionTypeInfo?: QuestionTypeInfo[];
+  recommendationRate?: number;
+  frequency?: number;
 }
 
 export interface QuestionTypeInfo {
-  time: number;
-  type: string;
+  time?: number;
+  type?: string;
 }
 
 export interface Idiomatic {
-  colloc: Colloc;
-}
-
-export interface Colloc {
-  en: string;
-  zh: string;
+  colloc?: Colloc;
 }
 
 export interface PastExamSent {
-  en: string;
-  source: string;
-  zh: string;
+  en?: string;
+  source?: string;
+  zh?: string;
 }
 
 export interface IndividualTr {
@@ -594,340 +628,19 @@ export interface IndividualTr {
   tran?: string;
 }
 
-export interface MediaSentsPart {
-  more: string;
-  query: string;
-  sent: Sent[];
-  "sentence-count": number;
-}
-
-export interface Sent {
-  "@mediatype": string;
-  chn: string;
-  eng: string;
-  snippets: Snippets;
-  "speech-size": string;
-}
-
 export interface Snippets {
-  snippet: Snippet[];
+  snippet?: Snippet[];
 }
 
 export interface Snippet {
-  duration: string;
-  imageUrl: string;
-  name: string;
-  source: string;
-  sourceUrl: string;
-  streamUrl: string;
-  swf: string;
-  win8: string;
-}
-
-export interface Meta {
-  dicts: string[];
-  guessLanguage: string; // 自动识别查询单词语言，中文 zh，英语 eng
-  input: string;
-  isHasSimpleDict: string;
-  lang: string;
-  le: string;
-}
-
-export interface Oxford {
-  encryptedData: string;
-}
-
-export interface OxfordAdvance {
-  encryptedData: string;
-}
-
-export interface OxfordAdvanceHtml {
-  encryptedData: string;
-}
-
-export interface Phrs {
-  phrs: Phr[];
-  word: string;
-}
-
-export interface Phr {
-  headword: string;
-  translation: string;
-}
-
-export interface RelWord {
-  rels: RelElement[];
-  stem: string;
-  word: string;
-}
-
-export interface RelElement {
-  rel: RelRel;
-}
-
-export interface RelRel {
-  pos: string;
-  words: RelWord[];
-}
-
-export interface RelWord {
-  tran: string;
-  word: string;
-}
-
-export interface Senior {
-  encryptedData: string;
-  source: SeniorSource;
-}
-
-export interface SeniorSource {
-  name: string;
-}
-
-export interface Simple {
-  query: string;
-  word: SimpleWord[];
-}
-
-export interface SimpleWord {
-  "return-phrase"?: string;
-  ukphone?: string;
-  ukspeech?: string;
-  usphone?: string;
-  usspeech?: string;
-}
-
-export interface Special {
-  "co-add": string;
-  entries: SpecialEntry[];
-  summary: SpecialSummary;
-  total: string;
-}
-
-export interface SpecialEntry {
-  entry: EntryEntry;
-}
-
-export interface EntryEntry {
-  major: string;
-  num: number;
-  trs: EntryTr[];
-}
-
-export interface EntryTr {
-  tr: StickyTr;
-}
-
-export interface StickyTr {
-  chnSent?: string;
-  cite: string;
-  docTitle?: string;
-  engSent?: string;
-  nat: string;
-  url?: string;
-}
-
-export interface SpecialSummary {
-  sources: Sources;
-  text: string;
-}
-
-export interface Sources {
-  source: SourcesSource;
-}
-
-export interface SourcesSource {
-  site: string;
-  url: string;
-}
-
-export interface SynoModal {
-  synos: SynoElement[];
-  word: string;
-}
-
-export interface SynoElement {
-  pos: string;
-  tran: string;
-  ws: string[];
-}
-
-export interface VideoSents {
-  sents_data: SentsDatum[];
-  word_info: WordInfo;
-}
-
-export interface SentsDatum {
-  contributor: string;
-  id: number;
-  subtitle_srt: string;
-  video: string;
-  video_cover: string;
-}
-
-export interface WordInfo {
-  "return-phrase": string;
-  sense: string[];
-}
-
-export interface Webster {
-  encryptedData: string;
-}
-
-export interface WordVideo {
-  word_videos: WordVideoElement[];
-}
-
-export interface WordVideoElement {
-  ad?: Ad;
-  video?: Video;
-}
-
-export interface Ad {
-  avatar: string;
-  title: string;
-  url: string;
-}
-
-export interface Video {
-  cover: string;
-  image: string;
-  title: string;
-  url: string;
-}
-
-//----------------------------------------------------
-/**
- * Chinese --> English
- *
- * Generated by https://quicktype.io
- */
-export interface BlngSentsPart {
-  "sentence-count": number;
-  "sentence-pair": SentencePair[];
-  more: string;
-  "trs-classify": TrsClassify[];
-}
-
-export interface SentencePair {
-  sentence: string;
-  "sentence-translation-speech": string;
-  "sentence-eng": string;
-  "sentence-translation": string;
-  "speech-size": string;
-  "aligned-words": AlignedWords;
-  source: string;
-  url: string;
-}
-
-export interface AlignedWords {
-  src: Src;
-  tran: Src;
-}
-
-export interface Src {
-  chars: Char[];
-}
-
-export interface Char {
-  "@s": string;
-  "@e": string;
-  aligns: Aligns;
-  "@id": string;
-}
-
-export interface Aligns {
-  sc: Sc[];
-  tc: Sc[];
-}
-
-export interface Sc {
-  "@id": string;
-}
-
-export interface TrsClassify {
-  proportion: string;
-  tr: string;
-}
-
-export interface Ce {
-  source: BaikeSource;
-  word: CeWord;
-}
-
-export interface CeWord {
-  trs: PurpleTr[];
-  phone: string;
-  "return-phrase": string;
-}
-
-export interface PurpleTr {
-  voice: string;
-  "#text": string;
-  "#tran"?: string;
-}
-
-export interface CeNew {
-  source: CeNewSource;
-  word: CeNewWord[];
-}
-
-export interface CeNewSource {
-  name: string;
-}
-
-export interface CeNewWord {
-  trs: FluffyTr[];
-  phone: string;
-  "return-phrase": ReturnPhrase;
-}
-
-export interface ReturnPhrase {
-  l: ReturnPhraseL;
-}
-
-export interface ReturnPhraseL {
-  i: string[];
-}
-
-export interface FluffyTr {
-  pos: string;
-  tr: TentacledTr[];
-}
-
-export interface TentacledTr {
-  exam?: Exam[];
-  l: ReturnPhraseL;
-}
-
-export interface Exam {
-  i: I;
-}
-
-export interface I {
-  f: F;
-  n: F;
-}
-
-export interface F {
-  l: FL;
-}
-
-export interface FL {
-  i: string;
-}
-
-export interface Snippets {
-  snippet: Snippet[];
-}
-
-export interface Snippet {
-  sourceUrl: string;
-  streamUrl: string;
-  swf: string;
-  imageUrl: string;
-  name: string;
-  source: string;
+  streamUrl?: string;
+  duration?: string;
+  swf?: string;
+  name?: string;
+  source?: string;
+  win8?: string;
+  sourceUrl?: string;
+  imageUrl?: string;
 }
 
 export interface Meta {
@@ -939,72 +652,150 @@ export interface Meta {
   dicts: string[];
 }
 
-export interface Newhh {
-  dataList: NewhhDataList[];
-  source: CeNewSource;
-  word: string;
+export interface EncryptedObject {
+  encryptedData?: string;
 }
 
-export interface NewhhDataList {
-  pinyin: string;
-  sense: Sense[];
-  word: string;
+export interface Phrs {
+  word?: string;
+  phrs?: PhrElement[];
 }
 
-export interface Sense {
-  examples?: string[];
-  def: string[];
-  cat: string;
-  style?: string;
+export interface PhrElement {
+  phr?: PhrPhr;
+}
+
+export interface PhrPhr {
+  headword?: EC_ReturnPhrase;
+  trs?: PhrTr[];
+  source?: string;
+}
+
+export interface PhrTr {
+  tr?: EC_ReturnPhrase;
+}
+
+export interface RelWordClass {
+  word?: string;
+  stem?: string;
+  rels?: RelElement[];
+}
+
+export interface RelElement {
+  rel?: RelRel;
+}
+
+export interface RelRel {
+  pos?: string;
+  words?: RelWord[];
+}
+
+export interface RelWord {
+  word?: string;
+  tran?: string;
+}
+
+export interface Senior {
+  encryptedData?: string;
+  source?: SeniorSource;
+}
+
+export interface SeniorSource {
+  name?: string;
 }
 
 export interface Simple {
-  query: string;
-  word: SimpleWord[];
+  query?: string;
+  word?: SimpleWord[];
+}
+
+export interface SimpleWord {
+  usphone?: string;
+  ukphone?: string;
+  ukspeech?: string;
+  "return-phrase"?: string;
+  usspeech?: string;
 }
 
 export interface Special {
-  summary: SpecialSummary;
-  "co-add": string;
-  total: string;
-  entries: EntryElement[];
+  summary?: SpecialSummary;
+  "co-add"?: string;
+  total?: string;
+  entries?: SpecialEntry[];
 }
 
-export interface EntryElement {
-  entry: EntryEntry;
+export interface SpecialEntry {
+  entry?: EntryEntry;
 }
 
 export interface EntryEntry {
-  major: string;
-  trs: EntryTr[];
-  num: number;
+  major?: string;
+  trs?: EntryTr[];
+  num?: number;
 }
 
 export interface EntryTr {
-  tr: StickyTr;
+  tr?: IndigoTr;
 }
 
-export interface StickyTr {
-  nat: string;
+export interface IndigoTr {
+  nat?: string;
+  cite?: string;
   chnSent?: string;
-  cite: string;
   docTitle?: string;
   engSent?: string;
   url?: string;
 }
 
 export interface SpecialSummary {
-  sources: Sources;
-  text: string;
+  sources?: Sources;
+  text?: string;
 }
 
 export interface Sources {
-  source: SourcesSource;
+  source?: SourcesSource;
 }
 
 export interface SourcesSource {
-  site: string;
-  url: string;
+  site?: string;
+  url?: string;
+}
+
+export interface Syno {
+  synos?: SynoElement[];
+  word?: string;
+}
+
+export interface SynoElement {
+  syno?: PurpleSyno;
+}
+
+export interface PurpleSyno {
+  pos?: string;
+  ws?: W[];
+  tran?: string;
+}
+
+export interface W {
+  w?: string;
+}
+
+export interface VideoSents {
+  sents_data?: SentsDatum[];
+  word_info?: WordInfo;
+}
+
+export interface SentsDatum {
+  video_cover?: string;
+  contributor?: string;
+  subtitle_srt?: string;
+  id?: number;
+  video?: string;
+}
+
+export interface WordInfo {
+  "return-phrase"?: string;
+  sense?: string[];
 }
 
 export interface WebTrans {
@@ -1014,46 +805,323 @@ export interface WebTrans {
 export interface WebTranslation {
   "@same"?: string;
   key: string;
-  "key-speech": string;
-  trans: Tran[];
+  "key-speech"?: string;
+  trans?: Tran[];
+}
+
+export interface TranSummary {
+  line?: string[];
+}
+
+export interface WordVideo {
+  word_videos?: WordVideoElement[];
+}
+
+export interface WordVideoElement {
+  ad?: Ad;
+  video?: Video;
+}
+
+export interface Ad {
+  avatar?: string;
+  title?: string;
+  url?: string;
+}
+
+export interface Video {
+  cover?: string;
+  image?: string;
+  title?: string;
+  url?: string;
+}
+
+// Chinese --> English
+
+export interface Baike {
+  summarys?: SummaryElement[];
+  source?: BaikeSource;
+}
+
+export interface BaikeSource {
+  name?: string;
+  url?: string;
+}
+
+export interface SummaryElement {
+  summary?: string;
+  key?: string;
+}
+
+export interface BlngSentsPart {
+  "sentence-count"?: number;
+  "sentence-pair"?: SentencePair[];
+  more?: string;
+  "trs-classify"?: TrsClassify[];
+}
+
+export interface SentencePair {
+  sentence?: string;
+  "sentence-translation-speech"?: string;
+  "sentence-eng"?: string;
+  "sentence-translation"?: string;
+  "speech-size"?: string;
+  "aligned-words"?: AlignedWords;
+  source?: string;
+  url?: string;
+}
+
+export interface AlignedWords {
+  src?: Src;
+  tran?: Src;
+}
+
+export interface Src {
+  chars?: Char[];
+}
+
+export interface Char {
+  "@s"?: string;
+  "@e"?: string;
+  aligns?: Aligns;
+  "@id"?: string;
+}
+
+export interface Aligns {
+  sc?: Sc[];
+  tc?: Sc[];
+}
+
+export interface Sc {
+  "@id"?: string;
+}
+
+export interface TrsClassify {
+  proportion?: string;
+  tr?: string;
+}
+
+export interface Ce {
+  source?: BaikeSource;
+  word?: CeWord[];
+}
+
+export interface CeWord {
+  trs?: CE_PurpleTr[];
+  phone?: string;
+  "return-phrase"?: CE_ReturnPhrase;
+}
+
+export interface CE_ReturnPhrase {
+  l?: FL;
+}
+
+export interface FL {
+  i?: string;
+}
+
+export interface CE_PurpleTr {
+  tr?: CE_FluffyTr[];
+}
+
+export interface CE_FluffyTr {
+  l?: CE_PurpleL;
+}
+
+export interface CE_PurpleL {
+  pos?: string;
+  i: [string, WordExplanation];
+  "#tran"?: string;
+}
+
+export interface WordExplanation {
+  "#text"?: string;
+  "@action"?: string;
+  "@href"?: string;
+}
+
+export interface CeNew {
+  source?: CeNewSource;
+  word?: CeNewWord[];
+}
+
+export interface CeNewSource {
+  name?: string;
+}
+
+export interface CeNewWord {
+  trs?: TentacledTr[];
+  phone?: string;
+  "return-phrase"?: PurpleReturnPhrase;
+}
+
+export interface PurpleReturnPhrase {
+  l?: FluffyL;
+}
+
+export interface FluffyL {
+  i?: string[];
+}
+
+export interface TentacledTr {
+  pos?: string;
+  tr?: StickyTr[];
+}
+
+export interface StickyTr {
+  exam?: Exam[];
+  l?: FluffyL;
+}
+
+export interface Exam {
+  i?: ExamI;
+}
+
+export interface ExamI {
+  f?: EC_ReturnPhrase;
+  n?: EC_ReturnPhrase;
+}
+
+export interface MediaSentsPart {
+  "sentence-count"?: number;
+  more?: string;
+  query?: string;
+  sent?: Sent[];
+}
+
+export interface Sent {
+  "@mediatype"?: string;
+  snippets?: Snippets;
+  chn?: string;
+  eng?: string;
+  "speech-size"?: string;
+}
+
+export interface Snippets {
+  snippet?: Snippet[];
+}
+
+export interface Snippet {
+  sourceUrl?: string;
+  streamUrl?: string;
+  swf?: string;
+  imageUrl?: string;
+  name?: string;
+  source?: string;
+}
+
+export interface Newhh {
+  dataList?: NewhhDataList[];
+  source?: CeNewSource;
+  word?: string;
+}
+
+export interface NewhhDataList {
+  pinyin?: string;
+  sense?: Sense[];
+  word?: string;
+}
+
+export interface Sense {
+  examples?: string[];
+  def?: string[];
+  cat?: string;
+  style?: string;
+}
+
+export interface Simple {
+  query?: string;
+  word?: SimpleWord[];
+}
+
+export interface SimpleWord {
+  phone?: string;
+  "return-phrase"?: string;
+}
+
+export interface Special {
+  summary?: SpecialSummary;
+  "co-add"?: string;
+  total?: string;
+  entries?: EntryElement[];
+}
+
+export interface EntryElement {
+  entry?: EntryEntry;
+}
+
+export interface EntryEntry {
+  major?: string;
+  trs?: EntryTr[];
+  num?: number;
+}
+
+export interface EntryTr {
+  tr?: IndigoTr;
+}
+
+export interface IndigoTr {
+  nat?: string;
+  chnSent?: string;
+  cite?: string;
+  docTitle?: string;
+  engSent?: string;
+  url?: string;
+}
+
+export interface SpecialSummary {
+  sources?: Sources;
+  text?: string;
+}
+
+export interface Sources {
+  source?: SourcesSource;
+}
+
+export interface SourcesSource {
+  site?: string;
+  url?: string;
+}
+
+export interface WebTrans {
+  "web-translation"?: WebTranslation[];
 }
 
 export interface Tran {
   summary?: TranSummary;
-  value: string;
+  value?: string;
   support?: number;
   url?: string;
   cls?: Cls;
 }
 
 export interface Cls {
-  cl: string[];
+  cl?: string[];
 }
 
 export interface TranSummary {
-  line: string[];
+  line?: string[];
 }
 
 export interface Wuguanghua {
-  dataList: WuguanghuaDataList[];
-  source: CeNewSource;
-  word: string;
+  dataList?: WuguanghuaDataList[];
+  source?: CeNewSource;
+  word?: string;
 }
 
 export interface WuguanghuaDataList {
-  trs: DataListTr[];
-  phone: string;
-  speech: string;
+  trs?: DataListTr[];
+  phone?: string;
+  speech?: string;
 }
 
 export interface DataListTr {
-  pos: string;
-  tr: SentElement;
+  pos?: string;
+  tr?: SentElement;
   sents?: SentElement[];
   rhetoric?: string;
 }
 
 export interface SentElement {
-  en: string;
-  cn: string;
+  en?: string;
+  cn?: string;
 }

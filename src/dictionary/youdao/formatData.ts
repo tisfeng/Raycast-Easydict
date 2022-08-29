@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-29 01:17
+ * @lastEditTime: 2022-08-30 00:06
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -236,12 +236,19 @@ export function formateYoudaoWebDictionaryModel(
     const webTransItems = webTrans["web-translation"];
     if (webTransItems) {
       for (const webTransItem of webTransItems) {
-        const transTextList = webTransItem.trans.map((trans) => trans.value);
-        const trans: KeyValueItem = {
-          key: webTransItem.key,
-          value: transTextList,
-        };
-        webTransList.push(trans);
+        if (webTransItem.trans) {
+          const transTextList: string[] = [];
+          for (const trans of webTransItem.trans) {
+            if (trans.value) {
+              transTextList.push(trans.value);
+            }
+          }
+          const trans: KeyValueItem = {
+            key: webTransItem.key,
+            value: transTextList,
+          };
+          webTransList.push(trans);
+        }
       }
     }
   }
@@ -255,14 +262,16 @@ export function formateYoudaoWebDictionaryModel(
 
   // format ec dictionary.
   if (model.ec) {
+    const word = model.ec.word?.length ? model.ec.word[0] : undefined;
+
     // word audio url:  https://dict.youdao.com/dictvoice?audio=good?type=2
-    const usspeech = model.ec.word.usspeech;
+    const usspeech = word?.usspeech;
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
     const [from, to] = getFromToLanguage(model);
 
     const queryWordInfo: QueryWordInfo = {
       word: model.input,
-      phonetic: model.ec.word.usphone,
+      phonetic: word?.usphone,
       fromLanguage: from,
       toLanguage: to,
       isWord: model.ec.word !== undefined,
@@ -271,13 +280,15 @@ export function formateYoudaoWebDictionaryModel(
     };
     console.log(`ec, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
-    let explanations: string[] = [];
-    const trs = model.ec.word.trs;
-    if (trs) {
-      explanations = trs.map((tr) => {
-        const pos = tr.pos ? `${tr.pos} ` : "";
-        return `${pos}${tr.tran}`;
-      });
+    const explanations: string[] = [];
+    const trs = word?.trs;
+    if (trs?.length) {
+      for (const tr of trs) {
+        if (tr.tr?.length && tr.tr[0].l?.i?.length) {
+          const explanation = tr.tr[0].l?.i[0];
+          explanations.push(explanation);
+        }
+      }
     }
     console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
@@ -285,7 +296,7 @@ export function formateYoudaoWebDictionaryModel(
       queryWordInfo: queryWordInfo,
       translation: translations,
       explanations: explanations,
-      forms: model.ec.word.wfs,
+      forms: word?.wfs,
       webTranslation: webTranslation,
       webPhrases: webPhrases,
     };
@@ -298,22 +309,36 @@ export function formateYoudaoWebDictionaryModel(
 
   // format ce dictionary.
   if (model.ce) {
+    const word = model.ce.word?.length ? model.ce.word[0] : undefined;
+
     console.log(`model.ce: ${JSON.stringify(model.ce, null, 2)}`);
     const [from, to] = getFromToLanguage(model);
     const queryWordInfo: QueryWordInfo = {
       word: model.input,
-      phonetic: model.ce.word.phone,
+      phonetic: word?.phone,
       fromLanguage: from,
       toLanguage: to,
       isWord: model.ce.word !== undefined,
     };
     console.log(`ce, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
-    const explanationItems = model.ce.word.trs;
-    const explanations = explanationItems.map((item) => {
-      const tran = item["#tran"] ? `：${item["#tran"]}` : "";
-      return `${item["#text"]}${tran}`;
-    });
+    const explanations: string[] = [];
+    const trs = word?.trs;
+    if (trs) {
+      for (const trsOjb of trs) {
+        if (trsOjb.tr && trsOjb.tr.length) {
+          const l = trsOjb.tr[0].l;
+          if (l) {
+            const [, explanationItem] = l.i;
+            const pos = l.pos ? l.pos : "";
+            const tran = l["#tran"] ? `${l["#tran"]}` : "";
+            const explanation = `${explanationItem["#text"]}   ${pos}  ${tran}`;
+            explanations.push(explanation);
+          }
+        }
+      }
+    }
+
     console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
     const formateResult: YoudaoDictionaryFormatResult = {

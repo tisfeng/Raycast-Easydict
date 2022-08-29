@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-29 01:10
+ * @lastEditTime: 2022-08-30 00:12
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,7 +33,8 @@ let youdaoCookie =
 axios.get(youdaoTranslatURL).then((response) => {
   if (response.headers["set-cookie"]) {
     youdaoCookie = response.headers["set-cookie"]?.join(";");
-    // console.warn(`youdaoCookie: ${youdaoCookie}`);
+    // OUTFOX_SEARCH_USER_ID=1951743691@10.108.162.133; Domain=.youdao.com; Expires=Wed, 21-Aug-2052 06:06:05 GMT
+    console.warn(`youdaoCookie: ${youdaoCookie}`);
   }
 });
 
@@ -97,7 +98,6 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
           type: TranslationType.Youdao,
           result: youdaoFormatResult,
           wordInfo: youdaoFormatResult.queryWordInfo,
-          errorInfo: errorInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
@@ -156,10 +156,12 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
   console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
   console.log(`---> youdao web dict queryString: ${queryString}`);
 
-  const dictUrl = `https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4`;
+  const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
+  console.log(`dictUrl: ${dictUrl}`);
+
   return new Promise((resolve, reject) => {
     axios
-      .post(dictUrl, queryString)
+      .get(dictUrl)
       .then((res) => {
         console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
