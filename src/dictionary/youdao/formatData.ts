@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 00:06
+ * @lastEditTime: 2022-08-30 00:43
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -139,7 +139,7 @@ export function updateYoudaoDictionaryDisplay(
       title: "",
       queryWordInfo: queryWordInfo,
       tooltip: formsType,
-      subtitle: `[ ${wfsText} ]`,
+      subtitle: ` [ ${wfsText} ]`,
       copyText: wfsText,
     };
     displaySections.push({
