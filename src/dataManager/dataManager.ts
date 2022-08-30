@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 00:40
+ * @lastEditTime: 2022-08-30 15:48
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -367,8 +367,7 @@ export class DataManager {
     const isWord = checkIsWord(queryWordInfo);
     const enableYoudaoDictionary =
       myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
-    const enableYoudaoTranslate = myPreferences.enableYoudaoTranslate;
-    console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}, Translate: ${enableYoudaoTranslate}`);
+    console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}`);
     if (enableYoudaoDictionary) {
       const type = DicionaryType.Youdao;
       this.addQueryToRecordList(type);
@@ -383,30 +382,12 @@ export class DataManager {
           const showYoudaoDictionary = hasYoudaoDictionaryEntries(formatYoudaoResult);
           console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
 
-          let displayType;
-          if (enableYoudaoTranslate) {
-            displayType = TranslationType.Youdao;
-          }
-          if (enableYoudaoDictionary && showYoudaoDictionary) {
-            displayType = DicionaryType.Youdao;
-          }
-          if (displayType === undefined) {
-            console.log("---> no display, return");
-            return;
-          }
-          console.log(`---> type: ${displayType}`);
-
-          youdaoTypeResult.type = displayType;
+          youdaoTypeResult.type = type;
           const displayResult: QueryResult = {
-            type: displayType,
+            type: type,
             sourceResult: youdaoTypeResult,
             displaySections: youdaoDisplaySections,
           };
-
-          if (displayType === TranslationType.Youdao) {
-            this.updateTranslationDisplay(displayResult);
-            return;
-          }
 
           this.updateQueryResultAndSections(displayResult);
           this.downloadAndPlayWordAudio(youdaoTypeResult.wordInfo);
