@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 10:22
+ * @lastEditTime: 2022-08-30 11:11
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import { copyToClipboard } from "../../utils";
 import {
   KeyValueItem,
   QueryWordInfo,
+  WordForms,
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
   YoudaoDictionaryResult,
@@ -229,6 +230,13 @@ export function formateYoudaoWebDictionaryModel(
     return;
   }
 
+  const [from, to] = getFromToLanguage(model);
+  let isWord = false;
+  let phonetic: string | undefined;
+  let examTypes: string[] | undefined;
+  let speechUrl: string | undefined;
+  let forms: WordForms[] | undefined;
+
   const webTrans = model.web_trans;
   const webTransList: KeyValueItem[] = [];
   if (webTrans) {
@@ -258,6 +266,7 @@ export function formateYoudaoWebDictionaryModel(
   const firstWebTranslation = webTranslation ? webTranslation.value[0] : undefined;
   const firstTranslation = firstWebTranslation?.split("; ")[0];
   const translations = firstTranslation ?? "";
+  const explanations: string[] = [];
 
   // format English-->Chinese dictionary.
   if (model.ec) {
@@ -266,20 +275,8 @@ export function formateYoudaoWebDictionaryModel(
     // word audio url:  https://dict.youdao.com/dictvoice?audio=good?type=2
     const usspeech = word?.usspeech;
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
-    const [from, to] = getFromToLanguage(model);
 
-    const queryWordInfo: QueryWordInfo = {
-      word: model.input,
-      phonetic: word?.usphone,
-      fromLanguage: from,
-      toLanguage: to,
-      isWord: model.ec.word !== undefined,
-      examTypes: model.ec.exam_type,
-      speechUrl: audioUrl,
-    };
-    console.log(`ec, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
-
-    const explanations: string[] = [];
+    explanations.length = 0;
     const trs = word?.trs;
     if (trs?.length) {
       for (const tr of trs) {
@@ -291,37 +288,18 @@ export function formateYoudaoWebDictionaryModel(
     }
     console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
-    const formateResult: YoudaoDictionaryFormatResult = {
-      queryWordInfo: queryWordInfo,
-      translation: translations,
-      explanations: explanations,
-      forms: word?.wfs,
-      webTranslation: webTranslation,
-      webPhrases: webPhrases,
-    };
-    queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
-
-    copyToClipboard(JSON.stringify(formateResult, null, 4));
-
-    return formateResult;
+    isWord = model.ec.word !== undefined;
+    phonetic = word?.usphone;
+    examTypes = model.ec.exam_type;
+    speechUrl = audioUrl;
+    forms = word?.wfs;
   }
 
   // format Chinese-->English dictionary.
   if (model.ce) {
     const word = model.ce.word?.length ? model.ce.word[0] : undefined;
 
-    console.log(`model.ce: ${JSON.stringify(model.ce, null, 2)}`);
-    const [from, to] = getFromToLanguage(model);
-    const queryWordInfo: QueryWordInfo = {
-      word: model.input,
-      phonetic: word?.phone,
-      fromLanguage: from,
-      toLanguage: to,
-      isWord: model.ce.word !== undefined,
-    };
-    console.log(`ce, queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
-
-    const explanations: string[] = [];
+    explanations.length = 0;
     const trs = word?.trs;
     if (trs) {
       for (const trsOjb of trs) {
@@ -337,22 +315,33 @@ export function formateYoudaoWebDictionaryModel(
         }
       }
     }
-
     console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
-
-    const formateResult: YoudaoDictionaryFormatResult = {
-      queryWordInfo: queryWordInfo,
-      translation: translations,
-      explanations: explanations,
-      webTranslation: webTranslation,
-      webPhrases: webPhrases,
-    };
-    queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
-
-    copyToClipboard(JSON.stringify(formateResult, null, 4));
-
-    return formateResult;
   }
+
+  const queryWordInfo: QueryWordInfo = {
+    word: model.input,
+    fromLanguage: from,
+    toLanguage: to,
+    phonetic: phonetic,
+    examTypes: examTypes,
+    speechUrl: speechUrl,
+    isWord: isWord,
+  };
+  console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+
+  const formateResult: YoudaoDictionaryFormatResult = {
+    queryWordInfo: queryWordInfo,
+    translation: translations,
+    explanations: explanations,
+    forms: forms,
+    webTranslation: webTranslation,
+    webPhrases: webPhrases,
+  };
+  queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+
+  copyToClipboard(JSON.stringify(formateResult, null, 4));
+
+  return formateResult;
 }
 
 /**
