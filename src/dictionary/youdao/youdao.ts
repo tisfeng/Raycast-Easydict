@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 15:33
+ * @lastEditTime: 2022-08-31 00:45
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,11 +166,12 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
       .get(dictUrl)
       .then((res) => {
         console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
+        console.warn(`---> youdao web dict cost: ${res.headers[requestCostTime]} ms`);
+
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
         copyToClipboard(JSON.stringify(youdaoWebModel, null, 4));
 
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
-
         const isValidResult = youdaoWebModel.input === queryWordInfo.word;
         if (!isValidResult) {
           console.warn(`---> invalid result : ${util.inspect(youdaoWebModel.meta, { depth: null })}`);
@@ -196,7 +197,6 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
           wordInfo: youdaoFormatResult.queryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
-        console.warn(`---> youdao web dict cost: ${res.headers[requestCostTime]} ms`);
         resolve(youdaoTypeResult);
       })
       .catch((error: AxiosError) => {
@@ -224,7 +224,7 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
 export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.log(`---> start requestYoudaoWebTranslate`);
+  console.log(`---> start request Youdao Web Translate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
@@ -250,7 +250,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
     keyfrom: "fanyi.web",
     action: "FY_BY_REALTlME",
   };
-  // console.log(`---> youdao data: ${util.inspect(data, { depth: null })}`);
+  console.log(`---> youdao web translate params: ${util.inspect(data, { depth: null })}`);
 
   const headers = {
     "User-Agent": userAgent,
@@ -262,7 +262,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
     axios
       .post(url, querystring.stringify(data), { headers })
       .then((response) => {
-        console.log(`---> youdao translate res: ${util.inspect(response.data, { depth: null })}`);
+        console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
           const translations = youdaoWebResult.translateResult.map((item) => item[0].tgt);

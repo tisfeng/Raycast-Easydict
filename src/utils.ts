@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 16:58
+ * @lastEditTime: 2022-08-31 00:45
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -131,6 +131,7 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
  * Show error toast according to errorInfo.
  */
 export function showErrorToast(errorInfo: RequestErrorInfo) {
+  console.error(`show error toast: ${JSON.stringify(errorInfo, null, 2)}`);
   const type = errorInfo.type.toString().split(" ")[0]; // Google Translate --> Google
   showToast({
     style: Toast.Style.Failure,
@@ -161,14 +162,15 @@ export function checkIsWordLength(word: string) {
 }
 
 /**
- * Check queryWordInfo is word.
+ * Check queryWordInfo is word, not accurate, just a rough judgment.
+ *
+ * * Use queryWordInfo `isWord` when need accurate judgment.
  */
 export function checkIsWord(queryWordInfo: QueryWordInfo) {
-  // If there is no dictionary to check if it is a word, then use word length to check.
-  if (queryWordInfo.isWord === undefined) {
-    return checkIsWordLength(queryWordInfo.word);
+  if (queryWordInfo.isWord !== undefined) {
+    return queryWordInfo.isWord;
   }
-  return queryWordInfo.isWord;
+  return checkIsWordLength(queryWordInfo.word);
 }
 
 /**

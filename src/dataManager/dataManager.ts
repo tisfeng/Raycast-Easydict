@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 17:36
+ * @lastEditTime: 2022-08-31 00:41
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -725,8 +725,7 @@ export class DataManager {
    * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
   private downloadAndPlayWordAudio(wordInfo: QueryWordInfo) {
-    const isWord = checkIsWord(wordInfo);
-    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && isWord;
+    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord;
     if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayedAudio = true;

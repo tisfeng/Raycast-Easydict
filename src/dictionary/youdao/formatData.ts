@@ -388,6 +388,7 @@ export function formateYoudaoWebDictionaryModel(
     webPhrases: webPhrases,
   };
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
+  console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 2)}`);
 
   return formateResult;
 }
