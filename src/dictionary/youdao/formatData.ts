@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 18:31
+ * @lastEditTime: 2022-08-30 21:53
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,6 @@
 
 import { chineseLanguageItem } from "../../language/consts";
 import { DicionaryType, DisplaySection, ListDisplayItem } from "../../types";
-import { copyToClipboard } from "../../utils";
 import {
   ExplanationItem,
   KeyValueItem,
@@ -242,6 +241,8 @@ export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatR
 
 /**
  * Format YoudaoWebDictionaryModel to YoudaoDictionaryFormatResult.
+ *
+ * Todo: support more dictionary, currently only support English <--> Chinese.
  */
 export function formateYoudaoWebDictionaryModel(
   model: YoudaoWebDictionaryModel
@@ -318,9 +319,9 @@ export function formateYoudaoWebDictionaryModel(
         }
       }
     }
-    console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
+    // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
-    isWord = model.ec.word !== undefined;
+    isWord = word !== undefined;
     examTypes = model.ec.exam_type;
     speechUrl = audioUrl;
     forms = word?.wfs;
@@ -329,6 +330,7 @@ export function formateYoudaoWebDictionaryModel(
   // format Chinese-->English dictionary.
   if (model.ce) {
     const word = model.ce.word?.length ? model.ce.word[0] : undefined;
+    isWord = word !== undefined;
 
     explanations.length = 0;
     const trs = word?.trs;
@@ -351,7 +353,7 @@ export function formateYoudaoWebDictionaryModel(
         }
       }
     }
-    console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
+    // console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
   }
 
   const queryWordInfo: QueryWordInfo = {
@@ -374,8 +376,6 @@ export function formateYoudaoWebDictionaryModel(
     webPhrases: webPhrases,
   };
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
-
-  copyToClipboard(JSON.stringify(formateResult, null, 4));
 
   return formateResult;
 }
