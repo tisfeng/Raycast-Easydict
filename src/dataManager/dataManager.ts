@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 15:48
+ * @lastEditTime: 2022-08-30 17:21
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,7 +14,7 @@ import { detectLanguage } from "../detectLanauge/detect";
 import { LanguageDetectTypeResult } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
-import { hasYoudaoDictionaryEntries, updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
+import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import {
   playYoudaoWordAudioAfterDownloading,
@@ -137,14 +137,14 @@ export class DataManager {
     console.log(`---> query text: ${queryText}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
+    // query Linguee dictionary, will automatically query DeepL translate.
     this.queryLingueeDictionary(queryWordInfo);
-    this.queryYoudaoDictionary(queryWordInfo);
-    this.queryYoudaoTranslate(queryWordInfo);
-
-    // * DeepL translate is used as part of Linguee dictionary.
     if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
       this.queryDeepLTranslate(queryWordInfo);
     }
+
+    this.queryYoudaoDictionary(queryWordInfo);
+    this.queryYoudaoTranslate(queryWordInfo);
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
     this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
@@ -215,7 +215,7 @@ export class DataManager {
     const displaySections: DisplaySection[][] = [];
     for (const queryResult of this.queryResults) {
       const shouldDisplay = !queryResult.disableDisplay;
-      if (shouldDisplay && queryResult.displaySections) {
+      if (shouldDisplay && queryResult.displaySections?.length) {
         // console.log(`---> update display sections: ${queryResult.type}, length: ${queryResult.displaySections.length}`);
         updateTranslationMarkdown(queryResult, this.queryResults);
         displaySections.push(queryResult.displaySections);
@@ -372,25 +372,35 @@ export class DataManager {
       const type = DicionaryType.Youdao;
       this.addQueryToRecordList(type);
 
-      const youdaoFnPtr = KeyStore.youdaoAppId ? requestYoudaoDictionary : requestYoudaoWebDictionary;
-      youdaoFnPtr(queryWordInfo)
-        .then((youdaoTypeResult) => {
-          console.log(`---> youdao result: ${JSON.stringify(youdaoTypeResult.result, null, 2)}`);
+      // If user has Youdao API key, use official API, otherwise use web API.
+      const youdaoDictFnPtr = KeyStore.youdaoAppId ? requestYoudaoDictionary : requestYoudaoWebDictionary;
+      const requestFunctionList = [youdaoDictFnPtr];
+      if (youdaoDictFnPtr === requestYoudaoWebDictionary) {
+        requestFunctionList.push(requestYoudaoWebTranslate);
+      }
+      const requests = requestFunctionList.map((request) => request(queryWordInfo));
 
-          const formatYoudaoResult = youdaoTypeResult.result as YoudaoDictionaryFormatResult | undefined;
+      Promise.all(requests)
+        .then(([youdaoDictionaryResult, youdaoWebTranslateResult]) => {
+          console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 2)}`);
+          console.log(`---> youdaoWebTranslateResult: ${JSON.stringify(youdaoWebTranslateResult, null, 2)}`);
+
+          const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
-          const showYoudaoDictionary = hasYoudaoDictionaryEntries(formatYoudaoResult);
-          console.log(`---> showYoudaoDictionary: ${showYoudaoDictionary}`);
 
-          youdaoTypeResult.type = type;
           const displayResult: QueryResult = {
             type: type,
-            sourceResult: youdaoTypeResult,
+            sourceResult: youdaoDictionaryResult,
             displaySections: youdaoDisplaySections,
           };
 
+          if (youdaoWebTranslateResult) {
+            const translatedText = youdaoWebTranslateResult.translations.join(", ");
+            this.updateDictionaryTranslation(displayResult, translatedText);
+          }
+
           this.updateQueryResultAndSections(displayResult);
-          this.downloadAndPlayWordAudio(youdaoTypeResult.wordInfo);
+          this.downloadAndPlayWordAudio(youdaoDictionaryResult.wordInfo);
         })
         .catch((error) => {
           showErrorToast(error);
@@ -517,23 +527,25 @@ export class DataManager {
    * Query Youdao translate.
    */
   private queryYoudaoTranslate(queryWordInfo: QueryWordInfo) {
-    const type = TranslationType.Youdao;
-    this.addQueryToRecordList(type);
+    if (myPreferences.enableYoudaoTranslate) {
+      const type = TranslationType.Youdao;
+      this.addQueryToRecordList(type);
 
-    requestYoudaoWebTranslate(queryWordInfo)
-      .then((youdaoTypeResult) => {
-        const queryResult: QueryResult = {
-          type: type,
-          sourceResult: youdaoTypeResult,
-        };
-        this.updateTranslationDisplay(queryResult);
-      })
-      .catch((error) => {
-        showErrorToast(error);
-      })
-      .finally(() => {
-        this.removeQueryFromRecordList(type);
-      });
+      requestYoudaoWebTranslate(queryWordInfo)
+        .then((youdaoTypeResult) => {
+          const queryResult: QueryResult = {
+            type: type,
+            sourceResult: youdaoTypeResult,
+          };
+          this.updateTranslationDisplay(queryResult);
+        })
+        .catch((error) => {
+          showErrorToast(error);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
+        });
+    }
   }
 
   /**
@@ -634,9 +646,9 @@ export class DataManager {
   /**
    * Update Linguee translation.
    *
-   * @param translation the translation to update Linguee translation. if translation is empty, use DeepL translation.
+   * @param translatedText the translation to update Linguee translation. if translatedText is empty, means use DeepL translation.
    */
-  private updateLingueeTranslation(lingueeQueryResult: QueryResult | undefined, translation?: string) {
+  private updateLingueeTranslation(lingueeQueryResult: QueryResult | undefined, translatedText?: string) {
     if (!lingueeQueryResult) {
       return;
     }
@@ -644,7 +656,7 @@ export class DataManager {
     const lingueeDisplaySections = lingueeQueryResult.displaySections;
     if (lingueeDisplaySections?.length) {
       const firstLingueeDisplayItem = lingueeDisplaySections[0].items[0];
-      if (!translation) {
+      if (!translatedText) {
         const deepLQueryResult = this.getQueryResult(TranslationType.DeepL);
         const deepLTranslation = deepLQueryResult?.sourceResult.oneLineTranslation;
         if (deepLTranslation) {
@@ -654,10 +666,23 @@ export class DataManager {
           );
         }
       } else {
-        firstLingueeDisplayItem.title = translation;
+        firstLingueeDisplayItem.title = translatedText;
       }
       console.log(`---> linguee translation: ${firstLingueeDisplayItem.title}`);
       this.updateQueryResultAndSections(lingueeQueryResult);
+    }
+  }
+
+  /**
+   * Update dictionary translation.
+   */
+  private updateDictionaryTranslation(dictionaryQueryResult: QueryResult, translatedText: string) {
+    const dictionaryDisplaySections = dictionaryQueryResult.displaySections;
+    if (dictionaryDisplaySections?.length) {
+      const firstDictionaryDisplayItem = dictionaryDisplaySections[0].items[0];
+      firstDictionaryDisplayItem.title = translatedText;
+      firstDictionaryDisplayItem.copyText = translatedText;
+      console.log(`---> update dictionary translation: ${translatedText}`);
     }
   }
 
