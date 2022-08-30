@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 18:19
+ * @lastEditTime: 2022-08-31 01:02
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -126,6 +126,11 @@ export interface YoudaoWebTranslateResult {
 
 export interface YoudaoWebDictionaryModel {
   // English --> Chinese.
+  input: string;
+  lang: string; // 目标语言，eng。 eg: https://www.youdao.com/w/eng/good
+  le: string; // 目标语言，en
+  meta: Meta; // 元数据
+
   auth_sents_part?: AuthSentsPart; // 权威例句
   baike?: Baike; // 百科
   blng_sents_part?: BlngSentsPart; // 双语例句
@@ -137,18 +142,14 @@ export interface YoudaoWebDictionaryModel {
   etym?: Etym; // 词源
   expand_ec?: ExpandEc; // 英汉词典扩展
   individual?: Individual; // 独有，考试类
-  input: string;
-  lang: string; // 目标语言，eng。 eg: https://www.youdao.com/w/eng/good
-  le: string; // 目标语言，en
   media_sents_part?: MediaSentsPart; // 原声例句
-  meta: Meta; // 元数据
   oxford?: EncryptedObject; // 牛津辞典
   oxfordAdvance?: EncryptedObject; // 新版牛津辞典
   oxfordAdvanceHtml?: EncryptedObject;
   phrs?: Phrs; // 词组短语
   rel_word?: RelWord; // 同根词
   senior?: Senior; // 高级？
-  simple: Simple; // 简易词典
+  simple?: Simple; // 简易词典
   special?: Special; // 专业释义
   syno?: Syno; // 同近义词
   video_sents?: VideoSents; // 视频例句

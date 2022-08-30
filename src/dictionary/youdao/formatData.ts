@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 23:30
+ * @lastEditTime: 2022-08-31 01:03
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -249,8 +249,9 @@ export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatR
 export function formateYoudaoWebDictionaryModel(
   model: YoudaoWebDictionaryModel
 ): YoudaoDictionaryFormatResult | undefined {
-  // dicts always has at least one dict: meta
-  if (model.meta.dicts.length < 2) {
+  // if has no web translation, means no dictionary entries.
+  if (!model.web_trans?.["web-translation"]?.length) {
+    console.log("No Youdao dictionary entries.");
     return;
   }
 
@@ -260,7 +261,7 @@ export function formateYoudaoWebDictionaryModel(
   let phonetic: string | undefined;
   let speechUrl: string | undefined;
 
-  const simpleWord = model.simple.word;
+  const simpleWord = model.simple?.word;
   if (simpleWord?.length) {
     const word = simpleWord[0];
     phonetic = word.usphone || word.phone;
