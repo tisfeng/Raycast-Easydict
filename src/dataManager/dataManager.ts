@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 17:21
+ * @lastEditTime: 2022-08-30 17:36
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -314,9 +314,10 @@ export class DataManager {
             sourceResult: lingueeTypeResult,
           };
 
-          // it will update Linguee dictionary section after updating Linguee translation.
+          // try use DeepL translate result as Linguee translation.
           this.updateLingueeTranslation(queryResult);
-          // this.updateQueryDisplayResults(queryResult);
+          this.updateQueryResultAndSections(queryResult);
+
           this.downloadAndPlayWordAudio(lingueeTypeResult.wordInfo);
         })
         .catch((error) => {
@@ -661,15 +662,12 @@ export class DataManager {
         const deepLTranslation = deepLQueryResult?.sourceResult.oneLineTranslation;
         if (deepLTranslation) {
           firstLingueeDisplayItem.title = deepLTranslation;
-          console.log(
-            `---> deepL translation: ${deepLTranslation}, disableDisplay: ${deepLQueryResult?.disableDisplay}`
-          );
         }
       } else {
         firstLingueeDisplayItem.title = translatedText;
+        firstLingueeDisplayItem.copyText = translatedText;
       }
-      console.log(`---> linguee translation: ${firstLingueeDisplayItem.title}`);
-      this.updateQueryResultAndSections(lingueeQueryResult);
+      console.log(`---> update linguee translation: ${firstLingueeDisplayItem.title}`);
     }
   }
 
