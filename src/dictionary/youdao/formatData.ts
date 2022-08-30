@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 00:43
+ * @lastEditTime: 2022-08-30 10:22
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -224,9 +224,8 @@ export function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatR
 export function formateYoudaoWebDictionaryModel(
   model: YoudaoWebDictionaryModel
 ): YoudaoDictionaryFormatResult | undefined {
-  // when youdao request error, return undefined.
+  // dicts always has at least one dict: meta
   if (model.meta.dicts.length < 2) {
-    // dicts always has at least one dict: meta.
     return;
   }
 
@@ -260,7 +259,7 @@ export function formateYoudaoWebDictionaryModel(
   const firstTranslation = firstWebTranslation?.split("; ")[0];
   const translations = firstTranslation ?? "";
 
-  // format ec dictionary.
+  // format English-->Chinese dictionary.
   if (model.ec) {
     const word = model.ec.word?.length ? model.ec.word[0] : undefined;
 
@@ -307,7 +306,7 @@ export function formateYoudaoWebDictionaryModel(
     return formateResult;
   }
 
-  // format ce dictionary.
+  // format Chinese-->English dictionary.
   if (model.ce) {
     const word = model.ce.word?.length ? model.ce.word[0] : undefined;
 
@@ -357,7 +356,7 @@ export function formateYoudaoWebDictionaryModel(
 }
 
 /**
- * Get from to language.
+ * Get Youdao from to language.
  */
 export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: string, to: string] {
   let from = chineseLanguageItem.youdaoId;

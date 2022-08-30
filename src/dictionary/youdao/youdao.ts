@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 00:12
+ * @lastEditTime: 2022-08-30 10:23
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,13 @@ import { copyToClipboard, getTypeErrorInfo } from "../../utils";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
 
+/**
+ * Max length of text to download youdao tts audio
+ */
+export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
+
 const youdaoTranslatURL = "https://fanyi.youdao.com";
+
 let youdaoCookie =
   "OUTFOX_SEARCH_USER_ID=362474716@10.108.162.139; Domain=.youdao.com; Expires=Sat, 17-Aug-2052 15:39:50 GMT";
 
@@ -33,15 +39,9 @@ let youdaoCookie =
 axios.get(youdaoTranslatURL).then((response) => {
   if (response.headers["set-cookie"]) {
     youdaoCookie = response.headers["set-cookie"]?.join(";");
-    // OUTFOX_SEARCH_USER_ID=1951743691@10.108.162.133; Domain=.youdao.com; Expires=Wed, 21-Aug-2052 06:06:05 GMT
-    console.warn(`youdaoCookie: ${youdaoCookie}`);
+    // console.warn(`youdaoCookie: ${youdaoCookie}`);
   }
 });
-
-/**
- * Max length of text to download youdao tts audio
- */
-export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 /**
  * Youdao translate, use official API. Cost time: 0.2s
@@ -121,7 +121,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
 }
 
 /**
- * Youdao web dictionary, zh <--> targetLanguage, supported target language: en, fr, ja, ko
+ * Youdao web dictionary, unofficial API. zh <--> targetLanguage, supported target language: en, fr, ja, ko
  */
 export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebDictionary`);
@@ -217,7 +217,7 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
 }
 
 /**
- * Youdao translate, use web API. Cost time: 0.2s
+ * Youdao translate, unofficial web API. Cost time: 0.2s
  *
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
@@ -233,11 +233,6 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
   const sign = CryptoJS.MD5("fanyideskweb" + word + salt + "Ygy_4c=r#e#4EX^NUGUc5").toString();
 
   const url = `${youdaoTranslatURL}/translate_o?smartresult=dict&smartresult=rule`;
-  const headers = {
-    "User-Agent": userAgent,
-    Referer: youdaoTranslatURL,
-    Cookie: youdaoCookie,
-  };
   const data = {
     salt,
     sign,
@@ -254,6 +249,12 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
     action: "FY_BY_REALTlME",
   };
   // console.log(`---> youdao data: ${util.inspect(data, { depth: null })}`);
+
+  const headers = {
+    "User-Agent": userAgent,
+    Referer: youdaoTranslatURL,
+    Cookie: youdaoCookie,
+  };
 
   return new Promise((resolve, reject) => {
     axios
@@ -382,19 +383,3 @@ export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => vo
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }
-
-/**
- 
-1: 8
-2: 9
-3: 0
-4: 1
-5: 2
-6: 3, result
-7: 4, article
-8: 5, download
-9: 6, developer
-10: 7, successful
-11: 8
-12: 9, successfully
- */
