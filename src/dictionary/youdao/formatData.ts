@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 21:53
+ * @lastEditTime: 2022-08-30 23:30
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -138,7 +138,7 @@ export function updateYoudaoDictionaryDisplay(
     };
     return displayItem;
   });
-  if (explanationItems) {
+  if (explanationItems?.length) {
     displaySections.push({
       type: youdaoDictionaryType,
       items: explanationItems,
@@ -209,12 +209,14 @@ export function updateYoudaoDictionaryDisplay(
     };
     return webPhraseItem;
   });
-  if (webPhraseItems) {
+  if (webPhraseItems?.length) {
     displaySections.push({
       type: YoudaoDictionaryListItemType.WebPhrase,
       items: webPhraseItems,
     });
   }
+
+  console.log(`displaySections: ${JSON.stringify(displaySections, null, 2)}`);
 
   // Add section title: "Details"
   if (displaySections.length > 1) {
@@ -253,6 +255,7 @@ export function formateYoudaoWebDictionaryModel(
   }
 
   const [from, to] = getFromToLanguage(model);
+  const input = model.input;
   let isWord = false;
   let phonetic: string | undefined;
   let speechUrl: string | undefined;
@@ -263,11 +266,13 @@ export function formateYoudaoWebDictionaryModel(
     phonetic = word.usphone || word.phone;
   }
 
+  let translation = "";
   let examTypes: string[] | undefined;
   let forms: WordForms[] | undefined;
 
-  const webTrans = model.web_trans;
+  // format web translation.
   const webTransList: KeyValueItem[] = [];
+  const webTrans = model.web_trans;
   if (webTrans) {
     const webTransItems = webTrans["web-translation"];
     if (webTransItems) {
@@ -290,23 +295,30 @@ export function formateYoudaoWebDictionaryModel(
   }
   console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);
 
-  const webTranslation = webTransList.length ? webTransList[0] : undefined;
-  const webPhrases = webTransList.slice(1, 4); // only get 3 web phrases.
-  const firstWebTranslation = webTranslation ? webTranslation.value[0] : undefined;
-  const firstTranslation = firstWebTranslation?.split("; ")[0];
-  const translations = firstTranslation ?? "";
+  let webTranslation: KeyValueItem | undefined;
+  if (webTransList.length > 0) {
+    const firstWebTranslation = webTransList[0];
+    if (firstWebTranslation.key.toUpperCase() === input.toUpperCase()) {
+      webTranslation = webTransList.shift() as KeyValueItem;
+      if (webTranslation.value.length > 0) {
+        translation = webTranslation.value[0].split("; ")[0];
+      }
+    }
+  }
+
+  const webPhrases = webTransList.slice(0, 3); // only show 3 web phrases.
   const explanations: ExplanationItem[] = [];
 
   // format English-->Chinese dictionary.
   if (model.ec) {
-    const word = model.ec.word?.length ? model.ec.word[0] : undefined;
+    const wordItem = model.ec.word?.length ? model.ec.word[0] : undefined;
 
     // word audio url:  https://dict.youdao.com/dictvoice?audio=good?type=2
-    const usspeech = word?.usspeech;
+    const usspeech = wordItem?.usspeech;
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
 
     explanations.length = 0;
-    const trs = word?.trs;
+    const trs = wordItem?.trs;
     if (trs?.length) {
       for (const tr of trs) {
         if (tr.tr?.length && tr.tr[0].l?.i?.length) {
@@ -321,19 +333,19 @@ export function formateYoudaoWebDictionaryModel(
     }
     // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
-    isWord = word !== undefined;
+    isWord = wordItem !== undefined;
     examTypes = model.ec.exam_type;
     speechUrl = audioUrl;
-    forms = word?.wfs;
+    forms = wordItem?.wfs;
   }
 
   // format Chinese-->English dictionary.
   if (model.ce) {
-    const word = model.ce.word?.length ? model.ce.word[0] : undefined;
-    isWord = word !== undefined;
+    const wordItem = model.ce.word?.length ? model.ce.word[0] : undefined;
+    isWord = wordItem !== undefined;
 
     explanations.length = 0;
-    const trs = word?.trs;
+    const trs = wordItem?.trs;
     if (trs) {
       for (const trsOjb of trs) {
         if (trsOjb.tr && trsOjb.tr.length) {
@@ -346,7 +358,7 @@ export function formateYoudaoWebDictionaryModel(
             const tranText = pos.length > 0 ? `${pos}  ${tran}` : tran;
             const explanationItem: ExplanationItem = {
               title: text,
-              subtitle: ` ${tranText}`,
+              subtitle: `${tranText}`,
             };
             explanations.push(explanationItem);
           }
@@ -357,7 +369,7 @@ export function formateYoudaoWebDictionaryModel(
   }
 
   const queryWordInfo: QueryWordInfo = {
-    word: model.input,
+    word: input,
     fromLanguage: from,
     toLanguage: to,
     phonetic: phonetic,
@@ -369,7 +381,7 @@ export function formateYoudaoWebDictionaryModel(
 
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
-    translation: translations,
+    translation: translation,
     explanations: explanations,
     forms: forms,
     webTranslation: webTranslation,
