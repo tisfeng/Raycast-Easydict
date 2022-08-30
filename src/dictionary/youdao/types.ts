@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 11:41
+ * @lastEditTime: 2022-08-30 18:19
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { LanguageDetectTypeResult } from "../../detectLanauge/types";
 export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;
   translation: string;
-  explanations?: string[];
+  explanations?: ExplanationItem[];
   forms?: WordForms[];
   webTranslation?: KeyValueItem;
   webPhrases?: KeyValueItem[];
@@ -76,6 +76,11 @@ export interface WordForm {
 export interface KeyValueItem {
   key: string;
   value: string[];
+}
+
+export interface ExplanationItem {
+  title: string;
+  subtitle: string;
 }
 
 /**

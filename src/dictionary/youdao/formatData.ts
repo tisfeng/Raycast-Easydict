@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 18:04
+ * @lastEditTime: 2022-08-30 18:31
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,6 +12,7 @@ import { chineseLanguageItem } from "../../language/consts";
 import { DicionaryType, DisplaySection, ListDisplayItem } from "../../types";
 import { copyToClipboard } from "../../utils";
 import {
+  ExplanationItem,
   KeyValueItem,
   QueryWordInfo,
   WordExplanation,
@@ -53,10 +54,24 @@ export function formatYoudaoDictionaryResult(
   const webPhrases = youdaoResult.web?.slice(1);
   // * only use the first translation
   const translation = youdaoResult.translation[0].split("\n")[0];
+
+  let explanations: ExplanationItem[] | undefined;
+  const explains = youdaoResult.basic?.explains;
+
+  if (explains?.length) {
+    explanations = youdaoResult.basic?.explains.map((explain) => {
+      const item: ExplanationItem = {
+        title: explain,
+        subtitle: "",
+      };
+      return item;
+    });
+  }
+
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
     translation: translation,
-    explanations: youdaoResult.basic?.explains,
+    explanations: explanations,
     forms: youdaoResult.basic?.wfs,
     webTranslation: webTranslation,
     webPhrases: webPhrases,
@@ -108,14 +123,19 @@ export function updateYoudaoDictionaryDisplay(
   // 2. Explanation.
   const explanationType = YoudaoDictionaryListItemType.Explanation;
   const explanationItems = formatResult.explanations?.map((explanation, i) => {
+    const title = explanation.title;
+    const subtitle = explanation.subtitle;
+    const copyText = `${title} ${subtitle}`;
+
     const displayItem: ListDisplayItem = {
       displayType: explanationType,
       queryType: youdaoDictionaryType,
-      key: explanation + i,
-      title: explanation,
+      key: copyText + i,
+      title: title,
+      subtitle: subtitle,
       queryWordInfo: queryWordInfo,
       tooltip: explanationType,
-      copyText: explanation,
+      copyText: copyText,
     };
     return displayItem;
   });
@@ -274,7 +294,7 @@ export function formateYoudaoWebDictionaryModel(
   const firstWebTranslation = webTranslation ? webTranslation.value[0] : undefined;
   const firstTranslation = firstWebTranslation?.split("; ")[0];
   const translations = firstTranslation ?? "";
-  const explanations: string[] = [];
+  const explanations: ExplanationItem[] = [];
 
   // format English-->Chinese dictionary.
   if (model.ec) {
@@ -290,7 +310,11 @@ export function formateYoudaoWebDictionaryModel(
       for (const tr of trs) {
         if (tr.tr?.length && tr.tr[0].l?.i?.length) {
           const explanation = tr.tr[0].l?.i[0];
-          explanations.push(explanation);
+          const explanationItem: ExplanationItem = {
+            title: explanation,
+            subtitle: "",
+          };
+          explanations.push(explanationItem);
         }
       }
     }
@@ -315,10 +339,14 @@ export function formateYoudaoWebDictionaryModel(
           if (l) {
             const explanationItemList = l.i.filter((item) => typeof item !== "string") as WordExplanation[];
             const text = explanationItemList.map((item) => item["#text"]).join(" ");
-            const pos = l.pos ? `  ${l.pos}` : "";
+            const pos = l.pos ? `${l.pos}` : "";
             const tran = l["#tran"] ? `${l["#tran"]}` : "";
-            const explanation = `${text}${pos}   ${tran}`;
-            explanations.push(explanation);
+            const tranText = pos.length > 0 ? `${pos}  ${tran}` : tran;
+            const explanationItem: ExplanationItem = {
+              title: text,
+              subtitle: ` ${tranText}`,
+            };
+            explanations.push(explanationItem);
           }
         }
       }
