@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 00:00
+ * @lastEditTime: 2022-08-30 11:41
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -711,10 +711,13 @@ export interface Simple {
 
 export interface SimpleWord {
   usphone?: string;
+  usspeech?: string;
+
   ukphone?: string;
   ukspeech?: string;
+
   "return-phrase"?: string;
-  usspeech?: string;
+  phone?: string; // Chinese phenetic，中文音标
 }
 
 export interface Special {
@@ -929,7 +932,8 @@ export interface CE_FluffyTr {
 
 export interface CE_PurpleL {
   pos?: string;
-  i: [string, WordExplanation];
+  i: (string | WordExplanation)[];
+  // i: [string, WordExplanation];
   "#tran"?: string;
 }
 
@@ -1026,16 +1030,6 @@ export interface Sense {
   def?: string[];
   cat?: string;
   style?: string;
-}
-
-export interface Simple {
-  query?: string;
-  word?: SimpleWord[];
-}
-
-export interface SimpleWord {
-  phone?: string;
-  "return-phrase"?: string;
 }
 
 export interface Special {

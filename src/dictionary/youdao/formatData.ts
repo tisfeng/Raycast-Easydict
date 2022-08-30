@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 11:11
+ * @lastEditTime: 2022-08-30 11:49
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import { copyToClipboard } from "../../utils";
 import {
   KeyValueItem,
   QueryWordInfo,
+  WordExplanation,
   WordForms,
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
@@ -233,8 +234,15 @@ export function formateYoudaoWebDictionaryModel(
   const [from, to] = getFromToLanguage(model);
   let isWord = false;
   let phonetic: string | undefined;
-  let examTypes: string[] | undefined;
   let speechUrl: string | undefined;
+
+  const simpleWord = model.simple.word;
+  if (simpleWord?.length) {
+    const word = simpleWord[0];
+    phonetic = word.usphone || word.phone;
+  }
+
+  let examTypes: string[] | undefined;
   let forms: WordForms[] | undefined;
 
   const webTrans = model.web_trans;
@@ -289,7 +297,6 @@ export function formateYoudaoWebDictionaryModel(
     console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
     isWord = model.ec.word !== undefined;
-    phonetic = word?.usphone;
     examTypes = model.ec.exam_type;
     speechUrl = audioUrl;
     forms = word?.wfs;
@@ -306,10 +313,11 @@ export function formateYoudaoWebDictionaryModel(
         if (trsOjb.tr && trsOjb.tr.length) {
           const l = trsOjb.tr[0].l;
           if (l) {
-            const [, explanationItem] = l.i;
+            const explanationItemList = l.i.filter((item) => item !== "") as WordExplanation[];
+            const text = explanationItemList.map((item) => item["#text"]).join(" ");
             const pos = l.pos ? l.pos : "";
             const tran = l["#tran"] ? `${l["#tran"]}` : "";
-            const explanation = `${explanationItem["#text"]}   ${pos}  ${tran}`;
+            const explanation = `${text}   ${pos}  ${tran}`;
             explanations.push(explanation);
           }
         }
