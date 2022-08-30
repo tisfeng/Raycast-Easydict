@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 11:49
+ * @lastEditTime: 2022-08-30 18:04
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -313,11 +313,11 @@ export function formateYoudaoWebDictionaryModel(
         if (trsOjb.tr && trsOjb.tr.length) {
           const l = trsOjb.tr[0].l;
           if (l) {
-            const explanationItemList = l.i.filter((item) => item !== "") as WordExplanation[];
+            const explanationItemList = l.i.filter((item) => typeof item !== "string") as WordExplanation[];
             const text = explanationItemList.map((item) => item["#text"]).join(" ");
-            const pos = l.pos ? l.pos : "";
+            const pos = l.pos ? `  ${l.pos}` : "";
             const tran = l["#tran"] ? `${l["#tran"]}` : "";
-            const explanation = `${text}   ${pos}  ${tran}`;
+            const explanation = `${text}${pos}   ${tran}`;
             explanations.push(explanation);
           }
         }
