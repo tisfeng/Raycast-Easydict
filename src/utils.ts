@@ -131,9 +131,10 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
  * Show error toast according to errorInfo.
  */
 export function showErrorToast(errorInfo: RequestErrorInfo) {
+  const type = errorInfo.type.toString().split(" ")[0]; // Google Translate --> Google
   showToast({
     style: Toast.Style.Failure,
-    title: `${errorInfo.type} Error: ${errorInfo.code || ""}`,
+    title: `${type} Error: ${errorInfo.code || ""}`,
     message: errorInfo.message,
   });
 }

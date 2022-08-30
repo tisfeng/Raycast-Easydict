@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-30 10:23
+ * @lastEditTime: 2022-08-30 15:33
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -121,7 +121,9 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
 }
 
 /**
- * Youdao web dictionary, unofficial API. zh <--> targetLanguage, supported target language: en, fr, ja, ko
+ * Youdao web dictionary, unofficial API. Cost time: 0.2s
+ *
+ * Supported zh <--> targetLanguage, supported target language: en, fr, ja, ko
  */
 export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebDictionary`);
