@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 00:45
+ * @lastEditTime: 2022-08-31 11:20
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,12 +16,12 @@ import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
-import { getYoudaoWebDictionaryLanguageId } from "../../language/languages";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { copyToClipboard, getTypeErrorInfo } from "../../utils";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
+import { getYoudaoWebDictionaryLanguageId, isValidYoudaoWebTranslateLanguage } from "./utils";
 
 /**
  * Max length of text to download youdao tts audio
@@ -129,7 +129,9 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
   console.log(`---> start requestYoudaoWebDictionary`);
 
   const type = DicionaryType.Youdao;
-  const dicts = [["web_trans", "ec", "ce", "ce_new", "newhh"]];
+
+  // * Note: "fanyi" only works when responese dicts has only one item ["meta"]
+  const dicts = [["web_trans", "ec", "ce", "fanyi"]];
 
   // English --> Chinese
   // ["web_trans","video_sents", "simple", "phrs",  "syno", "collins", "word_video",  "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special","baike", "meta", "senior", "webster","oxford", "oxfordAdvance", "oxfordAdvanceHtml"]
@@ -225,6 +227,20 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
  */
 export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao Web Translate`);
+
+  const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
+  if (!isValidLanguage) {
+    console.warn(
+      `---> invalid Youdao web translate language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`
+    );
+    const nullResult: QueryTypeResult = {
+      type: TranslationType.Youdao,
+      result: undefined,
+      wordInfo: queryWordInfo,
+      translations: [],
+    };
+    return Promise.resolve(nullResult);
+  }
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 

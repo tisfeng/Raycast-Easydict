@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 01:02
+ * @lastEditTime: 2022-08-31 10:58
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -163,35 +163,7 @@ export interface YoudaoWebDictionaryModel {
   ce_new?: CeNew; // 新汉英大辞典
   newhh?: Newhh; // 现代汉语规范词典
 
-  // web_trans?: WebTrans;
-  // oxfordAdvanceHtml?: Oxford;
-  // video_sents?: VideoSents;
-  // simple?: Simple;
-  // phrs?: Phrs;
-  // oxford?: Oxford;
-  // syno?: WelcomeSyno;
-  // collins?: Collins;
-  // word_video?: WelcomeWordVideo;
-  // webster?: Oxford;
-  // discriminate?: Discriminate;
-  // lang?: string;
-  // ec?: Ec;
-  // ee?: Ee;
-  // blng_sents_part?: BlngSentsPart;
-  // individual?: Individual;
-  // collins_primary?: CollinsPrimary;
-  // rel_word?: RelWordClass;
-  // auth_sents_part?: AuthSentsPart;
-  // media_sents_part?: MediaSentsPart;
-  // expand_ec?: ExpandEc;
-  // etym?: Etym;
-  // special?: Special;
-  // senior?: Senior;
-  // input?: string;
-  // baike?: Baike;
-  // meta?: Meta;
-  // le?: string;
-  // oxfordAdvance?: Oxford;
+  fanyi?: Fanyi; // 翻译，仅在无词典结果时有值
 }
 
 export interface AuthSentsPart {
@@ -1124,4 +1096,11 @@ export interface DataListTr {
 export interface SentElement {
   en?: string;
   cn?: string;
+}
+
+// fanyi
+export interface Fanyi {
+  input?: string;
+  type?: string;
+  tran?: string;
 }

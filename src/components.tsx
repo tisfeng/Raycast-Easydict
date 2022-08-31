@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 11:02
+ * @lastEditTime: 2022-08-31 11:21
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import { sayTruncateCommand } from "./audio";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
 import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "./dictionary/youdao/utils";
 import { playYoudaoWordAudioAfterDownloading } from "./dictionary/youdao/youdao";
 import { languageItemList } from "./language/consts";
 import {
@@ -21,7 +22,6 @@ import {
   getDeepLWebTranslateURL,
   getEudicWebDictionaryURL,
   getGoogleWebTranslateURL,
-  getYoudaoWebDictionaryURL,
 } from "./language/languages";
 import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./preferences";
 import ReleaseNotesPage from "./releaseVersion/releaseNotePage";

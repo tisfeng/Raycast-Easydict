@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 00:41
+ * @lastEditTime: 2022-08-31 11:41
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,17 +16,14 @@ import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
 import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
 import {
   playYoudaoWordAudioAfterDownloading,
   requestYoudaoDictionary,
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
-import {
-  getAutoSelectedTargetLanguageItem,
-  getLanguageItemFromYoudaoId,
-  getYoudaoWebDictionaryURL,
-} from "../language/languages";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
 import { LanguageItem } from "../language/type";
 import { KeyStore, myPreferences } from "../preferences";
 import { appleTranslate } from "../scripts";
@@ -600,6 +597,11 @@ export class DataManager {
   private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
     console.log(`---> updateTranslationDisplay: ${type}`);
+    if (!sourceResult.result) {
+      console.warn(`---> ${type} result is empty.`);
+      return;
+    }
+
     const oneLineTranslation = sourceResult.translations.map((translation) => translation).join(", ");
     sourceResult.oneLineTranslation = oneLineTranslation;
     let copyText = oneLineTranslation;

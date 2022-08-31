@@ -11,7 +11,7 @@
 import { francLangaugeDetect } from "../detectLanauge/franc";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { preferredLanguages } from "./../preferences";
-import { chineseLanguageItem, languageItemList } from "./consts";
+import { languageItemList } from "./consts";
 import { LanguageItem } from "./type";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
@@ -218,49 +218,6 @@ export function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string |
     const word = encodeURIComponent(queryTextInfo.word);
     return `https://dict.eudic.net/dicts/${languageId}/${word}`;
   }
-}
-
-/**
- * Get youdao web dictionary URL.
- *
- * new: https://youdao.com/result?word=good&lang=en
- * old: https://www.youdao.com/w/eng/good
- *
- * crawler parser: https://github.com/keenwon/eazydict-youdao/blob/master/lib/parser.js
- */
-export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
-  if (!languageId) {
-    return;
-  }
-
-  const youdaoDictionaryLanguages = ["en", "fr", "ja", "ko"]; // 英语，法语，日语，韩语
-  if (youdaoDictionaryLanguages.includes(languageId)) {
-    const word = encodeURIComponent(queryTextInfo.word);
-    return `https://youdao.com/result?word=${word}&lang=${languageId}`;
-  }
-}
-
-/**
- * Get Youdao web dictionary query language according to fromLanguage.
- *
- * eg: en --> zh-CHS, return: en
- * eg: zh-CHS --> fr, return: fr
- */
-export function getYoudaoWebDictionaryLanguageId(queryTextInfo: QueryWordInfo): string | undefined {
-  if (getYoudaoWebDictionaryURL(queryTextInfo) === undefined) {
-    return;
-  }
-
-  const { fromLanguage, toLanguage } = queryTextInfo;
-  let from = chineseLanguageItem.youdaoId;
-  let to = chineseLanguageItem.youdaoId;
-  if (fromLanguage === from) {
-    to = toLanguage;
-  } else {
-    from = fromLanguage;
-  }
-  return getLanguageOfTwoExceptChinese([from, to]);
 }
 
 /**
