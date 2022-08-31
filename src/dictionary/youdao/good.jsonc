@@ -1,4 +1,3 @@
-// Web post, all dicts.
 {
   "web_trans": {
     "web-translation": [
@@ -233,84 +232,384 @@
     "word": "good",
     "phrs": [
       {
-        "headword": "good at",
-        "translation": "善于"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good at"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "善于"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good and",
-        "translation": "完全，非常"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good and"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "完全，非常"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good for",
-        "translation": "有效的；会产生；有支付…能力的"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good for"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "有效的；会产生；有支付…能力的"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good quality",
-        "translation": "良好品质，高品质；好质量"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good quality"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "良好品质，高品质；好质量"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "no good",
-        "translation": "很糟，没有用"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "no good"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "很糟，没有用"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "make good",
-        "translation": "成功；赔偿；补偿"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "make good"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "成功；赔偿；补偿"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "as good as",
-        "translation": "和…几乎一样，实际上等于…"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "as good as"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "和…几乎一样，实际上等于…"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "do good",
-        "translation": "对……有好处；有用处"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "do good"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "对……有好处；有用处"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "feel good",
-        "translation": "感觉舒服，感觉良好"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "feel good"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "感觉舒服，感觉良好"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good reputation",
-        "translation": "良好声誉"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good reputation"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "良好声誉"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good news",
-        "translation": "好消息；福音；喜讯；福音"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good news"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好消息；福音；喜讯；福音"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good job",
-        "translation": "好运；幸运的事情；干的不错"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good job"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好运；幸运的事情；干的不错"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good idea",
-        "translation": "好主意，好想法；妙计"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good idea"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好主意，好想法；妙计"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good morning",
-        "translation": "int. 早安，早上好"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good morning"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "int. 早安，早上好"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good performance",
-        "translation": "良好的性能；良好绩效"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good performance"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "良好的性能；良好绩效"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good friend",
-        "translation": "好朋友，挚友"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good friend"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好朋友，挚友"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good health",
-        "translation": "身体健康"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good health"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "身体健康"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good time",
-        "translation": "好时机；繁荣时期"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good time"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好时机；繁荣时期"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "good service",
-        "translation": "好的服务；合法发球"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "good service"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "好的服务；合法发球"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       },
       {
-        "headword": "for good",
-        "translation": "永久地；一劳永逸地"
+        "phr": {
+          "headword": {
+            "l": {
+              "i": "for good"
+            }
+          },
+          "trs": [
+            {
+              "tr": {
+                "l": {
+                  "i": "永久地；一劳永逸地"
+                }
+              }
+            }
+          ],
+          "source": ""
+        }
       }
     ]
   },
@@ -320,19 +619,55 @@
   "syno": {
     "synos": [
       {
-        "pos": "adj.",
-        "ws": ["fine", "Ok", "great", "religious", "bright"],
-        "tran": "好的；优良的；愉快的；虔诚的"
+        "syno": {
+          "pos": "adj.",
+          "ws": [
+            {
+              "w": "fine"
+            },
+            {
+              "w": "Ok"
+            },
+            {
+              "w": "great"
+            },
+            {
+              "w": "religious"
+            },
+            {
+              "w": "bright"
+            }
+          ],
+          "tran": "好的；优良的；愉快的；虔诚的"
+        }
       },
       {
-        "pos": "n.",
-        "ws": ["benefit", "plus", "mercy"],
-        "tran": "好处；善行；慷慨的行为"
+        "syno": {
+          "pos": "n.",
+          "ws": [
+            {
+              "w": "benefit"
+            },
+            {
+              "w": "plus"
+            },
+            {
+              "w": "mercy"
+            }
+          ],
+          "tran": "好处；善行；慷慨的行为"
+        }
       },
       {
-        "pos": "adv.",
-        "ws": ["okey"],
-        "tran": "好"
+        "syno": {
+          "pos": "adv.",
+          "ws": [
+            {
+              "w": "okey"
+            }
+          ],
+          "tran": "好"
+        }
       }
     ],
     "word": "good"
@@ -1290,70 +1625,86 @@
   },
   "lang": "eng",
   "ec": {
-    "web_trans": ["好的", "善", "良好"],
-    "special": [
-      {
-        "nat": "善",
-        "major": "法学"
-      },
-      {
-        "nat": "善",
-        "major": "文学"
-      },
-      {
-        "nat": "好",
-        "major": "语言学"
-      }
-    ],
     "exam_type": ["初中", "高中", "CET4", "CET6", "考研"],
     "source": {
       "name": "有道词典",
       "url": "https://dict.youdao.com"
     },
-    "word": {
-      "usphone": "ɡʊd",
-      "ukphone": "ɡʊd",
-      "ukspeech": "good&type=1",
-      "trs": [
-        {
-          "pos": "adj.",
-          "tran": "好的，优良的；能干的，擅长的；好的，符合心愿的；令人愉快的，合意的；（心情）愉快的；迷人的，漂亮的；可能会成功的，可能正确的；合适的，方便的；有益的，有好处的，有用的；温顺的，乖的，有礼貌的；虔诚的，遵守规则（或约定）的；健康的，健全的；状况好的；助人为乐的，心地善良的，好心的；符合道德的，正派的，高尚的；（数量或程度）相当大的，相当多的；很，非常；彻底的，完全的；合情理的，有说服力的，有充分根据的；划算的，收益可观的；赞同的，赢得赞许的，令人尊敬的；（用于表示回应）好的；表示惊讶、生气或者加强语气；（用于打招呼）好；至少，不少于；有趣的，逗笑的；在…时间内有效，非伪造的；（比赛中打的球）好的，有效的，可以得分的；（踢、射、投）命中；能提供……的；足够支付的；上流的，高贵的；（衣服）时髦的，适合正式场合穿着的；亲密的，友好的；尤指以屈尊俯就或幽默的方式好（人）；有……意向的；够了，到此为止了；精确的，准确的"
-        },
-        {
-          "pos": "n.",
-          "tran": "合乎道德的行为，正直的行为，善行；对的事情（the good）；好事（the good）；好的方面；好结果；有道德的人，高尚的人，好人（the good）；用处，益处，利益；商品，所有物；<英>（与乘客相区别的）待运货物（goods）；私人财物（goods）；<非正式>真货，正品（the goods）"
-        },
-        {
-          "pos": "adv.",
-          "tran": "<非正式>好地；<美>彻底地，完全地"
-        },
-        {
-          "tran": "【名】 （Good）（英）古德，（瑞典）戈德（人名）"
-        }
-      ],
-      "wfs": [
-        {
-          "wf": {
-            "name": "复数",
-            "value": "goods"
+    "word": [
+      {
+        "usphone": "ɡʊd",
+        "ukphone": "ɡʊd",
+        "ukspeech": "good&type=1",
+        "trs": [
+          {
+            "tr": [
+              {
+                "l": {
+                  "i": [
+                    "adj. 好的，优良的；能干的，擅长的；好的，符合心愿的；令人愉快的，合意的；（心情）愉快的；迷人的，漂亮的；可能会成功的，可能正确的；合适的，方便的；有益的，有好处的，有用的；温顺的，乖的，有礼貌的；虔诚的，遵守规则（或约定）的；健康的，健全的；状况好的；助人为乐的，心地善良的，好心的；符合道德的，正派的，高尚的；（数量或程度）相当大的，相当多的；很，非常；彻底的，完全的；合情理的，有说服力的，有充分根据的；划算的，收益可观的；赞同的，赢得赞许的，令人尊敬的；（用于表示回应）好的；表示惊讶、生气或者加强语气；（用于打招呼）好；至少，不少于；有趣的，逗笑的；在…时间内有效，非伪造的；（比赛中打的球）好的，有效的，可以得分的；（踢、射、投）命中；能提供……的；足够支付的；上流的，高贵的；（衣服）时髦的，适合正式场合穿着的；亲密的，友好的；尤指以屈尊俯就或幽默的方式好（人）；有……意向的；够了，到此为止了；精确的，准确的"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "tr": [
+              {
+                "l": {
+                  "i": [
+                    "n. 合乎道德的行为，正直的行为，善行；对的事情（the good）；好事（the good）；好的方面；好结果；有道德的人，高尚的人，好人（the good）；用处，益处，利益；商品，所有物；<英>（与乘客相区别的）待运货物（goods）；私人财物（goods）；<非正式>真货，正品（the goods）"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "tr": [
+              {
+                "l": {
+                  "i": ["adv. <非正式>好地；<美>彻底地，完全地"]
+                }
+              }
+            ]
+          },
+          {
+            "tr": [
+              {
+                "l": {
+                  "i": ["【名】 （Good）（英）古德，（瑞典）戈德（人名）"]
+                }
+              }
+            ]
+          }
+        ],
+        "wfs": [
+          {
+            "wf": {
+              "name": "复数",
+              "value": "goods"
+            }
+          },
+          {
+            "wf": {
+              "name": "比较级",
+              "value": "better"
+            }
+          },
+          {
+            "wf": {
+              "name": "最高级",
+              "value": "best"
+            }
+          }
+        ],
+        "return-phrase": {
+          "l": {
+            "i": "good"
           }
         },
-        {
-          "wf": {
-            "name": "比较级",
-            "value": "better"
-          }
-        },
-        {
-          "wf": {
-            "name": "最高级",
-            "value": "best"
-          }
-        }
-      ],
-      "return-phrase": "good",
-      "usspeech": "good&type=2"
-    }
+        "usspeech": "good&type=2"
+      }
+    ]
   },
   "ee": {
     "source": {
@@ -1366,25 +1717,81 @@
           "pos": "n.",
           "tr": [
             {
-              "examples": ["for your own good", "what's the good of worrying?"],
-              "tran": "benefit"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "for your own good"
+                      },
+                      {
+                        "i": "what's the good of worrying?"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "benefit"
+              }
             },
             {
-              "examples": ["there is much good to be found in people"],
-              "tran": "moral excellence or admirableness",
-              "similar-words": ["goodness"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "there is much good to be found in people"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "moral excellence or admirableness"
+              },
+              "similar-words": [
+                {
+                  "similar": "goodness"
+                }
+              ]
             },
             {
-              "examples": [
-                "weigh the good against the bad",
-                "among the highest goods of all are happiness and self-realization"
-              ],
-              "tran": "that which is pleasing or valuable or useful",
-              "similar-words": ["goodness"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "weigh the good against the bad"
+                      },
+                      {
+                        "i": "among the highest goods of all are happiness and self-realization"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "that which is pleasing or valuable or useful"
+              },
+              "similar-words": [
+                {
+                  "similar": "goodness"
+                }
+              ]
             },
             {
-              "tran": "articles of commerce",
-              "similar-words": ["commodity", "trade good"]
+              "l": {
+                "i": "articles of commerce"
+              },
+              "similar-words": [
+                {
+                  "similar": "commodity"
+                },
+                {
+                  "similar": "trade good"
+                }
+              ]
             }
           ]
         },
@@ -1392,112 +1799,489 @@
           "pos": "adj.",
           "tr": [
             {
-              "examples": [
-                "good news from the hospital",
-                "a good report card",
-                "when she was good she was very very good",
-                "a good knife is one good for cutting",
-                "this stump will make a good picnic table",
-                "a good check",
-                "a good joke",
-                "a good exterior paint",
-                "a good secretary",
-                "a good dress for the office"
-              ],
-              "tran": "having desirable or positive qualities especially those suitable for a thing specified"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "good news from the hospital"
+                      },
+                      {
+                        "i": "a good report card"
+                      },
+                      {
+                        "i": "when she was good she was very very good"
+                      },
+                      {
+                        "i": "a good knife is one good for cutting"
+                      },
+                      {
+                        "i": "this stump will make a good picnic table"
+                      },
+                      {
+                        "i": "a good check"
+                      },
+                      {
+                        "i": "a good joke"
+                      },
+                      {
+                        "i": "a good exterior paint"
+                      },
+                      {
+                        "i": "a good secretary"
+                      },
+                      {
+                        "i": "a good dress for the office"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "having desirable or positive qualities especially those suitable for a thing specified"
+              }
             },
             {
-              "examples": ["gives good measure", "a good mile from here"],
-              "tran": "having the normally expected amount",
-              "similar-words": ["full"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "gives good measure"
+                      },
+                      {
+                        "i": "a good mile from here"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "having the normally expected amount"
+              },
+              "similar-words": [
+                {
+                  "similar": "full"
+                }
+              ]
             },
             {
-              "tran": "morally admirable"
+              "l": {
+                "i": "morally admirable"
+              }
             },
             {
-              "examples": ["ruined the family's good name"],
-              "tran": "deserving of esteem and respect",
-              "similar-words": ["estimable", "honorable", "respectable"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "ruined the family's good name"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "deserving of esteem and respect"
+              },
+              "similar-words": [
+                {
+                  "similar": "estimable"
+                },
+                {
+                  "similar": "honorable"
+                },
+                {
+                  "similar": "respectable"
+                }
+              ]
             },
             {
-              "examples": ["the experience was good for her"],
-              "tran": "promoting or enhancing well-being",
-              "similar-words": ["beneficial"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "the experience was good for her"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "promoting or enhancing well-being"
+              },
+              "similar-words": [
+                {
+                  "similar": "beneficial"
+                }
+              ]
             },
             {
-              "examples": ["we all had a good time", "good manners"],
-              "tran": "agreeable or pleasing"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "we all had a good time"
+                      },
+                      {
+                        "i": "good manners"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "agreeable or pleasing"
+              }
             },
             {
-              "examples": ["a genuinely good person"],
-              "tran": "of moral excellence",
-              "similar-words": ["just", "upright"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a genuinely good person"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "of moral excellence"
+              },
+              "similar-words": [
+                {
+                  "similar": "just"
+                },
+                {
+                  "similar": "upright"
+                }
+              ]
             },
             {
-              "examples": ["a good mechanic"],
-              "tran": "having or showing knowledge and skill and aptitude",
-              "similar-words": ["adept", "expert", "practiced", "proficient", "skillful", "skilful"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good mechanic"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "having or showing knowledge and skill and aptitude"
+              },
+              "similar-words": [
+                {
+                  "similar": "adept"
+                },
+                {
+                  "similar": "expert"
+                },
+                {
+                  "similar": "practiced"
+                },
+                {
+                  "similar": "proficient"
+                },
+                {
+                  "similar": "skillful"
+                },
+                {
+                  "similar": "skilful"
+                }
+              ]
             },
             {
-              "examples": ["had a good workout", "gave the house a good cleaning"],
-              "tran": "thorough"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "had a good workout"
+                      },
+                      {
+                        "i": "gave the house a good cleaning"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "thorough"
+              }
             },
             {
-              "examples": ["a good friend"],
-              "tran": "with or in a close or intimate relationship",
-              "similar-words": ["dear", "near"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good friend"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "with or in a close or intimate relationship"
+              },
+              "similar-words": [
+                {
+                  "similar": "dear"
+                },
+                {
+                  "similar": "near"
+                }
+              ]
             },
             {
-              "examples": ["a good investment"],
-              "tran": "financially sound",
-              "similar-words": ["dependable", "safe", "secure"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good investment"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "financially sound"
+              },
+              "similar-words": [
+                {
+                  "similar": "dependable"
+                },
+                {
+                  "similar": "safe"
+                },
+                {
+                  "similar": "secure"
+                }
+              ]
             },
             {
-              "examples": ["a good time to plant tomatoes"],
-              "tran": "most suitable or right for a particular purpose",
-              "similar-words": ["right", "ripe"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good time to plant tomatoes"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "most suitable or right for a particular purpose"
+              },
+              "similar-words": [
+                {
+                  "similar": "right"
+                },
+                {
+                  "similar": "ripe"
+                }
+              ]
             },
             {
-              "examples": ["its a good thing that I wasn't there", "it is good that you stayed"],
-              "tran": "resulting favorably",
-              "similar-words": ["well(p)"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "its a good thing that I wasn't there"
+                      },
+                      {
+                        "i": "it is good that you stayed"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "resulting favorably"
+              },
+              "similar-words": [
+                {
+                  "similar": "well(p)"
+                }
+              ]
             },
             {
-              "examples": ["a warranty good for two years"],
-              "tran": "exerting force or influence",
-              "similar-words": ["effective", "in effect(p)", "in force(p)"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a warranty good for two years"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "exerting force or influence"
+              },
+              "similar-words": [
+                {
+                  "similar": "effective"
+                },
+                {
+                  "similar": "in effect(p)"
+                },
+                {
+                  "similar": "in force(p)"
+                }
+              ]
             },
             {
-              "examples": ["good looks"],
-              "tran": "capable of pleasing"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "good looks"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "capable of pleasing"
+              }
             },
             {
-              "examples": ["good music"],
-              "tran": "appealing to the mind",
-              "similar-words": ["serious"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "good music"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "appealing to the mind"
+              },
+              "similar-words": [
+                {
+                  "similar": "serious"
+                }
+              ]
             },
             {
-              "examples": ["good teeth", "I still have one good leg"],
-              "tran": "in excellent physical condition",
-              "similar-words": ["sound"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "good teeth"
+                      },
+                      {
+                        "i": "I still have one good leg"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "in excellent physical condition"
+              },
+              "similar-words": [
+                {
+                  "similar": "sound"
+                }
+              ]
             },
             {
-              "examples": ["a good night's sleep"],
-              "tran": "tending to promote physical well-being; beneficial to health",
-              "similar-words": ["beneficial", "salutary"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good night's sleep"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "tending to promote physical well-being; beneficial to health"
+              },
+              "similar-words": [
+                {
+                  "similar": "beneficial"
+                },
+                {
+                  "similar": "salutary"
+                }
+              ]
             },
             {
-              "examples": ["a good dollar bill"],
-              "tran": "not forged"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "a good dollar bill"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "not forged"
+              }
             },
             {
-              "examples": ["the meat is still good"],
-              "tran": "not left to spoil",
-              "similar-words": ["unspoiled", "unspoilt"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "the meat is still good"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "not left to spoil"
+              },
+              "similar-words": [
+                {
+                  "similar": "unspoiled"
+                },
+                {
+                  "similar": "unspoilt"
+                }
+              ]
             },
             {
-              "examples": ["good taste"],
-              "tran": "generally admired"
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "good taste"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "generally admired"
+              }
             }
           ]
         },
@@ -1505,21 +2289,60 @@
           "pos": "adv.",
           "tr": [
             {
-              "examples": ["the baby can walk pretty good"],
-              "tran": "(often used as a combining form) in a good or proper or satisfactory manner or to a high standard (`good' is a nonstandard dialectal variant for `well')",
-              "similar-words": ["well"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "the baby can walk pretty good"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "(often used as a combining form) in a good or proper or satisfactory manner or to a high standard (`good' is a nonstandard dialectal variant for `well')"
+              },
+              "similar-words": [
+                {
+                  "similar": "well"
+                }
+              ]
             },
             {
-              "examples": ["we beat him good"],
-              "tran": "in a complete and thorough manner (`good' is sometimes used informally for `thoroughly')",
-              "similar-words": ["thoroughly", "soundly"]
+              "exam": {
+                "i": {
+                  "f": {
+                    "l": [
+                      {
+                        "i": "we beat him good"
+                      }
+                    ]
+                  }
+                }
+              },
+              "l": {
+                "i": "in a complete and thorough manner (`good' is sometimes used informally for `thoroughly')"
+              },
+              "similar-words": [
+                {
+                  "similar": "thoroughly"
+                },
+                {
+                  "similar": "soundly"
+                }
+              ]
             }
           ]
         }
       ],
       "phone": "ɡud",
       "speech": "good",
-      "return-phrase": "good"
+      "return-phrase": {
+        "l": {
+          "i": "good"
+        }
+      }
     }
   },
   "blng_sents_part": {
@@ -2529,15 +3352,15 @@
           "words": [
             {
               "word": "goody",
-              "tran": "感伤的；伪善的；假正经的"
+              "tran": " 感伤的；伪善的；假正经的"
             },
             {
               "word": "goodly",
-              "tran": "漂亮的；优秀的；相当多的"
+              "tran": " 漂亮的；优秀的；相当多的"
             },
             {
               "word": "goodish",
-              "tran": "相当好的；颇的"
+              "tran": " 相当好的；颇的"
             }
           ]
         }
@@ -2548,7 +3371,7 @@
           "words": [
             {
               "word": "goody",
-              "tran": "太好啦"
+              "tran": " 太好啦"
             }
           ]
         }
@@ -2559,7 +3382,7 @@
           "words": [
             {
               "word": "goody",
-              "tran": "糖果；身份低微之老妇；吸引人的东西；伪君子"
+              "tran": " 糖果；身份低微之老妇；吸引人的东西；伪君子"
             }
           ]
         }
