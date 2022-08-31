@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 18:41
+ * @lastEditTime: 2022-09-01 00:17
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -157,6 +157,8 @@ function handleDetectedLanguageTypeResult(
 ) {
   console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
 
+  const detectedYoudaoLanguageId = apiDetectedLanguage.youdaoLanguageId;
+
   /**
    * 1. Preferred to use Google language detect, mark it as confirmed.
    *
@@ -164,7 +166,7 @@ function handleDetectedLanguageTypeResult(
    * So we have to try to use other types of language detection first.
    */
   if (apiDetectedLanguage.type === LanguageDetectType.Google && apiDetectedLanguage.sourceLanguageId.length > 0) {
-    console.log(`use Google detect language`);
+    console.log(`use Google detect language: ${apiDetectedLanguage.sourceLanguageId}`);
     apiDetectedLanguage.confirmed = true;
     callback(apiDetectedLanguage);
     return;
@@ -172,8 +174,8 @@ function handleDetectedLanguageTypeResult(
 
   // 2. Try to use Baidu language detect, if it is confirmed and preferred language, use it.
   if (apiDetectedLanguage.type === LanguageDetectType.Baidu) {
-    if (apiDetectedLanguage.confirmed && isPreferredLanguage(apiDetectedLanguage.youdaoLanguageId)) {
-      console.log(`use Baidu detect, confirmed and preferred language`);
+    if (apiDetectedLanguage.confirmed && isPreferredLanguage(detectedYoudaoLanguageId)) {
+      console.log(`use Baidu language detect, confirmed and preferred language: ${detectedYoudaoLanguageId}`);
       callback(apiDetectedLanguage);
       return;
     }
@@ -181,10 +183,9 @@ function handleDetectedLanguageTypeResult(
 
   // 3. Iterate API detected language List, check if has detected `two` identical && `preferred` language id, if true, use it.
   for (const language of apiDetectedLanguageList) {
-    const detectedYoudaoLanguageId = apiDetectedLanguage.youdaoLanguageId;
     if (language.youdaoLanguageId === detectedYoudaoLanguageId && isPreferredLanguage(detectedYoudaoLanguageId)) {
       language.confirmed = true;
-      console.warn(`---> API: ${apiDetectedLanguage.type} && ${language.type}, detected identical language`);
+      console.warn(`---> API: ${apiDetectedLanguage.type} && ${language.type}, detected identical preferred language`);
       console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
       callback(language); // use the first detected language type, the speed of response is important.
       return;
@@ -194,7 +195,7 @@ function handleDetectedLanguageTypeResult(
   // 4. Iterate API detected language List, check if has detected `three` identical language id, if true, use it.
   let count = 1;
   for (const language of apiDetectedLanguageList) {
-    if (language.youdaoLanguageId === apiDetectedLanguage.youdaoLanguageId) {
+    if (language.youdaoLanguageId === detectedYoudaoLanguageId) {
       count += 1;
     }
     if (count === 3) {
@@ -228,9 +229,7 @@ function handleDetectedLanguageTypeResult(
             confidence > 0
           ) {
             apiLanguage.confirmed = true;
-            console.warn(
-              `---> API and Local detect identical preferred language: ${JSON.stringify(apiLanguage, null, 4)}`
-            );
+            console.warn(`API and Local detect identical preferred language: ${JSON.stringify(apiLanguage, null, 4)}`);
             callback(apiLanguage);
             return;
           }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 22:57
+ * @lastEditTime: 2022-09-01 00:12
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -50,8 +50,8 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
  */
 export function getSortOrder(): string[] {
   const defaultOrderList = [
-    DicionaryType.Linguee,
     DicionaryType.Youdao,
+    DicionaryType.Linguee,
 
     TranslationType.DeepL,
     TranslationType.Google,
