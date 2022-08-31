@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:17
+ * @lastEditTime: 2022-08-31 18:28
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -193,6 +193,9 @@ function handleDetectedLanguageTypeResult(
       return;
     }
   }
+
+  // Todo:
+  // 4. Iterate API detected language List, check if has detected three identical language id, if true, use it.
 
   // If this API detected language is not confirmed, record it in the apiDetectedLanguage.
   apiDetectedLanguageList.push(apiDetectedLanguage);

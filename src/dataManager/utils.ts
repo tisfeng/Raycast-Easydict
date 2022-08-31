@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:18
+ * @lastEditTime: 2022-08-31 18:10
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,8 @@
 import { hasLingueeDictionaryEntries } from "../dictionary/linguee/parse";
 import { LingueeDictionaryResult } from "../dictionary/linguee/types";
 import { hasYoudaoDictionaryEntries } from "../dictionary/youdao/formatData";
-import { YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
 import {
   getLanguageItemFromYoudaoId,
   maxLineLengthOfChineseTextDisplay,
@@ -19,7 +20,7 @@ import {
 } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, TranslationType } from "../types";
-import { checkIsDictionaryType, checkIsTranslationType } from "../utils";
+import { checkIsDictionaryType, checkIsTranslationType, checkIsWord } from "../utils";
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
@@ -237,4 +238,15 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
       return true;
     }
   });
+}
+
+/**
+ * Check if enable Youdao dictionary.
+ */
+export function checkIfEnableYoudaoDictionary(queryWordInfo: QueryWordInfo) {
+  const isValidYoudaoDictionaryLanguageQuery = getYoudaoWebDictionaryURL(queryWordInfo) !== undefined;
+  const isWord = checkIsWord(queryWordInfo);
+  const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
+  console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}`);
+  return enableYoudaoDictionary;
 }

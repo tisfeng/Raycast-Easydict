@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 12:58
+ * @lastEditTime: 2022-08-31 18:20
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
-import { copyToClipboard, getTypeErrorInfo } from "../../utils";
+import { getTypeErrorInfo } from "../../utils";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
 import { getYoudaoWebDictionaryLanguageId, isValidYoudaoWebTranslateLanguage } from "./utils";
@@ -50,11 +50,11 @@ axios.get(youdaoTranslatURL).then((response) => {
  *
  * 有道（词典）翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoAPIDictionary(
+export function requestYoudaoApiDictionary(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request Youdao`);
+  console.log(`---> start request Youdao api dictionary`);
 
   const type = queryType ?? DicionaryType.Youdao;
 
@@ -180,8 +180,6 @@ export function requestYoudaoWebDictionary(
         console.warn(`---> youdao web dict cost: ${res.headers[requestCostTime]} ms`);
 
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
-        copyToClipboard(JSON.stringify(youdaoWebModel, null, 4));
-
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
         const isValidResult = youdaoWebModel.input === queryWordInfo.word;
         if (!isValidResult) {

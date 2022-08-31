@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:33
+ * @lastEditTime: 2022-08-31 18:19
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,10 +16,9 @@ import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
 import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
-import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
 import {
   playYoudaoWordAudioAfterDownloading,
-  requestYoudaoAPIDictionary,
+  requestYoudaoApiDictionary,
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
@@ -42,8 +41,9 @@ import {
   QueryTypeResult,
   TranslationType,
 } from "../types";
-import { checkIsDictionaryType, checkIsTranslationType, checkIsWord, showErrorToast } from "../utils";
+import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "../utils";
 import {
+  checkIfEnableYoudaoDictionary,
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
   sortedQueryResults,
@@ -90,6 +90,7 @@ export class DataManager {
    */
   isShowDetail = false;
   hasPlayedAudio = false;
+  enableYoudaoDictionary = true;
 
   abortObject: AbortObject = {};
 
@@ -128,10 +129,12 @@ export class DataManager {
    */
   public queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
+    this.enableYoudaoDictionary = checkIfEnableYoudaoDictionary(this.queryWordInfo);
+
     this.resetProperties();
 
-    const { word: queryText, fromLanguage, toLanguage } = queryWordInfo;
-    console.log(`---> query text: ${queryText}`);
+    const { word, fromLanguage, toLanguage } = queryWordInfo;
+    console.log(`---> query text: ${word}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
     // query Linguee dictionary, will automatically query DeepL translate.
@@ -140,7 +143,7 @@ export class DataManager {
       this.queryDeepLTranslate(queryWordInfo);
     }
 
-    this.queryYoudaoDictionary(queryWordInfo, DicionaryType.Youdao);
+    this.queryYoudaoDictionary(queryWordInfo);
     this.queryYoudaoTranslate(queryWordInfo);
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
@@ -360,19 +363,14 @@ export class DataManager {
    * Query Youdao dictionary.
    */
   private queryYoudaoDictionary(queryWordInfo: QueryWordInfo, queryType?: QueryType) {
-    const isValidYoudaoDictionaryLanguageQuery = getYoudaoWebDictionaryURL(queryWordInfo) !== undefined;
-    const isWord = checkIsWord(queryWordInfo);
-    const enableYoudaoDictionary =
-      myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
-    console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}`);
-    if (enableYoudaoDictionary) {
+    if (this.enableYoudaoDictionary) {
       const type = queryType ?? DicionaryType.Youdao;
       this.addQueryToRecordList(type);
 
       // If user has Youdao API key, use official API, otherwise use web API.
-      const youdaoDictFnPtr = KeyStore.youdaoAppId ? requestYoudaoAPIDictionary : requestYoudaoWebDictionary;
-      const requestFunctionList = [youdaoDictFnPtr];
-      if (youdaoDictFnPtr === requestYoudaoWebDictionary) {
+      const youdaoDictionayFnPtr = KeyStore.youdaoAppId ? requestYoudaoApiDictionary : requestYoudaoWebDictionary;
+      const requestFunctionList = [youdaoDictionayFnPtr];
+      if (youdaoDictionayFnPtr === requestYoudaoWebDictionary) {
         requestFunctionList.push(requestYoudaoWebTranslate);
       }
       const requests = requestFunctionList.map((request) => request(queryWordInfo, type));
@@ -385,7 +383,7 @@ export class DataManager {
           const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
 
-          const displayResult: QueryResult = {
+          const youdaoDictResult: QueryResult = {
             type: type,
             sourceResult: youdaoDictionaryResult,
             displaySections: youdaoDisplaySections,
@@ -393,11 +391,20 @@ export class DataManager {
 
           if (youdaoWebTranslateResult) {
             const translatedText = youdaoWebTranslateResult.translations.join(", ");
-            this.updateDictionaryTranslation(displayResult, translatedText);
+            this.updateDictionaryTranslation(youdaoDictResult, translatedText);
           }
 
-          this.updateQueryResultAndSections(displayResult);
+          this.updateQueryResultAndSections(youdaoDictResult);
           this.downloadAndPlayWordAudio(youdaoDictionaryResult);
+
+          // if enabled Youdao translate, directly use it as translation.
+          if (myPreferences.enableYoudaoTranslate) {
+            const youdaoTranslationResult = JSON.parse(JSON.stringify(youdaoDictResult)) as QueryResult;
+            const translationType = TranslationType.Youdao;
+            youdaoTranslationResult.type = translationType;
+            youdaoTranslationResult.sourceResult.type = translationType;
+            this.updateTranslationDisplay(youdaoTranslationResult);
+          }
         })
         .catch((error) => {
           showErrorToast(error);
@@ -522,15 +529,16 @@ export class DataManager {
 
   /**
    * Query Youdao translate.
+   *
+   * * If has enabled Youdao dictionary, it will directly update Youdao translation after querying Youdao dictionary.
    */
   private queryYoudaoTranslate(queryWordInfo: QueryWordInfo) {
-    // * If enabled Youdao dictionary, directly use dictionary translation as translate result.
-    if (myPreferences.enableYoudaoTranslate && !myPreferences.enableYoudaoDictionary) {
+    if (myPreferences.enableYoudaoTranslate && !this.enableYoudaoDictionary) {
       const type = TranslationType.Youdao;
       this.addQueryToRecordList(type);
 
       // * If user has Youdao API key, use official API, otherwise use web API.
-      const youdaoTranslateFnPtr = KeyStore.youdaoAppId ? requestYoudaoAPIDictionary : requestYoudaoWebTranslate;
+      const youdaoTranslateFnPtr = KeyStore.youdaoAppId ? requestYoudaoApiDictionary : requestYoudaoWebTranslate;
       youdaoTranslateFnPtr(queryWordInfo, type)
         .then((youdaoTypeResult) => {
           youdaoTypeResult.type = type;
@@ -737,8 +745,9 @@ export class DataManager {
    */
   private downloadAndPlayWordAudio(queryTypeResult: QueryTypeResult) {
     const wordInfo = queryTypeResult.wordInfo;
+    const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
     const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord;
-    if (enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
+    if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayedAudio = true;
     }
