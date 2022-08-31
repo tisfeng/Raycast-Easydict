@@ -23,8 +23,8 @@
   ],
   "keywords": [
     "dictionary",
-    "linguee",
     "translate",
+    "linguee",
     "deepl",
     "google",
     "apple",
@@ -310,14 +310,14 @@
       "label": "Automatic Play Word Audio",
       "required": false,
       "description": "Automatic play audio after looking up a word",
-      "default": true
+      "default": false
     },
     {
       "name": "enableSystemProxy",
       "type": "checkbox",
       "label": "Use System Proxy",
       "required": false,
-      "description": "Use system proxy settings",
+      "description": "Request through system proxy",
       "default": false
     },
     {
@@ -326,7 +326,7 @@
       "label": "Select Target Language",
       "required": false,
       "description": "Select target language in action panel manually",
-      "default": true
+      "default": false
     },
     {
       "title": "Dictionary Services",
@@ -334,7 +334,7 @@
       "name": "enableLingueeDictionary",
       "label": "Linguee Dictionary",
       "required": false,
-      "description": "Turn on/off Linguee Dictionary",
+      "description": "Support 19 langauges: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.",
       "default": true
     },
     {
@@ -342,7 +342,7 @@
       "name": "enableYoudaoDictionary",
       "label": "Youdao Dictionary",
       "required": false,
-      "description": "Turn on/off Youdao Dictionary",
+      "description": "Support 5 langauges: (Chinese), English, French, Japanese, Korean.",
       "default": true
     },
     {
@@ -351,7 +351,7 @@
       "type": "checkbox",
       "label": "Apple Translate",
       "required": false,
-      "description": "Need to install an apple translate shortcut, please see README for more details",
+      "description": "An `Apple Translate` shortcut needs to be installed, please see README for more details.",
       "default": false
     },
     {
@@ -359,7 +359,7 @@
       "type": "checkbox",
       "label": "Apple Language Detect",
       "required": false,
-      "description": "Need to install an apple language detect shortcut, please see README for more details",
+      "description": "An `Apple Language Detect` shortcut needs to be installed, please see README for more details.",
       "default": false
     },
     {
@@ -412,13 +412,13 @@
       "default": false
     },
     {
-      "title": "Translation Order",
-      "name": "translationOrder",
+      "title": "Services Order",
+      "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is DeepL,Google,Apple,Baidu,Tencent,Youdao,Caiyun",
+      "description": "Separate by comma, default is Linguee Dictionary, Youao Dictionary, DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun",
       "default": "",
-      "placeholder": "deepl,google,apple,baidu,tencent,youdao,caiyun"
+      "placeholder": "linguee dictionary, youdao dictionary, deepl, google, apple, baidu, tencent, youdao, caiyun"
     },
     {
       "title": "Youdao App ID",

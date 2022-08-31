@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 22:52
+ * @lastEditTime: 2022-08-31 22:57
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -66,7 +66,7 @@ export function getSortOrder(): string[] {
   const defaultOrders = defaultOrderList.map((type) => type.toString().toLowerCase());
 
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-  const manualOrder = myPreferences.translationOrder.split(",");
+  const manualOrder = myPreferences.servicesOrder.split(",");
   // console.log("---> manualOrder:", manualOrder);
   const formatManualOrder = manualOrder.map((order) => order.trim().toLowerCase());
 

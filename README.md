@@ -103,8 +103,8 @@ Actually, it works well without you having to do any extra work. The next are ad
 
 #### Dictionary
 
-- Youdao: Chinese (Simplified), Chinese (Traditional), English.
-- Linguee: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+- Youdao: Support 5 langauges: (Chinese), English, French, Japanese, Korean.
+- Linguee: Support 19 langauges: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
 #### Translation
 
