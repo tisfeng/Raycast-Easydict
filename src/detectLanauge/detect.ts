@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 18:28
+ * @lastEditTime: 2022-08-31 18:41
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -179,13 +179,10 @@ function handleDetectedLanguageTypeResult(
     }
   }
 
-  // 3. Iterate API detected language List, check if has detected two identical language id, if true and is preferred language, use it.
+  // 3. Iterate API detected language List, check if has detected `two` identical && `preferred` language id, if true, use it.
   for (const language of apiDetectedLanguageList) {
     const detectedYoudaoLanguageId = apiDetectedLanguage.youdaoLanguageId;
-    if (
-      language.youdaoLanguageId === detectedYoudaoLanguageId &&
-      isPreferredLanguage(apiDetectedLanguage.youdaoLanguageId)
-    ) {
+    if (language.youdaoLanguageId === detectedYoudaoLanguageId && isPreferredLanguage(detectedYoudaoLanguageId)) {
       language.confirmed = true;
       console.warn(`---> API: ${apiDetectedLanguage.type} && ${language.type}, detected identical language`);
       console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
@@ -194,8 +191,20 @@ function handleDetectedLanguageTypeResult(
     }
   }
 
-  // Todo:
-  // 4. Iterate API detected language List, check if has detected three identical language id, if true, use it.
+  // 4. Iterate API detected language List, check if has detected `three` identical language id, if true, use it.
+  let count = 1;
+  for (const language of apiDetectedLanguageList) {
+    if (language.youdaoLanguageId === apiDetectedLanguage.youdaoLanguageId) {
+      count += 1;
+    }
+    if (count === 3) {
+      language.confirmed = true;
+      console.warn(`---> API detected three identical language`);
+      console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
+      callback(language); // use the first detected language type, the speed of response is important.
+      return;
+    }
+  }
 
   // If this API detected language is not confirmed, record it in the apiDetectedLanguage.
   apiDetectedLanguageList.push(apiDetectedLanguage);
