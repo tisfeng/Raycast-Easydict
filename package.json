@@ -331,18 +331,18 @@
     {
       "title": "Dictionary Services",
       "type": "checkbox",
-      "name": "enableLingueeDictionary",
-      "label": "Linguee Dictionary",
-      "required": false,
-      "description": "Support 19 langauges: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.",
-      "default": true
-    },
-    {
-      "type": "checkbox",
       "name": "enableYoudaoDictionary",
       "label": "Youdao Dictionary",
       "required": false,
       "description": "Support 5 langauges: (Chinese), English, French, Japanese, Korean.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "name": "enableLingueeDictionary",
+      "label": "Linguee Dictionary",
+      "required": false,
+      "description": "Support 19 langauges: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.",
       "default": true
     },
     {
@@ -416,9 +416,9 @@
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Linguee Dictionary, Youao Dictionary, DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun",
+      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun",
       "default": "",
-      "placeholder": "linguee dictionary, youdao dictionary, deepl, google, apple, baidu, tencent, youdao, caiyun"
+      "placeholder": "youdao dictionary, linguee dictionary, deepl, google, apple, baidu, tencent, youdao, caiyun"
     },
     {
       "title": "Youdao App ID",
