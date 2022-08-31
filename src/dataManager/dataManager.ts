@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 18:19
+ * @lastEditTime: 2022-08-31 20:45
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import {
   playYoudaoWordAudioAfterDownloading,
-  requestYoudaoApiDictionary,
+  requestYoudaoApiDictionaryTranslate,
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
@@ -368,7 +368,9 @@ export class DataManager {
       this.addQueryToRecordList(type);
 
       // If user has Youdao API key, use official API, otherwise use web API.
-      const youdaoDictionayFnPtr = KeyStore.youdaoAppId ? requestYoudaoApiDictionary : requestYoudaoWebDictionary;
+      const youdaoDictionayFnPtr = KeyStore.youdaoAppId
+        ? requestYoudaoApiDictionaryTranslate
+        : requestYoudaoWebDictionary;
       const requestFunctionList = [youdaoDictionayFnPtr];
       if (youdaoDictionayFnPtr === requestYoudaoWebDictionary) {
         requestFunctionList.push(requestYoudaoWebTranslate);
@@ -538,7 +540,9 @@ export class DataManager {
       this.addQueryToRecordList(type);
 
       // * If user has Youdao API key, use official API, otherwise use web API.
-      const youdaoTranslateFnPtr = KeyStore.youdaoAppId ? requestYoudaoApiDictionary : requestYoudaoWebTranslate;
+      const youdaoTranslateFnPtr = KeyStore.youdaoAppId
+        ? requestYoudaoApiDictionaryTranslate
+        : requestYoudaoWebTranslate;
       youdaoTranslateFnPtr(queryWordInfo, type)
         .then((youdaoTypeResult) => {
           youdaoTypeResult.type = type;

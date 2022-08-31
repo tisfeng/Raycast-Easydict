@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 18:10
+ * @lastEditTime: 2022-08-31 22:52
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,15 +23,36 @@ import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, Translati
 import { checkIsDictionaryType, checkIsTranslationType, checkIsWord } from "../utils";
 
 /**
- * Get services sort order. If user set the order manually, prioritize the order.
+ * Sort query results by designated order.
  *
- * * Note: currently only can manually sort transaltion order.
+ * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
+ */
+export function sortedQueryResults(queryResults: QueryResult[]) {
+  const sortedQueryResults: QueryResult[] = [];
+  for (const queryResult of queryResults) {
+    const typeString = queryResult.type.toString().toLowerCase();
+    const index = getSortOrder().indexOf(typeString);
+    sortedQueryResults[index] = queryResult;
+    // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
+  }
+  // filter undefined, or result is undefined.
+  return sortedQueryResults.filter((queryResult) => {
+    if (queryResult?.sourceResult.result) {
+      return true;
+    }
+  });
+}
+
+/**
+ * Get services sort order. If user set the order manually, prioritize the order.
  *
  * @return [linguee dictionary, youdao dictionary, deepl...], all lowercase.
  */
 export function getSortOrder(): string[] {
-  const defaultDictionaryOrder = [DicionaryType.Linguee, DicionaryType.Youdao];
-  const defaultTranslationOrder = [
+  const defaultOrderList = [
+    DicionaryType.Linguee,
+    DicionaryType.Youdao,
+
     TranslationType.DeepL,
     TranslationType.Google,
     TranslationType.Apple,
@@ -41,27 +62,35 @@ export function getSortOrder(): string[] {
     TranslationType.Caiyun,
   ];
 
-  const defaultTranslations = defaultTranslationOrder.map((type) => type.toString().toLowerCase());
-
   const userOrder: string[] = [];
+  const defaultOrders = defaultOrderList.map((type) => type.toString().toLowerCase());
+
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
-  const manualOrder = myPreferences.translationOrder.split(","); // "Baidu,DeepL,Tencent"
+  const manualOrder = myPreferences.translationOrder.split(",");
   // console.log("---> manualOrder:", manualOrder);
-  if (manualOrder.length > 0) {
-    for (let translationName of manualOrder) {
-      translationName = `${translationName.trim()} Translate`.toLowerCase();
-      // if the type name is in the default order, add it to user order, and remove it from defaultNameOrder.
-      if (defaultTranslations.includes(translationName)) {
+  const formatManualOrder = manualOrder.map((order) => order.trim().toLowerCase());
+
+  // eg: [Youdao dictionary, DeepL, Tencent, linguee dictionary, Baidu, Google, Apple, Youdao]
+  for (const order of formatManualOrder) {
+    // 1. handle dictionary type.
+    const dictionaryName = order;
+    if (dictionaryName.endsWith("dictionary")) {
+      if (defaultOrders.includes(dictionaryName)) {
+        userOrder.push(dictionaryName);
+        defaultOrders.splice(defaultOrders.indexOf(dictionaryName), 1);
+      }
+    } else {
+      // 2. handle translation type.
+      const translationName = `${order} translate`;
+      // if the type name is in the default order, add it to user order, and remove it from defaultOrders.
+      if (defaultOrders.includes(translationName)) {
         userOrder.push(translationName);
-        defaultTranslations.splice(defaultTranslations.indexOf(translationName), 1);
+        defaultOrders.splice(defaultOrders.indexOf(translationName), 1);
       }
     }
   }
 
-  const finalOrder = [...defaultDictionaryOrder, ...userOrder, ...defaultTranslations].map((title) =>
-    title.toLowerCase()
-  );
-  // console.log("defaultNameOrder:", defaultTranslations);
+  const finalOrder = [...userOrder, ...defaultOrders].map((title) => title.toLowerCase());
   // console.log("userOrder:", userOrder);
   // console.log("finalOrder:", finalOrder);
   return finalOrder;
@@ -217,27 +246,6 @@ export function updateTranslationMarkdown(queryResult: QueryResult, queryResults
   if (listDiplayItem?.length) {
     listDiplayItem[0].translationMarkdown = markdown;
   }
-}
-
-/**
- * Sort query results by designated order.
- *
- * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
- */
-export function sortedQueryResults(queryResults: QueryResult[]) {
-  const sortedQueryResults: QueryResult[] = [];
-  for (const queryResult of queryResults) {
-    const typeString = queryResult.type.toString().toLowerCase();
-    const index = getSortOrder().indexOf(typeString);
-    sortedQueryResults[index] = queryResult;
-    // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
-  }
-  // filter undefined, or result is undefined.
-  return sortedQueryResults.filter((queryResult) => {
-    if (queryResult?.sourceResult.result) {
-      return true;
-    }
-  });
 }
 
 /**
