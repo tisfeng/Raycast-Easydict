@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:12
+ * @lastEditTime: 2022-08-31 13:33
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -678,10 +678,16 @@ export class DataManager {
 
   /**
    * Update dictionary translation.
+   *
+   * * Only dictionaryDisplaySections length > 1, enable update
    */
   private updateDictionaryTranslation(dictionaryQueryResult: QueryResult, translatedText: string) {
     const dictionaryDisplaySections = dictionaryQueryResult.displaySections;
     if (dictionaryDisplaySections?.length) {
+      if (dictionaryDisplaySections.length < 2) {
+        return;
+      }
+
       const firstDictionaryDisplayItem = dictionaryDisplaySections[0].items[0];
       firstDictionaryDisplayItem.title = translatedText;
       firstDictionaryDisplayItem.copyText = translatedText;

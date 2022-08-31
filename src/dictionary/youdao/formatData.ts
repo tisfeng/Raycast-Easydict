@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 01:03
+ * @lastEditTime: 2022-08-31 13:38
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -85,11 +85,12 @@ export function formatYoudaoDictionaryResult(
  */
 export function updateYoudaoDictionaryDisplay(
   formatResult: YoudaoDictionaryFormatResult | undefined
-): DisplaySection[] {
-  const displaySections: Array<DisplaySection> = [];
+): DisplaySection[] | undefined {
   if (!formatResult) {
-    return displaySections;
+    return;
   }
+
+  const displaySections: Array<DisplaySection> = [];
 
   const queryWordInfo = formatResult.queryWordInfo;
   const youdaoDictionaryType = DicionaryType.Youdao;
@@ -218,13 +219,13 @@ export function updateYoudaoDictionaryDisplay(
 
   console.log(`displaySections: ${JSON.stringify(displaySections, null, 2)}`);
 
-  // Add section title: "Details"
+  // * Only has "Details" can show dictionary sections. Default has one transaltion section.
   if (displaySections.length > 1) {
+    // Add section title: "Details"
     const secondSection = displaySections[1];
     secondSection.sectionTitle = "Details";
+    return displaySections;
   }
-
-  return displaySections;
 }
 
 /**
