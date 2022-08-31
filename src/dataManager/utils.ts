@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-23 00:08
+ * @lastEditTime: 2022-08-31 13:18
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,6 +19,7 @@ import {
 } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, TranslationType } from "../types";
+import { checkIsDictionaryType, checkIsTranslationType } from "../utils";
 
 /**
  * Get services sort order. If user set the order manually, prioritize the order.
@@ -98,8 +99,9 @@ export function isTranslationTooLong(translation: string, toLanguage: string): b
 export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boolean {
   let isShowDetail = false;
   for (const queryResult of queryResults) {
-    const wordInfo = queryResult.sourceResult.wordInfo;
-    const isDictionaryType = Object.values(DicionaryType).includes(queryResult.type as DicionaryType);
+    const sourceResult = queryResult.sourceResult;
+    const wordInfo = sourceResult.wordInfo;
+    const isDictionaryType = checkIsDictionaryType(queryResult.type);
     if (isDictionaryType) {
       if (wordInfo.hasDictionaryEntries) {
         isShowDetail = false;
@@ -107,7 +109,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
       }
     } else {
       // check if translation is too long
-      const oneLineTranslation = queryResult.sourceResult?.oneLineTranslation || "";
+      const oneLineTranslation = sourceResult?.oneLineTranslation || "";
       const isTooLong = isTranslationTooLong(oneLineTranslation, wordInfo.toLanguage);
       if (isTooLong) {
         isShowDetail = true;
@@ -124,7 +126,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
  */
 export function checkIfDictionaryHasEntries(dictionaryResult: QueryResult): boolean {
   const { type: dictionaryType } = dictionaryResult;
-  const isDictionaryType = Object.values(DicionaryType).includes(dictionaryType as DicionaryType);
+  const isDictionaryType = checkIsDictionaryType(dictionaryType);
   if (!isDictionaryType) {
     return false;
   }
@@ -191,7 +193,7 @@ export function updateTranslationMarkdown(queryResult: QueryResult, queryResults
   const translations = [] as TranslationItem[];
   for (const queryResult of queryResults) {
     const { type, sourceResult } = queryResult;
-    const isTranslationType = Object.values(TranslationType).includes(type as TranslationType);
+    const isTranslationType = checkIsTranslationType(type);
     if (sourceResult && isTranslationType) {
       const type = sourceResult.type as TranslationType;
       const markdownTranslation = formatTranslationToMarkdown(sourceResult);

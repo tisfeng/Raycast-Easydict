@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 11:20
+ * @lastEditTime: 2022-08-31 12:58
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudi
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
-import { DicionaryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
+import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { copyToClipboard, getTypeErrorInfo } from "../../utils";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
@@ -50,8 +50,14 @@ axios.get(youdaoTranslatURL).then((response) => {
  *
  * 有道（词典）翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestYoudaoAPIDictionary(
+  queryWordInfo: QueryWordInfo,
+  queryType?: QueryType
+): Promise<QueryTypeResult> {
   console.log(`---> start request Youdao`);
+
+  const type = queryType ?? DicionaryType.Youdao;
+
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   function truncate(q: string): string {
     const len = q.length;
@@ -95,7 +101,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
         queryWordInfo.isWord = youdaoResult.isWord;
 
         const youdaoTypeResult: QueryTypeResult = {
-          type: TranslationType.Youdao,
+          type: type,
           result: youdaoFormatResult,
           wordInfo: youdaoFormatResult.queryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
@@ -114,7 +120,7 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
 
-        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
   });
@@ -125,10 +131,13 @@ export function requestYoudaoDictionary(queryWordInfo: QueryWordInfo): Promise<Q
  *
  * Supported zh <--> targetLanguage, supported target language: en, fr, ja, ko
  */
-export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestYoudaoWebDictionary(
+  queryWordInfo: QueryWordInfo,
+  queryType?: QueryType
+): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebDictionary`);
 
-  const type = DicionaryType.Youdao;
+  const type = queryType ?? DicionaryType.Youdao;
 
   // * Note: "fanyi" only works when responese dicts has only one item ["meta"]
   const dicts = [["web_trans", "ec", "ce", "fanyi"]];
@@ -214,7 +223,7 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
         // It seems that Youdao will never reject, always resolve...
         // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
 
-        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
   });
@@ -225,16 +234,20 @@ export function requestYoudaoWebDictionary(queryWordInfo: QueryWordInfo): Promis
  *
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
-export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.log(`---> start request Youdao Web Translate`);
+export function requestYoudaoWebTranslate(
+  queryWordInfo: QueryWordInfo,
+  queryType?: QueryType
+): Promise<QueryTypeResult> {
+  console.log(`---> start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
 
+  const type = queryType ?? TranslationType.Youdao;
   const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
   if (!isValidLanguage) {
     console.warn(
       `---> invalid Youdao web translate language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`
     );
     const nullResult: QueryTypeResult = {
-      type: TranslationType.Youdao,
+      type: type,
       result: undefined,
       wordInfo: queryWordInfo,
       translations: [],
@@ -284,7 +297,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
           const translations = youdaoWebResult.translateResult.map((item) => item[0].tgt);
           console.log(`youdao web translations: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
           const youdaoTypeResult: QueryTypeResult = {
-            type: TranslationType.Youdao,
+            type: type,
             result: youdaoWebResult,
             wordInfo: queryWordInfo,
             translations: translations,
@@ -292,7 +305,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
           resolve(youdaoTypeResult);
         } else {
           const errorInfo: RequestErrorInfo = {
-            type: TranslationType.Youdao,
+            type: type,
             code: youdaoWebResult.errorCode.toString(),
             message: "",
           };
@@ -306,7 +319,7 @@ export function requestYoudaoWebTranslate(queryWordInfo: QueryWordInfo): Promise
         }
 
         console.log(`---> youdao translate error: ${error}`);
-        const errorInfo = getTypeErrorInfo(DicionaryType.Youdao, error);
+        const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
   });

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 11:21
+ * @lastEditTime: 2022-08-31 13:24
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,6 +36,7 @@ import {
   TranslationType,
   WebQueryItem,
 } from "./types";
+import { checkIsLingueeListItemType, checkIsTranslationType, checkIsYoudaoDictionaryListItemType } from "./utils";
 
 /**
  * Get the list action panel item with ListItemActionPanelItem
@@ -219,17 +220,17 @@ export function getListItemIcon(listDisplayType: ListItemDisplayType): Image.Ima
     tintColor: Color.PrimaryText,
   };
 
-  if (Object.values(YoudaoDictionaryListItemType).includes(listDisplayType as YoudaoDictionaryListItemType)) {
+  if (checkIsYoudaoDictionaryListItemType(listDisplayType)) {
     itemIcon = getYoudaoListItemIcon(listDisplayType as YoudaoDictionaryListItemType);
   }
 
-  if (Object.values(TranslationType).includes(listDisplayType as TranslationType)) {
+  if (checkIsTranslationType(listDisplayType as TranslationType)) {
     // console.log(`---> TranslationType: ${listDisplayType}`);
     itemIcon = getQueryTypeIcon(listDisplayType as TranslationType);
   }
 
   // LingueeDisplayType is string enum, so we need to check if it is in the enum
-  if (Object.values(LingueeListItemType).includes(listDisplayType as LingueeListItemType)) {
+  if (checkIsLingueeListItemType(listDisplayType)) {
     itemIcon = getLingueeListItemIcon(listDisplayType as LingueeListItemType);
   }
 

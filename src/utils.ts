@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 00:45
+ * @lastEditTime: 2022-08-31 13:18
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,10 +11,20 @@
 import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
 import { AxiosError } from "axios";
 import { clipboardQueryTextKey } from "./consts";
-import { QueryWordInfo } from "./dictionary/youdao/types";
+import { LanguageDetectType } from "./detectLanauge/types";
+import { LingueeListItemType } from "./dictionary/linguee/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
 import { myPreferences } from "./preferences";
 import { Easydict } from "./releaseVersion/versionInfo";
-import { DicionaryType, QueryRecoredItem, QueryType, RequestErrorInfo } from "./types";
+import {
+  DicionaryType,
+  ListItemDisplayType,
+  QueryRecoredItem,
+  QueryType,
+  RequestErrorInfo,
+  RequestType,
+  TranslationType,
+} from "./types";
 
 /**
  * Max length for word to query dictionary.
@@ -178,4 +188,54 @@ export function checkIsWord(queryWordInfo: QueryWordInfo) {
  */
 export function copyToClipboard(text: string) {
   Clipboard.copy(text);
+}
+
+/**
+ * Check type is Dictionary type.
+ */
+export function checkIsDictionaryType(type: QueryType): boolean {
+  if (Object.values(DicionaryType).includes(type as DicionaryType)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Check type is Translation type.
+ */
+export function checkIsTranslationType(type: QueryType): boolean {
+  if (Object.values(TranslationType).includes(type as TranslationType)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * check type is LanguageDetect type.
+ */
+export function checkIsLanguageDetectType(type: RequestType): boolean {
+  if (Object.values(LanguageDetectType).includes(type as LanguageDetectType)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * check type is YoudaoDictionaryListItem type.
+ */
+export function checkIsYoudaoDictionaryListItemType(type: ListItemDisplayType): boolean {
+  if (Object.values(YoudaoDictionaryListItemType).includes(type as YoudaoDictionaryListItemType)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * check type is LingueeListItem type.
+ */
+export function checkIsLingueeListItemType(type: ListItemDisplayType): boolean {
+  if (Object.values(LingueeListItemType).includes(type as LingueeListItemType)) {
+    return true;
+  }
+  return false;
 }

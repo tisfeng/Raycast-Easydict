@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 01:59
+ * @lastEditTime: 2022-08-31 13:17
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,7 @@ import { baiduLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
+import { checkIsLanguageDetectType } from "../utils";
 import { francLangaugeDetect } from "./franc";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./types";
 import {
@@ -131,7 +132,7 @@ function raceDetectTextLanguage(
 
       const errorInfo = error as RequestErrorInfo;
       const errorType = errorInfo.type as LanguageDetectType;
-      if (Object.values(LanguageDetectType).includes(errorType)) {
+      if (checkIsLanguageDetectType(errorType)) {
         const detectTypeResult: LanguageDetectTypeResult = {
           type: errorType,
           sourceLanguageId: "",
