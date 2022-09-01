@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-01 11:05
+ * @lastEditTime: 2022-09-01 11:48
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -214,7 +214,7 @@ export class DataManager {
 
     const displaySections: DisplaySection[][] = [];
     for (const queryResult of this.queryResults) {
-      const shouldDisplay = !queryResult.disableDisplay;
+      const shouldDisplay = !queryResult.hideDisplay;
       if (shouldDisplay && queryResult.displaySections?.length) {
         // console.log(`---> update display sections: ${queryResult.type}, length: ${queryResult.displaySections.length}`);
         updateTranslationMarkdown(queryResult, this.queryResults);
@@ -399,12 +399,14 @@ export class DataManager {
           this.updateQueryResultAndSections(youdaoDictResult);
           this.downloadAndPlayWordAudio(youdaoDictionaryResult);
 
-          // if enabled Youdao translate, directly use it as translation.
+          // if enabled Youdao translate, directly use Youdao dictionary translate result as Youdao translation.
           if (myPreferences.enableYoudaoTranslate) {
-            const youdaoTranslationResult = JSON.parse(JSON.stringify(youdaoDictResult)) as QueryResult;
             const translationType = TranslationType.Youdao;
-            youdaoTranslationResult.type = translationType;
-            youdaoTranslationResult.sourceResult.type = translationType;
+            youdaoWebTranslateResult.type = translationType;
+            const youdaoTranslationResult: QueryResult = {
+              type: translationType,
+              sourceResult: youdaoWebTranslateResult,
+            };
             this.updateTranslationDisplay(youdaoTranslationResult);
           }
         })
@@ -654,8 +656,8 @@ export class DataManager {
         this.updateLingueeTranslation(lingueeQueryResult, oneLineTranslation);
 
         // * Check if need to display DeepL translation.
-        newQueryResult.disableDisplay = !myPreferences.enableDeepLTranslate;
-        console.log(`---> update deepL transaltion, disableDisplay: ${newQueryResult.disableDisplay}`);
+        newQueryResult.hideDisplay = !myPreferences.enableDeepLTranslate;
+        console.log(`---> update deepL transaltion, disableDisplay: ${newQueryResult.hideDisplay}`);
       }
       this.updateQueryResultAndSections(newQueryResult);
     }
@@ -694,6 +696,7 @@ export class DataManager {
    * * Only dictionaryDisplaySections length > 1, enable update
    */
   private updateDictionaryTranslation(dictionaryQueryResult: QueryResult, translatedText: string) {
+    console.log(`---> try updateDictionaryTranslation: ${translatedText}`);
     const dictionaryDisplaySections = dictionaryQueryResult.displaySections;
     if (dictionaryDisplaySections?.length) {
       if (dictionaryDisplaySections.length < 2) {

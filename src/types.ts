@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-26 00:44
+ * @lastEditTime: 2022-09-01 11:58
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -125,7 +125,7 @@ export interface QueryResult {
   type: QueryType;
   sourceResult: QueryTypeResult;
   displaySections?: DisplaySection[]; // if sourceResult.result is not null, displaySections is not null.
-  disableDisplay?: boolean; // this value comes from preferences. if true, set displaySections to null.
+  hideDisplay?: boolean; // this value comes from preferences. if true, set displaySections to null.
 }
 
 export interface DisplaySection {

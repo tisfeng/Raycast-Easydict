@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:39
+ * @lastEditTime: 2022-09-01 11:19
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,12 +96,17 @@ eg:
 */
 export interface YoudaoWebTranslateResult {
   errorCode: number;
-  translateResult: [[{ tgt: string; src: string }]];
+  translateResult: [[YoudaoWebTranslateResultItem]];
   type: string;
   smartResult: {
-    entries: string[];
+    entries: [string];
     type: number;
   };
+}
+
+export interface YoudaoWebTranslateResultItem {
+  tgt: string;
+  src: string;
 }
 
 //-----------------------Youdao web dictionary------------------------------

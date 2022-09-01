@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 20:46
+ * @lastEditTime: 2022-09-01 11:36
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -292,7 +292,7 @@ export function requestYoudaoWebTranslate(
         console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
-          const translations = youdaoWebResult.translateResult.map((item) => item[0].tgt);
+          const translations = youdaoWebResult.translateResult.map((items) => items.map((item) => item.tgt).join(" "));
           console.log(`youdao web translations: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
