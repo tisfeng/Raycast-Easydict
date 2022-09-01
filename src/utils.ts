@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:18
+ * @lastEditTime: 2022-09-02 00:00
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -142,7 +142,7 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
  */
 export function showErrorToast(errorInfo: RequestErrorInfo) {
   console.error(`show error toast: ${JSON.stringify(errorInfo, null, 2)}`);
-  const type = errorInfo.type.toString().split(" ")[0]; // Google Translate --> Google
+  const type = errorInfo.type.toString();
   showToast({
     style: Toast.Style.Failure,
     title: `${type} Error: ${errorInfo.code || ""}`,

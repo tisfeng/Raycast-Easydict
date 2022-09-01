@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-29 01:19
+ * @lastEditTime: 2022-09-02 00:01
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -100,7 +100,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
           errorInfo.message = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
         }
 
-        console.error("deepL error info: ", errorInfo);
+        console.error("deepL error info: ", errorInfo); // message: 'timeout of 15000ms exceeded'
         reject(errorInfo);
       });
   });

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-01 11:48
+ * @lastEditTime: 2022-09-02 00:18
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -242,7 +242,7 @@ export class DataManager {
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.
       if (this.shouldClearQuery) {
-        console.log(`---> query has been canceld`);
+        console.log(`---> query has been canceled`);
         this.updateLoadingState(false);
         return;
       }
@@ -601,6 +601,7 @@ export class DataManager {
    */
   private removeQueryFromRecordList(type: QueryType) {
     this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
+    // console.log(`queryRecordList: ${this.queryRecordList}`);
 
     const isLoadingState = this.queryRecordList.length > 0;
     this.updateLoadingState(isLoadingState);
