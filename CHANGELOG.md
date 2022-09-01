@@ -1,5 +1,17 @@
 # `Easydict` Changelog
 
+## [v2.1.0] - 2022-09-02
+
+## ✨ New
+
+- Added experimental feature: new Youdao Dictionary and Youdao Translation APIs that can be used without AppKey.
+- New Chinese-English Youdao Dictionary, supporting displaying richer explanation.
+- Supported free sorting, you can adjust the dictionary or translation results display order arbitrarily.
+
+![优雅-1662046636](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/优雅-1662046636.png)
+
+---
+
 ## [v2.0.0] - 2022-08-20
 
 ## ✨ New
