@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:24
+ * @lastEditTime: 2022-09-01 17:11
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -78,12 +78,6 @@ export function ListActionPanel(props: ActionListPanelProps) {
           <ReleaseNotesAction title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
 
-        {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
-        {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
-        {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
-        {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
-        {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
-
         {props.isInstalledEudic && (
           <Action
             icon={Icon.MagnifyingGlass}
@@ -91,6 +85,12 @@ export function ListActionPanel(props: ActionListPanelProps) {
             onAction={() => openInEudic(queryWordInfo.word)}
           />
         )}
+
+        {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
+        {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
+        {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
+        {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
+        {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
 
         <Action.CopyToClipboard
           onCopy={() => {
