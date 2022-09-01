@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 20:45
+ * @lastEditTime: 2022-09-01 11:05
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -710,11 +710,11 @@ export class DataManager {
   /**
    * Update Dictionary type section title.
    *
-   * 1. Add fromTo language to each dictionary section title.
-   * 2. Add fromTo language to the first translation section title.
+   * 1. Add fromTo language to each `Dictionary` section title.
+   * 2. Add fromTo language to the `Translation` section title, only if preivious section is not translation section.
    */
   private updateTypeSectionTitle() {
-    let isFirstTranslation = true;
+    let isPreviousSectionTranslationType = false;
     this.queryResults.forEach((queryResult) => {
       const { type, sourceResult, displaySections } = queryResult;
       const isDictionaryType = checkIsDictionaryType(type);
@@ -729,13 +729,15 @@ export class DataManager {
         const fromToSectionTitle = `${simpleSectionTitle}   (${fromTo})`;
         let sectionTitle = simpleSectionTitle;
         if (isTranslationType) {
-          const isShowingTranslationFromTo = isFirstTranslation;
-          if (isShowingTranslationFromTo) {
+          if (!isPreviousSectionTranslationType) {
             sectionTitle = fromToSectionTitle;
           }
-          isFirstTranslation = false;
-        } else if (isDictionaryType) {
-          sectionTitle = fromToSectionTitle;
+          isPreviousSectionTranslationType = true;
+        } else {
+          if (isDictionaryType) {
+            sectionTitle = fromToSectionTitle;
+          }
+          isPreviousSectionTranslationType = false;
         }
         displaySection.sectionTitle = sectionTitle;
       }
