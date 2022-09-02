@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-18 16:59
+ * @lastEditTime: 2022-09-03 00:54
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -51,7 +51,8 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
         // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
         if (baiduResult.trans_result) {
           const translations = baiduResult.trans_result.map((item) => item.dst);
-          console.warn(`Baidu translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
+          console.warn(`Baidu translate: ${translations}`);
+          console.log(`fromLang: ${baiduResult.from}, cost: ${response.headers[requestCostTime]} ms`);
           const result: QueryTypeResult = {
             type: TranslationType.Baidu,
             result: baiduResult,
@@ -126,9 +127,9 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
     };
     return Promise.resolve(detectedLanguageResult);
   } catch (error) {
-    console.error(`---> baidu language detect error: ${JSON.stringify(error)}`);
     const errorInfo = error as RequestErrorInfo | undefined;
     if (errorInfo) {
+      console.error(`---> baidu language detect error: ${JSON.stringify(error)}`);
       errorInfo.type = LanguageDetectType.Baidu; // * Note: need to set language detect type.
     }
     return Promise.reject(errorInfo);

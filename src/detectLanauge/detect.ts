@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 23:49
+ * @lastEditTime: 2022-09-03 00:25
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -128,12 +128,13 @@ function raceDetectTextLanguage(
     })
     .catch((error) => {
       // If current API detect error, remove it from the detectActionMap, and try next detect API.
-      console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
 
       const errorInfo = error as RequestErrorInfo | undefined;
       if (!errorInfo) {
         return callback(localLanguageDetectTypeResult);
       }
+
+      console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
 
       const errorType = errorInfo.type as LanguageDetectType;
       if (checkIsLanguageDetectType(errorType)) {

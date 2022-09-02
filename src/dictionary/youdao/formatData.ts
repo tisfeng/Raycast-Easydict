@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 18:24
+ * @lastEditTime: 2022-09-03 00:37
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -217,8 +217,6 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  console.log(`displaySections: ${JSON.stringify(displaySections, null, 2)}`);
-
   // * Only has "Details" can show dictionary sections. Default has one transaltion section.
   if (displaySections.length > 1) {
     // Add section title: "Details"
@@ -297,7 +295,7 @@ export function formateYoudaoWebDictionaryModel(
       }
     }
   }
-  console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);
+  // console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);
 
   let webTranslation: KeyValueItem | undefined;
   if (webTransList.length > 0) {
@@ -381,7 +379,7 @@ export function formateYoudaoWebDictionaryModel(
     speechUrl: speechUrl,
     isWord: isWord,
   };
-  console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+  // console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
 
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
@@ -392,7 +390,7 @@ export function formateYoudaoWebDictionaryModel(
     webPhrases: webPhrases,
   };
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
-  console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 2)}`);
+  // console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 2)}`);
 
   return formateResult;
 }

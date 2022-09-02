@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-03 00:10
+ * @lastEditTime: 2022-09-03 00:32
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -177,7 +177,6 @@ export class DataManager {
     this.isLastQuery = false;
     this.updateLoadingState(false);
 
-    this.queryRecordList = [];
     this.queryResults = [];
     this.updateListDisplaySections([]);
   }
@@ -243,7 +242,7 @@ export class DataManager {
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.
       if (this.shouldClearQuery) {
-        console.log(`---> query has been canceled`);
+        console.log(`---> query has been canceled, stop, return`);
         this.updateLoadingState(false);
         return;
       }
@@ -780,8 +779,7 @@ export class DataManager {
    */
   private cancelCurrentQuery() {
     // console.warn(`---> cancel current query`);
-
-    console.log(`---> cancel current query, childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
+    // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
 
     this.abortObject.abortController?.abort();
     this.abortObject.childProcess?.kill();

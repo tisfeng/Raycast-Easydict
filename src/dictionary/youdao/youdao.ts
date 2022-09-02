@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 23:32
+ * @lastEditTime: 2022-09-03 00:36
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,7 +166,6 @@ export function requestYoudaoWebDictionary(
   };
 
   const queryString = qs.stringify(params);
-  console.log(`---> youdao web dict params: ${util.inspect(params, { depth: null })}`);
   console.log(`---> youdao web dict queryString: ${queryString}`);
 
   const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
@@ -274,7 +273,7 @@ export function requestYoudaoWebTranslate(
     keyfrom: "fanyi.web",
     action: "FY_BY_REALTlME",
   };
-  console.log(`---> youdao web translate params: ${util.inspect(data, { depth: null })}`);
+  // console.log(`---> youdao web translate params: ${util.inspect(data, { depth: null })}`);
 
   const headers = {
     "User-Agent": userAgent,
@@ -286,7 +285,7 @@ export function requestYoudaoWebTranslate(
     axios
       .post(url, querystring.stringify(data), { headers })
       .then((response) => {
-        console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
+        // console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
           const translations = youdaoWebResult.translateResult.map((items) => items.map((item) => item.tgt).join(" "));
