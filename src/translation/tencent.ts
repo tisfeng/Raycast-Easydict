@@ -184,7 +184,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
       .catch((err) => {
         if (err.message === "canceled") {
           console.log(`---> Tencent canceled`);
-          return;
+          return reject(undefined);
         }
 
         // console.error(`tencent translate err: ${JSON.stringify(err, null, 2)}`);

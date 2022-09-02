@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
@@ -9,7 +8,7 @@ import { AxiosError } from "axios";
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import CryptoJS from "crypto-js";
 import { requestCostTime } from "../axiosConfig";
 import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
@@ -73,7 +72,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
       .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> baidu canceled`);
-          return;
+          return reject(undefined);
         }
 
         // It seems that Baidu will never reject, always resolve...
@@ -128,8 +127,10 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
     return Promise.resolve(detectedLanguageResult);
   } catch (error) {
     console.error(`---> baidu language detect error: ${JSON.stringify(error)}`);
-    const errorInfo = error as RequestErrorInfo;
-    errorInfo.type = LanguageDetectType.Baidu; // * Note: need to set language detect type.
+    const errorInfo = error as RequestErrorInfo | undefined;
+    if (errorInfo) {
+      errorInfo.type = LanguageDetectType.Baidu; // * Note: need to set language detect type.
+    }
     return Promise.reject(errorInfo);
   }
 }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-01 11:36
+ * @lastEditTime: 2022-09-02 23:32
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -111,8 +111,8 @@ export function requestYoudaoApiDictionaryTranslate(
       })
       .catch((error: AxiosError) => {
         if (error.message === "canceled") {
-          console.log(`---> youdao canceled`);
-          return;
+          console.log(`---> youdao api dict canceled`);
+          return reject(undefined);
         }
 
         console.error(`---> Youdao translate error: ${error}`);
@@ -193,8 +193,7 @@ export function requestYoudaoWebDictionary(
             wordInfo: queryWordInfo,
             translations: [],
           };
-          resolve(youdaoTypeResult);
-          return;
+          return resolve(youdaoTypeResult);
         }
 
         // use Youdao dictionary check if query text is a word.
@@ -209,11 +208,9 @@ export function requestYoudaoWebDictionary(
         resolve(youdaoTypeResult);
       })
       .catch((error: AxiosError) => {
-        console.error(`---> Youdao web dict error: ${error}`);
-
         if (error.message === "canceled") {
-          console.log(`---> youdao canceled`);
-          return;
+          console.log(`---> youdao web dict canceled`);
+          return reject(undefined);
         }
 
         console.error(`---> Youdao web dict error: ${error}`);
@@ -312,8 +309,8 @@ export function requestYoudaoWebTranslate(
       })
       .catch((error) => {
         if (error.message === "canceled") {
-          console.log(`---> youdao canceled`);
-          return;
+          console.log(`---> youdao web translate canceled`);
+          return reject(undefined);
         }
 
         console.log(`---> youdao translate error: ${error}`);

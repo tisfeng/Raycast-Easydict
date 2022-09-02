@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 00:18
+ * @lastEditTime: 2022-09-03 00:10
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -137,14 +137,15 @@ export class DataManager {
     console.log(`---> query text: ${word}`);
     console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
+    // Todo: handle cancel request, add reject(undefined) to the catch.
+    this.queryYoudaoDictionary(queryWordInfo);
+    this.queryYoudaoTranslate(queryWordInfo);
+
     // query Linguee dictionary, will automatically query DeepL translate.
     this.queryLingueeDictionary(queryWordInfo);
     if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
       this.queryDeepLTranslate(queryWordInfo);
     }
-
-    this.queryYoudaoDictionary(queryWordInfo);
-    this.queryYoudaoTranslate(queryWordInfo);
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
     this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
@@ -779,6 +780,9 @@ export class DataManager {
    */
   private cancelCurrentQuery() {
     // console.warn(`---> cancel current query`);
+
+    console.log(`---> cancel current query, childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
+
     this.abortObject.abortController?.abort();
     this.abortObject.childProcess?.kill();
   }

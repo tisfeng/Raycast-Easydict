@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 00:01
+ * @lastEditTime: 2022-09-02 23:26
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -78,7 +78,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
       .catch((error: AxiosError) => {
         if (error.message === "canceled") {
           console.log(`---> deepL canceled`);
-          return;
+          return reject(undefined);
         }
 
         console.error("deepL error: ", error);

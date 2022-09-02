@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 00:00
+ * @lastEditTime: 2022-09-02 23:11
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -140,7 +140,11 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
 /**
  * Show error toast according to errorInfo.
  */
-export function showErrorToast(errorInfo: RequestErrorInfo) {
+export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
+  if (!errorInfo) {
+    return;
+  }
+
   console.error(`show error toast: ${JSON.stringify(errorInfo, null, 2)}`);
   const type = errorInfo.type.toString();
   showToast({
