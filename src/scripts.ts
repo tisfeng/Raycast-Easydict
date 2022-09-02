@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 00:17
+ * @lastEditTime: 2022-09-02 11:27
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -97,6 +97,12 @@ export function appleTranslate(
 
     // If timeout, kill exec child process.
     setTimeout(() => {
+      // console.log(`---> apple translate timeout: ${JSON.stringify(childProcess, null, 4)}`);
+      if (childProcess.exitCode === 0) {
+        console.warn(`---> apple translate already finished`);
+        return;
+      }
+
       childProcess.kill();
       console.error(`apple translate timeout, kill exec child process.`);
       const errorInfo: RequestErrorInfo = {
@@ -152,8 +158,12 @@ export function appleLanguageDetect(text: string, timeout = 20000): Promise<Lang
       resolve(detectTypeResult);
     });
 
-    // If timeout, kill exec child process.
     setTimeout(() => {
+      if (childProcess.exitCode === 0) {
+        console.warn(`---> apple detect language already finished`);
+        return;
+      }
+
       childProcess.kill();
       console.error(`apple detect language timeout, kill exec child process.`);
       const errorInfo: RequestErrorInfo = {
