@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-01 23:38
+ * @lastEditTime: 2022-09-03 10:36
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 export const releaseNote = `
-## [v2.1.0] - 2022-09-02
+## [v2.1.0] - 2022-09-03
 
 ## ✨ 新功能
 
@@ -17,7 +17,7 @@ export const releaseNote = `
 - 新的中英有道词典，支持显示更丰富释义内容。
 - 支持自由排序，可以任意调整词典或翻译结果显示顺序。
 
-![easydict2022-09-01at23.26.10-1662046044](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict 2022-09-01 at 23.26.10-1662046044.png)
+![优雅-1662172376](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/优雅-1662172376.png)
 
 ---
 

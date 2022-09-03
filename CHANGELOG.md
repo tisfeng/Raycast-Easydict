@@ -1,6 +1,6 @@
 # `Easydict` Changelog
 
-## [v2.1.0] - 2022-09-02
+## [v2.1.0] - 2022-09-03
 
 ## ✨ New
 
@@ -8,7 +8,7 @@
 - New Chinese-English Youdao Dictionary, supporting displaying richer explanation.
 - Supported free sorting, you can adjust the dictionary or translation results display order arbitrarily.
 
-![优雅-1662046636](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/优雅-1662046636.png)
+![优雅-1662172376](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/优雅-1662172376.png)
 
 ---
 
