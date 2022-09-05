@@ -23,7 +23,7 @@
 - Added query word and show dictionary and translation at the same time.
 - Added show query language from-to, like English🇺🇸 --> Chinese-Simplified🇨🇳.
 
-![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1660919430.png)
+![easydict-2](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1661158964.png)
 
 ## 💎 Improvements
 
