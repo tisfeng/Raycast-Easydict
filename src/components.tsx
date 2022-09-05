@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 23:19
+ * @lastEditTime: 2022-09-05 23:28
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -324,7 +324,6 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemTy
     }
   }
 
-  console.log(`---> dot color: ${dotColor}, type: ${youdaoListType}`);
   let itemIcon: Image.ImageLike = {
     source: Icon.Dot,
     tintColor: dotColor,

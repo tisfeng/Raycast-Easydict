@@ -1,8 +1,9 @@
+import { englishLanguageItem } from "./../language/consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-03 00:32
+ * @lastEditTime: 2022-09-05 23:25
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -756,7 +757,9 @@ export class DataManager {
   private downloadAndPlayWordAudio(queryTypeResult: QueryTypeResult) {
     const wordInfo = queryTypeResult.wordInfo;
     const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
-    const enableAutomaticDownloadAudio = myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord;
+    const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoId;
+    const enableAutomaticDownloadAudio =
+      myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
     if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
       playYoudaoWordAudioAfterDownloading(wordInfo);
       this.hasPlayedAudio = true;
