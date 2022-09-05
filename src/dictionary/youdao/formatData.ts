@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-04 10:16
+ * @lastEditTime: 2022-09-05 22:50
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -240,6 +240,28 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
+  // 7. Wikipedia.
+  const wikipediaType = YoudaoDictionaryListItemType.WikipediaDigest;
+  const wikipediaKey = formatResult.wikipedia?.key || "";
+  const wikipediaSummary = formatResult.wikipedia?.summary || "";
+  const wikipediaText = `${wikipediaKey} ${wikipediaSummary}`;
+  const wikipediaItem: ListDisplayItem = {
+    displayType: wikipediaType,
+    queryType: youdaoDictionaryType,
+    queryWordInfo: queryWordInfo,
+    tooltip: wikipediaType,
+    key: wikipediaText,
+    title: wikipediaKey,
+    subtitle: wikipediaSummary,
+    copyText: wikipediaText,
+  };
+  if (wikipediaSummary) {
+    displaySections.push({
+      type: wikipediaType,
+      items: [wikipediaItem],
+    });
+  }
+
   // * Only has "Details" can show dictionary sections. Default has one transaltion section.
   if (displaySections.length > 1) {
     // Add section title: "Details"
@@ -300,6 +322,13 @@ export function formateYoudaoWebDictionaryModel(
   const baikeSummarys = model.baike?.summarys;
   if (baikeSummarys?.length) {
     baike = baikeSummarys[0];
+  }
+
+  // get wikipedia_digest.
+  let wikipediaDigest: BaikeSummary | undefined;
+  const wikipediaDigests = model.wikipedia_digest?.summarys;
+  if (wikipediaDigests?.length) {
+    wikipediaDigest = wikipediaDigests[0];
   }
 
   // format web translation.
@@ -421,6 +450,7 @@ export function formateYoudaoWebDictionaryModel(
     webTranslation: webTranslation,
     webPhrases: webPhrases,
     baike: baike,
+    wikipedia: wikipediaDigest,
   };
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
   // console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 2)}`);

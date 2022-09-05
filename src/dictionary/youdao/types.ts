@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-04 00:06
+ * @lastEditTime: 2022-09-05 23:05
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,6 +18,7 @@ export interface YoudaoDictionaryFormatResult {
   webTranslation?: KeyValueItem;
   webPhrases?: KeyValueItem[];
   baike?: BaikeSummary;
+  wikipedia?: BaikeSummary;
 }
 
 export enum YoudaoDictionaryListItemType {
@@ -27,6 +28,7 @@ export enum YoudaoDictionaryListItemType {
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",
   Baike = "Baike",
+  WikipediaDigest = "Wikipedia Digest",
 }
 
 export interface YoudaoDictionaryResult {
@@ -140,6 +142,7 @@ export interface YoudaoWebDictionaryModel {
 
   auth_sents_part?: AuthSentsPart; // 权威例句
   baike?: Baike; // 百科
+  wikipedia_digest?: Baike; // 维基百科
   blng_sents_part?: BlngSentsPart; // 双语例句
   collins?: Collins; // 柯林斯英汉双解大辞典
   collins_primary?: CollinsPrimary; // 柯林斯？

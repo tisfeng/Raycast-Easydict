@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-04 10:01
+ * @lastEditTime: 2022-09-05 22:38
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -140,7 +140,7 @@ export function requestYoudaoWebDictionary(
   const type = queryType ?? DicionaryType.Youdao;
 
   // * Note: "fanyi" only works when responese dicts has only one item ["meta"]
-  const dicts = [["web_trans", "ec", "ce", "baike"]];
+  const dicts = [["web_trans", "ec", "ce", "baike", "wikipedia_digest"]];
 
   // English --> Chinese
   // ["web_trans","video_sents", "simple", "phrs",  "syno", "collins", "word_video",  "discriminate", "ec", "ee", "blng_sents_part", "individual", "collins_primary", "rel_word", "auth_sents_part", "media_sents_part", "expand_ec", "etym", "special","baike", "meta", "senior", "webster","oxford", "oxfordAdvance", "oxfordAdvanceHtml"]
