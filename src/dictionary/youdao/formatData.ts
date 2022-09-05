@@ -241,7 +241,7 @@ export function updateYoudaoDictionaryDisplay(
   }
 
   // 7. Wikipedia.
-  const wikipediaType = YoudaoDictionaryListItemType.WikipediaDigest;
+  const wikipediaType = YoudaoDictionaryListItemType.Wikipedia;
   const wikipediaKey = formatResult.wikipedia?.key || "";
   const wikipediaSummary = formatResult.wikipedia?.summary || "";
   const wikipediaText = `${wikipediaKey} ${wikipediaSummary}`;

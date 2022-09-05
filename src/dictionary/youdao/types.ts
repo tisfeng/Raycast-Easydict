@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 23:05
+ * @lastEditTime: 2022-09-05 23:20
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,13 +22,13 @@ export interface YoudaoDictionaryFormatResult {
 }
 
 export enum YoudaoDictionaryListItemType {
-  Translation = "Translate",
+  Translation = "Translation",
   Explanation = "Explanation",
   Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",
   Baike = "Baike",
-  WikipediaDigest = "Wikipedia Digest",
+  Wikipedia = "Wikipedia",
 }
 
 export interface YoudaoDictionaryResult {
