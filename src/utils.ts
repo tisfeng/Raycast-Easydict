@@ -9,6 +9,7 @@
  */
 
 import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
+import CryptoJS from "crypto-js";
 import { AxiosError } from "axios";
 import { clipboardQueryTextKey } from "./consts";
 import { LanguageDetectType } from "./detectLanauge/types";
@@ -250,4 +251,8 @@ export function checkIsLingueeListItem(listItem: ListDisplayItem): boolean {
     return true;
   }
   return false;
+}
+
+export function md5(text: string): string {
+  return CryptoJS.MD5(text).toString();
 }

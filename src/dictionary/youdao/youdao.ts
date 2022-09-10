@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-10 16:54
+ * @lastEditTime: 2022-09-10 18:16
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
+import { getTypeErrorInfo, md5 } from "../../utils";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
 import { getYoudaoWebDictionaryLanguageId, isValidYoudaoWebTranslateLanguage } from "./utils";
@@ -253,9 +253,9 @@ export function requestYoudaoWebTranslate(
 
   const timestamp = new Date().getTime();
   const lts = timestamp.toString(); // 1661435375537
-  const salt = timestamp.toString() + Math.round(Math.random() * 10); // 16614353755371
-  const bv = CryptoJS.MD5(userAgent).toString();
-  const sign = CryptoJS.MD5("fanyideskweb" + word + salt + "Ygy_4c=r#e#4EX^NUGUc5").toString();
+  const salt = lts + Math.round(Math.random() * 10); // 16614353755371
+  const bv = md5(userAgent);
+  const sign = md5("fanyideskweb" + word + salt + "Ygy_4c=r#e#4EX^NUGUc5");
 
   const url = `${youdaoTranslatURL}/translate_o?smartresult=dict&smartresult=rule`;
   const data = {
