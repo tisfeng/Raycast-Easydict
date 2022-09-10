@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 22:38
+ * @lastEditTime: 2022-09-10 16:54
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,10 +166,10 @@ export function requestYoudaoWebDictionary(
   };
 
   const queryString = qs.stringify(params);
-  console.log(`---> youdao web dict queryString: ${queryString}`);
+  // console.log(`---> youdao web dict queryString: ${queryString}`);
 
   const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
-  console.log(`dictUrl: ${dictUrl}`);
+  // console.log(`dictUrl: ${dictUrl}`);
 
   return new Promise((resolve, reject) => {
     axios
@@ -285,7 +285,7 @@ export function requestYoudaoWebTranslate(
     axios
       .post(url, querystring.stringify(data), { headers })
       .then((response) => {
-        // console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
+        console.log(`---> youdao web translate res: ${util.inspect(response.data, { depth: null })}`);
         const youdaoWebResult = response.data as YoudaoWebTranslateResult;
         if (youdaoWebResult.errorCode === 0) {
           const translations = youdaoWebResult.translateResult.map((items) => items.map((item) => item.tgt).join(" "));
@@ -298,9 +298,10 @@ export function requestYoudaoWebTranslate(
           };
           resolve(youdaoTypeResult);
         } else {
+          console.error(`---> youdao web translate error: ${util.inspect(youdaoWebResult, { depth: null })}`);
           const errorInfo: RequestErrorInfo = {
             type: type,
-            code: youdaoWebResult.errorCode.toString(),
+            code: youdaoWebResult.errorCode?.toString(),
             message: "",
           };
           reject(errorInfo);
@@ -312,7 +313,7 @@ export function requestYoudaoWebTranslate(
           return reject(undefined);
         }
 
-        console.log(`---> youdao translate error: ${error}`);
+        console.log(`---> youdao web translate error: ${JSON.stringify(error, null, 2)}`);
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });

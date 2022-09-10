@@ -99,7 +99,7 @@ eg:
 }
 */
 export interface YoudaoWebTranslateResult {
-  errorCode: number;
+  errorCode?: number;
   translateResult: [[YoudaoWebTranslateResultItem]];
   type: string;
   smartResult?: {
