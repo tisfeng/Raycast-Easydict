@@ -1,9 +1,8 @@
-import { englishLanguageItem } from "./../language/consts";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 23:25
+ * @lastEditTime: 2022-09-11 17:44
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -36,6 +35,7 @@ import {
   AbortObject,
   DicionaryType,
   DisplaySection,
+  ListAccessoryItem,
   ListDisplayItem,
   QueryResult,
   QueryType,
@@ -43,6 +43,7 @@ import {
   TranslationType,
 } from "../types";
 import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "../utils";
+import { englishLanguageItem } from "./../language/consts";
 import {
   checkIfEnableYoudaoDictionary,
   checkIfShowTranslationDetail,
@@ -315,6 +316,16 @@ export class DataManager {
             sourceResult: lingueeTypeResult,
           };
 
+          lingueeTypeResult.wordInfo.isWord = queryWordInfo.isWord;
+
+          // Use Youdao phonetic as Linguee phonetic.
+          const accessoryItem: ListAccessoryItem = {
+            phonetic: queryWordInfo.phonetic,
+            examTypes: queryWordInfo.examTypes,
+          };
+
+          lingueeDisplaySections[0].items[0].accessoryItem = accessoryItem;
+
           // try use DeepL translate result as Linguee translation.
           this.updateLingueeTranslation(queryResult);
           this.updateQueryResultAndSections(queryResult);
@@ -385,6 +396,9 @@ export class DataManager {
 
           const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
+
+          // * use Youdao dictionary to check if query text is a word.
+          Object.assign(queryWordInfo, formatYoudaoResult?.queryWordInfo);
 
           const youdaoDictResult: QueryResult = {
             type: type,

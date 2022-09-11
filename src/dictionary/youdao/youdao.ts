@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-10 18:16
+ * @lastEditTime: 2022-09-11 17:45
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,9 +96,6 @@ export function requestYoudaoApiDictionaryTranslate(
           reject(errorInfo);
           return;
         }
-
-        // use Youdao dictionary check if query text is a word.
-        queryWordInfo.isWord = youdaoResult.isWord;
 
         const youdaoTypeResult: QueryTypeResult = {
           type: type,
@@ -194,9 +191,6 @@ export function requestYoudaoWebDictionary(
           };
           return resolve(youdaoTypeResult);
         }
-
-        // use Youdao dictionary check if query text is a word.
-        queryWordInfo.isWord = youdaoFormatResult.queryWordInfo.isWord;
 
         const youdaoTypeResult: QueryTypeResult = {
           type: type,
