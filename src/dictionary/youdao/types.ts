@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 23:20
+ * @lastEditTime: 2022-09-11 17:58
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,7 +52,7 @@ export interface QueryWordInfo {
   isWord?: boolean; // * Dictionary Type should has value, show web url need this value.
   hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
   detectedLanguage?: LanguageDetectTypeResult;
-  phonetic?: string; // ɡʊd
+  phonetic?: string; // [ɡʊd]
   examTypes?: string[];
   audioPath?: string;
   speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"

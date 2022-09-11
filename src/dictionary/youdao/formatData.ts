@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-05 22:50
+ * @lastEditTime: 2022-09-11 17:56
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -37,9 +37,11 @@ export function formatYoudaoDictionaryResult(
   const [from, to] = youdaoResult.l.split("2"); // from2to
   let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
   usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
+  const phonetic = usPhonetic || youdaoResult.basic?.phonetic;
+  const phoneticText = phonetic ? `[${phonetic}]` : undefined;
   const queryWordInfo: QueryWordInfo = {
     word: youdaoResult.query,
-    phonetic: usPhonetic || youdaoResult.basic?.phonetic,
+    phonetic: phoneticText,
     fromLanguage: from,
     toLanguage: to,
     isWord: youdaoResult.isWord,
@@ -96,7 +98,7 @@ export function updateYoudaoDictionaryDisplay(
   const queryWordInfo = formatResult.queryWordInfo;
   const youdaoDictionaryType = DicionaryType.Youdao;
   const oneLineTranslation = formatResult.translation.split("\n").join(", ");
-  const phoneticText = queryWordInfo.phonetic ? `[${queryWordInfo.phonetic}]` : undefined;
+  const phoneticText = queryWordInfo.phonetic;
   const subtitle = queryWordInfo.word.split("\n").join(" ");
 
   // 1. Translation.
@@ -312,6 +314,7 @@ export function formateYoudaoWebDictionaryModel(
     const word = simpleWord[0];
     phonetic = word.usphone || word.phone;
   }
+  const phoneticText = phonetic ? ` [${phonetic}]` : undefined;
 
   let translation = "";
   let examTypes: string[] | undefined;
@@ -435,7 +438,7 @@ export function formateYoudaoWebDictionaryModel(
     word: input,
     fromLanguage: from,
     toLanguage: to,
-    phonetic: phonetic,
+    phonetic: phoneticText,
     examTypes: examTypes,
     speechUrl: speechUrl,
     isWord: isWord,
