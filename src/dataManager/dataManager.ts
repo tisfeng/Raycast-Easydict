@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 17:44
+ * @lastEditTime: 2022-09-11 21:09
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -316,7 +316,10 @@ export class DataManager {
             sourceResult: lingueeTypeResult,
           };
 
-          lingueeTypeResult.wordInfo.isWord = queryWordInfo.isWord;
+          // * If has Youdao dictionary check if quey text is word, directly use it.
+          if (queryWordInfo.isWord !== undefined) {
+            lingueeTypeResult.wordInfo.isWord = queryWordInfo.isWord;
+          }
 
           // Use Youdao phonetic as Linguee phonetic.
           const accessoryItem: ListAccessoryItem = {
