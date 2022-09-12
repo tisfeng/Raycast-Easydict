@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 23:53
+ * @lastEditTime: 2022-09-12 10:19
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -117,6 +117,12 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
      * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
      * Baidu language recognition is inaccurate in very few cases, such as "ragazza", it should be Italian, but Baidu auto detect is en.
      * In this case, trans_result's src === dst.
+     *
+     * * The Baidu results seem to have changed recently...
+     * {
+            "src": "ragazza",
+            "dst": "拉加扎"
+        }
      */
     let confirmed = false;
     const transResult = baiduResult.trans_result;

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 23:30
+ * @lastEditTime: 2022-09-12 10:45
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,7 @@ import axios from "axios";
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
-import { baiduWebLanguageDetect } from "../translation/baidu";
+import { baiduLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
@@ -20,8 +20,8 @@ import { checkIsLanguageDetectType } from "../utils";
 import { francLangaugeDetect } from "./franc";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./types";
 import {
-  checkIfPreferredLanguagesContainedChinese,
-  checkIfPreferredLanguagesContainedEnglish,
+  checkIfPreferredLanguagesContainChinese,
+  checkIfPreferredLanguagesContainEnglish,
   isChinese,
   isEnglishOrNumber,
   isPreferredLanguage,
@@ -77,15 +77,22 @@ export function detectLanguage(
   console.log("api detect queryText:", text);
   console.log("detect lowerCaseText:", lowerCaseText);
 
-  // new a action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
+  // Action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
   const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
   detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
-  if (myPreferences.enableAppleLanguageDetect) {
+  detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
+
+  /**
+   * Since the preferred language is prioritized, Apple's recognition of English is not accurate, and many other languages are easily recognized as English, so Apple language recognition is not used when the preferred language contains English.
+   *
+   * eg. maith, maith is not English, but Apple language recognition is English.
+   */
+  const enableAppleLanguageDetect =
+    myPreferences.enableAppleLanguageDetect && !checkIfPreferredLanguagesContainEnglish();
+  if (enableAppleLanguageDetect) {
     detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
-  // detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
 
   // if local detect language is not confirmed, use API language detect
   try {
@@ -355,9 +362,9 @@ export function simpleDetectTextLanguage(text: string): LanguageDetectTypeResult
   let fromYoudaoLanguageId = "auto";
   const englishLanguageId = "en";
   const chineseLanguageId = "zh-CHS";
-  if (isEnglishOrNumber(text) && checkIfPreferredLanguagesContainedEnglish()) {
+  if (isEnglishOrNumber(text) && checkIfPreferredLanguagesContainEnglish()) {
     fromYoudaoLanguageId = englishLanguageId;
-  } else if (isChinese(text) && checkIfPreferredLanguagesContainedChinese()) {
+  } else if (isChinese(text) && checkIfPreferredLanguagesContainChinese()) {
     fromYoudaoLanguageId = chineseLanguageId;
   }
   console.log("simple detect language -->:", fromYoudaoLanguageId);
