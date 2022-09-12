@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-12 10:45
+ * @lastEditTime: 2022-09-12 12:39
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -83,14 +83,7 @@ export function detectLanguage(
   detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
   detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
 
-  /**
-   * Since the preferred language is prioritized, Apple's recognition of English is not accurate, and many other languages are easily recognized as English, so Apple language recognition is not used when the preferred language contains English.
-   *
-   * eg. maith, maith is not English, but Apple language recognition is English.
-   */
-  const enableAppleLanguageDetect =
-    myPreferences.enableAppleLanguageDetect && !checkIfPreferredLanguagesContainEnglish();
-  if (enableAppleLanguageDetect) {
+  if (myPreferences.enableAppleLanguageDetect) {
     detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
   }
 
@@ -101,7 +94,6 @@ export function detectLanguage(
       callback(finalLanguageTypeResult);
     });
   } catch (error) {
-    // ? Never to enter here
     // if API detect error, use local detect language
     console.error(`detect language error: ${error}, callback localDetectResult`);
     callback(localDetectResult);
@@ -179,43 +171,37 @@ function handleDetectedLanguageTypeResult(
    * So we have to try to use other types of language detection first.
    */
   if (apiDetectedLanguage.type === LanguageDetectType.Google && apiDetectedLanguage.sourceLanguageId.length > 0) {
-    console.log(`use Google detect language: ${apiDetectedLanguage.sourceLanguageId}`);
+    console.warn(`use Google detect language: ${apiDetectedLanguage.sourceLanguageId}`);
     apiDetectedLanguage.confirmed = true;
     callback(apiDetectedLanguage);
     return;
   }
 
-  // 2. Try to use Baidu language detect, if it is confirmed and preferred language, use it.
-  if (apiDetectedLanguage.type === LanguageDetectType.Baidu) {
-    if (apiDetectedLanguage.confirmed && isPreferredLanguage(detectedYoudaoLanguageId)) {
-      console.log(`use Baidu language detect, confirmed and preferred language: ${detectedYoudaoLanguageId}`);
-      callback(apiDetectedLanguage);
-      return;
-    }
-  }
-
-  // 3. Iterate API detected language List, check if has detected `two` identical && `preferred` language id, if true, use it.
-  for (const language of apiDetectedLanguageList) {
-    if (language.youdaoLanguageId === detectedYoudaoLanguageId && isPreferredLanguage(detectedYoudaoLanguageId)) {
-      language.confirmed = true;
-      console.warn(`---> API: ${apiDetectedLanguage.type} && ${language.type}, detected identical preferred language`);
-      console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
-      callback(language); // use the first detected language type, the speed of response is important.
-      return;
-    }
-  }
-
-  // 4. Iterate API detected language List, check if has detected `three` identical language id, if true, use it.
+  // 2. Iterate API detected language List, check if has detected >= `two` identical valid language, if true, use it.
   let count = 1;
   for (const language of apiDetectedLanguageList) {
     if (language.youdaoLanguageId === detectedYoudaoLanguageId && isValidLanguageId(detectedYoudaoLanguageId)) {
       count += 1;
     }
+
+    // if detected two languages contain Baidu type, and it's preferred language, use it.
+    if (count === 2) {
+      const checkType = LanguageDetectType.Baidu;
+      const containBaiduDetect = apiDetectedLanguage.type === checkType || apiDetectedListContainsType(checkType);
+      if (containBaiduDetect && isPreferredLanguage(detectedYoudaoLanguageId)) {
+        apiDetectedLanguage.confirmed = true;
+        console.warn(`---> two API contains Baidu language detected identical preferred language`);
+        console.warn(`detected language: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
+        callback(apiDetectedLanguage);
+        return;
+      }
+    }
+
     if (count === 3) {
       language.confirmed = true;
       console.warn(`---> API detected three identical language`);
       console.warn(`detected language: ${JSON.stringify(language, null, 4)}`);
-      callback(language); // use the first detected language type, the speed of response is important.
+      callback(language);
       return;
     }
   }
@@ -224,7 +210,7 @@ function handleDetectedLanguageTypeResult(
   apiDetectedLanguageList.push(apiDetectedLanguage);
 
   /**
-   * 4. If this is the last one, and it's not confirmed, iterate API Detected Language List to compare with the Local Detect Language List.
+   * 3. If this is the last one, and it's not confirmed, iterate API Detected Language List to compare with the Local Detect Language List.
    * If matched, and the language is preferred, mark it as confirmed. else use it directly, but not confirmed.
    */
   if (detectLanguageActionMap.size === 1) {
@@ -256,7 +242,7 @@ function handleDetectedLanguageTypeResult(
     return;
   }
 
-  // 5. If this API detected language is not confirmed, remove it from the detectActionMap, and try next detect API.
+  // 4. If this API detected language is not confirmed, remove it from the detectActionMap, and try next detect API.
   detectLanguageActionMap.delete(apiDetectedLanguage.type);
   console.log(`---> remove unconfirmed detect action: ${apiDetectedLanguage.type}`);
   console.log(`---> continue to detect next action`);
@@ -375,4 +361,12 @@ export function simpleDetectTextLanguage(text: string): LanguageDetectTypeResult
     confirmed: false,
   };
   return detectTypeResult;
+}
+
+function apiDetectedListContainsType(detectedLanguagetype: LanguageDetectType): boolean {
+  // console.log(`check if api detected list contains type: ${detectedLanguagetype}`);
+  // console.log(`api detected list: ${JSON.stringify(apiDetectedLanguageList, null, 4)}`);
+  const isContained = apiDetectedLanguageList.find((item) => item.type === detectedLanguagetype);
+  // console.log(`is contained: ${isContained}`);
+  return isContained !== undefined;
 }
