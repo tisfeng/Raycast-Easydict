@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-12 11:13
+ * @lastEditTime: 2022-09-13 11:16
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,7 +25,7 @@ import { BaiduWebLanguageDetect } from "./../types";
  * 百度翻译API https://fanyi-api.baidu.com/doc/21
  */
 export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.log(`---> start request Baidu`);
+  console.log(`---> start request Baidu translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const salt = Math.round(new Date().getTime() / 1000);
   const baiduAppId = KeyStore.baiduAppId;
