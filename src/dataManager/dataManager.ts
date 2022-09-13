@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 22:46
+ * @lastEditTime: 2022-09-14 01:14
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -156,7 +156,7 @@ export class DataManager {
     this.queryCaiyunTranslate(queryWordInfo);
 
     // Put Apple translate at the end, because it will block thread, ~0.4s.
-    // this.queryAppleTranslate(queryWordInfo, this.abortObject);
+    this.queryAppleTranslate(queryWordInfo, this.abortObject.abortController);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -468,12 +468,12 @@ export class DataManager {
   /**
    * Query apple translate.
    */
-  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortObject: AbortObject | undefined) {
+  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortController: AbortController | undefined) {
     if (myPreferences.enableAppleTranslate) {
       const type = TranslationType.Apple;
       this.addQueryToRecordList(type);
 
-      appleTranslate(queryWordInfo, abortObject)
+      appleTranslate(queryWordInfo, abortController)
         .then((translatedText) => {
           if (translatedText) {
             // * Note: apple translateText contains redundant blank line, we need to remove it.
