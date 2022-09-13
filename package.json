@@ -41,12 +41,14 @@
     "axios": "^0.25.0",
     "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",
+    "execa": "^6.1.0",
     "franc": "^6.0.0",
     "https-proxy-agent": "^5.0.1",
     "mac-system-proxy": "^1.0.4",
     "node-html-parser": "^5.3.3",
     "play-sound": "^1.1.5",
     "qs": "^6.11.0",
+    "run-applescript": "^6.0.0",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.354"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 17:29
+ * @lastEditTime: 2022-09-13 22:46
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -117,7 +117,7 @@ export class DataManager {
    * Delay the time to call the query API. Since API has frequency limit.
    */
   public delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
-    console.log(`---> delay query text: ${text}`);
+    console.log(`---> query text: ${text}, isDelay: ${isDelay}`);
     const delayTime = isDelay ? this.delayRequestTime : 0;
     this.delayQueryTimer = setTimeout(() => {
       this.queryText(text, toLanguage);
@@ -151,10 +151,12 @@ export class DataManager {
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
     this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
-    this.queryAppleTranslate(queryWordInfo, this.abortObject);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
+
+    // Put Apple translate at the end, because it will block thread, ~0.4s.
+    // this.queryAppleTranslate(queryWordInfo, this.abortObject);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -624,6 +626,10 @@ export class DataManager {
 
     const isLoadingState = this.queryRecordList.length > 0;
     this.updateLoadingState(isLoadingState);
+
+    if (!isLoadingState) {
+      this.abortObject = {};
+    }
   }
 
   /**

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-03 00:28
+ * @lastEditTime: 2022-09-13 23:24
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,13 +10,14 @@
 
 import { showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
+import { execa } from "execa";
 import querystring from "node:querystring";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dictionary/youdao/types";
 import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
 import { AbortObject, RequestErrorInfo, TranslationType } from "./types";
 
-const execTimeout = 10000; // 10s
+const execCommandTimeout = 10000; // 10s
 
 /**
  * Run apple Translate shortcuts with the given QueryWordInfo. Cost time: ~0.5s.
@@ -26,7 +27,7 @@ const execTimeout = 10000; // 10s
 export function appleTranslate(
   queryTextInfo: QueryWordInfo,
   abortObject: AbortObject | undefined,
-  timeout = execTimeout
+  timeout = execCommandTimeout
 ): Promise<string | undefined> {
   console.log(`---> start Apple translate`);
 
@@ -68,53 +69,138 @@ export function appleTranslate(
   // console.log(`queryString: ${queryString}`); // text=girl&from=en_US&to=zh_CN
 
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
-  return new Promise((resolve, reject) => {
-    const command = `osascript -e '${appleScript}'`;
 
-    const childProcess = exec(command, (error, stdout, stderr) => {
-      if (error) {
+  console.log(`before execa appleScript`);
+
+  return new Promise((resolve, reject) => {
+    execa("osascript", ["-e", appleScript], { signal: abortObject?.abortController?.signal })
+      .then((result) => {
+        const translateText = result.stdout.trim(); // execa don't have to trim()
+        console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+        resolve(translateText);
+      })
+      .catch((error) => {
         if (error.killed) {
           // error: { "killed": true, "code": null, "signal": "SIGTERM" }
           console.warn(`---> apple translate canceled`);
           // console.log(`error: ${JSON.stringify(error, null, 4)}`)
-          return reject(undefined);
+          reject(undefined);
+        } else {
+          console.error(`apple error: ${JSON.stringify(error, null, 4)}`);
+          console.warn(`Apple translate error: ${appleScript}`);
+          const errorInfo: RequestErrorInfo = {
+            type: type,
+            message: error.message,
+          };
+          reject(errorInfo);
         }
+      });
 
-        console.error(`apple error: ${JSON.stringify(error, null, 4)}`);
-        console.warn(`Apple translate error: ${command}`);
-        const errorInfo: RequestErrorInfo = {
-          type: type,
-          message: stderr,
-        };
-        return reject(errorInfo);
-      }
-
-      const translateText = stdout.trim();
-      console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
-      resolve(translateText);
-    });
-
-    if (abortObject) {
-      abortObject.childProcess = childProcess;
-    }
+    console.log(`after execa appleScript`);
 
     // If timeout, kill exec child process.
     setTimeout(() => {
       // console.log(`---> apple translate timeout: ${JSON.stringify(childProcess, null, 4)}`);
-      if (childProcess.killed || childProcess.exitCode === 0) {
+      if (!abortObject) {
         console.warn(`---> apple translate already finished`);
         return reject(undefined);
       }
 
-      childProcess.kill();
-      console.error(`apple translate timeout, kill exec child process: ${JSON.stringify(childProcess, null, 4)}`);
+      abortObject.abortController?.abort();
+      console.error(`apple translate timeout, kill exec child process`);
       const errorInfo: RequestErrorInfo = {
         type: type,
         message: `timeout of ${timeout} exceeded`,
       };
       reject(errorInfo);
     }, timeout);
+
+    console.log(`---> end Apple translate`);
   });
+
+  // return new Promise((resolve, reject) => {
+  //   runAppleScript(appleScript)
+  //     .then((stdout) => {
+  //       const translateText = stdout.trim();
+  //       console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+  //       resolve(translateText);
+  //     })
+  //     .catch((error) => {
+  //       if (error.killed) {
+  //         // error: { "killed": true, "code": null, "signal": "SIGTERM" }
+  //         console.warn(`---> apple translate canceled`);
+  //         // console.log(`error: ${JSON.stringify(error, null, 4)}`)
+  //         return reject(undefined);
+  //       }
+
+  //       console.error(`apple error: ${JSON.stringify(error, null, 4)}`);
+  //       console.warn(`Apple translate error: ${appleScript}`);
+  //       const errorInfo: RequestErrorInfo = {
+  //         type: type,
+  //         message: error.message,
+  //       };
+  //       return reject(errorInfo);
+  //     });
+
+  //   console.log(`before apple translate promise`);
+  // });
+
+  // return new Promise((resolve, reject) => {
+  //   console.log(`apple translate promise`);
+
+  //   const command = `osascript -e '${appleScript}'`;
+
+  //   const childProcess = new ChildProcess();
+  //   console.log(`new childProcess`);
+
+  //   // * This assign is synchronous, it will cost 0.4 ms
+  //   exec(command, (error, stdout, stderr) => {
+  //     if (error) {
+  //       if (error.killed) {
+  //         // error: { "killed": true, "code": null, "signal": "SIGTERM" }
+  //         console.warn(`---> apple translate canceled`);
+  //         // console.log(`error: ${JSON.stringify(error, null, 4)}`)
+  //         return reject(undefined);
+  //       }
+
+  //       console.error(`apple error: ${JSON.stringify(error, null, 4)}`);
+  //       console.warn(`Apple translate error: ${command}`);
+  //       const errorInfo: RequestErrorInfo = {
+  //         type: type,
+  //         message: stderr,
+  //       };
+  //       return reject(errorInfo);
+  //     }
+
+  //     const translateText = stdout.trim();
+  //     console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+  //     resolve(translateText);
+  //   });
+
+  //   console.log(`apple translate childProcess: ${childProcess.pid}`);
+
+  //   if (abortObject) {
+  //     abortObject.childProcess = childProcess;
+  //   }
+
+  //   // If timeout, kill exec child process.
+  //   setTimeout(() => {
+  //     // console.log(`---> apple translate timeout: ${JSON.stringify(childProcess, null, 4)}`);
+  //     if (childProcess.killed || childProcess.exitCode === 0) {
+  //       console.warn(`---> apple translate already finished`);
+  //       return reject(undefined);
+  //     }
+
+  //     childProcess.kill();
+  //     console.error(`apple translate timeout, kill exec child process: ${JSON.stringify(childProcess, null, 4)}`);
+  //     const errorInfo: RequestErrorInfo = {
+  //       type: type,
+  //       message: `timeout of ${timeout} exceeded`,
+  //     };
+  //     reject(errorInfo);
+  //   }, timeout);
+
+  //   console.log(`---> end Apple translate`);
 }
 
 /**
@@ -122,7 +208,7 @@ export function appleTranslate(
  *
  * * NOTE: Apple language detect support more languages than apple translate!
  */
-export function appleLanguageDetect(text: string, timeout = execTimeout): Promise<LanguageDetectTypeResult> {
+export function appleLanguageDetect(text: string, timeout = execCommandTimeout): Promise<LanguageDetectTypeResult> {
   console.log(`start apple language detect: ${text}`);
   const startTime = new Date().getTime();
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);

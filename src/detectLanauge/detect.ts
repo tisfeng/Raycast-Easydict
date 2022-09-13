@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 17:24
+ * @lastEditTime: 2022-09-13 23:01
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,7 @@ import axios from "axios";
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
-import { baiduLanguageDetect } from "../translation/baidu";
+import { baiduWebLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
@@ -76,8 +76,8 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 
   // Action map: key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
   const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
-  detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
-  // detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
+  // detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
   detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
   detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
 

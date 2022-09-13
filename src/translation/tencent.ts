@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:18
+ * @lastEditTime: 2022-09-13 18:17
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -280,7 +280,7 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
         const tencentLanguageId = response.Lang || "";
         const youdaoLanguageId = getYoudaoLanguageIdFromTencentId(tencentLanguageId);
         console.warn(`tencent detect language: ${tencentLanguageId}, youdaoId: ${youdaoLanguageId}`);
-        console.log(`cost time: ${endTime - startTime} ms`);
+        console.log(`tencent cost time: ${endTime - startTime} ms`);
         const typeResult: LanguageDetectTypeResult = {
           type: type,
           sourceLanguageId: tencentLanguageId,
