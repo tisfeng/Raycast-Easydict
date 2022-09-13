@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 23:51
+ * @lastEditTime: 2022-09-13 11:48
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -103,11 +103,9 @@ export async function googleLanguageDetect(
         const googleResult = googleTypeResult.result as GoogleTranslateResult;
         const googleLanguageId = googleResult.from.language.iso;
         const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanguageId);
-        console.warn(
-          `---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}, cost ${
-            new Date().getTime() - startTime
-          } ms`
-        );
+        console.warn(`---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}`);
+        console.log(`google cost time: ${new Date().getTime() - startTime} ms`);
+
         const languagedDetectResult: LanguageDetectTypeResult = {
           type: LanguageDetectType.Google,
           sourceLanguageId: googleLanguageId,

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-12 12:39
+ * @lastEditTime: 2022-09-13 13:09
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -77,10 +77,11 @@ export function detectLanguage(
   console.log("api detect queryText:", text);
   console.log("detect lowerCaseText:", lowerCaseText);
 
-  // Action map, key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
+  // Action map: key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
   const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
-  detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
   detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
+  // detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
+  detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
   detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
 
   if (myPreferences.enableAppleLanguageDetect) {

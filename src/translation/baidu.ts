@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:23
+ * @lastEditTime: 2022-09-13 11:57
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -157,8 +157,6 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
 export async function baiduWebLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
   console.log(`---> start web Baidu language detect`);
   const type = LanguageDetectType.Baidu;
-
-  baiduLanguageDetect(text);
 
   return new Promise((resolve, reject) => {
     const url = "https://fanyi.baidu.com/langdetect";
