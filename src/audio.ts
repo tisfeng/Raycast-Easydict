@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-04 10:17
+ * @lastEditTime: 2022-09-13 10:24
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,10 +15,9 @@ import fs from "fs";
 import { languageItemList } from "./language/consts";
 import { trimTextLength } from "./utils";
 import playerImport = require("play-sound");
-const audioPlayer = playerImport({});
 
 const audioDirPath = `${environment.supportPath}/audio`;
-// console.log(`audio path: ${audioDirPath}`);
+console.log(`audio path: ${audioDirPath}`);
 
 /**
   use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
@@ -33,6 +32,7 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   }
   console.log(`play local file audio: ${word}`);
 
+  const audioPlayer = playerImport({});
   return audioPlayer.play(audioPath, (err) => {
     if (err) {
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
