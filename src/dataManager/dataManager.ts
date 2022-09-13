@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 21:09
+ * @lastEditTime: 2022-09-13 17:29
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -237,9 +237,10 @@ export class DataManager {
 
     // Todo: need to optimize. Enable to cancel language detect.
     // Todo: record all detect result, maybe can use it as translation result.
-    detectLanguage(text, (detectedLanguageResult) => {
+
+    detectLanguage(text).then((detectedLanguage) => {
       console.log(
-        `---> final confirmed: ${detectedLanguageResult.confirmed}, type: ${detectedLanguageResult.type}, detectLanguage: ${detectedLanguageResult.youdaoLanguageId}`
+        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLanguageId}`
       );
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.
@@ -249,7 +250,7 @@ export class DataManager {
         return;
       }
 
-      this.queryTextWithDetectedLanguage(text, toLanguage, detectedLanguageResult);
+      this.queryTextWithDetectedLanguage(text, toLanguage, detectedLanguage);
     });
   }
 

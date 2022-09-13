@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:48
+ * @lastEditTime: 2022-09-13 16:55
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -199,6 +199,7 @@ export async function googleWebTranslate(
  * Get tld. if user has preferred Chinese language or ip in China, use cn, else use com.
  */
 async function getTld(): Promise<string> {
+  console.log(`---> get tld`);
   let tld = "com"; // cn,com
   if (checkIfPreferredLanguagesContainChinese() || (await checkIfIpInChina())) {
     tld = "cn";
