@@ -313,6 +313,14 @@
       "default": true
     },
     {
+      "name": "enableLanguageDetectionSpeedFirst",
+      "type": "checkbox",
+      "label": "Language Detection Speed First",
+      "required": false,
+      "description": "Turned on by default, the speed and accuracy of language detection is well balanced. Turn off if you want more accurate language detection, but slower.",
+      "default": true
+    },
+    {
       "name": "enableSystemProxy",
       "type": "checkbox",
       "label": "Use System Proxy",

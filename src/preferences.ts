@@ -27,6 +27,7 @@ export interface MyPreferences {
   servicesOrder: string;
   enableOpenInEudic: boolean;
   enableSystemProxy: boolean;
+  enableLanguageDetectionSpeedFirst: boolean;
 
   enableYoudaoDictionary: boolean;
   enableYoudaoTranslate: boolean;

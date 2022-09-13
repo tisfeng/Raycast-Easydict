@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 13:09
+ * @lastEditTime: 2022-09-13 16:41
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -163,7 +163,7 @@ function handleDetectedLanguageTypeResult(
 ) {
   console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
 
-  const detectedYoudaoLanguageId = apiDetectedLanguage.youdaoLanguageId;
+  const detectedLanguageId = apiDetectedLanguage.youdaoLanguageId;
 
   /**
    * 1. Preferred to use Google language detect, mark it as confirmed.
@@ -178,18 +178,31 @@ function handleDetectedLanguageTypeResult(
     return;
   }
 
+  const baiduType = LanguageDetectType.Baidu;
+  if (myPreferences.enableLanguageDetectionSpeedFirst) {
+    if (
+      apiDetectedLanguage.type === baiduType &&
+      apiDetectedLanguage.confirmed &&
+      isPreferredLanguage(detectedLanguageId)
+    ) {
+      console.warn(`---> Baidu detected preferred and confirmed language`);
+      console.warn(`detected language: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
+      callback(apiDetectedLanguage);
+      return;
+    }
+  }
+
   // 2. Iterate API detected language List, check if has detected >= `two` identical valid language, if true, use it.
   let count = 1;
   for (const language of apiDetectedLanguageList) {
-    if (language.youdaoLanguageId === detectedYoudaoLanguageId && isValidLanguageId(detectedYoudaoLanguageId)) {
+    if (language.youdaoLanguageId === detectedLanguageId && isValidLanguageId(detectedLanguageId)) {
       count += 1;
     }
 
-    // if detected two languages contain Baidu type, and it's preferred language, use it.
+    // if detected two languages contain Baidu type && `preferred` language, use it.
     if (count === 2) {
-      const checkType = LanguageDetectType.Baidu;
-      const containBaiduDetect = apiDetectedLanguage.type === checkType || apiDetectedListContainsType(checkType);
-      if (containBaiduDetect && isPreferredLanguage(detectedYoudaoLanguageId)) {
+      const containBaiduDetect = apiDetectedLanguage.type === baiduType || apiDetectedListContainsType(baiduType);
+      if (containBaiduDetect && isPreferredLanguage(detectedLanguageId)) {
         apiDetectedLanguage.confirmed = true;
         console.warn(`---> two API contains Baidu language detected identical preferred language`);
         console.warn(`detected language: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
