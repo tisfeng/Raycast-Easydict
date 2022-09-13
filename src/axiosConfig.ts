@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-28 22:02
+ * @lastEditTime: 2022-09-13 10:45
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,32 +14,37 @@ import { HttpsProxyAgent, HttpsProxyAgentOptions } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
 import { myPreferences } from "./preferences";
 
-// Set axios timeout to 15s, since we start a loading when request is sent.
-axios.defaults.timeout = 15000;
-
 /**
  * Caclulate axios request cost time.
  */
 export const requestCostTime = "requestCostTime";
-axios.interceptors.request.use(function (config: AxiosRequestConfig) {
-  if (config.headers) {
-    config.headers["request-startTime"] = new Date().getTime();
-  }
-  return config;
-});
-axios.interceptors.response.use(function (response) {
-  if (response.config.headers) {
-    const startTime = response.config.headers["request-startTime"] as number;
-    const endTime = new Date().getTime();
-    response.headers[requestCostTime] = (endTime - startTime).toString();
-  }
-  return response;
-});
+
+configDefaultAxios();
+
+function configDefaultAxios() {
+  // Set axios timeout to 15s, since we start a loading when request is sent.
+  axios.defaults.timeout = 15000;
+
+  axios.interceptors.request.use(function (config: AxiosRequestConfig) {
+    if (config.headers) {
+      config.headers["request-startTime"] = new Date().getTime();
+    }
+    return config;
+  });
+  axios.interceptors.response.use(function (response) {
+    if (response.config.headers) {
+      const startTime = response.config.headers["request-startTime"] as number;
+      const endTime = new Date().getTime();
+      response.headers[requestCostTime] = (endTime - startTime).toString();
+    }
+    return response;
+  });
+}
 
 /**
  * Check if need to use proxy. if yes, config axios proxy, if no, clear proxy config.
  */
-export function configAxiosProxy() {
+export function configUserAxiosProxy() {
   if (myPreferences.enableSystemProxy) {
     /**
      * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"

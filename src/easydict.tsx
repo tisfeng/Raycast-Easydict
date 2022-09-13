@@ -10,7 +10,7 @@
 
 import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configAxiosProxy } from "./axiosConfig";
+import { configUserAxiosProxy } from "./axiosConfig";
 import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager/dataManager";
 import { QueryWordInfo } from "./dictionary/youdao/types";
@@ -91,7 +91,7 @@ export default function () {
       tryQuerySelecedtText();
     }
 
-    configAxiosProxy();
+    configUserAxiosProxy();
 
     checkIfInstalledEudic().then((isInstalled) => {
       setIsInstalledEudic(isInstalled);
