@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 23:42
+ * @lastEditTime: 2022-09-13 17:44
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -142,7 +142,7 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
  * Show error toast according to errorInfo.
  */
 export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
-  if (!errorInfo) {
+  if (!errorInfo?.type) {
     return;
   }
 
