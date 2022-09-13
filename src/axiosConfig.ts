@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 10:45
+ * @lastEditTime: 2022-09-13 11:34
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,15 +25,17 @@ function configDefaultAxios() {
   // Set axios timeout to 15s, since we start a loading when request is sent.
   axios.defaults.timeout = 15000;
 
+  const requestStartTime = "request-startTime";
+
   axios.interceptors.request.use(function (config: AxiosRequestConfig) {
     if (config.headers) {
-      config.headers["request-startTime"] = new Date().getTime();
+      config.headers[requestStartTime] = new Date().getTime();
     }
     return config;
   });
   axios.interceptors.response.use(function (response) {
     if (response.config.headers) {
-      const startTime = response.config.headers["request-startTime"] as number;
+      const startTime = response.config.headers[requestStartTime] as number;
       const endTime = new Date().getTime();
       response.headers[requestCostTime] = (endTime - startTime).toString();
     }

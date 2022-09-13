@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:16
+ * @lastEditTime: 2022-09-13 11:23
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -106,46 +106,49 @@ export async function baiduLanguageDetect(text: string): Promise<LanguageDetectT
 
   const type = LanguageDetectType.Baidu;
 
-  try {
-    const baiduTypeResult = await requestBaiduTextTranslate(queryWordInfo);
-    const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
-    const baiduLanaugeId = baiduResult.from || "";
-    const youdaoLanguageId = getYoudaoLanguageIdFromBaiduId(baiduLanaugeId);
-    console.warn(`---> Baidu language detect languageId: ${baiduLanaugeId}, youdaoId: ${youdaoLanguageId}`);
+  return new Promise((resolve, reject) => {
+    requestBaiduTextTranslate(queryWordInfo)
+      .then((baiduTypeResult) => {
+        const baiduResult = baiduTypeResult.result as BaiduTranslateResult;
+        const baiduLanaugeId = baiduResult.from || "";
+        const youdaoLanguageId = getYoudaoLanguageIdFromBaiduId(baiduLanaugeId);
+        console.warn(`---> Baidu language detect languageId: ${baiduLanaugeId}, youdaoId: ${youdaoLanguageId}`);
 
-    /**
-     * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
-     * Baidu language recognition is inaccurate in very few cases, such as "ragazza", it should be Italian, but Baidu auto detect is en.
-     * In this case, trans_result's src === dst.
-     *
-     * * The Baidu results seem to have changed recently...
-     * {
-            "src": "ragazza",
-            "dst": "拉加扎"
+        /**
+       * Generally speaking, Baidu language auto-detection is more accurate than Tencent language recognition.
+       * Baidu language recognition is inaccurate in very few cases, such as "ragazza", it should be Italian, but Baidu auto detect is en.
+       * In this case, trans_result's src === dst.
+       *
+       * * The Baidu results seem to have changed recently...
+       * {
+              "src": "ragazza",
+              "dst": "拉加扎"
+          }
+       */
+        let confirmed = false;
+        const transResult = baiduResult.trans_result;
+        if (transResult?.length) {
+          const firstTransResult = transResult[0];
+          confirmed = firstTransResult.dst !== firstTransResult.src;
         }
-     */
-    let confirmed = false;
-    const transResult = baiduResult.trans_result;
-    if (transResult?.length) {
-      const firstTransResult = transResult[0];
-      confirmed = firstTransResult.dst !== firstTransResult.src;
-    }
-    const detectedLanguageResult: LanguageDetectTypeResult = {
-      type: type,
-      sourceLanguageId: baiduLanaugeId,
-      youdaoLanguageId: youdaoLanguageId,
-      confirmed: confirmed,
-      result: baiduResult,
-    };
-    return Promise.resolve(detectedLanguageResult);
-  } catch (error) {
-    const errorInfo = error as RequestErrorInfo | undefined;
-    if (errorInfo) {
-      console.error(`---> Baidu language detect error: ${JSON.stringify(error)}`);
-      errorInfo.type = type; // * Note: need to set language detect type.
-    }
-    return Promise.reject(errorInfo);
-  }
+        const detectedLanguageResult: LanguageDetectTypeResult = {
+          type: type,
+          sourceLanguageId: baiduLanaugeId,
+          youdaoLanguageId: youdaoLanguageId,
+          confirmed: confirmed,
+          result: baiduResult,
+        };
+        resolve(detectedLanguageResult);
+      })
+      .catch((error) => {
+        const errorInfo = error as RequestErrorInfo | undefined;
+        if (errorInfo) {
+          console.error(`---> Baidu language detect error: ${JSON.stringify(error)}`);
+          errorInfo.type = type; // * Note: need to set language detect type.
+        }
+        reject(errorInfo);
+      });
+  });
 }
 
 /**
