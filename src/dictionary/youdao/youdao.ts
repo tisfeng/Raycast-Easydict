@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 22:45
+ * @lastEditTime: 2022-09-14 23:30
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -370,7 +370,8 @@ export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo
 
 /**
  * Download word audio file.
- *  If query text is a word (only English word?), download audio file from youdao web api, otherwise downloaded from youdao tts.
+ *
+ * If query text is a word (only English word?), download audio file from youdao web api, otherwise downloaded from youdao tts.
  *
  * * NOTE: If query text is too long(>40), don't download audio file, later derectly use say command to play.
  */
@@ -390,10 +391,12 @@ export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: 
  *
  * This is a wild web API from https://cloud.tencent.com/developer/article/1596467 , also can find in web https://dict.youdao.com/w/good
  *
- * Example: https://dict.youdao.com/dictvoice?type=0&audio=good
+ * Example: https://dict.youdao.com/dictvoice?audio=good&type=2
+ *
+ * type: 1: uk, 2: us. ---> 0: us ?
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
-  const url = `https://dict.youdao.com/dictvoice?type=0&audio=${encodeURIComponent(word)}`;
+  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
   console.log(`download youdao English word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);

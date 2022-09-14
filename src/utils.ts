@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 12:28
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 20:04
+ * @lastEditTime: 2022-09-14 23:45
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -151,7 +151,7 @@ export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
   const type = errorInfo.type.toString();
   showToast({
     style: Toast.Style.Failure,
-    title: `${type} Error: ${errorInfo.code || ""}`,
+    title: `${type} Error` + `${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
     message: errorInfo.message,
   });
 }
