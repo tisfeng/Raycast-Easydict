@@ -3,7 +3,7 @@ import { RequestType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 14:02
+ * @lastEditTime: 2022-09-14 17:22
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -74,8 +74,8 @@ export function appleTranslate(
   console.log(`before execa appleScript`);
 
   // If timeout, kill exec child process.
-  setTimeout(() => {
-    handleExecaResult(type, abortController);
+  const timeoutTimer = setTimeout(() => {
+    abortExecaCommand(type, abortController);
   }, timeout);
 
   return new Promise((resolve, reject) => {
@@ -100,6 +100,9 @@ export function appleTranslate(
           };
           reject(errorInfo);
         }
+      })
+      .finally(() => {
+        clearTimeout(timeoutTimer);
       });
     console.log(`---> end Apple translate`);
   });
@@ -120,8 +123,8 @@ export function appleLanguageDetect(
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
   const type = LanguageDetectType.Apple;
 
-  setTimeout(() => {
-    handleExecaResult(type, abortController);
+  const timeoutTimer = setTimeout(() => {
+    abortExecaCommand(type, abortController);
   }, timeout);
 
   return new Promise((resolve, reject) => {
@@ -143,7 +146,7 @@ export function appleLanguageDetect(
       .catch((error) => {
         if (error.killed) {
           // error: { "killed": true, "code": null, "signal": "SIGTERM" }
-          console.warn(`---> apple language detect canceled`);
+          console.warn(`---> apple detect canceled`);
           reject(undefined);
         } else {
           console.error(`Apple detect error: ${error}`);
@@ -154,14 +157,17 @@ export function appleLanguageDetect(
           };
           reject(errorInfo);
         }
+      })
+      .finally(() => {
+        clearTimeout(timeoutTimer);
       });
   });
 }
 
-function handleExecaResult(type: RequestType, abortController?: AbortController): RequestErrorInfo | undefined {
-  console.log(`handleExecaResult: ${type}, abortController: ${JSON.stringify(abortController, null, 2)}`);
+function abortExecaCommand(type: RequestType, abortController?: AbortController): RequestErrorInfo | undefined {
+  console.log(`timeout, abortExecaCommand: ${type}, abortController: ${JSON.stringify(abortController, null, 2)}`);
 
-  if (!abortController?.signal.aborted) {
+  if (abortController) {
     abortController?.abort();
     console.error(`${type} timeout, kill exec child process`);
     const errorInfo: RequestErrorInfo = {

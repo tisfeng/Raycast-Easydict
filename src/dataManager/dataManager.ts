@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 14:18
+ * @lastEditTime: 2022-09-14 17:52
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -296,7 +296,6 @@ export class DataManager {
     const abortController = new AbortController();
     this.abortController = abortController;
     axios.defaults.signal = abortController.signal;
-    console.log(`abortController: ${JSON.stringify(abortController, null, 2)}`);
   }
 
   /**
@@ -634,24 +633,22 @@ export class DataManager {
     this.updateLoadingState(showingLoadingState);
 
     if (!showingLoadingState) {
-      this.removeAllQueryFromRecordList();
+      console.log("All queries finished.");
+      this.abortController = undefined;
     }
   }
 
   /**
    * Remove all query from queryRecordList, and update loading status.
    */
-  private removeAllQueryFromRecordList() {
-    console.log(`remove all query list`);
+  private cancelAndRemoveAllQueries() {
+    console.log(`cancel, and remove all query list`);
 
     this.queryRecordList = [];
     this.updateLoadingState(false);
 
     this.abortController?.abort();
-
     this.abortController = undefined;
-
-    console.log(`this.abortController: ${JSON.stringify(this.abortController, null, 2)}`);
   }
 
   /**
@@ -830,6 +827,6 @@ export class DataManager {
     // console.warn(`---> cancel current query`);
     // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
 
-    this.removeAllQueryFromRecordList();
+    this.cancelAndRemoveAllQueries();
   }
 }

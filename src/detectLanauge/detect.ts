@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 11:50
+ * @lastEditTime: 2022-09-14 17:33
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -112,8 +112,6 @@ function raceDetectTextLanguage(
           if (errorInfo) {
             console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
           }
-
-          console.error(`raceDetectTextLanguage error: ${JSON.stringify(error, null, 4)}`);
         });
     }
   });

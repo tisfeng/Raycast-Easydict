@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:57
+ * @lastEditTime: 2022-09-14 17:33
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -182,13 +182,18 @@ export async function baiduWebLanguageDetect(text: string): Promise<LanguageDete
           };
           resolve(detectedLanguageResult);
         } else {
-          console.error(`web Baidu language detect error: ${JSON.stringify(baiduWebLanguageDetect)}`);
+          console.error(`web Baidu detect error: ${JSON.stringify(baiduWebLanguageDetect)}`);
 
           const errorInfo = getBaiduWebLanguageDetectErrorInfo(baiduWebLanguageDetect);
           reject(errorInfo);
         }
       })
       .catch((error) => {
+        if (error.message === "canceled") {
+          console.log(`---> baidu detect canceled`);
+          return reject(undefined);
+        }
+
         console.error(`---> web Baidu language detect error: ${error}`);
 
         const errorInfo = getTypeErrorInfo(type, error);
