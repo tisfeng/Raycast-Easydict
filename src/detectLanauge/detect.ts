@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 23:01
+ * @lastEditTime: 2022-09-14 11:50
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +16,6 @@ import { baiduWebLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
-import { checkIsLanguageDetectType } from "../utils";
 import { francLangaugeDetect } from "./franc";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./types";
 import {
@@ -26,16 +25,6 @@ import {
   isEnglishOrNumber,
   isPreferredLanguage,
 } from "./utils";
-
-/**
- * * For a better user experience, a maximum of 2 seconds is set to request language detect API, and the local language check is used for timeout.
- *
- * If Apple language detection is enabled, both Apple language test and Tencent language test will be initiated, and which first-out result will be used.
- * If the language of the asynchronous check is the preferred language, use it directly. If not, continue to invoke local language detection.
- */
-const delayDetectLanguageTime = 2000;
-let isDetectedLanguage = false;
-let delayLocalDetectLanguageTimer: NodeJS.Timeout;
 
 /**
  * Record all API detected language, if has detected two identical language id, use it.
@@ -57,48 +46,34 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
   const localDetectResult = getLocalTextLanguageDetectResult(text, defaultConfirmedConfidence);
   apiDetectedLanguageList = [];
 
-  // Start a delay timer to detect local language, use it only if API detect over time.
-  clearTimeout(delayLocalDetectLanguageTimer);
-  delayLocalDetectLanguageTimer = setTimeout(() => {
-    console.log(`API detect over time, try to use local detect language if preferred.`);
-
-    if (localDetectResult.confirmed) {
-      console.log("use local detect confirmed:", localDetectResult.type, localDetectResult.youdaoLanguageId);
-      isDetectedLanguage = true;
-      return Promise.resolve(localDetectResult);
-    }
-  }, delayDetectLanguageTime);
-
-  // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
-  const lowerCaseText = text.toLowerCase();
-  console.log("api detect queryText:", text);
-  console.log("detect lowerCaseText:", lowerCaseText);
-
-  // Action map: key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
-  const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
-  // detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
-  detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
-
-  if (myPreferences.enableAppleLanguageDetect) {
-    detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
-  }
-
   return new Promise((resolve) => {
-    raceDetectTextLanguage(detectActionMap, localDetectResult)
-      .then((detectTypeResult) => {
-        const finalLanguageTypeResult = getFinalLanguageDetectResult(
-          text,
-          detectTypeResult,
-          defaultConfirmedConfidence
-        );
-        resolve(finalLanguageTypeResult);
-      })
-      .catch((error) => {
-        console.error(`detect language error: ${error}, callback localDetectResult`);
+    // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
+    const lowerCaseText = text.toLowerCase();
+    console.log("api detect queryText:", text);
+    console.log("detect lowerCaseText:", lowerCaseText);
+
+    // Action map: key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
+    const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
+    // detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
+    detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
+    detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
+    detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
+
+    if (myPreferences.enableAppleLanguageDetect) {
+      detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
+    }
+
+    const detectActionList = [...detectActionMap.values()];
+
+    raceDetectTextLanguage(detectActionList, localDetectResult).then((detectTypeResult) => {
+      if (!detectTypeResult) {
+        console.error(`use localDetectResult`);
         resolve(localDetectResult);
-      });
+      } else {
+        const finalLanguageTypeResult = getFinalDetectedLanguage(text, detectTypeResult, defaultConfirmedConfidence);
+        resolve(finalLanguageTypeResult);
+      }
+    });
   });
 }
 
@@ -108,51 +83,45 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
  * Todo: may be don't need to use promise race, callback is ok.
  */
 function raceDetectTextLanguage(
-  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>,
-  localLanguageDetectTypeResult: LanguageDetectTypeResult
-): Promise<LanguageDetectTypeResult> {
-  console.log(`start raceDetectTextLanguage: ${[...detectLanguageActionMap.keys()]}`);
+  detectActionList: Promise<LanguageDetectTypeResult>[],
+  localDetectResult: LanguageDetectTypeResult
+): Promise<LanguageDetectTypeResult | undefined> {
   // console.log("race local detect language: ", localLanguageDetectTypeResult);
-  isDetectedLanguage = false;
-  const detectLanguageActionList = detectLanguageActionMap.values();
-  return Promise.race(detectLanguageActionList)
-    .then((typeResult) => {
-      if (isDetectedLanguage) {
-        console.warn(`has detected language, promise race detect over time: ${JSON.stringify(typeResult, null, 4)}`);
-        return localLanguageDetectTypeResult;
-      }
 
-      isDetectedLanguage = true;
-      clearTimeout(delayLocalDetectLanguageTimer);
+  return new Promise((resolve) => {
+    for (const detectAction of detectActionList) {
+      detectAction
+        .then((detectTypeResult) => {
+          if (!detectTypeResult) {
+            console.error(`use localDetectResult`);
+            resolve(localDetectResult);
+            return;
+          }
 
-      return handleDetectedLanguageTypeResult(typeResult, localLanguageDetectTypeResult, detectLanguageActionMap);
-    })
-    .catch((error) => {
-      // If current API detect error, remove it from the detectActionMap, and try next detect API.
-      const errorInfo = error as RequestErrorInfo | undefined;
-      if (errorInfo) {
-        console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
+          handleDetectedLanguage(detectTypeResult).then((result) => {
+            if (result) {
+              resolve(result);
+              return;
+            }
+          });
+        })
 
-        const errorType = errorInfo.type as LanguageDetectType;
-        if (checkIsLanguageDetectType(errorType)) {
-          const detectTypeResult: LanguageDetectTypeResult = {
-            type: errorType,
-            sourceLanguageId: "",
-            youdaoLanguageId: "",
-            confirmed: false,
-          };
-          handleDetectedLanguageTypeResult(detectTypeResult, localLanguageDetectTypeResult, detectLanguageActionMap);
-        }
-      }
-      return Promise.resolve(localLanguageDetectTypeResult);
-    });
+        .catch((error) => {
+          // If current API detect error, remove it from the detectActionMap, and try next detect API.
+          const errorInfo = error as RequestErrorInfo | undefined;
+          if (errorInfo) {
+            console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
+          }
+
+          console.error(`raceDetectTextLanguage error: ${JSON.stringify(error, null, 4)}`);
+        });
+    }
+  });
 }
 
-function handleDetectedLanguageTypeResult(
-  apiDetectedLanguage: LanguageDetectTypeResult,
-  localDetectedLanguage: LanguageDetectTypeResult,
-  detectLanguageActionMap: Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>
-): Promise<LanguageDetectTypeResult> {
+function handleDetectedLanguage(
+  apiDetectedLanguage: LanguageDetectTypeResult
+): Promise<LanguageDetectTypeResult | undefined> {
   console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(apiDetectedLanguage, null, 4)}`);
 
   const detectedLanguageId = apiDetectedLanguage.youdaoLanguageId;
@@ -211,42 +180,7 @@ function handleDetectedLanguageTypeResult(
   // If this API detected language is not confirmed, record it in the apiDetectedLanguage.
   apiDetectedLanguageList.push(apiDetectedLanguage);
 
-  /**
-   * 3. If this is the last one, and it's not confirmed, iterate API Detected Language List to compare with the Local Detect Language List.
-   * If matched, and the language is preferred, mark it as confirmed. else use it directly, but not confirmed.
-   */
-  if (detectLanguageActionMap.size === 1) {
-    console.log(`try compare API detected language list with local deteced list`);
-    console.log(`---> API detected language list: ${JSON.stringify(apiDetectedLanguageList, null, 4)}`);
-
-    const localDetectedLanguageArray = localDetectedLanguage.detectedLanguageArray;
-    // console.log(`---> local detected language list: ${JSON.stringify(detectedLocalLanguageArray, null, 4)}`);
-    if (localDetectedLanguageArray?.length) {
-      for (const [localLanguageId, confidence] of localDetectedLanguageArray) {
-        for (const apiLanguage of apiDetectedLanguageList) {
-          if (
-            apiLanguage.youdaoLanguageId === localLanguageId &&
-            isPreferredLanguage(localLanguageId) &&
-            confidence > 0
-          ) {
-            apiLanguage.confirmed = true;
-            console.warn(`API and Local detect identical preferred language: ${JSON.stringify(apiLanguage, null, 4)}`);
-            return Promise.resolve(apiLanguage);
-          }
-        }
-      }
-    }
-
-    apiDetectedLanguage.confirmed = false;
-    console.log(`---> finally, the last API: ${apiDetectedLanguage.type}, not confirmed, but hava to callback use it.`);
-    return Promise.resolve(apiDetectedLanguage);
-  }
-
-  // 4. If this API detected language is not confirmed, remove it from the detectActionMap, and try next detect API.
-  detectLanguageActionMap.delete(apiDetectedLanguage.type);
-  console.log(`---> remove unconfirmed detect action: ${apiDetectedLanguage.type}`);
-  console.log(`---> continue to detect next action`);
-  return raceDetectTextLanguage(detectLanguageActionMap, localDetectedLanguage);
+  return Promise.resolve(undefined);
 }
 
 /**
@@ -256,7 +190,7 @@ function handleDetectedLanguageTypeResult(
  *
  *  This function is used when high confidence franc detect language is not confirmed, and API detect language catch error.
  */
-function getFinalLanguageDetectResult(
+function getFinalDetectedLanguage(
   text: string,
   detectedTypeResult: LanguageDetectTypeResult,
   confirmedConfidence: number

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 01:13
+ * @lastEditTime: 2022-09-14 11:46
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -177,7 +177,8 @@ export function appleLanguageDetect(
     setTimeout(() => {
       if (resultValue?.exitCode === 0 || resultValue?.killed) {
         console.warn(`---> apple detect language already finished`);
-        return reject(undefined);
+        reject(undefined);
+        return;
       }
 
       abortObject?.abortController?.abort();
