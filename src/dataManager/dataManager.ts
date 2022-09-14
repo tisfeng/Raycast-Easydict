@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 01:14
+ * @lastEditTime: 2022-09-14 14:13
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,7 +32,6 @@ import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestTencentTranslate } from "../translation/tencent";
 import {
-  AbortObject,
   DicionaryType,
   DisplaySection,
   ListAccessoryItem,
@@ -94,7 +93,8 @@ export class DataManager {
   hasPlayedAudio = false;
   enableYoudaoDictionary = true;
 
-  abortObject: AbortObject = {};
+  // abortObject: AbortObject = {};
+  abortController: AbortController | undefined;
 
   delayQueryTimer?: NodeJS.Timeout;
   /**
@@ -150,13 +150,13 @@ export class DataManager {
     }
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
-    this.queryGoogleTranslate(queryWordInfo, this.abortObject.abortController?.signal);
+    this.queryGoogleTranslate(queryWordInfo, this.abortController);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
 
     // Put Apple translate at the end, because it will block thread, ~0.4s.
-    this.queryAppleTranslate(queryWordInfo, this.abortObject.abortController);
+    this.queryAppleTranslate(queryWordInfo, this.abortController);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -286,14 +286,17 @@ export class DataManager {
    * Rest properyies before each query.
    */
   private resetProperties() {
+    console.log(`resetProperties`);
+
     this.hasPlayedAudio = false;
     this.isLastQuery = true;
     this.shouldClearQuery = false;
     this.queryRecordList = [];
 
     const abortController = new AbortController();
-    this.abortObject.abortController = abortController;
+    this.abortController = abortController;
     axios.defaults.signal = abortController.signal;
+    console.log(`abortController: ${JSON.stringify(abortController, null, 2)}`);
   }
 
   /**
@@ -422,6 +425,7 @@ export class DataManager {
 
           // if enabled Youdao translate, directly use Youdao dictionary translate result as Youdao translation.
           if (myPreferences.enableYoudaoTranslate) {
+            console.log(`enableYoudaoTranslate`);
             const translationType = TranslationType.Youdao;
             youdaoWebTranslateResult.type = translationType;
             const youdaoTranslationResult: QueryResult = {
@@ -443,12 +447,12 @@ export class DataManager {
   /**
    * Query google translate.
    */
-  private queryGoogleTranslate(queryWordInfo: QueryWordInfo, signal: AbortSignal | undefined) {
+  private queryGoogleTranslate(queryWordInfo: QueryWordInfo, abortController?: AbortController) {
     if (myPreferences.enableGoogleTranslate) {
       const type = TranslationType.Google;
       this.addQueryToRecordList(type);
 
-      requestGoogleTranslate(queryWordInfo, signal)
+      requestGoogleTranslate(queryWordInfo, abortController?.signal)
         .then((googleTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -468,7 +472,7 @@ export class DataManager {
   /**
    * Query apple translate.
    */
-  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortController: AbortController | undefined) {
+  private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortController?: AbortController) {
     if (myPreferences.enableAppleTranslate) {
       const type = TranslationType.Apple;
       this.addQueryToRecordList(type);
@@ -624,12 +628,28 @@ export class DataManager {
     this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
     // console.log(`queryRecordList: ${this.queryRecordList}`);
 
-    const isLoadingState = this.queryRecordList.length > 0;
-    this.updateLoadingState(isLoadingState);
+    const showingLoadingState = this.queryRecordList.length > 0;
+    this.updateLoadingState(showingLoadingState);
 
-    if (!isLoadingState) {
-      this.abortObject = {};
+    if (!showingLoadingState) {
+      this.removeAllQueryFromRecordList();
     }
+  }
+
+  /**
+   * Remove all query from queryRecordList, and update loading status.
+   */
+  private removeAllQueryFromRecordList() {
+    console.log(`remove all query list`);
+
+    this.queryRecordList = [];
+    this.updateLoadingState(false);
+
+    this.abortController?.abort();
+
+    this.abortController = undefined;
+
+    console.log(`this.abortController: ${JSON.stringify(this.abortController, null, 2)}`);
   }
 
   /**
@@ -808,7 +828,6 @@ export class DataManager {
     // console.warn(`---> cancel current query`);
     // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
 
-    this.abortObject.abortController?.abort();
-    this.abortObject.childProcess?.kill();
+    this.removeAllQueryFromRecordList();
   }
 }
