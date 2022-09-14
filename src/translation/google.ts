@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 17:38
+ * @lastEditTime: 2022-09-14 20:34
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -82,7 +82,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
 /**
  * Google language detect. Actually, it uses google RPC translate api to detect language.
  */
-export function googleLanguageDetect(text: string, signal?: AbortSignal): Promise<LanguageDetectTypeResult> {
+export function googleLanguageDetect(text: string, signal = axios.defaults.signal): Promise<LanguageDetectTypeResult> {
   console.log(`---> start Google detect: ${text}`);
 
   const startTime = new Date().getTime();

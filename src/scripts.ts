@@ -3,7 +3,7 @@ import { RequestType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 17:22
+ * @lastEditTime: 2022-09-14 20:13
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -75,7 +75,7 @@ export function appleTranslate(
 
   // If timeout, kill exec child process.
   const timeoutTimer = setTimeout(() => {
-    abortExecaCommand(type, abortController);
+    abortCommand(type, abortController);
   }, timeout);
 
   return new Promise((resolve, reject) => {
@@ -124,7 +124,7 @@ export function appleLanguageDetect(
   const type = LanguageDetectType.Apple;
 
   const timeoutTimer = setTimeout(() => {
-    abortExecaCommand(type, abortController);
+    abortCommand(type, abortController);
   }, timeout);
 
   return new Promise((resolve, reject) => {
@@ -164,7 +164,7 @@ export function appleLanguageDetect(
   });
 }
 
-function abortExecaCommand(type: RequestType, abortController?: AbortController): RequestErrorInfo | undefined {
+function abortCommand(type: RequestType, abortController?: AbortController): RequestErrorInfo | undefined {
   console.log(`timeout, abortExecaCommand: ${type}, abortController: ${JSON.stringify(abortController, null, 2)}`);
 
   if (abortController) {

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 17:52
+ * @lastEditTime: 2022-09-14 21:26
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -422,11 +422,9 @@ export class DataManager {
           }
 
           this.updateQueryResultAndSections(youdaoDictResult);
-          this.downloadAndPlayWordAudio(youdaoDictionaryResult);
 
           // if enabled Youdao translate, directly use Youdao dictionary translate result as Youdao translation.
           if (myPreferences.enableYoudaoTranslate) {
-            console.log(`enableYoudaoTranslate`);
             const translationType = TranslationType.Youdao;
             youdaoWebTranslateResult.type = translationType;
             const youdaoTranslationResult: QueryResult = {
@@ -435,6 +433,9 @@ export class DataManager {
             };
             this.updateTranslationDisplay(youdaoTranslationResult);
           }
+
+          // * Note: play audio will block thread, so we need to do it in the end.
+          this.downloadAndPlayWordAudio(youdaoDictionaryResult);
         })
         .catch((error) => {
           showErrorToast(error);
@@ -658,7 +659,7 @@ export class DataManager {
    */
   private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
-    console.log(`---> updateTranslationDisplay: ${type}`);
+    // console.log(`---> updateTranslationDisplay: ${type}`);
     if (!sourceResult.result) {
       console.warn(`---> ${type} result is empty.`);
       return;

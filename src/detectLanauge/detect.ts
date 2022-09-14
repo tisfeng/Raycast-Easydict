@@ -2,13 +2,12 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 17:33
+ * @lastEditTime: 2022-09-14 21:27
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import axios from "axios";
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
@@ -52,25 +51,22 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
     console.log("api detect queryText:", text);
     console.log("detect lowerCaseText:", lowerCaseText);
 
-    // Action map: key is LanguageDetectType, value is Promise<LanguageDetectTypeResult>
-    const detectActionMap = new Map<LanguageDetectType, Promise<LanguageDetectTypeResult>>();
-    // detectActionMap.set(LanguageDetectType.Baidu, baiduLanguageDetect(lowerCaseText));
-    detectActionMap.set(LanguageDetectType.Baidu, baiduWebLanguageDetect(lowerCaseText));
-    detectActionMap.set(LanguageDetectType.Tencent, tencentLanguageDetect(lowerCaseText));
-    detectActionMap.set(LanguageDetectType.Google, googleLanguageDetect(lowerCaseText, axios.defaults.signal));
+    const detectActionList = [
+      baiduWebLanguageDetect(lowerCaseText),
+      tencentLanguageDetect(lowerCaseText),
+      googleLanguageDetect(lowerCaseText),
+    ];
 
     if (myPreferences.enableAppleLanguageDetect) {
-      detectActionMap.set(LanguageDetectType.Apple, appleLanguageDetect(lowerCaseText));
+      detectActionList.push(appleLanguageDetect(lowerCaseText));
     }
 
-    const detectActionList = [...detectActionMap.values()];
-
-    raceDetectTextLanguage(detectActionList, localDetectResult).then((detectTypeResult) => {
-      if (!detectTypeResult) {
+    raceDetectTextLanguage(detectActionList).then((detectedLanguage) => {
+      if (!detectedLanguage) {
         console.error(`use localDetectResult`);
         resolve(localDetectResult);
       } else {
-        const finalLanguageTypeResult = getFinalDetectedLanguage(text, detectTypeResult, defaultConfirmedConfidence);
+        const finalLanguageTypeResult = getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
         resolve(finalLanguageTypeResult);
       }
     });
@@ -78,26 +74,17 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 }
 
 /**
- * Promise race to detect language, if success, callback API detect language, else local detect language
- *
- * Todo: may be don't need to use promise race, callback is ok.
+ * Race to detect language, if success, callback API detect language, else local detect language
  */
 function raceDetectTextLanguage(
-  detectActionList: Promise<LanguageDetectTypeResult>[],
-  localDetectResult: LanguageDetectTypeResult
+  detectActionList: Promise<LanguageDetectTypeResult>[]
 ): Promise<LanguageDetectTypeResult | undefined> {
-  // console.log("race local detect language: ", localLanguageDetectTypeResult);
+  console.log("race detect language: ", detectActionList);
 
   return new Promise((resolve) => {
-    for (const detectAction of detectActionList) {
+    detectActionList.forEach((detectAction, index) => {
       detectAction
         .then((detectTypeResult) => {
-          if (!detectTypeResult) {
-            console.error(`use localDetectResult`);
-            resolve(localDetectResult);
-            return;
-          }
-
           handleDetectedLanguage(detectTypeResult).then((result) => {
             if (result) {
               resolve(result);
@@ -105,15 +92,18 @@ function raceDetectTextLanguage(
             }
           });
         })
-
         .catch((error) => {
-          // If current API detect error, remove it from the detectActionMap, and try next detect API.
           const errorInfo = error as RequestErrorInfo | undefined;
           if (errorInfo) {
             console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
           }
+          // If current API detect error, continue try next API. If the last, return undefined.
+          if (index === detectActionList.length - 1) {
+            console.warn(`last detect action fail, return undefine`);
+            resolve(undefined);
+          }
         });
-    }
+    });
   });
 }
 
