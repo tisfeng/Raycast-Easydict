@@ -401,6 +401,7 @@ export class DataManager {
       }
       const requests = requestFunctionList.map((request) => request(queryWordInfo, type));
 
+      // Todo: if Youdao web translate fails, try show youdao web dictionary.
       Promise.all(requests)
         .then(([youdaoDictionaryResult, youdaoWebTranslateResult]) => {
           console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 2)}`);

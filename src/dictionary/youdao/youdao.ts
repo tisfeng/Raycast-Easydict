@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 23:30
+ * @lastEditTime: 2022-09-15 00:50
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { LocalStorage } from "@raycast/api";
 import axios, { AxiosError } from "axios";
 import CryptoJS from "crypto-js";
 import querystring from "node:querystring";
@@ -30,18 +31,42 @@ export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
 
 const youdaoTranslatURL = "https://fanyi.youdao.com";
 
-let youdaoCookie =
-  "OUTFOX_SEARCH_USER_ID=362474716@10.108.162.139; Domain=.youdao.com; Expires=Sat, 17-Aug-2052 15:39:50 GMT";
+const youdaoCookieStoredKey = "youdaoCookie";
+
+let youdaoCookie: string | undefined; // "OUTFOX_SEARCH_USER_ID=362474716@10.108.162.139; Domain=.youdao.com; Expires=Sat, 17-Aug-2052 15:39:50 GMT";
+
+// * Cookie will be expired after 1 day, so we need to update it every time we start.
+getYoudaoWebCookie();
 
 /**
- * Get youdao cookie from youdao web.
+ * Get youdao cookie from youdao web, and store it in local storage.
  */
-axios.get(youdaoTranslatURL).then((response) => {
-  if (response.headers["set-cookie"]) {
-    youdaoCookie = response.headers["set-cookie"]?.join(";");
-    // console.warn(`youdaoCookie: ${youdaoCookie}`);
-  }
-});
+function getYoudaoWebCookie(): Promise<string> {
+  console.log("getYoudaoWebCookie");
+
+  LocalStorage.getItem<string>(youdaoCookieStoredKey).then((cookie) => {
+    if (cookie) {
+      youdaoCookie = cookie;
+      console.log(`---> get youdaoCookie from local storage: ${youdaoCookie}`);
+    }
+  });
+
+  const headers = {
+    "User-Agent": userAgent,
+  };
+
+  return new Promise((resolve) => {
+    axios.get(youdaoTranslatURL, { headers }).then((response) => {
+      if (response.headers["set-cookie"]) {
+        youdaoCookie = response.headers["set-cookie"]?.join(";");
+        resolve(youdaoCookie);
+        LocalStorage.setItem(youdaoCookieStoredKey, youdaoCookie);
+        console.warn(`get web youdaoCookie: ${youdaoCookie}`);
+        console.log(`cost time: ${response.headers[requestCostTime]}`);
+      }
+    });
+  });
+}
 
 /**
  * Youdao translate, use official API. Cost time: 0.2s
@@ -222,7 +247,7 @@ export function requestYoudaoWebDictionary(
  *
  * Ref: https://mp.weixin.qq.com/s/AWL3et91N8T24cKs1v660g
  */
-export function requestYoudaoWebTranslate(
+export async function requestYoudaoWebTranslate(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType
 ): Promise<QueryTypeResult> {
@@ -268,6 +293,12 @@ export function requestYoudaoWebTranslate(
     action: "FY_BY_REALTlME",
   };
   // console.log(`---> youdao web translate params: ${util.inspect(data, { depth: null })}`);
+
+  if (!youdaoCookie) {
+    console.log(`no stored Youdao cookie`);
+    youdaoCookie = await getYoudaoWebCookie();
+  }
+  console.log(`youdaoCookie: ${youdaoCookie}`);
 
   const headers = {
     "User-Agent": userAgent,
