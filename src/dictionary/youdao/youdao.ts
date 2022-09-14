@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-11 17:45
+ * @lastEditTime: 2022-09-14 22:45
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -50,7 +50,7 @@ axios.get(youdaoTranslatURL).then((response) => {
  *
  * 有道（词典）翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoApiDictionaryTranslate(
+export function requestYoudaoAPITranslateDictionary(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType
 ): Promise<QueryTypeResult> {

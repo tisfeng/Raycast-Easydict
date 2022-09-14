@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 21:27
+ * @lastEditTime: 2022-09-14 22:18
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -79,8 +79,6 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 function raceDetectTextLanguage(
   detectActionList: Promise<LanguageDetectTypeResult>[]
 ): Promise<LanguageDetectTypeResult | undefined> {
-  console.log("race detect language: ", detectActionList);
-
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction, index) => {
       detectAction

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 18:17
+ * @lastEditTime: 2022-09-14 22:37
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -171,8 +171,9 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
         }
 
         const translations = tencentResult.TargetText.split("\n");
-        console.warn(`---> Tencent translations: ${translations}`);
-        console.log(`fromLang: ${tencentResult.Source} cost: ${response.headers[requestCostTime]}`);
+        console.warn(
+          `---> Tencent translations: ${translations}, ${tencentResult.Source} cost: ${response.headers[requestCostTime]}`
+        );
         const typeResult: QueryTypeResult = {
           type: type,
           result: tencentResult,

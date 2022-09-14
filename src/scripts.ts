@@ -3,7 +3,7 @@ import { RequestType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 20:13
+ * @lastEditTime: 2022-09-14 22:30
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,7 @@ export function appleTranslate(
   abortController?: AbortController,
   timeout = execCommandTimeout
 ): Promise<string | undefined> {
-  console.log(`---> start Apple translate, abortController: ${JSON.stringify(abortController, null, 2)}`);
+  console.log(`---> start Apple translate`);
 
   const { word, fromLanguage, toLanguage } = queryTextInfo;
   const startTime = new Date().getTime();
@@ -78,6 +78,7 @@ export function appleTranslate(
     abortCommand(type, abortController);
   }, timeout);
 
+  // I don't know why, sometimes this exec command will block the thread for 0.4s 😓
   return new Promise((resolve, reject) => {
     execa("osascript", ["-e", appleScript], { signal: abortController?.signal })
       .then((result) => {
@@ -104,7 +105,7 @@ export function appleTranslate(
       .finally(() => {
         clearTimeout(timeoutTimer);
       });
-    console.log(`---> end Apple translate`);
+    console.log(`---> end Apple translate, cost: ${new Date().getTime() - startTime} ms`);
   });
 }
 

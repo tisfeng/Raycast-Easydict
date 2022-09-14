@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 21:26
+ * @lastEditTime: 2022-09-14 22:47
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import {
   playYoudaoWordAudioAfterDownloading,
-  requestYoudaoApiDictionaryTranslate,
+  requestYoudaoAPITranslateDictionary,
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
@@ -155,8 +155,10 @@ export class DataManager {
     this.queryTencentTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
 
-    // Put Apple translate at the end, because it will block thread, ~0.4s.
-    this.queryAppleTranslate(queryWordInfo, this.abortController);
+    // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
+    setTimeout(() => {
+      this.queryAppleTranslate(queryWordInfo, this.abortController);
+    }, 1500);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -190,6 +192,8 @@ export class DataManager {
    * 2. Update display sections.
    */
   private updateQueryResultAndSections(queryResult: QueryResult) {
+    console.log(`update query sections: ${queryResult.type}`);
+
     this.updateQueryResult(queryResult);
     this.updateDataDisplaySections();
   }
@@ -389,7 +393,7 @@ export class DataManager {
 
       // If user has Youdao API key, use official API, otherwise use web API.
       const youdaoDictionayFnPtr = KeyStore.youdaoAppId
-        ? requestYoudaoApiDictionaryTranslate
+        ? requestYoudaoAPITranslateDictionary
         : requestYoudaoWebDictionary;
       const requestFunctionList = [youdaoDictionayFnPtr];
       if (youdaoDictionayFnPtr === requestYoudaoWebDictionary) {
@@ -570,7 +574,7 @@ export class DataManager {
 
       // * If user has Youdao API key, use official API, otherwise use web API.
       const youdaoTranslateFnPtr = KeyStore.youdaoAppId
-        ? requestYoudaoApiDictionaryTranslate
+        ? requestYoudaoAPITranslateDictionary
         : requestYoudaoWebTranslate;
       youdaoTranslateFnPtr(queryWordInfo, type)
         .then((youdaoTypeResult) => {

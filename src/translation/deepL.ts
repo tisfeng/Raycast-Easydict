@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 23:26
+ * @lastEditTime: 2022-09-14 22:24
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -149,10 +149,6 @@ export function getDeepLAuthKey(): Promise<string> {
       }
     });
   });
-}
-
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 interface DeepLUsage {
