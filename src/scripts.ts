@@ -3,7 +3,7 @@ import { RequestType } from "./types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 22:30
+ * @lastEditTime: 2022-09-14 23:08
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -129,7 +129,7 @@ export function appleLanguageDetect(
   }, timeout);
 
   return new Promise((resolve, reject) => {
-    // * This code is synchronous, it will cost 0.4 ms
+    // * This code is synchronous, it will cost ~0.4s
     execa("osascript", ["-e", appleScript], { signal: abortController?.signal })
       .then((result) => {
         const appleLanguageId = result.stdout.trim(); // will be "" when detect language is not support, eg. ꯅꯨꯄꯤꯃꯆꯥ
@@ -162,6 +162,7 @@ export function appleLanguageDetect(
       .finally(() => {
         clearTimeout(timeoutTimer);
       });
+    console.log(`---> end Apple detect, cost: ${new Date().getTime() - startTime} ms`);
   });
 }
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 22:47
+ * @lastEditTime: 2022-09-14 23:05
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -809,8 +809,11 @@ export class DataManager {
     const enableAutomaticDownloadAudio =
       myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
     if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
-      playYoudaoWordAudioAfterDownloading(wordInfo);
-      this.hasPlayedAudio = true;
+      setTimeout(() => {
+        // To avoid blocking UI, delay playing audio.
+        playYoudaoWordAudioAfterDownloading(wordInfo);
+        this.hasPlayedAudio = true;
+      }, 10);
     }
   }
 
