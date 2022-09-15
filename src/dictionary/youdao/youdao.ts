@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 10:33
+ * @lastEditTime: 2022-09-15 15:00
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -61,8 +61,8 @@ function getYoudaoWebCookie(): Promise<string> {
         youdaoCookie = response.headers["set-cookie"]?.join(";");
         resolve(youdaoCookie);
         LocalStorage.setItem(youdaoCookieStoredKey, youdaoCookie);
-        console.warn(`get web youdaoCookie: ${youdaoCookie}`);
-        console.log(`get youdaoCookie cost time: ${response.headers[requestCostTime]}`);
+        console.log(`get web youdaoCookie: ${youdaoCookie}`);
+        console.log(`get youdaoCookie cost time: ${response.headers[requestCostTime]} ms`);
       }
     });
   });
@@ -75,7 +75,7 @@ function getYoudaoWebCookie(): Promise<string> {
  *
  * 有道（词典）翻译 https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
  */
-export function requestYoudaoAPITranslateDictionary(
+export function requestYoudaoAPITranslate(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType
 ): Promise<QueryTypeResult> {
