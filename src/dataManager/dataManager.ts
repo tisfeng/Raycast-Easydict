@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 17:05
+ * @lastEditTime: 2022-09-15 20:09
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -826,7 +826,9 @@ export class DataManager {
    * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
   private downloadAndPlayWordAudio(queryTypeResult: QueryTypeResult) {
+    console.log(`---> downloadAndPlayWordAudio: ${queryTypeResult.type}`);
     const wordInfo = queryTypeResult.wordInfo;
+    // console.log(`---> wordInfo: ${JSON.stringify(wordInfo, null, 4)}`);
     const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
     const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoId;
     const enableAutomaticDownloadAudio =

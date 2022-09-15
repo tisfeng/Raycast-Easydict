@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 15:23
+ * @lastEditTime: 2022-09-15 19:45
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -102,7 +102,7 @@ function raceDetectTextLanguage(
         .finally(() => {
           detectCount += 1;
           // If the last detection action is still not resolve, return undefined.
-          if (detectCount === detectActionList.length - 1) {
+          if (detectCount === detectActionList.length) {
             console.warn(`last detect action fail, return undefine`);
             resolve(undefined);
           }
