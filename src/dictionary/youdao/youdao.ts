@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 15:00
+ * @lastEditTime: 2022-09-15 16:21
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -393,8 +393,8 @@ function getYoudaoErrorInfo(errorCode: string): RequestErrorInfo {
 /**
  * Download query word audio and play after download.
  */
-export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo) {
-  tryDownloadYoudaoAudio(queryWordInfo, () => {
+export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo, enableYoudaoWebAudio = true) {
+  tryDownloadYoudaoAudio(queryWordInfo, enableYoudaoWebAudio, () => {
     playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
   });
 }
@@ -406,13 +406,19 @@ export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo
  *
  * * NOTE: If query text is too long(>40), don't download audio file, later derectly use say command to play.
  */
-export function tryDownloadYoudaoAudio(queryWordInfo: QueryWordInfo, callback?: () => void, forceDownload = false) {
-  if (queryWordInfo.speechUrl) {
-    downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
-  } else if (queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
+export function tryDownloadYoudaoAudio(
+  queryWordInfo: QueryWordInfo,
+  enableYoudaoWebAudio = true,
+  callback?: () => void,
+  forceDownload = false
+) {
+  // For English word, Youdao web audio is better than Youdao tts, so we use Youdao web audio first.
+  if (enableYoudaoWebAudio && queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
     downloadYoudaoEnglishWordAudio(queryWordInfo.word, callback, (forceDownload = false));
+  } else if (queryWordInfo.speechUrl) {
+    downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
   } else {
-    console.log(`text is too long, use say command to play derectly`);
+    console.log(`use say command to play derectly`);
     callback && callback();
   }
 }

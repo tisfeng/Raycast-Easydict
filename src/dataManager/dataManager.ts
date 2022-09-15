@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 11:52
+ * @lastEditTime: 2022-09-15 16:12
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -826,6 +826,7 @@ export class DataManager {
     const enableAutomaticDownloadAudio =
       myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
     if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
+      // Some Youdao web word audio is not accurate, so if not found word audio url from Youdao dictionary, then directly use say command.
       setTimeout(() => {
         // To avoid blocking UI, delay playing audio.
         playYoudaoWordAudioAfterDownloading(wordInfo);
