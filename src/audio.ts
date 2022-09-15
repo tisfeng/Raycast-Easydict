@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 10:24
+ * @lastEditTime: 2022-09-15 10:28
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { environment } from "@raycast/api";
 import axios from "axios";
-import { exec, execFile } from "child_process";
+import { exec, ExecException, execFile } from "child_process";
 import fs from "fs";
 import { languageItemList } from "./language/consts";
 import { trimTextLength } from "./utils";
@@ -18,6 +18,9 @@ import playerImport = require("play-sound");
 
 const audioDirPath = `${environment.supportPath}/audio`;
 console.log(`audio path: ${audioDirPath}`);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let audioPlayer: any;
 
 /**
   use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
@@ -32,9 +35,18 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   }
   console.log(`play local file audio: ${word}`);
 
-  const audioPlayer = playerImport({});
-  return audioPlayer.play(audioPath, (err) => {
+  if (!audioPlayer) {
+    audioPlayer = playerImport({});
+  }
+
+  // const audioPlayer = playerImport({});
+  return audioPlayer.play(audioPath, (err: ExecException) => {
     if (err) {
+      if (err.killed) {
+        console.log("audio has been killed");
+        return;
+      }
+
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
       console.error(`play word audio error: ${err}`);
       console.log(`audioPath: ${encodeURI(audioPath)}`);

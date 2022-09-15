@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 00:50
+ * @lastEditTime: 2022-09-15 10:33
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -62,7 +62,7 @@ function getYoudaoWebCookie(): Promise<string> {
         resolve(youdaoCookie);
         LocalStorage.setItem(youdaoCookieStoredKey, youdaoCookie);
         console.warn(`get web youdaoCookie: ${youdaoCookie}`);
-        console.log(`cost time: ${response.headers[requestCostTime]}`);
+        console.log(`get youdaoCookie cost time: ${response.headers[requestCostTime]}`);
       }
     });
   });

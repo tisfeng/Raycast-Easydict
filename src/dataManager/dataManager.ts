@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 23:05
+ * @lastEditTime: 2022-09-15 10:40
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -814,7 +814,7 @@ export class DataManager {
         // To avoid blocking UI, delay playing audio.
         playYoudaoWordAudioAfterDownloading(wordInfo);
         this.hasPlayedAudio = true;
-      }, 10);
+      }, 50);
     }
   }
 
