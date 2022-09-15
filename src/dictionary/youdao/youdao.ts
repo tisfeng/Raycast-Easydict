@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 16:21
+ * @lastEditTime: 2022-09-15 17:10
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -259,13 +259,13 @@ export async function requestYoudaoWebTranslate(
     console.warn(
       `---> invalid Youdao web translate language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`
     );
-    const nullResult: QueryTypeResult = {
+    const undefinedResult: QueryTypeResult = {
       type: type,
       result: undefined,
       wordInfo: queryWordInfo,
       translations: [],
     };
-    return Promise.resolve(nullResult);
+    return Promise.resolve(undefinedResult);
   }
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;

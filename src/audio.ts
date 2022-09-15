@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 10:28
+ * @lastEditTime: 2022-09-15 16:48
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,7 +20,7 @@ const audioDirPath = `${environment.supportPath}/audio`;
 console.log(`audio path: ${audioDirPath}`);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let audioPlayer: any;
+let audioPlayer: any; // Play
 
 /**
   use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
@@ -30,17 +30,20 @@ export function playWordAudio(word: string, fromLanguage: string, useSayCommand 
   if (!fs.existsSync(audioPath)) {
     console.log(`word audio file not found: ${word}`);
     if (useSayCommand) {
-      return sayTruncateCommand(word, fromLanguage);
+      sayTruncateCommand(word, fromLanguage);
     }
+    return;
   }
+
   console.log(`play local file audio: ${word}`);
 
   if (!audioPlayer) {
     audioPlayer = playerImport({});
+    console.log(`not exist, new a audioPlayer`);
   }
 
   // const audioPlayer = playerImport({});
-  return audioPlayer.play(audioPath, (err: ExecException) => {
+  audioPlayer.play(audioPath, (err: ExecException) => {
     if (err) {
       if (err.killed) {
         console.log("audio has been killed");
