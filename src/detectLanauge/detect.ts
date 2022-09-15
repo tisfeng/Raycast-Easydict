@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 22:18
+ * @lastEditTime: 2022-09-15 15:23
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -63,7 +63,7 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 
     raceDetectTextLanguage(detectActionList).then((detectedLanguage) => {
       if (!detectedLanguage) {
-        console.error(`use localDetectResult`);
+        console.log(`use localDetectResult`);
         resolve(localDetectResult);
       } else {
         const finalLanguageTypeResult = getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
@@ -79,24 +79,30 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 function raceDetectTextLanguage(
   detectActionList: Promise<LanguageDetectTypeResult>[]
 ): Promise<LanguageDetectTypeResult | undefined> {
+  let detectCount = 0;
   return new Promise((resolve) => {
-    detectActionList.forEach((detectAction, index) => {
+    detectActionList.forEach((detectAction) => {
       detectAction
         .then((detectTypeResult) => {
           handleDetectedLanguage(detectTypeResult).then((result) => {
             if (result) {
               resolve(result);
-              return;
             }
           });
         })
         .catch((error) => {
+          // If current API detect error, continue try next API.
           const errorInfo = error as RequestErrorInfo | undefined;
           if (errorInfo) {
             console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
+          } else {
+            console.log(`detect canceled`);
           }
-          // If current API detect error, continue try next API. If the last, return undefined.
-          if (index === detectActionList.length - 1) {
+        })
+        .finally(() => {
+          detectCount += 1;
+          // If the last detection action is still not resolve, return undefined.
+          if (detectCount === detectActionList.length - 1) {
             console.warn(`last detect action fail, return undefine`);
             resolve(undefined);
           }
