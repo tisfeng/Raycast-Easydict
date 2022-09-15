@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 16:12
+ * @lastEditTime: 2022-09-15 16:30
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -76,7 +76,7 @@ export class DataManager {
   };
 
   queryResults: QueryResult[] = [];
-  queryWordInfo = {} as QueryWordInfo; // later will must assign value
+  queryWordInfo = {} as QueryWordInfo; // later will must assign value.
 
   /**
    * when has new input text, need to cancel previous request.
@@ -95,9 +95,10 @@ export class DataManager {
   enableYoudaoDictionary = true;
 
   // abortObject: AbortObject = {};
-  abortController: AbortController | undefined;
+  abortController?: AbortController;
 
   delayQueryTimer?: NodeJS.Timeout;
+  delayAppleTranslateTimer?: NodeJS.Timeout;
   /**
    * Delay the time to call the query API. Since API has frequency limit.
    *
@@ -157,7 +158,7 @@ export class DataManager {
     this.queryCaiyunTranslate(queryWordInfo);
 
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
-    setTimeout(() => {
+    this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
     }, 1500);
 
@@ -186,6 +187,11 @@ export class DataManager {
 
     this.queryResults = [];
     this.updateListDisplaySections([]);
+
+    // clear delay Apple translate.
+    if (this.delayAppleTranslateTimer) {
+      clearTimeout(this.delayAppleTranslateTimer);
+    }
   }
 
   /**
