@@ -2,12 +2,13 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 20:34
+ * @lastEditTime: 2022-09-17 01:22
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
+import { LocalStorage } from "@raycast/api";
 import googleTranslateApi from "@vitalets/google-translate-api";
 import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
@@ -23,14 +24,16 @@ import { getTypeErrorInfo } from "../utils";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
 
+const isChinaStoredKey = "isChina";
+
+// async check if ip is in China, update value when startup.
+checkIfIpInChina();
+
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal
 ): Promise<QueryTypeResult> {
   console.log(`---> start request Google`);
-  const tld = await getTld();
-  queryWordInfo.tld = tld;
-
   // googleRPCTranslate(queryWordInfo, signal);
   return googleWebTranslate(queryWordInfo, signal);
 }
@@ -41,11 +44,17 @@ export async function requestGoogleTranslate(
  * * Google RPC cost more time than web translate. almost 1s > 0.4s.
  */
 async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  console.log(`start google RPC translate`);
+
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const fromLanguageId = getGoogleLanguageId(fromLanguage);
   const toLanguageId = getGoogleLanguageId(toLanguage);
-  const tld = queryWordInfo.tld ?? (await getTld());
+
+  const isChina = await checkIsChina();
+  const tld = isChina ? "cn" : "com";
+  queryWordInfo.isChina = isChina;
   queryWordInfo.tld = tld;
+  console.log(`google tld: ${tld}`);
 
   const proxy = process.env.PROXY || undefined;
   const httpsAgent = proxy ? new HttpsProxyAgent(proxy) : undefined;
@@ -134,6 +143,8 @@ export function googleLanguageDetect(text: string, signal = axios.defaults.signa
  * Another wild google translate api: http://translate.google.com/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
 export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  console.log(`start google web translate`);
+
   const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
   const data = {
@@ -142,8 +153,7 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     hl: toLanguageId, // hope language? web ui language
     q: queryWordInfo.word, // query word
   };
-  const tld = queryWordInfo.tld ?? (await getTld());
-  queryWordInfo.tld = tld;
+  const tld = queryWordInfo.tld || "cn";
 
   const headers = {
     "User-Agent": userAgent,
@@ -188,24 +198,31 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
 }
 
 /**
- * Get tld. if user has preferred Chinese language or ip in China, use cn, else use com.
+ * Check is China: has Chinese preferred language, or China IP.
  */
-async function getTld(): Promise<string> {
-  console.log(`---> get tld`);
-  let tld = "com"; // cn,com
-  if (checkIfPreferredLanguagesContainChinese() || (await checkIfIpInChina())) {
-    tld = "cn";
-    console.log(`---> China, or Chinese: ${checkIfPreferredLanguagesContainChinese()}`);
-  }
-  console.log(`---> google tld: ${tld}`);
-  return tld;
+export async function checkIsChina(): Promise<boolean> {
+  return new Promise((resolve) => {
+    LocalStorage.getItem<boolean>(isChinaStoredKey).then((isChina) => {
+      if (isChina !== undefined) {
+        return resolve(isChina);
+      }
+      if (checkIfPreferredLanguagesContainChinese()) {
+        return resolve(true);
+      }
+      checkIfIpInChina().then((isIpInChina) => {
+        resolve(isIpInChina);
+      });
+    });
+  });
 }
 
 /**
- * Get current ip address.
+ * Get current ip address, return 114.37.203.235.
+ *
+ * Ref: https://blog.csdn.net/uikoo9/article/details/113820051
  */
 export async function getCurrentIp(): Promise<string> {
-  const url = "http://icanhazip.com/"; // from https://blog.csdn.net/uikoo9/article/details/113820051
+  const url = "http://icanhazip.com/";
   try {
     const res = await axios.get(url);
     const ip = res.data.trim();
@@ -218,20 +235,27 @@ export async function getCurrentIp(): Promise<string> {
 }
 
 /**
- *  Check if ip is in China.
+ * Check if ip is in China. If error, default is true.
  *
- *  Todo: should store ip in LocalStorage.
+ * If request is succcessful, store value in LocalStorage.
  */
-async function checkIfIpInChina(): Promise<boolean> {
-  try {
-    const ipInfo = await getCurrentIpInfo();
-    const country = ipInfo.country;
-    console.warn(`---> country: ${country}`);
-    return Promise.resolve(country === "CN");
-  } catch (error) {
-    console.error(`checkIfIpInChina error: ${error}`);
-    return Promise.resolve(true);
-  }
+function checkIfIpInChina(): Promise<boolean> {
+  console.log(`check if ip in China`);
+
+  return new Promise((resolve) => {
+    getCurrentIpInfo()
+      .then((ipInfo) => {
+        const country = ipInfo.country;
+        const isChina = country === "CN";
+        LocalStorage.setItem(isChinaStoredKey, isChina);
+        console.warn(`---> ip country: ${country}`);
+        resolve(isChina);
+      })
+      .catch((error) => {
+        console.error(`checkIfIpInChina error: ${error}`);
+        resolve(true);
+      });
+  });
 }
 
 /**

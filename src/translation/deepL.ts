@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 22:24
+ * @lastEditTime: 2022-09-16 22:40
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -91,8 +91,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
           errorInfo.message = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
           if (wildEncryptedDeepLKeys.length) {
             getAndStoreDeepLKey(wildEncryptedDeepLKeys).then(() => {
-              requestDeepLTranslate(queryWordInfo);
-              return;
+              return requestDeepLTranslate(queryWordInfo);
             });
           }
         }
@@ -132,16 +131,20 @@ const wildEncryptedDeepLKeys = [
  * 3. if not found, use default deepL key.
  */
 export function getDeepLAuthKey(): Promise<string> {
+  console.log(`get deepL key`);
   return new Promise((resolve) => {
     const userKey = KeyStore.userDeepLAuthKey;
     if (userKey) {
-      // console.log(`---> user deepL key: ${userKey}`);
-      resolve(userKey);
+      console.log(`---> user has deepL key`);
+      return resolve(userKey);
     }
+
+    console.log(`---> get stored deepL key`);
 
     const decryptedKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
     LocalStorage.getItem<string>(deepLAuthStoredKey).then((key) => {
       if (key) {
+        console.log(`---> use stored deepL key`); // cost: 10 ms
         resolve(key);
       } else {
         console.warn(`no stored deepL key, use default key`);
