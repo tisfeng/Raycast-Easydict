@@ -13,6 +13,8 @@ export const userAgent =
 
 export const clipboardQueryTextKey = "clipboardQueryTextKey";
 
+export const isChinaKey = "isChina";
+
 export enum YoudaoErrorCode {
   Success = "0",
   TargetLanguageNotSupported = "102",

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 01:22
+ * @lastEditTime: 2022-09-17 13:30
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import * as cheerio from "cheerio";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
-import { userAgent } from "../consts";
+import { isChinaKey, userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
@@ -23,8 +23,6 @@ import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
-
-const isChinaStoredKey = "isChina";
 
 // async check if ip is in China, update value when startup.
 checkIfIpInChina();
@@ -202,7 +200,7 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
  */
 export async function checkIsChina(): Promise<boolean> {
   return new Promise((resolve) => {
-    LocalStorage.getItem<boolean>(isChinaStoredKey).then((isChina) => {
+    LocalStorage.getItem<boolean>(isChinaKey).then((isChina) => {
       if (isChina !== undefined) {
         return resolve(isChina);
       }
@@ -247,7 +245,7 @@ function checkIfIpInChina(): Promise<boolean> {
       .then((ipInfo) => {
         const country = ipInfo.country;
         const isChina = country === "CN";
-        LocalStorage.setItem(isChinaStoredKey, isChina);
+        LocalStorage.setItem(isChinaKey, isChina);
         console.warn(`---> ip country: ${country}`);
         resolve(isChina);
       })

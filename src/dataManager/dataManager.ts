@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 20:09
+ * @lastEditTime: 2022-09-17 12:59
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,6 +30,7 @@ import { requestBaiduTextTranslate } from "../translation/baidu";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
+import { requestWebBingTranslate } from "../translation/microsoft";
 import { requestTencentTranslate } from "../translation/tencent";
 import {
   DicionaryType,
@@ -161,6 +162,8 @@ export class DataManager {
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
     }, 1500);
+
+    requestWebBingTranslate(queryWordInfo);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
