@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 18:28
+ * @lastEditTime: 2022-09-17 18:49
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -70,7 +70,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
     token: token,
     key: key,
   };
-  console.log(`bing data: ${JSON.stringify(data, null, 4)}`);
+  console.log(`bing request data: ${JSON.stringify(data, null, 4)}`);
 
   const IIDString = `${IID}.${requestCount}`;
   if (queryWordInfo.isChina === false) {
@@ -140,7 +140,7 @@ function parseBingConfig(html: string): BingConfig | undefined {
   // IG:"C064D2C8D4F84111B96C9F14E2F5CE07"
   const IG = html.match(/IG:"(.*?)"/)?.[1];
   // data-iid="translator.5023"
-  const IID = html.match(/data-iid="(.*?)"/)?.[1] || "translator.5023";
+  const IID = html.match(/data-iid="(.*?)"/)?.[1];
   // var params_RichTranslateHelper = [1663259642763, "ETrbGhqGa5PwV8WL3sTYSBxsYRagh5bl", 3600000, true, null, false, "必应翻译", false, false, null, null];
   const params_RichTranslateHelper = html.match(/var params_RichTranslateHelper = (.*?);/)?.[1];
   if (IG && params_RichTranslateHelper) {
@@ -148,13 +148,13 @@ function parseBingConfig(html: string): BingConfig | undefined {
     const [key, token, tokenExpirationInterval] = paramsArray;
     const config: BingConfig = {
       IG: IG,
-      IID: IID,
+      IID: IID || "translator.5023",
       key: key,
       token: token,
       expirationInterval: tokenExpirationInterval,
       count: 1,
     };
-    console.log(`getBingConfig from web: ${JSON.stringify(config, null, 4)}`);
+    // console.log(`getBingConfig from web: ${JSON.stringify(config, null, 4)}`);
 
     bingConfig = config;
     LocalStorage.setItem(bingConfigKey, JSON.stringify(config));

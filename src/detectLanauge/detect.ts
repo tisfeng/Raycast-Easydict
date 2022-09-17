@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 19:45
+ * @lastEditTime: 2022-09-17 18:47
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -79,6 +79,7 @@ export function detectLanguage(text: string): Promise<LanguageDetectTypeResult> 
 function raceDetectTextLanguage(
   detectActionList: Promise<LanguageDetectTypeResult>[]
 ): Promise<LanguageDetectTypeResult | undefined> {
+  let isFinished = false;
   let detectCount = 0;
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction) => {
@@ -87,6 +88,7 @@ function raceDetectTextLanguage(
           handleDetectedLanguage(detectTypeResult).then((result) => {
             if (result) {
               resolve(result);
+              isFinished = true;
             }
           });
         })
@@ -102,7 +104,7 @@ function raceDetectTextLanguage(
         .finally(() => {
           detectCount += 1;
           // If the last detection action is still not resolve, return undefined.
-          if (detectCount === detectActionList.length) {
+          if (detectCount === detectActionList.length && isFinished === false) {
             console.warn(`last detect action fail, return undefine`);
             resolve(undefined);
           }

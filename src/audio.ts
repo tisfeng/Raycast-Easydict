@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-15 16:48
+ * @lastEditTime: 2022-09-17 18:35
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,8 +16,10 @@ import { languageItemList } from "./language/consts";
 import { trimTextLength } from "./utils";
 import playerImport = require("play-sound");
 
+console.log(`enter audio.ts`);
+
 const audioDirPath = `${environment.supportPath}/audio`;
-console.log(`audio path: ${audioDirPath}`);
+// console.log(`audio path: ${audioDirPath}`);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let audioPlayer: any; // Play

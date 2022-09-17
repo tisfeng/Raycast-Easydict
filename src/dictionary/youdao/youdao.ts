@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 13:52
+ * @lastEditTime: 2022-09-17 18:44
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,12 +44,12 @@ getYoudaoWebCookie();
  * Get youdao cookie from youdao web, and store it in local storage.
  */
 function getYoudaoWebCookie(): Promise<string> {
-  console.log("getYoudaoWebCookie");
+  console.log("start getYoudaoWebCookie");
 
   LocalStorage.getItem<string>(youdaoCookieStoredKey).then((cookie) => {
     if (cookie) {
       youdaoCookie = cookie;
-      console.log(`---> get youdaoCookie from local storage: ${youdaoCookie}`);
+      // console.log(`---> get youdaoCookie from local storage: ${youdaoCookie}`);
     }
   });
 
@@ -300,7 +300,7 @@ export async function requestYoudaoWebTranslate(
     console.log(`no stored Youdao cookie`);
     youdaoCookie = await getYoudaoWebCookie();
   }
-  console.log(`youdaoCookie: ${youdaoCookie}`);
+  // console.log(`youdaoCookie: ${youdaoCookie}`);
 
   const headers = {
     "User-Agent": userAgent,
