@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 13:30
+ * @lastEditTime: 2022-09-17 23:57
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,8 +14,8 @@ import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import querystring from "node:querystring";
-import { requestCostTime } from "../axiosConfig";
-import { isChinaKey, userAgent } from "../consts";
+import { checkIfIpInChina } from "../checkIP";
+import { isChineseIPKey, userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
@@ -23,9 +23,6 @@ import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
 import { GoogleTranslateResult } from "./../types";
-
-// async check if ip is in China, update value when startup.
-checkIfIpInChina();
 
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
@@ -50,7 +47,6 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
 
   const isChina = await checkIsChina();
   const tld = isChina ? "cn" : "com";
-  queryWordInfo.isChina = isChina;
   queryWordInfo.tld = tld;
   console.log(`google tld: ${tld}`);
 
@@ -78,6 +74,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
           return reject(undefined);
         }
 
+        checkIfIpInChina();
         console.error(`google rpc error message: ${error.message}`);
         console.error(`googleRPCTranslate error: ${JSON.stringify(error, null, 4)}`);
         const errorInfo = getTypeErrorInfo(TranslationType.Google, error);
@@ -196,89 +193,21 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
 }
 
 /**
- * Check is China: has Chinese preferred language, or China IP.
+ * Check is China: has Chinese preferred language, or Chinese IP.
  */
 export async function checkIsChina(): Promise<boolean> {
+  if (checkIfPreferredLanguagesContainChinese()) {
+    return true;
+  }
+
   return new Promise((resolve) => {
-    LocalStorage.getItem<boolean>(isChinaKey).then((isChina) => {
+    LocalStorage.getItem<boolean>(isChineseIPKey).then((isChina) => {
       if (isChina !== undefined) {
         return resolve(isChina);
-      }
-      if (checkIfPreferredLanguagesContainChinese()) {
-        return resolve(true);
       }
       checkIfIpInChina().then((isIpInChina) => {
         resolve(isIpInChina);
       });
     });
   });
-}
-
-/**
- * Get current ip address, return 114.37.203.235.
- *
- * Ref: https://blog.csdn.net/uikoo9/article/details/113820051
- */
-export async function getCurrentIp(): Promise<string> {
-  const url = "http://icanhazip.com/";
-  try {
-    const res = await axios.get(url);
-    const ip = res.data.trim();
-    console.warn(`---> current ip: ${ip}, cost ${res.headers["requestCostTime"]} ms`);
-    return Promise.resolve(ip);
-  } catch (error) {
-    console.error(`getCurrentIp error: ${error}`);
-    return Promise.reject(error);
-  }
-}
-
-/**
- * Check if ip is in China. If error, default is true.
- *
- * If request is succcessful, store value in LocalStorage.
- */
-function checkIfIpInChina(): Promise<boolean> {
-  console.log(`check if ip in China`);
-
-  return new Promise((resolve) => {
-    getCurrentIpInfo()
-      .then((ipInfo) => {
-        const country = ipInfo.country;
-        const isChina = country === "CN";
-        LocalStorage.setItem(isChinaKey, isChina);
-        console.warn(`---> ip country: ${country}`);
-        resolve(isChina);
-      })
-      .catch((error) => {
-        console.error(`checkIfIpInChina error: ${error}`);
-        resolve(true);
-      });
-  });
-}
-
-/**
- * Get current ip info.
- * 
- * curl https://ipinfo.io
-{
-  "ip": "120.240.53.42",
-  "city": "Zhanjiang",
-  "region": "Guangdong",
-  "country": "CN",
-  "loc": "21.2339,110.3875",
-  "org": "AS9808 China Mobile Communications Group Co., Ltd.",
-  "timezone": "Asia/Shanghai",
-  "readme": "https://ipinfo.io/missingauth"
-}
- */
-async function getCurrentIpInfo() {
-  try {
-    const url = "https://ipinfo.io";
-    const res = await axios.get(url);
-    console.warn(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers[requestCostTime]} ms`);
-    return Promise.resolve(res.data);
-  } catch (error) {
-    console.error(`getCurrentIp error: ${error}`);
-    return Promise.reject(error);
-  }
 }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-13 11:34
+ * @lastEditTime: 2022-09-18 01:25
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,8 +45,11 @@ function configDefaultAxios() {
 
 /**
  * Check if need to use proxy. if yes, config axios proxy, if no, clear proxy config.
+ *
+ * Todo: convert to Promise, wait for proxy config, then start request.
  */
 export function configUserAxiosProxy() {
+  console.log(`---> configUserAxiosProxy`);
   if (myPreferences.enableSystemProxy) {
     /**
      * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
@@ -54,19 +57,23 @@ export function configUserAxiosProxy() {
      */
 
     const env = process.env;
+    // Raycast default "PATH": "/usr/bin:undefined"
+    // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
+
     // env.PATH = "/usr/sbin"; // $ where scutil
     env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
     // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
 
     if (environment.isDevelopment) {
       /**
-       * handle error: unable to verify the first certificate
+       * handle error: unable to verify the first certificate.
        *
        * Ref: https://stackoverflow.com/questions/31673587/error-unable-to-verify-the-first-certificate-in-nodejs
        */
       // env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     }
 
+    // * This function will cost 0.3s
     getMacSystemProxy()
       .then((systemProxy) => {
         if (systemProxy) {

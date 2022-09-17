@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-20 11:10
+ * @lastEditTime: 2022-09-18 01:19
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -87,6 +87,7 @@ export default function () {
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
+    console.log(`setup when extension is activated.`);
     if (myPreferences.enableAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
     }

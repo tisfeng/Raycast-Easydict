@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 18:49
+ * @lastEditTime: 2022-09-18 01:12
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,23 +11,33 @@
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
 import qs from "qs";
+import { checkIfIpInChina } from "../checkIP";
 import { userAgent } from "../consts";
-import { checkIfPreferredLanguagesContainChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { requestCostTime } from "./../axiosConfig";
-import { isChinaKey } from "./../consts";
+import { isChineseIPKey } from "./../consts";
 
 console.log(`enter microsoft.ts`);
 
 const bingConfigKey = "BingConfig";
 
-// China have to use "cn.bing.com", other country use "www.bing.com"
-let bingTld = "cn";
-
+// * bing tld depends ip, if ip is in china, `must` use cn.bing.com, otherwise use www.bing.com. And vice versa.
+let bingTld: string | undefined;
 let bingConfig: BingConfig | undefined;
 
-// Check if token expired, if expired, get a new one. Else, use the stored one as bingConfig.
-checkIfBingTokenExpired();
+// First check user ip, then check if bing token expired, if expired, get a new one. else use the stored one as bingConfig.
+LocalStorage.getItem<boolean>(isChineseIPKey).then((isChineseIP) => {
+  if (isChineseIP === undefined) {
+    checkIfIpInChina().then((isIpInChina) => {
+      LocalStorage.setItem(isChineseIPKey, isIpInChina);
+      bingTld = getBingTld(isIpInChina);
+      checkIfBingTokenExpired();
+    });
+  } else {
+    bingTld = getBingTld(isChineseIP);
+    checkIfBingTokenExpired();
+  }
+});
 
 interface BingConfig {
   IG: string; // F4D70DC299D549CE824BFCD7506749E7
@@ -49,7 +59,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
 
   if (!bingConfig) {
     console.log(`no stored bingConfig, get a new one`);
-    bingConfig = await getBingConfig();
+    bingConfig = await requestBingConfig();
     if (!bingConfig) {
       console.error(`get bingConfig failed`);
       return;
@@ -73,8 +83,10 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
   console.log(`bing request data: ${JSON.stringify(data, null, 4)}`);
 
   const IIDString = `${IID}.${requestCount}`;
-  if (queryWordInfo.isChina === false) {
-    bingTld = "www";
+
+  if (!bingTld) {
+    const isChineseIP = await checkIfIpInChina();
+    bingTld = getBingTld(isChineseIP);
   }
 
   const url = `https://${bingTld}.bing.com/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
@@ -91,8 +103,17 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
 
   axios(config)
     .then(function (response) {
+      const bingResult = response.data;
       console.log(`bing cost time: ${response.headers[requestCostTime]}`);
-      console.warn(`bing translate response: ${JSON.stringify(response.data, null, 4)}`);
+      console.warn(`bing translate response: ${JSON.stringify(bingResult, null, 4)}`);
+
+      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then get a new token.
+      if (!bingResult) {
+        checkIfIpInChina().then((isIpInChina) => {
+          bingTld = isIpInChina ? "cn" : "www";
+          requestBingConfig();
+        });
+      }
     })
     .catch(function (error) {
       console.error(`bing translate error: ${error}`);
@@ -100,36 +121,41 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
 }
 
 /**
- * Get Bing Translator API Token from web.
+ * Request Bing Translator API Token from web.
  *
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
-function getBingConfig(): Promise<BingConfig | undefined> {
-  console.log(`start getBingConfig`);
+async function requestBingConfig(): Promise<BingConfig | undefined> {
+  console.log(`start requestBingConfig`);
+
+  // * tld should depends on user current IP.
+  if (!bingTld) {
+    const isChineseIP = await checkIfIpInChina();
+    bingTld = getBingTld(isChineseIP);
+  }
 
   return new Promise((resolve) => {
-    LocalStorage.getItem<boolean>(isChinaKey).then((isChina) => {
-      const isChinese = checkIfPreferredLanguagesContainChinese();
-      if (isChina === false || isChinese === false) {
-        bingTld = "www";
-      }
-      const url = `https://${bingTld}.bing.com/translator`;
-      console.log(`get bing config url: ${url}`);
+    const url = `https://${bingTld}.bing.com/translator`;
+    console.log(`get bing config url: ${url}`);
 
-      axios
-        .get(url, { headers: { "User-Agent": userAgent } })
-        .then((response) => {
-          const config = parseBingConfig(response.data as string);
-          if (config) {
-            bingConfig = config;
-            resolve(config);
-            LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
-          }
-        })
-        .catch((error) => {
-          console.error(`getBingConfig error: ${error}`);
-        });
-    });
+    axios
+      .get(url, { headers: { "User-Agent": userAgent } })
+      .then((response) => {
+        const config = parseBingConfig(response.data as string);
+        console.log(`get bing config cost time: ${response.headers[requestCostTime]}`);
+
+        if (config) {
+          bingConfig = config;
+          resolve(config);
+          LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
+        } else {
+          console.warn(`parse bing config failed`);
+          checkIfIpInChina();
+        }
+      })
+      .catch((error) => {
+        console.error(`requestBingConfig error: ${error}`);
+      });
   });
 }
 
@@ -163,29 +189,37 @@ function parseBingConfig(html: string): BingConfig | undefined {
 }
 
 /**
- * Check if token is expired, if expired, get a new one.
+ * Check if token expired, if expired, get a new one. else use the stored one as bingConfig.
  */
 function checkIfBingTokenExpired(): Promise<boolean> {
   console.log(`check if bing token expired`);
   return new Promise((resolve) => {
     LocalStorage.getItem<string>(bingConfigKey).then((value) => {
       if (!value) {
-        getBingConfig();
+        requestBingConfig();
         return resolve(true);
       }
 
-      console.log(`stored bingConfig: ${JSON.stringify(value, null, 4)}`);
+      // console.log(`stored bingConfig: ${JSON.stringify(value, null, 4)}`);
       const config = JSON.parse(value) as BingConfig;
-
       const { key, expirationInterval: tokenExpirationInterval } = config;
       const tokenStartTime = parseInt(key);
       const isExpired = Date.now() - tokenStartTime > parseInt(tokenExpirationInterval);
       if (isExpired) {
-        getBingConfig();
+        requestBingConfig();
       } else {
         bingConfig = config;
       }
       resolve(isExpired);
     });
   });
+}
+
+/**
+ * Get bing tld from ip.  Chinese ip, use cn.bing.com, otherwise use www.bing.com
+ */
+function getBingTld(isChineseIP: boolean): string {
+  const tld = isChineseIP ? "cn" : "www";
+  console.log(`get bing tld: ${tld}`);
+  return tld;
 }
