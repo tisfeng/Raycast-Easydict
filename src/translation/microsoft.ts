@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 18:25
+ * @lastEditTime: 2022-09-18 22:13
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -166,13 +166,13 @@ function parseBingConfig(html: string): BingConfig | undefined {
   const params_RichTranslateHelper = html.match(/var params_RichTranslateHelper = (.*?);/)?.[1];
   if (IG && params_RichTranslateHelper) {
     const paramsArray = JSON.parse(params_RichTranslateHelper);
-    const [key, token, tokenExpirationInterval] = paramsArray;
+    const [key, token, expirationInterval] = paramsArray;
     const config: BingConfig = {
       IG: IG,
       IID: IID || "translator.5023",
       key: key,
       token: token,
-      expirationInterval: tokenExpirationInterval,
+      expirationInterval: expirationInterval,
       count: 1,
     };
     // console.log(`getBingConfig from web: ${JSON.stringify(config, null, 4)}`);
@@ -197,13 +197,19 @@ function checkIfBingTokenExpired(): Promise<boolean> {
 
       // console.log(`stored bingConfig: ${JSON.stringify(value, null, 4)}`);
       const config = JSON.parse(value) as BingConfig;
-      const { key, expirationInterval: tokenExpirationInterval } = config;
+      const { key, expirationInterval } = config;
       const tokenStartTime = parseInt(key);
-      const isExpired = Date.now() - tokenStartTime > parseInt(tokenExpirationInterval);
+      const expiration = parseInt(expirationInterval);
+      // default expiration is 10 min, for better experience, we request token after 5 min.
+      const tokenUsedTime = Date.now() - tokenStartTime;
+      const isExpired = tokenUsedTime > expiration;
       if (isExpired) {
         requestBingConfig();
       } else {
         bingConfig = config;
+        if (tokenUsedTime > expiration / 2) {
+          requestBingConfig();
+        }
       }
       resolve(isExpired);
     });
