@@ -303,7 +303,7 @@
       "type": "checkbox",
       "label": "Show Open In Eudic",
       "required": false,
-      "description": "Show Open In Eudic in action panel if Eudic is installed",
+      "description": "Show `Open In Eudic` in action panel if Eudic is installed",
       "default": true
     },
     {
@@ -311,13 +311,13 @@
       "type": "checkbox",
       "label": "Automatic Play Word Audio",
       "required": false,
-      "description": "Automatic play audio after looking up a word",
+      "description": "Automatic play audio after looking up a `English` word",
       "default": true
     },
     {
       "name": "enableLanguageDetectionSpeedFirst",
       "type": "checkbox",
-      "label": "Language Detection Speed First",
+      "label": "Detect Language Speed First",
       "required": false,
       "description": "Turned on by default, the speed and accuracy of language detection is well balanced. Turn off if you want more accurate language detection, but slower.",
       "default": true
@@ -422,7 +422,7 @@
       "default": false
     },
     {
-      "title": "Services Order",
+      "title": "Display Order",
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
