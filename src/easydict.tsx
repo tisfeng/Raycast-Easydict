@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 11:30
+ * @lastEditTime: 2022-09-18 17:07
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,21 +96,15 @@ export default function () {
         .then(([selectedText]) => {
           console.log(`after config proxy, getSelectedText: ${selectedText}`);
           console.log(`config proxy and get text cost time: ${Date.now() - startTime} ms`);
-
-          selectedText = trimTextLength(selectedText);
-          updateInputTextAndQueryText(selectedText, false);
+          updateInputTextAndQueryText(trimTextLength(selectedText), false);
         })
         .catch((error) => {
           console.log(`set up, config proxy error: ${error}`);
           tryQuerySelecedtText();
         });
-    }
-
-    if (myPreferences.enableAutomaticQuerySelectedText && !myPreferences.enableSystemProxy) {
+    } else if (myPreferences.enableAutomaticQuerySelectedText) {
       tryQuerySelecedtText();
-    }
-
-    if (myPreferences.enableSystemProxy && !myPreferences.enableAutomaticQuerySelectedText) {
+    } else if (myPreferences.enableSystemProxy) {
       configAxiosProxy();
     }
 

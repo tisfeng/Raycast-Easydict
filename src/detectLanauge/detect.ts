@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 18:47
+ * @lastEditTime: 2022-09-18 18:38
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -173,6 +173,7 @@ function handleDetectedLanguage(
 
   // If this API detected language is not confirmed, record it in the apiDetectedLanguage.
   apiDetectedLanguageList.push(apiDetectedLanguage);
+  console.log(`${apiDetectedLanguage.type} detected language is not confirmed, ${detectedLanguageId}}`);
 
   return Promise.resolve(undefined);
 }
