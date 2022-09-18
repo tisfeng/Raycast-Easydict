@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 16:41
+ * @lastEditTime: 2022-09-18 18:29
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -200,11 +200,13 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
 
 /**
  * Check is China: has Chinese preferred language, or Chinese IP.
- *
- * For speed, first, check if stored isChineseIP, then check perferred language, last get IP info.
  */
 export async function checkIsChina(): Promise<boolean> {
   console.log(`check is China`);
+
+  if (checkIfPreferredLanguagesContainChinese()) {
+    return Promise.resolve(true);
+  }
 
   return new Promise((resolve) => {
     LocalStorage.getItem<boolean>(isChineseIPKey).then((isChina) => {
@@ -212,10 +214,6 @@ export async function checkIsChina(): Promise<boolean> {
 
       if (isChina !== undefined) {
         return resolve(isChina);
-      }
-
-      if (checkIfPreferredLanguagesContainChinese()) {
-        return resolve(true);
       }
 
       checkIfIpInChina().then((isIpInChina) => {
