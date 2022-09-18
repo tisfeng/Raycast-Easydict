@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 01:12
+ * @lastEditTime: 2022-09-18 16:20
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,13 +27,7 @@ let bingConfig: BingConfig | undefined;
 
 // First check user ip, then check if bing token expired, if expired, get a new one. else use the stored one as bingConfig.
 LocalStorage.getItem<boolean>(isChineseIPKey).then((isChineseIP) => {
-  if (isChineseIP === undefined) {
-    checkIfIpInChina().then((isIpInChina) => {
-      LocalStorage.setItem(isChineseIPKey, isIpInChina);
-      bingTld = getBingTld(isIpInChina);
-      checkIfBingTokenExpired();
-    });
-  } else {
+  if (isChineseIP !== undefined) {
     bingTld = getBingTld(isChineseIP);
     checkIfBingTokenExpired();
   }

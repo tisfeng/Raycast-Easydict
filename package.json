@@ -327,7 +327,7 @@
       "type": "checkbox",
       "label": "Use System Proxy",
       "required": false,
-      "description": "Request through system proxy",
+      "description": "Note that it should only be enabled if needed, as it can slow down requests.",
       "default": false
     },
     {

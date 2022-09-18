@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 01:19
+ * @lastEditTime: 2022-09-18 11:30
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configUserAxiosProxy } from "./axiosConfig";
+import { configAxiosProxy } from "./axiosConfig";
 import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager/dataManager";
 import { QueryWordInfo } from "./dictionary/youdao/types";
@@ -88,11 +88,31 @@ export default function () {
    */
   function setup() {
     console.log(`setup when extension is activated.`);
-    if (myPreferences.enableAutomaticQuerySelectedText) {
+    const startTime = Date.now();
+
+    // In this case, must wait for the proxy to be configured before request.
+    if (myPreferences.enableAutomaticQuerySelectedText && myPreferences.enableSystemProxy) {
+      Promise.all([getSelectedText(), configAxiosProxy()])
+        .then(([selectedText]) => {
+          console.log(`after config proxy, getSelectedText: ${selectedText}`);
+          console.log(`config proxy and get text cost time: ${Date.now() - startTime} ms`);
+
+          selectedText = trimTextLength(selectedText);
+          updateInputTextAndQueryText(selectedText, false);
+        })
+        .catch((error) => {
+          console.log(`set up, config proxy error: ${error}`);
+          tryQuerySelecedtText();
+        });
+    }
+
+    if (myPreferences.enableAutomaticQuerySelectedText && !myPreferences.enableSystemProxy) {
       tryQuerySelecedtText();
     }
 
-    configUserAxiosProxy();
+    if (myPreferences.enableSystemProxy && !myPreferences.enableAutomaticQuerySelectedText) {
+      configAxiosProxy();
+    }
 
     checkIfInstalledEudic().then((isInstalled) => {
       setIsInstalledEudic(isInstalled);

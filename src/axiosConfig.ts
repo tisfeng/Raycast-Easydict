@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 01:25
+ * @lastEditTime: 2022-09-18 16:45
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,67 +46,75 @@ function configDefaultAxios() {
 /**
  * Check if need to use proxy. if yes, config axios proxy, if no, clear proxy config.
  *
- * Todo: convert to Promise, wait for proxy config, then start request.
+ * * Note: get system proxy need ~0.4s
  */
-export function configUserAxiosProxy() {
+export function configAxiosProxy(): Promise<void> {
   console.log(`---> configUserAxiosProxy`);
-  if (myPreferences.enableSystemProxy) {
-    /**
-     * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
-     * Detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
-     */
 
-    const env = process.env;
-    // Raycast default "PATH": "/usr/bin:undefined"
-    // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
-
-    // env.PATH = "/usr/sbin"; // $ where scutil
-    env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
-    // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
-
-    if (environment.isDevelopment) {
+  return new Promise((resolve, reject) => {
+    if (myPreferences.enableSystemProxy) {
       /**
-       * handle error: unable to verify the first certificate.
-       *
-       * Ref: https://stackoverflow.com/questions/31673587/error-unable-to-verify-the-first-certificate-in-nodejs
+       * * Note: need to set env.PATH manually, otherwise will get error: "Error: spawn scutil ENOENT"
+       * Detail:  https://github.com/httptoolkit/mac-system-proxy/issues/1
        */
-      // env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-    }
 
-    // * This function will cost 0.3s
-    getMacSystemProxy()
-      .then((systemProxy) => {
-        if (systemProxy) {
-          // console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
-          if (systemProxy.HTTPEnable) {
-            const proxyOptions: HttpsProxyAgentOptions = {
-              host: systemProxy.HTTPProxy,
-              port: systemProxy.HTTPPort,
-            };
-            const httpsAgent = new HttpsProxyAgent(proxyOptions);
-            // httpsAgent.options.ca = require("ssl-root-cas/latest").create();
-            axios.defaults.httpsAgent = httpsAgent;
-            // set proxy to env, so we can use it in other modules.
-            env.PROXY = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
-            console.log(`---> use http system proxy: ${JSON.stringify(proxyOptions, null, 4)}`);
+      const env = process.env;
+      // Raycast default "PATH": "/usr/bin:undefined"
+      // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
+
+      // env.PATH = "/usr/sbin"; // $ where scutil
+      env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
+      // console.log(`---> env: ${JSON.stringify(env, null, 2)}`);
+
+      if (environment.isDevelopment) {
+        /**
+         * handle error: unable to verify the first certificate.
+         *
+         * Ref: https://stackoverflow.com/questions/31673587/error-unable-to-verify-the-first-certificate-in-nodejs
+         */
+        // env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+      }
+
+      const startTime = Date.now();
+      getMacSystemProxy()
+        .then((systemProxy) => {
+          if (systemProxy) {
+            // console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
+            if (systemProxy.HTTPEnable) {
+              const proxyOptions: HttpsProxyAgentOptions = {
+                host: systemProxy.HTTPProxy,
+                port: systemProxy.HTTPPort,
+              };
+              const httpsAgent = new HttpsProxyAgent(proxyOptions);
+              // httpsAgent.options.ca = require("ssl-root-cas/latest").create();
+              axios.defaults.httpsAgent = httpsAgent;
+              // set proxy to env, so we can use it in other modules.
+              env.PROXY = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
+              console.log(`---> use http system proxy: ${JSON.stringify(proxyOptions, null, 4)}`);
+              console.log(`get system proxy cost: ${Date.now() - startTime} ms`);
+
+              resolve();
+            }
           }
-        }
-      })
-      .catch((err) => {
-        console.error(`---> get system proxy error: ${JSON.stringify(err, null, 2)}`);
-        showToast({
-          style: Toast.Style.Failure,
-          title: `Get system proxy error`,
-          message: `${JSON.stringify(err)}`,
+        })
+        .catch((err) => {
+          console.error(`---> get system proxy error: ${JSON.stringify(err, null, 2)}`);
+          showToast({
+            style: Toast.Style.Failure,
+            title: `Get system proxy error`,
+            message: `${JSON.stringify(err)}`,
+          });
+          reject(err);
+        })
+        .finally(() => {
+          // ! need to reset env.PATH, otherwise, will throw error: '/bin/sh: osascript: command not found'
+          delete env.PATH; // env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
         });
-      })
-      .finally(() => {
-        // ! need to reset env.PATH, otherwise, will throw error: '/bin/sh: osascript: command not found'
-        delete env.PATH; // env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
-      });
-  } else {
-    console.log("disable system proxy");
-    axios.defaults.httpsAgent = undefined;
-    delete process.env.PROXY;
-  }
+    } else {
+      console.log("disable system proxy");
+      axios.defaults.httpsAgent = undefined;
+      delete process.env.PROXY;
+      resolve();
+    }
+  });
 }

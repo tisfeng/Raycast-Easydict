@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 23:57
+ * @lastEditTime: 2022-09-18 16:41
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -48,7 +48,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
   const isChina = await checkIsChina();
   const tld = isChina ? "cn" : "com";
   queryWordInfo.tld = tld;
-  console.log(`google tld: ${tld}`);
+  console.log(`google RPC tld: ${tld}`);
 
   const proxy = process.env.PROXY || undefined;
   const httpsAgent = proxy ? new HttpsProxyAgent(proxy) : undefined;
@@ -148,13 +148,19 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     hl: toLanguageId, // hope language? web ui language
     q: queryWordInfo.word, // query word
   };
-  const tld = queryWordInfo.tld || "cn";
+
+  let tld = queryWordInfo.tld;
+  if (!tld) {
+    const isChina = await checkIsChina();
+    tld = isChina ? "cn" : "com";
+    queryWordInfo.tld = tld;
+  }
 
   const headers = {
     "User-Agent": userAgent,
   };
   const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
-  console.log(`---> google url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
+  console.log(`---> google web url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
   return new Promise<QueryTypeResult>((resolve, reject) => {
     axios
@@ -194,17 +200,24 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
 
 /**
  * Check is China: has Chinese preferred language, or Chinese IP.
+ *
+ * For speed, first, check if stored isChineseIP, then check perferred language, last get IP info.
  */
 export async function checkIsChina(): Promise<boolean> {
-  if (checkIfPreferredLanguagesContainChinese()) {
-    return true;
-  }
+  console.log(`check is China`);
 
   return new Promise((resolve) => {
     LocalStorage.getItem<boolean>(isChineseIPKey).then((isChina) => {
+      console.log(`checkIsChina: ${isChina}`);
+
       if (isChina !== undefined) {
         return resolve(isChina);
       }
+
+      if (checkIfPreferredLanguagesContainChinese()) {
+        return resolve(true);
+      }
+
       checkIfIpInChina().then((isIpInChina) => {
         resolve(isIpInChina);
       });
