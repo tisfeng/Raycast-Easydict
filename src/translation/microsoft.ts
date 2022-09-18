@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 16:20
+ * @lastEditTime: 2022-09-18 18:25
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -101,11 +101,12 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
       console.log(`bing cost time: ${response.headers[requestCostTime]}`);
       console.warn(`bing translate response: ${JSON.stringify(bingResult, null, 4)}`);
 
-      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then get a new token.
+      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
       if (!bingResult) {
         checkIfIpInChina().then((isIpInChina) => {
-          bingTld = isIpInChina ? "cn" : "www";
-          requestBingConfig();
+          bingTld = getBingTld(isIpInChina);
+          console.log(`bing tld is changed to: ${bingTld}, try request bing again`);
+          requestWebBingTranslate(queryWordInfo);
         });
       }
     })
