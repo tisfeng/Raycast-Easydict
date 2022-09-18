@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 22:13
+ * @lastEditTime: 2022-09-18 23:07
  * @fileName: microsoft.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -118,6 +118,8 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
 /**
  * Request Bing Translator API Token from web.
  *
+ * * Note: the token is valid for both www.bing.com and cn.bing.com.
+ *
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
 async function requestBingConfig(): Promise<BingConfig | undefined> {
@@ -136,7 +138,8 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
     axios
       .get(url, { headers: { "User-Agent": userAgent } })
       .then((response) => {
-        const config = parseBingConfig(response.data as string);
+        const html = response.data as string;
+        const config = parseBingConfig(html);
         console.log(`get bing config cost time: ${response.headers[requestCostTime]}`);
 
         if (config) {
@@ -144,8 +147,16 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
           resolve(config);
           LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
         } else {
-          console.warn(`parse bing config failed`);
-          checkIfIpInChina();
+          console.warn(`parse bing config failed, html: ${html}`);
+          console.log(`try check if ip in china`);
+          checkIfIpInChina().then((isIpInChina) => {
+            const tld = getBingTld(isIpInChina);
+            if (tld !== bingTld) {
+              bingTld = tld;
+              console.log(`bing tld is changed to: ${bingTld}, try request bing config again`);
+              return requestBingConfig();
+            }
+          });
         }
       })
       .catch((error) => {
