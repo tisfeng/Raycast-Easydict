@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-17 12:59
+ * @lastEditTime: 2022-09-19 00:56
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,7 @@ import { requestBaiduTextTranslate } from "../translation/baidu";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
-import { requestWebBingTranslate } from "../translation/microsoft";
+import { requestWebBingTranslate } from "../translation/microsoft/bing";
 import { requestTencentTranslate } from "../translation/tencent";
 import {
   DicionaryType,
@@ -154,6 +154,7 @@ export class DataManager {
 
     // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
     this.queryGoogleTranslate(queryWordInfo, this.abortController);
+    this.queryBingTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
@@ -162,8 +163,6 @@ export class DataManager {
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
     }, 1500);
-
-    requestWebBingTranslate(queryWordInfo);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
@@ -485,6 +484,28 @@ export class DataManager {
   }
 
   /**
+   * Query Bing translate.
+   */
+  private queryBingTranslate(queryWordInfo: QueryWordInfo) {
+    const type = TranslationType.Bing;
+    this.addQueryToRecordList(type);
+
+    requestWebBingTranslate(queryWordInfo)
+      .then((bingTypeResult) => {
+        const queryResult: QueryResult = {
+          type: type,
+          sourceResult: bingTypeResult,
+        };
+        this.updateTranslationDisplay(queryResult);
+      })
+      .catch((error) => {
+        showErrorToast(error);
+      })
+      .finally(() => {
+        this.removeQueryFromRecordList(type);
+      });
+  }
+  /**
    * Query apple translate.
    */
   private queryAppleTranslate(queryWordInfo: QueryWordInfo, abortController?: AbortController) {
@@ -675,7 +696,7 @@ export class DataManager {
    */
   private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
-    // console.log(`---> updateTranslationDisplay: ${type}`);
+    console.log(`---> updateTranslationDisplay: ${type}`);
     if (!sourceResult.result) {
       console.warn(`---> ${type} result is empty.`);
       return;

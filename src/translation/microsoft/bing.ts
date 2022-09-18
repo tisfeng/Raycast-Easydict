@@ -1,9 +1,10 @@
+import { RequestErrorInfo, TranslationType } from "./../../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 23:07
- * @fileName: microsoft.ts
+ * @lastEditTime: 2022-09-19 01:23
+ * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
@@ -11,11 +12,14 @@
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
 import qs from "qs";
-import { checkIfIpInChina } from "../checkIP";
-import { userAgent } from "../consts";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { requestCostTime } from "./../axiosConfig";
-import { isChineseIPKey } from "./../consts";
+import { requestCostTime } from "../../axiosConfig";
+import { checkIfIpInChina } from "../../checkIP";
+import { isChineseIPKey, userAgent } from "../../consts";
+import { QueryWordInfo } from "../../dictionary/youdao/types";
+import { getBingLanguageId } from "../../language/languages";
+import { QueryTypeResult } from "../../types";
+import { getTypeErrorInfo } from "../../utils";
+import { BingConfig, BingTranslateResult } from "./types";
 
 console.log(`enter microsoft.ts`);
 
@@ -33,30 +37,30 @@ LocalStorage.getItem<boolean>(isChineseIPKey).then((isChineseIP) => {
   }
 });
 
-interface BingConfig {
-  IG: string; // F4D70DC299D549CE824BFCD7506749E7
-  IID: string; // translator.5023
-  key: string; // key is timestamp: 1663381745198
-  token: string; // -2ptk6FgbTk2jgZWATe8L_VpY9A_niur
-  expirationInterval: string; // 3600000, 10 min
-  count: number; // current token request count, default is 1.
-}
-
 /**
  * Request Microsoft Bing Web Translator.
  */
-export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
+export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`start requestWebBingTranslate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  console.log(`fromLanguage: ${fromLanguage}, toLanguage: ${toLanguage}, word: ${word}`);
+  const fromLang = getBingLanguageId(fromLanguage);
+  const toLang = getBingLanguageId(toLanguage);
+
+  const type = TranslationType.Bing;
 
   if (!bingConfig) {
     console.log(`no stored bingConfig, get a new one`);
     bingConfig = await requestBingConfig();
     if (!bingConfig) {
       console.error(`get bingConfig failed`);
-      return;
+
+      const errorInfo: RequestErrorInfo = {
+        type: type,
+        message: "Get bing config failed",
+      };
+
+      return Promise.reject(errorInfo);
     }
   }
 
@@ -66,11 +70,10 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
   bingConfig.count = requestCount;
   LocalStorage.setItem(bingConfigKey, JSON.stringify(bingConfig));
 
-  // Todo: convert fromLanguage and toLanguage to bing language code.
   const data = {
-    fromLang: "auto-detect",
     text: word,
-    to: "zh-Hans",
+    fromLang: fromLang,
+    to: toLang,
     token: token,
     key: key,
   };
@@ -95,24 +98,57 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo) {
     data: qs.stringify(data),
   };
 
-  axios(config)
-    .then(function (response) {
-      const bingResult = response.data;
-      console.log(`bing cost time: ${response.headers[requestCostTime]}`);
-      console.warn(`bing translate response: ${JSON.stringify(bingResult, null, 4)}`);
+  return new Promise((resolve, reject) => {
+    axios(config)
+      .then(function (response) {
+        const responseData = response.data;
+        console.log(`bing cost time: ${response.headers[requestCostTime]}`);
 
-      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
-      if (!bingResult) {
-        checkIfIpInChina().then((isIpInChina) => {
-          bingTld = getBingTld(isIpInChina);
-          console.log(`bing tld is changed to: ${bingTld}, try request bing again`);
-          requestWebBingTranslate(queryWordInfo);
-        });
-      }
-    })
-    .catch(function (error) {
-      console.error(`bing translate error: ${error}`);
-    });
+        // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
+        if (!responseData) {
+          console.log(`bing translate response is empty`);
+          checkIfIpInChina().then((isIpInChina) => {
+            const tld = getBingTld(isIpInChina);
+            if (tld !== bingTld) {
+              bingTld = tld;
+              console.log(`bing tld is changed to: ${bingTld}, try request bing transalte again`);
+              requestWebBingTranslate(queryWordInfo)
+                .then((result) => {
+                  resolve(result);
+                })
+                .catch((error) => {
+                  reject(error);
+                });
+            }
+          });
+        } else {
+          console.log(`bing response data: ${JSON.stringify(responseData, null, 4)}`);
+          const bingTranslateResult = responseData[0] as BingTranslateResult;
+          const translations = bingTranslateResult.translations[0].text.split("\n");
+          const detectedLanguage = bingTranslateResult.detectedLanguage.language;
+          const toLanguage = bingTranslateResult.translations[0].to;
+          console.warn(`bing translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
+
+          const result: QueryTypeResult = {
+            type: type,
+            wordInfo: queryWordInfo,
+            result: bingTranslateResult,
+            translations: translations,
+          };
+          resolve(result);
+        }
+      })
+      .catch(function (error) {
+        if (error.message === "canceled") {
+          console.log(`---> bing canceled`);
+          return reject(undefined);
+        }
+
+        console.error(`---> bing translate error: ${error}`);
+        const errorInfo = getTypeErrorInfo(type, error);
+        reject(errorInfo);
+      });
+  });
 }
 
 /**
