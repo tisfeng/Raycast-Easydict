@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 16:48
+ * @lastEditTime: 2022-09-19 23:25
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -602,7 +602,10 @@ export class DataManager {
    */
   private queryYoudaoTranslate(queryWordInfo: QueryWordInfo) {
     const enableYoudaoAPI = hasYoudaoAPI();
-    if ((myPreferences.enableYoudaoTranslate && !myPreferences.enableYoudaoDictionary) || !enableYoudaoAPI) {
+    if (
+      (myPreferences.enableYoudaoTranslate && !myPreferences.enableYoudaoDictionary) ||
+      (myPreferences.enableYoudaoDictionary && !enableYoudaoAPI)
+    ) {
       const type = TranslationType.Youdao;
       this.addQueryToRecordList(type);
 
@@ -613,6 +616,7 @@ export class DataManager {
           const queryResult: QueryResult = {
             type: type,
             sourceResult: youdaoTypeResult,
+            hideDisplay: !myPreferences.enableYoudaoTranslate, // * when use Youdao translation as dictionary translate, hide it.
           };
 
           // Update Youdao dictionary translation.
