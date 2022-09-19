@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 17:38
+ * @lastEditTime: 2022-09-19 23:00
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,6 @@
 
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
-import { appleLanguageDetect } from "../scripts";
 import { baiduWebLanguageDetect } from "../translation/baidu";
 import { googleLanguageDetect } from "../translation/google";
 import { bingLanguageDetect } from "../translation/microsoft/bing";
@@ -60,7 +59,8 @@ export function detectLanguage(text: string): Promise<DetectedLanguageModel> {
     ];
 
     if (myPreferences.enableAppleLanguageDetect) {
-      detectActionList.push(appleLanguageDetect(lowerCaseText));
+      // Since Apple detection may block the main thread, so we stop it for now and wait for a solution to be found later.
+      // detectActionList.push(appleLanguageDetect(lowerCaseText));
     }
 
     raceDetectTextLanguage(detectActionList).then((detectedLanguage) => {

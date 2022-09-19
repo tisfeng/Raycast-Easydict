@@ -1,9 +1,8 @@
-import { RequestType } from "./types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-14 23:08
+ * @lastEditTime: 2022-09-19 22:31
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,7 +15,7 @@ import querystring from "node:querystring";
 import { DetectedLanguageModel, LanguageDetectType } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dictionary/youdao/types";
 import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
-import { RequestErrorInfo, TranslationType } from "./types";
+import { RequestErrorInfo, RequestType, TranslationType } from "./types";
 
 const execCommandTimeout = 10000; // 10s
 
