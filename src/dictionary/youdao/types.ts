@@ -8,7 +8,7 @@
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { LanguageDetectTypeResult } from "../../detectLanauge/types";
+import { DetectedLanguageModel } from "../../detectLanauge/types";
 
 export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;
@@ -51,7 +51,7 @@ export interface QueryWordInfo {
   toLanguage: string;
   isWord?: boolean; // * Dictionary Type should has value, show web url need this value.
   hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
-  detectedLanguage?: LanguageDetectTypeResult;
+  detectedLanguage?: DetectedLanguageModel;
   phonetic?: string; // [ɡʊd]
   examTypes?: string[];
   audioPath?: string;

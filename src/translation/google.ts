@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 18:29
+ * @lastEditTime: 2022-09-19 13:08
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,7 +21,8 @@ import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
-import { LanguageDetectType, LanguageDetectTypeResult } from "./../detectLanauge/types";
+import { DetectedLanguageModel, LanguageDetectType } from "./../detectLanauge/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "./../language/consts";
 import { GoogleTranslateResult } from "./../types";
 
 export async function requestGoogleTranslate(
@@ -86,14 +87,14 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
 /**
  * Google language detect. Actually, it uses google RPC translate api to detect language.
  */
-export function googleLanguageDetect(text: string, signal = axios.defaults.signal): Promise<LanguageDetectTypeResult> {
+export function googleLanguageDetect(text: string, signal = axios.defaults.signal): Promise<DetectedLanguageModel> {
   console.log(`---> start Google detect: ${text}`);
 
   const startTime = new Date().getTime();
   const queryWordInfo: QueryWordInfo = {
     word: text,
-    fromLanguage: "auto",
-    toLanguage: "en",
+    fromLanguage: autoDetectLanguageItem.googleId,
+    toLanguage: englishLanguageItem.googleId,
   };
 
   return new Promise((resolve, reject) => {
@@ -105,7 +106,7 @@ export function googleLanguageDetect(text: string, signal = axios.defaults.signa
         console.warn(`---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}`);
         console.log(`google detect cost time: ${new Date().getTime() - startTime} ms`);
 
-        const languagedDetectResult: LanguageDetectTypeResult = {
+        const languagedDetectResult: DetectedLanguageModel = {
           type: LanguageDetectType.Google,
           sourceLanguageId: googleLanguageId,
           youdaoLanguageId: youdaoLanguageId,

@@ -13,7 +13,7 @@ import { showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
 import { execa } from "execa";
 import querystring from "node:querystring";
-import { LanguageDetectType, LanguageDetectTypeResult } from "./detectLanauge/types";
+import { DetectedLanguageModel, LanguageDetectType } from "./detectLanauge/types";
 import { QueryWordInfo } from "./dictionary/youdao/types";
 import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
 import { RequestErrorInfo, TranslationType } from "./types";
@@ -118,7 +118,7 @@ export function appleLanguageDetect(
   text: string,
   abortController?: AbortController,
   timeout = execCommandTimeout
-): Promise<LanguageDetectTypeResult> {
+): Promise<DetectedLanguageModel> {
   console.log(`start apple detect: ${text}`);
   const startTime = new Date().getTime();
   const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
@@ -135,7 +135,7 @@ export function appleLanguageDetect(
         const appleLanguageId = result.stdout.trim(); // will be "" when detect language is not support, eg. ꯅꯨꯄꯤꯃꯆꯥ
         console.warn(`apple detect language: ${appleLanguageId}, cost: ${new Date().getTime() - startTime} ms`);
         const youdaoLanguageId = getYoudaoLanguageIdFromAppleId(appleLanguageId);
-        const detectTypeResult: LanguageDetectTypeResult = {
+        const detectTypeResult: DetectedLanguageModel = {
           type: type,
           sourceLanguageId: appleLanguageId,
           youdaoLanguageId: youdaoLanguageId,

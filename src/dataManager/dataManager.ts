@@ -11,7 +11,7 @@
 import { environment } from "@raycast/api";
 import axios from "axios";
 import { detectLanguage } from "../detectLanauge/detect";
-import { LanguageDetectTypeResult } from "../detectLanauge/types";
+import { DetectedLanguageModel } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
 import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
@@ -272,7 +272,7 @@ export class DataManager {
   /**
    * Query text with with detected language
    */
-  private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: LanguageDetectTypeResult) {
+  private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: DetectedLanguageModel) {
     const fromYoudaoLanguageId = detectedLanguage.youdaoLanguageId;
     console.log("queryTextWithFromLanguageId:", fromYoudaoLanguageId);
     this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoId(fromYoudaoLanguageId));

@@ -12,7 +12,7 @@ import axios from "axios";
 import crypto, { BinaryToTextEncoding } from "crypto";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { requestCostTime } from "../axiosConfig";
-import { LanguageDetectType, LanguageDetectTypeResult } from "../detectLanauge/types";
+import { DetectedLanguageModel, LanguageDetectType } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getTencentLanguageId, getYoudaoLanguageIdFromTencentId } from "../language/languages";
 import { KeyStore } from "../preferences";
@@ -263,7 +263,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
  *
  * Todo: use axios to rewrite.
  */
-export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeResult> {
+export function tencentLanguageDetect(text: string): Promise<DetectedLanguageModel> {
   console.log(`---> start sdk request Tencent language detect`);
 
   const params = {
@@ -282,7 +282,7 @@ export function tencentLanguageDetect(text: string): Promise<LanguageDetectTypeR
         const youdaoLanguageId = getYoudaoLanguageIdFromTencentId(tencentLanguageId);
         console.warn(`tencent detect language: ${tencentLanguageId}, youdaoId: ${youdaoLanguageId}`);
         console.log(`tencent cost time: ${endTime - startTime} ms`);
-        const typeResult: LanguageDetectTypeResult = {
+        const typeResult: DetectedLanguageModel = {
           type: type,
           sourceLanguageId: tencentLanguageId,
           youdaoLanguageId: youdaoLanguageId,

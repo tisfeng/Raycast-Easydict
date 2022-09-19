@@ -1,9 +1,8 @@
-import { RequestErrorInfo, TranslationType } from "./../../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 01:23
+ * @lastEditTime: 2022-09-19 12:43
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,9 +15,12 @@ import { requestCostTime } from "../../axiosConfig";
 import { checkIfIpInChina } from "../../checkIP";
 import { isChineseIPKey, userAgent } from "../../consts";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getBingLanguageId } from "../../language/languages";
+import { getBingLanguageId, getYoudaoLanguageIdFromBingId } from "../../language/languages";
 import { QueryTypeResult } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
+import { DetectedLanguageModel, LanguageDetectType } from "./../../detectLanauge/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "./../../language/consts";
+import { RequestErrorInfo, TranslationType } from "./../../types";
 import { BingConfig, BingTranslateResult } from "./types";
 
 console.log(`enter microsoft.ts`);
@@ -64,7 +66,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
     }
   }
 
-  console.log(`request with bingConfig: ${JSON.stringify(bingConfig, null, 4)}`);
+  // console.log(`request with bingConfig: ${JSON.stringify(bingConfig, null, 4)}`);
   const { IID, IG, key, token, count } = bingConfig;
   const requestCount = count + 1;
   bingConfig.count = requestCount;
@@ -77,7 +79,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
     token: token,
     key: key,
   };
-  console.log(`bing request data: ${JSON.stringify(data, null, 4)}`);
+  // console.log(`bing request data: ${JSON.stringify(data, null, 4)}`);
 
   const IIDString = `${IID}.${requestCount}`;
 
@@ -152,6 +154,47 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
 }
 
 /**
+ * Bing language detect, use bing translate `audo-detect`.
+ */
+export async function bingLanguageDetect(text: string): Promise<DetectedLanguageModel> {
+  console.log(`start bingLanguageDetect`);
+
+  const queryWordInfo: QueryWordInfo = {
+    word: text,
+    fromLanguage: autoDetectLanguageItem.bingId,
+    toLanguage: englishLanguageItem.bingId,
+  };
+  const type = LanguageDetectType.Bing;
+
+  return new Promise((resolve, reject) => {
+    requestWebBingTranslate(queryWordInfo)
+      .then((result) => {
+        const bingTranslateResult = result.result as BingTranslateResult;
+        const detectedLanguageCode = bingTranslateResult.detectedLanguage.language;
+        const youdaoLangCode = getYoudaoLanguageIdFromBingId(detectedLanguageCode);
+        console.log(`bing detect: ${youdaoLangCode}`);
+
+        const detectedLanguageResult: DetectedLanguageModel = {
+          type: type,
+          sourceLanguageId: detectedLanguageCode,
+          youdaoLanguageId: youdaoLangCode,
+          confirmed: false,
+          result: bingTranslateResult,
+        };
+        resolve(detectedLanguageResult);
+      })
+      .catch((error) => {
+        const errorInfo = error as RequestErrorInfo | undefined;
+        if (errorInfo) {
+          console.error(`---> bing detect error: ${JSON.stringify(error)}`);
+          errorInfo.type = type;
+        }
+        reject(errorInfo);
+      });
+  });
+}
+
+/**
  * Request Bing Translator API Token from web.
  *
  * * Note: the token is valid for both www.bing.com and cn.bing.com.
@@ -166,6 +209,7 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
     const isChineseIP = await checkIfIpInChina();
     bingTld = getBingTld(isChineseIP);
   }
+  console.log(`config bingTld: ${bingTld}`);
 
   return new Promise((resolve) => {
     const url = `https://${bingTld}.bing.com/translator`;
@@ -251,6 +295,7 @@ function checkIfBingTokenExpired(): Promise<boolean> {
       const tokenUsedTime = Date.now() - tokenStartTime;
       const isExpired = tokenUsedTime > expiration;
       if (isExpired) {
+        console.log(`bing token expired, request new one`);
         requestBingConfig();
       } else {
         bingConfig = config;
