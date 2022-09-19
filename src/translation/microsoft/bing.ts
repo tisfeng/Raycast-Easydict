@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 23:46
+ * @lastEditTime: 2022-09-20 10:31
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -108,16 +108,21 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
 
         // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
         if (!responseData) {
-          console.log(`bing translate response is empty`);
+          console.warn(`bing translate response is empty, tld: ${bingTld}, check ip again, then request again`);
           checkIfIpInChina().then((isIpInChina) => {
             const tld = getBingTld(isIpInChina);
-            if (tld !== bingTld) {
-              bingTld = tld;
-              console.log(`bing tld is changed to: ${bingTld}, try request bing transalte again`);
-              requestWebBingTranslate(queryWordInfo)
-                .then((result) => resolve(result))
-                .catch((error) => reject(error));
-            }
+            bingTld = tld;
+            console.log(`bing tld is changed to: ${bingTld}, try request token and bing transalte again`);
+
+            requestBingConfig().then((bingConfig) => {
+              if (bingConfig) {
+                requestWebBingTranslate(queryWordInfo)
+                  .then((result) => resolve(result))
+                  .catch((error) => reject(error));
+              } else {
+                reject(undefined);
+              }
+            });
           });
         } else {
           console.log(`bing response data: ${JSON.stringify(responseData, null, 4)}`);
@@ -193,8 +198,6 @@ export async function bingLanguageDetect(text: string): Promise<DetectedLanguage
 /**
  * Request Bing Translator API Token from web.
  *
- * * Note: the token is valid for both www.bing.com and cn.bing.com.
- *
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
 async function requestBingConfig(): Promise<BingConfig | undefined> {
@@ -227,16 +230,17 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
           console.log(`try check if ip in china`);
           checkIfIpInChina().then((isIpInChina) => {
             const tld = getBingTld(isIpInChina);
-            if (tld !== bingTld) {
-              bingTld = tld;
-              console.log(`bing tld is changed to: ${bingTld}, try request bing config again`);
-              return requestBingConfig();
-            }
+            bingTld = tld;
+            console.log(`bing tld is changed to: ${bingTld}, try request bing config again`);
+            requestBingConfig()
+              .then((result) => resolve(result))
+              .catch(() => resolve(undefined));
           });
         }
       })
       .catch((error) => {
         console.error(`requestBingConfig error: ${error}`);
+        resolve(undefined);
       });
   });
 }
