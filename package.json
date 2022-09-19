@@ -390,6 +390,14 @@
       "default": true
     },
     {
+      "name": "enableBingTranslate",
+      "type": "checkbox",
+      "label": "Bing Translate",
+      "required": false,
+      "description": "Turn on/off Bing Translate",
+      "default": true
+    },
+    {
       "name": "enableBaiduTranslate",
       "type": "checkbox",
       "label": "Baidu Translate",

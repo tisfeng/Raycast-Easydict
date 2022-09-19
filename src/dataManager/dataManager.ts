@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 00:56
+ * @lastEditTime: 2022-09-19 16:48
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -487,23 +487,25 @@ export class DataManager {
    * Query Bing translate.
    */
   private queryBingTranslate(queryWordInfo: QueryWordInfo) {
-    const type = TranslationType.Bing;
-    this.addQueryToRecordList(type);
+    if (myPreferences.enableBingTranslate) {
+      const type = TranslationType.Bing;
+      this.addQueryToRecordList(type);
 
-    requestWebBingTranslate(queryWordInfo)
-      .then((bingTypeResult) => {
-        const queryResult: QueryResult = {
-          type: type,
-          sourceResult: bingTypeResult,
-        };
-        this.updateTranslationDisplay(queryResult);
-      })
-      .catch((error) => {
-        showErrorToast(error);
-      })
-      .finally(() => {
-        this.removeQueryFromRecordList(type);
-      });
+      requestWebBingTranslate(queryWordInfo)
+        .then((bingTypeResult) => {
+          const queryResult: QueryResult = {
+            type: type,
+            sourceResult: bingTypeResult,
+          };
+          this.updateTranslationDisplay(queryResult);
+        })
+        .catch((error) => {
+          showErrorToast(error);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
+        });
+    }
   }
   /**
    * Query apple translate.

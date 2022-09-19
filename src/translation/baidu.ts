@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 13:08
+ * @lastEditTime: 2022-09-19 17:09
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -169,7 +169,7 @@ export async function baiduWebLanguageDetect(text: string): Promise<DetectedLang
       .post(url, querystring.stringify(params))
       .then((response) => {
         console.log(`---> web Baidu language detect response: ${JSON.stringify(response.data)}`);
-        console.log(`---> Baidu cost: ${response.headers[requestCostTime]} ms`);
+        console.warn(`---> Baidu detect cost: ${response.headers[requestCostTime]} ms`);
 
         const baiduWebLanguageDetect = response.data as BaiduWebLanguageDetect;
         if (baiduWebLanguageDetect.error === 0) {
