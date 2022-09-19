@@ -90,7 +90,7 @@
       "name": "language1",
       "type": "dropdown",
       "required": true,
-      "default": "en",
+      "default": "zh-CHS",
       "description": "Your first language",
       "data": [
         {
@@ -192,7 +192,7 @@
       "name": "language2",
       "type": "dropdown",
       "required": true,
-      "default": "zh-CHS",
+      "default": "en",
       "description": "Your second language",
       "data": [
         {
