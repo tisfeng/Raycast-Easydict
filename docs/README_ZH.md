@@ -63,9 +63,9 @@
 
 ### 文本翻译
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1660916386.png)
+![easydict-5-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
 
-![easydict-6](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1660916492.png)
+![easydict-6-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
 
 ## 安装
 
@@ -229,7 +229,7 @@ npm install && npm run dev
 
 ### 支持系统代理
 
-开启该功能后，`Easydict` 会尝试获取 Mac 系统代理，若成功，则后续的网络请求都会通过系统代理发送。默认关闭。（此功能是为了对抗 IP 封锁，因为某些服务如 Linguee 对 IP 有频率限制）
+开启该功能后，`Easydict` 会尝试获取 Mac 系统代理，若成功，则后续的网络请求都会通过系统代理发送。默认关闭。 此功能是为了对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制），**但开启后会使请求响应速度变慢，因此请仅在有需要时启用。**
 
 ### 翻译服务
 

@@ -62,9 +62,9 @@ Next:
 
 ### Translation
 
-![easydict-5](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1660916386.png)
+![easydict-5-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
 
-![easydict-6](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1660916492.png)
+![easydict-6-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
 
 ## Installation
 
@@ -230,7 +230,7 @@ You can also specify a part of the sort, for example: `youdao dictionary, apple,
 
 ### System Proxy
 
-When this feature is enabled, `Easydict` will try to get the Mac system proxy. If succeeds, all subsequent network requests will be sent using the system proxy. This option is turned off by default. (This feature is to counteract IP blocking, because some services like Linguee have frequency restrictions on IPs)
+When this feature is turned on, `Easydict` will try to get the Mac system agent, and if successful, all subsequent network requests will be sent through the system agent. It is disabled by default. This feature is intended to counter IP blocking (some services such as Linguee have frequency restrictions on IPs), **but it can slow down the response time to requests, so please enable it only when needed. **
 
 ### Translation Services
 
