@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 12:43
+ * @lastEditTime: 2022-09-19 23:46
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -115,12 +115,8 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
               bingTld = tld;
               console.log(`bing tld is changed to: ${bingTld}, try request bing transalte again`);
               requestWebBingTranslate(queryWordInfo)
-                .then((result) => {
-                  resolve(result);
-                })
-                .catch((error) => {
-                  reject(error);
-                });
+                .then((result) => resolve(result))
+                .catch((error) => reject(error));
             }
           });
         } else {

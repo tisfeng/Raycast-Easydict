@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-16 22:40
+ * @lastEditTime: 2022-09-19 23:38
  * @fileName: deepL.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -86,12 +86,14 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
         const errorInfo = getTypeErrorInfo(TranslationType.DeepL, error);
         const errorCode = error.response?.status;
 
-        // https://www.deepl.com/zh/docs-api/accessing-the-api/error-handling/
+        // https://www.deepl.com/zh/docs-api/api-access/error-handling/
         if (errorCode === 456) {
           errorInfo.message = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
           if (wildEncryptedDeepLKeys.length) {
             getAndStoreDeepLKey(wildEncryptedDeepLKeys).then(() => {
-              return requestDeepLTranslate(queryWordInfo);
+              requestDeepLTranslate(queryWordInfo)
+                .then((result) => resolve(result))
+                .catch((err) => reject(err));
             });
           }
         }
