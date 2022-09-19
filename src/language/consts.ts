@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 11:24
+ * @lastEditTime: 2022-09-19 17:52
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -67,7 +67,7 @@ export const languageItemList: LanguageItem[] = [
     googleId: "zh-TW",
     youdaoId: "zh-CHT",
     bingId: "zh-Hant",
-    appleId: "zh-TW",
+    appleId: "zh_TW",
     appleDetectChineseTitle: "繁体中文",
     francId: "cmn",
     aliyunId: "zh-tw",
