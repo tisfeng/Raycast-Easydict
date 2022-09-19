@@ -434,9 +434,9 @@
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, DeepL, Google, Apple, Baidu, Tencent, Youdao, Caiyun",
+      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, DeepL, Google, Bing, Apple, Baidu, Tencent, Youdao, Caiyun",
       "default": "",
-      "placeholder": "youdao dictionary, linguee dictionary, deepl, google, apple, baidu, tencent, youdao, caiyun"
+      "placeholder": "youdao dictionary, linguee dictionary, deepl, google, bing, apple, baidu, tencent, youdao, caiyun"
     },
     {
       "title": "Youdao App ID",
