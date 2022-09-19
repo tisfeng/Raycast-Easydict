@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 13:06
+ * @lastEditTime: 2022-09-19 17:38
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -134,6 +134,7 @@ function handleDetectedLanguage(detectedLanguage: DetectedLanguageModel): Promis
     return Promise.resolve(detectedLanguage);
   }
 
+  // 2. If enabled speed first, and Baidu detect language is confirmed, use it.
   const baiduType = LanguageDetectType.Baidu;
   if (myPreferences.enableLanguageDetectionSpeedFirst) {
     if (detectedLanguage.type === baiduType && detectedLanguage.confirmed && isPreferredLanguage(detectedLanguageId)) {
@@ -143,26 +144,24 @@ function handleDetectedLanguage(detectedLanguage: DetectedLanguageModel): Promis
     }
   }
 
-  // 2. Iterate API detected language List, check if has detected >= `two` identical valid language.
+  // 3. Iterate API detected language List, check if has detected > `two` identical valid language.
   const detectedIdenticalLanguages: DetectedLanguageModel[] = [];
   const detectedTypes: LanguageDetectType[] = [];
   for (const lang of apiDetectedLanguageList) {
+    // Must be valid language.
     if (lang.youdaoLanguageId === detectedLanguageId && isValidLanguageId(detectedLanguageId)) {
       detectedIdenticalLanguages.push(lang);
       detectedTypes.push(lang.type);
     }
     console.log(`detected Identical Languages: ${detectedTypes}`);
 
-    // if API detected two `preferred` language, try use it.
+    // If API detected two `preferred` language, try use it.
     if (detectedIdenticalLanguages.length === 2) {
-      const containBaiduDetect = detectedLanguage.type === baiduType || apiDetectedListContainsType(baiduType);
-      const confirmedBaiduDetect = containBaiduDetect;
-
       const bingType = LanguageDetectType.Bing;
       const containBingDetect = detectedLanguage.type === bingType || apiDetectedListContainsType(bingType);
       const confirmedBingDetect = containBingDetect && myPreferences.enableLanguageDetectionSpeedFirst;
 
-      if ((confirmedBaiduDetect || confirmedBingDetect) && isPreferredLanguage(detectedLanguageId)) {
+      if (confirmedBingDetect && isPreferredLanguage(detectedLanguageId)) {
         detectedLanguage.confirmed = true;
         console.warn(`---> API detected 'two' identical preferred language: ${detectedTypes}`);
         console.warn(`detected language: ${JSON.stringify(detectedLanguage, null, 4)}`);
