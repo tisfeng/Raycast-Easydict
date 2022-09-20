@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 23:25
+ * @lastEditTime: 2022-09-20 21:37
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -162,7 +162,7 @@ export class DataManager {
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
-    }, 1500);
+    }, 1000);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
