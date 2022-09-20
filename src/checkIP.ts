@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 22:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-20 00:50
+ * @lastEditTime: 2022-09-20 10:44
  * @fileName: checkIP.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,6 +13,7 @@ import axios from "axios";
 import { requestCostTime } from "./axiosConfig";
 import { isChineseIPKey } from "./consts";
 import { checkIfPreferredLanguagesContainChinese } from "./detectLanauge/utils";
+import { myDecrypt } from "./preferences";
 
 /**
  * Check if ip is in China. If error, default is true.
@@ -43,9 +44,10 @@ export function checkIfIpInChina(): Promise<boolean> {
  * Get current ip info.
  * 
  * Ref: https://ipinfo.io/developers
+ * 
  * * Note: Free usage of our API is limited to 50,000 API requests per month. If you exceed that limit, we'll return a 429 HTTP status code to you.
  * 
- * * curl https://ipinfo.io
+ * curl https://ipinfo.io
   {
     "ip": "120.240.53.42",
     "city": "Zhanjiang",
@@ -59,7 +61,8 @@ export function checkIfIpInChina(): Promise<boolean> {
  */
 async function getCurrentIpInfo() {
   try {
-    const url = "https://ipinfo.io";
+    const token = myDecrypt("U2FsdGVkX1+sExqLZVqT0q3vOVDXqul2TMJeiD9aJRk=");
+    const url = `https://ipinfo.io/?token=${token}`;
     const res = await axios.get(url);
     console.log(`---> ip info: ${JSON.stringify(res.data, null, 4)}, cost ${res.headers[requestCostTime]} ms`);
     return Promise.resolve(res.data);

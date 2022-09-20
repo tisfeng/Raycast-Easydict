@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 13:08
+ * @lastEditTime: 2022-09-20 10:46
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -210,11 +210,11 @@ export async function checkIsChina(): Promise<boolean> {
   }
 
   return new Promise((resolve) => {
-    LocalStorage.getItem<boolean>(isChineseIPKey).then((isChina) => {
-      console.log(`checkIsChina: ${isChina}`);
+    LocalStorage.getItem<boolean>(isChineseIPKey).then((isChineseIP) => {
+      console.log(`checkIsChina: ${isChineseIP}`);
 
-      if (isChina !== undefined) {
-        return resolve(isChina);
+      if (isChineseIP !== undefined) {
+        return resolve(isChineseIP);
       }
 
       checkIfIpInChina().then((isIpInChina) => {

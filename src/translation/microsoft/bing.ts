@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-20 10:31
+ * @lastEditTime: 2022-09-20 10:51
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -291,7 +291,7 @@ function checkIfBingTokenExpired(): Promise<boolean> {
       const { key, expirationInterval } = config;
       const tokenStartTime = parseInt(key);
       const expiration = parseInt(expirationInterval);
-      // default expiration is 10 min, for better experience, we request token after 5 min.
+      // default expiration is 10 min, for better experience, we get a new token after 5 min.
       const tokenUsedTime = Date.now() - tokenStartTime;
       const isExpired = tokenUsedTime > expiration;
       if (isExpired) {
