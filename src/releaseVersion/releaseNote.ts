@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-20 00:08
+ * @lastEditTime: 2022-09-20 11:15
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,8 +13,8 @@ export const releaseNote = `
 
 ### ✨ 新功能
 
-- 添加 Bing 翻译。
-- 添加 Bing 语种识别
+- 添加 [Bing 翻译](https://www.bing.com/translator)。
+- 添加 Bing 语种识别。
 
 ![Bing-1663603058](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Bing-1663603058.png)
 
@@ -24,7 +24,11 @@ export const releaseNote = `
 - 优化了启动速度，飞一般的感觉～
 - 优化了语种识别的速度和准确度。
 
-**_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧～_**
+### 🐞 修复
+
+- 修复了一些已知问题。
+
+#### 🍃 _如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧(^-^)_
 
 ---
 
@@ -37,4 +41,8 @@ export const releaseNote = `
 
 - Improved startup speed, flying feeling~
 - Improved the speed and accuracy of language detection.
+
+### 🐞 Fixes
+
+- Fixed some known issues.
 `;

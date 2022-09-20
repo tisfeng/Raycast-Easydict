@@ -7,12 +7,16 @@
 - Added support for [Bing Translator](https://www.bing.com/translator).
 - Added Bing language detection.
 
+![Bing-1663603058](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Bing-1663603058.png)
+
 ### 💎 Improvements
 
 - Improved startup speed, flying feeling~
 - Improved the speed and accuracy of language detection.
 
-![Bing-1663603058](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Bing-1663603058.png)
+### 🐞 Fixes
+
+- Fixed some known issues.
 
 ---
 

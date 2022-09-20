@@ -39,7 +39,7 @@
 - [ ] 开发桌面版本 Electron App（学习中）。
 - [ ] 支持查看历史记录。
 
-**_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧～_**
+**_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)_**
 
 ---
 
