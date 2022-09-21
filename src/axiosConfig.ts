@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 16:45
+ * @lastEditTime: 2022-09-22 00:29
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,7 +15,7 @@ import { getMacSystemProxy } from "mac-system-proxy";
 import { myPreferences } from "./preferences";
 
 /**
- * Caclulate axios request cost time.
+ * Calculate axios request cost time.
  */
 export const requestCostTime = "requestCostTime";
 

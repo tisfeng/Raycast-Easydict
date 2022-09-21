@@ -19,6 +19,8 @@ import { myPreferences, preferredLanguage1 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "./utils";
 
+console.log(`enter easydict.tsx`);
+
 const dataManager = new DataManager();
 
 export default function () {
