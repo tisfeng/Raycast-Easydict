@@ -17,7 +17,7 @@ import { QueryWordInfo } from "./dictionary/youdao/types";
 import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
 import { RequestErrorInfo, RequestType, TranslationType } from "./types";
 
-const execCommandTimeout = 10000; // 10s
+const execCommandTimeout = 5000; // 5s
 
 /**
  * Run apple Translate shortcuts with the given QueryWordInfo. Cost time: ~0.5s.

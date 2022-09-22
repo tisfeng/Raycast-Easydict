@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-22 00:29
+ * @lastEditTime: 2022-09-22 22:46
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,8 +22,8 @@ export const requestCostTime = "requestCostTime";
 configDefaultAxios();
 
 function configDefaultAxios() {
-  // Set axios timeout to 15s, since we start a loading when request is sent.
-  axios.defaults.timeout = 15000;
+  // Set axios timeout to 10s, since we start a loading when request is sent, we need to cancel it when timeout.
+  axios.defaults.timeout = 10000;
 
   const requestStartTime = "request-startTime";
 
