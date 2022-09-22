@@ -255,23 +255,23 @@ npm install && npm run dev
 
 别担心，这些翻译服务有免费配额。一般来说个人使用足够了。
 
-下列申请教程来自 [`Bob`](https://v0.bobtranslate.com/#/general/advance/service)， 跟随教程应该很快就能完成申请。
+下列申请教程来自 [`Bob`](https://bobtranslate.com/guide/advance/service.html)， 跟随教程应该很快就能完成申请。
 
-- [有道翻译](https://v0.bobtranslate.com/#/service/translate/youdao)：服务需勾选 `文本翻译` 和 `语音合成`。（注：有道向每个账户赠送 50 元体验金，目测可免费使用 1 年以上～）
+- [有道翻译](https://bobtranslate.com/service/translate/youdao.html)：服务需勾选 `文本翻译` 和 `语音合成`。（注：有道向每个账户赠送 50 元体验金，目测可免费使用 1 年以上～）
 
-- [百度翻译](https://v0.bobtranslate.com/#/service/translate/baidu)
+- [百度翻译](https://bobtranslate.com/service/translate/baidu.html)
 
-- [腾讯翻译](https://v0.bobtranslate.com/#/service/translate/tencent)
+- [腾讯翻译](https://bobtranslate.com/service/translate/tencent.html)
 
-- [彩云小译](https://v0.bobtranslate.com/#/service/translate/caiyun)
+- [彩云小译](https://bobtranslate.com/service/translate/caiyun.html)
 
 - [DeepL](https://www.deepl.com/translator)
 
-![image-20220620111449687](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620111449687.png)
+![image-20220922161329309](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220922161329309-1663834409.png)
 
 ## 友情推荐
 
-[`Bob`](https://v0.bobtranslate.com/#/) 是一款 macOS 平台 **翻译** 和 **OCR** 软件。 Bob 或许是 MacOS 平台上最好用的翻译应用，而且还免费！
+[`Bob`](https://bobtranslate.com/) 是一款 macOS 平台 **翻译** 和 **OCR** 软件。 Bob 或许是 MacOS 平台上最好用的翻译应用，而且还免费！
 
 > 更新：Bob 目前已上架 Mac App Store，欢迎尝试支持 [Bob - 翻译和 OCR 工具](https://apps.apple.com/us/app/bob-%E7%BF%BB%E8%AF%91%E5%92%8C-ocr-%E5%B7%A5%E5%85%B7/id1630034110?l=zh&mt=12)
 
