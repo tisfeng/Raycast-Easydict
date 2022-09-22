@@ -96,39 +96,39 @@ Actually, it works well without you having to do any extra work. The next are ad
 
 #### Language Detection
 
-##### - Tencent
+##### Tencent Detect
 
 Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, Russian, German.
 
-##### - Baidu
+##### Baidu Detect
 
 Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
-##### - 🍎Apple
+##### 🍎Apple Detect
 
 Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
-##### - Google
+##### Google Detect
 
 Chinese (Simplified), Chinese (Traditional), English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
-##### - Bing
+##### Bing Detect
 
 Chinese (Simplified), Chinese (Traditional), English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
 #### Dictionary
 
-##### - Youdao
+##### Youdao Dictionary
 
 Support 5 langauges, (Chinese), English, French, Japanese, Korean.
 
-##### - Linguee
+##### Linguee Dictionary
 
 Support 19 langauges, (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
 
 #### Translation
 
-Currently we support 23 languages: Chinese-Simplified, Chinese-Traditional, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+Currently we support 23 languages: **Chinese-Simplified, Chinese-Traditional, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.**
 
 Details of the languages supported by each translation service are as follows:
 
