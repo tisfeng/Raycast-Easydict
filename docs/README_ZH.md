@@ -249,6 +249,8 @@ npm install && npm run dev
 
 开启该功能后，`Easydict` 会尝试获取 Mac 系统代理，若成功，则后续的网络请求都会通过系统代理发送。默认关闭。 此功能是为了对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制），**但开启后会使请求响应速度变慢，因此请仅在有需要时启用。**
 
+> 特别注意 ⚠️：请不要在使用抓包工具 MitM 的情况下开启 `Use System Proxy`，否则部分服务请求会报证书错误，例如 https://github.com/tisfeng/Raycast-Easydict/issues/18 。
+
 ### 翻译服务
 
 为了方便使用，我们提供了一些内置翻译服务的 appId 和 appKey，但这些服务本身是有请求频率限制的。如果许多人同时使用它们，它可能会变慢甚至停止。因此，为了获得更好的使用体验，您最好申请自己的 appId 和 appKey，替换内置的服务。

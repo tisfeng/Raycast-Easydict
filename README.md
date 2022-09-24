@@ -251,6 +251,8 @@ You can also specify a part of the sort, for example: `youdao dictionary, apple,
 
 When this feature is turned on, `Easydict` will try to get the Mac system agent, and if successful, all subsequent network requests will be sent through the system agent. It is disabled by default. This feature is intended to counter IP blocking (some services such as Linguee have frequency restrictions on IPs), **but it can slow down the response time to requests, so please enable it only when needed. **
 
+> Special Note ⚠️: Please don't turn on `Use System Proxy` while using the developer tools with MitM, otherwise some service requests will report certificate errors, for example: https://github.com/tisfeng/Raycast-Easydict/issues/18 .
+
 ### Translation Services
 
 For easy to use, we provide some built-in translation APIs appid and appkey, but these Services have request frequency limits. If many people use them at the same time, it is likely to slow down or even stop. Therefore, for a better use experience, you'd better apply for a dedicated appid and appkey, and then replace the built-in services on the Preferences page.
