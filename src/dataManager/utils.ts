@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 01:24
+ * @lastEditTime: 2022-09-25 22:49
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -21,6 +21,7 @@ import {
 import { KeyStore, myPreferences } from "../preferences";
 import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, TranslationType } from "../types";
 import { checkIsDictionaryType, checkIsTranslationType, checkIsWord } from "../utils";
+import { chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 
 /**
  * Sort query results by designated order.
@@ -100,16 +101,17 @@ export function getSortOrder(): string[] {
 /**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
-export function isTranslationTooLong(translation: string, toLanguage: string): boolean {
-  const isChineseTextResult = toLanguage === "zh-CHS";
-  const isEnglishTextResult = toLanguage === "en";
+export function isOneLineTextTooLong(translation: string, toLanguage: string): boolean {
+  const isChineseText = toLanguage === chineseLanguageItem.youdaoLangCode;
+  const isEnglishText = toLanguage === englishLanguageItem.youdaoLangCode;
+  englishLanguageItem.youdaoLangCode;
   let isTooLong = false;
   const textLength = translation.length;
-  if (isChineseTextResult) {
+  if (isChineseText) {
     if (textLength > maxLineLengthOfChineseTextDisplay) {
       isTooLong = true;
     }
-  } else if (isEnglishTextResult) {
+  } else if (isEnglishText) {
     if (textLength > maxLineLengthOfEnglishTextDisplay) {
       isTooLong = true;
     }
@@ -141,7 +143,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
     } else {
       // check if translation is too long
       const oneLineTranslation = sourceResult?.oneLineTranslation || "";
-      const isTooLong = isTranslationTooLong(oneLineTranslation, wordInfo.toLanguage);
+      const isTooLong = isOneLineTextTooLong(oneLineTranslation, wordInfo.toLanguage);
       if (isTooLong) {
         isShowDetail = true;
         break;

@@ -2,15 +2,16 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 01:03
+ * @lastEditTime: 2022-09-25 22:34
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { Action, ActionPanel, Color, Icon, Image, List, openCommandPreferences } from "@raycast/api";
+import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
+import { isOneLineTextTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
 import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
@@ -46,6 +47,9 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const displayItem = props.displayItem;
   const queryWordInfo = displayItem.queryWordInfo;
   console.log(`---> current list type: ${displayItem.queryType}, copyText: ${displayItem.copyText}`);
+
+  const isShowingDetail = isOneLineTextTooLong(displayItem.copyText, queryWordInfo.toLanguage);
+
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
 
@@ -90,6 +94,10 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
         {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
+
+        {isShowingDetail && (
+          <Action.Push title="Show Detail" icon={Icon.Eye} target={<Detail markdown={displayItem.copyText} />} />
+        )}
 
         <Action.CopyToClipboard
           onCopy={() => {
@@ -194,7 +202,7 @@ function CurrentVersionAction() {
   const easydict = new Easydict();
   return (
     <Action.OpenInBrowser
-      icon={Icon.Eye}
+      icon={Icon.Document}
       title={`Version: ${easydict.version}`}
       url={easydict.getCurrentReleaseTagUrl()}
     />
