@@ -15,7 +15,7 @@ import { languageItemList } from "./consts";
 import { LanguageItem } from "./type";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
-export const maxLineLengthOfEnglishTextDisplay = 95;
+export const maxLineLengthOfEnglishTextDisplay = 90;
 
 export function getLanguageItemFromYoudaoId(youdaoLanguageId: string): LanguageItem {
   for (const langItem of languageItemList) {

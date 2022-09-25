@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 22:49
+ * @lastEditTime: 2022-09-26 00:15
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,14 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
 import { KeyStore, myPreferences } from "../preferences";
-import { DicionaryType, QueryResult, QueryTypeResult, TranslationItem, TranslationType } from "../types";
+import {
+  DicionaryType,
+  ListDisplayItem,
+  QueryResult,
+  QueryTypeResult,
+  TranslationItem,
+  TranslationType,
+} from "../types";
 import { checkIsDictionaryType, checkIsTranslationType, checkIsWord } from "../utils";
 import { chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 
@@ -194,6 +201,21 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 }
 
 /**
+ * Show more detail markdown.
+ */
+export function formateDetailMarkdown(listDisplayItem: ListDisplayItem, word: string) {
+  const { queryType, copyText } = listDisplayItem;
+  const markdown = `
+  ## ${queryType} 
+
+  ### ${word}
+  ----
+  ${copyText}
+  `;
+  return markdown;
+}
+
+/**
  * Format translation to markdown.
  */
 export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
@@ -203,13 +225,13 @@ export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
     return "";
   }
 
-  const string = oneLineTranslation.replace(/\n/g, "\n\n");
+  const text = oneLineTranslation.replace(/\n/g, "\n\n");
   const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, true);
 
   const markdown = `
   ## ${type}   (${fromTo})
-  ---  
-  ${string}
+  ----  
+  ${text}
   `;
   return markdown;
 }
