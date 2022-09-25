@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 23:30
+ * @lastEditTime: 2022-09-25 23:34
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -99,7 +99,14 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
 
-        {isShowingDetail && <Action.Push title="Show Detail" icon={Icon.Eye} target={<Detail markdown={copyText} />} />}
+        {isShowingDetail && (
+          <Action.Push
+            title="Show More Detail"
+            icon={Icon.Eye}
+            shortcut={{ modifiers: ["cmd"], key: "m" }}
+            target={<Detail markdown={copyText} />}
+          />
+        )}
 
         <Action.CopyToClipboard
           onCopy={() => {
