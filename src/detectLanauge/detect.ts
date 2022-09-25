@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-22 18:31
+ * @lastEditTime: 2022-09-25 22:56
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,7 @@ import { googleLanguageDetect } from "../translation/google";
 import { bingLanguageDetect } from "../translation/microsoft/bing";
 import { tencentLanguageDetect } from "../translation/tencent";
 import { RequestErrorInfo } from "../types";
+import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 import { francLangaugeDetect } from "./franc";
 import { DetectedLanguageModel, LanguageDetectType } from "./types";
 import {
@@ -272,13 +273,11 @@ function getLocalTextLanguageDetectResult(
  * * NOTE: simple detect language, always set confirmed = false.
  */
 export function simpleDetectTextLanguage(text: string): DetectedLanguageModel {
-  let fromYoudaoLanguageId = "auto";
-  const englishLanguageId = "en";
-  const chineseLanguageId = "zh-CHS";
+  let fromYoudaoLanguageId = autoDetectLanguageItem.youdaoLangCode;
   if (isEnglishOrNumber(text) && checkIfPreferredLanguagesContainEnglish()) {
-    fromYoudaoLanguageId = englishLanguageId;
+    fromYoudaoLanguageId = englishLanguageItem.youdaoLangCode;
   } else if (isChinese(text) && checkIfPreferredLanguagesContainChinese()) {
-    fromYoudaoLanguageId = chineseLanguageId;
+    fromYoudaoLanguageId = chineseLanguageItem.youdaoLangCode;
   }
   console.log("simple detect language -->:", fromYoudaoLanguageId);
   const detectTypeResult = {

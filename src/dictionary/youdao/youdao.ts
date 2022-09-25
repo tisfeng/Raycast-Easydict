@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 21:31
+ * @lastEditTime: 2022-09-25 22:56
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,6 +20,7 @@ import { userAgent, YoudaoErrorCode } from "../../consts";
 import { KeyStore } from "../../preferences";
 import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { getTypeErrorInfo, md5 } from "../../utils";
+import { englishLanguageItem } from "./../../language/consts";
 import { myPreferences } from "./../../preferences";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
@@ -424,7 +425,11 @@ export function tryDownloadYoudaoAudio(
   forceDownload = false
 ) {
   // For English word, Youdao web audio is better than Youdao tts, so we use Youdao web audio first.
-  if (enableYoudaoWebAudio && queryWordInfo.isWord && queryWordInfo.fromLanguage === "en") {
+  if (
+    enableYoudaoWebAudio &&
+    queryWordInfo.isWord &&
+    queryWordInfo.fromLanguage === englishLanguageItem.youdaoLangCode
+  ) {
     downloadYoudaoEnglishWordAudio(queryWordInfo.word, callback, (forceDownload = false));
   } else if (queryWordInfo.speechUrl) {
     downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
