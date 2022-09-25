@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 21:28
+ * @lastEditTime: 2022-09-25 23:23
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -127,8 +127,8 @@ export function updateYoudaoDictionaryDisplay(
   const explanationType = YoudaoDictionaryListItemType.Explanation;
   const explanationItems = formatResult.explanations?.map((explanation, i) => {
     const title = explanation.title;
-    const subtitle = explanation.subtitle;
-    const copyText = `${title} ${subtitle}`;
+    const subtitle = explanation.subtitle ? ` ${explanation.subtitle}` : "";
+    const copyText = `${title}${subtitle}`;
 
     const displayItem: ListDisplayItem = {
       displayType: explanationType,

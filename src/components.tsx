@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 22:34
+ * @lastEditTime: 2022-09-25 23:30
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "./dictionary/youdao/utils";
 import { playYoudaoWordAudioAfterDownloading } from "./dictionary/youdao/youdao";
-import { languageItemList } from "./language/consts";
+import { chineseLanguageItem, languageItemList } from "./language/consts";
 import {
   getBaiduWebTranslateURL,
   getDeepLWebTranslateURL,
@@ -46,9 +46,17 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
   const displayItem = props.displayItem;
   const queryWordInfo = displayItem.queryWordInfo;
-  console.log(`---> current list type: ${displayItem.queryType}, copyText: ${displayItem.copyText}`);
+  const { word, fromLanguage, toLanguage } = queryWordInfo;
+  const copyText = displayItem.copyText;
+  console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
+  console.log(`copyText: ${copyText}, ${copyText.length}`);
 
-  const isShowingDetail = isOneLineTextTooLong(displayItem.copyText, queryWordInfo.toLanguage);
+  let copyTextLanguage = toLanguage;
+  if (displayItem.displayType === YoudaoDictionaryListItemType.Baike) {
+    copyTextLanguage = chineseLanguageItem.youdaoLangCode;
+  }
+
+  const isShowingDetail = isOneLineTextTooLong(copyText, copyTextLanguage);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
@@ -82,11 +90,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         )}
 
         {props.isInstalledEudic && (
-          <Action
-            icon={Icon.MagnifyingGlass}
-            title="Open In Eudic App"
-            onAction={() => openInEudic(queryWordInfo.word)}
-          />
+          <Action icon={Icon.MagnifyingGlass} title="Open In Eudic App" onAction={() => openInEudic(word)} />
         )}
 
         {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
@@ -95,16 +99,14 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
 
-        {isShowingDetail && (
-          <Action.Push title="Show Detail" icon={Icon.Eye} target={<Detail markdown={displayItem.copyText} />} />
-        )}
+        {isShowingDetail && <Action.Push title="Show Detail" icon={Icon.Eye} target={<Detail markdown={copyText} />} />}
 
         <Action.CopyToClipboard
           onCopy={() => {
-            console.log("copy: ", displayItem.copyText);
+            console.log("copy: ", copyText);
           }}
           title={`Copy Text`}
-          content={displayItem.copyText || ""}
+          content={copyText || ""}
         />
       </ActionPanel.Section>
 
@@ -124,7 +126,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
           icon={playSoundIcon("black")}
           shortcut={{ modifiers: ["cmd"], key: "s" }}
           onAction={() => {
-            console.log(`start play sound: ${queryWordInfo.word}`);
+            console.log(`start play sound: ${word}`);
             playYoudaoWordAudioAfterDownloading(queryWordInfo);
           }}
         />
@@ -139,7 +141,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
              *
              *  Todo: add a shortcut to stop playing audio.
              */
-            sayTruncateCommand(displayItem.copyText, queryWordInfo.toLanguage);
+            sayTruncateCommand(copyText, toLanguage);
           }}
         />
       </ActionPanel.Section>
@@ -150,8 +152,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
             // hide auto language
             const isAutoLanguage = selectedLanguageItem.youdaoLangCode === "auto";
             // hide current detected language
-            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoLangCode === queryWordInfo.fromLanguage;
-            const isSameWithTargetLanguage = selectedLanguageItem.youdaoLangCode === queryWordInfo.toLanguage;
+            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoLangCode === fromLanguage;
+            const isSameWithTargetLanguage = selectedLanguageItem.youdaoLangCode === toLanguage;
             if (isAutoLanguage || isSameWithDetectedLanguage) {
               return null;
             }
