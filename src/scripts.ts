@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 22:31
+ * @lastEditTime: 2022-09-25 16:13
  * @fileName: scripts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { QueryWordInfo } from "./dictionary/youdao/types";
 import { getAppleLanguageId, getYoudaoLanguageIdFromAppleId } from "./language/languages";
 import { RequestErrorInfo, RequestType, TranslationType } from "./types";
 
-const execCommandTimeout = 5000; // 5s
+const execCommandTimeout = 10000; // 10s
 
 /**
  * Run apple Translate shortcuts with the given QueryWordInfo. Cost time: ~0.5s.

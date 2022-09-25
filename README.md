@@ -76,7 +76,7 @@ Next:
           <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 
-### Manual Installation
+### Manually Install
 
 ```bash
 git clone https://github.com/tisfeng/Raycast-Easydict.git && cd Raycast-Easydict
