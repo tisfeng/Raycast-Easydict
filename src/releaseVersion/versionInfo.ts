@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-01 19:05
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 16:57
+ * @lastEditTime: 2022-09-25 17:26
  * @fileName: versionInfo.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -126,7 +126,7 @@ export class Easydict {
    */
   public async fetchReleaseMarkdown(): Promise<string> {
     try {
-      console.log("fetch release markdown from github");
+      console.log(`fetch release markdown from github: ${this.getReleaseApiUrl()}`);
       const releaseInfo = await this.fetchReleaseInfo(this.getReleaseApiUrl());
       const releaseMarkdown = releaseInfo.body;
       console.log("fetch release markdown from github success");

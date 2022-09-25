@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-23 22:08
+ * @lastEditTime: 2022-09-25 21:31
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -214,12 +214,8 @@ export function requestYoudaoWebDictionary(
 
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
-        const isValidResult = youdaoWebModel.input === queryWordInfo.word;
-        if (!isValidResult) {
-          console.warn(`---> invalid result : ${util.inspect(youdaoWebModel.meta, { depth: null })}`);
-        }
 
-        if (!youdaoFormatResult || !isValidResult) {
+        if (!youdaoFormatResult.queryWordInfo.hasDictionaryEntries) {
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
             result: undefined,
