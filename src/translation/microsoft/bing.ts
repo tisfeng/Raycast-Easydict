@@ -162,8 +162,8 @@ export async function bingLanguageDetect(text: string): Promise<DetectedLanguage
 
   const queryWordInfo: QueryWordInfo = {
     word: text,
-    fromLanguage: autoDetectLanguageItem.bingId,
-    toLanguage: englishLanguageItem.bingId,
+    fromLanguage: autoDetectLanguageItem.bingLangCode,
+    toLanguage: englishLanguageItem.bingLangCode,
   };
   const type = LanguageDetectType.Bing;
 

@@ -103,8 +103,8 @@ export async function baiduLanguageDetect(text: string): Promise<DetectedLanguag
   console.log(`---> start request Baidu language detect`);
 
   const queryWordInfo: QueryWordInfo = {
-    fromLanguage: autoDetectLanguageItem.baiduId,
-    toLanguage: englishLanguageItem.baiduId,
+    fromLanguage: autoDetectLanguageItem.baiduLangCode,
+    toLanguage: englishLanguageItem.baiduLangCode,
     word: text,
   };
 

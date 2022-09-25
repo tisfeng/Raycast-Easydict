@@ -285,7 +285,7 @@ export class DataManager {
     if (fromYoudaoLanguageId === targetLanguageId) {
       const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
       this.updateAutoSelectedTargetLanguageItem(targetLanguageItem);
-      targetLanguageId = targetLanguageItem.youdaoId;
+      targetLanguageId = targetLanguageItem.youdaoLangCode;
       console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
     }
 
@@ -862,7 +862,7 @@ export class DataManager {
     const wordInfo = queryTypeResult.wordInfo;
     // console.log(`---> wordInfo: ${JSON.stringify(wordInfo, null, 4)}`);
     const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
-    const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoId;
+    const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode;
     const enableAutomaticDownloadAudio =
       myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
     if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {

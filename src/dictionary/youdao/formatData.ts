@@ -462,8 +462,8 @@ export function formateYoudaoWebDictionaryModel(
  * Get Youdao from to language.
  */
 export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: string, to: string] {
-  let from = chineseLanguageItem.youdaoId;
-  let to = chineseLanguageItem.youdaoId;
+  let from = chineseLanguageItem.youdaoLangCode;
+  let to = chineseLanguageItem.youdaoLangCode;
   const guessLanguage = model.meta.guessLanguage;
   if (guessLanguage === "zh") {
     to = model.le;
