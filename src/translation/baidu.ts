@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 11:21
+ * @lastEditTime: 2022-09-26 11:23
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,10 @@ export async function requestVolcanoTranslate(queryWordInfo: QueryWordInfo) {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   console.log(`---> fromLanguage: ${fromLanguage}, toLanguage: ${toLanguage}, word: ${word}`);
 
-  const volcanoTranslate = VolcengineTranslateAPI(word, "", "", "zh");
+  const accessKey = "AKLTY2ZkZjkwYTllN2U0NGJkMWE1MGVhOGI4ZWQzYjE4YzA";
+  const secretKey = "TnpjeE5qTXdNbVU0Tnpnek5HRTFPVGhrTVRZMlpESTNZamMyTXpkbFl6SQ==";
+
+  const volcanoTranslate = VolcengineTranslateAPI(word, accessKey, secretKey, "zh");
 
   const url = volcanoTranslate.getUrl();
   const params = volcanoTranslate.getParams();
