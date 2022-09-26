@@ -2,8 +2,8 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 21:41
- * @fileName: baidu.ts
+ * @lastEditTime: 2022-09-26 23:55
+ * @fileName: baiduAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
@@ -15,7 +15,7 @@ import { DetectedLanguageModel, LanguageDetectType } from "../../detectLanauge/t
 import { QueryWordInfo } from "../../dictionary/youdao/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "../../language/consts";
 import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId, isValidLanguageId } from "../../language/languages";
-import { KeyStore } from "../../preferences";
+import { AppKeyStore } from "../../preferences";
 import {
   BaiduTranslateResult,
   BaiduWebLanguageDetect,
@@ -24,7 +24,6 @@ import {
   TranslationType,
 } from "../../types";
 import { getTypeErrorInfo, md5 } from "../../utils";
-import { requestVolcanoDetect, requestVolcanoTranslate } from "../volcano/volcanoAPI";
 
 import genBaiduWebSign from "./baiduSign";
 
@@ -36,16 +35,13 @@ import genBaiduWebSign from "./baiduSign";
 export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu`);
 
-  requestVolcanoTranslate(queryWordInfo);
-  requestVolcanoDetect(queryWordInfo);
-
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getBaiduLanguageId(fromLanguage);
   const to = getBaiduLanguageId(toLanguage);
 
   const salt = Math.round(new Date().getTime() / 1000);
-  const baiduAppId = KeyStore.baiduAppId;
-  const md5Content = baiduAppId + word + salt + KeyStore.baiduAppSecret;
+  const baiduAppId = AppKeyStore.baiduAppId;
+  const md5Content = baiduAppId + word + salt + AppKeyStore.baiduAppSecret;
   const sign = md5(md5Content);
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const encodeQueryText = Buffer.from(word, "utf8").toString();
@@ -91,7 +87,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
       })
       .catch((error: AxiosError) => {
         if (error.message === "canceled") {
-          console.log(`---> baidu canceled`);
+          console.log(`---> baidu translate canceled`);
           return reject(undefined);
         }
 

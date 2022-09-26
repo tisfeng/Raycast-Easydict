@@ -17,7 +17,7 @@ import util from "util";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
 import { requestCostTime } from "../../axiosConfig";
 import { userAgent, YoudaoErrorCode } from "../../consts";
-import { KeyStore } from "../../preferences";
+import { AppKeyStore } from "../../preferences";
 import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { getTypeErrorInfo, md5 } from "../../utils";
 import { englishLanguageItem } from "./../../language/consts";
@@ -103,8 +103,8 @@ export function requestYoudaoAPITranslate(
   }
   const timestamp = Math.round(new Date().getTime() / 1000);
   const salt = timestamp;
-  const youdaoAppId = KeyStore.youdaoAppId;
-  const sha256Content = youdaoAppId + truncate(word) + salt + timestamp + KeyStore.youdaoAppSecret;
+  const youdaoAppId = AppKeyStore.youdaoAppId;
+  const sha256Content = youdaoAppId + truncate(word) + salt + timestamp + AppKeyStore.youdaoAppSecret;
   const sign = CryptoJS.SHA256(sha256Content).toString();
   const url = youdaoAppId ? "https://openapi.youdao.com/api" : "https://aidemo.youdao.com/trans";
   const params = querystring.stringify({

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:54
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-18 23:30
+ * @lastEditTime: 2022-09-26 23:51
  * @fileName: languages.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -40,6 +40,26 @@ export function getYoudaoLanguageIdFromBingId(bingLanguageId: string): string {
   const bingLanguageItem = languageItemList.find((langItem) => langItem.bingLangCode === bingLanguageId);
   if (bingLanguageItem) {
     return bingLanguageItem.youdaoLangCode;
+  }
+
+  return languageItemList[0].youdaoLangCode;
+}
+
+/**
+ * Get Volcano language id from youdao language id.
+ */
+export function getVolcanoLanguageId(youdaoLanguageId: string): string {
+  const languageItem = getLanguageItemFromYoudaoId(youdaoLanguageId);
+  return languageItem.volcanoLangCode;
+}
+
+/**
+ * Get Youdao language id from Volcano language id.
+ */
+export function getYoudaoLanguageIdFromVolcanoId(volcanoLanguageId: string): string {
+  const volcanoLanguageItem = languageItemList.find((langItem) => langItem.volcanoLangCode === volcanoLanguageId);
+  if (volcanoLanguageItem) {
+    return volcanoLanguageItem.youdaoLangCode;
   }
 
   return languageItemList[0].youdaoLangCode;

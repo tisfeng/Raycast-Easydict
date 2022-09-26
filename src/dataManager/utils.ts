@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 00:15
+ * @lastEditTime: 2022-09-26 22:48
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,7 +18,7 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
-import { KeyStore, myPreferences } from "../preferences";
+import { AppKeyStore, myPreferences } from "../preferences";
 import {
   DicionaryType,
   ListDisplayItem,
@@ -67,6 +67,7 @@ export function getSortOrder(): string[] {
     TranslationType.Apple,
     TranslationType.Baidu,
     TranslationType.Tencent,
+    TranslationType.Volcano,
     TranslationType.Youdao,
     TranslationType.Caiyun,
   ];
@@ -288,7 +289,7 @@ export function checkIfEnableYoudaoDictionary(queryWordInfo: QueryWordInfo) {
  * Check if enable Youdao API translation.
  */
 export function hasYoudaoAPI() {
-  if (KeyStore.youdaoAppId) {
+  if (AppKeyStore.youdaoAppId) {
     return true;
   }
   return false;

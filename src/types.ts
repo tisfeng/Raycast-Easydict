@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 01:30
+ * @lastEditTime: 2022-09-26 22:47
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,7 @@ import {
 } from "./dictionary/youdao/types";
 import { LanguageItem } from "./language/type";
 import { BingTranslateResult } from "./translation/microsoft/types";
+import { VolcanoTranslateResult } from "./translation/volcano/types";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;
@@ -40,6 +41,7 @@ export enum TranslationType {
   DeepL = "DeepL Translate",
   Google = "Google Translate",
   Bing = "Bing Translate",
+  Volcano = "Volcano Translate",
 }
 
 export enum DicionaryType {
@@ -73,6 +75,7 @@ export type QueryResponse =
   | IcibaDictionaryResult
   | LingueeDictionaryResult
   | AppleTranslateResult
+  | VolcanoTranslateResult
   | GoogleTranslateResult;
 
 export interface RequestErrorInfo {

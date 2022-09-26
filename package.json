@@ -414,6 +414,14 @@
       "default": true
     },
     {
+      "name": "enableVolcanoTranslate",
+      "type": "checkbox",
+      "label": "Volcano Translate",
+      "required": false,
+      "description": "Turn on/off Volcano Translate",
+      "default": false
+    },
+    {
       "name": "enableYoudaoTranslate",
       "type": "checkbox",
       "label": "Youdao Translate",
@@ -492,6 +500,22 @@
       "type": "textfield",
       "required": false,
       "description": "Your Tencent SecretKey",
+      "default": ""
+    },
+    {
+      "title": "Volcano Access Key ID",
+      "name": "volcanoAccessKeyId",
+      "type": "textfield",
+      "required": false,
+      "description": "Your Volcano Access Key ID",
+      "default": ""
+    },
+    {
+      "title": "Volcano Access Key Secret",
+      "name": "volcanoAccessKeySecret",
+      "type": "textfield",
+      "required": false,
+      "description": "Your Volcano Access Key Secret",
       "default": ""
     },
     {

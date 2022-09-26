@@ -14,7 +14,7 @@ import querystring from "node:querystring";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getDeepLLanguageId } from "../language/languages";
-import { KeyStore, myDecrypt, myEncrypt } from "../preferences";
+import { AppKeyStore, myDecrypt, myEncrypt } from "../preferences";
 import { DeepLTranslateResult, QueryTypeResult, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 
@@ -135,7 +135,7 @@ const wildEncryptedDeepLKeys = [
 export function getDeepLAuthKey(): Promise<string> {
   console.log(`get deepL key`);
   return new Promise((resolve) => {
-    const userKey = KeyStore.userDeepLAuthKey;
+    const userKey = AppKeyStore.userDeepLAuthKey;
     if (userKey) {
       console.log(`---> user has deepL key`);
       return resolve(userKey);
@@ -143,7 +143,7 @@ export function getDeepLAuthKey(): Promise<string> {
 
     console.log(`---> get stored deepL key`);
 
-    const decryptedKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+    const decryptedKey = myDecrypt(AppKeyStore.defaultEncryptedDeepLAuthKey);
     LocalStorage.getItem<string>(deepLAuthStoredKey).then((key) => {
       if (key) {
         console.log(`---> use stored deepL key`); // cost: 10 ms
@@ -214,7 +214,7 @@ export async function getAndStoreDeepLKey(encryptedKeys: string[]): Promise<stri
   }
 
   console.log(`---> no valid key, use defatul deepl key`);
-  const defaultDeepLAuthKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+  const defaultDeepLAuthKey = myDecrypt(AppKeyStore.defaultEncryptedDeepLAuthKey);
   return Promise.resolve(defaultDeepLAuthKey);
 }
 
@@ -235,6 +235,6 @@ export async function getAndStoreValidDeepLKey(encryptedKeys: string[]): Promise
     }
   }
   console.log(`---> no valid key, use defatul deepl key`);
-  const defaultDeepLAuthKey = myDecrypt(KeyStore.defaultEncryptedDeepLAuthKey);
+  const defaultDeepLAuthKey = myDecrypt(AppKeyStore.defaultEncryptedDeepLAuthKey);
   return Promise.resolve(defaultDeepLAuthKey);
 }

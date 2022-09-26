@@ -18,6 +18,7 @@ export enum LanguageDetectType {
   Baidu = "Baidu Detect",
   Google = "Google Detect",
   Bing = "Bing Detect",
+  Volcano = "Volcano Detect",
 }
 
 export interface DetectedLanguageModel {

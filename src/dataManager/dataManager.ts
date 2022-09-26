@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 21:45
+ * @lastEditTime: 2022-09-26 23:59
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -32,6 +32,7 @@ import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestWebBingTranslate } from "../translation/microsoft/bing";
 import { requestTencentTranslate } from "../translation/tencent";
+import { requestVolcanoTranslate } from "../translation/volcano/volcanoAPI";
 import {
   DicionaryType,
   DisplaySection,
@@ -159,6 +160,7 @@ export class DataManager {
     this.queryBingTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
+    this.queryVolcanoTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
 
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
@@ -584,6 +586,31 @@ export class DataManager {
           const queryResult: QueryResult = {
             type: type,
             sourceResult: tencentTypeResult,
+          };
+          this.updateTranslationDisplay(queryResult);
+        })
+        .catch((error) => {
+          showErrorToast(error);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
+        });
+    }
+  }
+
+  /**
+   * Query Volcano translate.
+   */
+  private queryVolcanoTranslate(queryWordInfo: QueryWordInfo) {
+    if (myPreferences.enableVolcanoTranslate) {
+      const type = TranslationType.Volcano;
+      this.addQueryToRecordList(type);
+
+      requestVolcanoTranslate(queryWordInfo)
+        .then((volcanoTypeResult) => {
+          const queryResult: QueryResult = {
+            type: type,
+            sourceResult: volcanoTypeResult,
           };
           this.updateTranslationDisplay(queryResult);
         })

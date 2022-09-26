@@ -15,13 +15,13 @@ import { requestCostTime } from "../axiosConfig";
 import { DetectedLanguageModel, LanguageDetectType } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getTencentLanguageId, getYoudaoLanguageIdFromTencentId } from "../language/languages";
-import { KeyStore } from "../preferences";
+import { AppKeyStore } from "../preferences";
 import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "../types";
 
 const TmtClient = tencentcloud.tmt.v20180321.Client;
 
-const SECRET_ID = KeyStore.tencentSecretId;
-const SECRET_KEY = KeyStore.tencentSecretKey;
+const SECRET_ID = AppKeyStore.tencentSecretId;
+const SECRET_KEY = AppKeyStore.tencentSecretKey;
 
 const endpoint = "tmt.tencentcloudapi.com";
 const region = "ap-guangzhou";

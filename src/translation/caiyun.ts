@@ -12,7 +12,7 @@ import axios, { AxiosError } from "axios";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getCaiyunLanguageId } from "../language/languages";
-import { KeyStore } from "../preferences";
+import { AppKeyStore } from "../preferences";
 import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 
@@ -30,12 +30,14 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
   const to = getCaiyunLanguageId(toLanguage);
   const trans_type = `${from}2${to}`; // "auto2xx";
 
+  const type = TranslationType.Caiyun;
+
   // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
     console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
-      type: TranslationType.Caiyun,
+      type: type,
       result: undefined,
       translations: [],
       wordInfo: queryWordInfo,
@@ -51,7 +53,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
   const config = {
     headers: {
       "content-type": "application/json",
-      "x-authorization": "token " + KeyStore.caiyunToken,
+      "x-authorization": "token " + AppKeyStore.caiyunToken,
     },
   };
   return new Promise((resolve, reject) => {
@@ -62,7 +64,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
         const translations = caiyunResult.target;
         console.log(`Caiyun translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
         resolve({
-          type: TranslationType.Caiyun,
+          type: type,
           result: caiyunResult,
           translations: translations,
           wordInfo: queryWordInfo,
@@ -76,7 +78,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
 
         console.error(`---> Caiyun translate error: ${error}`);
         console.error("caiyun error response: ", error.response);
-        const errorInfo = getTypeErrorInfo(TranslationType.Caiyun, error);
+        const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
   });

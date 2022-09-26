@@ -2,19 +2,22 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:53
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 20:32
+ * @lastEditTime: 2022-09-26 22:44
  * @fileName: volcanoSign.js
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import CryptoJS from "crypto-js";
+import { AppKeyStore } from "../../preferences";
 
-const accessKey = "AKLTY2ZkZjkwYTllN2U0NGJkMWE1MGVhOGI4ZWQzYjE4YzA";
-const secretKey = "TnpjeE5qTXdNbVU0Tnpnek5HRTFPVGhrTVRZMlpESTNZamMyTXpkbFl6SQ==";
+const accessKey = AppKeyStore.volcanoSecretId;
+const secretKey = AppKeyStore.volcanoSecretKey;
 
 /**
  * Generate Volcano Sign.
+ *
+ * Docs: https://www.volcengine.com/docs/4640/65067
  *
  * Ref: https://github.com/KrisLee1/panda-dict/blob/main/src/assets/script/APIs.js#L134
  */
