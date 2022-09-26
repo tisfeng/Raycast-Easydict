@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 00:20
+ * @lastEditTime: 2022-09-26 11:21
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
-import { useState } from "react";
+import React, { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { formateDetailMarkdown, isOneLineTextTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
@@ -362,8 +362,8 @@ function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
  *  Get List.Item.Accessory[] based on the ListDisplayItem.
  */
 export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[] {
-  let wordExamTypeAccessory = [];
-  let pronunciationAccessory = [];
+  let wordExamTypeAccessory: List.Item.Accessory[] = [];
+  let pronunciationAccessory: List.Item.Accessory[] = [];
   let wordAccessories: List.Item.Accessory[] = [];
   const accessoryItem = item.accessoryItem;
   if (accessoryItem) {
