@@ -64,7 +64,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
           type: TranslationType.Google,
           result: res,
           translations: res.text.split("\n"),
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         };
         resolve(result);
       })
@@ -178,7 +178,7 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
           type: TranslationType.Google,
           result: { translatedText: translation },
           translations: translations,
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         };
         resolve(result);
       })

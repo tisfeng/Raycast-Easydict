@@ -40,7 +40,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
       type: type,
       result: undefined,
       translations: [],
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -67,7 +67,7 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
           type: type,
           result: caiyunResult,
           translations: translations,
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         });
       })
       .catch((error: AxiosError) => {

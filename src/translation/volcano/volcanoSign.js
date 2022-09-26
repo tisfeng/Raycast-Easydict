@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:53
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 22:44
+ * @lastEditTime: 2022-09-27 00:25
  * @fileName: volcanoSign.js
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,6 +22,10 @@ const secretKey = AppKeyStore.volcanoSecretKey;
  * Ref: https://github.com/KrisLee1/panda-dict/blob/main/src/assets/script/APIs.js#L134
  */
 export const genVolcanoSign = function (query, params) {
+  if (!accessKey || !secretKey) {
+    return undefined;
+  }
+
   const Query = {
     query: query,
     toString: function () {

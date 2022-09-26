@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-22 18:23
+ * @lastEditTime: 2022-09-27 00:40
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -58,7 +58,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
       type: TranslationType.Tencent,
       result: undefined,
       translations: [],
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -178,7 +178,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
           type: type,
           result: tencentResult,
           translations: tencentResult.TargetText.split("\n"),
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         };
         resolve(typeResult);
       })
@@ -220,7 +220,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
       type: type,
       result: undefined,
       translations: [],
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -240,7 +240,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
       type: type,
       result: tencentResult as TencentTranslateResult,
       translations: tencentResult.TargetText.split("\n"),
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(typeResult);
   } catch (err) {
@@ -257,7 +257,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
 }
 
 /**
- * Tecent language detect, use Tencent nodejs sdk. Cost time: ~0.2s
+ * Tecent language detect, use Tencent nodejs sdk. Cost time: ~150ms
  *
  * 腾讯语种识别，5次/秒： https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
  *

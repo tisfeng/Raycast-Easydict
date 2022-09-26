@@ -49,7 +49,7 @@ import {
   checkIfEnableYoudaoDictionary,
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
-  hasYoudaoAPI,
+  hasYoudaoAppKey,
   sortedQueryResults,
   updateTranslationMarkdown,
 } from "./utils";
@@ -340,7 +340,7 @@ export class DataManager {
 
           // * If has Youdao dictionary check if quey text is word, directly use it.
           if (queryWordInfo.isWord !== undefined) {
-            lingueeTypeResult.wordInfo.isWord = queryWordInfo.isWord;
+            lingueeTypeResult.queryWordInfo.isWord = queryWordInfo.isWord;
           }
 
           // Use Youdao phonetic as Linguee phonetic.
@@ -404,7 +404,7 @@ export class DataManager {
       const type = queryType ?? DicionaryType.Youdao;
       this.addQueryToRecordList(type);
 
-      const enableYoudaoAPI = hasYoudaoAPI();
+      const enableYoudaoAPI = hasYoudaoAppKey();
 
       // If user has Youdao API key, use official API, otherwise use web API.
       const youdaoDictionayFnPtr = enableYoudaoAPI ? requestYoudaoAPITranslate : requestYoudaoWebDictionary;
@@ -528,7 +528,7 @@ export class DataManager {
               type: type,
               result: { translatedText: translatedText },
               translations: translations,
-              wordInfo: queryWordInfo,
+              queryWordInfo: queryWordInfo,
             };
             const queryResult: QueryResult = {
               type: type,
@@ -630,7 +630,7 @@ export class DataManager {
    * * If use Youdao web dictionary, need to update Youdao dictionary translation.
    */
   private queryYoudaoTranslate(queryWordInfo: QueryWordInfo) {
-    const enableYoudaoAPI = hasYoudaoAPI();
+    const enableYoudaoAPI = hasYoudaoAppKey();
     if (
       (myPreferences.enableYoudaoTranslate && !myPreferences.enableYoudaoDictionary) ||
       (myPreferences.enableYoudaoDictionary && !enableYoudaoAPI)
@@ -754,7 +754,7 @@ export class DataManager {
         key: `${oneLineTranslation}-${type}`,
         title: ` ${oneLineTranslation}`,
         copyText: copyText,
-        queryWordInfo: sourceResult.wordInfo,
+        queryWordInfo: sourceResult.queryWordInfo,
       };
       const displaySections: DisplaySection[] = [
         {
@@ -857,7 +857,7 @@ export class DataManager {
 
       if (sourceResult && displaySections?.length) {
         const displaySection = displaySections[0];
-        const wordInfo = sourceResult.wordInfo;
+        const wordInfo = sourceResult.queryWordInfo;
         const onlyShowEmoji = this.isShowDetail;
         const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, onlyShowEmoji);
         const simpleSectionTitle = `${sourceResult.type}`;
@@ -886,7 +886,7 @@ export class DataManager {
    */
   private downloadAndPlayWordAudio(queryTypeResult: QueryTypeResult) {
     console.log(`---> downloadAndPlayWordAudio: ${queryTypeResult.type}`);
-    const wordInfo = queryTypeResult.wordInfo;
+    const wordInfo = queryTypeResult.queryWordInfo;
     // console.log(`---> wordInfo: ${JSON.stringify(wordInfo, null, 4)}`);
     const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
     const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode;

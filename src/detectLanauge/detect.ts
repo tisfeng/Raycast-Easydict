@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 21:45
+ * @lastEditTime: 2022-09-27 00:38
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import { baiduWebLanguageDetect } from "../translation/baidu/baiduAPI";
 import { googleLanguageDetect } from "../translation/google";
 import { bingLanguageDetect } from "../translation/microsoft/bing";
 import { tencentLanguageDetect } from "../translation/tencent";
+import { volcanoDetect } from "../translation/volcano/volcanoAPI";
 import { RequestErrorInfo } from "../types";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 import { francLangaugeDetect } from "./franc";
@@ -55,6 +56,7 @@ export function detectLanguage(text: string): Promise<DetectedLanguageModel> {
     const detectActionList = [
       baiduWebLanguageDetect(lowerCaseText),
       tencentLanguageDetect(lowerCaseText),
+      volcanoDetect(lowerCaseText),
       bingLanguageDetect(lowerCaseText),
       googleLanguageDetect(lowerCaseText),
     ];
@@ -146,14 +148,16 @@ function handleDetectedLanguage(detectedLang: DetectedLanguageModel): Promise<De
     }
     console.log(`detectedTypes: ${detectedTypes}`);
 
-    // If enabled speed first, and API detected two `preferred` language, tryto  use it.
+    // If enabled speed first, and API detected two `preferred` language, try to use it.
     if (detectedIdenticalLanguages.length === 2) {
       const baiduType = LanguageDetectType.Baidu;
       const bingType = LanguageDetectType.Bing;
+      const volcanoType = LanguageDetectType.Volcano;
       const containBingDetect = detectedLang.type === bingType || apiDetectedListContainsType(bingType);
       const containBaiduDetect = detectedLang.type === baiduType || apiDetectedListContainsType(baiduType);
+      const containVolcanoDetect = detectedLang.type === volcanoType || apiDetectedListContainsType(volcanoType);
       if (
-        (containBingDetect || containBaiduDetect) &&
+        (containBingDetect || containBaiduDetect || containVolcanoDetect) &&
         isPreferredLanguage(detectedLangId) &&
         myPreferences.enableLanguageDetectionSpeedFirst
       ) {

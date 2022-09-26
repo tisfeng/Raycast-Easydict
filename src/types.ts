@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-04 21:58
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 22:47
+ * @lastEditTime: 2022-09-27 00:43
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,7 +23,7 @@ import {
 } from "./dictionary/youdao/types";
 import { LanguageItem } from "./language/type";
 import { BingTranslateResult } from "./translation/microsoft/types";
-import { VolcanoTranslateResult } from "./translation/volcano/types";
+import { VolcanoDetectResult, VolcanoTranslateResult } from "./translation/volcano/types";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;
@@ -56,7 +56,7 @@ export type RequestType = TranslationType | DicionaryType | LanguageDetectType;
 
 export interface QueryTypeResult {
   type: QueryType;
-  wordInfo: QueryWordInfo; // dictionary type must has own word info.
+  queryWordInfo: QueryWordInfo; // dictionary type must has own word info.
   result?: QueryResponse; // when language is not supported, result is undefined.
   translations: string[]; // each translation is a paragraph.
   oneLineTranslation?: string; // one line translation. will automatically give value when updating if type is TranslationType.
@@ -76,6 +76,7 @@ export type QueryResponse =
   | LingueeDictionaryResult
   | AppleTranslateResult
   | VolcanoTranslateResult
+  | VolcanoDetectResult
   | GoogleTranslateResult;
 
 export interface RequestErrorInfo {

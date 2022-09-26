@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 22:48
+ * @lastEditTime: 2022-09-27 00:32
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -141,7 +141,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
   let isShowDetail = false;
   for (const queryResult of queryResults) {
     const sourceResult = queryResult.sourceResult;
-    const wordInfo = sourceResult.wordInfo;
+    const wordInfo = sourceResult.queryWordInfo;
     const isDictionaryType = checkIsDictionaryType(queryResult.type);
     if (isDictionaryType) {
       if (wordInfo.hasDictionaryEntries) {
@@ -220,7 +220,7 @@ export function formateDetailMarkdown(listDisplayItem: ListDisplayItem, word: st
  * Format translation to markdown.
  */
 export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
-  const { type, translations, wordInfo } = sourceResult;
+  const { type, translations, queryWordInfo: wordInfo } = sourceResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {
     return "";
@@ -288,8 +288,8 @@ export function checkIfEnableYoudaoDictionary(queryWordInfo: QueryWordInfo) {
 /**
  * Check if enable Youdao API translation.
  */
-export function hasYoudaoAPI() {
-  if (AppKeyStore.youdaoAppId) {
+export function hasYoudaoAppKey() {
+  if (AppKeyStore.youdaoAppId && AppKeyStore.youdaoAppSecret) {
     return true;
   }
   return false;

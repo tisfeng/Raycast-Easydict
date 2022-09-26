@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:52
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 23:54
+ * @lastEditTime: 2022-09-27 00:43
  * @fileName: volcanoAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,11 +10,13 @@
 
 import axios from "axios";
 import { requestCostTime } from "../../axiosConfig";
+import { DetectedLanguageModel } from "../../detectLanauge/types";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
 import { getVolcanoLanguageId } from "../../language/languages";
-import { getTypeErrorInfo, printObject } from "../../utils";
+import { getTypeErrorInfo } from "../../utils";
+import { LanguageDetectType } from "./../../detectLanauge/types";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "./../../types";
-import { VolcanoTranslateResult } from "./types";
+import { VolcanoDetectResult, VolcanoTranslateResult } from "./types";
 import { genVolcanoSign } from "./volcanoSign";
 
 /**
@@ -29,7 +31,7 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   const from = getVolcanoLanguageId(fromLanguage);
   const to = getVolcanoLanguageId(toLanguage);
 
-  requestVolcanoDetect(queryWordInfo);
+  const type = TranslationType.Volcano;
 
   const query = {
     Action: "TranslateText",
@@ -43,10 +45,19 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   };
 
   const signObjet = genVolcanoSign(query, params);
+  if (!signObjet) {
+    console.warn(`Volcano AccessKey or SecretKey is empty`);
+    const result: QueryTypeResult = {
+      type: type,
+      result: undefined,
+      translations: [],
+      queryWordInfo: queryWordInfo,
+    };
+    return Promise.resolve(result);
+  }
+
   const url = signObjet.getUrl();
   const config = signObjet.getConfig();
-
-  const type = TranslationType.Volcano;
 
   return new Promise((resolve, reject) => {
     axios
@@ -55,7 +66,7 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
         const volcanoResult = res.data as VolcanoTranslateResult;
         const volcanoError = volcanoResult.ResponseMetaData.Error;
         if (volcanoError) {
-          console.error(`baidu translate error: ${JSON.stringify(volcanoResult)}`); //  {"error_code":"54001","error_msg":"Invalid Sign"}
+          console.error(`Volcano translate error: ${JSON.stringify(volcanoResult)}`);
           const errorInfo: RequestErrorInfo = {
             type: type,
             code: volcanoError.Code || "",
@@ -69,7 +80,7 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
           type: type,
           result: volcanoResult,
           translations: translations,
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         };
         resolve(result);
 
@@ -90,34 +101,78 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
 }
 
 /**
- * Volcengine Detect API
+ * Volcengine Detect API. Cost time: ~150ms
  */
-export function requestVolcanoDetect(queryWordInfo: QueryWordInfo) {
-  console.log(`---> start request requestVolcanoDetect`);
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
-  console.log(`---> fromLanguage: ${fromLanguage}, toLanguage: ${toLanguage}, word: ${word}`);
+export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
+  console.log(`---> start request Volcano Detect`);
+  const type = LanguageDetectType.Volcano;
 
   const query = {
     Action: "LangDetect",
     Version: "2020-06-01",
   };
   const params = {
-    TextList: [word],
+    TextList: [text],
   };
 
   const signObjet = genVolcanoSign(query, params);
+
+  if (!signObjet) {
+    console.warn(`Volcano AccessKey or SecretKey is empty`);
+    const result: DetectedLanguageModel = {
+      type: type,
+      sourceLanguageId: "",
+      youdaoLanguageId: "",
+      confirmed: false,
+      result: undefined,
+    };
+    return Promise.resolve(result);
+  }
+
   const url = signObjet.getUrl();
   const config = signObjet.getConfig();
 
-  axios
-    .post(url, params, config)
-    .then((res) => {
-      printObject(`headers`, res.config.headers);
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, params, config)
+      .then((res) => {
+        const volcanoDetectResult = res.data as VolcanoDetectResult;
+        const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
+        if (volcanoError) {
+          console.error(`Volcano detect error: ${JSON.stringify(volcanoDetectResult)}`);
+          const errorInfo: RequestErrorInfo = {
+            type: type,
+            code: volcanoError.Code || "",
+            message: volcanoError.Message || "",
+          };
+          return reject(errorInfo);
+        }
 
-      console.log(`requestVolcanoDetect res: ${JSON.stringify(res.data, null, 2)}`);
-      console.warn(`cost time: ${res.headers[requestCostTime]} ms`);
-    })
-    .catch((err) => {
-      console.log(`requestVolcanoDetect err: ${JSON.stringify(err, null, 2)}`);
-    });
+        const detectedVolcanoLang = volcanoDetectResult.DetectedLanguageList[0];
+        const volcanoLang = detectedVolcanoLang.Language;
+        const youdaoLang = getVolcanoLanguageId(volcanoLang);
+        const isConfirmed = detectedVolcanoLang.Confidence > 0.5;
+        const detectedLanguage: DetectedLanguageModel = {
+          type: type,
+          sourceLanguageId: volcanoLang,
+          youdaoLanguageId: youdaoLang,
+          confirmed: isConfirmed,
+          result: volcanoDetectResult,
+        };
+        resolve(detectedLanguage);
+
+        console.log(`Volcano detect: ${JSON.stringify(detectedVolcanoLang, null, 2)}`);
+        console.warn(`Volcano detect cost time: ${res.headers[requestCostTime]} ms`);
+      })
+      .catch((error) => {
+        if (error.message === "canceled") {
+          console.log(`---> Volcano detect canceled`);
+          return reject(undefined);
+        }
+
+        console.log(`Volcano detect err: ${JSON.stringify(error, null, 2)}`);
+        const errorInfo = getTypeErrorInfo(type, error);
+        reject(errorInfo);
+      });
+  });
 }

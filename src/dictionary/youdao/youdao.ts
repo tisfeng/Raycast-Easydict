@@ -138,7 +138,7 @@ export function requestYoudaoAPITranslate(
         const youdaoTypeResult: QueryTypeResult = {
           type: type,
           result: youdaoFormatResult,
-          wordInfo: youdaoFormatResult.queryWordInfo,
+          queryWordInfo: youdaoFormatResult.queryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
         console.warn(`---> Youdao translate cost: ${response.headers[requestCostTime]} ms`);
@@ -220,7 +220,7 @@ export function requestYoudaoWebDictionary(
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
             result: undefined,
-            wordInfo: queryWordInfo,
+            queryWordInfo: queryWordInfo,
             translations: [],
           };
           return resolve(youdaoTypeResult);
@@ -229,7 +229,7 @@ export function requestYoudaoWebDictionary(
         const youdaoTypeResult: QueryTypeResult = {
           type: type,
           result: youdaoFormatResult,
-          wordInfo: youdaoFormatResult.queryWordInfo,
+          queryWordInfo: youdaoFormatResult.queryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
         resolve(youdaoTypeResult);
@@ -282,7 +282,7 @@ export async function requestYoudaoWebTranslate(
     const undefinedResult: QueryTypeResult = {
       type: type,
       result: undefined,
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
       translations: [],
     };
     return Promise.resolve(undefinedResult);
@@ -330,7 +330,7 @@ export async function requestYoudaoWebTranslate(
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
             result: youdaoWebResult,
-            wordInfo: queryWordInfo,
+            queryWordInfo: queryWordInfo,
             translations: translations,
           };
           resolve(youdaoTypeResult);

@@ -36,7 +36,7 @@ export async function rquestLingueeDictionary(queryWordInfo: QueryWordInfo): Pro
       type: DicionaryType.Linguee,
       result: undefined,
       translations: [],
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }

@@ -38,7 +38,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
       type: TranslationType.DeepL,
       result: undefined,
       translations: [],
-      wordInfo: queryWordInfo,
+      queryWordInfo: queryWordInfo,
     };
     return Promise.resolve(result);
   }
@@ -71,7 +71,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
           type: TranslationType.DeepL,
           result: deepLResult,
           translations: translatedText.split("\n"),
-          wordInfo: queryWordInfo,
+          queryWordInfo: queryWordInfo,
         };
         resolve(deepLTypeResult);
       })

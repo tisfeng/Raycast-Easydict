@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-22 18:20
+ * @lastEditTime: 2022-09-27 00:39
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -89,7 +89,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
   }
 
   const url = `https://${bingTld}.bing.com/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
-  console.log(`bing url: ${url}`);
+  // console.log(`bing url: ${url}`);
 
   const config: AxiosRequestConfig = {
     method: "post",
@@ -134,7 +134,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
 
           const result: QueryTypeResult = {
             type: type,
-            wordInfo: queryWordInfo,
+            queryWordInfo: queryWordInfo,
             result: bingTranslateResult,
             translations: translations,
           };

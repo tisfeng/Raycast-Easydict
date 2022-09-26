@@ -72,7 +72,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
             type: type,
             result: baiduResult,
             translations: translations,
-            wordInfo: queryWordInfo,
+            queryWordInfo: queryWordInfo,
           };
           resolve(result);
         } else {
