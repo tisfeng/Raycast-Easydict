@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-08 13:42
+ * @lastEditTime: 2022-09-26 11:02
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,7 +19,34 @@ import { KeyStore } from "../preferences";
 import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 
-import genBaiduWebSign from "./baiduSign";
+import genBaiduWebSign, { VolcengineTranslateAPI } from "./baiduSign";
+
+const accessKey = "AKLTY2ZkZjkwYTllN2U0NGJkMWE1MGVhOGI4ZWQzYjE4YzA";
+const secretKey = "TnpjeE5qTXdNbVU0Tnpnek5HRTFPVGhrTVRZMlpESTNZamMyTXpkbFl6SQ==";
+
+/**
+ * Volcengine Translate API
+ */
+export async function requestVolcanoTranslate(queryWordInfo: QueryWordInfo) {
+  console.log(`---> start request volcanoTranslateAPI`);
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
+
+  const volcanoTranslate = VolcengineTranslateAPI(word, accessKey, secretKey, "zh");
+
+  const url = volcanoTranslate.getUrl();
+  const params = volcanoTranslate.getParams();
+  const config = volcanoTranslate.getConfig();
+
+  axios
+    .post(url, params, config)
+    .then((res) => {
+      console.log(`volcanoTranslateAPI res: ${JSON.stringify(res.data, null, 2)}`);
+      console.warn(`cost time: ${res.headers[requestCostTime]} ms`);
+    })
+    .catch((err) => {
+      console.log(`volcanoTranslateAPI err: ${JSON.stringify(err, null, 2)}`);
+    });
+}
 
 /**
  * Baidu translate. Cost time: ~0.4s
@@ -28,6 +55,9 @@ import genBaiduWebSign from "./baiduSign";
  */
 export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu`);
+
+  requestVolcanoTranslate(queryWordInfo);
+
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getBaiduLanguageId(fromLanguage);
   const to = getBaiduLanguageId(toLanguage);
