@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 22:56
+ * @lastEditTime: 2022-09-26 21:45
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { isValidLanguageId } from "../language/languages";
 import { myPreferences } from "../preferences";
-import { baiduWebLanguageDetect } from "../translation/baidu";
+import { baiduWebLanguageDetect } from "../translation/baidu/baiduAPI";
 import { googleLanguageDetect } from "../translation/google";
 import { bingLanguageDetect } from "../translation/microsoft/bing";
 import { tencentLanguageDetect } from "../translation/tencent";

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 11:23
+ * @lastEditTime: 2022-09-26 21:41
  * @fileName: baidu.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,45 +10,23 @@
 
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import querystring from "node:querystring";
-import { requestCostTime } from "../axiosConfig";
-import { DetectedLanguageModel, LanguageDetectType } from "../detectLanauge/types";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId, isValidLanguageId } from "../language/languages";
-import { KeyStore } from "../preferences";
-import { BaiduTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
-import { getTypeErrorInfo, md5 } from "../utils";
-import { autoDetectLanguageItem, englishLanguageItem } from "./../language/consts";
-import { BaiduWebLanguageDetect } from "./../types";
+import { requestCostTime } from "../../axiosConfig";
+import { DetectedLanguageModel, LanguageDetectType } from "../../detectLanauge/types";
+import { QueryWordInfo } from "../../dictionary/youdao/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "../../language/consts";
+import { getBaiduLanguageId, getYoudaoLanguageIdFromBaiduId, isValidLanguageId } from "../../language/languages";
+import { KeyStore } from "../../preferences";
+import {
+  BaiduTranslateResult,
+  BaiduWebLanguageDetect,
+  QueryTypeResult,
+  RequestErrorInfo,
+  TranslationType,
+} from "../../types";
+import { getTypeErrorInfo, md5 } from "../../utils";
+import { requestVolcanoDetect, requestVolcanoTranslate } from "../volcano/volcanoAPI";
 
-import genBaiduWebSign, { VolcengineTranslateAPI } from "./baiduSign";
-
-/**
- * Volcengine Translate API
- */
-export async function requestVolcanoTranslate(queryWordInfo: QueryWordInfo) {
-  console.log(`---> start request volcanoTranslateAPI`);
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
-  console.log(`---> fromLanguage: ${fromLanguage}, toLanguage: ${toLanguage}, word: ${word}`);
-
-  const accessKey = "AKLTY2ZkZjkwYTllN2U0NGJkMWE1MGVhOGI4ZWQzYjE4YzA";
-  const secretKey = "TnpjeE5qTXdNbVU0Tnpnek5HRTFPVGhrTVRZMlpESTNZamMyTXpkbFl6SQ==";
-
-  const volcanoTranslate = VolcengineTranslateAPI(word, accessKey, secretKey, "zh");
-
-  const url = volcanoTranslate.getUrl();
-  const params = volcanoTranslate.getParams();
-  const config = volcanoTranslate.getConfig();
-
-  axios
-    .post(url, params, config)
-    .then((res) => {
-      console.log(`volcanoTranslateAPI res: ${JSON.stringify(res.data, null, 2)}`);
-      console.warn(`cost time: ${res.headers[requestCostTime]} ms`);
-    })
-    .catch((err) => {
-      console.log(`volcanoTranslateAPI err: ${JSON.stringify(err, null, 2)}`);
-    });
-}
+import genBaiduWebSign from "./baiduSign";
 
 /**
  * Baidu translate. Cost time: ~0.4s
@@ -59,6 +37,7 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
   console.log(`---> start request Baidu`);
 
   requestVolcanoTranslate(queryWordInfo);
+  requestVolcanoDetect(queryWordInfo);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getBaiduLanguageId(fromLanguage);

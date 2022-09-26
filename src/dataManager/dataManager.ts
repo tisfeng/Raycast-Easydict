@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 11:13
+ * @lastEditTime: 2022-09-26 21:45
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -26,7 +26,7 @@ import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "
 import { LanguageItem } from "../language/type";
 import { myPreferences } from "../preferences";
 import { appleTranslate } from "../scripts";
-import { requestBaiduTextTranslate, requestBaiduWebTranslate } from "../translation/baidu";
+import { requestBaiduTextTranslate } from "../translation/baidu/baiduAPI";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
@@ -553,8 +553,6 @@ export class DataManager {
     if (myPreferences.enableBaiduTranslate) {
       const type = TranslationType.Baidu;
       this.addQueryToRecordList(type);
-
-      requestBaiduWebTranslate(queryWordInfo);
 
       requestBaiduTextTranslate(queryWordInfo)
         .then((baiduTypeResult) => {
