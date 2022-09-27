@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:43
+ * @lastEditTime: 2022-09-27 23:30
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -30,7 +30,6 @@ export async function requestGoogleTranslate(
   signal?: AbortSignal
 ): Promise<QueryTypeResult> {
   console.log(`---> start request Google`);
-  // googleRPCTranslate(queryWordInfo, signal);
   return googleWebTranslate(queryWordInfo, signal);
 }
 
