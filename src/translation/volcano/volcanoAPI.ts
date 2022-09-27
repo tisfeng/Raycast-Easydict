@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:52
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:35
+ * @lastEditTime: 2022-09-27 20:05
  * @fileName: volcanoAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,7 @@ import { requestCostTime } from "../../axiosConfig";
 import { DetectedLangModel } from "../../detectLanauge/types";
 import { checkIfPreferredLanguagesContainChinese } from "../../detectLanauge/utils";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getVolcanoLangCode } from "../../language/languages";
+import { getVolcanoLangCode, getYoudaoLangCodeFromVolcanoCode } from "../../language/languages";
 import { getTypeErrorInfo } from "../../utils";
 import { LanguageDetectType } from "./../../detectLanauge/types";
 import { chineseLanguageItem, englishLanguageItem } from "./../../language/consts";
@@ -150,20 +150,20 @@ export function volcanoDetect(text: string): Promise<DetectedLangModel> {
           return reject(errorInfo);
         }
 
-        const detectedVolcanoLang = volcanoDetectResult.DetectedLanguageList[0];
-        const volcanoLang = detectedVolcanoLang.Language;
-        const youdaoLang = getVolcanoLangCode(volcanoLang);
-        const isConfirmed = detectedVolcanoLang.Confidence > 0.5;
+        const detectedVolcanoLanguage = volcanoDetectResult.DetectedLanguageList[0];
+        const volcanoLangCode = detectedVolcanoLanguage.Language;
+        const youdaoLangCode = getYoudaoLangCodeFromVolcanoCode(volcanoLangCode);
+        const isConfirmed = detectedVolcanoLanguage.Confidence > 0.5;
         const detectedLanguage: DetectedLangModel = {
           type: type,
-          sourceLangCode: volcanoLang,
-          youdaoLangCode: youdaoLang,
+          sourceLangCode: volcanoLangCode,
+          youdaoLangCode: youdaoLangCode,
           confirmed: isConfirmed,
           result: volcanoDetectResult,
         };
         resolve(detectedLanguage);
 
-        console.log(`Volcano detect: ${JSON.stringify(detectedVolcanoLang, null, 2)}`);
+        console.log(`Volcano detect: ${JSON.stringify(detectedVolcanoLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
         console.warn(`Volcano detect cost time: ${res.headers[requestCostTime]} ms`);
       })
       .catch((error) => {
