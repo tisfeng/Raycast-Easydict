@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 11:24
+ * @lastEditTime: 2022-09-27 16:34
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { environment } from "@raycast/api";
 import axios from "axios";
 import { detectLanguage } from "../detectLanauge/detect";
-import { DetectedLanguageModel } from "../detectLanauge/types";
+import { DetectedLangModel } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
 import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
 import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
@@ -22,7 +22,7 @@ import {
   requestYoudaoWebDictionary,
   requestYoudaoWebTranslate,
 } from "../dictionary/youdao/youdao";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoId } from "../language/languages";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoCode } from "../language/languages";
 import { LanguageItem } from "../language/type";
 import { myPreferences } from "../preferences";
 import { appleTranslate } from "../scripts";
@@ -258,7 +258,7 @@ export class DataManager {
 
     detectLanguage(text).then((detectedLanguage) => {
       console.log(
-        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLanguageId}`
+        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`
       );
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.
@@ -275,25 +275,25 @@ export class DataManager {
   /**
    * Query text with with detected language
    */
-  private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: DetectedLanguageModel) {
-    const fromYoudaoLanguageId = detectedLanguage.youdaoLanguageId;
-    console.log("queryTextWithFromLanguageId:", fromYoudaoLanguageId);
-    this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoId(fromYoudaoLanguageId));
+  private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: DetectedLangModel) {
+    const fromYoudaoLangCode = detectedLanguage.youdaoLangCode;
+    console.log("queryTextWithFromLanguageId:", fromYoudaoLangCode);
+    this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoCode(fromYoudaoLangCode));
 
     // priority to use user selected target language, if conflict, use auto selected target language
-    let targetLanguageId = toLanguage;
-    console.log("userSelectedTargetLanguage:", targetLanguageId);
-    if (fromYoudaoLanguageId === targetLanguageId) {
-      const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLanguageId);
+    let targetLangCode = toLanguage;
+    console.log("userSelectedTargetLanguage:", targetLangCode);
+    if (fromYoudaoLangCode === targetLangCode) {
+      const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLangCode);
       this.updateAutoSelectedTargetLanguageItem(targetLanguageItem);
-      targetLanguageId = targetLanguageItem.youdaoLangCode;
-      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLanguageId);
+      targetLangCode = targetLanguageItem.youdaoLangCode;
+      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLangCode);
     }
 
     const queryTextInfo: QueryWordInfo = {
       word: text,
-      fromLanguage: fromYoudaoLanguageId,
-      toLanguage: targetLanguageId,
+      fromLanguage: fromYoudaoLangCode,
+      toLanguage: targetLangCode,
     };
     this.queryTextWithTextInfo(queryTextInfo);
   }

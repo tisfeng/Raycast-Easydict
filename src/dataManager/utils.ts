@@ -14,7 +14,7 @@ import { hasYoudaoDictionaryEntries } from "../dictionary/youdao/formatData";
 import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
 import {
-  getLanguageItemFromYoudaoId,
+  getLanguageItemFromYoudaoCode,
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "../language/languages";
@@ -194,8 +194,8 @@ export function checkIfDictionaryHasEntries(dictionaryResult: QueryResult): bool
  * * Since language title is too long for detail page, so we use short emoji instead.  eg. zh-CHS --> en, return: 🇨🇳 --> 🇬🇧
  */
 export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = false) {
-  const fromLanguageItem = getLanguageItemFromYoudaoId(from);
-  const toLanguageItem = getLanguageItemFromYoudaoId(to);
+  const fromLanguageItem = getLanguageItemFromYoudaoCode(from);
+  const toLanguageItem = getLanguageItemFromYoudaoCode(to);
   const fromToEmoji = `${fromLanguageItem.emoji} --> ${toLanguageItem.emoji}`;
   const fromToLanguageNameAndEmoji = `${fromLanguageItem.langEnglishName}${fromLanguageItem.emoji} --> ${toLanguageItem.langEnglishName}${toLanguageItem.emoji}`;
   return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 00:39
+ * @lastEditTime: 2022-09-27 16:43
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,10 +15,10 @@ import { requestCostTime } from "../../axiosConfig";
 import { checkIfIpInChina } from "../../checkIP";
 import { isChineseIPKey, userAgent } from "../../consts";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getBingLanguageId, getYoudaoLanguageIdFromBingId } from "../../language/languages";
+import { getBingLangCode, getYoudaoLangCodeFromBingCode } from "../../language/languages";
 import { QueryTypeResult } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
-import { DetectedLanguageModel, LanguageDetectType } from "./../../detectLanauge/types";
+import { DetectedLangModel, LanguageDetectType } from "./../../detectLanauge/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "./../../language/consts";
 import { RequestErrorInfo, TranslationType } from "./../../types";
 import { BingConfig, BingTranslateResult } from "./types";
@@ -46,8 +46,8 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
   console.log(`start requestWebBingTranslate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const fromLang = getBingLanguageId(fromLanguage);
-  const toLang = getBingLanguageId(toLanguage);
+  const fromLang = getBingLangCode(fromLanguage);
+  const toLang = getBingLangCode(toLanguage);
 
   const type = TranslationType.Bing;
 
@@ -157,7 +157,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
 /**
  * Bing language detect, use bing translate `audo-detect`.
  */
-export async function bingLanguageDetect(text: string): Promise<DetectedLanguageModel> {
+export async function bingDetect(text: string): Promise<DetectedLangModel> {
   console.log(`start bingLanguageDetect`);
 
   const queryWordInfo: QueryWordInfo = {
@@ -172,13 +172,13 @@ export async function bingLanguageDetect(text: string): Promise<DetectedLanguage
       .then((result) => {
         const bingTranslateResult = result.result as BingTranslateResult;
         const detectedLanguageCode = bingTranslateResult.detectedLanguage.language;
-        const youdaoLangCode = getYoudaoLanguageIdFromBingId(detectedLanguageCode);
+        const youdaoLangCode = getYoudaoLangCodeFromBingCode(detectedLanguageCode);
         console.warn(`bing detect:${detectedLanguageCode}, youdaoId: ${youdaoLangCode}`);
 
-        const detectedLanguageResult: DetectedLanguageModel = {
+        const detectedLanguageResult: DetectedLangModel = {
           type: type,
-          sourceLanguageId: detectedLanguageCode,
-          youdaoLanguageId: youdaoLangCode,
+          sourceLangCode: detectedLanguageCode,
+          youdaoLangCode: youdaoLangCode,
           confirmed: false,
           result: bingTranslateResult,
         };

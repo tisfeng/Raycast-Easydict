@@ -9,7 +9,7 @@
  */
 
 import { parse } from "node-html-parser";
-import { getLanguageItemFromDeepLSourceId, getLanguageTitle } from "../../language/languages";
+import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "../../language/languages";
 import { DicionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from "../../types";
 import { checkIsWord } from "../../utils";
 import { QueryWordInfo } from "../youdao/types";
@@ -385,7 +385,7 @@ function getYoudaoLanguageId(language: string, rootElement: HTMLElement): string
   const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
   if (sourceLang) {
     const sourceLanguage = sourceLang.replace(/'/g, ""); // remove "'"
-    return getLanguageItemFromDeepLSourceId(sourceLanguage).youdaoLangCode;
+    return getLanguageItemFromDeepLSourceCode(sourceLanguage).youdaoLangCode;
   }
 }
 
@@ -401,7 +401,7 @@ export function getLingueeWebDictionaryURL(queryWordInfo: QueryWordInfo): string
     return;
   }
 
-  const sourceLanguage = getLanguageTitle(fromLanguage).toLowerCase();
+  const sourceLanguage = getLanguageEnglishName(fromLanguage).toLowerCase();
   const lingueeUrl = `https://www.linguee.com/${validLanguagePair}/search?source=${sourceLanguage}&query=${encodeURIComponent(
     queryWordInfo.word
   )}`;

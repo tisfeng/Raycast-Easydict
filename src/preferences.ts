@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 22:53
+ * @lastEditTime: 2022-09-27 16:37
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,11 +10,11 @@
 
 import { environment, getPreferenceValues } from "@raycast/api";
 import CryptoJS from "crypto-js";
-import { getLanguageItemFromYoudaoId } from "./language/languages";
+import { getLanguageItemFromYoudaoCode } from "./language/languages";
 
 export const myPreferences: MyPreferences = getPreferenceValues();
-export const preferredLanguage1 = getLanguageItemFromYoudaoId(myPreferences.language1);
-export const preferredLanguage2 = getLanguageItemFromYoudaoId(myPreferences.language2);
+export const preferredLanguage1 = getLanguageItemFromYoudaoCode(myPreferences.language1);
+export const preferredLanguage2 = getLanguageItemFromYoudaoCode(myPreferences.language2);
 export const preferredLanguages = [preferredLanguage1, preferredLanguage2];
 // console.log("myPreferences: ", myPreferences);
 

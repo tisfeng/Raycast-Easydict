@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:52
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:00
+ * @lastEditTime: 2022-09-27 16:35
  * @fileName: volcanoAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,10 +10,10 @@
 
 import axios from "axios";
 import { requestCostTime } from "../../axiosConfig";
-import { DetectedLanguageModel } from "../../detectLanauge/types";
+import { DetectedLangModel } from "../../detectLanauge/types";
 import { checkIfPreferredLanguagesContainChinese } from "../../detectLanauge/utils";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getVolcanoLanguageId } from "../../language/languages";
+import { getVolcanoLangCode } from "../../language/languages";
 import { getTypeErrorInfo } from "../../utils";
 import { LanguageDetectType } from "./../../detectLanauge/types";
 import { chineseLanguageItem, englishLanguageItem } from "./../../language/consts";
@@ -30,8 +30,8 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   console.log(`---> start request Volcano Translate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const from = getVolcanoLanguageId(fromLanguage);
-  const to = getVolcanoLanguageId(toLanguage);
+  const from = getVolcanoLangCode(fromLanguage);
+  const to = getVolcanoLangCode(toLanguage);
 
   const type = TranslationType.Volcano;
 
@@ -105,7 +105,7 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
 /**
  * Volcengine Detect API. Cost time: ~150ms
  */
-export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
+export function volcanoDetect(text: string): Promise<DetectedLangModel> {
   console.log(`---> start request Volcano Detect`);
   const type = LanguageDetectType.Volcano;
 
@@ -121,10 +121,10 @@ export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
 
   if (!signObjet) {
     console.warn(`Volcano AccessKey or SecretKey is empty`);
-    const result: DetectedLanguageModel = {
+    const result: DetectedLangModel = {
       type: type,
-      sourceLanguageId: "",
-      youdaoLanguageId: "",
+      sourceLangCode: "",
+      youdaoLangCode: "",
       confirmed: false,
       result: undefined,
     };
@@ -152,12 +152,12 @@ export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
 
         const detectedVolcanoLang = volcanoDetectResult.DetectedLanguageList[0];
         const volcanoLang = detectedVolcanoLang.Language;
-        const youdaoLang = getVolcanoLanguageId(volcanoLang);
+        const youdaoLang = getVolcanoLangCode(volcanoLang);
         const isConfirmed = detectedVolcanoLang.Confidence > 0.5;
-        const detectedLanguage: DetectedLanguageModel = {
+        const detectedLanguage: DetectedLangModel = {
           type: type,
-          sourceLanguageId: volcanoLang,
-          youdaoLanguageId: youdaoLang,
+          sourceLangCode: volcanoLang,
+          youdaoLangCode: youdaoLang,
           confirmed: isConfirmed,
           result: volcanoDetectResult,
         };
@@ -187,8 +187,8 @@ export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
 export function getVolcanoWebTranslateURL(queryWordInfo: QueryWordInfo): string {
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const encodeWord = encodeURIComponent(word);
-  const from = getVolcanoLanguageId(fromLanguage);
-  const to = getVolcanoLanguageId(toLanguage);
+  const from = getVolcanoLangCode(fromLanguage);
+  const to = getVolcanoLangCode(toLanguage);
   const homeLanguage = checkIfPreferredLanguagesContainChinese()
     ? chineseLanguageItem.volcanoLangCode
     : englishLanguageItem.volcanoLangCode;

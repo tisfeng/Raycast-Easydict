@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-20 10:46
+ * @lastEditTime: 2022-09-27 16:43
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -18,10 +18,10 @@ import { checkIfIpInChina } from "../checkIP";
 import { isChineseIPKey, userAgent } from "../consts";
 import { checkIfPreferredLanguagesContainChinese } from "../detectLanauge/utils";
 import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getGoogleLanguageId, getYoudaoLanguageIdFromGoogleId } from "../language/languages";
+import { getGoogleLangCode, getYoudaoLangCodeFromGoogleCode } from "../language/languages";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
-import { DetectedLanguageModel, LanguageDetectType } from "./../detectLanauge/types";
+import { DetectedLangModel, LanguageDetectType } from "./../detectLanauge/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "./../language/consts";
 import { GoogleTranslateResult } from "./../types";
 
@@ -43,8 +43,8 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
   console.log(`start google RPC translate`);
 
   const { word, fromLanguage, toLanguage } = queryWordInfo;
-  const fromLanguageId = getGoogleLanguageId(fromLanguage);
-  const toLanguageId = getGoogleLanguageId(toLanguage);
+  const fromLanguageId = getGoogleLangCode(fromLanguage);
+  const toLanguageId = getGoogleLangCode(toLanguage);
 
   const isChina = await checkIsChina();
   const tld = isChina ? "cn" : "com";
@@ -87,7 +87,7 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
 /**
  * Google language detect. Actually, it uses google RPC translate api to detect language.
  */
-export function googleLanguageDetect(text: string, signal = axios.defaults.signal): Promise<DetectedLanguageModel> {
+export function googleDetect(text: string, signal = axios.defaults.signal): Promise<DetectedLangModel> {
   console.log(`---> start Google detect: ${text}`);
 
   const startTime = new Date().getTime();
@@ -102,14 +102,14 @@ export function googleLanguageDetect(text: string, signal = axios.defaults.signa
       .then((googleTypeResult) => {
         const googleResult = googleTypeResult.result as GoogleTranslateResult;
         const googleLanguageId = googleResult.from.language.iso;
-        const youdaoLanguageId = getYoudaoLanguageIdFromGoogleId(googleLanguageId);
+        const youdaoLanguageId = getYoudaoLangCodeFromGoogleCode(googleLanguageId);
         console.warn(`---> Google detect language: ${googleLanguageId}, youdaoId: ${youdaoLanguageId}`);
         console.log(`google detect cost time: ${new Date().getTime() - startTime} ms`);
 
-        const languagedDetectResult: DetectedLanguageModel = {
+        const languagedDetectResult: DetectedLangModel = {
           type: LanguageDetectType.Google,
-          sourceLanguageId: googleLanguageId,
-          youdaoLanguageId: youdaoLanguageId,
+          sourceLangCode: googleLanguageId,
+          youdaoLangCode: youdaoLanguageId,
           confirmed: true,
           result: googleResult,
         };
@@ -141,8 +141,8 @@ export function googleLanguageDetect(text: string, signal = axios.defaults.signa
 export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
   console.log(`start google web translate`);
 
-  const fromLanguageId = getGoogleLanguageId(queryWordInfo.fromLanguage);
-  const toLanguageId = getGoogleLanguageId(queryWordInfo.toLanguage);
+  const fromLanguageId = getGoogleLangCode(queryWordInfo.fromLanguage);
+  const toLanguageId = getGoogleLangCode(queryWordInfo.toLanguage);
   const data = {
     sl: fromLanguageId, // source language
     tl: toLanguageId, // target language

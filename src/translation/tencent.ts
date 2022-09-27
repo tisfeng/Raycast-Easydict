@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 00:40
+ * @lastEditTime: 2022-09-27 16:42
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,9 +12,9 @@ import axios from "axios";
 import crypto, { BinaryToTextEncoding } from "crypto";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { requestCostTime } from "../axiosConfig";
-import { DetectedLanguageModel, LanguageDetectType } from "../detectLanauge/types";
+import { DetectedLangModel, LanguageDetectType } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getTencentLanguageId, getYoudaoLanguageIdFromTencentId } from "../language/languages";
+import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "../language/languages";
 import { AppKeyStore } from "../preferences";
 import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "../types";
 
@@ -50,8 +50,8 @@ const client = new TmtClient(clientConfig);
 export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start axios request Tencent translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const from = getTencentLanguageId(fromLanguage);
-  const to = getTencentLanguageId(toLanguage);
+  const from = getTencentLangCode(fromLanguage);
+  const to = getTencentLangCode(toLanguage);
   if (!from || !to) {
     console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
@@ -210,8 +210,8 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
   console.log(`---> start sdk request Tencent translate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const from = getTencentLanguageId(fromLanguage);
-  const to = getTencentLanguageId(toLanguage);
+  const from = getTencentLangCode(fromLanguage);
+  const to = getTencentLangCode(toLanguage);
   const type = TranslationType.Tencent;
 
   if (!from || !to) {
@@ -263,7 +263,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
  *
  * Todo: use axios to rewrite.
  */
-export function tencentLanguageDetect(text: string): Promise<DetectedLanguageModel> {
+export function tencentDetect(text: string): Promise<DetectedLangModel> {
   console.log(`---> start sdk request Tencent language detect`);
 
   const params = {
@@ -279,13 +279,13 @@ export function tencentLanguageDetect(text: string): Promise<DetectedLanguageMod
       .then((response) => {
         const endTime = new Date().getTime();
         const tencentLanguageId = response.Lang || "";
-        const youdaoLanguageId = getYoudaoLanguageIdFromTencentId(tencentLanguageId);
+        const youdaoLanguageId = getYoudaoLangCodeFromTencentCode(tencentLanguageId);
         console.warn(`tencent detect language: ${tencentLanguageId}, youdaoId: ${youdaoLanguageId}`);
         console.warn(`tencent cost time: ${endTime - startTime} ms`);
-        const typeResult: DetectedLanguageModel = {
+        const typeResult: DetectedLangModel = {
           type: type,
-          sourceLanguageId: tencentLanguageId,
-          youdaoLanguageId: youdaoLanguageId,
+          sourceLangCode: tencentLanguageId,
+          youdaoLangCode: youdaoLanguageId,
           confirmed: false,
         };
         resolve(typeResult);

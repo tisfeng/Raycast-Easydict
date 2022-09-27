@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 23:25
+ * @lastEditTime: 2022-09-27 16:40
  * @fileName: caiyun.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import axios, { AxiosError } from "axios";
 import { requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getCaiyunLanguageId } from "../language/languages";
+import { getCaiyunLangCode } from "../language/languages";
 import { AppKeyStore } from "../preferences";
 import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
@@ -26,8 +26,8 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
-  const from = getCaiyunLanguageId(fromLanguage);
-  const to = getCaiyunLanguageId(toLanguage);
+  const from = getCaiyunLangCode(fromLanguage);
+  const to = getCaiyunLangCode(toLanguage);
   const trans_type = `${from}2${to}`; // "auto2xx";
 
   const type = TranslationType.Caiyun;
