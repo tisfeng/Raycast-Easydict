@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:52
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 00:43
+ * @lastEditTime: 2022-09-27 16:00
  * @fileName: volcanoAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,10 +11,12 @@
 import axios from "axios";
 import { requestCostTime } from "../../axiosConfig";
 import { DetectedLanguageModel } from "../../detectLanauge/types";
+import { checkIfPreferredLanguagesContainChinese } from "../../detectLanauge/utils";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
 import { getVolcanoLanguageId } from "../../language/languages";
 import { getTypeErrorInfo } from "../../utils";
 import { LanguageDetectType } from "./../../detectLanauge/types";
+import { chineseLanguageItem, englishLanguageItem } from "./../../language/consts";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "./../../types";
 import { VolcanoDetectResult, VolcanoTranslateResult } from "./types";
 import { genVolcanoSign } from "./volcanoSign";
@@ -175,4 +177,21 @@ export function volcanoDetect(text: string): Promise<DetectedLanguageModel> {
         reject(errorInfo);
       });
   });
+}
+
+/**
+ *  Get Volcano web translate url.
+ *
+ * eg: https://translate.volcengine.com/translate?category=&home_language=zh&source_language=detect&target_language=zh&text=good
+ */
+export function getVolcanoWebTranslateURL(queryWordInfo: QueryWordInfo): string {
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
+  const encodeWord = encodeURIComponent(word);
+  const from = getVolcanoLanguageId(fromLanguage);
+  const to = getVolcanoLanguageId(toLanguage);
+  const homeLanguage = checkIfPreferredLanguagesContainChinese()
+    ? chineseLanguageItem.volcanoLangCode
+    : englishLanguageItem.volcanoLangCode;
+
+  return `https://translate.volcengine.com/translate?category=&home_language=${homeLanguage}&source_language=${from}&target_language=${to}&text=${encodeWord}`;
 }

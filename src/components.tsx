@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 11:21
+ * @lastEditTime: 2022-09-27 15:55
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
-import React, { useState } from "react";
+import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { formateDetailMarkdown, isOneLineTextTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
@@ -28,6 +28,7 @@ import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./prefere
 import ReleaseNotesPage from "./releaseVersion/releaseNotePage";
 import { Easydict } from "./releaseVersion/versionInfo";
 import { openInEudic } from "./scripts";
+import { getVolcanoWebTranslateURL } from "./translation/volcano/volcanoAPI";
 import {
   ActionListPanelProps,
   DicionaryType,
@@ -68,6 +69,9 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const baiduWebItem = getWebQueryItem(TranslationType.Baidu, queryWordInfo);
   const isShowingBaiduTop = displayItem.queryType === TranslationType.Baidu;
 
+  const volcanoWebItem = getWebQueryItem(TranslationType.Volcano, queryWordInfo);
+  const isShowingVolcanoTop = displayItem.queryType === TranslationType.Volcano;
+
   const lingueeWebItem = getWebQueryItem(DicionaryType.Linguee, queryWordInfo);
   const isShowingLingueeTop = displayItem.queryType === DicionaryType.Linguee;
 
@@ -99,6 +103,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
         {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
+        {isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} />}
 
         {isShowingDetail && (
           <Action.Push
@@ -126,6 +131,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {!isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
         {!isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
         {!isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
+        {!isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} />}
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Play Text Audio">
@@ -410,6 +416,10 @@ function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQuer
     }
     case TranslationType.Baidu: {
       webUrl = getBaiduWebTranslateURL(wordInfo);
+      break;
+    }
+    case TranslationType.Volcano: {
+      webUrl = getVolcanoWebTranslateURL(wordInfo);
       break;
     }
     case DicionaryType.Linguee: {

@@ -271,7 +271,7 @@ export function getLanguageOfTwoExceptChinese(youdaoLanguageIds: [string, string
   }
 }
 
-export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
+export function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string {
   const text = encodeURIComponent(queryTextInfo.word);
   const fromLanguageId = getGoogleLanguageId(queryTextInfo.fromLanguage);
   const toLanguageId = getGoogleLanguageId(queryTextInfo.toLanguage);
