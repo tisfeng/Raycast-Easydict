@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 20:52
+ * @lastEditTime: 2022-09-27 23:22
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,11 +10,13 @@
 
 import { isValidLangCode } from "../language/languages";
 import { myPreferences } from "../preferences";
+import { appleLanguageDetect } from "../scripts";
 import { baiduWebDetect } from "../translation/baidu/baiduAPI";
 import { googleDetect } from "../translation/google";
 import { bingDetect } from "../translation/microsoft/bing";
-import { tencentDetect } from "../translation/tencent";
+import { hasTencentAppKey, tencentDetect } from "../translation/tencent";
 import { volcanoDetect } from "../translation/volcano/volcanoAPI";
+import { hasVolcanoAppKey } from "../translation/volcano/volcanoSign";
 import { RequestErrorInfo } from "../types";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 import { francLangaugeDetect } from "./franc";
@@ -55,19 +57,7 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
     console.log("api detect queryText:", text);
     console.log("detect lowerCaseText:", lowerCaseText);
 
-    const detectActionList = [
-      baiduWebDetect(lowerCaseText),
-      tencentDetect(lowerCaseText),
-      volcanoDetect(lowerCaseText),
-      bingDetect(lowerCaseText),
-      googleDetect(lowerCaseText),
-    ];
-
-    if (myPreferences.enableAppleLanguageDetect) {
-      // Since Apple detection may block the main thread, so we stop it for now and wait for a solution to be found later.
-      // detectActionList.push(appleLanguageDetect(lowerCaseText));
-    }
-
+    const detectActionList = getDetectAPIs().map((detect) => detect(lowerCaseText));
     raceDetectLanguage(detectActionList).then((detectedLanguage) => {
       if (!detectedLanguage) {
         console.log(`use localDetectResult`);
@@ -78,6 +68,34 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
       }
     });
   });
+}
+
+/**
+ * Get detect API functions. If API is enabled, add it to detect function list. Add Google and Bing by default.
+ */
+function getDetectAPIs() {
+  const detectActionList = [];
+  detectActionList.push(bingDetect);
+  detectActionList.push(googleDetect);
+
+  if (myPreferences.enableBaiduTranslate) {
+    detectActionList.push(baiduWebDetect);
+  }
+
+  if (myPreferences.enableTencentTranslate && hasTencentAppKey()) {
+    detectActionList.push(tencentDetect);
+  }
+  if (myPreferences.enableVolcanoTranslate && hasVolcanoAppKey()) {
+    detectActionList.push(volcanoDetect);
+  }
+
+  // Apple detection is inaccurate, only use it when lacking detect API.
+  if (detectActionList.length < 3 && myPreferences.enableAppleLanguageDetect) {
+    // Since Apple detect may block the main thread, so we stop it for now and wait for a solution to be found later.
+    detectActionList.push(appleLanguageDetect);
+  }
+
+  return detectActionList;
 }
 
 /**
@@ -257,9 +275,9 @@ function getLocalTextLanguageDetectResult(
   }
 
   // if franc detect language is valid, use it, such as 'fr', 'it'.
-  const youdaoLanguageId = francDetectResult.youdaoLangCode;
-  if (isValidLangCode(youdaoLanguageId)) {
-    console.log(`final use franc unconfirmed but valid detect: ${youdaoLanguageId}`);
+  const youdaoLangCode = francDetectResult.youdaoLangCode;
+  if (isValidLangCode(youdaoLangCode)) {
+    console.log(`final use franc unconfirmed but valid detect: ${youdaoLangCode}`);
     return francDetectResult;
   }
 

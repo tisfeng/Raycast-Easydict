@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:42
+ * @lastEditTime: 2022-09-27 22:44
  * @fileName: baiduAPI.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -28,20 +28,49 @@ import { getTypeErrorInfo, md5 } from "../../utils";
 import genBaiduWebSign from "./baiduSign";
 
 /**
+ * Check has Baidu AppId and AppKey.
+ */
+export function hasBaiduAppKey(): boolean {
+  const baiduAppId = AppKeyStore.baiduAppId;
+  const baiduAppSecret = AppKeyStore.baiduAppSecret;
+
+  if (baiduAppId && baiduAppSecret) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
  * Baidu translate. Cost time: ~0.4s
  *
  * 百度翻译API https://fanyi-api.baidu.com/doc/21
  */
 export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.log(`---> start request Baidu`);
+  console.log(`---> start request Baidu translate`);
+
+  const type = TranslationType.Baidu;
+
+  if (!hasBaiduAppKey()) {
+    console.warn(`Baidu AppId or AppSecret is empty`);
+    const result: QueryTypeResult = {
+      type: type,
+      result: undefined,
+      translations: [],
+      queryWordInfo: queryWordInfo,
+    };
+    return Promise.resolve(result);
+  }
+
+  const baiduAppId = AppKeyStore.baiduAppId;
+  const baiduAppSecret = AppKeyStore.baiduAppSecret;
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getBaiduLangCode(fromLanguage);
   const to = getBaiduLangCode(toLanguage);
 
   const salt = Math.round(new Date().getTime() / 1000);
-  const baiduAppId = AppKeyStore.baiduAppId;
-  const md5Content = baiduAppId + word + salt + AppKeyStore.baiduAppSecret;
+  const md5Content = baiduAppId + word + salt + baiduAppSecret;
   const sign = md5(md5Content);
   const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
   const encodeQueryText = Buffer.from(word, "utf8").toString();
@@ -54,8 +83,6 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
     sign: sign,
   };
   // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
-
-  const type = TranslationType.Baidu;
 
   return new Promise((resolve, reject) => {
     axios
@@ -229,7 +256,7 @@ function getBaiduWebLanguageDetectErrorInfo(result: BaiduWebLanguageDetect): Req
 }
 
 export function requestBaiduWebTranslate(queryWordInfo: QueryWordInfo) {
-  console.log(`---> start request Baidu web`);
+  console.log(`---> start request Baidu web translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getBaiduLangCode(fromLanguage);
   const to = getBaiduLangCode(toLanguage);

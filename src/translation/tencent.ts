@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 10:18
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:42
+ * @lastEditTime: 2022-09-27 22:15
  * @fileName: tencent.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,8 +17,6 @@ import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "../language/languages";
 import { AppKeyStore } from "../preferences";
 import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "../types";
-
-const TmtClient = tencentcloud.tmt.v20180321.Client;
 
 const SECRET_ID = AppKeyStore.tencentSecretId;
 const SECRET_KEY = AppKeyStore.tencentSecretKey;
@@ -39,7 +37,6 @@ const clientConfig = {
     },
   },
 };
-const client = new TmtClient(clientConfig);
 
 /**
  * Tencent translate, use axios, sign manually. Cost time: ~0.1 ms
@@ -52,10 +49,17 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLangCode(fromLanguage);
   const to = getTencentLangCode(toLanguage);
-  if (!from || !to) {
-    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
+  const type = TranslationType.Tencent;
+
+  const hasAppKey = SECRET_ID && SECRET_KEY;
+  if (!from || !to || !hasAppKey) {
+    if (!hasAppKey) {
+      console.warn(`---> Tencent translate no app key`);
+    } else {
+      console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
+    }
     const result: QueryTypeResult = {
-      type: TranslationType.Tencent,
+      type: type,
       result: undefined,
       translations: [],
       queryWordInfo: queryWordInfo,
@@ -139,8 +143,6 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
     "Signature=" +
     signature;
 
-  const type = TranslationType.Tencent;
-
   return new Promise((resolve, reject) => {
     axios
       .post(`https://${endpoint}`, payload, {
@@ -214,8 +216,13 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
   const to = getTencentLangCode(toLanguage);
   const type = TranslationType.Tencent;
 
-  if (!from || !to) {
-    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
+  const hasAppKey = hasTencentAppKey();
+  if (!from || !to || !hasAppKey) {
+    if (!hasAppKey) {
+      console.warn(`---> Tencent translate sdk no app key`);
+    } else {
+      console.warn(`Tencent translate sdk not support language: ${fromLanguage} --> ${toLanguage}`);
+    }
     const result: QueryTypeResult = {
       type: type,
       result: undefined,
@@ -233,6 +240,9 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
   const startTime = new Date().getTime();
 
   try {
+    const TmtClient = tencentcloud.tmt.v20180321.Client;
+    const client = new TmtClient(clientConfig);
+
     const tencentResult = (await client.TextTranslate(params)) as TencentTranslateResult;
     const endTime = new Date().getTime();
     console.log(`Tencen translate: ${tencentResult.TargetText}, cost: ${endTime - startTime} ms`);
@@ -273,7 +283,21 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
   const startTime = new Date().getTime();
   const type = LanguageDetectType.Tencent;
 
+  if (!hasTencentAppKey()) {
+    console.warn(`Tencent detect has no app key`);
+    const result: DetectedLangModel = {
+      type: type,
+      sourceLangCode: "",
+      youdaoLangCode: "",
+      confirmed: false,
+    };
+    return Promise.resolve(result);
+  }
+
   return new Promise((resolve, reject) => {
+    const TmtClient = tencentcloud.tmt.v20180321.Client;
+    const client = new TmtClient(clientConfig);
+
     client
       .LanguageDetect(params)
       .then((response) => {
@@ -301,4 +325,18 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
         reject(errorInfo);
       });
   });
+}
+
+/**
+ * Check has Tencent AppId and AppKey.
+ */
+export function hasTencentAppKey(): boolean {
+  const AppId = AppKeyStore.tencentSecretId;
+  const AppSecret = AppKeyStore.tencentSecretKey;
+
+  if (AppId && AppSecret) {
+    return true;
+  } else {
+    return false;
+  }
 }

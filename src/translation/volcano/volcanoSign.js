@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:53
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 00:25
+ * @lastEditTime: 2022-09-27 22:17
  * @fileName: volcanoSign.js
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,20 @@ const accessKey = AppKeyStore.volcanoSecretId;
 const secretKey = AppKeyStore.volcanoSecretKey;
 
 /**
+ * Check has Volcano AppId and AppKey.
+ */
+export function hasVolcanoAppKey() {
+  const AppId = AppKeyStore.volcanoSecretId;
+  const AppSecret = AppKeyStore.volcanoSecretKey;
+
+  if (AppId && AppSecret) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
  * Generate Volcano Sign.
  *
  * Docs: https://www.volcengine.com/docs/4640/65067
@@ -22,7 +36,7 @@ const secretKey = AppKeyStore.volcanoSecretKey;
  * Ref: https://github.com/KrisLee1/panda-dict/blob/main/src/assets/script/APIs.js#L134
  */
 export const genVolcanoSign = function (query, params) {
-  if (!accessKey || !secretKey) {
+  if (!hasVolcanoAppKey()) {
     return undefined;
   }
 
