@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:56
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-26 23:49
+ * @lastEditTime: 2022-09-27 16:26
  * @fileName: consts.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -45,7 +45,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLangCode: "zh",
     caiyunLangCode: "zh",
     langEnglishName: "Chinese-Simplified",
-    voiceList: ["Ting-Ting"],
+    voiceList: ["Ting-Ting"], // use { say -v '?'} to get voice list.
     emoji: "🇨🇳",
   },
   {
@@ -63,7 +63,7 @@ export const languageItemList: LanguageItem[] = [
     baiduLangCode: "en",
     caiyunLangCode: "en",
     langEnglishName: "English",
-    voiceList: ["Alex", "Samantha"],
+    voiceList: ["Samantha", "Alex"], // * Note: 'Alex' is not built-in voice in macOS 13.0+, user need to download manually and cost 885M storage.
     emoji: "🇺🇸",
   },
   {
