@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 22:56
+ * @lastEditTime: 2022-09-27 17:59
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -414,9 +414,11 @@ export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo
 /**
  * Download word audio file.
  *
- * If query text is a word (only English word?), download audio file from youdao web api, otherwise downloaded from youdao tts.
+ * If query text is a English word, download audio file from youdao web api, otherwise downloaded from youdao tts.
  *
- * * NOTE: If query text is too long(>40), don't download audio file, later derectly use say command to play.
+ * * NOTE: Audio 'Volcano' is different from 'volcano' in youdao web audio, so odd, so we use lower case word.
+ *
+ * * If query text is too long(>40), don't download audio file, later derectly use say command to play.
  */
 export function tryDownloadYoudaoAudio(
   queryWordInfo: QueryWordInfo,
@@ -449,8 +451,9 @@ export function tryDownloadYoudaoAudio(
  * type: 1: uk, 2: us. ---> 0: us ?
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
-  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
-  console.log(`download youdao English word audio: ${word}`);
-  const audioPath = getWordAudioPath(word);
+  const lowerCaseWord = word.toLowerCase();
+  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(lowerCaseWord)}`;
+  console.log(`download youdao English word audio: ${lowerCaseWord}`);
+  const audioPath = getWordAudioPath(lowerCaseWord);
   downloadAudio(url, audioPath, callback, forceDownload);
 }

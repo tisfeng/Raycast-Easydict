@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 11:33
+ * @lastEditTime: 2022-09-27 18:01
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -167,5 +167,6 @@ export function getWordAudioPath(word: string) {
   if (!fs.existsSync(audioDirPath)) {
     fs.mkdirSync(audioDirPath);
   }
-  return `${audioDirPath}/${word}.mp3`;
+  const lowerCaseWord = word.toLowerCase();
+  return `${audioDirPath}/${lowerCaseWord}.mp3`;
 }
