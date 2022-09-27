@@ -32,8 +32,8 @@
     "youdao",
     "baidu",
     "tencent",
-    "caiyun",
-    "eudic"
+    "eudic",
+    "caiyun"
   ],
   "dependencies": {
     "@raycast/api": "^1.39.2",
@@ -323,19 +323,19 @@
       "default": true
     },
     {
-      "name": "enableSystemProxy",
-      "type": "checkbox",
-      "label": "Use System Proxy",
-      "required": false,
-      "description": "Note that it should only be enabled if needed, as it can slow down requests.",
-      "default": false
-    },
-    {
       "name": "enableSelectTargetLanguage",
       "type": "checkbox",
       "label": "Select Target Language",
       "required": false,
       "description": "Select target language in action panel manually",
+      "default": false
+    },
+    {
+      "name": "enableSystemProxy",
+      "type": "checkbox",
+      "label": "Use System Proxy",
+      "required": false,
+      "description": "⚠️ Note that it should only be enabled if needed, as it can slow down requests.",
       "default": false
     },
     {
@@ -442,9 +442,9 @@
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, DeepL, Google, Bing, Apple, Baidu, Tencent, Youdao, Caiyun",
+      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun",
       "default": "",
-      "placeholder": "youdao dictionary, linguee dictionary, deepl, google, bing, apple, baidu, tencent, youdao, caiyun"
+      "placeholder": "youdao dictionary, linguee dictionary, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun"
     },
     {
       "title": "Youdao App ID",
