@@ -70,6 +70,8 @@
 
 `Easydict` 是一个 Raycast extension，因此需要先安装 [Raycast](https://www.raycast.com/)。
 
+> `Raycast` 是一款速度极快、完全可扩展的启动器。与 [Alfred](https://www.alfredapp.com/) 类似，但它完全免费！
+
 ### Raycast 商店安装
 
 <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">

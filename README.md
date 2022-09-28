@@ -70,6 +70,8 @@ Next:
 
 [`Easydict`](<(https://www.raycast.com/isfeng/easydict)>) is an extension of Raycast, so you need to install [Raycast](https://www.raycast.com/) first.
 
+> `Raycast` is a blazingly fast, totally extendable launcher. Similar to [Alfred](https://www.alfredapp.com/) but it's completely free!
+
 ### Install from Raycast Store
 
 <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
