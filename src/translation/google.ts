@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 23:30
+ * @lastEditTime: 2022-09-28 17:43
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -74,11 +74,12 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
           return reject(undefined);
         }
 
-        checkIfIpInChina();
         console.error(`google rpc error message: ${error.message}`);
         console.error(`googleRPCTranslate error: ${JSON.stringify(error, null, 4)}`);
         const errorInfo = getTypeErrorInfo(TranslationType.Google, error);
         reject(errorInfo);
+
+        checkIfIpInChina();
       });
   });
 }
@@ -194,6 +195,8 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
         };
 
         reject(errorInfo);
+
+        checkIfIpInChina();
       });
   });
 }
