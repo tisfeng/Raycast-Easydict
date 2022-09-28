@@ -11,6 +11,7 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
+
 ## Easydict（易词典）
 
 `Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询，支持 🍎**苹果系统翻译**，[DeepL](https://www.deepl.com/translator)，[谷歌](https://translate.google.cn)，[Bing](https://www.bing.com/translator), [百度](https://fanyi.baidu.com/)，[腾讯](https://fanyi.qq.com/)，[火山](https://translate.volcengine.com/translate)，[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)。
@@ -35,7 +36,7 @@
 
 下一步：
 
-- [ ] 开发桌面版 Electron App（构思中）。
+- [ ] 桌面版 Electron App（构思中）。
 - [ ] 支持查看历史记录。
 
 **_如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)_**
