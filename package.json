@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "easydict",
   "title": "Easy Dictionary",
-  "description": "Easily look up words or translate text, support 23 languages, support Linguee and Youdao dictionary, support DeepL, Google, Bing, Apple, Baidu, Tencent, Youdao and Caiyun translation.",
+  "description": "Easily look up words or translate text, support 23 languages, support Linguee and Youdao dictionary, support DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao and Caiyun translation.",
   "icon": "Eudic.png",
   "author": "isfeng",
   "license": "MIT",
@@ -345,7 +345,7 @@
       "type": "checkbox",
       "label": "Apple Translate",
       "required": false,
-      "description": "An `Apple Translate` shortcut needs to be installed, please see README for more details.",
+      "description": "⚠️ An `Apple Translate` shortcut needs to be installed, please see README for more details.",
       "default": false
     },
     {
@@ -353,7 +353,7 @@
       "type": "checkbox",
       "label": "Apple Language Detect",
       "required": false,
-      "description": "An `Apple Language Detect` shortcut needs to be installed, please see README for more details.",
+      "description": "⚠️ An `Apple Language Detect` shortcut needs to be installed, please see README for more details.",
       "default": false
     },
     {
@@ -404,7 +404,7 @@
       "label": "Baidu Translate",
       "required": false,
       "description": "Turn on/off Baidu Translate",
-      "default": false
+      "default": true
     },
     {
       "name": "enableTencentTranslate",
