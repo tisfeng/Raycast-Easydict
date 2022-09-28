@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 10:36
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:37
+ * @lastEditTime: 2022-09-29 00:15
  * @fileName: preferences.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -88,6 +88,13 @@ export class AppKeyStore {
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+ihWvHkAfPMrWHju5Kg4EXAm1AVbXazEeHaXE1jdeUzZZrhjdKmS6u";
   private static defaultCaiyunToken = myDecrypt(this.defaultEncryptedCaiyunToken);
 
+  private static defaultEncryptedVolcanoAccessKeyId =
+    "U2FsdGVkX1/hnsLekyaJC6ZRHhl2zF+DY3qIpKakBl+VzCNJmfTf7gWlzBDM/XRv4lREJR6cXNup5/27M3CxcQ==";
+  private static defaultEncryptedVolcanoSecrectAccessKey =
+    "U2FsdGVkX18WjU7IuyZYfezclJHCuufVQR0tWprs/kFI51/Hm2aPLSrYRVOGdNGtrleSGyaixypEKiku8vYejn9GbQxlHmbwN+Pj34Kxup4=";
+  private static defaultVolcanoAccessId = myDecrypt(this.defaultEncryptedVolcanoAccessKeyId);
+  private static defaultVolcanoAccessKey = myDecrypt(this.defaultEncryptedVolcanoSecrectAccessKey);
+
   // youdao app id and appsecret
   static youdaoAppId = myPreferences.youdaoAppId.trim().length > 0 ? myPreferences.youdaoAppId.trim() : undefined;
   static youdaoAppSecret =
@@ -114,8 +121,14 @@ export class AppKeyStore {
   static caiyunToken =
     myPreferences.caiyunToken.trim().length > 0 ? myPreferences.caiyunToken.trim() : this.defaultCaiyunToken;
 
-  static volcanoSecretId = myPreferences.volcanoAccessKeyId.trim();
-  static volcanoSecretKey = myPreferences.volcanoAccessKeySecret.trim();
+  static volcanoSecretId =
+    myPreferences.volcanoAccessKeyId.trim().length > 0
+      ? myPreferences.volcanoAccessKeyId.trim()
+      : this.defaultVolcanoAccessId;
+  static volcanoSecretKey =
+    myPreferences.volcanoAccessKeySecret.trim().length > 0
+      ? myPreferences.volcanoAccessKeySecret.trim()
+      : this.defaultVolcanoAccessKey;
 }
 
 export function myDecrypt(ciphertext: string) {
