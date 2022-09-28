@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-28 18:06
+ * @lastEditTime: 2022-09-28 18:24
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,9 +10,10 @@
 
 import { environment } from "@raycast/api";
 import axios from "axios";
-import { exec, ExecException } from "child_process";
+import { ExecException } from "child_process";
 import { execa } from "execa";
 import fs from "fs";
+import path from "path";
 import { languageItemList } from "./language/consts";
 import { trimTextLength } from "./utils";
 import playerImport = require("play-sound");
@@ -38,9 +39,10 @@ export async function playWordAudio(word: string, fromLanguage: string, useSayCo
     return;
   }
 
-  console.log(`play local file audio: ${word}`);
+  console.log(`play local file audio: ${path.basename(audioPath)}`);
 
   if (!audioPlayer) {
+    // * Note: this new object will cost ~0.4s
     audioPlayer = playerImport({});
     console.log(`not exist, new a audioPlayer`);
   }
@@ -99,13 +101,10 @@ function sayCommand(text: string, youdaoLanguageId: string) {
      */
     const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
     console.log(sayCommand);
-    const childProcess = exec(sayCommand, (error) => {
-      if (error) {
-        console.error(`sayCommand error: ${error}`);
-      }
-    });
 
-    return childProcess;
+    execa(sayCommand).catch((error) => {
+      console.error(`sayCommand error: ${error}`);
+    });
   }
 }
 
@@ -235,18 +234,19 @@ export function convertWavToM4a(filePath: string): Promise<string> {
   console.log(`convert wav file to m4a: ${filePath}`);
 
   return new Promise((resolve, reject) => {
-    const m4aFilePath = filePath.replace(".wav", ".m4a"); // can be omitted.
+    const m4aFilePath = filePath.replace(".wav", ".m4a"); // the same output filePath can be omitted.
     const afconvertCommand = `afconvert -f m4af -d aac '${filePath}' '${m4aFilePath}'`;
-    console.log(`afconvert command: ${afconvertCommand}`);
-    exec(afconvertCommand, (error) => {
-      if (error) {
-        console.error(`afconvert error: ${error}`);
-        reject(error);
-      } else {
-        console.log(`afconvert success, remove wav file: ${filePath}`);
+    // console.log(`afconvert command: ${afconvertCommand}`);
+
+    execa(afconvertCommand, { shell: true })
+      .then(() => {
+        console.log(`afconvert success, then remove old wav file.`);
         fs.unlinkSync(filePath);
         resolve(m4aFilePath);
-      }
-    }); // false
+      })
+      .catch((error) => {
+        console.error(`afconvert error: ${error}`);
+        reject(error);
+      });
   });
 }
