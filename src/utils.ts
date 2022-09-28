@@ -258,6 +258,6 @@ export function md5(text: string): string {
   return CryptoJS.MD5(text).toString();
 }
 
-export function printObject(name: string, obj: unknown) {
-  console.log(`${name}: ${JSON.stringify(obj, null, 4)}`);
+export function printObject(name: string, obj: unknown, space = 4) {
+  console.log(`${name}: ${JSON.stringify(obj, null, space)}`);
 }

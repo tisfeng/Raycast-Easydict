@@ -42,6 +42,7 @@
     "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",
     "execa": "^6.1.0",
+    "file-type": "^18.0.0",
     "franc": "^6.0.0",
     "https-proxy-agent": "^5.0.1",
     "mac-system-proxy": "^1.0.4",

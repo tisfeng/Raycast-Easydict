@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-22 16:22
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-28 18:24
+ * @lastEditTime: 2022-09-28 21:53
  * @fileName: audio.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,10 +12,11 @@ import { environment } from "@raycast/api";
 import axios from "axios";
 import { ExecException } from "child_process";
 import { execa } from "execa";
+import { fileTypeFromFile } from "file-type";
 import fs from "fs";
 import path from "path";
 import { languageItemList } from "./language/consts";
-import { trimTextLength } from "./utils";
+import { printObject, trimTextLength } from "./utils";
 import playerImport = require("play-sound");
 
 console.log(`enter audio.ts`);
@@ -102,7 +103,7 @@ function sayCommand(text: string, youdaoLanguageId: string) {
     const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
     console.log(sayCommand);
 
-    execa(sayCommand).catch((error) => {
+    execa(sayCommand, { shell: true }).catch((error) => {
       console.error(`sayCommand error: ${error}`);
     });
   }
@@ -139,8 +140,9 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
 
   axios
     .get(url, { responseType: "stream" })
-    .then((response) => {
+    .then(async (response) => {
       const fileStream = fs.createWriteStream(audioPath);
+
       response.data.pipe(fileStream);
       fileStream.on("finish", async () => {
         fileStream.close();
@@ -176,7 +178,7 @@ export function getWordAudioPath(word: string) {
 }
 
 /**
- * Try to convert wav file to m4a.
+ * Try to convert wav file to m4a. eg: false
  */
 async function tryConvertAudioToM4a(filePath: string) {
   if (await isWavFile(filePath)) {
@@ -188,6 +190,19 @@ async function tryConvertAudioToM4a(filePath: string) {
     // convert wav to m4a
     return convertWavToM4a(wavPath);
   }
+}
+
+/**
+ * Check file extension is wav or not.
+ */
+async function isWavFile(filePath: string) {
+  const fileType = await fileTypeFromFile(filePath);
+  printObject(`fileType`, fileType, 0);
+  // good: { "ext": "mp3", "mime": "audio/mpeg" }
+  // false: { "ext": "wav", "mime": "audio/vnd.wave" }
+
+  const ext = fileType?.ext;
+  return ext === "wav";
 }
 
 /**
@@ -211,7 +226,7 @@ export function getFileDataFormat(filePath: string): Promise<string> {
 /**
  * Check if file is 'wav' format.
  */
-export function isWavFile(filePath: string): Promise<boolean> {
+export function isWavFileType(filePath: string): Promise<boolean> {
   console.log(`check if file is wav format: ${filePath}`);
   return new Promise((resolve, reject) => {
     getFileDataFormat(filePath)
