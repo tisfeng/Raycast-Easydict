@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 10:37
+ * @lastEditTime: 2022-09-29 16:37
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -60,7 +60,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   console.log(`copyText: ${copyText} (${detailLanguage}, ${copyText.length})`);
 
   const isShowingDetail = isTextOneLineTooLong(detail, detailLanguage);
-  const showMoreDetail = formateDetailMarkdown(displayItem);
+  const showMoreDetails = formateDetailMarkdown(displayItem);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
@@ -109,10 +109,10 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
         {isShowingDetail && (
           <Action.Push
-            title="Show More Detail"
+            title="Show More Details"
             icon={Icon.Eye}
             shortcut={{ modifiers: ["cmd"], key: "m" }}
-            target={<Detail markdown={showMoreDetail} />}
+            target={<Detail markdown={showMoreDetails} />}
           />
         )}
 

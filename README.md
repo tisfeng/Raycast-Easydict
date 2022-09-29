@@ -15,7 +15,7 @@
 
 `Easydict` is an easy dictionary, for looking up words or translating text easily. Use it out of the box, automatically detect the input text language, and support [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/), **🍎 MacOS system translation**, [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.cn), [Bing](https://www.bing.com/translator), [Baidu](https://fanyi.baidu.com/), [Tencent](https://fanyi.qq.com/), [Volcano](https://translate.volcengine.com/translate), [Youdao](https://fanyi.youdao.com/), and [Caiyun](https://fanyi.caiyunapp.com/#/) translation.
 
-![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1660916219.png)
+![easydict-1-1664438822](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1664438822-1664438852.png)
 
 ## Features
 
@@ -50,21 +50,19 @@ Next:
 
 ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png)
 
-### [Linguee Dictionary](https://www.linguee.com/)：English <--> French
+### Show More Details（快捷键 `Cmd + M`）
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
+![showMore-1664440735](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
-
-#### [good](https://www.linguee.com/english-french/search?query=good)
-
-![image-20220822163332948](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png)
+![easydict-2-1664439977](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1664439977.png)
 
 ### Translation
 
-![easydict-5-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
+![easydict-4-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
 
-![easydict-6-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
+![easydict-5-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
+
+![easydict-6-1664440833](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1664440833.png)
 
 ## Installation
 
@@ -92,7 +90,7 @@ npm install && npm run dev
 
 Actually, it works well without you having to do any extra work. The next are advanced documents for those who want to use `Easydict` better or understand how the extension works.
 
-![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
+![setting-1664441069](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1664441069.png)
 
 ### Supported Languages
 
