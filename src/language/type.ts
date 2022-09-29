@@ -13,7 +13,7 @@ export interface LanguageItem {
   youdaoLangCode: string;
   volcanoLangCode: string; // Volcano language code, https://bytedance.feishu.cn/docx/doxcn5uVWhGLywSN4JsQE0wMzXb
   bingLangCode: string; // Bing language code, https://learn.microsoft.com/zh-cn/azure/cognitive-services/translator/language-support
-  appleDetectChineseTitle: string; // such as 中文，英语. ⚠️ Apple detect more languages than apple translate.
+  appleDetectLangChineseName: string; // such as 中文，英语. ⚠️ Apple detect more languages than apple translate.
   appleLangCode?: string; // used to translate, Apple translate support 12 languages?
   deepLSourceId?: string; // deepL source language id
   deepLTargetId?: string; // most are same as source language, some are different, such as "EN-GB" "EN-US" and so on. ⚠️ "EN" = "EN-US"

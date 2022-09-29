@@ -138,7 +138,7 @@ export function getYoudaoLangCodeFromAppleCode(appleLanguageTitle: string): stri
  */
 export function getLanguageItemFromAppleChineseTitle(chineseTitle: string): LanguageItem | undefined {
   for (const langItem of languageItemList) {
-    if (langItem.appleDetectChineseTitle.includes(chineseTitle)) {
+    if (langItem.appleDetectLangChineseName.includes(chineseTitle)) {
       return langItem;
     }
   }
