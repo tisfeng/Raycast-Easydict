@@ -420,7 +420,7 @@
       "label": "Volcano Translate",
       "required": false,
       "description": "Turn on/off Volcano Translate",
-      "default": false
+      "default": true
     },
     {
       "name": "enableYoudaoTranslate",
