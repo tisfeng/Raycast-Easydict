@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 11:08
+ * @lastEditTime: 2022-09-29 12:46
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -205,14 +205,29 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 /**
  * Show more detail markdown.
  */
-export function formateDetailMarkdown(listDisplayItem: ListDisplayItem) {
-  const { queryType, title, subtitle } = listDisplayItem;
-  const markdown = `
-  ## ${queryType} 
+export function formateDetailMarkdown(displayItem: ListDisplayItem) {
+  const { queryType, title, subtitle } = displayItem;
+  const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
-  ### ${title}
+  const type = queryType.toString();
+  const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
+  const fromToTitle = `${type}  (${fromToLang})`;
+
+  let queryWord = subtitle ? title : "";
+  let explanation = subtitle || title;
+
+  const isTranslationType = checkIsTranslationType(queryType);
+  if (isTranslationType) {
+    queryWord = word;
+    explanation = title;
+  }
+
+  const markdown = `
+  ## ${fromToTitle} 
+
+  ### ${queryWord}
   ----
-  ${subtitle || ""}
+  ${explanation}
   `;
   return markdown;
 }
