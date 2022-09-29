@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 12:46
+ * @lastEditTime: 2022-09-29 16:02
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -112,7 +112,7 @@ export function getSortOrder(): string[] {
 export function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
   const isChineseText = textLanguage === chineseLanguageItem.youdaoLangCode;
   const isEnglishText = textLanguage === englishLanguageItem.youdaoLangCode;
-  console.log(`check if text too long, ${textLanguage}, ${text.length})`);
+  // console.log(`check if text too long, ${textLanguage}, ${text.length}`);
 
   let isTooLong = false;
   const textLength = text.length;

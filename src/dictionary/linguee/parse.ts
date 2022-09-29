@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 11:05
+ * @lastEditTime: 2022-09-29 15:43
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -616,8 +616,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
       const copyText = `${title} ${subtitle}`;
       const displayItem: ListDisplayItem = {
         key: copyText,
-        title: title,
-        subtitle: subtitle,
+        title: copyText,
         copyText: copyText,
         queryWordInfo: queryWordInfo,
         displayType: displayType,
