@@ -16,7 +16,7 @@
 
 `Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询，支持 🍎**苹果系统翻译**，[DeepL](https://www.deepl.com/translator)，[谷歌](https://translate.google.cn)，[Bing](https://www.bing.com/translator), [百度](https://fanyi.baidu.com/)，[腾讯](https://fanyi.qq.com/)，[火山](https://translate.volcengine.com/translate)，[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)。
 
-![easydict-1](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1660916219.png)
+![easydict-1-1664438822](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1664438822-1664438852.png)
 
 ## 功能
 
@@ -45,27 +45,25 @@
 
 ### [Linguee 词典](https://www.linguee.com/)：英语 <--> 中文
 
-![easydict-2-1662904408](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1662904408-1662904427.png)![easydict-2-1662904408](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1662904408.png)
+![easydict-2-1662904408](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1662904408-20220911215421566-1662904461.png)
 
 #### [float](https://www.linguee.com/english-chinese/search?query=float)
 
 ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png)
 
-### [Linguee 词典](https://www.linguee.com/)：英语 <--> 法语
+### Show More Details（快捷键 `Cmd + M`）
 
-![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
+![showMore-1664440735](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png)
 
-![easydict-4](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-4-1660916341.png)
-
-#### [good](https://www.linguee.com/english-french/search?query=good)
-
-![image-20220822163332948](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png)
+![easydict-2-1664439977](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1664439977.png)
 
 ### 文本翻译
 
-![easydict-5-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
+![easydict-4-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png)
 
-![easydict-6-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
+![easydict-5-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
+
+![easydict-6-1664440833](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1664440833.png)
 
 ## 安装
 
@@ -255,7 +253,7 @@ npm install && npm run dev
 
 开启该功能后，`Easydict` 会尝试获取 Mac 系统代理，若成功，则后续的网络请求都会通过系统代理发送。默认关闭。 此功能是为了对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制），**但开启后会使请求响应速度变慢，因此请仅在有需要时启用。**
 
-> 特别注意 ⚠️：请不要在使用抓包工具 MitM 的情况下开启 `Use System Proxy`，否则部分服务请求会报证书错误，例如 https://github.com/tisfeng/Raycast-Easydict/issues/18 。
+> 注意 ⚠️：请不要在使用抓包工具 MitM 的情况下开启 `Use System Proxy`，否则部分服务请求会报证书错误，例如 https://github.com/tisfeng/Raycast-Easydict/issues/18 。
 
 ### 翻译服务
 

@@ -50,7 +50,7 @@ Next:
 
 ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png)
 
-### Show More Details（快捷键 `Cmd + M`）
+### Show More Details（Shortcut `Cmd + M`）
 
 ![showMore-1664440735](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png)
 
@@ -255,7 +255,7 @@ You can also specify a part of the sort, for example: `youdao dictionary, apple,
 
 When this feature is turned on, `Easydict` will try to get the Mac system agent, and if successful, all subsequent network requests will be sent through the system agent. It is disabled by default. This feature is intended to counter IP blocking (some services such as Linguee have frequency restrictions on IPs), **but it can slow down the response time to requests, so please enable it only when needed. **
 
-> Special Note ⚠️: Please don't turn on `Use System Proxy` while using the developer tools with MitM, otherwise some service requests will report certificate errors, for example: https://github.com/tisfeng/Raycast-Easydict/issues/18 .
+> Note ⚠️: Please don't turn on `Use System Proxy` while using the developer tools with MitM, otherwise some service requests will report certificate errors, for example: https://github.com/tisfeng/Raycast-Easydict/issues/18 .
 
 ### Translation Services
 
