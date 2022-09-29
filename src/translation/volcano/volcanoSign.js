@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-26 15:53
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 22:17
+ * @lastEditTime: 2022-09-29 15:40
  * @fileName: volcanoSign.js
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -147,7 +147,7 @@ export const genVolcanoSign = function (query, params) {
 
   return {
     getUrl: function () {
-      return "http://open.volcengineapi.com/?" + Query.toString();
+      return "https://open.volcengineapi.com/?" + Query.toString();
     },
     getConfig: function () {
       return {
