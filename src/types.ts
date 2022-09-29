@@ -155,11 +155,11 @@ export interface ListDisplayItem {
   queryWordInfo: QueryWordInfo;
   key: string;
   title: string;
+  subtitle?: string;
   displayType: ListItemDisplayType; // LingueeListItemType.Example
   queryType: QueryType; // LingueeListItemType
   copyText: string;
   tooltip?: string;
-  subtitle?: string;
   speech?: string;
   translationMarkdown?: string;
 

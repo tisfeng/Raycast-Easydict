@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 15:55
+ * @lastEditTime: 2022-09-29 10:24
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -52,13 +52,14 @@ export function ListActionPanel(props: ActionListPanelProps) {
   console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
   console.log(`copyText: ${copyText}, ${copyText.length}`);
 
-  let copyTextLanguage = toLanguage;
+  const detail = displayItem.subtitle || "";
+  let detailLanguage = toLanguage;
   if (displayItem.displayType === YoudaoDictionaryListItemType.Baike) {
-    copyTextLanguage = chineseLanguageItem.youdaoLangCode;
+    detailLanguage = chineseLanguageItem.youdaoLangCode;
   }
 
-  const isShowingDetail = isOneLineTextTooLong(copyText, copyTextLanguage);
-  const showMoreDetail = formateDetailMarkdown(displayItem, word);
+  const isShowingDetail = isOneLineTextTooLong(detail, detailLanguage);
+  const showMoreDetail = formateDetailMarkdown(displayItem);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;

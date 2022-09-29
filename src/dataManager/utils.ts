@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 00:32
+ * @lastEditTime: 2022-09-29 10:23
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -204,14 +204,14 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 /**
  * Show more detail markdown.
  */
-export function formateDetailMarkdown(listDisplayItem: ListDisplayItem, word: string) {
-  const { queryType, copyText } = listDisplayItem;
+export function formateDetailMarkdown(listDisplayItem: ListDisplayItem) {
+  const { queryType, title, subtitle } = listDisplayItem;
   const markdown = `
   ## ${queryType} 
 
-  ### ${word}
+  ### ${title}
   ----
-  ${copyText}
+  ${subtitle || ""}
   `;
   return markdown;
 }
