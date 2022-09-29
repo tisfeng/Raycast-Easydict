@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 10:56
+ * @lastEditTime: 2022-09-29 11:08
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -109,13 +109,13 @@ export function getSortOrder(): string[] {
 /**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
-export function isTextOneLineTooLong(translation: string, toLanguage: string): boolean {
-  const isChineseText = toLanguage === chineseLanguageItem.youdaoLangCode;
-  const isEnglishText = toLanguage === englishLanguageItem.youdaoLangCode;
-  console.log(`check is text too long: ${translation} (${toLanguage}, ${translation.length})`);
+export function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
+  const isChineseText = textLanguage === chineseLanguageItem.youdaoLangCode;
+  const isEnglishText = textLanguage === englishLanguageItem.youdaoLangCode;
+  console.log(`check if text too long, ${textLanguage}, ${text.length})`);
 
   let isTooLong = false;
-  const textLength = translation.length;
+  const textLength = text.length;
   if (isChineseText) {
     if (textLength > maxLineLengthOfChineseTextDisplay) {
       isTooLong = true;
@@ -128,7 +128,7 @@ export function isTextOneLineTooLong(translation: string, toLanguage: string): b
     isTooLong = true;
   }
   if (isTooLong) {
-    console.log(`---> check is too long: ${isTooLong}, length: ${translation.length}`);
+    console.log(`---> check is too long: ${isTooLong}, ${textLanguage}, length: ${text.length}`);
   }
   return isTooLong;
 }

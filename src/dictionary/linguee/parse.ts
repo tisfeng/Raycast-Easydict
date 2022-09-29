@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 10:30
+ * @lastEditTime: 2022-09-29 11:05
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -89,7 +89,6 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
     word: queryWord?.textContent ?? "",
     fromLanguage: sourceLanguage ?? "",
     toLanguage: targetLanguage ?? "",
-    isWord: wordItems.length > 0,
     speechUrl: speakUrl,
   };
   const lingueeResult: LingueeDictionaryResult = {
@@ -105,6 +104,7 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
   }
 
   queryWordInfo.hasDictionaryEntries = hasEntries;
+  queryWordInfo.isWord = hasEntries;
   const result = hasEntries ? lingueeResult : undefined;
   const lingueeTypeResult: QueryTypeResult = {
     type: DicionaryType.Linguee,
@@ -397,7 +397,11 @@ export function getLingueeWebDictionaryURL(queryWordInfo: QueryWordInfo): string
   const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
   const isWord = checkIsWord(queryWordInfo); // Linguee is only used for `word` looking dictionary.
   if (!validLanguagePair || !isWord) {
-    console.log(`check linguee, not a valid language pair: ${validLanguagePair}, or not word: ${word}`);
+    if (!validLanguagePair) {
+      console.log(`check linguee, not a valid language pair: ${validLanguagePair}`);
+    } else {
+      console.log(`check linguee, not a word: ${word}`);
+    }
     return;
   }
 
