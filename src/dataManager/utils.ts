@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 10:23
+ * @lastEditTime: 2022-09-29 10:56
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -109,10 +109,11 @@ export function getSortOrder(): string[] {
 /**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
-export function isOneLineTextTooLong(translation: string, toLanguage: string): boolean {
+export function isTextOneLineTooLong(translation: string, toLanguage: string): boolean {
   const isChineseText = toLanguage === chineseLanguageItem.youdaoLangCode;
   const isEnglishText = toLanguage === englishLanguageItem.youdaoLangCode;
-  englishLanguageItem.youdaoLangCode;
+  console.log(`check is text too long: ${translation} (${toLanguage}, ${translation.length})`);
+
   let isTooLong = false;
   const textLength = translation.length;
   if (isChineseText) {
@@ -151,7 +152,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
     } else {
       // check if translation is too long
       const oneLineTranslation = sourceResult?.oneLineTranslation || "";
-      const isTooLong = isOneLineTextTooLong(oneLineTranslation, wordInfo.toLanguage);
+      const isTooLong = isTextOneLineTooLong(oneLineTranslation, wordInfo.toLanguage);
       if (isTooLong) {
         isShowDetail = true;
         break;

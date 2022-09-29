@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-02 11:39
+ * @lastEditTime: 2022-09-29 10:30
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -604,14 +604,17 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
 
   // 5. iterate wikipedia
   if (wikipedias) {
-    const sectionTitle = "Wikipedia:";
+    const sectionTitle = "Wikipedia";
     const displayItems = wikipedias.map((wikipedia) => {
       const displayType = LingueeListItemType.Wikipedia;
-      const title = `${wikipedia.title} ${wikipedia.explanation}`;
+      const title = `${wikipedia.title}`;
+      const subtitle = `${wikipedia.explanation}`;
+      const copyText = `${title} ${subtitle}`;
       const displayItem: ListDisplayItem = {
-        key: title,
+        key: copyText,
         title: title,
-        copyText: title,
+        subtitle: subtitle,
+        copyText: copyText,
         queryWordInfo: queryWordInfo,
         displayType: displayType,
         queryType: lingueeType,

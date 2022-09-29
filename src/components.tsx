@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 10:24
+ * @lastEditTime: 2022-09-29 10:37
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { formateDetailMarkdown, isOneLineTextTooLong } from "./dataManager/utils";
+import { formateDetailMarkdown, isTextOneLineTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
 import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
@@ -49,16 +49,17 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const queryWordInfo = displayItem.queryWordInfo;
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const copyText = displayItem.copyText;
-  console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
-  console.log(`copyText: ${copyText}, ${copyText.length}`);
 
-  const detail = displayItem.subtitle || "";
+  const detail = displayItem.subtitle || displayItem.title;
   let detailLanguage = toLanguage;
   if (displayItem.displayType === YoudaoDictionaryListItemType.Baike) {
     detailLanguage = chineseLanguageItem.youdaoLangCode;
   }
 
-  const isShowingDetail = isOneLineTextTooLong(detail, detailLanguage);
+  console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
+  console.log(`copyText: ${copyText} (${detailLanguage}, ${copyText.length})`);
+
+  const isShowingDetail = isTextOneLineTooLong(detail, detailLanguage);
   const showMoreDetail = formateDetailMarkdown(displayItem);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
