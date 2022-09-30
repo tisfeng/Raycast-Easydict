@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 18:50
+ * @lastEditTime: 2022-10-01 10:07
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { tryConfigAxiosProxy } from "./axiosConfig";
+import { configAxiosProxy, delayTimeToGetSystemProxy, getSystemProxyURL } from "./axiosConfig";
 import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager/dataManager";
 import { QueryWordInfo } from "./dictionary/youdao/types";
@@ -94,20 +94,32 @@ export default function () {
 
     // In this case, must wait for the proxy to be configured before request.
     if (myPreferences.enableAutomaticQuerySelectedText && myPreferences.enableSystemProxy) {
-      Promise.all([getSelectedText(), tryConfigAxiosProxy()])
+      Promise.all([getSelectedText(), configAxiosProxy()])
         .then(([selectedText]) => {
           console.log(`after config proxy, getSelectedText: ${selectedText}`);
           console.log(`config proxy and get text cost time: ${Date.now() - startTime} ms`);
           updateInputTextAndQueryText(trimTextLength(selectedText), false);
         })
         .catch((error) => {
-          console.log(`set up, config proxy error: ${error}`);
-          tryQuerySelecedtText();
+          console.error(`set up, config proxy error: ${error}`);
+          querySelecedtText().then(() => {
+            console.log(`after query selected text`);
+
+            setTimeout(() => {
+              getSystemProxyURL();
+            }, delayTimeToGetSystemProxy);
+          });
         });
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
-      tryQuerySelecedtText();
+      querySelecedtText().then(() => {
+        console.log(`after query selected text`);
+
+        setTimeout(() => {
+          getSystemProxyURL();
+        }, delayTimeToGetSystemProxy);
+      });
     } else if (myPreferences.enableSystemProxy) {
-      tryConfigAxiosProxy();
+      configAxiosProxy();
     }
 
     checkIfInstalledEudic().then((isInstalled) => {
@@ -118,14 +130,20 @@ export default function () {
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
    */
-  function tryQuerySelecedtText() {
-    getSelectedText()
-      .then((selectedText) => {
-        selectedText = trimTextLength(selectedText);
-        console.warn(`getSelectedText: ${selectedText}`); // cost about 20 ms
-        updateInputTextAndQueryText(selectedText, false);
-      })
-      .catch((e) => e);
+  function querySelecedtText(): Promise<void> {
+    return new Promise((resolve) => {
+      getSelectedText()
+        .then((selectedText) => {
+          selectedText = trimTextLength(selectedText);
+          console.warn(`getSelectedText: ${selectedText}`); // cost about 20 ms
+          updateInputTextAndQueryText(selectedText, false);
+          resolve();
+        })
+        .catch((e) => {
+          console.log(`getSelectedText error: ${e}`);
+          resolve();
+        });
+    });
   }
 
   /**

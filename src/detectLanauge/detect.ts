@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 21:09
+ * @lastEditTime: 2022-10-01 00:46
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -106,7 +106,6 @@ function raceDetectLanguage(detectActionList: Promise<DetectedLangModel>[]): Pro
   let detectCount = 0;
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction) => {
-      console.log(`start detectAction`);
       detectAction
         .then((detectTypeResult) => {
           console.log(`detectAction success: ${detectTypeResult.type}`);

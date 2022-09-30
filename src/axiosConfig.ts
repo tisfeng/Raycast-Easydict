@@ -2,18 +2,17 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 22:35
+ * @lastEditTime: 2022-10-01 10:18
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { environment, showToast, Toast } from "@raycast/api";
+import { environment, LocalStorage, showToast, Toast } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
 import EventEmitter from "events";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
-import { myPreferences } from "./preferences";
 import { printObject } from "./utils";
 
 EventEmitter.defaultMaxListeners = 15; // default is 10.
@@ -22,6 +21,13 @@ EventEmitter.defaultMaxListeners = 15; // default is 10.
  * Calculate axios request cost time.
  */
 export const requestCostTime = "requestCostTime";
+
+export const systemProxyURLKey = "systemProxyURL";
+
+/**
+ * Becacuse get system proxy will block 0.4s, we need to get it after finish query.
+ */
+export const delayTimeToGetSystemProxy = 2000;
 
 configDefaultAxios();
 
@@ -48,50 +54,87 @@ function configDefaultAxios() {
 }
 
 /**
- * Try to config axios proxy.
+ * Config axios default proxy.
  *
- * * Note: get system proxy need ~0.4s
+ * * Since directly use system proxy will block thread, we try to get proxy url from local storage first.
  */
-export function tryConfigAxiosProxy(): Promise<void> {
-  console.log(`---> configUserAxiosProxy`);
-  return new Promise((resolve) => {
-    getSystemHttpsAgent()
-      .then((proxyURL) => {
-        if (myPreferences.enableSystemProxy) {
-          if (!proxyURL) {
-            return resolve();
-          }
+export function configAxiosProxy(): Promise<void> {
+  console.log(`---> configAxiosProxy`);
 
-          const httpsAgent = new HttpsProxyAgent(proxyURL);
-          printObject(`---> httpsAgent`, httpsAgent);
-          axios.defaults.httpsAgent = httpsAgent;
-          resolve();
-        } else {
-          console.warn("disable axios httpsAgent");
-          axios.defaults.httpsAgent = undefined;
-          resolve();
+  return new Promise((resolve) => {
+    getStoredProxyURL()
+      .then((proxyURL) => {
+        if (proxyURL) {
+          configAxiosAgent(proxyURL);
+          return resolve();
         }
+
+        getSystemProxyURL()
+          .then((proxyURL) => {
+            configAxiosAgent(proxyURL);
+            resolve();
+          })
+          .catch((error) => {
+            const errorString = JSON.stringify(error) || "";
+            console.error(`---> getStoredProxyURL error: ${errorString}`);
+            resolve();
+          });
       })
       .catch((error) => {
         const errorString = JSON.stringify(error) || "";
-        console.error(`---> tryConfigAxiosProxy error: ${errorString}`);
-        if (myPreferences.enableSystemProxy) {
-          showToast({
-            style: Toast.Style.Failure,
-            title: `Get system proxy error`,
-            message: errorString,
-          });
-        }
+        console.error(`---> configAxiosProxy error: ${errorString}`);
+        showToast({
+          style: Toast.Style.Failure,
+          title: `Config proxy error`,
+          message: errorString,
+        });
         resolve();
       });
   });
 }
 
 /**
- * Get system https agent, and save it to process.env.PROXY_URL.
+ * Config axios agent with proxy url.
  */
-export function getSystemHttpsAgent(): Promise<string | undefined> {
-  console.log(`---> start getSystemHttpsAgent`);
+export function configAxiosAgent(proxyURL: string | undefined): void {
+  console.log(`---> configAxiosAgent: ${proxyURL}`);
+  if (!proxyURL) {
+    axios.defaults.httpsAgent = undefined;
+    return;
+  }
+
+  const httpsAgent = new HttpsProxyAgent(proxyURL);
+  printObject(`---> httpsAgent`, httpsAgent);
+  axios.defaults.httpsAgent = httpsAgent;
+}
+
+/**
+ * Get stored system proxy url.
+ */
+export async function getStoredProxyURL(): Promise<string | undefined> {
+  console.log(`start getStoredProxyURL`);
+
+  return new Promise((resolve) => {
+    LocalStorage.getItem<string>(systemProxyURLKey).then((systemProxyURL) => {
+      if (!systemProxyURL) {
+        console.log(`---> getStoredProxyURL: no stored proxy url, get system proxy url`);
+        resolve(undefined);
+        return;
+      }
+
+      console.log(`---> get system proxy from local storage: ${systemProxyURL}`);
+      resolve(systemProxyURL);
+    });
+  });
+}
+
+/**
+ * Get system proxy URL, and save it to local storage.
+ *
+ * * Note: get system proxy can block ~0.4s, so should call it at the right time.
+ */
+export function getSystemProxyURL(): Promise<string | undefined> {
+  console.log(`---> start getSystemProxyURL`);
 
   return new Promise((resolve, reject) => {
     /**
@@ -116,23 +159,24 @@ export function getSystemHttpsAgent(): Promise<string | undefined> {
       // env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
     }
 
-    // Delete previous env proxy.
-    delete process.env.PROXY_URL;
+    // Remove previous system proxy URL.
+    LocalStorage.removeItem(systemProxyURLKey);
 
     const startTime = Date.now();
+
+    // * This function is sync and will block ~0.4s, even it's a promise.
     getMacSystemProxy()
       .then((systemProxy) => {
-        // console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
-        if (!systemProxy.HTTPEnable) {
+        console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
+        if (!systemProxy.HTTPEnable || !systemProxy.HTTPProxy) {
           console.log(`---> no system http proxy`);
           return resolve(undefined);
         }
 
-        // set proxy to env, so we can use it in other modules.
         const proxyURL = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
         console.warn(`---> get system proxy url: ${proxyURL}`);
-        env.PROXY_URL = proxyURL;
         console.log(`get system proxy cost: ${Date.now() - startTime} ms`);
+        LocalStorage.setItem(systemProxyURLKey, proxyURL);
         resolve(proxyURL);
       })
       .catch((err) => {

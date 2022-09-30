@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:34
+ * @lastEditTime: 2022-10-01 00:58
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -154,13 +154,14 @@ export class DataManager {
       this.queryDeepLTranslate(queryWordInfo);
     }
 
-    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
-    this.queryGoogleTranslate(queryWordInfo, this.abortController);
     this.queryBingTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
     this.queryVolcanoTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
+
+    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
+    this.queryGoogleTranslate(queryWordInfo, this.abortController);
 
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
     this.delayAppleTranslateTimer = setTimeout(() => {
