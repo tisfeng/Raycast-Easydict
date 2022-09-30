@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 23:22
+ * @lastEditTime: 2022-09-30 18:40
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -12,7 +12,6 @@ import { isValidLangCode } from "../language/languages";
 import { myPreferences } from "../preferences";
 import { appleLanguageDetect } from "../scripts";
 import { baiduWebDetect } from "../translation/baidu/baiduAPI";
-import { googleDetect } from "../translation/google";
 import { bingDetect } from "../translation/microsoft/bing";
 import { hasTencentAppKey, tencentDetect } from "../translation/tencent";
 import { volcanoDetect } from "../translation/volcano/volcanoAPI";
@@ -76,7 +75,7 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
 function getDetectAPIs() {
   const detectActionList = [];
   detectActionList.push(bingDetect);
-  detectActionList.push(googleDetect);
+  // detectActionList.push(googleDetect);
 
   if (myPreferences.enableBaiduTranslate) {
     detectActionList.push(baiduWebDetect);

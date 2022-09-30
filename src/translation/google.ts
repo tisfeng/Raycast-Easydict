@@ -2,21 +2,20 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-28 17:43
+ * @lastEditTime: 2022-09-30 18:49
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
-import { LocalStorage } from "@raycast/api";
 import googleTranslateApi from "@vitalets/google-translate-api";
 import axios, { AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import querystring from "node:querystring";
+import { getSystemHttpsAgent } from "../axiosConfig";
 import { checkIfIpInChina } from "../checkIP";
-import { isChineseIPKey, userAgent } from "../consts";
-import { checkIfPreferredLanguagesContainChinese } from "../detectLanauge/utils";
+import { userAgent } from "../consts";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getGoogleLangCode, getYoudaoLangCodeFromGoogleCode } from "../language/languages";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
@@ -45,18 +44,12 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
   const fromLanguageId = getGoogleLangCode(fromLanguage);
   const toLanguageId = getGoogleLangCode(toLanguage);
 
-  const isChina = await checkIsChina();
-  const tld = isChina ? "cn" : "com";
-  queryWordInfo.tld = tld;
-  console.log(`google RPC tld: ${tld}`);
-
-  const proxy = process.env.PROXY || undefined;
-  const httpsAgent = proxy ? new HttpsProxyAgent(proxy) : undefined;
-  // console.warn(`---> proxy: ${proxy}, httpsAgent: ${JSON.stringify(httpsAgent, null, 4)}`);
+  // Since translate.google.cn is not available anymore, we try to use proxy by default.
+  const httpsAgent = await getHttpsAgent();
 
   return new Promise((resolve, reject) => {
     const startTime = new Date().getTime();
-    googleTranslateApi(word, { from: fromLanguageId, to: toLanguageId, tld: tld }, { signal, agent: httpsAgent })
+    googleTranslateApi(word, { from: fromLanguageId, to: toLanguageId }, { signal, agent: httpsAgent })
       .then((res) => {
         console.warn(`---> Google RPC translate: ${res.text}, cost ${new Date().getTime() - startTime} ms`);
         const result: QueryTypeResult = {
@@ -150,22 +143,17 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     q: queryWordInfo.word, // query word
   };
 
-  let tld = queryWordInfo.tld;
-  if (!tld) {
-    const isChina = await checkIsChina();
-    tld = isChina ? "cn" : "com";
-    queryWordInfo.tld = tld;
-  }
-
   const headers = {
     "User-Agent": userAgent,
   };
-  const url = `https://translate.google.${tld}/m?${querystring.stringify(data)}`;
+  const url = `https://translate.google.com/m?${querystring.stringify(data)}`;
   console.log(`---> google web url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
+
+  const httpsAgent = await getHttpsAgent();
 
   return new Promise<QueryTypeResult>((resolve, reject) => {
     axios
-      .get(url, { headers, signal })
+      .get(url, { headers, signal, httpsAgent })
       .then((res: AxiosResponse) => {
         const hmlt = res.data;
         const $ = cheerio.load(hmlt);
@@ -202,26 +190,23 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
 }
 
 /**
- * Check is China: has Chinese preferred language, or Chinese IP.
+ * Get https agent.
+ *
+ * * Since translate.google.cn is not available anymore, we have to try to use proxy by default.
  */
-export async function checkIsChina(): Promise<boolean> {
-  console.log(`check is China`);
-
-  if (checkIfPreferredLanguagesContainChinese()) {
-    return Promise.resolve(true);
-  }
-
+function getHttpsAgent(): Promise<HttpsProxyAgent | undefined> {
   return new Promise((resolve) => {
-    LocalStorage.getItem<boolean>(isChineseIPKey).then((isChineseIP) => {
-      console.log(`checkIsChina: ${isChineseIP}`);
+    let httpsAgent: HttpsProxyAgent | undefined;
+    const httpsAgentString = process.env.httpsAgentString;
+    if (httpsAgentString) {
+      console.log(`has gotten HttpsProxyAgent: ${httpsAgentString}`);
+      httpsAgent = JSON.parse(httpsAgentString);
+      return resolve(httpsAgent);
+    }
 
-      if (isChineseIP !== undefined) {
-        return resolve(isChineseIP);
-      }
-
-      checkIfIpInChina().then((isIpInChina) => {
-        resolve(isIpInChina);
-      });
+    console.log(`no HttpsProxyAgent, try to get system proxy`);
+    getSystemHttpsAgent().then((httpsAgent) => {
+      resolve(httpsAgent);
     });
   });
 }
