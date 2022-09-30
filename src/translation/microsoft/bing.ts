@@ -23,7 +23,7 @@ import { autoDetectLanguageItem, englishLanguageItem } from "./../../language/co
 import { RequestErrorInfo, TranslationType } from "./../../types";
 import { BingConfig, BingTranslateResult } from "./types";
 
-console.log(`enter microsoft.ts`);
+console.log(`enter bing.ts`);
 
 const bingConfigKey = "BingConfig";
 

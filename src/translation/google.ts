@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 18:49
+ * @lastEditTime: 2022-09-30 22:40
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -24,11 +24,14 @@ import { DetectedLangModel, LanguageDetectType } from "./../detectLanauge/types"
 import { autoDetectLanguageItem, englishLanguageItem } from "./../language/consts";
 import { GoogleTranslateResult } from "./../types";
 
+console.log(`enter google.ts`);
+
 export async function requestGoogleTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal
 ): Promise<QueryTypeResult> {
   console.log(`---> start request Google`);
+  // return googleRPCTranslate(queryWordInfo, signal);
   return googleWebTranslate(queryWordInfo, signal);
 }
 
@@ -46,7 +49,6 @@ async function googleRPCTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSi
 
   // Since translate.google.cn is not available anymore, we try to use proxy by default.
   const httpsAgent = await getHttpsAgent();
-
   return new Promise((resolve, reject) => {
     const startTime = new Date().getTime();
     googleTranslateApi(word, { from: fromLanguageId, to: toLanguageId }, { signal, agent: httpsAgent })
@@ -149,8 +151,8 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
   const url = `https://translate.google.com/m?${querystring.stringify(data)}`;
   console.log(`---> google web url: ${url}`); // https://translate.google.cn/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
+  // Always use proxy to request google web translate.
   const httpsAgent = await getHttpsAgent();
-
   return new Promise<QueryTypeResult>((resolve, reject) => {
     axios
       .get(url, { headers, signal, httpsAgent })
@@ -195,17 +197,24 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
  * * Since translate.google.cn is not available anymore, we have to try to use proxy by default.
  */
 function getHttpsAgent(): Promise<HttpsProxyAgent | undefined> {
+  console.log(`---> get https agent`);
+
   return new Promise((resolve) => {
-    let httpsAgent: HttpsProxyAgent | undefined;
-    const httpsAgentString = process.env.httpsAgentString;
-    if (httpsAgentString) {
-      console.log(`has gotten HttpsProxyAgent: ${httpsAgentString}`);
-      httpsAgent = JSON.parse(httpsAgentString);
+    const proxyURL = process.env.PROXY_URL;
+    if (proxyURL) {
+      console.log(`has gotten proxyURL: ${proxyURL}`);
+      const httpsAgent = new HttpsProxyAgent(proxyURL);
       return resolve(httpsAgent);
     }
 
     console.log(`no HttpsProxyAgent, try to get system proxy`);
-    getSystemHttpsAgent().then((httpsAgent) => {
+    getSystemHttpsAgent().then((proxyURL) => {
+      if (!proxyURL) {
+        console.log(`no system proxy, use direct https`);
+        return resolve(undefined);
+      }
+
+      const httpsAgent = new HttpsProxyAgent(proxyURL);
       resolve(httpsAgent);
     });
   });

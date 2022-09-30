@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 18:40
+ * @lastEditTime: 2022-09-30 21:09
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -101,12 +101,15 @@ function getDetectAPIs() {
  * Race to detect language, if success, callback API detect language, else local detect language
  */
 function raceDetectLanguage(detectActionList: Promise<DetectedLangModel>[]): Promise<DetectedLangModel | undefined> {
+  console.log(`start raceDetectLanguage`);
   hasDetectFinished = false;
   let detectCount = 0;
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction) => {
+      console.log(`start detectAction`);
       detectAction
         .then((detectTypeResult) => {
+          console.log(`detectAction success: ${detectTypeResult.type}`);
           handleDetectedLanguage(detectTypeResult).then((result) => {
             if (result) {
               resolve(result);

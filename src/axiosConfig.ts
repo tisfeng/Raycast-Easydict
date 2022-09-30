@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 18:53
+ * @lastEditTime: 2022-09-30 22:35
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,9 +11,10 @@
 import { environment, showToast, Toast } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
 import EventEmitter from "events";
-import { HttpsProxyAgent, HttpsProxyAgentOptions } from "https-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
 import { myPreferences } from "./preferences";
+import { printObject } from "./utils";
 
 EventEmitter.defaultMaxListeners = 15; // default is 10.
 
@@ -55,12 +56,14 @@ export function tryConfigAxiosProxy(): Promise<void> {
   console.log(`---> configUserAxiosProxy`);
   return new Promise((resolve) => {
     getSystemHttpsAgent()
-      .then((httpsAgent) => {
+      .then((proxyURL) => {
         if (myPreferences.enableSystemProxy) {
-          if (!httpsAgent) {
+          if (!proxyURL) {
             return resolve();
           }
 
+          const httpsAgent = new HttpsProxyAgent(proxyURL);
+          printObject(`---> httpsAgent`, httpsAgent);
           axios.defaults.httpsAgent = httpsAgent;
           resolve();
         } else {
@@ -85,9 +88,9 @@ export function tryConfigAxiosProxy(): Promise<void> {
 }
 
 /**
- * Get system https agent, and save it to process.env.httpsAgentString.
+ * Get system https agent, and save it to process.env.PROXY_URL.
  */
-export function getSystemHttpsAgent(): Promise<HttpsProxyAgent | undefined> {
+export function getSystemHttpsAgent(): Promise<string | undefined> {
   console.log(`---> start getSystemHttpsAgent`);
 
   return new Promise((resolve, reject) => {
@@ -114,7 +117,7 @@ export function getSystemHttpsAgent(): Promise<HttpsProxyAgent | undefined> {
     }
 
     // Delete previous env proxy.
-    delete process.env.httpsAgentString;
+    delete process.env.PROXY_URL;
 
     const startTime = Date.now();
     getMacSystemProxy()
@@ -125,17 +128,12 @@ export function getSystemHttpsAgent(): Promise<HttpsProxyAgent | undefined> {
           return resolve(undefined);
         }
 
-        const proxyOptions: HttpsProxyAgentOptions = {
-          host: systemProxy.HTTPProxy,
-          port: systemProxy.HTTPPort,
-        };
-        console.warn(`---> get system httpsAgent: ${JSON.stringify(proxyOptions, null, 4)}`);
-        const httpsAgent = new HttpsProxyAgent(proxyOptions);
-        // set httpsAgent to env, so we can use it in other modules.
-        const httpsAgentString = JSON.stringify(httpsAgent);
-        env.httpsAgentString = httpsAgentString;
+        // set proxy to env, so we can use it in other modules.
+        const proxyURL = `http://${systemProxy.HTTPProxy}:${systemProxy.HTTPPort}`;
+        console.warn(`---> get system proxy url: ${proxyURL}`);
+        env.PROXY_URL = proxyURL;
         console.log(`get system proxy cost: ${Date.now() - startTime} ms`);
-        resolve(httpsAgent);
+        resolve(proxyURL);
       })
       .catch((err) => {
         // console.error(`---> get system proxy error: ${JSON.stringify(err, null, 2)}`);
