@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:14
+ * @lastEditTime: 2022-10-01 23:29
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -57,7 +57,7 @@ import {
 
 console.log(`enter dataManager.ts`);
 
-const delayTimeOfQueryWithProxy = 1000;
+const delayQueryWithProxyTime = 600;
 
 /**
  * Data manager.
@@ -187,20 +187,19 @@ export class DataManager {
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
       console.log(`after delay apple translate`);
-    }, delayTimeOfQueryWithProxy + 100);
+    }, delayQueryWithProxyTime + 100);
   }
 
   /**
    * Delay query with proxy.
    */
   private delayQueryWithProxy(callback: () => void) {
-    console.log(`delay query with proxy`);
     setTimeout(() => {
-      console.log(`delay query text with proxy`);
+      console.log(`delay query with proxy`);
       getProxyAgent().then(() => {
         callback();
       });
-    }, delayTimeOfQueryWithProxy);
+    }, delayQueryWithProxyTime);
   }
 
   /**
