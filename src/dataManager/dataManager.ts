@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 00:58
+ * @lastEditTime: 2022-10-01 20:31
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,6 +10,7 @@
 
 import { environment } from "@raycast/api";
 import axios from "axios";
+import { getProxyAgent } from "../axiosConfig";
 import { detectLanguage } from "../detectLanauge/detect";
 import { DetectedLangModel } from "../detectLanauge/types";
 import { rquestLingueeDictionary } from "../dictionary/linguee/linguee";
@@ -43,7 +44,7 @@ import {
   QueryTypeResult,
   TranslationType,
 } from "../types";
-import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "../utils";
+import { checkIsDictionaryType, checkIsTranslationType, printObject, showErrorToast } from "../utils";
 import { englishLanguageItem } from "./../language/consts";
 import {
   checkIfEnableYoudaoDictionary,
@@ -55,6 +56,8 @@ import {
 } from "./utils";
 
 console.log(`enter dataManager.ts`);
+
+const delayTimeOfQueryWithProxy = 1000;
 
 /**
  * Data manager.
@@ -122,7 +125,7 @@ export class DataManager {
    * Delay the time to call the query API. Since API has frequency limit.
    */
   public delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
-    console.log(`---> query text: ${text}, isDelay: ${isDelay}`);
+    console.log(`---> delay query text: ${text}, isDelay: ${isDelay}`);
     const delayTime = isDelay ? this.delayRequestTime : 0;
     this.delayQueryTimer = setTimeout(() => {
       this.queryText(text, toLanguage);
@@ -150,28 +153,55 @@ export class DataManager {
 
     // query Linguee dictionary, will automatically query DeepL translate.
     this.queryLingueeDictionary(queryWordInfo);
-    if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
-      this.queryDeepLTranslate(queryWordInfo);
-    }
-
     this.queryBingTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
     this.queryVolcanoTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
 
-    // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
-    this.queryGoogleTranslate(queryWordInfo, this.abortController);
-
-    // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
-    this.delayAppleTranslateTimer = setTimeout(() => {
-      this.queryAppleTranslate(queryWordInfo, this.abortController);
-    }, 1000);
+    this.delayQuery(queryWordInfo);
 
     // If no query, stop loading.
     if (this.queryRecordList.length === 0) {
       this.updateLoadingState(false);
     }
+  }
+
+  /**
+   * Delay query.
+   *
+   * 1. delay requests that need proxy but if no httpsAgent.
+   * 2. delay apple translate.
+   */
+  private delayQuery(queryWordInfo: QueryWordInfo) {
+    this.delayQueryWithProxy(() => {
+      if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
+        this.queryDeepLTranslate(queryWordInfo);
+      }
+
+      // We need to pass a abort signal, becase google translate is used "got" to request, not axios.
+      this.queryGoogleTranslate(queryWordInfo, this.abortController);
+    });
+
+    // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
+    this.delayAppleTranslateTimer = setTimeout(() => {
+      this.queryAppleTranslate(queryWordInfo, this.abortController);
+      console.log(`after delay apple translate`);
+    }, delayTimeOfQueryWithProxy + 100);
+  }
+
+  /**
+   * Delay query with proxy.
+   */
+  private delayQueryWithProxy(callback: () => void) {
+    console.log(`delay query with proxy`);
+    setTimeout(() => {
+      console.log(`delay query text with proxy`);
+      getProxyAgent().then((proxyAgent) => {
+        printObject(`proxyAgent`, proxyAgent);
+        callback();
+      });
+    }, delayTimeOfQueryWithProxy);
   }
 
   /**
@@ -249,7 +279,7 @@ export class DataManager {
    * Query text, automatically detect the language of input text
    */
   private queryText(text: string, toLanguage: string) {
-    console.log("start queryText: " + text);
+    console.warn("start queryText: " + text);
 
     this.updateLoadingState(true);
     this.resetProperties();
@@ -366,7 +396,10 @@ export class DataManager {
         });
 
       // at the same time, query DeepL translate.
-      this.queryDeepLTranslate(queryWordInfo);
+
+      this.delayQueryWithProxy(() => {
+        this.queryDeepLTranslate(queryWordInfo);
+      });
     }
   }
 

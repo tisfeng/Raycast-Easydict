@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 10:18
+ * @lastEditTime: 2022-10-01 20:27
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -23,6 +23,8 @@ EventEmitter.defaultMaxListeners = 15; // default is 10.
 export const requestCostTime = "requestCostTime";
 
 export const systemProxyURLKey = "systemProxyURL";
+
+export let httpsAgent: HttpsProxyAgent | undefined;
 
 /**
  * Becacuse get system proxy will block 0.4s, we need to get it after finish query.
@@ -177,6 +179,10 @@ export function getSystemProxyURL(): Promise<string | undefined> {
         console.warn(`---> get system proxy url: ${proxyURL}`);
         console.log(`get system proxy cost: ${Date.now() - startTime} ms`);
         LocalStorage.setItem(systemProxyURLKey, proxyURL);
+
+        const httpsAgent = new HttpsProxyAgent(proxyURL);
+        printObject(`---> httpsAgent`, httpsAgent);
+
         resolve(proxyURL);
       })
       .catch((err) => {
@@ -186,6 +192,45 @@ export function getSystemProxyURL(): Promise<string | undefined> {
       .finally(() => {
         // ! need to reset env.PATH, otherwise, will throw error: '/bin/sh: osascript: command not found'
         delete env.PATH; // env.PATH = "/usr/sbin:/usr/bin:/bin:/sbin";
+      });
+  });
+}
+
+/**
+ * Get proxy agent.
+ *
+ * * Since translate.google.cn is not available anymore, we have to try to use proxy by default.
+ *
+ * * Note: this function will block ~0.4s, so should call it at the right time.
+ */
+export function getProxyAgent(): Promise<HttpsProxyAgent | undefined> {
+  console.log(`---> start getProxyAgent`);
+
+  if (httpsAgent) {
+    console.log(`---> return cached httpsAgent`);
+    return Promise.resolve(httpsAgent);
+  }
+
+  // return Promise.resolve(undefined);
+
+  return new Promise((resolve) => {
+    console.log(`---> getProxyAgent`);
+
+    getStoredProxyURL()
+      .then((systemProxyURL) => {
+        if (!systemProxyURL) {
+          console.log(`---> no system proxy url, use direct agent`);
+          resolve(undefined);
+        } else {
+          console.log(`---> get system proxy url: ${systemProxyURL}`);
+          const agent = new HttpsProxyAgent(systemProxyURL);
+          httpsAgent = agent;
+          resolve(agent);
+        }
+      })
+      .catch((error) => {
+        console.error(`---> get system proxy url error: ${error}`);
+        resolve(undefined);
       });
   });
 }
