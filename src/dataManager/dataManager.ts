@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:29
+ * @lastEditTime: 2022-10-01 23:42
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -194,6 +194,10 @@ export class DataManager {
    * Delay query with proxy.
    */
   private delayQueryWithProxy(callback: () => void) {
+    if (myPreferences.enableSystemProxy) {
+      return callback();
+    }
+
     setTimeout(() => {
       console.log(`delay query with proxy`);
       getProxyAgent().then(() => {

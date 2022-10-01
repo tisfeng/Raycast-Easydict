@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:20
+ * @lastEditTime: 2022-10-01 23:46
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -13,7 +13,6 @@ import axios, { AxiosRequestConfig } from "axios";
 import EventEmitter from "events";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
-import { printObject } from "./utils";
 
 EventEmitter.defaultMaxListeners = 15; // default is 10.
 
@@ -103,7 +102,6 @@ export function configAxiosAgent(proxyURL: string | undefined): void {
   }
 
   const httpsAgent = new HttpsProxyAgent(proxyURL);
-  printObject(`---> config axios httpsAgent`, httpsAgent);
   axios.defaults.httpsAgent = httpsAgent;
 }
 
