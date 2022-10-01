@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 10:07
+ * @lastEditTime: 2022-10-01 23:01
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configAxiosProxy, delayTimeToGetSystemProxy, getSystemProxyURL } from "./axiosConfig";
+import { configAxiosProxy, configDefaultAxios, delayGetSystemProxy } from "./axiosConfig";
 import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager/dataManager";
 import { QueryWordInfo } from "./dictionary/youdao/types";
@@ -104,19 +104,13 @@ export default function () {
           console.error(`set up, config proxy error: ${error}`);
           querySelecedtText().then(() => {
             console.log(`after query selected text`);
-
-            setTimeout(() => {
-              getSystemProxyURL();
-            }, delayTimeToGetSystemProxy);
+            delayGetSystemProxy();
           });
         });
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
       querySelecedtText().then(() => {
         console.log(`after query selected text`);
-
-        setTimeout(() => {
-          getSystemProxyURL();
-        }, delayTimeToGetSystemProxy);
+        delayGetSystemProxy();
       });
     } else if (myPreferences.enableSystemProxy) {
       configAxiosProxy();
@@ -125,6 +119,8 @@ export default function () {
     checkIfInstalledEudic().then((isInstalled) => {
       setIsInstalledEudic(isInstalled);
     });
+
+    configDefaultAxios();
   }
 
   /**

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 20:27
+ * @lastEditTime: 2022-10-01 23:20
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -22,18 +22,28 @@ EventEmitter.defaultMaxListeners = 15; // default is 10.
  */
 export const requestCostTime = "requestCostTime";
 
-export const systemProxyURLKey = "systemProxyURL";
-
 export let httpsAgent: HttpsProxyAgent | undefined;
 
 /**
  * Becacuse get system proxy will block 0.4s, we need to get it after finish query.
  */
-export const delayTimeToGetSystemProxy = 2000;
+export const delayGetSystemProxyTime = 5000;
 
-configDefaultAxios();
+const systemProxyURLKey = "systemProxyURL";
 
-function configDefaultAxios() {
+/**
+ * Delay get system proxy, every start app will get system proxy.
+ */
+export function delayGetSystemProxy() {
+  setTimeout(() => {
+    getSystemProxyURL();
+  }, delayGetSystemProxyTime);
+}
+
+/**
+ * Config default axios: timeout, interceptors.
+ */
+export function configDefaultAxios() {
   // Set axios timeout to 15s, since we start a loading when request is sent, we need to cancel it when timeout.
   axios.defaults.timeout = 15000;
 
@@ -64,23 +74,10 @@ export function configAxiosProxy(): Promise<void> {
   console.log(`---> configAxiosProxy`);
 
   return new Promise((resolve) => {
-    getStoredProxyURL()
+    getProxyURL()
       .then((proxyURL) => {
-        if (proxyURL) {
-          configAxiosAgent(proxyURL);
-          return resolve();
-        }
-
-        getSystemProxyURL()
-          .then((proxyURL) => {
-            configAxiosAgent(proxyURL);
-            resolve();
-          })
-          .catch((error) => {
-            const errorString = JSON.stringify(error) || "";
-            console.error(`---> getStoredProxyURL error: ${errorString}`);
-            resolve();
-          });
+        configAxiosAgent(proxyURL);
+        resolve();
       })
       .catch((error) => {
         const errorString = JSON.stringify(error) || "";
@@ -106,28 +103,8 @@ export function configAxiosAgent(proxyURL: string | undefined): void {
   }
 
   const httpsAgent = new HttpsProxyAgent(proxyURL);
-  printObject(`---> httpsAgent`, httpsAgent);
+  printObject(`---> config axios httpsAgent`, httpsAgent);
   axios.defaults.httpsAgent = httpsAgent;
-}
-
-/**
- * Get stored system proxy url.
- */
-export async function getStoredProxyURL(): Promise<string | undefined> {
-  console.log(`start getStoredProxyURL`);
-
-  return new Promise((resolve) => {
-    LocalStorage.getItem<string>(systemProxyURLKey).then((systemProxyURL) => {
-      if (!systemProxyURL) {
-        console.log(`---> getStoredProxyURL: no stored proxy url, get system proxy url`);
-        resolve(undefined);
-        return;
-      }
-
-      console.log(`---> get system proxy from local storage: ${systemProxyURL}`);
-      resolve(systemProxyURL);
-    });
-  });
 }
 
 /**
@@ -169,7 +146,7 @@ export function getSystemProxyURL(): Promise<string | undefined> {
     // * This function is sync and will block ~0.4s, even it's a promise.
     getMacSystemProxy()
       .then((systemProxy) => {
-        console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
+        // console.log(`---> get system proxy: ${JSON.stringify(systemProxy, null, 2)}`);
         if (!systemProxy.HTTPEnable || !systemProxy.HTTPProxy) {
           console.log(`---> no system http proxy`);
           return resolve(undefined);
@@ -179,10 +156,6 @@ export function getSystemProxyURL(): Promise<string | undefined> {
         console.warn(`---> get system proxy url: ${proxyURL}`);
         console.log(`get system proxy cost: ${Date.now() - startTime} ms`);
         LocalStorage.setItem(systemProxyURLKey, proxyURL);
-
-        const httpsAgent = new HttpsProxyAgent(proxyURL);
-        printObject(`---> httpsAgent`, httpsAgent);
-
         resolve(proxyURL);
       })
       .catch((err) => {
@@ -211,25 +184,51 @@ export function getProxyAgent(): Promise<HttpsProxyAgent | undefined> {
     return Promise.resolve(httpsAgent);
   }
 
-  // return Promise.resolve(undefined);
-
   return new Promise((resolve) => {
     console.log(`---> getProxyAgent`);
 
-    getStoredProxyURL()
+    getProxyURL()
       .then((systemProxyURL) => {
         if (!systemProxyURL) {
           console.log(`---> no system proxy url, use direct agent`);
-          resolve(undefined);
-        } else {
-          console.log(`---> get system proxy url: ${systemProxyURL}`);
-          const agent = new HttpsProxyAgent(systemProxyURL);
-          httpsAgent = agent;
-          resolve(agent);
+          return resolve(undefined);
         }
+
+        console.log(`---> get system proxy url: ${systemProxyURL}`);
+        const agent = new HttpsProxyAgent(systemProxyURL);
+        httpsAgent = agent;
+        resolve(agent);
       })
       .catch((error) => {
         console.error(`---> get system proxy url error: ${error}`);
+        httpsAgent = undefined;
+        resolve(undefined);
+      });
+  });
+}
+
+/**
+ * Get proxy url from local storage first. If not exist, get it from system.
+ */
+export async function getProxyURL(): Promise<string | undefined> {
+  console.log(`start getStoredProxyURL`);
+
+  const systemProxyURL = await LocalStorage.getItem<string>(systemProxyURLKey);
+  if (systemProxyURL) {
+    console.log(`---> get Stored Proxy URL: ${systemProxyURL}`);
+    return systemProxyURL;
+  }
+
+  console.log(`---> getProxyURL: undefined`);
+
+  return new Promise((resolve) => {
+    getSystemProxyURL()
+      .then((proxyURL) => {
+        resolve(proxyURL);
+      })
+      .catch((error) => {
+        const errorString = JSON.stringify(error) || "";
+        console.error(`---> getProxyURL error: ${errorString}`);
         resolve(undefined);
       });
   });

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 00:46
+ * @lastEditTime: 2022-10-01 23:21
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -137,18 +137,18 @@ function raceDetectLanguage(detectActionList: Promise<DetectedLangModel>[]): Pro
   });
 }
 
-function handleDetectedLanguage(detectedLang: DetectedLangModel): Promise<DetectedLangModel | undefined> {
+function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<DetectedLangModel | undefined> {
   return new Promise((resolve) => {
     if (hasDetectFinished) {
-      console.log(`detect has finished, return undefined`);
+      console.log(`detect has finished, return`);
       return resolve(undefined);
     }
 
-    console.log(`handleDetectedLanguageTypeResult: ${JSON.stringify(detectedLang, null, 4)}`);
+    console.log(`handleDetectedLanguage: ${JSON.stringify(detectedLangModel, null, 4)}`);
 
     // Record it in the apiDetectedLanguage.
-    apiDetectedLanguageList.push(detectedLang);
-    const detectedLangCode = detectedLang.youdaoLangCode;
+    apiDetectedLanguageList.push(detectedLangModel);
+    const detectedLangCode = detectedLangModel.youdaoLangCode;
 
     /**
      * 1. Preferred to use Google language detect, mark it as confirmed.
@@ -156,10 +156,10 @@ function handleDetectedLanguage(detectedLang: DetectedLangModel): Promise<Detect
      * Generally speaking, Google language detect is the most accurate, but it is too slow, it takes more than 1s.
      * So we have to try to use other types of language detection first.
      */
-    if (detectedLang.type === LanguageDetectType.Google && detectedLang.sourceLangCode.length > 0) {
-      console.warn(`use Google detect language: ${detectedLang.sourceLangCode}`);
-      detectedLang.confirmed = true;
-      return resolve(detectedLang);
+    if (detectedLangModel.type === LanguageDetectType.Google && detectedLangModel.sourceLangCode.length > 0) {
+      console.warn(`use Google detect language: ${detectedLangModel.sourceLangCode}`);
+      detectedLangModel.confirmed = true;
+      return resolve(detectedLangModel);
     }
 
     // Detected language must be valid language.
@@ -170,6 +170,9 @@ function handleDetectedLanguage(detectedLang: DetectedLangModel): Promise<Detect
     // 2. Iterate API detected language List, check if has detected >= `two` identical valid language.
     const detectedIdenticalLanguages: DetectedLangModel[] = [];
     const detectedTypes: string[] = [];
+
+    console.log(`detectedLangCode: ${detectedLangCode}, detectedList: ${apiDetectedLanguageList.length}`);
+
     for (const lang of apiDetectedLanguageList) {
       if (lang.youdaoLangCode === detectedLangCode) {
         detectedIdenticalLanguages.push(lang);
@@ -178,34 +181,34 @@ function handleDetectedLanguage(detectedLang: DetectedLangModel): Promise<Detect
 
       // If enabled speed first, and API detected two `preferred` language, try to use it.
       if (detectedIdenticalLanguages.length === 2) {
-        const baiduType = LanguageDetectType.Baidu;
         const bingType = LanguageDetectType.Bing;
+        const baiduType = LanguageDetectType.Baidu;
         const volcanoType = LanguageDetectType.Volcano;
-        const containBingDetect = detectedLang.type === bingType || apiDetectedListContainsType(bingType);
-        const containBaiduDetect = detectedLang.type === baiduType || apiDetectedListContainsType(baiduType);
-        const containVolcanoDetect = detectedLang.type === volcanoType || apiDetectedListContainsType(volcanoType);
-        const confirmVolcanoDetect = containVolcanoDetect && detectedLang.confirmed;
+        const containBingDetect = detectedLangModel.type === bingType || apiDetectedListContainsType(bingType);
+        const containBaiduDetect = detectedLangModel.type === baiduType || apiDetectedListContainsType(baiduType);
+        const containVolcanoDetect = detectedLangModel.type === volcanoType || apiDetectedListContainsType(volcanoType);
+        const confirmVolcanoDetect = containVolcanoDetect && detectedLangModel.confirmed;
         if (
           (containBingDetect || containBaiduDetect || confirmVolcanoDetect) &&
           isPreferredLanguage(detectedLangCode) &&
           myPreferences.enableLanguageDetectionSpeedFirst
         ) {
-          detectedLang.confirmed = true;
+          detectedLangModel.confirmed = true;
           console.warn(`---> Speed first, API detected 'two' identical 'preferred' language: ${detectedTypes}`);
-          console.warn(`detected language: ${JSON.stringify(detectedLang, null, 4)}`);
-          return resolve(detectedLang);
+          console.warn(`detected language: ${JSON.stringify(detectedLangModel, null, 4)}`);
+          return resolve(detectedLangModel);
         }
       }
 
       if (detectedIdenticalLanguages.length >= 3) {
-        detectedLang.confirmed = true;
+        detectedLangModel.confirmed = true;
         console.warn(`---> API detected 'three' identical language`);
-        console.warn(`detected language: ${JSON.stringify(detectedLang, null, 4)}`);
-        return resolve(detectedLang);
+        console.warn(`detected language: ${JSON.stringify(detectedLangModel, null, 4)}`);
+        return resolve(detectedLangModel);
       }
     }
 
-    console.log(`type: '${detectedLang.type}' detected '${detectedLangCode}' is not confirmed, continue next detect`);
+    console.log(`type: '${detectedLangModel.type}' detected '${detectedLangCode}' is not confirmed, continue next`);
     return resolve(undefined);
   });
 }

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 20:31
+ * @lastEditTime: 2022-10-01 23:14
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -44,7 +44,7 @@ import {
   QueryTypeResult,
   TranslationType,
 } from "../types";
-import { checkIsDictionaryType, checkIsTranslationType, printObject, showErrorToast } from "../utils";
+import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "../utils";
 import { englishLanguageItem } from "./../language/consts";
 import {
   checkIfEnableYoudaoDictionary,
@@ -197,8 +197,7 @@ export class DataManager {
     console.log(`delay query with proxy`);
     setTimeout(() => {
       console.log(`delay query text with proxy`);
-      getProxyAgent().then((proxyAgent) => {
-        printObject(`proxyAgent`, proxyAgent);
+      getProxyAgent().then(() => {
         callback();
       });
     }, delayTimeOfQueryWithProxy);
