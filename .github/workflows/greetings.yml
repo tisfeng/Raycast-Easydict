@@ -11,6 +11,7 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: actions/first-interaction@v1
+        # fix run error: https://github.com/actions/first-interaction/issues/101#issuecomment-1262487501
         continue-on-error: true
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}

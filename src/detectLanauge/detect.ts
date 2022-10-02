@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:21
+ * @lastEditTime: 2022-10-02 11:12
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -47,34 +47,27 @@ let hasDetectFinished = false;
 export function detectLanguage(text: string): Promise<DetectedLangModel> {
   console.log(`start detectLanguage`);
 
-  const localDetectResult = getLocalTextLanguageDetectResult(text, defaultConfirmedConfidence);
   apiDetectedLanguageList = [];
 
-  return new Promise((resolve) => {
-    // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
-    const lowerCaseText = text.toLowerCase();
-    console.log("api detect queryText:", text);
-    console.log("detect lowerCaseText:", lowerCaseText);
+  // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
+  const lowerCaseText = text.toLowerCase();
+  console.log("api detect queryText:", text);
+  console.log("detect lowerCaseText:", lowerCaseText);
 
-    const detectActionList = getDetectAPIs().map((detect) => detect(lowerCaseText));
-    raceDetectLanguage(detectActionList).then((detectedLanguage) => {
-      if (!detectedLanguage) {
-        console.log(`use localDetectResult`);
-        resolve(localDetectResult);
-      } else {
-        const finalLanguageTypeResult = getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
-        resolve(finalLanguageTypeResult);
-      }
+  return new Promise((resolve) => {
+    raceDetectTextLanguage(lowerCaseText).then((detectedLanguage) => {
+      const finalDetectedLanguage = getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
+      resolve(finalDetectedLanguage);
     });
   });
 }
 
 /**
- * Get detect API functions. If API is enabled, add it to detect function list. Add Google and Bing by default.
+ * Get detect API functions. If API is enabled, add it to detect function list. Add Bing by default.
  */
 function getDetectAPIs() {
-  const detectActionList = [];
-  detectActionList.push(bingDetect);
+  const detectActionList = [bingDetect];
+  // Because Google detect must use proxy now, and set httpsAgent will block thread, so disable it.
   // detectActionList.push(googleDetect);
 
   if (myPreferences.enableBaiduTranslate) {
@@ -89,7 +82,7 @@ function getDetectAPIs() {
   }
 
   // Apple detection is inaccurate, only use it when lacking detect API.
-  if (detectActionList.length < 3 && myPreferences.enableAppleLanguageDetect) {
+  if (detectActionList.length < 2 && myPreferences.enableAppleLanguageDetect) {
     // Since Apple detect may block the main thread, so we stop it for now and wait for a solution to be found later.
     detectActionList.push(appleLanguageDetect);
   }
@@ -100,29 +93,32 @@ function getDetectAPIs() {
 /**
  * Race to detect language, if success, callback API detect language, else local detect language
  */
-function raceDetectLanguage(detectActionList: Promise<DetectedLangModel>[]): Promise<DetectedLangModel | undefined> {
+function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangModel | undefined> {
   console.log(`start raceDetectLanguage`);
+  const detectActionList = getDetectAPIs().map((detect) => detect(lowerCaseText));
+
   hasDetectFinished = false;
   let detectCount = 0;
+
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction) => {
       detectAction
-        .then((detectTypeResult) => {
-          console.log(`detectAction success: ${detectTypeResult.type}`);
-          handleDetectedLanguage(detectTypeResult).then((result) => {
+        .then((detectedLang) => {
+          console.log(`detectAction success: ${detectedLang.type}`);
+          handleDetectedLanguage(detectedLang).then((result) => {
             if (result) {
-              resolve(result);
               hasDetectFinished = true;
+              resolve(result);
             }
           });
         })
         .catch((error) => {
-          // If current API detect error, continue try next API.
+          // If current API detect error, do nothing, just continue try next API.
           const errorInfo = error as RequestErrorInfo | undefined;
-          if (errorInfo) {
-            console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
-          } else {
+          if (!errorInfo) {
             console.log(`detect canceled`);
+          } else {
+            console.error(`race detect language error: ${JSON.stringify(error, null, 4)}`); // error: {} ??
           }
         })
         .finally(() => {
@@ -137,6 +133,9 @@ function raceDetectLanguage(detectActionList: Promise<DetectedLangModel>[]): Pro
   });
 }
 
+/**
+ * Handle detected language.
+ */
 function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<DetectedLangModel | undefined> {
   return new Promise((resolve) => {
     if (hasDetectFinished) {
@@ -214,22 +213,54 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
 }
 
 /**
- *  Get the final confirmed language type result, for handling some special case.
+ * Get the final confirmed language, for handling some special case.
  *
- *  If detectTypeResult is confirmed, or is preferred language, use it directly, else use low confidence language.
- *
- *  This function is used when high confidence franc detect language is not confirmed, and API detect language catch error.
+ * 1. If detect language is confirmed, use it directly.
+ * 2. Try to use the most accurate language in apiDetectedLanguageList.
+ * 3. If all language detect failed, use local detect language.
  */
 function getFinalDetectedLanguage(
   text: string,
-  detectedTypeResult: DetectedLangModel,
+  detectedLangModel: DetectedLangModel | undefined,
   confirmedConfidence: number
 ): DetectedLangModel {
-  console.log(`start try get final detect language: ${JSON.stringify(detectedTypeResult, null, 4)}`);
-  if (detectedTypeResult.confirmed || isPreferredLanguage(detectedTypeResult.youdaoLangCode)) {
-    return detectedTypeResult;
+  console.log(`start try get final detect language: ${JSON.stringify(detectedLangModel, null, 4)}`);
+  if (detectedLangModel && detectedLangModel.confirmed) {
+    return detectedLangModel;
   }
+
+  const finalDetectedLang = handleFinalDetectedLangFromAPIList(apiDetectedLanguageList);
+  if (finalDetectedLang) {
+    console.log(`use final detected language from API list: ${JSON.stringify(finalDetectedLang, null, 4)}`);
+    return finalDetectedLang;
+  }
+
   return getLocalTextLanguageDetectResult(text, confirmedConfidence);
+}
+
+/**
+ * Handle final detected language from API list, return the most accurate language.
+ */
+function handleFinalDetectedLangFromAPIList(
+  apiDetectedLanguageList: DetectedLangModel[]
+): DetectedLangModel | undefined {
+  console.warn(`handleFinalDetectedLangFromAPIList`);
+  // If only one detected language, return it.
+  if (apiDetectedLanguageList.length === 1) {
+    console.log(`only one detected language, return it`);
+    return apiDetectedLanguageList[0];
+  }
+
+  // If Bing detected language, return it.
+  for (const lang of apiDetectedLanguageList) {
+    if (lang.type === LanguageDetectType.Bing && lang.sourceLangCode.length > 0) {
+      console.log(`Bing detected language is valid, return it`);
+      return lang;
+    }
+  }
+
+  console.log(`no detected language, return undefined`);
+  return undefined;
 }
 
 /**
@@ -250,7 +281,7 @@ function getLocalTextLanguageDetectResult(
   confirmedConfidence: number,
   lowConfidence = 0.2
 ): DetectedLangModel {
-  console.log(`start local detect language, confirmed confidence (>${confirmedConfidence})`);
+  console.warn(`start local detect language, confirmed confidence (>${confirmedConfidence})`);
 
   // if detect preferred language confidence > confirmedConfidence.
   const francDetectResult = francLangaugeDetect(text, confirmedConfidence);

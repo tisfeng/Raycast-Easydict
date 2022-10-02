@@ -111,7 +111,7 @@ export function configAxiosAgent(proxyURL: string | undefined): void {
  * * Note: get system proxy can block ~0.4s, so should call it at the right time.
  */
 export function getSystemProxyURL(): Promise<string | undefined> {
-  console.log(`---> start getSystemProxyURL`);
+  console.warn(`---> start getSystemProxyURL`);
 
   return new Promise((resolve, reject) => {
     /**

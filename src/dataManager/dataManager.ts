@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:42
+ * @lastEditTime: 2022-10-02 09:28
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -199,7 +199,7 @@ export class DataManager {
     }
 
     setTimeout(() => {
-      console.log(`delay query with proxy`);
+      console.warn(`delay query with proxy`);
       getProxyAgent().then(() => {
         callback();
       });
