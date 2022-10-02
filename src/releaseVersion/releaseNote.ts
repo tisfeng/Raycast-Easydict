@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 16:57
+ * @lastEditTime: 2022-10-02 17:56
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 export const releaseNote = `
 ## [v2.4.1] - 2022-10-02
 
-本次更新主要是修复了谷歌翻译报错问题。
+本次更新主要修复了 Google 翻译报错问题。
 
 ### 💎 优化
 
@@ -20,11 +20,11 @@ export const releaseNote = `
 
 ### 🐞 修复
 
-- 修复了谷歌翻译报错问题，默认使用系统代理。
+- 修复了 Google 翻译报错问题，默认使用系统代理。
 
-> 注意 ⚠️：由于目前谷歌翻译中国版无法使用，只能使用国际版，因此需要走代理才能继续使用谷歌翻译。
+> 注意 ⚠️：由于目前 Google 翻译中国版无法使用，只能使用国际版，因此需要走代理才能使用 Google 翻译。
 
-####  -  _如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧(^-^)_
+#### 如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)
 
 ---
 
