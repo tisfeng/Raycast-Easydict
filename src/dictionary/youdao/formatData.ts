@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 22:59
+ * @lastEditTime: 2022-10-02 23:15
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -367,8 +367,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     const wordItem = model.ec.word?.length ? model.ec.word[0] : undefined;
 
     // * Don't use simpleWord, because it maybe has multiple phonetics, eg: "record".
-    const usphone = wordItem?.usphone;
-    phoneticText = usphone ? ` [${usphone}]` : undefined;
+    phoneticText = getPhoneticDisplayText(wordItem?.usphone);
 
     // Word audio: https://dict.youdao.com/dictvoice?audio=good&type=2
     const usspeech = wordItem?.usspeech; // "good&type=2"
@@ -401,8 +400,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     const wordItem = model.ce.word?.length ? model.ce.word[0] : undefined;
     isWord = wordItem !== undefined;
 
-    const phone = wordItem?.phone;
-    phoneticText = phone ? ` [${phone}]` : undefined;
+    phoneticText = getPhoneticDisplayText(wordItem?.phone);
 
     explanations.length = 0;
     const trs = wordItem?.trs;
@@ -469,4 +467,12 @@ export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: strin
     from = model.le;
   }
   return [from, to];
+}
+
+/**
+ * Get word phonetic display text. eg: gʊd --> / gʊd /
+ */
+export function getPhoneticDisplayText(phonetic: string | undefined): string | undefined {
+  const phoneticText = phonetic ? `/ ${phonetic} /` : undefined;
+  return phoneticText;
 }
