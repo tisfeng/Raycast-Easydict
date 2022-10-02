@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 11:12
+ * @lastEditTime: 2022-10-02 15:50
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -245,6 +245,7 @@ function handleFinalDetectedLangFromAPIList(
   apiDetectedLanguageList: DetectedLangModel[]
 ): DetectedLangModel | undefined {
   console.warn(`handleFinalDetectedLangFromAPIList`);
+
   // If only one detected language, return it.
   if (apiDetectedLanguageList.length === 1) {
     console.log(`only one detected language, return it`);
@@ -253,8 +254,8 @@ function handleFinalDetectedLangFromAPIList(
 
   // If Bing detected language, return it.
   for (const lang of apiDetectedLanguageList) {
-    if (lang.type === LanguageDetectType.Bing && lang.sourceLangCode.length > 0) {
-      console.log(`Bing detected language is valid, return it`);
+    if (lang.type === LanguageDetectType.Bing) {
+      console.log(`Bing detected language, return it`);
       return lang;
     }
   }

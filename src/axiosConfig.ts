@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:46
+ * @lastEditTime: 2022-10-02 15:47
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -15,6 +15,11 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import { getMacSystemProxy } from "mac-system-proxy";
 
 EventEmitter.defaultMaxListeners = 15; // default is 10.
+
+/**
+ * * Note: this function should be called as early as possible.
+ */
+configDefaultAxios();
 
 /**
  * Calculate axios request cost time.
@@ -42,7 +47,9 @@ export function delayGetSystemProxy() {
 /**
  * Config default axios: timeout, interceptors.
  */
-export function configDefaultAxios() {
+function configDefaultAxios() {
+  console.log(`configDefaultAxios`);
+
   // Set axios timeout to 15s, since we start a loading when request is sent, we need to cancel it when timeout.
   axios.defaults.timeout = 15000;
 

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:01
+ * @lastEditTime: 2022-10-02 15:52
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -10,7 +10,7 @@
 
 import { getSelectedText, Icon, List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configAxiosProxy, configDefaultAxios, delayGetSystemProxy } from "./axiosConfig";
+import { configAxiosProxy, delayGetSystemProxy } from "./axiosConfig";
 import { checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories, ListActionPanel } from "./components";
 import { DataManager } from "./dataManager/dataManager";
 import { QueryWordInfo } from "./dictionary/youdao/types";
@@ -119,8 +119,6 @@ export default function () {
     checkIfInstalledEudic().then((isInstalled) => {
       setIsInstalledEudic(isInstalled);
     });
-
-    configDefaultAxios();
   }
 
   /**

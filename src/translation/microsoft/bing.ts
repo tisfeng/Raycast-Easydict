@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-09-17 10:35
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-30 18:57
+ * @lastEditTime: 2022-10-02 15:47
  * @fileName: bing.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -104,7 +104,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
     axios(config)
       .then(function (response) {
         const responseData = response.data;
-        console.warn(`bing cost time: ${response.headers[requestCostTime]}`);
+        console.warn(`bing translate cost time: ${response.headers[requestCostTime]}`);
 
         // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
         if (!responseData) {
