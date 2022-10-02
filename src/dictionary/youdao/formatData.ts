@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 23:23
+ * @lastEditTime: 2022-10-02 22:59
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -302,15 +302,8 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
   const [from, to] = getFromToLanguage(model);
   const input = model.input;
   let isWord = false;
-  let phonetic: string | undefined;
+  let phoneticText: string | undefined;
   let speechUrl: string | undefined;
-
-  const simpleWord = model.simple?.word;
-  if (simpleWord?.length) {
-    const word = simpleWord[0];
-    phonetic = word.usphone || word.phone;
-  }
-  const phoneticText = phonetic ? ` [${phonetic}]` : undefined;
 
   let translation = "";
   let examTypes: string[] | undefined;
@@ -373,6 +366,10 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
   if (model.ec) {
     const wordItem = model.ec.word?.length ? model.ec.word[0] : undefined;
 
+    // * Don't use simpleWord, because it maybe has multiple phonetics, eg: "record".
+    const usphone = wordItem?.usphone;
+    phoneticText = usphone ? ` [${usphone}]` : undefined;
+
     // Word audio: https://dict.youdao.com/dictvoice?audio=good&type=2
     const usspeech = wordItem?.usspeech; // "good&type=2"
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
@@ -393,7 +390,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     }
     // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
 
-    isWord = wordItem !== undefined;
+    isWord = wordItem !== undefined; // Todo: need to check more.
     examTypes = model.ec.exam_type;
     speechUrl = audioUrl;
     forms = wordItem?.wfs;
@@ -403,6 +400,9 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
   if (model.ce) {
     const wordItem = model.ce.word?.length ? model.ce.word[0] : undefined;
     isWord = wordItem !== undefined;
+
+    const phone = wordItem?.phone;
+    phoneticText = phone ? ` [${phone}]` : undefined;
 
     explanations.length = 0;
     const trs = wordItem?.trs;
