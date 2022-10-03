@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 16:37
+ * @lastEditTime: 2022-10-03 19:13
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
-import { useState } from "react";
+import React, { useState } from "react";
 import { sayTruncateCommand } from "./audio";
 import { formateDetailMarkdown, isTextOneLineTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
@@ -50,7 +50,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const copyText = displayItem.copyText;
 
-  const detail = displayItem.subtitle || displayItem.title;
+  const detail = copyText;
   let detailLanguage = toLanguage;
   if (displayItem.displayType === YoudaoDictionaryListItemType.Baike) {
     detailLanguage = chineseLanguageItem.youdaoLangCode;

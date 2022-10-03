@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 16:02
+ * @lastEditTime: 2022-10-03 23:13
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -27,7 +27,13 @@ import {
   TranslationItem,
   TranslationType,
 } from "../types";
-import { checkIsDictionaryType, checkIsTranslationType, checkIsWord } from "../utils";
+import {
+  checkIsDictionaryType,
+  checkIsLingueeListItem,
+  checkIsTranslationType,
+  checkIsWord,
+  checkIsYoudaoDictionaryListItem,
+} from "../utils";
 import { chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 
 /**
@@ -213,13 +219,36 @@ export function formateDetailMarkdown(displayItem: ListDisplayItem) {
   const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
   const fromToTitle = `${type}  (${fromToLang})`;
 
-  let queryWord = subtitle ? title : "";
-  let explanation = subtitle || title;
+  // Translation type
+  let queryWord = word;
+  let explanation = title;
 
-  const isTranslationType = checkIsTranslationType(queryType);
-  if (isTranslationType) {
+  // Linguee dictionary
+  if (checkIsLingueeListItem(displayItem)) {
     queryWord = word;
-    explanation = title;
+    explanation = displayItem.copyText;
+  }
+
+  // Youdao dictionary
+  if (checkIsYoudaoDictionaryListItem(displayItem)) {
+    queryWord = word;
+    explanation = subtitle ? `${title} ${subtitle}` : title;
+
+    if (subtitle?.startsWith(title)) {
+      explanation = subtitle;
+    }
+
+    // if subtitle starts with "title", use subtitle
+    if (subtitle) {
+      const reg = /"(.*)"/;
+      const match = reg.exec(subtitle);
+      if (match) {
+        const startWord = match[1];
+        if (startWord === title) {
+          explanation = subtitle;
+        }
+      }
+    }
   }
 
   const markdown = `
