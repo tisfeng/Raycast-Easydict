@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 15:43
+ * @lastEditTime: 2022-10-04 21:32
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -229,7 +229,7 @@ function getWordExplanationList(
   designatedFrequencey?: LingueeListItemType
 ) {
   // console.log(`---> getWordExplanationList, length: ${translations?.length} , isFeatured: ${isFeatured}`);
-  const explanationItems = [];
+  const explanationItems: LingueeWordExplanation[] = [];
   if (translations?.length) {
     for (const translation of translations) {
       // console.log(`---> translation: ${translation}`);
@@ -315,7 +315,7 @@ function getTagFormsText(tagForms: Element | null): string {
  */
 function getExampleList(exampleLemma: HTMLElement[] | undefined) {
   console.log(`---> getExampleList`);
-  const exampleItems = [];
+  const exampleItems: LingueeExample[] = [];
   if (exampleLemma?.length) {
     for (const lemma of exampleLemma) {
       const exampleElement = lemma.querySelector(".line .dictLink");
@@ -465,7 +465,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
       }
       const placeholderText = wordItem.placeholder ? ` ${wordItem.placeholder}` : "";
       const sectionTitle = `${wordItem.word}${placeholderText}${wordPos}`;
-      const displayItems = [];
+      const displayItems: ListDisplayItem[] = [];
       if (wordItem.translationItems) {
         for (const explanationItem of wordItem.translationItems) {
           // 1. iterate featured explanation
@@ -500,7 +500,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         }
 
         // 2. iterate unfeatured explanation, and put them to array
-        const unfeaturedExplanations = [];
+        const unfeaturedExplanations: string[] = [];
         if (wordItem.translationItems) {
           for (const explanationItem of wordItem.translationItems) {
             if (!explanationItem.featured) {
