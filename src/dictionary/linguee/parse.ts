@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-01 10:44
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-04 21:32
+ * @lastEditTime: 2022-10-08 00:08
  * @fileName: parse.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -510,9 +510,10 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
           }
         }
         if (unfeaturedExplanations.length > 0) {
-          const copyText = `${wordItem.pos} ${unfeaturedExplanations.join(" ")}`;
           const lastExplanationItem = wordItem.translationItems.at(-1);
           const pos = lastExplanationItem?.pos ? `${lastExplanationItem.pos}.` : "";
+          const subtitleText = unfeaturedExplanations.join(";  ");
+          const copyText = `${pos} ${subtitleText}`;
           const lessCommonNote =
             lastExplanationItem?.frequencyTag.displayType === LingueeListItemType.LessCommon
               ? `(${LingueeListItemType.LessCommon})`
@@ -522,7 +523,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
           const unFeaturedDisplayItem: ListDisplayItem = {
             key: copyText,
             title: pos,
-            subtitle: `${unfeaturedExplanations.join(";  ")}  ${lessCommonNote.toLowerCase()}`,
+            subtitle: `${subtitleText}  ${lessCommonNote.toLowerCase()}`,
             copyText: copyText,
             queryWordInfo: queryWordInfo,
             displayType: displayType,
