@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 09:28
+ * @lastEditTime: 2022-10-07 20:50
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -105,6 +105,8 @@ export class DataManager {
 
   delayQueryTimer?: NodeJS.Timeout;
   delayAppleTranslateTimer?: NodeJS.Timeout;
+  delayProxyQueryTimer?: NodeJS.Timeout;
+
   /**
    * Delay the time to call the query API. Since API has frequency limit.
    *
@@ -198,7 +200,7 @@ export class DataManager {
       return callback();
     }
 
-    setTimeout(() => {
+    this.delayProxyQueryTimer = setTimeout(() => {
       console.warn(`delay query with proxy`);
       getProxyAgent().then(() => {
         callback();
@@ -229,6 +231,10 @@ export class DataManager {
     // clear delay Apple translate.
     if (this.delayAppleTranslateTimer) {
       clearTimeout(this.delayAppleTranslateTimer);
+    }
+
+    if (this.delayProxyQueryTimer) {
+      clearTimeout(this.delayProxyQueryTimer);
     }
   }
 
