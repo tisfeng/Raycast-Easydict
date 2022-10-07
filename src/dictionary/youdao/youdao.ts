@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 20:09
+ * @lastEditTime: 2022-10-07 23:44
  * @fileName: youdao.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -20,7 +20,7 @@ import { userAgent, YoudaoErrorCode } from "../../consts";
 import { AppKeyStore } from "../../preferences";
 import { DicionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { getTypeErrorInfo, md5 } from "../../utils";
-import { englishLanguageItem } from "./../../language/consts";
+import { autoDetectLanguageItem, englishLanguageItem } from "./../../language/consts";
 import { myPreferences } from "./../../preferences";
 import { formateYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
@@ -215,8 +215,9 @@ export function requestYoudaoWebDictionary(
 
         const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
         const youdaoFormatResult = formateYoudaoWebDictionaryModel(youdaoWebModel);
+        const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
 
-        if (!youdaoFormatResult.queryWordInfo.hasDictionaryEntries) {
+        if (!youdaoQueryWordInfo.hasDictionaryEntries) {
           const youdaoTypeResult: QueryTypeResult = {
             type: type,
             result: undefined,
@@ -226,10 +227,16 @@ export function requestYoudaoWebDictionary(
           return resolve(youdaoTypeResult);
         }
 
+        // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂, so we need to update it.
+        if (queryWordInfo.fromLanguage !== autoDetectLanguageItem.youdaoLangCode) {
+          youdaoQueryWordInfo.fromLanguage = queryWordInfo.fromLanguage;
+          youdaoQueryWordInfo.toLanguage = queryWordInfo.toLanguage;
+        }
+
         const youdaoTypeResult: QueryTypeResult = {
           type: type,
           result: youdaoFormatResult,
-          queryWordInfo: youdaoFormatResult.queryWordInfo,
+          queryWordInfo: youdaoQueryWordInfo,
           translations: youdaoFormatResult.translation.split("\n"),
         };
         resolve(youdaoTypeResult);

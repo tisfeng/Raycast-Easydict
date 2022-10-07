@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 20:50
+ * @lastEditTime: 2022-10-07 23:47
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -455,10 +455,15 @@ export class DataManager {
           // console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 2)}`);
 
           const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
+          if (!formatYoudaoResult) {
+            console.warn(`---> formatYoudaoResult is undefined`);
+            return;
+          }
+
           const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
 
           // * use Youdao dictionary to check if query text is a word.
-          Object.assign(queryWordInfo, formatYoudaoResult?.queryWordInfo);
+          Object.assign(queryWordInfo, formatYoudaoResult.queryWordInfo);
 
           const youdaoDictResult: QueryResult = {
             type: type,
@@ -472,6 +477,7 @@ export class DataManager {
           if (myPreferences.enableYoudaoTranslate && enableYoudaoAPI) {
             const translationType = TranslationType.Youdao;
 
+            // * Deep copy Youdao dictionary result, as Youdao translate result.
             const youdaoWebTranslateResult = JSON.parse(JSON.stringify(youdaoDictionaryResult));
             youdaoWebTranslateResult.type = translationType;
             const youdaoTranslationResult: QueryResult = {

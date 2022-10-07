@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 19:37
+ * @lastEditTime: 2022-10-07 22:58
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -461,6 +461,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
 export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: string, to: string] {
   let from = chineseLanguageItem.youdaoLangCode;
   let to = chineseLanguageItem.youdaoLangCode;
+  // * Note: guessLanguage may be incorrect, eg: 鶗鴂 --> eng
   const guessLanguage = model.meta.guessLanguage;
   if (guessLanguage === "zh") {
     to = model.le;
