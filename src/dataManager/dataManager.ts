@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 23:47
+ * @lastEditTime: 2022-10-07 23:58
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -153,8 +153,6 @@ export class DataManager {
     this.queryYoudaoDictionary(queryWordInfo);
     this.queryYoudaoTranslate(queryWordInfo);
 
-    // query Linguee dictionary, will automatically query DeepL translate.
-    this.queryLingueeDictionary(queryWordInfo);
     this.queryBingTranslate(queryWordInfo);
     this.queryBaiduTranslate(queryWordInfo);
     this.queryTencentTranslate(queryWordInfo);
@@ -177,6 +175,9 @@ export class DataManager {
    */
   private delayQuery(queryWordInfo: QueryWordInfo) {
     this.delayQueryWithProxy(() => {
+      // Query Linguee dictionary, will automatically query DeepL translate.
+      this.queryLingueeDictionary(queryWordInfo);
+
       if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
         this.queryDeepLTranslate(queryWordInfo);
       }
