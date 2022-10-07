@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 23:15
+ * @lastEditTime: 2022-10-07 19:37
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -372,6 +372,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     // Word audio: https://dict.youdao.com/dictvoice?audio=good&type=2
     const usspeech = wordItem?.usspeech; // "good&type=2"
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
+    console.log(`${input}, audioUrl: ${audioUrl}`);
 
     explanations.length = 0;
     const trs = wordItem?.trs;

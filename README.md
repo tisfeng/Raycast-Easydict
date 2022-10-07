@@ -50,7 +50,7 @@ Next:
 
 ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png)
 
-### [Linguee 词典](https://www.linguee.com/)：English <--> French
+### [Linguee Dictionary](https://www.linguee.com/)：English <--> French
 
 ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png)
 
@@ -112,7 +112,7 @@ Considering user privacy, only Bing language detection is enabled by default (no
 
 Details of the languages supported by each language detection service are as follows:
 
-| 语言                   | Bing | 🍎 Apple | Baidu | Volcano | Tencent |
+| Languages              | Bing | 🍎 Apple | Baidu | Volcano | Tencent |
 | :--------------------- | :--: | :------: | :---: | :-----: | :-----: |
 | Chinese (Simplified)   |  ✅  |    ✅    |  ✅   |   ✅    |   ✅    |
 | Chinese（Traditional） |  ✅  |    ❌    |  ❌   |   ✅    |   ❌    |
@@ -158,7 +158,7 @@ Google and DeepL translations will use the system proxy by default. (DeepL works
 
 Supported translation languages:
 
-| language               | Youdao | DeepL | Google | Bing | 🍎 Apple | Baidu | Volcano | Tencent | Caiyun |
+| Languages              | Youdao | DeepL | Google | Bing | 🍎 Apple | Baidu | Volcano | Tencent | Caiyun |
 | :--------------------- | :----: | :---: | :----: | :--: | :------: | :---: | :-----: | :-----: | :----: |
 | Chinese (Simplified)   |   ✅   |  ✅   |   ✅   |  ✅  |    ✅    |  ✅   |   ✅    |   ✅    |   ✅   |
 | Chinese（Traditional） |   ✅   |  ⚠️   |   ✅   |  ✅  |    ⚠️    |  ✅   |   ✅    |   ✅    |   ⚠️   |
