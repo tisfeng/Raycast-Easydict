@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 22:58
+ * @lastEditTime: 2022-10-09 23:56
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -14,6 +14,7 @@ import {
   BaikeSummary,
   ExplanationItem,
   KeyValueItem,
+  ModernChineseDataList,
   QueryWordInfo,
   WordExplanation,
   WordForms,
@@ -87,18 +88,17 @@ export function formatYoudaoDictionaryResult(
  * Update Youdao dictionary display result.
  */
 export function updateYoudaoDictionaryDisplay(
-  formatResult: YoudaoDictionaryFormatResult | undefined
+  youdaoResult: YoudaoDictionaryFormatResult | undefined
 ): DisplaySection[] | undefined {
-  if (!formatResult) {
+  if (!youdaoResult) {
     return;
   }
 
   const displaySections: Array<DisplaySection> = [];
 
-  const queryWordInfo = formatResult.queryWordInfo;
+  const queryWordInfo = youdaoResult.queryWordInfo;
   const youdaoDictionaryType = DicionaryType.Youdao;
-  const oneLineTranslation = formatResult.translation.split("\n").join(", ");
-  const phoneticText = queryWordInfo.phonetic;
+  const oneLineTranslation = youdaoResult.translation.split("\n").join(", ");
   const subtitle = queryWordInfo.word.split("\n").join(" ");
 
   // 1. Translation.
@@ -113,7 +113,7 @@ export function updateYoudaoDictionaryDisplay(
     copyText: oneLineTranslation,
     queryWordInfo: queryWordInfo,
     accessoryItem: {
-      phonetic: phoneticText,
+      phonetic: queryWordInfo.phonetic,
       examTypes: queryWordInfo.examTypes,
     },
   };
@@ -123,9 +123,57 @@ export function updateYoudaoDictionaryDisplay(
     items: [translationItem],
   });
 
-  // 2. Explanation.
+  // 2. Modern Chinese dictionary.
+  const modernChineseDict = youdaoResult.modernChineseDict;
+  const modernChineseDictType = YoudaoDictionaryListItemType.ModernChineseDict;
+
+  if (modernChineseDict?.length) {
+    const modernChineseDictItems: ListDisplayItem[] = [];
+    modernChineseDict.forEach((forms) => {
+      const pinyin = forms.pinyin;
+      if (pinyin && translationItem.accessoryItem) {
+        translationItem.accessoryItem.phonetic = pinyin;
+      }
+
+      if (forms.sense?.length) {
+        const subtitle = forms.sense
+          .map((senseItem, i) => {
+            const def = senseItem.def;
+            const example = senseItem.examples?.join("/");
+            const exampleText = example ? `：${example}` : "";
+            return `${i + 1}. ${def}${exampleText}`;
+          })
+          .join("  ");
+
+        const title = forms.sense[0].cat || "";
+        const copyText = `${title}  ${subtitle}`;
+
+        const displayItem: ListDisplayItem = {
+          displayType: modernChineseDictType,
+          queryType: youdaoDictionaryType,
+          key: copyText,
+          title: title,
+          subtitle: subtitle,
+          queryWordInfo: queryWordInfo,
+          tooltip: modernChineseDictType,
+          copyText: copyText,
+        };
+
+        modernChineseDictItems.push(displayItem);
+      }
+    });
+
+    if (modernChineseDictItems?.length) {
+      displaySections.push({
+        type: modernChineseDictType,
+        items: modernChineseDictItems,
+      });
+    }
+  }
+
+  // 3. Explanation.
   const explanationType = YoudaoDictionaryListItemType.Explanation;
-  const explanationItems = formatResult.explanations?.map((explanation, i) => {
+  const explanationItems = youdaoResult.explanations?.map((explanation, i) => {
     const title = explanation.title;
     const subtitle = explanation.subtitle ? ` ${explanation.subtitle}` : "";
     const copyText = `${title}${subtitle}`;
@@ -149,9 +197,9 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  // 3. Forms.
+  // 4. Forms.
   const formsType = YoudaoDictionaryListItemType.Forms;
-  const wfs = formatResult.forms?.map((wfItem) => {
+  const wfs = youdaoResult.forms?.map((wfItem) => {
     return wfItem.wf?.name + ": " + wfItem.wf?.value;
   });
   // [ 复数: goods   比较级: better   最高级: best ]
@@ -173,10 +221,10 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  // 4. Web Translation.
-  if (formatResult.webTranslation) {
-    const webResultKey = formatResult.webTranslation.key;
-    const webResultValue = formatResult.webTranslation.value.join("；");
+  // 5. Web Translation.
+  if (youdaoResult.webTranslation) {
+    const webResultKey = youdaoResult.webTranslation.key;
+    const webResultValue = youdaoResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
 
     const webTranslationItem: ListDisplayItem = {
@@ -195,8 +243,8 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  // 5. Web Phrases.
-  const webPhraseItems = formatResult.webPhrases?.map((phrase, i) => {
+  // 6. Web Phrases.
+  const webPhraseItems = youdaoResult.webPhrases?.map((phrase, i) => {
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
@@ -220,10 +268,10 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  // 6. Baike.
+  // 7. Baike.
   const baikeType = YoudaoDictionaryListItemType.Baike;
-  const baikeKey = formatResult.baike?.key || "";
-  const summary = formatResult.baike?.summary || "";
+  const baikeKey = youdaoResult.baike?.key || "";
+  const summary = youdaoResult.baike?.summary || "";
   const baikeText = `${baikeKey} ${summary}`;
   const baikeItem: ListDisplayItem = {
     displayType: baikeType,
@@ -242,10 +290,10 @@ export function updateYoudaoDictionaryDisplay(
     });
   }
 
-  // 7. Wikipedia.
+  // 8. Wikipedia.
   const wikipediaType = YoudaoDictionaryListItemType.Wikipedia;
-  const wikipediaKey = formatResult.wikipedia?.key || "";
-  const wikipediaSummary = formatResult.wikipedia?.summary || "";
+  const wikipediaKey = youdaoResult.wikipedia?.key || "";
+  const wikipediaSummary = youdaoResult.wikipedia?.summary || "";
   const wikipediaText = `${wikipediaKey} ${wikipediaSummary}`;
   const wikipediaItem: ListDisplayItem = {
     displayType: wikipediaType,
@@ -311,6 +359,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
 
   // get baike info.
   let baike: BaikeSummary | undefined;
+  // Todo: use baidu baike api to get baike info.
   const baikeSummarys = model.baike?.summarys;
   if (baikeSummarys?.length) {
     baike = baikeSummarys[0];
@@ -321,6 +370,12 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
   const wikipediaDigests = model.wikipedia_digest?.summarys;
   if (wikipediaDigests?.length) {
     wikipediaDigest = wikipediaDigests[0];
+  }
+
+  let newChineseDataList: ModernChineseDataList[] | undefined;
+  const dataList = model.newhh?.dataList;
+  if (dataList?.length) {
+    newChineseDataList = formatNewChineseDict(dataList);
   }
 
   // format web translation.
@@ -447,6 +502,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     webPhrases: webPhrases,
     baike: baike,
     wikipedia: wikipediaDigest,
+    modernChineseDict: newChineseDataList,
   };
 
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
@@ -477,4 +533,38 @@ export function getFromToLanguage(model: YoudaoWebDictionaryModel): [from: strin
 export function getPhoneticDisplayText(phonetic: string | undefined): string | undefined {
   const phoneticText = phonetic ? `/ ${phonetic} /` : undefined;
   return phoneticText;
+}
+
+/**
+ * Format New Chinese dictionary.
+ */
+export function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernChineseDataList[] | undefined {
+  if (!dataList.length) {
+    return;
+  }
+
+  const newDataList: ModernChineseDataList[] = JSON.parse(JSON.stringify(dataList));
+
+  if (newDataList.length) {
+    for (const dict of newDataList) {
+      if (dict.sense?.length) {
+        for (const examplesList of dict.sense) {
+          const newExamples: string[] = [];
+          const examples = examplesList.examples;
+          if (examples?.length) {
+            for (const example of examples) {
+              console.log(`example: ${example}`);
+              // remove <self> and </self> in example
+              const newExmple = example.replaceAll(/<self>|<\/self>/g, "");
+              console.log(`newExmple: ${newExmple}`);
+              newExamples.push(newExmple);
+            }
+          }
+          examplesList.examples = newExamples;
+        }
+      }
+    }
+  }
+
+  return newDataList;
 }

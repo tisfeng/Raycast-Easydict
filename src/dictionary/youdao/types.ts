@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 19:41
+ * @lastEditTime: 2022-10-09 23:21
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,11 +19,13 @@ export interface YoudaoDictionaryFormatResult {
   webPhrases?: KeyValueItem[];
   baike?: BaikeSummary;
   wikipedia?: BaikeSummary;
+  modernChineseDict?: ModernChineseDataList[];
 }
 
 export enum YoudaoDictionaryListItemType {
   Translation = "Translation",
   Explanation = "Explanation",
+  ModernChineseDict = "ModernChineseDict",
   Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",
@@ -985,12 +987,12 @@ export interface Snippet {
 }
 
 export interface Newhh {
-  dataList?: NewhhDataList[];
+  dataList?: ModernChineseDataList[];
   source?: CeNewSource;
   word?: string;
 }
 
-export interface NewhhDataList {
+export interface ModernChineseDataList {
   pinyin?: string;
   sense?: Sense[];
   word?: string;
