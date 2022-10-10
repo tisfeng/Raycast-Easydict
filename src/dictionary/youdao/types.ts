@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-04 23:21
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 09:05
+ * @lastEditTime: 2022-10-10 22:45
  * @fileName: types.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -25,7 +25,7 @@ export interface YoudaoDictionaryFormatResult {
 export enum YoudaoDictionaryListItemType {
   Translation = "Translation",
   Explanation = "Explanation",
-  ModernChineseDict = "ModernChineseDict",
+  ModernChineseDict = "Modern Chinese Dict",
   Forms = "Forms and Tenses",
   WebTranslation = "Web Translation",
   WebPhrase = "Web Phrase",

@@ -1,9 +1,8 @@
-import { ModernChineseDataList, QueryWordInfo, YoudaoDictionaryListItemType } from "./../dictionary/youdao/types";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 22:41
+ * @lastEditTime: 2022-10-11 19:48
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -35,6 +34,7 @@ import {
   checkIsWord,
   checkIsYoudaoDictionaryListItem,
 } from "../utils";
+import { ModernChineseDataList, QueryWordInfo, YoudaoDictionaryListItemType } from "./../dictionary/youdao/types";
 import { chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 
 /**
@@ -288,7 +288,7 @@ export function getModernChineseDictMarkdown(modernChineseDict: ModernChineseDat
         let formsMarkdown = "";
         if (cat && i === 0) {
           const pinyin = dictData.pinyin ? `${dictData.pinyin}` : "";
-          const catTex = cat ? ` ${cat}` : "";
+          const catTex = cat ? `  ${cat}` : "";
           markdown += `${pinyin}${catTex}`;
         }
         if (def) {

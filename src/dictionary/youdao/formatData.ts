@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 12:33
+ * @lastEditTime: 2022-10-10 22:54
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -131,8 +131,9 @@ export function updateYoudaoDictionaryDisplay(
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((forms) => {
       const pinyin = forms.pinyin ? `${forms.pinyin}` : "";
-      if (pinyin && translationItem.accessoryItem) {
-        translationItem.accessoryItem.phonetic = pinyin;
+      const accessoryItem = translationItem.accessoryItem;
+      if (pinyin && accessoryItem && !accessoryItem.phonetic) {
+        accessoryItem.phonetic = `/ ${pinyin} /`;
       }
 
       if (forms.sense?.length) {
