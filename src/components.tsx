@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-09 23:53
+ * @lastEditTime: 2022-10-10 12:33
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { formateDetailMarkdown, isTextOneLineTooLong } from "./dataManager/utils";
+import { formatDetailMarkdown, isTextOneLineTooLong } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
 import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
@@ -63,7 +63,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   console.log(`copyText: ${copyText} (${detailLanguage}, ${copyText.length})`);
 
   const isShowingDetail = isTextOneLineTooLong(detail, detailLanguage);
-  const showMoreDetails = formateDetailMarkdown(displayItem);
+  const showMoreDetails = formatDetailMarkdown(displayItem);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
@@ -326,7 +326,7 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemTy
       break;
     }
     case YoudaoDictionaryListItemType.ModernChineseDict: {
-      dotColor = "#7B7B7B";
+      dotColor = "#000079";
       break;
     }
     case YoudaoDictionaryListItemType.Explanation: {

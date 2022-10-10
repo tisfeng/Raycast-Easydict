@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-09 23:56
+ * @lastEditTime: 2022-10-10 12:33
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -130,7 +130,7 @@ export function updateYoudaoDictionaryDisplay(
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((forms) => {
-      const pinyin = forms.pinyin;
+      const pinyin = forms.pinyin ? `${forms.pinyin}` : "";
       if (pinyin && translationItem.accessoryItem) {
         translationItem.accessoryItem.phonetic = pinyin;
       }
@@ -145,7 +145,10 @@ export function updateYoudaoDictionaryDisplay(
           })
           .join("  ");
 
-        const title = forms.sense[0].cat || "";
+        const pinyinText = pinyin ? `${pinyin} ` : "";
+        const cat = forms.sense[0].cat;
+        const catText = cat ? ` ${cat}` : "";
+        const title = `${pinyinText}${catText}`;
         const copyText = `${title}  ${subtitle}`;
 
         const displayItem: ListDisplayItem = {
@@ -157,6 +160,7 @@ export function updateYoudaoDictionaryDisplay(
           queryWordInfo: queryWordInfo,
           tooltip: modernChineseDictType,
           copyText: copyText,
+          sourceData: youdaoResult,
         };
 
         modernChineseDictItems.push(displayItem);
@@ -553,10 +557,8 @@ export function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernC
           const examples = examplesList.examples;
           if (examples?.length) {
             for (const example of examples) {
-              console.log(`example: ${example}`);
               // remove <self> and </self> in example
               const newExmple = example.replaceAll(/<self>|<\/self>/g, "");
-              console.log(`newExmple: ${newExmple}`);
               newExamples.push(newExmple);
             }
           }

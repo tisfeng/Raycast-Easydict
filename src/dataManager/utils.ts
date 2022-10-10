@@ -1,8 +1,9 @@
+import { ModernChineseDataList, QueryWordInfo, YoudaoDictionaryListItemType } from "./../dictionary/youdao/types";
 /*
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-03 23:13
+ * @lastEditTime: 2022-10-10 12:30
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +12,7 @@
 import { hasLingueeDictionaryEntries } from "../dictionary/linguee/parse";
 import { LingueeDictionaryResult } from "../dictionary/linguee/types";
 import { hasYoudaoDictionaryEntries } from "../dictionary/youdao/formatData";
-import { QueryWordInfo, YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+import { YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
 import {
   getLanguageItemFromYoudaoCode,
@@ -211,8 +212,8 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 /**
  * Show more detail markdown.
  */
-export function formateDetailMarkdown(displayItem: ListDisplayItem) {
-  const { queryType, title, subtitle } = displayItem;
+export function formatDetailMarkdown(displayItem: ListDisplayItem) {
+  const { queryType, displayType, title, subtitle } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
   const type = queryType.toString();
@@ -249,6 +250,11 @@ export function formateDetailMarkdown(displayItem: ListDisplayItem) {
         }
       }
     }
+
+    if (displayType === YoudaoDictionaryListItemType.ModernChineseDict) {
+      const sourceData = displayItem.sourceData as YoudaoDictionaryFormatResult;
+      explanation = getModernChineseDictMarkdown(sourceData.modernChineseDict);
+    }
   }
 
   const markdown = `
@@ -258,6 +264,45 @@ export function formateDetailMarkdown(displayItem: ListDisplayItem) {
   ----
   ${explanation}
   `;
+  return markdown;
+}
+
+/**
+ * Get modern chinese dictionary markdown.
+ */
+export function getModernChineseDictMarkdown(modernChineseDict: ModernChineseDataList[] | undefined) {
+  let markdown = "";
+  if (!modernChineseDict) {
+    return markdown;
+  }
+
+  modernChineseDict.forEach((dictData) => {
+    let modernChineseMarkdown = "";
+    if (dictData.sense?.length) {
+      dictData.sense.forEach((sense, i) => {
+        const { cat, def, examples } = sense;
+        let exampleMarkdown = "";
+        if (examples?.length) {
+          exampleMarkdown = examples.join("/");
+        }
+        let formsMarkdown = "";
+        if (cat && i === 0) {
+          const pinyin = dictData.pinyin ? `${dictData.pinyin}` : "";
+          const catTex = cat ? ` ${cat}` : "";
+          markdown += `${pinyin}${catTex}`;
+        }
+        if (def) {
+          formsMarkdown += `\n ${i + 1}. ${def}`;
+        }
+        if (exampleMarkdown) {
+          formsMarkdown += `：\`${exampleMarkdown}\``;
+        }
+        modernChineseMarkdown += formsMarkdown;
+      });
+      markdown += modernChineseMarkdown;
+    }
+  });
+  console.log(`---> markdown: ${markdown}`);
   return markdown;
 }
 
