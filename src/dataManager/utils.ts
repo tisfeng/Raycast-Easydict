@@ -3,7 +3,7 @@ import { ModernChineseDataList, QueryWordInfo, YoudaoDictionaryListItemType } fr
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 12:30
+ * @lastEditTime: 2022-10-10 22:41
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -210,9 +210,9 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 }
 
 /**
- * Show more detail markdown.
+ * Get show more detail markdown.
  */
-export function formatDetailMarkdown(displayItem: ListDisplayItem) {
+export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
   const { queryType, displayType, title, subtitle } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
@@ -307,9 +307,9 @@ export function getModernChineseDictMarkdown(modernChineseDict: ModernChineseDat
 }
 
 /**
- * Format translation to markdown.
+ * Get translation markdown.
  */
-export function formatTranslationToMarkdown(sourceResult: QueryTypeResult) {
+export function getTranslationMarkdown(sourceResult: QueryTypeResult) {
   const { type, translations, queryWordInfo: wordInfo } = sourceResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {
@@ -342,7 +342,7 @@ export function updateTranslationMarkdown(queryResult: QueryResult, queryResults
     const isTranslationType = checkIsTranslationType(type);
     if (sourceResult && isTranslationType) {
       const type = sourceResult.type as TranslationType;
-      const markdownTranslation = formatTranslationToMarkdown(sourceResult);
+      const markdownTranslation = getTranslationMarkdown(sourceResult);
       translations.push({ type: type, text: markdownTranslation });
     }
   }

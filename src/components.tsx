@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 21:39
+ * @lastEditTime: 2022-10-10 21:58
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,13 +11,13 @@
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
 import { sayTruncateCommand } from "./audio";
-import { formatDetailMarkdown, isTextOneLineTooLong } from "./dataManager/utils";
+import { getShowMoreDetailMarkdown } from "./dataManager/utils";
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
 import { LingueeListItemType } from "./dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "./dictionary/youdao/utils";
 import { playYoudaoWordAudioAfterDownloading } from "./dictionary/youdao/youdao";
-import { chineseLanguageItem, languageItemList } from "./language/consts";
+import { languageItemList } from "./language/consts";
 import {
   getBaiduWebTranslateURL,
   getDeepLWebTranslateURL,
@@ -50,20 +50,10 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const copyText = displayItem.copyText;
 
-  const detail = copyText;
-  let detailLanguage = toLanguage;
-  if (
-    displayItem.displayType === YoudaoDictionaryListItemType.Baike ||
-    displayItem.displayType === YoudaoDictionaryListItemType.ModernChineseDict
-  ) {
-    detailLanguage = chineseLanguageItem.youdaoLangCode;
-  }
-
   console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
-  console.log(`copyText: ${copyText} (${detailLanguage}, ${copyText.length})`);
+  console.log(`copyText: ${copyText}, ${copyText.length}`);
 
-  const isShowingDetail = isTextOneLineTooLong(detail, detailLanguage);
-  const showMoreDetails = formatDetailMarkdown(displayItem);
+  const showMoreDetailMarkdown = getShowMoreDetailMarkdown(displayItem);
 
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
   const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
@@ -102,7 +92,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {myPreferences.showCopyTextFirst && CopyTextAction({ copyText })}
 
         {props.isInstalledEudic && (
-          <Action icon={Icon.MagnifyingGlass} title="Open In Eudic App" onAction={() => openInEudic(word)} />
+          <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
         )}
 
         {!myPreferences.showCopyTextFirst && CopyTextAction({ copyText })}
@@ -114,14 +104,12 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} enableShortcutKey={true} />}
         {isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} enableShortcutKey={true} />}
 
-        {isShowingDetail && (
-          <Action.Push
-            title="Show More Details"
-            icon={Icon.Eye}
-            shortcut={{ modifiers: ["cmd"], key: "m" }}
-            target={<Detail markdown={showMoreDetails} />}
-          />
-        )}
+        <Action.Push
+          title="Show More Details"
+          icon={Icon.Eye}
+          shortcut={{ modifiers: ["cmd"], key: "m" }}
+          target={<Detail markdown={showMoreDetailMarkdown} />}
+        />
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
@@ -422,7 +410,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
  * Get WebQueryItem according to the query type and info
  */
 function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQueryItem | undefined {
-  const title = `Open In ${queryType}`;
+  const title = `Open in ${queryType}`;
   const icon = getQueryTypeIcon(queryType);
 
   let webUrl;
