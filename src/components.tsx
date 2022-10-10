@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 12:33
+ * @lastEditTime: 2022-10-10 21:39
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -99,16 +99,20 @@ export function ListActionPanel(props: ActionListPanelProps) {
           <ReleaseNotesAction title="✨ New Version Released" onPush={onNewReleasePromptClick} />
         )}
 
+        {myPreferences.showCopyTextFirst && CopyTextAction({ copyText })}
+
         {props.isInstalledEudic && (
           <Action icon={Icon.MagnifyingGlass} title="Open In Eudic App" onAction={() => openInEudic(word)} />
         )}
 
-        {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} />}
-        {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} />}
-        {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} />}
-        {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} />}
-        {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} />}
-        {isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} />}
+        {!myPreferences.showCopyTextFirst && CopyTextAction({ copyText })}
+
+        {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} enableShortcutKey={true} />}
+        {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} enableShortcutKey={true} />}
+        {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} enableShortcutKey={true} />}
+        {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} enableShortcutKey={true} />}
+        {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} enableShortcutKey={true} />}
+        {isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} enableShortcutKey={true} />}
 
         {isShowingDetail && (
           <Action.Push
@@ -118,14 +122,6 @@ export function ListActionPanel(props: ActionListPanelProps) {
             target={<Detail markdown={showMoreDetails} />}
           />
         )}
-
-        <Action.CopyToClipboard
-          onCopy={() => {
-            console.log("copy: ", copyText);
-          }}
-          title={`Copy Text`}
-          content={copyText || ""}
-        />
       </ActionPanel.Section>
 
       <ActionPanel.Section title="Search Query Text Online">
@@ -196,6 +192,22 @@ export function ListActionPanel(props: ActionListPanelProps) {
         <ActionFeedback />
       </ActionPanel.Section>
     </ActionPanel>
+  );
+}
+
+/**
+ * Copy text action
+ */
+function CopyTextAction(props: { copyText: string }) {
+  const { copyText } = props;
+  return (
+    <Action.CopyToClipboard
+      onCopy={() => {
+        console.log("copy: ", copyText);
+      }}
+      title={`Copy Text`}
+      content={copyText}
+    />
   );
 }
 
@@ -448,14 +460,25 @@ function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQuer
   return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
 }
 
-function WebQueryAction(props: { webQueryItem?: WebQueryItem }) {
-  return props.webQueryItem?.webUrl ? (
-    <Action.OpenInBrowser
-      icon={props.webQueryItem.icon}
-      title={props.webQueryItem.title}
-      url={props.webQueryItem.webUrl}
-    />
-  ) : null;
+function WebQueryAction(props: { webQueryItem?: WebQueryItem; enableShortcutKey?: boolean }) {
+  if (props.enableShortcutKey) {
+    return props.webQueryItem?.webUrl ? (
+      <Action.OpenInBrowser
+        icon={props.webQueryItem.icon}
+        title={props.webQueryItem.title}
+        url={props.webQueryItem.webUrl}
+        shortcut={{ modifiers: ["cmd"], key: "o" }}
+      />
+    ) : null;
+  } else {
+    return props.webQueryItem?.webUrl ? (
+      <Action.OpenInBrowser
+        icon={props.webQueryItem.icon}
+        title={props.webQueryItem.title}
+        url={props.webQueryItem.webUrl}
+      />
+    ) : null;
+  }
 }
 
 export function checkIfPreferredLanguagesConflict() {

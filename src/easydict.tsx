@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-02 15:52
+ * @lastEditTime: 2022-10-10 20:31
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -226,7 +226,7 @@ export default function () {
                     <ListActionPanel
                       displayItem={item}
                       isShowingReleasePrompt={isShowingReleasePrompt}
-                      isInstalledEudic={isInstalledEudic && myPreferences.enableOpenInEudic}
+                      isInstalledEudic={isInstalledEudic}
                       onLanguageUpdate={updateSelectedTargetLanguageItem}
                     />
                   }
