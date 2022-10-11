@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 22:54
+ * @lastEditTime: 2022-10-12 00:59
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -16,6 +16,7 @@ import {
   KeyValueItem,
   ModernChineseDataList,
   QueryWordInfo,
+  Sense,
   WordExplanation,
   WordForms,
   YoudaoDictionaryFormatResult,
@@ -127,9 +128,12 @@ export function updateYoudaoDictionaryDisplay(
   const modernChineseDict = youdaoResult.modernChineseDict;
   const modernChineseDictType = YoudaoDictionaryListItemType.ModernChineseDict;
 
+  console.log(`Modern Chinese dictionary`);
+
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((forms) => {
+      console.log(`forms: ${JSON.stringify(forms, null, 2)}`);
       const pinyin = forms.pinyin ? `${forms.pinyin}` : "";
       const accessoryItem = translationItem.accessoryItem;
       if (pinyin && accessoryItem && !accessoryItem.phonetic) {
@@ -137,20 +141,58 @@ export function updateYoudaoDictionaryDisplay(
       }
 
       if (forms.sense?.length) {
-        const subtitle = forms.sense
-          .map((senseItem, i) => {
-            const def = senseItem.def;
-            const example = senseItem.examples?.join("/");
-            const exampleText = example ? `：${example}` : "";
-            return `${i + 1}. ${def}${exampleText}`;
-          })
-          .join("  ");
+        let lastCat: string | undefined;
+        const senseGroups: Sense[][] = [];
 
-        const pinyinText = pinyin ? `${pinyin} ` : "";
-        const cat = forms.sense[0].cat;
-        const catText = cat ? ` ${cat}` : "";
-        const title = `${pinyinText}${catText}`;
-        const copyText = `${title}  ${subtitle}`;
+        const copyFormsSense = JSON.parse(JSON.stringify(forms.sense)) as Sense[];
+        console.log(`copyFormsSense: ${JSON.stringify(copyFormsSense, null, 2)}`);
+
+        let group: Sense[] = [];
+        while (copyFormsSense.length > 0) {
+          const senseItem = copyFormsSense.pop();
+          if (senseItem) {
+            const cat = senseItem.cat;
+            if (cat !== lastCat) {
+              if (group.length) {
+                senseGroups.push(group);
+              }
+              group = [];
+              group.push(senseItem);
+              lastCat = cat;
+            } else {
+              group.push(senseItem);
+            }
+          }
+        }
+        senseGroups.push(group);
+        console.log(`senseGroups: ${JSON.stringify(senseGroups, null, 2)}`);
+
+        let markdown = pinyin;
+        let subtitle = "";
+        senseGroups.forEach((group) => {
+          console.log(`group: ${JSON.stringify(group, null, 2)}`);
+          const cat = group[0].cat || "";
+          markdown += `\n\n${cat}`;
+          subtitle += `${cat}  `;
+          group.forEach((senseItem, i) => {
+            const { def, examples } = senseItem;
+            const defText = def?.length ? def.join("; ") : "";
+            const example = examples?.join("/");
+            const exampleText = example ? `：${example}` : "";
+            let defExampleText = `${i + 1}. ${defText}${exampleText}  `;
+            if (!defText.length && !exampleText.length) {
+              defExampleText = "";
+            }
+
+            markdown += `\n\n${defExampleText}`;
+            subtitle += `${defExampleText}`;
+          });
+        });
+
+        const title = pinyin ? `${pinyin}` : "";
+        const copyText = `${title}${subtitle}`;
+        console.log(`markdown: ${markdown}`);
+        console.log(`copyText: ${copyText}`);
 
         const displayItem: ListDisplayItem = {
           displayType: modernChineseDictType,
@@ -161,9 +203,8 @@ export function updateYoudaoDictionaryDisplay(
           queryWordInfo: queryWordInfo,
           tooltip: modernChineseDictType,
           copyText: copyText,
-          sourceData: youdaoResult,
+          detailsMarkdown: markdown,
         };
-
         modernChineseDictItems.push(displayItem);
       }
     });
@@ -549,7 +590,6 @@ export function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernC
   }
 
   const newDataList: ModernChineseDataList[] = JSON.parse(JSON.stringify(dataList));
-
   if (newDataList.length) {
     for (const dict of newDataList) {
       if (dict.sense?.length) {
@@ -568,6 +608,5 @@ export function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernC
       }
     }
   }
-
   return newDataList;
 }

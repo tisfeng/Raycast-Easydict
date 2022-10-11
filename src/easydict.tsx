@@ -221,7 +221,7 @@ export default function () {
                   title={item.title}
                   subtitle={item.subtitle}
                   accessories={getWordAccessories(item)}
-                  detail={<List.Item.Detail markdown={item.translationMarkdown} />}
+                  detail={<List.Item.Detail markdown={item.detailsMarkdown} />}
                   actions={
                     <ListActionPanel
                       displayItem={item}

@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-17 17:41
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-11 19:48
+ * @lastEditTime: 2022-10-11 23:17
  * @fileName: utils.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -34,7 +34,7 @@ import {
   checkIsWord,
   checkIsYoudaoDictionaryListItem,
 } from "../utils";
-import { ModernChineseDataList, QueryWordInfo, YoudaoDictionaryListItemType } from "./../dictionary/youdao/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "./../dictionary/youdao/types";
 import { chineseLanguageItem, englishLanguageItem } from "./../language/consts";
 
 /**
@@ -213,7 +213,7 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
  * Get show more detail markdown.
  */
 export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
-  const { queryType, displayType, title, subtitle } = displayItem;
+  const { queryType, displayType, title, subtitle, detailsMarkdown, copyText } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
   const type = queryType.toString();
@@ -252,8 +252,7 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
     }
 
     if (displayType === YoudaoDictionaryListItemType.ModernChineseDict) {
-      const sourceData = displayItem.sourceData as YoudaoDictionaryFormatResult;
-      explanation = getModernChineseDictMarkdown(sourceData.modernChineseDict);
+      explanation = detailsMarkdown || copyText;
     }
   }
 
@@ -264,45 +263,6 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
   ----
   ${explanation}
   `;
-  return markdown;
-}
-
-/**
- * Get modern chinese dictionary markdown.
- */
-export function getModernChineseDictMarkdown(modernChineseDict: ModernChineseDataList[] | undefined) {
-  let markdown = "";
-  if (!modernChineseDict) {
-    return markdown;
-  }
-
-  modernChineseDict.forEach((dictData) => {
-    let modernChineseMarkdown = "";
-    if (dictData.sense?.length) {
-      dictData.sense.forEach((sense, i) => {
-        const { cat, def, examples } = sense;
-        let exampleMarkdown = "";
-        if (examples?.length) {
-          exampleMarkdown = examples.join("/");
-        }
-        let formsMarkdown = "";
-        if (cat && i === 0) {
-          const pinyin = dictData.pinyin ? `${dictData.pinyin}` : "";
-          const catTex = cat ? `  ${cat}` : "";
-          markdown += `${pinyin}${catTex}`;
-        }
-        if (def) {
-          formsMarkdown += `\n ${i + 1}. ${def}`;
-        }
-        if (exampleMarkdown) {
-          formsMarkdown += `：\`${exampleMarkdown}\``;
-        }
-        modernChineseMarkdown += formsMarkdown;
-      });
-      markdown += modernChineseMarkdown;
-    }
-  });
-  console.log(`---> markdown: ${markdown}`);
   return markdown;
 }
 
@@ -360,7 +320,7 @@ export function updateTranslationMarkdown(queryResult: QueryResult, queryResults
 
   const listDiplayItem = displaySections[0].items;
   if (listDiplayItem?.length) {
-    listDiplayItem[0].translationMarkdown = markdown;
+    listDiplayItem[0].detailsMarkdown = markdown;
   }
 }
 
