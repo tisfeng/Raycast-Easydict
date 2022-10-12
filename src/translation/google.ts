@@ -14,13 +14,12 @@ import * as cheerio from "cheerio";
 import querystring from "node:querystring";
 import { getProxyAgent, getSystemProxyURL, httpsAgent } from "../axiosConfig";
 import { userAgent } from "../consts";
+import { DetectedLangModel, LanguageDetectType } from "../detectLanauge/types";
 import { QueryWordInfo } from "../dictionary/youdao/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "../language/consts";
 import { getGoogleLangCode, getYoudaoLangCodeFromGoogleCode } from "../language/languages";
-import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { GoogleTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
-import { DetectedLangModel, LanguageDetectType } from "./../detectLanauge/types";
-import { autoDetectLanguageItem, englishLanguageItem } from "./../language/consts";
-import { GoogleTranslateResult } from "./../types";
 
 console.log(`enter google.ts`);
 
