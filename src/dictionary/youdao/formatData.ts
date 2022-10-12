@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 20:36
+ * @lastEditTime: 2022-10-12 21:56
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -37,8 +37,7 @@ export function formatYoudaoDictionaryResult(
   }
 
   const [from, to] = youdaoResult.l.split("2"); // from2to
-  let usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
-  usPhonetic = usPhonetic?.split("; ")[1] || usPhonetic;
+  const usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
   const phonetic = usPhonetic || youdaoResult.basic?.phonetic;
   const phoneticText = phonetic ? `[${phonetic}]` : undefined;
   const queryWordInfo: QueryWordInfo = {
