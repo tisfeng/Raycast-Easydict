@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 13:14
+ * @lastEditTime: 2022-10-12 17:25
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -132,19 +132,21 @@ export function updateYoudaoDictionaryDisplay(
 
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
-    modernChineseDict.forEach((forms) => {
-      console.log(`forms: ${JSON.stringify(forms, null, 4)}`);
-      const pinyin = forms.pinyin ? `${forms.pinyin}` : "";
+    modernChineseDict.forEach((phoneticDict) => {
+      const word = phoneticDict.word;
+      const placeholder = `[${word}]`;
+      console.log(`forms: ${JSON.stringify(phoneticDict, null, 4)}`);
+      const pinyin = phoneticDict.pinyin ? `${phoneticDict.pinyin}` : "";
       const accessoryItem = translationItem.accessoryItem;
       if (pinyin && accessoryItem && !accessoryItem.phonetic) {
         accessoryItem.phonetic = `/ ${pinyin} /`;
       }
 
-      if (forms.sense?.length) {
+      if (phoneticDict.sense?.length) {
         let lastCat: string | undefined;
         const senseGroups: Sense[][] = [];
 
-        const copyFormsSense = JSON.parse(JSON.stringify(forms.sense)) as Sense[];
+        const copyFormsSense = JSON.parse(JSON.stringify(phoneticDict.sense)) as Sense[];
         console.log(`copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
 
         // * group senses by category
@@ -172,12 +174,12 @@ export function updateYoudaoDictionaryDisplay(
         let subtitle = "";
         senseGroups.forEach((groups) => {
           console.log(`group: ${JSON.stringify(groups, null, 4)}`);
-          const cat = groups[0].cat || "";
+          const cat = groups[0].cat || placeholder;
           const catText = cat ? `${cat} ` : "";
           markdown += `\n\n${catText}`;
           subtitle += catText;
 
-          const defExampleMarkdown = "" + getDefExampleMarkdown(groups);
+          const defExampleMarkdown = "" + getDefExampleMarkdown(groups, placeholder);
           markdown += `${defExampleMarkdown}`;
 
           let subtitleText = defExampleMarkdown.replaceAll("\n", " ");
@@ -630,7 +632,7 @@ export function removeExamplesHtmlTag(examples: string[] | undefined): string[] 
 /**
  * Get defExample markdown from senseList.
  */
-function getDefExampleMarkdown(senseList: Sense[], preText = "\n\n", tag?: number): string {
+function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n", tag?: number): string {
   let markdown = "";
   senseList.forEach((senseItem, i) => {
     let defExampleText = preText;
@@ -646,22 +648,25 @@ function getDefExampleMarkdown(senseList: Sense[], preText = "\n\n", tag?: numbe
       defText = defString;
     }
     defText = defText ? ` ${defText}` : "";
+
+    // handle special case, eg. 为
+    if (!defText.length && senseItem.subsense?.length) {
+      defText = ` ${word}`;
+    }
+
     const example = examples?.map((item) => `\`${item}\``).join("/");
     const exampleText = example ? `：${example}  ` : "";
     defExampleText += `${i + 1}.${defText}${exampleText}`;
-    if (!defText.length && !example?.length) {
-      defExampleText = "";
-    }
-
     console.log(`defExampleText: ${defExampleText}`);
-    if (senseItem.subsense?.length) {
-      const subsensesList = senseItem.subsense;
-      const subsenseDefExampleText = getDefExampleMarkdown(subsensesList, "\n", i + 1);
+    const subsensesList = senseItem.subsense;
+    if (subsensesList?.length) {
+      const subsenseDefExampleText = getDefExampleMarkdown(subsensesList, word, "\n", i + 1);
       console.log(`subsenseDefExampleText: ${subsenseDefExampleText}`);
       defExampleText += "  " + subsenseDefExampleText + "";
     }
 
     markdown += defExampleText;
   });
+
   return markdown;
 }
