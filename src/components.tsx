@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 13:22
+ * @lastEditTime: 2022-10-12 19:49
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -328,7 +328,7 @@ export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemTy
       break;
     }
     case YoudaoDictionaryListItemType.ModernChineseDict: {
-      dotColor = "#3A006F";
+      dotColor = "#006000";
       break;
     }
     case YoudaoDictionaryListItemType.Explanation: {

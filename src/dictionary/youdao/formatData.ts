@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 17:25
+ * @lastEditTime: 2022-10-12 20:14
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -174,8 +174,14 @@ export function updateYoudaoDictionaryDisplay(
         let subtitle = "";
         senseGroups.forEach((groups) => {
           console.log(`group: ${JSON.stringify(groups, null, 4)}`);
-          const cat = groups[0].cat || placeholder;
-          const catText = cat ? `${cat} ` : "";
+
+          const firstGroup = groups[0];
+          const cat = firstGroup.cat;
+          let catText = cat ? `${cat} ` : "";
+          if (!cat && firstGroup.def) {
+            catText = placeholder;
+          }
+
           markdown += `\n\n${catText}`;
           subtitle += catText;
 
@@ -635,6 +641,7 @@ export function removeExamplesHtmlTag(examples: string[] | undefined): string[] 
 function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n", tag?: number): string {
   let markdown = "";
   senseList.forEach((senseItem, i) => {
+    console.log(`senseItem: ${JSON.stringify(senseItem, null, 4)}`);
     let defExampleText = preText;
     const tagText = tag ? `${tag}.` : "";
     defExampleText += tagText;
@@ -653,10 +660,15 @@ function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n
     if (!defText.length && senseItem.subsense?.length) {
       defText = ` ${word}`;
     }
+    console.log(`defText: ${defText}`);
 
     const example = examples?.map((item) => `\`${item}\``).join("/");
     const exampleText = example ? `：${example}  ` : "";
-    defExampleText += `${i + 1}.${defText}${exampleText}`;
+
+    if (defText.length || exampleText.length) {
+      defExampleText += `${i + 1}.${defText}${exampleText}`;
+    }
+
     console.log(`defExampleText: ${defExampleText}`);
     const subsensesList = senseItem.subsense;
     if (subsensesList?.length) {
