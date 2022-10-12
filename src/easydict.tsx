@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-10 20:31
+ * @lastEditTime: 2022-10-12 22:24
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -240,17 +240,3 @@ export default function () {
     </List>
   );
 }
-
-/**
- * Easter egg: if you use PopClip and have added a shortcut for `Easydict`, such as `Cmd + E`, then you can use PopClip to quickly open Easydict!
- * 
- * Reference: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
- * 
- * Usage: select following text, then PopClip will show "Install Easydict", click it! 
-
-  # popclip
-  name: Easydict
-  icon: search E
-  key combo: command E
-
- */
