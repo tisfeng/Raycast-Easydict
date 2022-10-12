@@ -143,11 +143,11 @@ export function getEnabledDictionaryServices(): DicionaryType[] {
  */
 export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
   if (!errorInfo?.type) {
-    console.warn(`showErrorToast, errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 2)}`);
+    console.warn(`showErrorToast, errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 4)}`);
     return;
   }
 
-  console.error(`show error toast: ${JSON.stringify(errorInfo, null, 2)}`);
+  console.error(`show error toast: ${JSON.stringify(errorInfo, null, 4)}`);
   const type = errorInfo.type.toString();
   showToast({
     style: Toast.Style.Failure,

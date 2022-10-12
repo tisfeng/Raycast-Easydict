@@ -213,7 +213,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
         translationItems: allExplanations,
         audioUrl: audioUrl,
       };
-      // console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 2)}`);
+      // console.log(`---> word item: ${JSON.stringify(lingueeWordItem, null, 4)}`);
       wordItemList.push(lingueeWordItem);
     }
   }
@@ -268,7 +268,7 @@ function getWordExplanationList(
           displayType: designatedFrequencey ?? wordFrequency,
         },
       };
-      // console.log(`---> explanation: ${JSON.stringify(explanation, null, 2)}`);
+      // console.log(`---> explanation: ${JSON.stringify(explanation, null, 4)}`);
       explanationItems.push(explanation);
     }
   }
@@ -337,7 +337,7 @@ function getExampleList(exampleLemma: HTMLElement[] | undefined) {
           translations.push(translation);
         }
       });
-      // console.log(`---> translations: ${JSON.stringify(translations, null, 2)}`);
+      // console.log(`---> translations: ${JSON.stringify(translations, null, 4)}`);
       const lingueeExample: LingueeExample = {
         example: exmaple,
         translations: translations,
@@ -367,7 +367,7 @@ function getWikipedia(abstractElement: HTMLElement[] | undefined) {
         source: source?.textContent ?? "",
         sourceUrl: sourceUrl ?? "",
       };
-      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 2)}`);
+      // console.log(`---> wikipedia: ${JSON.stringify(wikipedia, null, 4)}`);
       wikipedias.push(wikipedia);
     }
   }
@@ -569,7 +569,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
       sectionTitle: sectionTitle,
       items: displayItems.slice(0, 3), // show up to 3 examples.
     };
-    // console.log(`---> linguee exampleSection: ${JSON.stringify(exampleSection, null, 2)}`);
+    // console.log(`---> linguee exampleSection: ${JSON.stringify(exampleSection, null, 4)}`);
     displayResults.push(exampleSection);
   }
 

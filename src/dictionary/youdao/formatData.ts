@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 00:59
+ * @lastEditTime: 2022-10-12 13:14
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -133,7 +133,7 @@ export function updateYoudaoDictionaryDisplay(
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((forms) => {
-      console.log(`forms: ${JSON.stringify(forms, null, 2)}`);
+      console.log(`forms: ${JSON.stringify(forms, null, 4)}`);
       const pinyin = forms.pinyin ? `${forms.pinyin}` : "";
       const accessoryItem = translationItem.accessoryItem;
       if (pinyin && accessoryItem && !accessoryItem.phonetic) {
@@ -145,11 +145,12 @@ export function updateYoudaoDictionaryDisplay(
         const senseGroups: Sense[][] = [];
 
         const copyFormsSense = JSON.parse(JSON.stringify(forms.sense)) as Sense[];
-        console.log(`copyFormsSense: ${JSON.stringify(copyFormsSense, null, 2)}`);
+        console.log(`copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
 
+        // * group senses by category
         let group: Sense[] = [];
         while (copyFormsSense.length > 0) {
-          const senseItem = copyFormsSense.pop();
+          const senseItem = copyFormsSense.shift();
           if (senseItem) {
             const cat = senseItem.cat;
             if (cat !== lastCat) {
@@ -165,32 +166,27 @@ export function updateYoudaoDictionaryDisplay(
           }
         }
         senseGroups.push(group);
-        console.log(`senseGroups: ${JSON.stringify(senseGroups, null, 2)}`);
+        console.log(`senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
 
         let markdown = pinyin;
         let subtitle = "";
-        senseGroups.forEach((group) => {
-          console.log(`group: ${JSON.stringify(group, null, 2)}`);
-          const cat = group[0].cat || "";
-          markdown += `\n\n${cat}`;
-          subtitle += `${cat}  `;
-          group.forEach((senseItem, i) => {
-            const { def, examples } = senseItem;
-            const defText = def?.length ? def.join("; ") : "";
-            const example = examples?.join("/");
-            const exampleText = example ? `：${example}` : "";
-            let defExampleText = `${i + 1}. ${defText}${exampleText}  `;
-            if (!defText.length && !exampleText.length) {
-              defExampleText = "";
-            }
+        senseGroups.forEach((groups) => {
+          console.log(`group: ${JSON.stringify(groups, null, 4)}`);
+          const cat = groups[0].cat || "";
+          const catText = cat ? `${cat} ` : "";
+          markdown += `\n\n${catText}`;
+          subtitle += catText;
 
-            markdown += `\n\n${defExampleText}`;
-            subtitle += `${defExampleText}`;
-          });
+          const defExampleMarkdown = "" + getDefExampleMarkdown(groups);
+          markdown += `${defExampleMarkdown}`;
+
+          let subtitleText = defExampleMarkdown.replaceAll("\n", " ");
+          subtitleText = subtitleText.replaceAll("`", "");
+          subtitle += subtitleText;
         });
 
         const title = pinyin ? `${pinyin}` : "";
-        const copyText = `${title}${subtitle}`;
+        const copyText = `${title}  ${subtitle}`;
         console.log(`markdown: ${markdown}`);
         console.log(`copyText: ${copyText}`);
 
@@ -489,7 +485,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
         }
       }
     }
-    // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 2)}`);
+    // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 4)}`);
 
     isWord = wordItem !== undefined; // Todo: need to check more.
     examTypes = model.ec.exam_type;
@@ -525,7 +521,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
         }
       }
     }
-    // console.log(`ce, explanations: ${JSON.stringify(explanations, null, 2)}`);
+    // console.log(`ce, explanations: ${JSON.stringify(explanations, null, 4)}`);
   }
 
   const queryWordInfo: QueryWordInfo = {
@@ -537,7 +533,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
     speechUrl: speechUrl,
     isWord: isWord,
   };
-  // console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 2)}`);
+  // console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 4)}`);
 
   const formateResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
@@ -552,7 +548,7 @@ export function formateYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel)
   };
 
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formateResult);
-  // console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 2)}`);
+  // console.log(`Youdao format result: ${JSON.stringify(formateResult, null, 4)}`);
 
   return formateResult;
 }
@@ -592,21 +588,80 @@ export function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernC
   const newDataList: ModernChineseDataList[] = JSON.parse(JSON.stringify(dataList));
   if (newDataList.length) {
     for (const dict of newDataList) {
-      if (dict.sense?.length) {
-        for (const examplesList of dict.sense) {
-          const newExamples: string[] = [];
-          const examples = examplesList.examples;
-          if (examples?.length) {
-            for (const example of examples) {
-              // remove <self> and </self> in example
-              const newExmple = example.replaceAll(/<self>|<\/self>/g, "");
-              newExamples.push(newExmple);
+      const senseList = dict.sense;
+      if (senseList?.length) {
+        for (const sense of senseList) {
+          sense.examples = removeExamplesHtmlTag(sense.examples);
+
+          if (sense.subsense?.length) {
+            for (const subsense of sense.subsense) {
+              subsense.examples = removeExamplesHtmlTag(subsense.examples);
             }
           }
-          examplesList.examples = newExamples;
         }
       }
     }
   }
   return newDataList;
+}
+
+/**
+ * Remove html tag.
+ */
+export function removeHtmlTag(text: string): string {
+  // return text.replaceAll(/<self>|<\/self>/g, "");
+  return text.replace(/<[^>]+>/g, "");
+}
+
+/**
+ * Remove examples html tag.
+ */
+export function removeExamplesHtmlTag(examples: string[] | undefined): string[] {
+  const newExamples: string[] = [];
+  if (examples?.length) {
+    for (const example of examples) {
+      const newExmple = removeHtmlTag(example);
+      newExamples.push(newExmple);
+    }
+  }
+  return newExamples;
+}
+
+/**
+ * Get defExample markdown from senseList.
+ */
+function getDefExampleMarkdown(senseList: Sense[], preText = "\n\n", tag?: number): string {
+  let markdown = "";
+  senseList.forEach((senseItem, i) => {
+    let defExampleText = preText;
+    const tagText = tag ? `${tag}.` : "";
+    defExampleText += tagText;
+    const { def, examples } = senseItem;
+    let defText = "";
+    if (Array.isArray(def)) {
+      const defList = def;
+      defText = def?.length ? defList.join("; ") : "";
+    } else {
+      const defString = def as string;
+      defText = defString;
+    }
+    defText = defText ? ` ${defText}` : "";
+    const example = examples?.map((item) => `\`${item}\``).join("/");
+    const exampleText = example ? `：${example}  ` : "";
+    defExampleText += `${i + 1}.${defText}${exampleText}`;
+    if (!defText.length && !example?.length) {
+      defExampleText = "";
+    }
+
+    console.log(`defExampleText: ${defExampleText}`);
+    if (senseItem.subsense?.length) {
+      const subsensesList = senseItem.subsense;
+      const subsenseDefExampleText = getDefExampleMarkdown(subsensesList, "\n", i + 1);
+      console.log(`subsenseDefExampleText: ${subsenseDefExampleText}`);
+      defExampleText += "  " + subsenseDefExampleText + "";
+    }
+
+    markdown += defExampleText;
+  });
+  return markdown;
 }

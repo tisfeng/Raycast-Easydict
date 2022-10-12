@@ -453,7 +453,7 @@ export class DataManager {
 
       youdaoDictionayFnPtr(queryWordInfo, type)
         .then((youdaoDictionaryResult) => {
-          // console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 2)}`);
+          // console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 4)}`);
 
           const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
           if (!formatYoudaoResult) {
@@ -966,7 +966,7 @@ export class DataManager {
    */
   private cancelCurrentQuery() {
     // console.warn(`---> cancel current query`);
-    // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 2)}`);
+    // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 4)}`);
 
     this.cancelAndRemoveAllQueries();
   }

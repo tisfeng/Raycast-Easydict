@@ -357,7 +357,7 @@ export async function requestYoudaoWebTranslate(
           return reject(undefined);
         }
 
-        console.log(`---> youdao web translate error: ${JSON.stringify(error, null, 2)}`);
+        console.log(`---> youdao web translate error: ${JSON.stringify(error, null, 4)}`);
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
