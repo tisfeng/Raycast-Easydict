@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-03 00:02
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 20:14
+ * @lastEditTime: 2022-10-12 20:36
  * @fileName: formatData.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -637,6 +637,8 @@ export function removeExamplesHtmlTag(examples: string[] | undefined): string[] 
 
 /**
  * Get defExample markdown from senseList.
+ *
+ * Test: 艾, 为, 的, 帝
  */
 function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n", tag?: number): string {
   let markdown = "";
