@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-13 18:37
+ * @lastEditTime: 2022-10-13 22:01
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -46,34 +46,33 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(props.isShowingReleasePrompt);
 
   const displayItem = props.displayItem;
-  const queryWordInfo = displayItem.queryWordInfo;
+  const { queryWordInfo, queryType, displayType, copyText, detailsMarkdown } = displayItem;
   const { word, fromLanguage, toLanguage } = queryWordInfo;
-  const copyText = displayItem.copyText;
 
-  console.log(`---> current list type: ${displayItem.queryType}, ${displayItem.displayType}`);
+  console.log(`---> current list type: ${queryType}, ${displayType}`);
   console.log(`copyText: ${copyText}`);
-  console.log(`markdown: ${displayItem.detailsMarkdown}`);
+  console.log(`detailsMarkdown: ${detailsMarkdown}`);
 
   const showMoreDetailMarkdown = getShowMoreDetailMarkdown(displayItem);
 
   // Todo: need to optimize the code.
   const googleWebItem = getWebQueryItem(TranslationType.Google, queryWordInfo);
-  const isShowingGoogleTop = displayItem.queryType === TranslationType.Google;
+  const isShowingGoogleTop = queryType === TranslationType.Google;
 
   const deepLWebItem = getWebQueryItem(TranslationType.DeepL, queryWordInfo);
-  const isShowingDeepLTop = displayItem.queryType === TranslationType.DeepL;
+  const isShowingDeepLTop = queryType === TranslationType.DeepL;
 
   const baiduWebItem = getWebQueryItem(TranslationType.Baidu, queryWordInfo);
-  const isShowingBaiduTop = displayItem.queryType === TranslationType.Baidu;
+  const isShowingBaiduTop = queryType === TranslationType.Baidu;
 
   const volcanoWebItem = getWebQueryItem(TranslationType.Volcano, queryWordInfo);
-  const isShowingVolcanoTop = displayItem.queryType === TranslationType.Volcano;
+  const isShowingVolcanoTop = queryType === TranslationType.Volcano;
 
   const lingueeWebItem = getWebQueryItem(DicionaryType.Linguee, queryWordInfo);
-  const isShowingLingueeTop = displayItem.queryType === DicionaryType.Linguee;
+  const isShowingLingueeTop = queryType === DicionaryType.Linguee;
 
   const youdaoWebItem = getWebQueryItem(DicionaryType.Youdao, queryWordInfo);
-  const isShowingYoudaoDictioanryTop = displayItem.queryType === DicionaryType.Youdao;
+  const isShowingYoudaoDictioanryTop = queryType === DicionaryType.Youdao;
 
   const eudicWebItem = getWebQueryItem(DicionaryType.Eudic, queryWordInfo);
 
