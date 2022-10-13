@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-13 22:01
+ * @lastEditTime: 2022-10-13 23:26
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -96,6 +96,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         {props.isInstalledEudic && !myPreferences.showOpenInEudicFirst && (
           <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
         )}
+        {/* // Todo: need to optimize. */}
         {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} enableShortcutKey={true} />}
         {isShowingYoudaoDictioanryTop && <WebQueryAction webQueryItem={youdaoWebItem} enableShortcutKey={true} />}
         {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} enableShortcutKey={true} />}
@@ -109,7 +110,19 @@ export function ListActionPanel(props: ActionListPanelProps) {
           target={
             <Detail
               markdown={showMoreDetailMarkdown}
-              actions={<ActionPanel>{CopyTextAction({ copyText })}</ActionPanel>}
+              actions={
+                <ActionPanel>
+                  {CopyTextAction({ copyText })}
+                  {isShowingLingueeTop && <WebQueryAction webQueryItem={lingueeWebItem} enableShortcutKey={true} />}
+                  {isShowingYoudaoDictioanryTop && (
+                    <WebQueryAction webQueryItem={youdaoWebItem} enableShortcutKey={true} />
+                  )}
+                  {isShowingDeepLTop && <WebQueryAction webQueryItem={deepLWebItem} enableShortcutKey={true} />}
+                  {isShowingGoogleTop && <WebQueryAction webQueryItem={googleWebItem} enableShortcutKey={true} />}
+                  {isShowingBaiduTop && <WebQueryAction webQueryItem={baiduWebItem} enableShortcutKey={true} />}
+                  {isShowingVolcanoTop && <WebQueryAction webQueryItem={volcanoWebItem} enableShortcutKey={true} />}
+                </ActionPanel>
+              }
             />
           }
         />
