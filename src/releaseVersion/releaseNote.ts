@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-13 11:31
+ * @lastEditTime: 2022-10-13 12:23
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -26,7 +26,7 @@ export const releaseNote = `
 
 ### 💎 优化
 
-- 优化了动作列表，修改默认的 return 动作为 'Copy Text'。
+- 优化了动作列表，现如果安装了 Eudic，会优先显示 'Open in Eudic' 动作，否则显示 'Copy Text' 动作。可以在设置中更改显示顺序。
 - 修改 Linguee 默认支持系统代理。
 - 修改所有列表都支持显示更多动作。
 
@@ -44,11 +44,11 @@ export const releaseNote = `
 
 💎  Improvement
 
-- Improved the action list, changed the default return action to 'Copy Text'.
+- Improved the action list, now if Eudic is installed, the 'Open in Eudic' action will be shown first, otherwise the 'Copy Text' action will be shown. You can change the display order in the settings.
 - Changed Linguee to support system proxy by default.
 - Changed all lists to support 'Show More Details'.
 
-🐞 Fix
+🐞 Fixes
 
 - Fixed many known issues.
 `;

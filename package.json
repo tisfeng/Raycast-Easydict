@@ -294,9 +294,9 @@
       "title": "Switch Boxes",
       "name": "enableAutomaticQuerySelectedText",
       "type": "checkbox",
-      "label": "Automatic Query Selected Text",
+      "label": "Query Selected Text Automatically",
       "required": false,
-      "description": "Automatic query selected text from the frontmost application",
+      "description": "Automatically query selected text from the frontmost application",
       "default": true
     },
     {
@@ -318,9 +318,9 @@
     {
       "name": "enableAutomaticPlayWordAudio",
       "type": "checkbox",
-      "label": "Automatic Play Word Audio",
+      "label": "Play Word Pronunciation Automatically",
       "required": false,
-      "description": "Automatic play audio after looking up a `English` word",
+      "description": "Automatically play word pronunciation after looking up a `English` word",
       "default": true
     },
     {
