@@ -44,7 +44,7 @@
     "execa": "^6.1.0",
     "file-type": "^18.0.0",
     "franc": "^6.0.0",
-    "https-proxy-agent": "^5.0.1",
+    "hpagent": "^1.1.0",
     "mac-system-proxy": "^1.0.4",
     "node-html-parser": "^5.3.3",
     "play-sound": "^1.1.5",
