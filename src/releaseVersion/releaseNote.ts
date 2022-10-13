@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-07-03 22:10
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-12 22:03
+ * @lastEditTime: 2022-10-13 11:31
  * @fileName: releaseNote.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -11,7 +11,7 @@
 export const releaseNote = `
 ## [v2.5.0] - 2022-10-12
 
-本次更新主要支持了**现代汉语词典**，现在可以方便查询中文词语的拼音和释义了。
+本次更新主要支持了**现代汉语词典**，方便查询中文词语的拼音和释义了。
 
 ### ✨ 新功能
 

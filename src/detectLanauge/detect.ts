@@ -188,7 +188,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
         if (
           (containBingDetect || containBaiduDetect || confirmVolcanoDetect) &&
           isPreferredLanguage(detectedLangCode) &&
-          myPreferences.enableLanguageDetectionSpeedFirst
+          myPreferences.enableDetectLanguageSpeedFirst
         ) {
           detectedLangModel.confirmed = true;
           console.warn(`---> Speed first, API detected 'two' identical 'preferred' language: ${detectedTypes}`);
