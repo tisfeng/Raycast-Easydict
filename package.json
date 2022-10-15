@@ -12,7 +12,15 @@
       "title": "Search Word",
       "subtitle": "Easydict",
       "description": "Automatically detect the input text language, and query preferred language dictionary or translate the text.",
-      "mode": "view"
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "queryText",
+          "placeholder": "Query",
+          "type": "text",
+          "required": false
+        }
+      ]
     }
   ],
   "categories": [
