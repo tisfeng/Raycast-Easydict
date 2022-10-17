@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-13 00:21
+ * @lastEditTime: 2022-10-17 23:23
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -172,6 +172,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
 
     for (const lang of apiDetectedLanguageList) {
       if (lang.youdaoLangCode === detectedLangCode) {
+        console.log(`detected push: ${lang.type}`);
         detectedIdenticalLanguages.push(lang);
         detectedTypes.push(lang.type.toString().split(" ")[0]);
       }
@@ -222,7 +223,7 @@ function getFinalDetectedLanguage(
   detectedLangModel: DetectedLangModel | undefined,
   confirmedConfidence: number
 ): DetectedLangModel {
-  console.log(`start try get final detect language: ${JSON.stringify(detectedLangModel, null, 4)}`);
+  console.log(`start try get final detect: ${JSON.stringify(detectedLangModel, null, 4)}`);
   if (detectedLangModel && detectedLangModel.confirmed) {
     return detectedLangModel;
   }
@@ -248,6 +249,13 @@ function handleFinalDetectedLangFromAPIList(
   if (apiDetectedLanguageList.length === 1) {
     console.log(`only one detected language, return it`);
     return apiDetectedLanguageList[0];
+  }
+
+  // If Baidu detected language is valid, return it.
+  const baiduDetectedLang = apiDetectedLanguageList.find((lang) => lang.type === LanguageDetectType.Baidu);
+  if (baiduDetectedLang && isValidLangCode(baiduDetectedLang.youdaoLangCode)) {
+    console.log(`Baidu detected language is valid, return it`);
+    return baiduDetectedLang;
   }
 
   // If Bing detected language, return it.
