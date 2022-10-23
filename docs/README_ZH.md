@@ -48,7 +48,7 @@
 
 ![yi-1665582552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/yi-1665582552.png)
 
-![ai-1665582591](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/ai-1665582591.png)
+![ai](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/ai-1666538579.png)
 
 #### [艾](https://youdao.com/result?word=%E8%89%BE&lang=en)
 
@@ -56,7 +56,7 @@
 
 ### [Linguee 词典](https://www.linguee.com/)：英语 <--> 中文
 
-![easydict-3-1665794533](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1665794533.png)
+![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1666538642.png)
 
 #### [float](https://www.linguee.com/english-chinese/search?query=float)
 
@@ -74,7 +74,7 @@
 
 ![showMore-1664440735](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png)
 
-![easydict-2-1664439977](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-2-1664439977.png)
+![uk](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/uk-1666538447.png)
 
 ### 文本翻译
 
@@ -82,13 +82,13 @@
 
 ![easydict-5-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png)
 
-![easydict-6-1664440833](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1664440833.png)
+![easydict-6-1666538717](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1666538717.png)
 
 ## 安装
 
 `Easydict` 是一个 Raycast extension，因此需要先安装 [Raycast](https://www.raycast.com/)。
 
-> `Raycast` 是一款速度极快、完全可扩展的启动器。与 [Alfred](https://www.alfredapp.com/) 类似，但它完全免费！
+> [Raycast](https://www.raycast.com/) 是一款速度极快、完全可扩展的启动器。与 [Alfred](https://www.alfredapp.com/) 类似，但它完全免费！
 
 ### 从 Raycast 商店安装
 
