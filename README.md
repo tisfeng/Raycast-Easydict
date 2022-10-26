@@ -27,6 +27,7 @@
 - [x] Support automatic playback of word pronunciation. Use `Cmd + S` to play the pronunciation of words manually.
 - [x] Support Youdao Text to Speech(TTS).
 - [x] Support to sort query results manually.
+- [x] Support Arguments.
 - [x] Support system proxy.
 - [x] Support Linguee and Youdao Dictionary.
 - [x] Support macOS system translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
@@ -41,6 +42,12 @@ Next:
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
 ---
+
+### Arguments
+
+![arguments-1666060638](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png)
+
+![hello-1666060655](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png)
 
 ### Youdao Modern Chinese Dict
 

@@ -27,7 +27,8 @@
 - [x] 支持自动播放单词发音。使用 `Cmd + S` 手动播放单词发音。
 - [x] 支持有道文本合成语音（TTS）。
 - [x] 支持手动排序查询结果。
-- [x] 支持使系统代理。
+- [x] 支持 Arguments 参数。
+- [x] 支持系统代理。
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
 - [x] 支持 DeepL，Google，Bing，百度，腾讯，火山，有道和彩云翻译。
@@ -41,6 +42,12 @@
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 
 ---
+
+### Arguments
+
+![arguments-1666060638](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png)
+
+![hello-1666060655](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png)
 
 ### 有道-现代汉语词典
 
