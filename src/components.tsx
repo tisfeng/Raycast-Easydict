@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-23 23:05
+ * @lastEditTime: 2022-10-26 11:09
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -72,9 +72,9 @@ function ExceptCurrentTypeWebQueryActionPanel(props: { queryType: QueryType; que
   const exceptWebItemTypes = queryWebItemTypes.filter((item) => item !== queryType);
   return (
     <ActionPanel.Section title="Search Query Text Online">
-      {exceptWebItemTypes.map((item) => {
-        const webQueryItem = getWebQueryItem(item, queryWordInfo);
-        return <WebQueryAction webQueryItem={webQueryItem} enableShortcutKey={false} />;
+      {exceptWebItemTypes.map((queryType) => {
+        const webQueryItem = getWebQueryItem(queryType, queryWordInfo);
+        return <WebQueryAction webQueryItem={webQueryItem} enableShortcutKey={false} key={queryType} />;
       })}
     </ActionPanel.Section>
   );
