@@ -107,7 +107,7 @@ dist
 .DS_Store
 
 # Icon/r
-Icon*
+# Icon*
 
 # vscode
 .vscode/
