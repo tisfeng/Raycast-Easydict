@@ -1,5 +1,13 @@
 # `Easydict` Changelog
 
+## [v2.6.2] - 2022-11-02
+
+### 🐞 Fixes
+
+- Fixed unexpected error when DeepL translation quota is exceeded.
+
+## [v2.6.1] - 2022-10-26
+
 ### 💎 Improvement
 
 - Optimized code.
