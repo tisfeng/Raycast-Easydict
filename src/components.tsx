@@ -1,8 +1,8 @@
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-26 11:09
+ * @lastEditor: Tisfeng
+ * @lastEditTime: 2022-12-16 16:32
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -402,9 +402,17 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
           icon: { source: Icon.Star, tintColor: Color.SecondaryText },
           tooltip: "Word included in the types of exam",
         },
-        { text: accessoryItem.examTypes?.join("  ") },
       ];
-      wordAccessories = [...wordExamTypeAccessory];
+      const tags = accessoryItem.examTypes.map((examType) => {
+        const tag: List.Item.Accessory = {
+          tag: {
+            value: examType,
+            color: Color.SecondaryText,
+          },
+        };
+        return tag;
+      });
+      wordAccessories = [...wordExamTypeAccessory, ...tags];
     }
     if (accessoryItem.phonetic) {
       pronunciationAccessory = [
