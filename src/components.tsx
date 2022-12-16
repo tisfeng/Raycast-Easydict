@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: Tisfeng
- * @lastEditTime: 2022-12-16 16:32
+ * @lastEditTime: 2022-12-16 17:24
  * @fileName: components.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -399,7 +399,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
     if (accessoryItem.examTypes) {
       wordExamTypeAccessory = [
         {
-          icon: { source: Icon.Star, tintColor: Color.SecondaryText },
+          icon: { source: Icon.StarCircle, tintColor: Color.Blue },
           tooltip: "Word included in the types of exam",
         },
       ];
@@ -407,7 +407,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
         const tag: List.Item.Accessory = {
           tag: {
             value: examType,
-            color: Color.SecondaryText,
+            color: Color.Blue,
           },
         };
         return tag;
@@ -422,7 +422,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
         },
         { text: accessoryItem.phonetic },
       ];
-      wordAccessories = [...wordAccessories, { text: " " }, ...pronunciationAccessory];
+      wordAccessories = [...wordAccessories, ...pronunciationAccessory];
     }
   }
   return wordAccessories;
