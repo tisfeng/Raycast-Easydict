@@ -33,7 +33,7 @@ jobs:
 
       - name: Convert body to HTML
         run: |
-          html_body="<h1>${{env.repo_name}}</h1> <p><img src='https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/icon_512x512-1671278252.png' width='128'> </p> <p>Your repo <a href='${{ github.server_url }}/${{ github.repository }}'>${{ env.repo_name }}</a> has <b>${{env.event_name}}</b> ✨ by <b><a href='${{ github.server_url }}/${{ github.actor }}'>${{ github.actor }}</a></b></p>  <p>Total stars: <b>${{env.repo_stars}}</b></p>  <p>Stargazers list: <a href='${{ github.server_url }}/${{ github.repository }}/stargazers'>${{ github.repository }}/stargazers</a></p>"
+          html_body="<h1>${{env.repo_name}}</h1> <p><img src='https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png' width='128'> </p> <p>Your repo <a href='${{ github.server_url }}/${{ github.repository }}'>${{ env.repo_name }}</a> has <b>${{env.event_name}}</b> ✨ by <b><a href='${{ github.server_url }}/${{ github.actor }}'>${{ github.actor }}</a></b></p>  <p>Total stars: <b>${{env.repo_stars}}</b></p>  <p>Stargazers list: <a href='${{ github.server_url }}/${{ github.repository }}/stargazers'>${{ github.repository }}/stargazers</a></p>"
 
           echo "html_body=$html_body" >> $GITHUB_ENV
           echo "html body: ${{env.html_body}}"
