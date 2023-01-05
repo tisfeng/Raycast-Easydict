@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="128">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="256">
   <h1 align="center">Easydict</h1>
   <h4 align="center"> Easy to look up words or translate text</p>
 <p align="center">🇨🇳 🇺🇸 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿 🇹🇷 🇱🇹 🇱🇻 🇺🇦 🇧🇬 🇮🇩 🇲🇾 🇸🇮 🇪🇪 🇻🇳 🇮🇷 🇵🇰 🇹🇱 🇹🇦 🇮🇳 🇵🇭 🇫🇮 🇰🇭 🇱🇦 🇧🇳 🇲🇲 🇳🇴 🇷🇸 🇭🇷 🇲🇳 🇮🇱 </p>
@@ -10,7 +10,6 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
-
 ## Easydict（易词典）
 
 `Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询，支持 🍎**苹果系统翻译**，[DeepL](https://www.deepl.com/translator)，[谷歌](https://translate.google.com)，[Bing](https://www.bing.com/translator), [百度](https://fanyi.baidu.com/)，[腾讯](https://fanyi.qq.com/)，[火山](https://translate.volcengine.com/translate)，[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)。
@@ -40,7 +39,7 @@
 
 ## 友情推荐
 
-[Easydict](https://github.com/tisfeng/Easydict) 是一个原生的 macOS 翻译词典 App，一个免费开源版本的 Bob，欢迎尝试。
+[Easydict](https://github.com/tisfeng/Easydict) 是一个原生的 macOS 翻译词典 App，一个免费开源版本的 [Bob](https://apps.apple.com/cn/app/id1630034110#?platform=mac)，欢迎尝试。
 
 ![iShot_2023-01-05_11.32.00-1672889552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-05_11.32.00-1672889552.png)
 

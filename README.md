@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="128">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="256">
   <h1 align="center">Easydict</h1>
   <h4 align="center"> Easily look up words or translate text. </p>
 <p align="center">🇨🇳 🇺🇸 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿 🇹🇷 🇱🇹 🇱🇻 🇺🇦 🇧🇬 🇮🇩 🇲🇾 🇸🇮 🇪🇪 🇻🇳 🇮🇷 🇵🇰 🇹🇱 🇹🇦 🇮🇳 🇵🇭 🇫🇮 🇰🇭 🇱🇦 🇧🇳 🇲🇲 🇳🇴 🇷🇸 🇭🇷 🇲🇳 🇮🇱 </p>
+
 </p>
 
 <p align="center">
@@ -10,7 +11,6 @@
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 </p>
-
 ## What is Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/README_ZH.md)
 
 `Easydict` is an easy dictionary, for looking up words or translating text easily. Use it out of the box, automatically detect the input text language, and support [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/), **🍎 MacOS system translation**, [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.com), [Bing](https://www.bing.com/translator), [Baidu](https://fanyi.baidu.com/), [Tencent](https://fanyi.qq.com/), [Volcano](https://translate.volcengine.com/translate), [Youdao](https://fanyi.youdao.com/), and [Caiyun](https://fanyi.caiyunapp.com/#/) translation.
@@ -40,7 +40,7 @@
 
 ## Friendly Recommendation
 
-[Easydict](https://github.com/tisfeng/Easydict) is a native macOS translation dictionary App, a free open source version of Bob, feel free to try it.
+[Easydict](https://github.com/tisfeng/Easydict) is a native macOS translation dictionary App, a free open source version of [Bob](https://apps.apple.com/cn/app/id1630034110#?platform=mac), feel free to try it.
 
 ![iShot_2023-01-05_11.32.00-1672889552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-05_11.32.00-1672889552.png)
 
