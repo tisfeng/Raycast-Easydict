@@ -34,12 +34,15 @@
 - [x] 支持 DeepL，Google，Bing，百度，腾讯，火山，有道和彩云翻译。
 - [x] 支持 48+ 种语言。
 
-下一步：
-
-- [ ] 桌面版 Electron App（构思中）。
-- [ ] 支持查看历史记录。
-
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
+
+---
+
+## 友情推荐
+
+[Easydict](https://github.com/tisfeng/Easydict) 是一个原生的 macOS 翻译词典 App，一个免费开源版本的 Bob，欢迎尝试。
+
+![iShot_2023-01-05_11.32.00-1672889552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-05_11.32.00-1672889552.png)
 
 ---
 
@@ -388,12 +391,6 @@ Linguee 默认支持系统代理。
 - [DeepL](https://www.deepl.com/translator)
 
 ![A2ECFJ-1664270926](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
-
-## 友情推荐
-
-[`Bob`](https://bobtranslate.com/) 是一款 macOS 平台 **翻译** 和 **OCR** 软件。
-
-![image-20220620150946277](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620150946277.png)
 
 ## 感谢
 

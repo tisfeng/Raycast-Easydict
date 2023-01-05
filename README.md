@@ -34,12 +34,15 @@
 - [x] Support DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun translation.
 - [x] Support 48+ languages.
 
-Next:
-
-- [ ] Desktop Electron App.
-- [ ] Support to view query history.
-
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
+
+---
+
+## Friendly Recommendation
+
+[Easydict](https://github.com/tisfeng/Easydict) is a native macOS translation dictionary App, a free open source version of Bob, feel free to try it.
+
+![iShot_2023-01-05_11.32.00-1672889552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-05_11.32.00-1672889552.png)
 
 ---
 
@@ -383,12 +386,6 @@ The following application tutorial is from [`Bob`](https://bobtranslate.com/guid
 - [DeepL](https://www.deepl.com/translator)
 
 ![A2ECFJ-1664270926](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
-
-## Friendly Recommendation
-
-[`Bob`](https://bobtranslate.com/) is a MacOS **translation** and **OCR** application.
-
-![image-20220620150946277](https://cdn.jsdelivr.net/gh/tisfeng/ImageBed@main/uPic/image-20220620150946277.png)
 
 ## Thanks
 
