@@ -41,7 +41,7 @@
 
 ## Recommendation
 
-[Easydict](https://github.com/tisfeng/Easydict) is a native macOS translation dictionary App, a free open source version of [Bob](https://apps.apple.com/cn/app/id1630034110#?platform=mac), feel free to try it.
+My other project, [Easydict](https://github.com/tisfeng/Easydict) is a native macOS translation dictionary App, a free open source version of [Bob](https://apps.apple.com/cn/app/id1630034110#?platform=mac), feel free to try it!
 
 ![iShot_2023-01-07_19.33.01的副本-1673091295](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-07_19.33.01的副本-1673091295.png)
 
