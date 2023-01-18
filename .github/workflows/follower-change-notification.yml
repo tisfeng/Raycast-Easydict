@@ -23,6 +23,6 @@ jobs:
           password: ${{ secrets.GMAIL_BOT_PASSWORD }}
           subject: GitHub Follower Change
           from: Follower Change Notifier
-          to: ${{ secrets.EMAIL_ADDRESS }}
+          to: ${{ secrets.RECEIVER_EMAIL }}
           # use html file from previous step as email body
           html_body: file://${{ steps.followerChange.outputs.htmlFilePath }}
