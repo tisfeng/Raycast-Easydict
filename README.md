@@ -52,7 +52,7 @@ My other project, [Easydict](https://github.com/tisfeng/Easydict) is a native ma
 **Auto select translate**
 ![iShot_2023-01-20_11.01.35-1674183779](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.01.35-1674183779.gif)
 
-**OCR Screenshot translate**
+**OCR screenshot translate**
 ![iShot_2023-01-20_11.26.25-1674185209](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.26.25-1674185209.gif)
 
 ---
