@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-23 14:19
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-02-21 22:36
+ * @lastEditTime: 2023-02-22 10:24
  * @fileName: easydict.tsx
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -19,9 +19,12 @@ import { myPreferences, preferredLanguage1 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "./utils";
 
-const disableConsoleLog = true;
+// ???: Raycast will delay ~30ms to invoke onInputChange if user input text when using Easydict as Fallback Command, so we need to use timer to delay query text.
+const kDelayGetSelectedTextTime = 30;
 
 let hasUserInputText = false;
+
+const disableConsoleLog = true;
 
 if (disableConsoleLog) {
   // Since too many logs will cause bugs, we need to disable the console.log in development. Ref: https://github.com/raycast/extensions/pull/3917#issuecomment-1370771358
@@ -105,8 +108,6 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
       setup();
     }
 
-    console.warn(`---> useEffect inputText: ${inputText}`);
-
     if (inputText?.length && timer) {
       clearTimeout(timer);
     }
@@ -118,7 +119,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    console.log(`setup when extension is activated.`);
+    // console.log(`setup when extension is activated.`);
 
     if (trimQueryText?.length) {
       console.warn(`---> arguments queryText: ${trimQueryText}`);
@@ -126,17 +127,9 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
 
     const startTime = Date.now();
 
-    let userInputText = trimQueryText;
-    if (searchText.length) {
-      userInputText = searchText;
-    }
-
-    console.warn(`---> setup`);
+    const userInputText = trimQueryText;
 
     timer = setTimeout(() => {
-      console.warn(`---> userInputText: ${userInputText}`);
-      console.warn(`---> hasUserInputText: ${hasUserInputText}`);
-
       // If enabled system proxy, we need to wait for the system proxy to be ready.
       if (myPreferences.enableSystemProxy) {
         // If has arguments, use arguments text as input text first.
@@ -177,7 +170,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
       checkIfInstalledEudic().then((isInstalled) => {
         setIsInstalledEudic(isInstalled);
       });
-    }, 30);
+    }, kDelayGetSelectedTextTime);
   }
 
   /**
@@ -255,7 +248,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
   function onInputChange(text: string) {
     // ???: Raycast will delay ~30ms to invoke onInputChange if user input text when using Easydict as Fallback Command, so we need to use timer to delay query text.
     hasUserInputText = true;
-    console.warn(`onInputChange: ${text}`);
+    // console.warn(`onInputChange: ${text}`);
     updateInputTextAndQueryText(text, true);
   }
 
