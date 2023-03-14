@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-01-08 17:36
+ * @lastEditTime: 2023-03-14 21:39
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -55,13 +55,14 @@ function configDefaultAxios() {
 
   const requestStartTime = "request-startTime";
 
-  axios.interceptors.request.use(function (config: AxiosRequestConfig) {
+  axios.interceptors.request.use((config) => {
     if (config.headers) {
       config.headers[requestStartTime] = new Date().getTime();
     }
     return config;
   });
-  axios.interceptors.response.use(function (response) {
+
+  axios.interceptors.response.use((response) => {
     if (response.config.headers) {
       const startTime = response.config.headers[requestStartTime] as number;
       const endTime = new Date().getTime();

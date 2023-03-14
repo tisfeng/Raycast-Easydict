@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-08-05 16:09
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-14 11:08
+ * @lastEditTime: 2023-03-14 21:31
  * @fileName: google.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -94,7 +94,7 @@ export function googleDetect(text: string, signal = axios.defaults.signal): Prom
   };
 
   return new Promise((resolve, reject) => {
-    googleRPCTranslate(queryWordInfo, signal)
+    googleRPCTranslate(queryWordInfo, signal as AbortSignal)
       .then((googleTypeResult) => {
         const googleResult = googleTypeResult.result as GoogleTranslateResult;
         const googleLanguageId = googleResult.raw.ld_result.srclangs[0];
