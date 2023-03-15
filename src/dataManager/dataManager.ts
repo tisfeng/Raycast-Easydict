@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-13 22:40
+ * @lastEditTime: 2023-03-15 17:47
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,8 +33,10 @@ import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestWebBingTranslate } from "../translation/microsoft/bing";
+import { requestOpenAITextTranslate } from "../translation/openai/openai";
 import { requestTencentTranslate } from "../translation/tencent";
 import { requestVolcanoTranslate } from "../translation/volcano/volcanoAPI";
+
 import {
   DicionaryType,
   DisplaySection,
@@ -158,6 +160,7 @@ export class DataManager {
     this.queryTencentTranslate(queryWordInfo);
     this.queryVolcanoTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
+    this.queryOpenAITranslate(queryWordInfo);
 
     this.delayQuery(queryWordInfo);
 
@@ -723,6 +726,32 @@ export class DataManager {
           const queryResult: QueryResult = {
             type: type,
             sourceResult: caiyunTypeResult,
+          };
+          this.updateTranslationDisplay(queryResult);
+        })
+        .catch((error) => {
+          showErrorToast(error);
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
+        });
+    }
+  }
+
+  /**
+   * Query OpenAI translate.
+   */
+  private queryOpenAITranslate(queryWordInfo: QueryWordInfo) {
+    // if (myPreferences.enableOpenAITranslate)
+    {
+      const type = TranslationType.OpenAI;
+      this.addQueryToRecordList(type);
+
+      requestOpenAITextTranslate(queryWordInfo)
+        .then((openAITypeResult) => {
+          const queryResult: QueryResult = {
+            type: type,
+            sourceResult: openAITypeResult,
           };
           this.updateTranslationDisplay(queryResult);
         })
