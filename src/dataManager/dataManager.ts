@@ -1,8 +1,9 @@
+import { OpenAITranslateResult } from "./../types";
 /*
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-15 17:47
+ * @lastEditTime: 2023-03-16 22:50
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -33,10 +34,9 @@ import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestWebBingTranslate } from "../translation/microsoft/bing";
-import { requestOpenAITextTranslate } from "../translation/openai/openai";
+import { requestOpenAIStreamTranslate } from "../translation/openai/openai";
 import { requestTencentTranslate } from "../translation/tencent";
 import { requestVolcanoTranslate } from "../translation/volcano/volcanoAPI";
-
 import {
   DicionaryType,
   DisplaySection,
@@ -747,12 +747,28 @@ export class DataManager {
       const type = TranslationType.OpenAI;
       this.addQueryToRecordList(type);
 
-      requestOpenAITextTranslate(queryWordInfo)
+      let openAIQueryResult: QueryResult | null = null;
+
+      queryWordInfo.onMessage = (message) => {
+        // console.warn(`onMessage content: ${message.content}`);
+
+        if (openAIQueryResult) {
+          const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
+          const translatedText = openAIResult.translatedText + message.content;
+          openAIResult.translatedText = translatedText;
+          openAIQueryResult.sourceResult.translations = [translatedText];
+          this.updateTranslationDisplay(openAIQueryResult);
+        }
+      };
+
+      requestOpenAIStreamTranslate(queryWordInfo)
         .then((openAITypeResult) => {
           const queryResult: QueryResult = {
             type: type,
             sourceResult: openAITypeResult,
           };
+
+          openAIQueryResult = queryResult;
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
@@ -825,10 +841,15 @@ export class DataManager {
     }
 
     if (oneLineTranslation) {
+      let key = `${oneLineTranslation}-${type}`;
+      if (type === TranslationType.OpenAI) {
+        // Avoid frequent update cause UI flicker.
+        key = type;
+      }
       const displayItem: ListDisplayItem = {
         displayType: type, // TranslationType
         queryType: type,
-        key: `${oneLineTranslation}-${type}`,
+        key: key,
         title: ` ${oneLineTranslation}`,
         copyText: copyText,
         queryWordInfo: sourceResult.queryWordInfo,

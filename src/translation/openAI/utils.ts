@@ -1,6 +1,5 @@
 import { createParser } from "eventsource-parser";
 import fetch, { RequestInit } from "node-fetch";
-import { isReadable, Readable } from "stream";
 
 interface FetchSSEOptions extends RequestInit {
   onMessage(data: string): void;

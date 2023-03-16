@@ -57,6 +57,10 @@ export interface QueryWordInfo {
   phonetic?: string; // [ɡʊd]
   examTypes?: string[];
   speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
+
+  onMessage?: (message: { content: string; role: string }) => void;
+  onError?: (error: string) => void;
+  onFinish?: (reason: string) => void;
 }
 
 export interface YoudaoTranslateResultBasicItem {
