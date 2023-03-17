@@ -3,7 +3,7 @@ import { OpenAITranslateResult } from "./../types";
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-16 22:50
+ * @lastEditTime: 2023-03-17 09:54
  * @fileName: dataManager.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -751,13 +751,33 @@ export class DataManager {
 
       queryWordInfo.onMessage = (message) => {
         // console.warn(`onMessage content: ${message.content}`);
-
         if (openAIQueryResult) {
           const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
           const translatedText = openAIResult.translatedText + message.content;
           openAIResult.translatedText = translatedText;
           openAIQueryResult.sourceResult.translations = [translatedText];
           this.updateTranslationDisplay(openAIQueryResult);
+        }
+      };
+      queryWordInfo.onFinish = (value) => {
+        console.warn(`onFinish content: ${value}`);
+
+        if (value === "stop") {
+          if (openAIQueryResult) {
+            const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
+            let translatedText = openAIResult.translatedText;
+            // If the translated last char contains ["”", '"', "」"], remove it.
+            if (translatedText.length > 0) {
+              const lastChar = translatedText[translatedText.length - 1];
+              if (["”", '"', "」"].includes(lastChar)) {
+                translatedText = translatedText.slice(0, translatedText.length - 1);
+              }
+            }
+
+            openAIResult.translatedText = translatedText;
+            openAIQueryResult.sourceResult.translations = [translatedText];
+            this.updateTranslationDisplay(openAIQueryResult);
+          }
         }
       };
 

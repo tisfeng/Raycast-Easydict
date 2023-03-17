@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2023-03-14 22:11
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-16 22:20
+ * @lastEditTime: 2023-03-17 09:59
  * @fileName: openai.ts
  *
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
@@ -14,6 +14,7 @@ import { QueryTypeResult, TranslationType } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
 import { AppKeyStore } from "./../../preferences";
 import { fetchSSE } from "./utils";
+import { httpsAgent } from "../../axiosConfig";
 
 // Use axios to request openai api.
 export function requestOpenAITextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
@@ -108,7 +109,7 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
 
   const url = "https://api.openai.com/v1/chat/completions";
   //   const prompt = `translate from English to Chinese:\n\n"No level of alcohol consumption is safe for our health." =>`;
-  const prompt = `translate from ${queryWordInfo.fromLanguage} to ${queryWordInfo.toLanguage}:\n\n"${queryWordInfo.word}" =>`;
+  const prompt = `translate from ${queryWordInfo.fromLanguage} to ${queryWordInfo.toLanguage}:\n\n"${queryWordInfo.word}"`;
   const message = [
     {
       role: "system",
@@ -150,6 +151,7 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
       method: "POST",
       headers,
       body: JSON.stringify(params),
+      agent: httpsAgent,
       onMessage: (msg) => {
         // console.warn(`---> openai msg: ${JSON.stringify(msg)}`);
 
@@ -158,6 +160,9 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
           resp = JSON.parse(msg);
           // console.warn(`---> openai response: ${JSON.stringify(resp)}`);
         } catch {
+          if (queryWordInfo.onFinish) {
+            queryWordInfo.onFinish("stop");
+          }
           return;
         }
         const { choices } = resp;
@@ -189,9 +194,6 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
           result: {
             translatedText: resultText,
           },
-          // onMessage: (msg) => {
-          //   console.warn(`---> openai onMessage: ${JSON.stringify(msg)}`);
-          // },
         };
         // query.onMessage({ content: targetTxt, role });
         if (queryWordInfo.onMessage) {

@@ -2,14 +2,14 @@
  * @author: tisfeng
  * @createTime: 2022-06-26 11:13
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-15 18:28
+ * @lastEditTime: 2023-03-17 10:12
  * @fileName: axiosConfig.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
  */
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import EventEmitter from "events";
 import { HttpsProxyAgent } from "hpagent";
 import { getMacSystemProxy } from "mac-system-proxy";
