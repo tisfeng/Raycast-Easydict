@@ -2,19 +2,19 @@
  * @author: tisfeng
  * @createTime: 2023-03-14 22:11
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 09:59
+ * @lastEditTime: 2023-03-17 10:27
  * @fileName: openai.ts
  *
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
  */
 
 import axios, { AxiosError } from "axios";
+import { httpsAgent } from "../../axiosConfig";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
 import { QueryTypeResult, TranslationType } from "../../types";
 import { getTypeErrorInfo } from "../../utils";
 import { AppKeyStore } from "./../../preferences";
 import { fetchSSE } from "./utils";
-import { httpsAgent } from "../../axiosConfig";
 
 // Use axios to request openai api.
 export function requestOpenAITextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
