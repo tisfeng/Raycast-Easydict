@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2023-03-14 22:11
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-20 08:47
+ * @lastEditTime: 2023-03-20 09:26
  * @fileName: chat.ts
  *
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
@@ -89,7 +89,15 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
         const { content = "", role } = delta;
         targetTxt = content;
 
-        if (isFirst && targetTxt && ["“", '"', "「"].indexOf(targetTxt[0]) >= 0) {
+        const leftQuotes = ['"', "“", "'", "「"];
+        const firstQueryTextChar = queryWordInfo.word[0];
+        const firstTranslatedTextChar = targetTxt[0];
+        if (
+          isFirst &&
+          !leftQuotes.includes(firstQueryTextChar) &&
+          targetTxt &&
+          leftQuotes.includes(firstTranslatedTextChar)
+        ) {
           targetTxt = targetTxt.slice(1);
         }
 
@@ -121,7 +129,7 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
           return reject(undefined);
         }
 
-        console.error(`---> OpenAI error: ${JSON.stringify(err)}`);
+        // console.error(`---> OpenAI error: ${JSON.stringify(err)}`);
 
         let errorMessage = err.error.message ?? "Unknown error";
         console.warn(`openAIAPIKey: ${openAIAPIKey}`);
