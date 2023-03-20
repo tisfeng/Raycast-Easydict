@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2023-03-14 22:11
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 20:16
+ * @lastEditTime: 2023-03-20 08:47
  * @fileName: chat.ts
  *
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
@@ -25,7 +25,8 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
   const message = [
     {
       role: "system",
-      content: "You are a faithful translation assistant that can only translate text and cannot interpret it.",
+      content:
+        "You are a faithful translation assistant that can only translate text and cannot interpret it, only return the translated text.",
     },
     {
       role: "user",
