@@ -3,7 +3,7 @@ import { networkTimeout } from "./../../consts";
  * @author: tisfeng
  * @createTime: 2023-03-14 22:11
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-28 11:18
+ * @lastEditTime: 2023-03-28 18:38
  * @fileName: chat.ts
  *
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
@@ -27,14 +27,13 @@ export function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Prom
 
   const url = "https://api.openai.com/v1/chat/completions";
 
-  // translate the following English text to Chinese: "No level of alcohol consumption is safe for our health."
-  const prompt = `translate the following ${queryWordInfo.fromLanguage} text to ${queryWordInfo.toLanguage}:\n\n${queryWordInfo.word}`;
+  const prompt = `translate the following ${queryWordInfo.fromLanguage} text to ${queryWordInfo.toLanguage}, :\n\n${queryWordInfo.word} `;
   console.warn(`---> prompt: ${prompt}`);
   const message = [
     {
       role: "system",
       content:
-        "You are a faithful translation assistant that can only translate text and cannot interpret it, only return the translated text.",
+        "You are a faithful translation assistant that can only translate text and cannot interpret it, you can only return the translated text, do not show additional descriptions and annotations.",
     },
     {
       role: "user",
