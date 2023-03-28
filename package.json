@@ -592,7 +592,7 @@
       "label": "OpenAI Translate",
       "required": false,
       "description": "Turn on/off OpenAI Translate. Use system proxy by default. App Key is required.",
-      "default": true
+      "default": false
     },
     {
       "type": "checkbox",
