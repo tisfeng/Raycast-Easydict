@@ -1,0 +1,53 @@
+name: Bug report
+description: 反馈问题
+title: "🐞 反馈问题：xxx"
+labels: ["bug"]
+assignees:
+  -
+
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 请先确认以下事项
+      options:
+        - label: 已仔细阅读了 [README](https://github.com/tisfeng/Raycast-Easydict#readme)
+          required: true
+        - label: 在 [issues](https://github.com/tisfeng/Raycast-Easydict/issues) 页面搜索过问题，但未能找到解决方法
+          required: true
+        - label: Easydict 已升级到最新版本
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 请尽量清晰、详细地描述问题。如果涉及 UI，请提供截图，若是问题比较复杂，最好能提供录屏，方便开发者排查。
+      placeholder: 问题描述
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 重现步骤
+      description: 请描述如何重现该问题。
+      placeholder: 若问题很容易复现，可直接填“无”
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: 请描述您期望的结果。
+      placeholder:
+    validations:
+      required: true
+
+  - type: textarea
+    id: resolution
+    attributes:
+      label: 解决方案（可选）
+      description: 对于该问题，您有什么预想的解决方案，或者建议？
+      placeholder:
