@@ -28,15 +28,7 @@
       "icon": "ocr.png",
       "subtitle": "Query text from image",
       "description": "Detect all text from the captured screen area..",
-      "mode": "no-view",
-      "arguments": [
-        {
-          "name": "queryText",
-          "placeholder": "Query",
-          "type": "text",
-          "required": false
-        }
-      ]
+      "mode": "no-view"
     }
   ],
   "categories": [
