@@ -5,7 +5,6 @@
 import Cocoa
 import Vision
 
-
 let recognitionLevel = VNRequestTextRecognitionLevel.accurate
 let usesLanguageCorrection = true
 
@@ -71,9 +70,6 @@ func main() -> Int32 {
         .joined(separator: "\n")
     
     print(obs)
-//    let encodedString = obs.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-//    let url = URL(string: "raycast://extensions/isfeng/easydict/easydict?fallbackText=\(encodedString)")
-//    NSWorkspace.shared.open(url!)
     
     return 0
 }

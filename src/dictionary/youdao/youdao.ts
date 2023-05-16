@@ -21,7 +21,10 @@ import { autoDetectLanguageItem, englishLanguageItem } from "../../language/cons
 import { AppKeyStore, myPreferences } from "../../preferences";
 import { DictionaryType, QueryType, QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
 import { getTypeErrorInfo, md5 } from "../../utils";
-import { formatYoudaoWebDictionaryModel as formatYoudaoWebDictionaryModel, formatYoudaoDictionaryResult } from "./formatData";
+import {
+  formatYoudaoWebDictionaryModel as formatYoudaoWebDictionaryModel,
+  formatYoudaoDictionaryResult,
+} from "./formatData";
 import { QueryWordInfo, YoudaoDictionaryResult, YoudaoWebDictionaryModel, YoudaoWebTranslateResult } from "./types";
 import { getYoudaoWebDictionaryLanguageId, isValidYoudaoWebTranslateLanguage } from "./utils";
 

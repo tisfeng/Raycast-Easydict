@@ -27,7 +27,7 @@
       "title": "OCR Translate",
       "icon": "ocr.png",
       "subtitle": "Query text from image",
-      "description": "Detect all text from the captured screen area..",
+      "description": "Screenshot OCR, and query text from image.",
       "mode": "no-view"
     }
   ],
