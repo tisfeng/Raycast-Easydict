@@ -1,3 +1,13 @@
+/*
+ * @author: tisfeng
+ * @createTime: 2023-05-15 23:31
+ * @lastEditor: tisfeng
+ * @lastEditTime: 2023-05-17 18:42
+ * @fileName: ocr.tsx
+ *
+ * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
+ */
+
 import { closeMainWindow, open, showHUD } from "@raycast/api";
 import { recognizeText } from "./recognizeText";
 
@@ -6,11 +16,10 @@ export default async function command() {
 
   try {
     const recognizedText = await recognizeText();
-
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
-    console.log(recognizedText);
+    console.log(`Recognized text: ${recognizedText}`);
 
     const encodedQueryText = encodeURIComponent(recognizedText);
     const easyDictUrl = `raycast://extensions/isfeng/easydict/easydict?fallbackText=${encodedQueryText}`;
