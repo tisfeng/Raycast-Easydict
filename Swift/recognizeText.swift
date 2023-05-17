@@ -53,6 +53,9 @@ func main() -> Int32 {
         request.automaticallyDetectsLanguage = true
     }
 
+// "en-US", "fr-FR", "it-IT", "de-DE", "es-ES", "pt-BR", "zh-Hans", "zh-Hant", "yue-Hans", "yue-Hant", "ko-KR", "ja-JP", "ru-RU", "uk-UA"
+    request.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US", "ja-JP", "fr-FR", "de-DE", "es-ES", "pt-BR", "it-IT", "ko-KR", "ru-RU", "uk-UA"]
+
     do {
         try VNImageRequestHandler(cgImage: capturedImage, options: [:]).perform([request])
     } catch {
