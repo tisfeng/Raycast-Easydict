@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-23 17:46
+ * @lastEditTime: 2023-05-27 17:25
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -17,7 +17,7 @@ import { hasTencentAppKey, tencentDetect } from "../translation/tencent";
 import { volcanoDetect } from "../translation/volcano/volcanoAPI";
 import { hasVolcanoAppKey } from "../translation/volcano/volcanoSign";
 import { RequestErrorInfo } from "../types";
-import { francLanguageDetect as francLanguageDetect } from "./franc";
+import { francLanguageDetect } from "./franc";
 import { DetectedLangModel, LanguageDetectType } from "./types";
 import {
   checkIfPreferredLanguagesContainChinese,
@@ -181,9 +181,15 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
       if (detectedIdenticalLanguages.length === 1) {
         // Mark two identical language as prior.
         detectedLangModel.prior = true;
-        if (isPreferredLanguage(detectedLangCode) && myPreferences.enableDetectLanguageSpeedFirst) {
+
+        const onlyOneDetectService = getDetectAPIs().length == 1;
+
+        if (
+          onlyOneDetectService ||
+          (isPreferredLanguage(detectedLangCode) && myPreferences.enableDetectLanguageSpeedFirst)
+        ) {
           detectedLangModel.confirmed = true;
-          console.warn(`---> Speed first, API detected 'two' identical 'preferred' language: ${detectedTypes}`);
+          console.warn(`---> Speed first, API detected language: ${detectedTypes}`);
           console.warn(`detected language: ${JSON.stringify(detectedLangModel, null, 4)}`);
           return resolve(detectedLangModel);
         }
@@ -191,7 +197,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
 
       if (detectedIdenticalLanguages.length >= 2) {
         detectedLangModel.confirmed = true;
-        console.warn(`---> API detected 'three' identical language`);
+        console.warn(`---> API detected >=2 identical language`);
         console.warn(`detected language: ${JSON.stringify(detectedLangModel, null, 4)}`);
         return resolve(detectedLangModel);
       }
