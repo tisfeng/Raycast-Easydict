@@ -1,6 +1,6 @@
 name: Bug report
 description: 反馈问题
-title: "🐞 反馈问题：xxx"
+title: "🐞 反馈问题：{{请填写标题}}"
 labels: ["bug"]
 assignees:
   -
@@ -32,7 +32,7 @@ body:
     attributes:
       label: 重现步骤
       description: 请描述如何重现该问题。
-      placeholder: 若问题很容易复现，可直接填“无”
+      placeholder:
     validations:
       required: true
 

@@ -1,6 +1,6 @@
 name: Feature request
 description: 功能建议
-title: "🚀 功能建议：xxx"
+title: "🚀 功能建议：{{请填写标题}}"
 labels: ["enhancement"]
 assignees:
   -
