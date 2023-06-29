@@ -686,6 +686,14 @@
       "default": ""
     },
     {
+      "title": "OpenAI API URL",
+      "name": "openAIAPIURL",
+      "type": "textfield",
+      "required": false,
+      "description": "Your OpenAI API URL",
+      "default": "https://api.openai.com/v1/chat/completions"
+    },
+    {
       "title": "DeepL Auth Key",
       "name": "deepLAuthKey",
       "type": "textfield",

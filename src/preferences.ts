@@ -64,6 +64,7 @@ export interface MyPreferences {
 
   enableOpenAITranslate: boolean;
   openAIAPIKey: string;
+  openAIAPIURL: string;
 }
 
 /**
@@ -126,7 +127,9 @@ export class AppKeyStore {
   static volcanoSecretId = myPreferences.volcanoAccessKeyId.trim();
   static volcanoSecretKey = myPreferences.volcanoAccessKeySecret.trim();
 
+  private static defaultOpenAIAPIUrl = "https://api.openai.com/v1/chat/completions";
   static openAIAPIKey = myPreferences.openAIAPIKey.trim();
+  static openAIAPIUrl = myPreferences.openAIAPIURL.trim() || this.defaultOpenAIAPIUrl;
 }
 
 export function myDecrypt(ciphertext: string) {
