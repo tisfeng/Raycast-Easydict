@@ -11,7 +11,7 @@ jobs:
         id: followerChange
         uses: Sorosliu1029/follower-change@v2
         with:
-          myToken: ${{ secrets.MY_TOKEN }}
+          myToken: ${{ secrets.READ_REPO_STAR_TOKEN }}
           notifyUnFollowEvent: true
       - name: email me
         uses: dawidd6/action-send-mail@v3
