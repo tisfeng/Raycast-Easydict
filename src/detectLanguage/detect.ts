@@ -2,7 +2,7 @@
  * @author: tisfeng
  * @createTime: 2022-06-24 17:07
  * @lastEditor: tisfeng
- * @lastEditTime: 2023-05-27 17:25
+ * @lastEditTime: 2023-10-12 16:57
  * @fileName: detect.ts
  *
  * Copyright (c) 2022 by tisfeng, All Rights Reserved.
@@ -66,12 +66,11 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
  */
 function getDetectAPIs() {
   const detectActionList = [bingDetect];
+
+  detectActionList.push(baiduWebDetect);
+
   // Because Google detect must use proxy now, and set httpsAgent will block thread, so disable it.
   // detectActionList.push(googleDetect);
-
-  if (myPreferences.enableBaiduTranslate) {
-    detectActionList.push(baiduWebDetect);
-  }
 
   if (myPreferences.enableTencentTranslate && hasTencentAppKey()) {
     detectActionList.push(tencentDetect);
