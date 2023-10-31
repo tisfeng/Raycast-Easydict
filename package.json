@@ -67,7 +67,7 @@
     "hpagent": "^1.2.0",
     "mac-system-proxy": "^1.0.4",
     "node-html-parser": "^6.1.5",
-    "play-sound": "^1.1.5",
+    "play-sound": "^1.1.6",
     "qs": "^6.11.0",
     "run-applescript": "^6.1.0",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.559"
