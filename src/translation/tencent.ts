@@ -51,13 +51,8 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   const to = getTencentLangCode(toLanguage);
   const type = TranslationType.Tencent;
 
-  const hasAppKey = SECRET_ID && SECRET_KEY;
-  if (!from || !to || !hasAppKey) {
-    if (!hasAppKey) {
-      console.warn(`---> Tencent translate no app key`);
-    } else {
-      console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
-    }
+  if (!from || !to) {
+    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
       type: type,
       result: undefined,

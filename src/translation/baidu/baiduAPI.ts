@@ -55,13 +55,8 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
   const from = getBaiduLangCode(fromLanguage);
   const to = getBaiduLangCode(toLanguage);
 
-  if (!hasBaiduAppKey() || !from || !to) {
-    if (!hasBaiduAppKey()) {
-      console.warn(`Baidu AppId or AppSecret is empty`);
-    } else {
-      console.warn(`Baidu translate not support language: ${fromLanguage} to ${toLanguage}`);
-    }
-
+  if (!from || !to) {
+    console.warn(`Baidu translate not support language: ${fromLanguage} to ${toLanguage}`);
     const result: QueryTypeResult = {
       type: type,
       result: undefined,
