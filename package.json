@@ -578,14 +578,6 @@
       "default": false
     },
     {
-      "name": "enableAppleLanguageDetect",
-      "type": "checkbox",
-      "label": "Apple Language Detect",
-      "required": false,
-      "description": "⚠️ An `Apple Language Detect` shortcut needs to be installed, please see README for more details.",
-      "default": false
-    },
-    {
       "title": "Dictionary Services",
       "type": "checkbox",
       "name": "enableYoudaoDictionary",

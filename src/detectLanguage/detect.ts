@@ -81,12 +81,6 @@ function getDetectAPIs() {
     detectActionList.push(volcanoDetect);
   }
 
-  // Apple detection is inaccurate, only use it when lacking detect API.
-  if (detectActionList.length < 2 && myPreferences.enableAppleLanguageDetect) {
-    // Since Apple detect may block the main thread, so we stop it for now and wait for a solution to be found later.
-    // detectActionList.push(appleLanguageDetect);
-  }
-
   return detectActionList;
 }
 

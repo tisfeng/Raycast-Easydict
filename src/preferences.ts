@@ -53,7 +53,6 @@ export interface MyPreferences {
   tencentSecretId: string;
   tencentSecretKey: string;
 
-  enableAppleLanguageDetect: boolean;
   enableAppleTranslate: boolean;
 
   enableCaiyunTranslate: boolean;
