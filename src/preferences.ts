@@ -28,6 +28,7 @@ export interface MyPreferences {
   showOpenInEudicFirst: boolean;
   enableSystemProxy: boolean;
   enableDetectLanguageSpeedFirst: boolean;
+  enableBaiduLanguageDetect: boolean;
 
   enableYoudaoDictionary: boolean;
   enableYoudaoTranslate: boolean;

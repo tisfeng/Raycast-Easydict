@@ -67,7 +67,9 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
 function getDetectAPIs() {
   const detectActionList = [bingDetect];
 
-  detectActionList.push(baiduWebDetect);
+  if (myPreferences.enableBaiduLanguageDetect) {
+    detectActionList.push(baiduWebDetect);
+  }
 
   // Because Google detect must use proxy now, and set httpsAgent will block thread, so disable it.
   // detectActionList.push(googleDetect);

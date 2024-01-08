@@ -537,6 +537,14 @@
       "default": true
     },
     {
+      "name": "enableBaiduLanguageDetect",
+      "type": "checkbox",
+      "label": "Enable Baidu Language Detect",
+      "required": false,
+      "description": "⚠️ If turn off it, the language detection will be slower, even cause timeout.",
+      "default": true
+    },
+    {
       "name": "enableAutomaticPlayWordAudio",
       "type": "checkbox",
       "label": "Play Word Pronunciation Automatically",
