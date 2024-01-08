@@ -206,7 +206,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
 /**
  * Tencent text translate, use Tencent nodejs sdk.
  *
- * 腾讯文本翻译，5次/秒： https://cloud.tencent.com/document/api/551/15619
+ * 腾讯文本翻译，5 次/秒：https://cloud.tencent.com/document/api/551/15619
  */
 export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.log(`---> start sdk request Tencent translate`);
@@ -269,7 +269,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
 /**
  * Tecent language detect, use Tencent nodejs sdk. Cost time: ~150ms
  *
- * 腾讯语种识别，5次/秒： https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
+ * 腾讯语种识别，5 次/秒：https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
  *
  * Todo: use axios to rewrite.
  */
