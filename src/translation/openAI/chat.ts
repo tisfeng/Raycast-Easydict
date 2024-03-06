@@ -25,7 +25,7 @@ const timeout = setTimeout(() => {
 export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.warn(`---> start request OpenAI`);
 
-  const url = AppKeyStore.openAIAPIURL;
+  const url = AppKeyStore.openAIEndpoint;
 
   const prompt = `translate the following ${queryWordInfo.fromLanguage} text to ${queryWordInfo.toLanguage}, :\n\n${queryWordInfo.word} `;
   console.warn(`---> prompt: ${prompt}`);
@@ -42,7 +42,7 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
   ];
 
   const params = {
-    model: "gpt-3.5-turbo",
+    model: AppKeyStore.openAIModel,
     messages: message,
     temperature: 0,
     max_tokens: 2000,
@@ -173,7 +173,7 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
 export function requestOpenAITextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   //   console.warn(`---> start request OpenAI`);
 
-  const url = AppKeyStore.openAIAPIURL;
+  const url = AppKeyStore.openAIEndpoint;
   //   const prompt = `translate from English to Chinese:\n\n"No level of alcohol consumption is safe for our health." =>`;
   const prompt = `translate from ${queryWordInfo.fromLanguage} to ${queryWordInfo.toLanguage}:\n\n"${queryWordInfo.word}" =>`;
   const message = [

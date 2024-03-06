@@ -686,12 +686,20 @@
       "default": ""
     },
     {
-      "title": "OpenAI API URL",
-      "name": "openAIAPIURL",
+      "title": "OpenAI Endpoint",
+      "name": "openAIEndpoint",
       "type": "textfield",
       "required": false,
-      "description": "Your OpenAI API URL",
+      "description": "Your OpenAI Endpoint",
       "default": "https://api.openai.com/v1/chat/completions"
+    },
+    {
+      "title": "OpenAI Model",
+      "name": "openAIModel",
+      "type": "textfield",
+      "required": false,
+      "description": "OpenAI Model",
+      "default": "gpt-3.5-turbo"
     },
     {
       "title": "DeepL Auth Key",
