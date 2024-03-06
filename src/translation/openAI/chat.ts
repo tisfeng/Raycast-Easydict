@@ -67,6 +67,14 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
   let openAIResult: QueryTypeResult;
 
   const httpsAgent = await getProxyAgent();
+  const httpAgent = await getProxyAgent(false);
+  const agent = function (url: URL) {
+    if (url.protocol === "http:") {
+      return httpAgent;
+    } else {
+      return httpsAgent;
+    }
+  };
   console.warn(`---> openai agent: ${JSON.stringify(httpsAgent)}`);
 
   return new Promise((resolve, reject) => {
@@ -74,7 +82,7 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
       method: "POST",
       headers,
       body: JSON.stringify(params),
-      agent: httpsAgent,
+      agent: agent,
       signal: controller.signal,
       onMessage: (msg) => {
         // console.warn(`---> openai msg: ${JSON.stringify(msg)}`);
