@@ -687,7 +687,7 @@
     },
     {
       "title": "OpenAI Endpoint",
-      "name": "openAIEndpoint",
+      "name": "openAIAPIURL",
       "type": "textfield",
       "required": false,
       "description": "Your OpenAI Endpoint",
