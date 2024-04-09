@@ -15,7 +15,7 @@ import { httpsAgent, requestCostTime } from "../axiosConfig";
 import { QueryWordInfo } from "../dictionary/youdao/types";
 import { getDeepLLangCode } from "../language/languages";
 import { AppKeyStore, myDecrypt } from "../preferences";
-import { DeepLTranslateResult, QueryTypeResult, TranslationType } from "../types";
+import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
 import { getTypeErrorInfo } from "../utils";
 
 const deepLAuthStoredKey = "deepLAuthStoredKey";
@@ -31,11 +31,13 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   const sourceLang = getDeepLLangCode(fromLanguage);
   const targetLang = getDeepLLangCode(toLanguage);
 
+  const deepLType = TranslationType.DeepL;
+
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
     console.log(`DeepL translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
-      type: TranslationType.DeepL,
+      type: deepLType,
       result: undefined,
       translations: [],
       queryWordInfo: queryWordInfo,
@@ -45,9 +47,15 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
 
   const deepLAuthKey = await getDeepLAuthKey();
 
+  const errorInfo: RequestErrorInfo = {
+    type: deepLType,
+    code: "",
+    message: "Error",
+  };
+
   if (!deepLAuthKey) {
-    console.log(`---> no deepL key`);
-    return Promise.reject({ message: "no deepL key" });
+    errorInfo.message = "No deepL key";
+    return Promise.reject(errorInfo);
   }
 
   // * deepL api free and deepL pro api use different url host.
@@ -67,7 +75,8 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
     // checkIfKeyValid
     if (!(await checkIfKeyValid(deepLAuthKey))) {
       console.log(`---> deepL api free key is invalid`);
-      return Promise.reject({ message: "deepL api free key is invalid" });
+      errorInfo.message = "DeepL api free key is invalid";
+      return Promise.reject(errorInfo);
     }
   }
 
