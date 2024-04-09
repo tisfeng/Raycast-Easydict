@@ -73,13 +73,12 @@ export interface MyPreferences {
  * * NOTE: Please apply for your own keys as much as possible. Please do not abuse them, otherwise I have to revoke them 😑。
  */
 export class AppKeyStore {
-  static defaultEncryptedDeepLAuthKey =
-    "U2FsdGVkX190UMu/gorJ/qgwhayFJilCPE5kSfOutkELsUnylfAZEtJGVPin3njGRwC2odphwTigbCzEcJ4kAw==";
-  private static defaultDeepLAuthKey = myDecrypt(this.defaultEncryptedDeepLAuthKey);
+  static deepLAuthKey = myPreferences.deepLAuthKey.trim();
 
   // This is a official test token from https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+RTgfMmgZgkD1Phn4FyvzMiMed5BvxnjoqS8QIJ/AFjUJdfC7OqjU3";
   private static defaultCaiyunToken = myDecrypt(this.defaultEncryptedCaiyunToken);
+  static caiyunToken = myPreferences.caiyunToken.trim() || this.defaultCaiyunToken;
 
   // youdao app id and appsecret
   static youdaoAppId = myPreferences.youdaoAppId.trim();
@@ -92,10 +91,6 @@ export class AppKeyStore {
   // tencent secret id and key
   static tencentSecretId = myPreferences.tencentSecretId.trim();
   static tencentSecretKey = myPreferences.tencentSecretKey.trim();
-
-  static userDeepLAuthKey = myPreferences.deepLAuthKey.trim();
-
-  static caiyunToken = myPreferences.caiyunToken.trim() || this.defaultCaiyunToken;
 
   static volcanoSecretId = myPreferences.volcanoAccessKeyId.trim();
   static volcanoSecretKey = myPreferences.volcanoAccessKeySecret.trim();
