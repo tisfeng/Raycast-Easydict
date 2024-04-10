@@ -67,16 +67,6 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   };
   // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
-  if (deepLAuthKey.endsWith(":fx")) {
-    console.log(`---> deepL api free`);
-    // checkIfKeyValid
-    if (!(await checkIfKeyValid(deepLAuthKey))) {
-      console.log(`---> deepL api free key is invalid`);
-      errorInfo.message = "DeepL api free key is invalid";
-      return Promise.reject(errorInfo);
-    }
-  }
-
   return new Promise((resolve, reject) => {
     axios
       .post(url, querystring.stringify(params), { httpsAgent })
@@ -115,44 +105,6 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
 
         console.error("deepL error info: ", errorInfo); // message: 'timeout of 15000ms exceeded'
         reject(errorInfo);
-      });
-  });
-}
-
-interface DeepLUsage {
-  character_count: number;
-  character_limit: number;
-}
-
-/**
- * Check if key is valid.
- *
- * https://www.deepl.com/zh/docs-api/other-functions/monitoring-usage/
- */
-function checkIfKeyValid(key: string): Promise<boolean> {
-  console.log(`test a deepL key: ${key}`);
-  const url = "https://api-free.deepl.com/v2/usage";
-  const params = {
-    auth_key: key,
-  };
-
-  return new Promise((resolve) => {
-    axios
-      .post(url, querystring.stringify(params))
-      .then((res) => {
-        const usage = res.data as DeepLUsage;
-        console.log(`---> deepL usage: ${JSON.stringify(usage)}`);
-        if (usage.character_count < usage.character_limit) {
-          console.log(`---> valid key: ${key}`);
-          resolve(true);
-        } else {
-          console.log(`---> execeded quota: ${key}`);
-          resolve(false);
-        }
-      })
-      .catch((err) => {
-        console.error(`---> isValidKey deepL error: ${err}`);
-        resolve(false);
       });
   });
 }
