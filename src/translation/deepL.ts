@@ -56,9 +56,15 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   }
 
   // * deepL api free and deepL pro api use different url host.
-  const url = deepLAuthKey.endsWith(":fx")
+  let url = deepLAuthKey.endsWith(":fx")
     ? "https://api-free.deepl.com/v2/translate"
     : "https://api.deepl.com/v2/translate";
+
+  const deepLEndpoint = AppKeyStore.deepLEndpoint;
+  if (deepLEndpoint.length > 0) {
+    url = deepLEndpoint;
+  }
+
   const params = {
     auth_key: deepLAuthKey,
     text: word,

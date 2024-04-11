@@ -669,7 +669,7 @@
       "default": false
     },
     {
-      "title": "Display Order",
+      "title": "Service List Order",
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
@@ -690,8 +690,8 @@
       "name": "openAIAPIURL",
       "type": "textfield",
       "required": false,
-      "description": "Your OpenAI API URL",
-      "default": "https://api.openai.com/v1/chat/completions"
+      "description": "Custom OpenAI API URL",
+      "placeholder": "https://api.openai.com/v1/chat/completions"
     },
     {
       "title": "DeepL Auth Key",
@@ -699,6 +699,15 @@
       "type": "textfield",
       "required": false,
       "description": "Your DeepL Auth Key",
+      "default": ""
+    },
+    {
+      "title": "DeepL API URL",
+      "name": "deepLEndpoint",
+      "type": "textfield",
+      "required": false,
+      "description": "Custom DeepL API URL",
+      "placeholder": "https://api-free.deepl.com/v2/translate",
       "default": ""
     },
     {

@@ -40,6 +40,7 @@ export interface MyPreferences {
 
   enableDeepLTranslate: boolean;
   deepLAuthKey: string;
+  deepLEndpoint: string;
 
   enableGoogleTranslate: boolean;
 
@@ -74,6 +75,7 @@ export interface MyPreferences {
  */
 export class AppKeyStore {
   static deepLAuthKey = myPreferences.deepLAuthKey.trim();
+  static deepLEndpoint = myPreferences.deepLEndpoint.trim();
 
   // This is a official test token from https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+RTgfMmgZgkD1Phn4FyvzMiMed5BvxnjoqS8QIJ/AFjUJdfC7OqjU3";
@@ -95,9 +97,8 @@ export class AppKeyStore {
   static volcanoSecretId = myPreferences.volcanoAccessKeyId.trim();
   static volcanoSecretKey = myPreferences.volcanoAccessKeySecret.trim();
 
-  private static defaultOpenAIAPIURL = "https://api.openai.com/v1/chat/completions";
   static openAIAPIKey = myPreferences.openAIAPIKey.trim();
-  static openAIAPIURL = myPreferences.openAIAPIURL.trim() || this.defaultOpenAIAPIURL;
+  static openAIAPIURL = myPreferences.openAIAPIURL.trim() || "https://api.openai.com/v1/chat/completions";
 }
 
 // Test AES online: https://www.sojson.com/encrypt_aes.html
