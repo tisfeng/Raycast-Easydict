@@ -8,12 +8,10 @@
  * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
  */
 
-import axios, { AxiosError } from "axios";
 import { getProxyAgent } from "../../axiosConfig";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
 import { AppKeyStore } from "../../preferences";
 import { QueryTypeResult, TranslationType } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
 import { networkTimeout } from "./../../consts";
 import { fetchSSE } from "./utils";
 
@@ -166,90 +164,5 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         reject(errorInfo);
       },
     });
-  });
-}
-
-// Use axios to request openai api.
-export function requestOpenAITextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  //   console.warn(`---> start request OpenAI`);
-
-  const url = AppKeyStore.openAIEndpoint;
-  //   const prompt = `translate from English to Chinese:\n\n"No level of alcohol consumption is safe for our health." =>`;
-  const prompt = `translate from ${queryWordInfo.fromLanguage} to ${queryWordInfo.toLanguage}:\n\n"${queryWordInfo.word}" =>`;
-  const message = [
-    {
-      role: "system",
-      content: "You are a faithful translation assistant that can only translate text and cannot interpret it.",
-    },
-    {
-      role: "user",
-      content: prompt,
-    },
-  ];
-
-  const params = {
-    model: "gpt-3.5-turbo",
-    messages: message,
-    temperature: 0,
-    max_tokens: 2000,
-    top_p: 1.0,
-    frequency_penalty: 1,
-    presence_penalty: 1,
-  };
-
-  const openAIAPIKey = AppKeyStore.openAIAPIKey;
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${openAIAPIKey}`,
-  };
-
-  const type = TranslationType.OpenAI;
-
-  return new Promise((resolve, reject) => {
-    // Post request is too slow, we need to use server-send-event to improve performance.
-    axios
-      .post(url, params, {
-        headers,
-      })
-      .then((response) => {
-        const { data } = response;
-        // console.warn(`---> openai response: ${JSON.stringify(data)}`);
-
-        const { choices } = data;
-        if (choices.length === 0) {
-          const error = new Error("No result.");
-          reject(error);
-          return;
-        }
-
-        let result = choices[0].message.content.trim() as string;
-        // remove prefix " and suffix "
-        result = result.replace(/^"(.*)"$/, "$1") as string;
-
-        console.warn(`---> openai result: ${result}`);
-        resolve({
-          type,
-          queryWordInfo,
-          translations: [result],
-          result: {
-            translatedText: result,
-          },
-        });
-      })
-      .catch((error: AxiosError) => {
-        if (error.message === "canceled") {
-          console.log(`---> openai canceled`);
-          return reject(undefined);
-        }
-
-        if (error.name === "AbortError") {
-          console.log("请求超时");
-        }
-
-        console.error(`---> OpenAI translate error: ${error}`);
-        console.error("OpenAI error response: ", error.response);
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
   });
 }
