@@ -2,7 +2,7 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "easydict",
   "title": "Easy Dictionary",
-  "description": "Easily look up words or translate text, support 48+ languages, support Linguee and Youdao dictionary, support OpenAI ChatGPT, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao and Caiyun translation.",
+  "description": "Easily look up words or translate text, support 48+ languages, support Linguee and Youdao dictionary, support OpenAI, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao and Caiyun translation.",
   "icon": "Eudic.png",
   "author": "isfeng",
   "license": "MIT",
@@ -50,7 +50,7 @@
     "baidu",
     "tencent",
     "eudic",
-    "chatgpt"
+    "openai"
   ],
   "dependencies": {
     "@raycast/api": "^1.68.0",
@@ -669,7 +669,7 @@
       "default": false
     },
     {
-      "title": "Display Order",
+      "title": "Service List Order",
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
@@ -690,8 +690,8 @@
       "name": "openAIAPIURL",
       "type": "textfield",
       "required": false,
-      "description": "Your OpenAI Endpoint",
-      "default": "https://api.openai.com/v1/chat/completions"
+      "description": "Custom OpenAI API URL",
+      "placeholder": "https://api.openai.com/v1/chat/completions"
     },
     {
       "title": "OpenAI Model",
@@ -707,6 +707,15 @@
       "type": "textfield",
       "required": false,
       "description": "Your DeepL Auth Key",
+      "default": ""
+    },
+    {
+      "title": "DeepL API URL",
+      "name": "deepLEndpoint",
+      "type": "textfield",
+      "required": false,
+      "description": "Custom DeepL API URL",
+      "placeholder": "https://api-free.deepl.com/v2/translate",
       "default": ""
     },
     {
