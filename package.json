@@ -53,7 +53,7 @@
     "openai"
   ],
   "dependencies": {
-    "@raycast/api": "^1.62.0",
+    "@raycast/api": "^1.68.0",
     "@vitalets/google-translate-api": "^9.1.0",
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
@@ -686,12 +686,20 @@
       "default": ""
     },
     {
-      "title": "OpenAI API URL",
+      "title": "OpenAI Endpoint",
       "name": "openAIAPIURL",
       "type": "textfield",
       "required": false,
       "description": "Custom OpenAI API URL",
       "placeholder": "https://api.openai.com/v1/chat/completions"
+    },
+    {
+      "title": "OpenAI Model",
+      "name": "openAIModel",
+      "type": "textfield",
+      "required": false,
+      "description": "OpenAI Model",
+      "default": "gpt-3.5-turbo"
     },
     {
       "title": "DeepL Auth Key",
