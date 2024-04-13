@@ -10,6 +10,7 @@
 
 import { getProxyAgent } from "../../axiosConfig";
 import { QueryWordInfo } from "../../dictionary/youdao/types";
+import { getLanguageEnglishName } from "../../language/languages";
 import { AppKeyStore } from "../../preferences";
 import { QueryTypeResult, TranslationType } from "../../types";
 import { networkTimeout } from "./../../consts";
@@ -25,7 +26,10 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
 
   const url = AppKeyStore.openAIEndpoint;
 
-  const prompt = `translate the following ${queryWordInfo.fromLanguage} word or text to ${queryWordInfo.toLanguage}:\n\n"""${queryWordInfo.word}"""`;
+  const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
+  const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
+
+  const prompt = `translate the following ${fromLanguage} word or text to ${toLanguage}: """${queryWordInfo.word}"""`;
   console.warn(`---> prompt: ${prompt}`);
   const message = [
     {
@@ -67,6 +71,22 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
     {
       role: "assistant",
       content: "迅速的；提示",
+    },
+    {
+      role: "user",
+      content: 'Translate the following English word into Simplified-Chinese text: """console"""',
+    },
+    {
+      role: "assistant",
+      content: "控制台；安慰",
+    },
+    {
+      role: "user",
+      content: 'Translate the following English word into Simplified-Chinese text: """import"""',
+    },
+    {
+      role: "assistant",
+      content: "导入；进口",
     },
 
     {
