@@ -32,7 +32,7 @@
 
 ### ✨ Features
 
-- Support OpenAI ChatGPT translation.
+- Support OpenAI translation.
 
 ![OpenAI](https://user-images.githubusercontent.com/25194972/225886686-b99e5a97-6269-489d-b0bb-40be6d7d1d32.png)
 
