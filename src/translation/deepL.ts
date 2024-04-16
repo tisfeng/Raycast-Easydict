@@ -66,7 +66,6 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   }
 
   const params = {
-    auth_key: deepLAuthKey,
     text: word,
     source_lang: sourceLang,
     target_lang: targetLang,
@@ -75,7 +74,12 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
 
   return new Promise((resolve, reject) => {
     axios
-      .post(url, querystring.stringify(params), { httpsAgent })
+      .post(url, querystring.stringify(params), {
+        httpsAgent,
+        headers: {
+          Authorization: `DeepL-Auth-Key ${deepLAuthKey}`,
+        },
+      })
       .then((response) => {
         const deepLResult = response.data as DeepLTranslateResult;
         const translatedText = deepLResult.translations[0].text;
