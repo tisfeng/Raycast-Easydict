@@ -99,7 +99,7 @@ export class AppKeyStore {
   static volcanoSecretKey = myPreferences.volcanoAccessKeySecret.trim();
 
   static openAIAPIKey = myPreferences.openAIAPIKey.trim();
-  static openAIEndpoint = myPreferences.openAIAPIURL.trim() || "https://api.openai.com/v1/chat/completions";
+  static openAIEndpoint = myPreferences.openAIAPIURL?.trim() || "https://api.openai.com/v1/chat/completions";
   static openAIModel = myPreferences.openAIModel.trim() || "gpt-3.5-turbo";
 }
 

@@ -9,7 +9,7 @@
  */
 
 import { Icon, LaunchProps, List, getSelectedText } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { configAxiosProxy, delayGetSystemProxy } from "./axiosConfig";
 import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "./components";
 import { DataManager } from "./dataManager/dataManager";
@@ -18,6 +18,8 @@ import { LanguageItem } from "./language/type";
 import { myPreferences, preferredLanguage1 } from "./preferences";
 import { DisplaySection } from "./types";
 import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "./utils";
+import useSWR from "swr";
+import { requestDeepLXTranslate } from "./translation/deepLX";
 
 const disableConsoleLog = false;
 
@@ -235,6 +237,19 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     updateInputTextAndQueryText(text, true);
   }
 
+  const queryInfo = useMemo(
+    () => ({
+      word: searchText,
+      fromLanguage: currentFromLanguageItem.youdaoLangCode,
+      toLanguage: userSelectedTargetLanguageItem.youdaoLangCode,
+    }),
+    [searchText, currentFromLanguageItem, userSelectedTargetLanguageItem]
+  );
+
+  const { data: deepLXResult } = useSWR(["deepLX", queryInfo], ([, wordInfo]: [string, QueryWordInfo]) =>
+    requestDeepLXTranslate(wordInfo)
+  );
+
   return (
     <List
       isLoading={isLoadingState}
@@ -274,6 +289,9 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
           </List.Section>
         );
       })}
+      <List.Section title="DeepLX">
+        {deepLXResult && <List.Item title={deepLXResult?.translations[0] ?? ""} subtitle={queryInfo.word} />}
+      </List.Section>
       <List.EmptyView icon={Icon.BlankDocument} title="Type a word to look up or translate" />
     </List>
   );
