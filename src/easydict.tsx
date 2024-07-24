@@ -237,7 +237,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     // ignore the first inputChange event to avoid lost queryText argument
     if (!isInputChanged) {
       setInputChangedState(true);
-      console.warn("ignore first inputChange event");
+      console.log("ignore first inputChange event");
       return;
     }
     updateInputTextAndQueryText(text, true);
