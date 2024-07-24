@@ -234,7 +234,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
   function onInputChange(text: string) {
     // console.warn(`onInputChange: ${text}`);
 
-    // ignore the first inputChange event to avoid lost queryText argument
+    // Ignore the first inputChange event to avoid lost queryText argument, fix https://github.com/tisfeng/Raycast-Easydict/issues/62
     if (!isInputChanged) {
       setInputChangedState(true);
       console.log("ignore first inputChange event");
