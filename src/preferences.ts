@@ -35,9 +35,6 @@ export interface MyPreferences {
 
   enableLingueeDictionary: boolean;
 
-  youdaoAppId: string;
-  youdaoAppSecret: string;
-
   enableDeepLTranslate: boolean;
   deepLAuthKey: string;
   deepLEndpoint: string;
@@ -82,10 +79,6 @@ export class AppKeyStore {
   private static defaultEncryptedCaiyunToken = "U2FsdGVkX1+RTgfMmgZgkD1Phn4FyvzMiMed5BvxnjoqS8QIJ/AFjUJdfC7OqjU3";
   private static defaultCaiyunToken = myDecrypt(this.defaultEncryptedCaiyunToken);
   static caiyunToken = myPreferences.caiyunToken.trim() || this.defaultCaiyunToken;
-
-  // youdao app id and appsecret
-  static youdaoAppId = myPreferences.youdaoAppId.trim();
-  static youdaoAppSecret = myPreferences.youdaoAppSecret.trim();
 
   // baidu app id and secret
   static baiduAppId = myPreferences.baiduAppId.trim();

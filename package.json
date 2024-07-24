@@ -768,22 +768,6 @@
       "default": ""
     },
     {
-      "title": "Youdao App ID",
-      "name": "youdaoAppId",
-      "type": "textfield",
-      "required": false,
-      "description": "Your Youdao App ID",
-      "default": ""
-    },
-    {
-      "title": "Youdao App Secret",
-      "name": "youdaoAppSecret",
-      "type": "textfield",
-      "required": false,
-      "description": "Your Youdao App Secret",
-      "default": ""
-    },
-    {
       "title": "Caiyun Token",
       "name": "caiyunToken",
       "type": "textfield",
