@@ -691,6 +691,7 @@
       "type": "textfield",
       "required": false,
       "description": "Custom OpenAI API URL",
+      "default": "",
       "placeholder": "https://api.openai.com/v1/chat/completions"
     },
     {
