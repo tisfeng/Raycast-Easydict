@@ -15,11 +15,11 @@ jobs:
       - if: ${{ github.event_name == 'fork' }}
         run: |
           echo "🎉 triggered by a ${{ github.event_name }} event."
-          echo "event_name=Forked 🍴" >> $GITHUB_ENV
+          echo "event_name=forked 🍴" >> $GITHUB_ENV
       - if: ${{ github.event_name == 'watch' }}
         run: |
           echo "🎉 triggered by a ${{ github.event_name }} event."
-          echo "event_name=Starred ✨" >> $GITHUB_ENV
+          echo "event_name=starred ✨" >> $GITHUB_ENV
 
       - name: Get repository information
         run: |
@@ -45,8 +45,8 @@ jobs:
         id: check_conditions
         run: |
           earn_star_count=$(curl -s -H "Authorization: token ${{ secrets.READ_REPO_STAR_TOKEN }}" "https://api.github.com/users/${{ github.actor }}/repos" | jq '[.[] | .stargazers_count] | add // 0')
-          commit_count=$(curl -s -H "Authorization: token ${{ secrets.READ_REPO_STAR_TOKEN }}" "https://api.github.com/search/commits?q=author:${{ github.actor }}" | jq -r '.total_count')
-          follower_count=$(curl -s -H "Authorization: token ${{ secrets.READ_REPO_STAR_TOKEN }}" "https://api.github.com/users/${{ github.actor }}" | jq '.followers')
+          commit_count=$(curl -s -H "Authorization: token ${{ secrets.READ_REPO_STAR_TOKEN }}" "https://api.github.com/search/commits?q=author:${{ github.actor }}" | jq -r '.total_count // 0')
+          follower_count=$(curl -s -H "Authorization: token ${{ secrets.READ_REPO_STAR_TOKEN }}" "https://api.github.com/users/${{ github.actor }}" | jq '.followers // 0')
 
           echo "Star count: $earn_star_count"
           echo "Commit count: $commit_count"
@@ -55,8 +55,8 @@ jobs:
           echo "commit_count=$commit_count" >> $GITHUB_ENV
           echo "follower_count=$follower_count" >> $GITHUB_ENV
 
-          if [[ $commit_count -ge 0 ]]; then
-            echo "user_conditions_met=true" >> $GITHUB_ENV
+          if [[ $earn_star_count -ge 10 || $commit_count -gt 1000 ]]; then
+          echo "user_conditions_met=true" >> $GITHUB_ENV
           else
             echo "user_conditions_met=false" >> $GITHUB_ENV
           fi
@@ -70,7 +70,10 @@ jobs:
           html_body+="Forks: <b>${{ env.repo_forks }}</b><br><br>"
           html_body+="Downloads: <b>${{ env.download_count }}</b><br><br>"
           html_body+="Repo: <a href='${{ github.server_url }}/${{ github.repository }}'>${{ github.repository }}</a><br><br>"
-          html_body+="Stargazers list: <a href='${{ github.server_url }}/${{ github.repository }}/stargazers'>${{ github.repository }}/stargazers</a>"
+          html_body+="Stargazers list: <a href='${{ github.server_url }}/${{ github.repository }}/stargazers'>${{ github.repository }}/stargazers</a><br><br>"
+
+          html_body+='<img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=${{ github.actor }}&layout=normal&theme=algolia"><br>'
+          html_body+='<img align="center" src="https://github-readme-stats.vercel.app/api?username=${{ github.actor }}&theme=algolia&show_icons=true"><br>'
 
           echo "html_body=$html_body" >> $GITHUB_ENV
           echo "html body: ${{ env.html_body }}"
