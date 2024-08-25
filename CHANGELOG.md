@@ -1,5 +1,17 @@
 # `Easydict` Changelog
 
+## [v2.9.2] - 2024-08-25
+
+### 💎 Improvement
+
+- Support HTTP OpenAI API endpoint, thanks to [rookiezn](https://github.com/rookiezn)'s PR.
+- Removed the deprecated built-in DeepL API key.
+- Removed support for the official Youdao translation API, now only use the web API by default.
+
+### 🐞 Fixes
+
+- Fixed the issue that the argument parameter may be lost. https://github.com/tisfeng/Raycast-Easydict/pull/63
+
 ## [v2.9.1] - 2024-01-08
 
 ### 💎 Improvement
