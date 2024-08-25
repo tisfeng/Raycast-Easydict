@@ -691,7 +691,7 @@
       "type": "textfield",
       "required": false,
       "description": "Custom OpenAI API URL",
-      "default": "",
+      "default": "https://api.openai.com/v1/chat/completions",
       "placeholder": "https://api.openai.com/v1/chat/completions"
     },
     {
@@ -700,7 +700,7 @@
       "type": "textfield",
       "required": false,
       "description": "OpenAI Model",
-      "default": "gpt-3.5-turbo"
+      "default": "gpt-4o-mini"
     },
     {
       "title": "DeepL Auth Key",
