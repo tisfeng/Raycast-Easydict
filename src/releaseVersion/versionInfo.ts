@@ -38,6 +38,7 @@ export class Easydict {
 ### 💎 优化
 
 - 支持 HTTP OpenAI API endpoint，感谢 [rookiezn](https://github.com/rookiezn) 的 PR https://github.com/tisfeng/Raycast-Easydict/pull/51。
+- 支持设置 OpenAI 模型，默认为 gpt-4o-mini。
 - DeepL 翻译支持阿拉伯语 AR。
 - 移除了已废弃的内置的 DeepL API key。
 - 移除了对有道翻译官方 API 的支持，现默认只使用网页 API。

@@ -5,6 +5,7 @@
 ### 💎 Improvement
 
 - Support HTTP OpenAI API endpoint, thanks to [rookiezn](https://github.com/rookiezn)'s PR.
+- Support changing OpenAI model, default to use `gpt-4o-mini`.
 - DeepL translation supports Arabic language.
 - Removed the deprecated built-in DeepL API key.
 - Removed support for the official Youdao translation API, now only use the web API by default.
