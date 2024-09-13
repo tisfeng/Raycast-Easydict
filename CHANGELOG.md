@@ -1,5 +1,11 @@
 # `Easydict` Changelog
 
+## [v2.9.3] - 2024-09-13
+
+### 🐞 Fixed
+
+- Fixed Bing language detection API failed, which caused the query process to hang. https://github.com/raycast/extensions/issues/14357
+
 ## [v2.9.2] - 2024-08-25
 
 ### 💎 Improvement
