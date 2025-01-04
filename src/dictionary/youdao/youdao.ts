@@ -220,7 +220,7 @@ export async function requestYoudaoWebTranslate(
   const bv = md5(userAgent);
   const sign = md5("fanyideskweb" + word + salt + "Ygy_4c=r#e#4EX^NUGUc5");
 
-  const url = `${youdaoTranslatURL}/translate_o?smartresult=dict&smartresult=rule`;
+  const url = `${youdaoTranslatURL}/translate?smartresult=dict&smartresult=rule`;
   const data = {
     salt,
     sign,
