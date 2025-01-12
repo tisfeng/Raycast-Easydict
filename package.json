@@ -70,6 +70,7 @@
     "play-sound": "^1.1.6",
     "qs": "^6.11.0",
     "run-applescript": "^6.1.0",
+    "swr": "^2.2.5",
     "tencentcloud-sdk-nodejs-tmt": "^4.0.559"
   },
   "devDependencies": {
