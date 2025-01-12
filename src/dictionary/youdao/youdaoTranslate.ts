@@ -103,6 +103,7 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
   }
 }
 
+/// New Youdao web translate function, 2025.1.12
 async function webTranslate(
   text: string,
   from: string,
