@@ -40,7 +40,7 @@ export async function requestYoudaoWebTranslate(
   const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
     e.map((t) => t.tgt).join("")
   );
-  console.log(`---> translations: ${JSON.stringify(translations, null, 4)}`);
+  console.log(`---> translations: ${translations}`);
 
   const result: QueryTypeResult = {
     type: type,
@@ -103,7 +103,7 @@ async function webTranslate(
     mysticTime: ts,
     keyfrom: "fanyi.web",
     sign: sign,
-    i: encodeURIComponent(text),
+    i: text,
     from: from,
     to: to,
   };
@@ -171,5 +171,3 @@ function decryptAES(text: string, key: string, iv: string): string | null {
     return null;
   }
 }
-
-export { decryptAES as A, getYoudaoKey, m, webTranslate as translate_youdao };
