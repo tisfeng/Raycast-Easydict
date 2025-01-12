@@ -1,7 +1,7 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import CryptoJS from "crypto-js";
 import { userAgent } from "../../consts";
-import { QueryType, QueryTypeResult, QueryWordInfo, TranslationType } from "../../types";
+import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "../../types";
 import { YoudaoKey } from "./key.type";
 import { TranslateParams, YoudaoTranslateResponse } from "./translate.type";
 import { isValidYoudaoWebTranslateLanguage } from "./utils";
@@ -16,40 +16,48 @@ export async function requestYoudaoWebTranslate(
   const type = queryType ?? TranslationType.Youdao;
   const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
 
-  const youdaoKey = await getYoudaoKey();
-  console.log(`youdaoKey: ${JSON.stringify(youdaoKey, null, 4)}`);
-
-  if (!isValidLanguage || !youdaoKey) {
-    if (!youdaoKey) {
-      console.error(`---> Youdao web translate error: no Youdao Key`);
-    }
-    if (!isValidLanguage) {
-      console.warn(`---> invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
-    }
-    const undefinedResult: QueryTypeResult = {
+  let youdaoKey: YoudaoKey | null = null;
+  try {
+    youdaoKey = await getYoudaoKey();
+  } catch (error) {
+    console.error("Failed to get Youdao key:", error);
+    return Promise.reject({
       type: type,
-      result: undefined,
-      queryWordInfo: queryWordInfo,
-      translations: [],
-    };
-    return Promise.resolve(undefinedResult);
+      message: error instanceof Error ? error.message : String(error),
+      code: "KEY_ERROR",
+    } as RequestErrorInfo);
   }
 
-  const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey);
+  if (!isValidLanguage) {
+    console.warn(`---> invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
+    return Promise.reject({
+      type: type,
+      message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
+      code: "INVALID_LANGUAGE",
+    } as RequestErrorInfo);
+  }
 
-  const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
-    e.map((t) => t.tgt).join("")
-  );
-  console.log(`---> translations: ${translations}`);
+  try {
+    const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey);
+    const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
+      e.map((t) => t.tgt).join("")
+    );
+    console.log(`---> youdao web translate: ${translations}`);
 
-  const result: QueryTypeResult = {
-    type: type,
-    result: translateResponse,
-    translations: translations,
-    queryWordInfo: queryWordInfo,
-  };
-  console.log(`---> end requestYoudaoTranslate: ${queryWordInfo.word}`);
-  return result;
+    return {
+      type: type,
+      result: translateResponse,
+      translations: translations,
+      queryWordInfo: queryWordInfo,
+    };
+  } catch (error) {
+    console.error("Failed to translate:", error);
+    return Promise.reject({
+      type: type,
+      message: error instanceof Error ? error.message : String(error),
+      code: "TRANSLATE_ERROR",
+    } as RequestErrorInfo);
+  }
 }
 
 // get Youdao key. Refer: https://github.com/HolynnChen/somejs/blob/5c74682faccaa17d52740e7fe285d13de3c32dba/translate.js#L717
@@ -68,18 +76,30 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
   };
 
   try {
+    // Send request to get key
     const response = await axios.get<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
       params,
       headers: {
         Origin: "https://fanyi.youdao.com",
       },
     });
+
+    // Check response status
+    if (response.data.code !== 0) {
+      return Promise.reject({
+        type: TranslationType.Youdao,
+        message: `Failed to get Youdao key: code=${response.data.code}, msg=${response.data.msg}`,
+        code: "KEY_ERROR",
+      } as RequestErrorInfo);
+    }
+
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      throw new Error(`Failed to get Youdao key: ${error.message}`);
-    }
-    throw error;
+    return Promise.reject({
+      type: TranslationType.Youdao,
+      message: `An unknown error occurred while getting Youdao key: ${error}`,
+      code: "UNKNOWN_ERROR",
+    } as RequestErrorInfo);
   }
 }
 
@@ -108,8 +128,6 @@ async function webTranslate(
     to: to,
   };
 
-  console.log(`---> youdao web translate params: ${JSON.stringify(params, null, 4)}`);
-
   try {
     const response = await axios.post("https://dict.youdao.com/webtranslate", null, {
       params,
@@ -120,21 +138,22 @@ async function webTranslate(
       },
     });
 
-    console.log(`---> youdao web translate response: ${JSON.stringify(response.data, null, 4)}`);
-
     const decryptedData = decryptAES(response.data, aesKey, aesIv);
     if (!decryptedData) {
-      throw new Error("Failed to decrypt response data");
+      return Promise.reject({
+        type: TranslationType.Youdao,
+        message: "Failed to decrypt response data",
+        code: "DECRYPT_ERROR",
+      } as RequestErrorInfo);
     }
-
-    console.log(`---> youdao web translate decrypted data: ${decryptedData}`);
 
     return JSON.parse(decryptedData);
   } catch (error) {
-    if (error instanceof AxiosError) {
-      throw new Error(`Failed to translate: ${error.message}`);
-    }
-    throw error;
+    return Promise.reject({
+      type: TranslationType.Youdao,
+      message: `An unknown error occurred while translating: ${error}`,
+      code: "UNKNOWN_ERROR",
+    } as RequestErrorInfo);
   }
 }
 
@@ -143,15 +162,15 @@ function m(e: string): string {
 }
 
 function decryptAES(text: string, key: string, iv: string): string | null {
-  console.log("---> Start decrypting...");
-  console.log("---> Input data:", text);
+  // console.log("---> Start decrypting...");
+  // console.log("---> Input data:", text);
 
   if (!text) {
     return null;
   }
 
   text = text.replace(/-/g, "+").replace(/_/g, "/");
-  console.log("---> After replace:", text);
+  // console.log("---> After replace:", text);
 
   const a = CryptoJS.enc.Hex.parse(m(key));
   const r = CryptoJS.enc.Hex.parse(m(iv));
@@ -164,7 +183,7 @@ function decryptAES(text: string, key: string, iv: string): string | null {
     });
 
     const result = i.toString(CryptoJS.enc.Utf8);
-    console.log("---> Decryption result:", result);
+    // console.log("---> Decryption result:", result);
     return result;
   } catch (error) {
     console.error("---> Decryption error:", error);
