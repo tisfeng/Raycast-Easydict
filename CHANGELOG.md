@@ -1,5 +1,18 @@
 # `Easydict` Changelog
 
+## [v2.10.2] - 2025-02-28
+
+### ✨ New Features
+
+- Replace api key control `textfield` with `password` type. https://github.com/raycast/extensions/pull/17214
+
+## [v2.10.1] - 2025-01-12
+
+### 🐞 Fixed
+
+- Update Youdao translation API, fixed the problem that the translation failed.
+- Limit Bing retry count to 3, avoid too many retries.
+
 ## [v2.9.3] - 2024-09-13
 
 ### 🐞 Fixed
