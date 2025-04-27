@@ -30,6 +30,7 @@ import { requestDeepLTranslate } from "../translation/deepL";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestWebBingTranslate } from "../translation/microsoft/bing";
 import { requestOpenAIStreamTranslate } from "../translation/openAI/chat";
+import { requestGeminiTranslate } from "../translation/gemini";
 import { requestTencentTranslate } from "../translation/tencent";
 import { requestVolcanoTranslate } from "../translation/volcano/volcanoAPI";
 import {
@@ -156,6 +157,7 @@ export class DataManager {
     this.queryVolcanoTranslate(queryWordInfo);
     this.queryCaiyunTranslate(queryWordInfo);
     this.queryOpenAITranslate(queryWordInfo);
+    this.queryGeminiTranslate(queryWordInfo);
 
     this.delayQuery(queryWordInfo);
 
@@ -795,6 +797,33 @@ export class DataManager {
         })
         .finally(() => {
           // move to onFinish
+        });
+    }
+  }
+
+  /**
+   * Query Gemini translate.
+   */
+  private queryGeminiTranslate(queryWordInfo: QueryWordInfo) {
+    if (myPreferences.enableGeminiTranslate) {
+      const type = TranslationType.Gemini;
+      this.addQueryToRecordList(type);
+
+      requestGeminiTranslate(queryWordInfo)
+        .then((geminiTypeResult) => {
+          const queryResult: QueryResult = {
+            type: type,
+            sourceResult: geminiTypeResult,
+          };
+          this.updateTranslationDisplay(queryResult);
+        })
+        .catch((error) => {
+          if (error) {
+            showErrorToast(error);
+          }
+        })
+        .finally(() => {
+          this.removeQueryFromRecordList(type);
         });
     }
   }

@@ -52,7 +52,8 @@
     "baidu",
     "tencent",
     "eudic",
-    "openai"
+    "openai",
+    "gemini"
   ],
   "dependencies": {
     "@raycast/api": "^1.68.0",
@@ -587,7 +588,7 @@
       "default": false
     },
     {
-      "title": "Langauge Detection",
+      "title": "Language Detection",
       "name": "enableBaiduLanguageDetect",
       "type": "checkbox",
       "label": "Enable Baidu Language Detect",
@@ -628,6 +629,14 @@
       "label": "OpenAI Translate",
       "required": false,
       "description": "Turn on/off OpenAI Translate. Use system proxy by default. App Key is required.",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "name": "enableGeminiTranslate",
+      "label": "Gemini Translate",
+      "required": false,
+      "description": "Turn on/off Gemini Translate. Use system proxy by default. App Key is required.",
       "default": false
     },
     {
@@ -699,9 +708,9 @@
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, OpenAI, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun",
+      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, OpenAI, Gemini, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun",
       "default": "",
-      "placeholder": "youdao dictionary, linguee dictionary, openai, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun"
+      "placeholder": "youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun"
     },
     {
       "title": "OpenAI API Key",
@@ -727,6 +736,30 @@
       "required": false,
       "description": "OpenAI Model",
       "default": "gpt-4o-mini"
+    },
+    {
+      "title": "Gemini API Key",
+      "name": "geminiAPIKey",
+      "type": "password",
+      "required": false,
+      "description": "Your Gemini API Key",
+      "default": ""
+    },
+    {
+      "title": "Gemini Endpoint",
+      "name": "geminiAPIURL",
+      "type": "textfield",
+      "required": false,
+      "description": "Custom Gemini API URL",
+      "default": "https://generativelanguage.googleapis.com"
+    },
+    {
+      "title": "Gemini Model",
+      "name": "geminiModel",
+      "type": "textfield",
+      "required": false,
+      "description": "Gemini Model",
+      "default": "gemini-2.0-flash"
     },
     {
       "title": "DeepL Auth Key",
