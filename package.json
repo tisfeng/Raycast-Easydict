@@ -588,7 +588,7 @@
       "default": false
     },
     {
-      "title": "Langauge Detection",
+      "title": "Language Detection",
       "name": "enableBaiduLanguageDetect",
       "type": "checkbox",
       "label": "Enable Baidu Language Detect",
