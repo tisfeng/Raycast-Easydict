@@ -298,7 +298,7 @@ export class DataManager {
 
     detectLanguage(text).then((detectedLanguage) => {
       console.log(
-        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`
+        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
       );
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.

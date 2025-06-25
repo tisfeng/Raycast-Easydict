@@ -169,7 +169,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
 
         const translations = tencentResult.TargetText.split("\n");
         console.warn(
-          `---> Tencent translations: ${translations}, ${tencentResult.Source} cost: ${response.headers[requestCostTime]}`
+          `---> Tencent translations: ${translations}, ${tencentResult.Source} cost: ${response.headers[requestCostTime]}`,
         );
         const typeResult: QueryTypeResult = {
           type: type,

@@ -52,8 +52,7 @@
     "baidu",
     "tencent",
     "eudic",
-    "openai",
-    "gemini"
+    "openai"
   ],
   "dependencies": {
     "@raycast/api": "^1.100.3",
