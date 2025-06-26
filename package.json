@@ -55,6 +55,7 @@
     "openai"
   ],
   "dependencies": {
+    "@deeplx/core": "^0.1.3",
     "@raycast/api": "^1.100.3",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.10.0",
@@ -101,6 +102,11 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
+  },
+  "pnpm": {
+    "overrides": {
+      "whatlang-node": "file:./overrides/whatlang-node"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": "pnpm eslint",
@@ -644,6 +650,14 @@
       "required": false,
       "description": "Turn on/off DeepL Translate. Use system proxy by default. App Key is required.",
       "default": false
+    },
+    {
+      "type": "checkbox",
+      "name": "enableDeepLXTranslate",
+      "label": "DeepLX Translate",
+      "required": false,
+      "description": "Turn on/off DeepLX Translate. Free DeepL translation service without API key required.",
+      "default": true
     },
     {
       "name": "enableGoogleTranslate",

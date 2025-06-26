@@ -39,6 +39,8 @@ export interface MyPreferences {
   deepLAuthKey: string;
   deepLEndpoint: string;
 
+  enableDeepLXTranslate: boolean;
+
   enableGoogleTranslate: boolean;
 
   enableBingTranslate: boolean;

@@ -27,6 +27,7 @@ import { appleTranslate } from "../scripts";
 import { requestBaiduTextTranslate } from "../translation/baidu/baiduAPI";
 import { requestCaiyunTextTranslate } from "../translation/caiyun";
 import { requestDeepLTranslate } from "../translation/deepL";
+import { requestDeepLXTranslate } from "../translation/deepLX";
 import { requestGoogleTranslate } from "../translation/google";
 import { requestWebBingTranslate } from "../translation/microsoft/bing";
 import { requestOpenAIStreamTranslate } from "../translation/openAI/chat";
@@ -180,6 +181,10 @@ export class DataManager {
 
       if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
         this.queryDeepLTranslate(queryWordInfo);
+      }
+
+      if (myPreferences.enableDeepLXTranslate) {
+        this.queryDeepLXTranslate(queryWordInfo);
       }
 
       // We need to pass a abort signal, because google translate is used "got" to request, not axios.
@@ -408,6 +413,10 @@ export class DataManager {
 
       this.delayQueryWithProxy(() => {
         this.queryDeepLTranslate(queryWordInfo);
+
+        if (myPreferences.enableDeepLXTranslate) {
+          this.queryDeepLXTranslate(queryWordInfo);
+        }
       });
     }
   }
@@ -429,6 +438,32 @@ export class DataManager {
       })
       .catch((error) => {
         if (!myPreferences.enableDeepLTranslate) {
+          return;
+        }
+        showErrorToast(error);
+      })
+      .finally(() => {
+        this.removeQueryFromRecordList(type);
+      });
+  }
+
+  /**
+   * Query DeepLX translate. Free DeepL translation service.
+   */
+  private queryDeepLXTranslate(queryWordInfo: QueryWordInfo) {
+    const type = TranslationType.DeepLX;
+    this.addQueryToRecordList(type);
+
+    requestDeepLXTranslate(queryWordInfo)
+      .then((deepLXTypeResult) => {
+        const queryResult: QueryResult = {
+          type: type,
+          sourceResult: deepLXTypeResult,
+        };
+        this.updateTranslationDisplay(queryResult);
+      })
+      .catch((error) => {
+        if (!myPreferences.enableDeepLXTranslate) {
           return;
         }
         showErrorToast(error);

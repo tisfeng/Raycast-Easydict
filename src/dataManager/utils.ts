@@ -70,6 +70,7 @@ export function getSortOrder(): string[] {
     TranslationType.OpenAI,
     TranslationType.Gemini,
     TranslationType.DeepL,
+    TranslationType.DeepLX,
     TranslationType.Google,
     TranslationType.Bing,
     TranslationType.Apple,
