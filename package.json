@@ -51,8 +51,8 @@
     "youdao",
     "baidu",
     "tencent",
-    "eudic",
-    "openai"
+    "openai",
+    "gemini"
   ],
   "dependencies": {
     "@deeplx/core": "^0.1.3",
