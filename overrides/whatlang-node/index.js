@@ -3,10 +3,15 @@
  * Returns fixed values since Easydict handles language detection internally
  */
 
-export function detectLang(text, iso6393 = false) {
+function detectLang(text, iso6393 = false) {
   return iso6393 ? "eng" : "English";
 }
 
-export function detectScript(text) {
+function detectScript(text) {
   return "Latin";
 }
+
+module.exports = {
+  detectLang,
+  detectScript,
+};

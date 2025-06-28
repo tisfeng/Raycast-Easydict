@@ -103,13 +103,11 @@
     "prepare": "husky",
     "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
   },
-  "pnpm": {
-    "overrides": {
-      "whatlang-node": "file:./overrides/whatlang-node"
-    }
+  "overrides": {
+    "whatlang-node": "file:overrides/whatlang-node"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": "pnpm eslint",
+    "*.{ts,tsx,js,jsx}": "npm run eslint",
     "**/*": [
       "prettier --write . --ignore-unknown"
     ]
