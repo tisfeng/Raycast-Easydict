@@ -40,6 +40,7 @@ export enum TranslationType {
   Caiyun = "Caiyun Translate",
   Apple = "Apple Translate",
   DeepL = "DeepL Translate",
+  DeepLX = "DeepLX Translate",
   Google = "Google Translate",
   Bing = "Bing Translate",
   Volcano = "Volcano Translate",
