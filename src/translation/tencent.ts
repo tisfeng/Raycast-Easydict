@@ -242,7 +242,7 @@ export async function requestTencentSDKTranslate(queryWordInfo: QueryWordInfo): 
     const tencentResult = (await client.TextTranslate(params)) as TencentTranslateResult;
     const endTime = new Date().getTime();
     const targetText = tencentResult.TargetText || "";
-    console.log(`Tencen translate: ${targetText}, cost: ${endTime - startTime} ms`);
+    console.log(`Tencent translate: ${targetText}, cost: ${endTime - startTime} ms`);
     const typeResult: QueryTypeResult = {
       type: type,
       result: tencentResult as TencentTranslateResult,
