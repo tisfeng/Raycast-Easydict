@@ -1,15 +1,15 @@
 # `Easydict` Changelog
 
-## [v2.11.0] - 2025-07-01
+## [v2.11.0] - 2025-07-09
 
 ### ✨ New Features
 
-- Add DeepLX support (#70)
-- Add support for Gemini translation (#68)
+- Add DeepLX support
+- Add support for Gemini translation
 
 ### 💎 Improvement
 
-- Update dependencies and improve stability (#70, #69)
+- Update dependencies and improve stability
 
 ## [v2.10.2] - 2025-02-28
 

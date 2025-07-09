@@ -463,9 +463,6 @@ export class DataManager {
         this.updateTranslationDisplay(queryResult);
       })
       .catch((error) => {
-        if (!myPreferences.enableDeepLXTranslate) {
-          return;
-        }
         showErrorToast(error);
       })
       .finally(() => {
@@ -853,9 +850,7 @@ export class DataManager {
           this.updateTranslationDisplay(queryResult);
         })
         .catch((error) => {
-          if (error) {
-            showErrorToast(error);
-          }
+          showErrorToast(error);
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
