@@ -24,8 +24,7 @@ console.log(`enter audio.ts`);
 const audioDirPath = `${environment.supportPath}/audio`;
 console.log(`audio path: ${audioDirPath}`);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let audioPlayer: any; // Play
+let audioPlayer: ReturnType<typeof playerImport> | undefined;
 
 /**
  * Use play-sound to play local audio file, use say command when audio not exist. if error, use say command to play.
