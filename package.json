@@ -296,6 +296,10 @@
           "value": "my"
         },
         {
+          "title": "Norwegian",
+          "value": "no"
+        },
+        {
           "title": "Georgian",
           "value": "ka"
         },
@@ -496,6 +500,10 @@
         {
           "title": "Burmese",
           "value": "my"
+        },
+        {
+          "title": "Norwegian",
+          "value": "no"
         },
         {
           "title": "Georgian",
