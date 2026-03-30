@@ -86,7 +86,7 @@
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
+    "nano-staged": "^0.9.0",
     "prettier": "^3.8.1",
     "react": "^19.1.5",
     "typescript": "^5.9.3"
@@ -97,14 +97,14 @@
     "dev": "ray develop",
     "lint": "ray lint",
     "fix-lint": "ray lint --fix",
-    "lint-staged": "lint-staged",
+    "nano-staged": "nano-staged",
     "prepare": "husky",
     "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
   },
   "overrides": {
     "whatlang-node": "file:overrides/whatlang-node"
   },
-  "lint-staged": {
+  "nano-staged": {
     "*.{ts,tsx,js,jsx}": "npm run eslint",
     "**/*": [
       "prettier --write . --ignore-unknown"
