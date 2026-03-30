@@ -758,6 +758,15 @@
       "default": "gpt-4o-mini"
     },
     {
+      "title": "Force max_completion_tokens",
+      "name": "forceMaxCompletionTokens",
+      "type": "checkbox",
+      "label": "Always use max_completion_tokens",
+      "required": false,
+      "description": "Force using max_completion_tokens instead of max_tokens. Useful for reasoning models (e.g., o1, o3, gpt-5) or providers that require it. May break compatibility with some OpenAI-compatible APIs.",
+      "default": false
+    },
+    {
       "title": "Gemini API Key",
       "name": "geminiAPIKey",
       "type": "password",
