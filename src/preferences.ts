@@ -66,6 +66,7 @@ export interface MyPreferences {
   openAIAPIKey: string;
   openAIAPIURL: string;
   openAIModel: string;
+  forceMaxCompletionTokens: boolean;
 
   enableGeminiTranslate: boolean;
   geminiAPIKey: string;
@@ -103,6 +104,7 @@ export class AppKeyStore {
   static openAIAPIKey = myPreferences.openAIAPIKey.trim();
   static openAIEndpoint = myPreferences.openAIAPIURL.trim() || "https://api.openai.com/v1/chat/completions";
   static openAIModel = myPreferences.openAIModel.trim() || "gpt-3.5-turbo";
+  static forceMaxCompletionTokens = myPreferences.forceMaxCompletionTokens;
 
   static geminiAPIKey = myPreferences.geminiAPIKey.trim();
   static geminiEndpoint = myPreferences.geminiAPIURL.trim() || "https://generativelanguage.googleapis.com";
