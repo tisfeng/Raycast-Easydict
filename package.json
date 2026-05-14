@@ -733,8 +733,7 @@
       "name": "openAIAPIKey",
       "type": "password",
       "required": false,
-      "description": "Your OpenAI API Key",
-      "default": ""
+      "description": "Your OpenAI API Key"
     },
     {
       "title": "OpenAI Endpoint",
@@ -767,8 +766,7 @@
       "name": "geminiAPIKey",
       "type": "password",
       "required": false,
-      "description": "Your Gemini API Key",
-      "default": ""
+      "description": "Your Gemini API Key"
     },
     {
       "title": "Gemini Endpoint",
@@ -791,8 +789,7 @@
       "name": "deepLAuthKey",
       "type": "password",
       "required": false,
-      "description": "Your DeepL Auth Key",
-      "default": ""
+      "description": "Your DeepL Auth Key"
     },
     {
       "title": "DeepL API URL",
@@ -808,16 +805,14 @@
       "name": "baiduAppId",
       "type": "textfield",
       "required": false,
-      "description": "Your Baidu App ID",
-      "default": ""
+      "description": "Your Baidu App ID"
     },
     {
       "title": "Baidu App Secret",
       "name": "baiduAppSecret",
       "type": "password",
       "required": false,
-      "description": "Your Baidu App Secret",
-      "default": ""
+      "description": "Your Baidu App Secret"
     },
     {
       "title": "Tencent SecretId",
@@ -832,8 +827,7 @@
       "name": "tencentSecretKey",
       "type": "password",
       "required": false,
-      "description": "Your Tencent SecretKey",
-      "default": ""
+      "description": "Your Tencent SecretKey"
     },
     {
       "title": "Volcano Access Key ID",
@@ -848,16 +842,14 @@
       "name": "volcanoAccessKeySecret",
       "type": "password",
       "required": false,
-      "description": "Your Volcano Access Key Secret",
-      "default": ""
+      "description": "Your Volcano Access Key Secret"
     },
     {
       "title": "Caiyun Token",
       "name": "caiyunToken",
       "type": "password",
       "required": false,
-      "description": "Your Caiyun Token",
-      "default": ""
+      "description": "Your Caiyun Token"
     }
   ],
   "platforms": [
