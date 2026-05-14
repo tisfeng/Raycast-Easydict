@@ -12,69 +12,11 @@ import { environment, getPreferenceValues } from "@raycast/api";
 import crypto from "node:crypto";
 import { getLanguageItemFromYoudaoCode } from "./language/languages";
 
-export const myPreferences: MyPreferences = getPreferenceValues();
+export const myPreferences = getPreferenceValues<Preferences>();
 export const preferredLanguage1 = getLanguageItemFromYoudaoCode(myPreferences.language1);
 export const preferredLanguage2 = getLanguageItemFromYoudaoCode(myPreferences.language2);
 export const preferredLanguages = [preferredLanguage1, preferredLanguage2];
 // console.log("myPreferences: ", myPreferences);
-
-export interface MyPreferences {
-  language1: string;
-  language2: string;
-  enableAutomaticQuerySelectedText: boolean;
-  enableAutomaticPlayWordAudio: boolean;
-  enableSelectTargetLanguage: boolean;
-  servicesOrder: string;
-  showOpenInEudicFirst: boolean;
-  enableSystemProxy: boolean;
-  enableDetectLanguageSpeedFirst: boolean;
-  enableBaiduLanguageDetect: boolean;
-
-  enableYoudaoDictionary: boolean;
-  enableYoudaoTranslate: boolean;
-
-  enableLingueeDictionary: boolean;
-
-  enableDeepLTranslate: boolean;
-  deepLAuthKey: string;
-  deepLEndpoint: string;
-
-  enableDeepLXTranslate: boolean;
-
-  enableGoogleTranslate: boolean;
-
-  enableBingTranslate: boolean;
-
-  enableBaiduTranslate: boolean;
-  baiduAppId: string;
-  baiduAppSecret: string;
-
-  enableTencentTranslate: boolean;
-  tencentSecretId: string;
-  tencentSecretKey: string;
-
-  enableAppleTranslate: boolean;
-
-  enableCaiyunTranslate: boolean;
-  caiyunToken: string;
-
-  enableVolcanoTranslate: boolean;
-  volcanoAccessKeyId: string;
-  volcanoAccessKeySecret: string;
-
-  enableOpenAITranslate: boolean;
-  openAIAPIKey: string;
-  openAIAPIURL: string;
-  openAIModel: string;
-  forceMaxCompletionTokens: boolean;
-
-  enableGeminiTranslate: boolean;
-  geminiAPIKey: string;
-  geminiAPIURL: string;
-  geminiModel: string;
-
-  bingHost: string;
-}
 
 /**
  * Service keys.
