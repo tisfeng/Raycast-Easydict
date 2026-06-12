@@ -85,10 +85,10 @@
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "eslint": "^9.39.2",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "husky": "^9.1.7",
     "nano-staged": "^1.0.2",
     "prettier": "^3.8.1",
     "react": "^19.2.1",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.3"
   },
   "scripts": {
@@ -97,17 +97,20 @@
     "dev": "ray develop",
     "lint": "ray lint",
     "fix-lint": "ray lint --fix",
-    "nano-staged": "nano-staged",
-    "prepare": "husky",
+    "postinstall": "npx simple-git-hooks",
     "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
   },
   "overrides": {
     "whatlang-node": "file:overrides/whatlang-node"
   },
+  "simple-git-hooks": {
+    "pre-commit": "./node_modules/.bin/nano-staged",
+    "commit-msg": "npx --no-install commitlint --edit $1"
+  },
   "nano-staged": {
-    "*.{ts,tsx,js,jsx}": "npm run eslint",
+    "*.{ts,tsx,js,jsx}": "eslint --fix",
     "**/*": [
-      "prettier --write . --ignore-unknown"
+      "prettier --write --ignore-unknown"
     ]
   },
   "preferences": [
@@ -854,5 +857,8 @@
   ],
   "platforms": [
     "macOS"
-  ]
+  ],
+  "allowScripts": {
+    "simple-git-hooks@2.13.1": true
+  }
 }
