@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getApplications, showToast, Toast } from "@raycast/api";
+import { getApplications } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
 import { createHash } from "node:crypto";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
@@ -67,11 +68,8 @@ export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
     return;
   }
 
-  const type = errorInfo.type.toString();
-  showToast({
-    style: Toast.Style.Failure,
-    title: `${type} Error` + `${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
-    message: errorInfo.message,
+  showFailureToast(errorInfo.message, {
+    title: `${errorInfo.type} Error${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
   });
 }
 
