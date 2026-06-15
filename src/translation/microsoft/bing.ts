@@ -10,7 +10,7 @@ import { getBingLangCode, getYoudaoLangCodeFromBingCode } from "@/language/langu
 import { logTrace, logWarn, logError } from "@/devLog";
 import { myPreferences } from "@/preferences";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
-import { getTypeErrorInfo } from "@/utils";
+import { getTypeErrorInfo, getErrorMessage, getErrorName } from "@/utils";
 import { BingConfig, BingTranslateResult } from "@/translation/microsoft/types";
 
 logTrace("bing", "module loaded");
@@ -151,13 +151,13 @@ export async function requestWebBingTranslate(
       }
     })
     .catch(function (error) {
-      if (error.message === "canceled" || error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError" || getErrorMessage(error) === "canceled") {
         logTrace("bing", "canceled");
         throw undefined;
       }
 
-      logError("bing", `translate error: ${error}`);
-      const errorInfo = getTypeErrorInfo(type, error);
+      logError("bing", `translate error: ${getErrorMessage(error)}`);
+      const errorInfo = getTypeErrorInfo(type, { message: getErrorMessage(error) });
       throw errorInfo;
     });
 }

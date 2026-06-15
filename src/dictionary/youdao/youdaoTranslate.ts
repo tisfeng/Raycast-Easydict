@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { userAgent } from "@/consts";
 import { logTrace, logError, logWarn } from "@/devLog";
 import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
+import { getErrorMessage } from "@/utils";
 import { YoudaoKey } from "@/dictionary/youdao/key.type";
 import { TranslateParams, YoudaoTranslateResponse } from "@/dictionary/youdao/translate.type";
 import { isValidYoudaoWebTranslateLanguage } from "@/dictionary/youdao/utils";
@@ -25,7 +26,7 @@ export async function requestYoudaoWebTranslate(
     logError("youdaoTranslate", `failed to get Youdao key: ${error}`);
     return Promise.reject({
       type: type,
-      message: error instanceof Error ? error.message : String(error),
+      message: getErrorMessage(error),
       code: "KEY_ERROR",
     } as RequestErrorInfo);
   }
@@ -53,10 +54,16 @@ export async function requestYoudaoWebTranslate(
       queryWordInfo: queryWordInfo,
     };
   } catch (error) {
-    logError("youdaoTranslate", `failed to translate: ${error}`);
+    const errorInfo = error as RequestErrorInfo;
+    if (errorInfo.type && errorInfo.message) {
+      logError("youdaoTranslate", `failed to translate: ${errorInfo.message}`);
+      return Promise.reject(errorInfo);
+    }
+    const message = getErrorMessage(error);
+    logError("youdaoTranslate", `failed to translate: ${message}`);
     return Promise.reject({
       type: type,
-      message: error instanceof Error ? error.message : String(error),
+      message: message,
       code: "TRANSLATE_ERROR",
     } as RequestErrorInfo);
   }
@@ -160,7 +167,7 @@ async function webTranslate(
 
     return JSON.parse(decryptedData);
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = getErrorMessage(error);
     const isTooLong = message.includes("400") || message.includes("length");
     return Promise.reject({
       type: TranslationType.Youdao,

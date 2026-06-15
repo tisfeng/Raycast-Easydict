@@ -5,6 +5,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getDeepLLangCode } from "@/language/languages";
 import { logTrace, logError } from "@/devLog";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getErrorMessage } from "@/utils";
 
 /**
  * DeepLX translate API - Free DeepL translation using deeplx package
@@ -68,7 +69,7 @@ export async function requestDeepLXTranslate(
         const errorInfo: RequestErrorInfo = {
           type: deepLXType,
           code: error instanceof Error ? error.name : "unknown",
-          message: error instanceof Error ? error.message : "DeepLX translate failed",
+          message: getErrorMessage(error),
         };
 
         reject(errorInfo);

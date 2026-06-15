@@ -9,6 +9,7 @@ import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "@/language
 import { AppKeyStore } from "@/preferences";
 import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "@/types";
 import { logTrace, logWarn, logError } from "@/devLog";
+import { getErrorMessage, getErrorCode } from "@/utils";
 
 const SECRET_ID = AppKeyStore.tencentSecretId;
 const SECRET_KEY = AppKeyStore.tencentSecretKey;
@@ -169,17 +170,18 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: A
       return typeResult;
     })
     .catch((err) => {
-      if (err.message === "canceled" || err.name === "AbortError") {
+      if (err instanceof Error && (err.message === "canceled" || err.name === "AbortError")) {
         logTrace("tencent", "canceled");
         throw undefined;
       }
 
-      const error = err as { code: string; message: string };
-      logError("tencent", `translate err, code: ${error.code}, message: ${error.message}`);
+      const message = getErrorMessage(err);
+      const code = getErrorCode(err);
+      logError("tencent", `translate err, code: ${code}, message: ${message}`);
       const errorInfo: RequestErrorInfo = {
         type: type,
-        code: error.code,
-        message: error.message,
+        code: code,
+        message: message,
       };
       throw errorInfo;
     });
@@ -233,12 +235,13 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
         resolve(typeResult);
       })
       .catch((err) => {
-        const error = err as { code: string; message: string };
-        logError("tencent", `detect error, code: ${error.code}, message: ${error.message}`);
+        const message = getErrorMessage(err);
+        const code = getErrorCode(err);
+        logError("tencent", `detect error, code: ${code}, message: ${message}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
-          code: error.code,
-          message: error.message,
+          code: code,
+          message: message,
         };
         reject(errorInfo);
       });

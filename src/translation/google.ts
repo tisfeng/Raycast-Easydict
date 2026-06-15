@@ -10,6 +10,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getGoogleLangCode } from "@/language/languages";
 import { logTrace, logError } from "@/devLog";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getErrorMessage, getErrorName } from "@/utils";
 
 logTrace("google", "module loaded");
 
@@ -67,11 +68,11 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
       return result;
     })
     .catch((error) => {
-      if (error.message === "canceled" || error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError" || getErrorMessage(error) === "canceled") {
         logTrace("google", "canceled");
         throw undefined;
       }
-      logError("google", `web error: ${error}`);
+      logError("google", `web error: ${getErrorMessage(error)}`);
 
       const errorInfo: RequestErrorInfo = {
         type: TranslationType.Google,

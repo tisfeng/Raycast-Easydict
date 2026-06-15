@@ -8,6 +8,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getAppleLangCode } from "@/language/languages";
 import { logTrace, logWarn, logError } from "@/devLog";
 import { RequestErrorInfo, TranslationType } from "@/types";
+import { getErrorMessage, getErrorName } from "@/utils";
 
 const execCommandTimeout = 10000; // 10s
 
@@ -76,7 +77,9 @@ export function appleTranslate(
       return translateText;
     })
     .catch((error) => {
-      if (error.name === "AbortError" || error.killed || error.message?.includes("timed out")) {
+      const errorName = getErrorName(error);
+      const errorMessage = getErrorMessage(error);
+      if (errorName === "AbortError" || ("killed" in error && error.killed) || errorMessage.includes("timed out")) {
         logWarn("scripts", "apple translate canceled or timeout");
         return Promise.reject(undefined);
       } else {
@@ -84,7 +87,7 @@ export function appleTranslate(
         logWarn("scripts", `Apple translate error: ${appleScript}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
-          message: error.message,
+          message: errorMessage,
         };
         return Promise.reject(errorInfo);
       }

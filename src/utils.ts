@@ -3,6 +3,7 @@
 import { getApplications } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { createHash } from "node:crypto";
+import { FetchError } from "ofetch";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
 import { Easydict } from "@/releaseVersion/versionInfo";
@@ -88,6 +89,45 @@ export function getTypeErrorInfo(
     message: errorMessage,
   };
   return errorInfo;
+}
+
+/**
+ * Extract error message from unknown error object safely
+ */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof FetchError) {
+    return `${error.status} ${error.statusText}`;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String(error.message);
+  }
+  return String(error);
+}
+
+/**
+ * Extract error name from unknown error object safely
+ */
+export function getErrorName(error: unknown, fallback = "unknown"): string {
+  if (error instanceof Error) {
+    return error.name;
+  }
+  if (typeof error === "object" && error !== null && "name" in error) {
+    return String(error.name);
+  }
+  return fallback;
+}
+
+/**
+ * Extract error code from unknown error object safely
+ */
+export function getErrorCode(error: unknown, fallback = ""): string {
+  if (typeof error === "object" && error !== null && "code" in error && typeof error.code === "string") {
+    return error.code;
+  }
+  return fallback;
 }
 
 /**

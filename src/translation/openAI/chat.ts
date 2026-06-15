@@ -5,6 +5,7 @@ import { getLanguageEnglishName } from "@/language/languages";
 import { logTrace, logError } from "@/devLog";
 import { AppKeyStore } from "@/preferences";
 import { QueryTypeResult, TranslationType } from "@/types";
+import { getErrorMessage, getErrorName } from "@/utils";
 import { networkTimeout } from "@/consts";
 import { fetchSSE } from "@/translation/openAI/utils";
 
@@ -200,31 +201,8 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
       },
       onError: (err) => {
         canceled = true;
-        let errorMessage = "Unknown error";
-        let errorName = "Unknown";
-
-        if (err instanceof Error) {
-          errorMessage = err.message;
-          errorName = err.name;
-        } else if (typeof err === "object" && err !== null) {
-          if ("message" in err && typeof err.message === "string") {
-            errorMessage = err.message;
-          }
-          if (
-            "error" in err &&
-            typeof err.error === "object" &&
-            err.error !== null &&
-            "message" in err.error &&
-            typeof err.error.message === "string"
-          ) {
-            errorMessage = err.error.message;
-          }
-          if ("name" in err && typeof err.name === "string") {
-            errorName = err.name;
-          }
-        } else if (typeof err === "string") {
-          errorMessage = err;
-        }
+        let errorMessage = getErrorMessage(err);
+        const errorName = getErrorName(err, "Unknown");
 
         if (errorMessage === "canceled") {
           logTrace("openai", "canceled");

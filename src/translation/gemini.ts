@@ -3,6 +3,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { logTrace, logError } from "@/devLog";
 import { AppKeyStore } from "@/preferences";
 import { GeminiTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getErrorMessage, getErrorName } from "@/utils";
 
 /**
  * Gemini translate API using REST request
@@ -78,15 +79,16 @@ ${word}`;
         resolve(typeResult);
       })
       .catch((error) => {
-        if (error.message === "canceled" || error.name === "AbortError") {
+        if (getErrorName(error) === "AbortError" || getErrorMessage(error) === "canceled") {
           logTrace("gemini", "canceled");
           return reject(undefined);
         }
 
-        logError("gemini", `translate error: ${error}`);
+        const message = getErrorMessage(error);
+        logError("gemini", `translate error: ${message}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
-          message: error.data?.error?.message || error.message || "Unknown error",
+          message: message,
         };
         reject(errorInfo);
       });
