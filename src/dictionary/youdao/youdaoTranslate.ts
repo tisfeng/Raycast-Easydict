@@ -159,10 +159,12 @@ async function webTranslate(
 
     return JSON.parse(decryptedData);
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isTooLong = message.includes("400") || message.includes("length");
     return Promise.reject({
       type: TranslationType.Youdao,
-      message: `An unknown error occurred while translating: ${error}`,
-      code: "UNKNOWN_ERROR",
+      message: isTooLong ? "Text too long for Youdao translate" : `Youdao translate failed: ${message}`,
+      code: isTooLong ? "TEXT_TOO_LONG" : "UNKNOWN_ERROR",
     } as RequestErrorInfo);
   }
 }

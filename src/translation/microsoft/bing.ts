@@ -128,10 +128,16 @@ export async function requestWebBingTranslate(
       } else {
         retryCount = 0;
 
-        console.log(`bing response: ${JSON.stringify(responseData, null, 4)}`);
-        const bingTranslateResult = responseData[0] as BingTranslateResult;
+        const bingTranslateResult = responseData[0] as BingTranslateResult | undefined;
+        if (!bingTranslateResult?.translations?.length) {
+          throw {
+            type: TranslationType.Bing,
+            message: "Bing translate response is invalid",
+          } as RequestErrorInfo;
+        }
+
         const translations = bingTranslateResult.translations[0].text.split("\n");
-        const detectedLanguage = bingTranslateResult.detectedLanguage.language;
+        const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
         const toLanguage = bingTranslateResult.translations[0].to;
         console.log(`bing translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
 
