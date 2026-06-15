@@ -92,19 +92,18 @@ function sayCommand(text: string, youdaoLanguageId: string) {
     // replace " with blank space, otherwise say command will not work.
     text = text.replace(/"/g, " ");
     const voice = languageItem.voiceList[0]; // say -v Ting-Ting hello
+
     /**
      * Specify play rate, in words per minute. The default is?, seems has valid range.
      *
      * say -r 60 "hello"
      * say "[[rate 60]] hello"
      */
-    const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
-    logTrace("audio", sayCommand);
+    logTrace("audio", `say -v ${voice} "${text}"`);
 
-    execa(sayCommand, { shell: true }).catch((error) => {
+    execa("say", ["-v", voice, text]).catch((error) => {
       logError("audio", `sayCommand error: ${error}`);
     });
-  }
 }
 
 export function downloadWordAudioWithURL(
@@ -214,11 +213,9 @@ export function convertWavToM4a(filePath: string): Promise<string> {
   }
 
   return new Promise((resolve, reject) => {
-    const m4aFilePath = filePath.replace(".wav", ".m4a"); // the same output filePath can be omitted.
-    const afconvertCommand = `afconvert -f m4af -d aac '${filePath}' '${m4aFilePath}'`;
-    // console.log(`afconvert command: ${afconvertCommand}`);
+    const m4aFilePath = filePath.replace(".wav", ".m4a");
 
-    execa(afconvertCommand, { shell: true })
+    execa("afconvert", ["-f", "m4af", "-d", "aac", filePath, m4aFilePath])
       .then(() => {
         logTrace("audio", "conversion complete");
         fs.unlinkSync(filePath);
