@@ -12,7 +12,11 @@ import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
  * Uses the unofficial but free DeepL API client
  * https://github.com/un-ts/deeplx
  */
-export async function requestDeepLXTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export async function requestDeepLXTranslate(
+  queryWordInfo: QueryWordInfo,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request DeepLX`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLangCode(fromLanguage);

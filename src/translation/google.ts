@@ -1,8 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import querystring from "node:querystring";
+
+import { timedFetch } from "@/fetchConfig";
 
 import { userAgent } from "@/consts";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
@@ -44,45 +45,38 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
   const url = `https://translate.google.com/m?${querystring.stringify(data)}`;
   console.log(`---> google web url: ${url}`); // https://translate.google.com/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
-  const config: AxiosRequestConfig = {
+  return timedFetch(url, {
     headers,
     signal,
-  };
+    responseType: "text",
+  })
+    .then((html) => {
+      const $ = cheerio.load(html);
 
-  return new Promise((resolve, reject) => {
-    axios
-      .get(url, config)
-      .then((res: AxiosResponse) => {
-        const hmlt = res.data;
-        const $ = cheerio.load(hmlt);
+      // <div class="result-container">好的</div>
+      const translation = $(".result-container").text();
+      const translations = translation.split("\n");
+      console.warn(`---> google web translation: ${translation}`);
+      const result: QueryTypeResult = {
+        type: TranslationType.Google,
+        result: { translatedText: translation },
+        translations: translations,
+        queryWordInfo: queryWordInfo,
+      };
+      return result;
+    })
+    .catch((error) => {
+      if (error.message === "canceled" || error.name === "AbortError") {
+        console.log(`---> google web translate cancelled`);
+        throw undefined;
+      }
+      console.error(`google web error: ${error}`);
 
-        // <div class="result-container">好的</div>
-        const translation = $(".result-container").text();
-        const translations = translation.split("\n");
-        console.warn(`---> google web translation: ${translation}, cost: ${res.headers["requestCostTime"]} ms`);
-        const result: QueryTypeResult = {
-          type: TranslationType.Google,
-          result: { translatedText: translation },
-          translations: translations,
-          queryWordInfo: queryWordInfo,
-        };
-        resolve(result);
-      })
-      .catch((error) => {
-        if (error.message === "canceled") {
-          console.log(`---> google web translate cancelled`);
-          return reject(undefined);
-        }
-        console.error(`google web error: ${error}`);
+      const errorInfo: RequestErrorInfo = {
+        type: TranslationType.Google,
+        message: "Google web translate error",
+      };
 
-        const errorInfo: RequestErrorInfo = {
-          type: TranslationType.Google,
-          message: "Google web translate error",
-        };
-
-        reject(errorInfo);
-
-        // getSystemProxyURL();
-      });
-  });
+      throw errorInfo;
+    });
 }

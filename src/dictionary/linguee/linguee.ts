@@ -1,9 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import util from "util";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { userAgent } from "@/consts";
 import { DictionaryType, QueryTypeResult } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
@@ -18,7 +16,10 @@ export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
  *
  * eg. good: https://www.linguee.com/english-chinese/search?source=auto&query=good
  */
-export async function requestLingueeDictionary(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export async function requestLingueeDictionary(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request Linguee`);
 
   const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
@@ -34,26 +35,21 @@ export async function requestLingueeDictionary(queryWordInfo: QueryWordInfo): Pr
   }
 
   return new Promise((resolve, reject) => {
-    // * avoid linguee's anti-spider, otherwise it will response very slowly or even error.
-    const config: AxiosRequestConfig = {
-      headers: {
-        "User-Agent": userAgent,
-      },
-      responseType: "arraybuffer", // handle French content-type iso-8859-15
-    };
-
-    axios
-      .get(lingueeUrl, config)
-      .then((response) => {
+    timedFetch
+      .native(lingueeUrl, {
+        headers: { "User-Agent": userAgent },
+        signal,
+      })
+      .then(async (response) => {
         recordLingueeRequestTime();
 
-        const contentType = response.headers["content-type"];
-        const data: Buffer = response.data;
+        const contentType = response.headers.get("content-type");
+        const arrayBuffer = await response.arrayBuffer();
+        const data = Buffer.from(arrayBuffer);
         const html = data.toString(
           typeof contentType === "string" && contentType.includes("iso-8859-15") ? "latin1" : "utf-8",
         );
         const lingueeTypeResult = parseLingueeHTML(html);
-        console.warn(`---> linguee cost: ${response.headers[requestCostTime]} ms`);
 
         /**
          * Generally, the language of the queryWordInfo is the language of the dictionary result.
@@ -72,18 +68,15 @@ export async function requestLingueeDictionary(queryWordInfo: QueryWordInfo): Pr
         }
         resolve(lingueeTypeResult);
       })
-      .catch((error: AxiosError) => {
+      .catch((error) => {
         if (error.message === "canceled") {
           console.log(`---> linguee canceled`);
           return reject(undefined);
         }
         console.error(`---> linguee error: ${error}`);
-        console.error(`---> error response: ${util.inspect(error.response, { depth: null })}`);
 
         const errorInfo = getTypeErrorInfo(DictionaryType.Linguee, error);
-        const errorCode = error.response?.status;
-        // Request failed with status code 503, this means your ip is banned by linguee for a few hours.
-        if (errorCode === 503) {
+        if (error.status === 503) {
           errorInfo.message = "Your ip is banned by linguee for a few hours. Please try to use proxy.";
           resetLingueeRequestTime();
         }

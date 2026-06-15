@@ -1,4 +1,4 @@
-import axios from "axios";
+import { timedFetch } from "@/fetchConfig";
 import crypto from "node:crypto";
 import { userAgent } from "@/consts";
 import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
@@ -9,6 +9,7 @@ import { isValidYoudaoWebTranslateLanguage } from "@/dictionary/youdao/utils";
 export async function requestYoudaoWebTranslate(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType,
+  signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
@@ -38,7 +39,7 @@ export async function requestYoudaoWebTranslate(
   }
 
   try {
-    const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey);
+    const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey, signal);
     const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
       e.map((t) => t.tgt).join(""),
     );
@@ -79,24 +80,22 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
   };
 
   try {
-    // Send request to get key
-    const response = await axios.get<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
+    const response = await timedFetch<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
       params,
       headers: {
         Origin: "https://fanyi.youdao.com",
       },
     });
 
-    // Check response status
-    if (response.data.code !== 0) {
+    if (response.code !== 0) {
       return Promise.reject({
         type: TranslationType.Youdao,
-        message: `Failed to get Youdao key: code=${response.data.code}, msg=${response.data.msg}`,
+        message: `Failed to get Youdao key: code=${response.code}, msg=${response.msg}`,
         code: "KEY_ERROR",
       } as RequestErrorInfo);
     }
 
-    return response.data;
+    return response;
   } catch (error) {
     return Promise.reject({
       type: TranslationType.Youdao,
@@ -112,6 +111,7 @@ async function webTranslate(
   from: string,
   to: string,
   youdaoKey: YoudaoKey,
+  signal?: AbortSignal,
 ): Promise<YoudaoTranslateResponse> {
   const { secretKey, aesKey, aesIv } = youdaoKey.data;
 
@@ -136,16 +136,19 @@ async function webTranslate(
   };
 
   try {
-    const response = await axios.post("https://dict.youdao.com/webtranslate", null, {
+    const response = await timedFetch("https://dict.youdao.com/webtranslate", {
+      method: "POST",
       params,
       headers: {
         Referer: "https://fanyi.youdao.com/",
         UserAgent: userAgent,
         Cookie: "OUTFOX_SEARCH_USER_ID=1796239350@10.110.96.157;",
       },
+      responseType: "text",
+      signal,
     });
 
-    const decryptedData = decryptAES(response.data, aesKey, aesIv);
+    const decryptedData = decryptAES(response, aesKey, aesIv);
     if (!decryptedData) {
       return Promise.reject({
         type: TranslationType.Youdao,

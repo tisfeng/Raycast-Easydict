@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios from "axios";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getVolcanoLangCode, getYoudaoLangCodeFromVolcanoCode } from "@/language/languages";
@@ -17,7 +16,7 @@ console.log(`enter volcanoAPI.ts`);
  *
  * Docs: https://www.volcengine.com/docs/4640/65067
  */
-export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
   console.log(`---> start request Volcano Translate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
@@ -51,55 +50,53 @@ export function requestVolcanoTranslate(queryWordInfo: QueryWordInfo): Promise<Q
   const url = signObject.getUrl();
   const config = signObject.getConfig();
 
-  return new Promise((resolve, reject) => {
-    axios
-      .post(url, params, config)
-      .then((res) => {
-        // log res
-        console.warn(`Volcano Translate res: ${JSON.stringify(res.data, null, 4)}`);
+  return timedFetch(url, {
+    method: "POST",
+    body: params,
+    headers: config.headers,
+    signal,
+  })
+    .then((volcanoResult: VolcanoTranslateResult) => {
+      console.warn(`Volcano Translate res: ${JSON.stringify(volcanoResult, null, 4)}`);
 
-        const volcanoResult = res.data as VolcanoTranslateResult;
+      console.warn(`ResponseMetaData: ${JSON.stringify(volcanoResult.ResponseMetadata, null, 4)}`);
 
-        console.warn(`ResponseMetaData: ${JSON.stringify(volcanoResult.ResponseMetadata, null, 4)}`);
+      const volcanoError = volcanoResult.ResponseMetadata?.Error;
 
-        const volcanoError = volcanoResult.ResponseMetadata?.Error;
+      if (volcanoError) {
+        console.error(`Volcano translate error: ${JSON.stringify(volcanoResult)}`);
+        const errorInfo: RequestErrorInfo = {
+          type: type,
+          code: volcanoError.Code || "",
+          message: volcanoError.Message || "",
+        };
+        throw errorInfo;
+      }
 
-        if (volcanoError) {
-          console.error(`Volcano translate error: ${JSON.stringify(volcanoResult)}`);
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            code: volcanoError.Code || "",
-            message: volcanoError.Message || "",
-          };
-          reject(errorInfo);
-          return;
-        }
+      if (!volcanoResult.TranslationList) {
+        throw new Error("Volcano translate: no translation list");
+      }
 
-        if (volcanoResult.TranslationList) {
-          const translations = volcanoResult.TranslationList[0].Translation.split("\n");
-          const result: QueryTypeResult = {
-            type: type,
-            result: volcanoResult,
-            translations: translations,
-            queryWordInfo: queryWordInfo,
-          };
-          resolve(result);
+      const translations = volcanoResult.TranslationList[0].Translation.split("\n");
+      const result: QueryTypeResult = {
+        type: type,
+        result: volcanoResult,
+        translations: translations,
+        queryWordInfo: queryWordInfo,
+      };
+      console.log(`Volcano Translate: ${translations}`);
+      return result;
+    })
+    .catch((error) => {
+      if (error.message === "canceled" || error.name === "AbortError") {
+        console.log(`---> Volcano Translate canceled`);
+        throw undefined;
+      }
 
-          console.log(`Volcano Translate: ${translations}`);
-          console.warn(`Volcano Translate cost time: ${res.headers[requestCostTime]} ms`);
-        }
-      })
-      .catch((error) => {
-        if (error.message === "canceled") {
-          console.log(`---> Volcano Translate canceled`);
-          return reject(undefined);
-        }
-
-        console.log(`Volcano Translate err: ${JSON.stringify(error, null, 4)}`);
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
+      console.log(`Volcano Translate err: ${JSON.stringify(error, null, 4)}`);
+      const errorInfo = getTypeErrorInfo(type, error);
+      throw errorInfo;
+    });
 }
 
 /**
@@ -134,47 +131,45 @@ export function volcanoDetect(text: string): Promise<DetectedLangModel> {
   const url = signObject.getUrl();
   const config = signObject.getConfig();
 
-  return new Promise((resolve, reject) => {
-    axios
-      .post(url, params, config)
-      .then((res) => {
-        const volcanoDetectResult = res.data as VolcanoDetectResult;
-        const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
-        if (volcanoError) {
-          console.error(`Volcano detect error: ${JSON.stringify(volcanoDetectResult)}`);
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            code: volcanoError.Code || "",
-            message: volcanoError.Message || "",
-          };
-          return reject(errorInfo);
-        }
-
-        const detectedLanguage = volcanoDetectResult.DetectedLanguageList[0];
-        const volcanoLangCode = detectedLanguage.Language;
-        const youdaoLangCode = getYoudaoLangCodeFromVolcanoCode(volcanoLangCode);
-        const isConfirmed = detectedLanguage.Confidence > 0.5;
-        const detectedLanguageModel: DetectedLangModel = {
+  return timedFetch(url, {
+    method: "POST",
+    body: params,
+    headers: config.headers,
+  })
+    .then((volcanoDetectResult: VolcanoDetectResult) => {
+      const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
+      if (volcanoError) {
+        console.error(`Volcano detect error: ${JSON.stringify(volcanoDetectResult)}`);
+        const errorInfo: RequestErrorInfo = {
           type: type,
-          sourceLangCode: volcanoLangCode,
-          youdaoLangCode: youdaoLangCode,
-          confirmed: isConfirmed,
-          result: volcanoDetectResult,
+          code: volcanoError.Code || "",
+          message: volcanoError.Message || "",
         };
-        resolve(detectedLanguageModel);
+        throw errorInfo;
+      }
 
-        console.warn(`Volcano detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
-        console.warn(`Volcano detect cost time: ${res.headers[requestCostTime]} ms`);
-      })
-      .catch((error) => {
-        if (error.message === "canceled") {
-          console.log(`---> Volcano detect canceled`);
-          return reject(undefined);
-        }
+      const detectedLanguage = volcanoDetectResult.DetectedLanguageList[0];
+      const volcanoLangCode = detectedLanguage.Language;
+      const youdaoLangCode = getYoudaoLangCodeFromVolcanoCode(volcanoLangCode);
+      const isConfirmed = detectedLanguage.Confidence > 0.5;
+      const detectedLanguageModel: DetectedLangModel = {
+        type: type,
+        sourceLangCode: volcanoLangCode,
+        youdaoLangCode: youdaoLangCode,
+        confirmed: isConfirmed,
+        result: volcanoDetectResult,
+      };
+      console.warn(`Volcano detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
+      return detectedLanguageModel;
+    })
+    .catch((error) => {
+      if (error.message === "canceled" || error.name === "AbortError") {
+        console.log(`---> Volcano detect canceled`);
+        throw undefined;
+      }
 
-        console.log(`Volcano detect err: ${JSON.stringify(error, null, 4)}`);
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
+      console.log(`Volcano detect err: ${JSON.stringify(error, null, 4)}`);
+      const errorInfo = getTypeErrorInfo(type, error);
+      throw errorInfo;
+    });
 }

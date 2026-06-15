@@ -1,9 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios from "axios";
 import crypto, { BinaryToTextEncoding } from "crypto";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "@/language/languages";
@@ -36,8 +35,8 @@ const clientConfig = {
  * Docs: https://cloud.tencent.com/document/api/551/15619
  * Ref: https://github.com/raycast/extensions/blob/8ec3e04197695a78691e508f33db2044dce3e16f/extensions/itranslate/src/itranslate.shared.tsx#L426
  */
-export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.log(`---> start axios request Tencent translate`);
+export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  console.log(`---> start request Tencent translate`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLangCode(fromLanguage);
   const to = getTencentLangCode(toLanguage);
@@ -130,65 +129,59 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo): Promise<Q
     "Signature=" +
     signature;
 
-  return new Promise((resolve, reject) => {
-    axios
-      .post(`https://${endpoint}`, payload, {
-        headers: {
-          Authorization: authorization,
-          "Content-Type": "application/json; charset=utf-8",
-          Host: endpoint,
-          "X-TC-Action": action,
-          "X-TC-Timestamp": timestamp.toString(),
-          "X-TC-Version": version,
-          "X-TC-Region": region,
-        },
-      })
-      .then((response) => {
-        const tencentResult = response.data.Response as TencentTranslateResult;
-        // console.log(`---> Tencent translate result: ${JSON.stringify(tencentResult)}`);
+  return timedFetch<{ Response: TencentTranslateResult }>(`https://${endpoint}`, {
+    method: "POST",
+    body: payload,
+    headers: {
+      Authorization: authorization,
+      "Content-Type": "application/json; charset=utf-8",
+      Host: endpoint,
+      "X-TC-Action": action,
+      "X-TC-Timestamp": timestamp.toString(),
+      "X-TC-Version": version,
+      "X-TC-Region": region,
+    },
+    signal,
+  })
+    .then((data) => {
+      const tencentResult = data.Response;
 
-        // wtf: though request error, such as not supported language, Tencent will return resolve, come here!
-        const error = tencentResult.Error;
-        if (error) {
-          console.error(`Tencent axios translate error: ${error.Message}`);
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            // code: error.Code,
-            message: error.Message,
-          };
-          return reject(errorInfo);
-        }
-
-        const targetText = tencentResult.TargetText || "";
-        const translations = targetText.split("\n");
-        console.warn(
-          `---> Tencent translations: ${translations}, ${tencentResult.Source} cost: ${response.headers[requestCostTime]}`,
-        );
-        const typeResult: QueryTypeResult = {
-          type: type,
-          result: tencentResult,
-          translations: translations,
-          queryWordInfo: queryWordInfo,
-        };
-        resolve(typeResult);
-      })
-      .catch((err) => {
-        if (err.message === "canceled") {
-          console.log(`---> Tencent canceled`);
-          return reject(undefined);
-        }
-
-        // console.error(`tencent translate err: ${JSON.stringify(err, null, 4)}`);
-        const error = err as { code: string; message: string };
-        console.error(`Tencent translate err, code: ${error.code}, message: ${error.message}`);
+      const error = tencentResult.Error;
+      if (error) {
+        console.error(`Tencent translate error: ${error.Message}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
-          code: error.code,
-          message: error.message,
+          message: error.Message,
         };
-        reject(errorInfo);
-      });
-  });
+        throw errorInfo;
+      }
+
+      const targetText = tencentResult.TargetText || "";
+      const translations = targetText.split("\n");
+      console.warn(`---> Tencent translations: ${translations}, ${tencentResult.Source}`);
+      const typeResult: QueryTypeResult = {
+        type: type,
+        result: tencentResult,
+        translations: translations,
+        queryWordInfo: queryWordInfo,
+      };
+      return typeResult;
+    })
+    .catch((err) => {
+      if (err.message === "canceled" || err.name === "AbortError") {
+        console.log(`---> Tencent canceled`);
+        throw undefined;
+      }
+
+      const error = err as { code: string; message: string };
+      console.error(`Tencent translate err, code: ${error.code}, message: ${error.message}`);
+      const errorInfo: RequestErrorInfo = {
+        type: type,
+        code: error.code,
+        message: error.message,
+      };
+      throw errorInfo;
+    });
 }
 
 /**

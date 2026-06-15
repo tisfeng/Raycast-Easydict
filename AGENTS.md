@@ -19,3 +19,13 @@ Apply the `raycast-extension` skill when needed for UI components, Preferences, 
 
 - **TypeScript Interfaces for Preferences:** Do not manually define `Preferences` or `Argument` interfaces. Use `getPreferenceValues<Preferences>()` as types are auto-generated in `raycast-env.d.ts` by Raycast.
 - **Strict Schema Usage:** Do not add unnecessary optional chaining (`?.`) or fallback operators (`??`, `||`).
+
+## Release Process
+
+When creating a new release:
+
+1. **Update CHANGELOG.md** with the new version's changes (keep the date placeholder `{PR_MERGE_DATE}` — Raycast auto-fills it on merge)
+
+2. **Update `version` and `releaseMarkdown`** in `src/releaseVersion/versionInfo.ts` (must match CHANGELOG.md for this version)
+
+3. **Commit and push**

@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosRequestConfig } from "axios";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { userAgent } from "@/consts";
 import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
@@ -28,7 +27,10 @@ let retryCount = 0;
 /**
  * Request Microsoft Bing Web Translator.
  */
-export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export async function requestWebBingTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`start requestWebBingTranslate`);
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
@@ -47,7 +49,7 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
     const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
     if (storedBingConfig) {
       bingConfig = JSON.parse(storedBingConfig) as BingConfig;
-      console.log(`use stored bingConfig: ${JSON.stringify(bingConfig, null, 4)}`);
+      console.log(`use stored bingConfig, IG: ${bingConfig.IG}`);
     }
   }
 
@@ -82,81 +84,76 @@ export async function requestWebBingTranslate(queryWordInfo: QueryWordInfo): Pro
   const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
   console.log(`bing url: ${url}`);
 
-  const config: AxiosRequestConfig = {
-    method: "post",
-    url: url,
-    headers: {
-      "User-Agent": userAgent,
-    },
-    data: new URLSearchParams(data).toString(),
-  };
+  return timedFetch
+    .raw(url, {
+      method: "POST",
+      body: new URLSearchParams(data).toString(),
+      headers: {
+        "User-Agent": userAgent,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "follow",
+      signal,
+    })
+    .then(function (response) {
+      const finalUrl = response.url;
+      console.log(`bing finalUrl: ${finalUrl}`);
 
-  return new Promise((resolve, reject) => {
-    axios(config)
-      .then(function (response) {
-        const finalUrl = response.request.res.responseUrl;
-        console.log(`bing finalUrl: ${finalUrl}`);
-
-        // Get new host
-        const newBingHost = new URL(finalUrl).host;
-        const responseData = response.data;
-        console.warn(`bing translate cost time: ${response.headers[requestCostTime]}`);
-
-        // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
-        if (!responseData) {
-          if (bingHost !== newBingHost && retryCount < 3) {
-            console.warn(
-              `bing translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
-            );
-            retryCount++;
-            requestBingConfig().then((bingConfig) => {
-              if (bingConfig) {
-                requestWebBingTranslate(queryWordInfo)
-                  .then((result) => resolve(result))
-                  .catch((error) => reject(error));
-              } else {
-                return reject({
-                  type: TranslationType.Bing,
-                  message: "Bing translate response is empty, get bing config failed",
-                } as RequestErrorInfo);
-              }
-            });
-          } else {
-            return reject({
-              type: TranslationType.Bing,
-              message: "Bing translate response is empty",
-            } as RequestErrorInfo);
-          }
+      // Get new host
+      const newBingHost = new URL(finalUrl).host;
+      const responseData = response._data;
+      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
+      if (!responseData) {
+        if (bingHost !== newBingHost && retryCount < 3) {
+          console.warn(
+            `bing translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
+          );
+          retryCount++;
+          return requestBingConfig().then((bingConfig) => {
+            if (bingConfig) {
+              return requestWebBingTranslate(queryWordInfo);
+            } else {
+              throw {
+                type: TranslationType.Bing,
+                message: "Bing translate response is empty, get bing config failed",
+              } as RequestErrorInfo;
+            }
+          });
         } else {
-          retryCount = 0;
-
-          console.log(`bing response: ${JSON.stringify(responseData, null, 4)}`);
-          const bingTranslateResult = responseData[0] as BingTranslateResult;
-          const translations = bingTranslateResult.translations[0].text.split("\n");
-          const detectedLanguage = bingTranslateResult.detectedLanguage.language;
-          const toLanguage = bingTranslateResult.translations[0].to;
-          console.log(`bing translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
-
-          const result: QueryTypeResult = {
-            type: type,
-            queryWordInfo: queryWordInfo,
-            result: bingTranslateResult,
-            translations: translations,
-          };
-          resolve(result);
+          throw {
+            type: TranslationType.Bing,
+            message: "Bing translate response is empty",
+          } as RequestErrorInfo;
         }
-      })
-      .catch(function (error) {
-        if (error.message === "canceled") {
-          console.log(`---> bing canceled`);
-          return reject(undefined);
-        }
+      } else {
+        retryCount = 0;
 
-        console.error(`---> bing translate error: ${error}`);
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
+        console.log(`bing response: ${JSON.stringify(responseData, null, 4)}`);
+        const bingTranslateResult = responseData[0] as BingTranslateResult;
+        const translations = bingTranslateResult.translations[0].text.split("\n");
+        const detectedLanguage = bingTranslateResult.detectedLanguage.language;
+        const toLanguage = bingTranslateResult.translations[0].to;
+        console.log(`bing translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
+
+        const result: QueryTypeResult = {
+          type: type,
+          queryWordInfo: queryWordInfo,
+          result: bingTranslateResult,
+          translations: translations,
+        };
+        return result;
+      }
+    })
+    .catch(function (error) {
+      if (error.message === "canceled" || error.name === "AbortError") {
+        console.log(`---> bing canceled`);
+        throw undefined;
+      }
+
+      console.error(`---> bing translate error: ${error}`);
+      const errorInfo = getTypeErrorInfo(type, error);
+      throw errorInfo;
+    });
 }
 
 /**
@@ -209,40 +206,36 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
   console.log(`start requestBingConfig`);
   console.log(`config bingTld: ${bingHost}`);
 
-  return new Promise((resolve) => {
-    const url = `https://${bingHost}/translator`;
-    console.log(`get bing config url: ${url}`);
+  const url = `https://${bingHost}/translator`;
+  console.log(`get bing config url: ${url}`);
 
-    axios
-      .get(url, { headers: { "User-Agent": userAgent } })
-      .then((response) => {
-        const html = response.data as string;
-        const config = parseBingConfig(html);
-        console.log(`get bing config cost time: ${response.headers[requestCostTime]}`);
-
-        if (config) {
-          bingConfig = config;
-          resolve(config);
-          console.log(`getBingConfig from web: ${JSON.stringify(config, null, 4)}`);
-          LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
-        } else {
-          console.warn(`parse bing config failed, html: ${html}`);
-          console.log(`try check if ip in china`);
-
-          const finalUrl = response.request.res.responseUrl;
-          bingHost = new URL(finalUrl).host;
-
-          console.warn(`get bing config failed, host: ${bingHost}, change host, then request again`);
-          requestBingConfig()
-            .then((result) => resolve(result))
-            .catch(() => resolve(undefined));
-        }
-      })
-      .catch((error) => {
-        console.error(`requestBingConfig error: ${error}`);
-        resolve(undefined);
-      });
+  const response = await timedFetch.raw(url, {
+    headers: { "User-Agent": userAgent },
+    responseType: "text",
   });
+
+  const html = response._data as string;
+  const config = parseBingConfig(html);
+
+  if (config) {
+    bingConfig = config;
+    console.log(`getBingConfig from web, IG: ${config.IG}`);
+    LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
+    return config;
+  } else {
+    console.warn(`parse bing config failed, html: ${html}`);
+    console.log(`try check if ip in china`);
+
+    const finalUrl = response.url;
+    bingHost = new URL(finalUrl).host;
+
+    console.warn(`get bing config failed, host: ${bingHost}, change host, then request again`);
+    try {
+      return await requestBingConfig();
+    } catch {
+      return undefined;
+    }
+  }
 }
 
 /**

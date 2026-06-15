@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getApplications, showToast, Toast } from "@raycast/api";
-import { AxiosError } from "axios";
 import { createHash } from "node:crypto";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
@@ -68,7 +67,6 @@ export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
     return;
   }
 
-  console.error(`show error toast: ${JSON.stringify(errorInfo, null, 4)}`);
   const type = errorInfo.type.toString();
   showToast({
     style: Toast.Style.Failure,
@@ -80,9 +78,12 @@ export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
 /**
  * Get request error info.
  */
-export function getTypeErrorInfo(type: RequestType, error: AxiosError): RequestErrorInfo {
-  const errorCode = error.response?.status;
-  const errorMessage = error.response?.statusText || error.message || "something error 😭";
+export function getTypeErrorInfo(
+  type: RequestType,
+  error: { status?: number; statusText?: string; message?: string },
+): RequestErrorInfo {
+  const errorCode = error.status;
+  const errorMessage = error.statusText || error.message || "something error 😭";
   const errorInfo: RequestErrorInfo = {
     type: type,
     code: `${errorCode || ""}`,

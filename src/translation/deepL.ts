@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getDeepLLangCode } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
@@ -14,7 +13,10 @@ import { getTypeErrorInfo } from "@/utils";
  *
  * https://www.deepl.com/zh/docs-api/translating-text
  */
-export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export async function requestDeepLTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request DeepL`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLangCode(fromLanguage);
@@ -65,18 +67,19 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
   return new Promise((resolve, reject) => {
-    axios
-      .post(url, querystring.stringify(params), {
-        headers: {
-          Authorization: `DeepL-Auth-Key ${deepLAuthKey}`,
-        },
-      })
-      .then((response) => {
-        const deepLResult = response.data as DeepLTranslateResult;
+    timedFetch(url, {
+      method: "POST",
+      body: querystring.stringify(params),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `DeepL-Auth-Key ${deepLAuthKey}`,
+      },
+      signal,
+    })
+      .then((response: DeepLTranslateResult) => {
+        const deepLResult = response;
         const translatedText = deepLResult.translations[0].text;
-        console.log(
-          `DeepL translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${response.headers[requestCostTime]} ms`,
-        );
+        console.log(`DeepL translate: ${JSON.stringify(translatedText, null, 4)}`);
 
         const deepLTypeResult: QueryTypeResult = {
           type: TranslationType.DeepL,
@@ -86,8 +89,8 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
         };
         resolve(deepLTypeResult);
       })
-      .catch((error: AxiosError) => {
-        if (error.message === "canceled") {
+      .catch((error) => {
+        if (error.message === "canceled" || error.name === "AbortError") {
           console.log(`---> deepL canceled`);
           return reject(undefined);
         }
@@ -95,7 +98,7 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
         console.error("deepL error: ", error);
 
         const errorInfo = getTypeErrorInfo(TranslationType.DeepL, error);
-        const errorCode = error.response?.status;
+        const errorCode = error.status;
 
         // https://www.deepl.com/zh/docs-api/api-access/error-handling/
         if (errorCode === 456) {

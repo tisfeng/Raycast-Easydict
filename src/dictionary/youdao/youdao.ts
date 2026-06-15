@@ -1,10 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
-import axios, { AxiosError } from "axios";
-import util from "util";
+import { timedFetch } from "@/fetchConfig";
 import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "@/audio";
-import { requestCostTime } from "@/axiosConfig";
 import { userAgent } from "@/consts";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
 import { myPreferences } from "@/preferences";
@@ -45,16 +43,15 @@ function getYoudaoWebCookie(): Promise<string | undefined> {
   };
 
   return new Promise((resolve) => {
-    axios
-      .get(youdaoTranslatURL, { headers })
+    timedFetch
+      .raw(youdaoTranslatURL, { headers })
       .then((response) => {
-        const cookie = response.headers["set-cookie"];
-        if (cookie?.length && Array.isArray(cookie)) {
-          youdaoCookie = cookie.join(";");
+        const setCookie = response.headers.getSetCookie?.() || [];
+        if (setCookie.length > 0) {
+          youdaoCookie = setCookie.join(";");
           resolve(youdaoCookie);
           LocalStorage.setItem(youdaoCookieKey, youdaoCookie);
           console.log(`get web youdaoCookie: ${youdaoCookie}`);
-          console.log(`get youdaoCookie cost time: ${response.headers[requestCostTime]} ms`);
         }
       })
       .catch((error) => {
@@ -73,6 +70,7 @@ function getYoudaoWebCookie(): Promise<string | undefined> {
 export function requestYoudaoWebDictionary(
   queryWordInfo: QueryWordInfo,
   queryType?: QueryType,
+  signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
   console.log(`---> start requestYoudaoWebDictionary`);
 
@@ -110,56 +108,44 @@ export function requestYoudaoWebDictionary(
   const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
   // console.log(`dictUrl: ${dictUrl}`);
 
-  return new Promise((resolve, reject) => {
-    axios
-      .get(dictUrl)
-      .then((res) => {
-        console.log(`---> youdao web dict data: ${util.inspect(res.data, { depth: null })}`);
-        console.warn(`---> youdao web dict cost: ${res.headers[requestCostTime]} ms`);
+  return timedFetch<YoudaoWebDictionaryModel>(dictUrl, { signal })
+    .then((youdaoWebModel) => {
+      const youdaoFormatResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
+      const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
 
-        const youdaoWebModel = res.data as YoudaoWebDictionaryModel;
-        const youdaoFormatResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
-        const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
-
-        if (!youdaoQueryWordInfo.hasDictionaryEntries) {
-          const youdaoTypeResult: QueryTypeResult = {
-            type: type,
-            result: undefined,
-            queryWordInfo: queryWordInfo,
-            translations: [],
-          };
-          return resolve(youdaoTypeResult);
-        }
-
-        // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂，so we need to update it.
-        if (queryWordInfo.fromLanguage !== autoDetectLanguageItem.youdaoLangCode) {
-          youdaoQueryWordInfo.fromLanguage = queryWordInfo.fromLanguage;
-          youdaoQueryWordInfo.toLanguage = queryWordInfo.toLanguage;
-        }
-
-        const youdaoTypeResult: QueryTypeResult = {
+      if (!youdaoQueryWordInfo.hasDictionaryEntries) {
+        return {
           type: type,
-          result: youdaoFormatResult,
-          queryWordInfo: youdaoQueryWordInfo,
-          translations: youdaoFormatResult.translation.split("\n"),
-        };
-        resolve(youdaoTypeResult);
-      })
-      .catch((error: AxiosError) => {
-        if (error.message === "canceled") {
-          console.log(`---> youdao web dict canceled`);
-          return reject(undefined);
-        }
+          result: undefined,
+          queryWordInfo: queryWordInfo,
+          translations: [],
+        } as QueryTypeResult;
+      }
 
-        console.error(`---> Youdao web dict error: ${error}`);
+      // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂，so we need to update it.
+      if (queryWordInfo.fromLanguage !== autoDetectLanguageItem.youdaoLangCode) {
+        youdaoQueryWordInfo.fromLanguage = queryWordInfo.fromLanguage;
+        youdaoQueryWordInfo.toLanguage = queryWordInfo.toLanguage;
+      }
 
-        // It seems that Youdao will never reject, always resolve...
-        // ? Error: write EPROTO 6180696064:error:1425F102:SSL routines:ssl_choose_client_version:unsupported protocol:../deps/openssl/openssl/ssl/statem/statem_lib.c:1994:
+      return {
+        type: type,
+        result: youdaoFormatResult,
+        queryWordInfo: youdaoQueryWordInfo,
+        translations: youdaoFormatResult.translation.split("\n"),
+      };
+    })
+    .catch((error) => {
+      if (error.message === "canceled" || error.name === "AbortError") {
+        console.log(`---> youdao web dict canceled`);
+        throw undefined;
+      }
 
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
+      console.error(`---> Youdao web dict error: ${error}`);
+
+      const errorInfo = getTypeErrorInfo(type, error);
+      throw errorInfo;
+    });
 }
 
 /**

@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getBaiduLangCode, getYoudaoLangCodeFromBaiduCode, isValidLangCode } from "@/language/languages";
@@ -21,7 +20,10 @@ import { getTypeErrorInfo, md5 } from "@/utils";
  *
  * 百度翻译 API https://fanyi-api.baidu.com/doc/21
  */
-export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestBaiduTextTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request Baidu translate`);
 
   const type = TranslationType.Baidu;
@@ -60,16 +62,13 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
   // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
 
   return new Promise((resolve, reject) => {
-    axios
-      .get(url, { params })
-      .then((response) => {
-        const baiduResult = response.data as BaiduTranslateResult;
+    timedFetch(url, { params, signal })
+      .then((response: BaiduTranslateResult) => {
+        const baiduResult = response;
         // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
         if (baiduResult.trans_result) {
           const translations = baiduResult.trans_result.map((item) => item.dst);
-          console.warn(
-            `Baidu translate: ${translations}, ${baiduResult.from}, cost: ${response.headers[requestCostTime]} ms`,
-          );
+          console.warn(`Baidu translate: ${translations}, ${baiduResult.from}`);
           const result: QueryTypeResult = {
             type: type,
             result: baiduResult,
@@ -87,8 +86,8 @@ export function requestBaiduTextTranslate(queryWordInfo: QueryWordInfo): Promise
           reject(errorInfo);
         }
       })
-      .catch((error: AxiosError) => {
-        if (error.message === "canceled") {
+      .catch((error) => {
+        if (error.message === "canceled" || error.name === "AbortError") {
           console.log(`---> baidu translate canceled`);
           return reject(undefined);
         }
@@ -111,18 +110,22 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
   return new Promise((resolve, reject) => {
     const url = "https://fanyi.baidu.com/langdetect";
     const params = { query: text };
-    axios
-      .post(url, querystring.stringify(params))
-      .then((response) => {
-        // console.log(`---> web Baidu language detect response: ${JSON.stringify(response.data)}`);
+    timedFetch(url, {
+      method: "POST",
+      body: querystring.stringify(params),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
+      .then((response: BaiduWebLanguageDetect) => {
+        // console.log(`---> web Baidu language detect response: ${JSON.stringify(response)}`);
 
-        const baiduWebLanguageDetect = response.data as BaiduWebLanguageDetect;
+        const baiduWebLanguageDetect = response;
         if (baiduWebLanguageDetect.error === 0) {
           const baiduLanguageId = baiduWebLanguageDetect.lan || "";
           const youdaoLanguageId = getYoudaoLangCodeFromBaiduCode(baiduLanguageId);
           const isConfirmed = isValidLangCode(youdaoLanguageId);
 
-          console.warn(`---> Baidu detect cost: ${response.headers[requestCostTime]} ms`);
           console.warn(`---> Baidu detect language: ${baiduLanguageId}, youdaoId: ${youdaoLanguageId}`);
 
           const detectedLanguageResult: DetectedLangModel = {
@@ -141,7 +144,7 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
         }
       })
       .catch((error) => {
-        if (error.message === "canceled") {
+        if (error.message === "canceled" || error.name === "AbortError") {
           console.log(`---> baidu detect canceled`);
           return reject(undefined);
         }

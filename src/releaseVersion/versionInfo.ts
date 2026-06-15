@@ -1,12 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
-import axios from "axios";
-import { requestCostTime } from "@/axiosConfig";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";
-const githubApiUrl = "https://api.github.com";
 
 /**
  * Used for new release prompt.
@@ -19,13 +16,11 @@ export class Easydict {
 
   // * NOTE: this is new version info, don't use it directly. Use getCurrentStoredVersionInfo() instead.
   version = "2.11.3";
-  buildNumber = 30;
-  versionDate = "2026-05-15";
   isNeedPrompt = true;
   hasPrompted = false; // * always default false, only show once, then should be set to true.
 
   releaseMarkdown = `
-## [v${this.version}] - ${this.versionDate}
+## [v${this.version}]
 
 ### 💎 改进
 
@@ -71,17 +66,6 @@ export class Easydict {
    */
   public getChineseWikiUrl() {
     return `${this.getRepoUrl()}/wiki`;
-  }
-
-  /**
-   *  Release tag url: /repos/{owner}/{repo}/releases/tags/{tag}
-   *
-   * * call this url will return a JSON object.
-   *
-   *  https://api.github.com/repos/tisfeng/Raycast-Easydict/releases/tags/1.2.0
-   */
-  public getReleaseApiUrl() {
-    return `${githubApiUrl}/repos/${Easydict.author}/${Easydict.repo}/releases/tags/${this.version}`;
   }
 
   /**
@@ -133,52 +117,10 @@ export class Easydict {
   }
 
   /**
-   * Fetch release markdown, return a promise string. First, fetech markdown from github, if failed, then read from localStorage.
-   *
-   * * only show prompt once, whether fetch release markdown from github successful or failed.
+   * Get release markdown from local storage.
    */
   public async fetchReleaseMarkdown(): Promise<string> {
-    try {
-      console.log(`fetch release markdown from github: ${this.getReleaseApiUrl()}`);
-      const releaseInfo = await this.fetchReleaseInfo(this.getReleaseApiUrl());
-      const releaseMarkdown = releaseInfo.body;
-      console.log("fetch release markdown from github success");
-      if (releaseMarkdown) {
-        this.releaseMarkdown = releaseMarkdown;
-        this.hasPrompted = true; // need to set hasPrompted to true when user viewed `ReleaseDetail` page.
-        return Promise.resolve(releaseMarkdown);
-      } else {
-        console.error("fetch release markdown from github failed");
-        return this.getLocalStoredMarkdown();
-      }
-    } catch (error) {
-      console.error(`fetch release error: ${error}`);
-      this.hasPrompted = true;
-      return this.getLocalStoredMarkdown(); // getLocalStoredMarkdown() will store this info first.
-    }
-  }
-
-  /**
-   * Get local stored markdown, return a promise string.
-   */
-  public async getLocalStoredMarkdown(): Promise<string> {
-    console.log(`get local storaged markdown`);
     const currentVersionInfo = await this.getCurrentVersionInfo();
     return Promise.resolve(currentVersionInfo.releaseMarkdown);
   }
-
-  /**
-   * Use axios to get github latest release, return a promise
-   */
-  public fetchReleaseInfo = async (releaseUrl: string) => {
-    try {
-      // console.log(`fetch release url: ${releaseUrl}`);
-      const response = await axios.get(releaseUrl);
-      console.log(`fetch github cost time: ${response.headers[requestCostTime]} ms`);
-
-      return Promise.resolve(response.data);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  };
 }

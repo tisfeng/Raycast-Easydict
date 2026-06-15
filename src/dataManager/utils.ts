@@ -180,19 +180,12 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
  * Get show more detail markdown.
  */
 export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
-  console.log(`getShowMoreDetailMarkdown`);
-
   const { queryType, displayType, title, subtitle, copyText, detailsMarkdown } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
   const type = queryType.toString();
   const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
   const fromToTitle = `${type}  (${fromToLang})`;
-
-  console.log(`fromToTitle: ${fromToTitle}`);
-  console.log(`word: ${word}`);
-  console.log(`title: ${title}`);
-  console.log(`copyText: ${copyText}`);
 
   let markdown = "";
 
@@ -207,7 +200,6 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
     copyText.split("\n").forEach((line) => {
       markdown += `${line} \n\n`;
     });
-    console.log(`markdown: ${markdown}`);
 
     return markdown;
   }
@@ -250,7 +242,6 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
 ----
 ${explanation}
 `;
-  console.log(`markdown: ${markdown}`);
 
   return markdown;
 }

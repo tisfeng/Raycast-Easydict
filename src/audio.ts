@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
-import axios from "axios";
+import { timedFetch } from "@/fetchConfig";
 import { ExecException } from "child_process";
 import { execa } from "execa";
 import { fileTypeFromFile } from "file-type";
@@ -135,20 +135,18 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
   }
   console.log(`start download audio, url: ${url}`);
 
-  axios
-    .get(url, { responseType: "stream" })
-    .then(async (response) => {
-      const fileStream = fs.createWriteStream(audioPath);
-
-      response.data.pipe(fileStream);
-      fileStream.on("finish", async () => {
-        fileStream.close();
-        await tryConvertAudioToM4a(audioPath);
-        callback?.();
-      });
+  timedFetch(url, {
+    responseType: "blob",
+  })
+    .then(async (blob) => {
+      const arrayBuffer = await blob.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      fs.writeFileSync(audioPath, buffer);
+      await tryConvertAudioToM4a(audioPath);
+      callback?.();
     })
     .catch((error) => {
-      if (error.message === "canceled") {
+      if (error.message === "canceled" || error.name === "AbortError") {
         console.log(`---> download audio canceled`);
         return;
       }

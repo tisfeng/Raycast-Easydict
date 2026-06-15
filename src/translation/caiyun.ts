@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import axios, { AxiosError } from "axios";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getCaiyunLangCode } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
@@ -13,7 +12,10 @@ import { getTypeErrorInfo } from "@/utils";
  *
  * 彩云小译  https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
-export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export function requestCaiyunTextTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request Caiyun`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
@@ -50,12 +52,16 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
   };
 
   return new Promise((resolve, reject) => {
-    axios
-      .post(url, params, config)
-      .then((response) => {
-        const caiyunResult = response.data as CaiyunTranslateResult;
+    timedFetch(url, {
+      method: "POST",
+      body: params,
+      headers: config.headers,
+      signal,
+    })
+      .then((response: CaiyunTranslateResult) => {
+        const caiyunResult = response;
         const translations = caiyunResult.target;
-        console.log(`Caiyun translate: ${translations}, cost: ${response.headers[requestCostTime]} ms`);
+        console.log(`Caiyun translate: ${translations}`);
         resolve({
           type: type,
           result: caiyunResult,
@@ -63,14 +69,13 @@ export function requestCaiyunTextTranslate(queryWordInfo: QueryWordInfo): Promis
           queryWordInfo: queryWordInfo,
         });
       })
-      .catch((error: AxiosError) => {
-        if (error.message === "canceled") {
+      .catch((error) => {
+        if (error.message === "canceled" || error.name === "AbortError") {
           console.log(`---> caiyun canceled`);
           return reject(undefined);
         }
 
         console.error(`---> Caiyun translate error: ${error}`);
-        console.error("caiyun error response: ", error.response);
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });

@@ -2,7 +2,6 @@ import { OpenAITranslateResult, QueryWordInfo } from "@/types";
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
-import axios from "axios";
 
 import { detectLanguage } from "@/detectLanguage/detect";
 import { DetectedLangModel } from "@/detectLanguage/types";
@@ -91,6 +90,7 @@ export class DataManager {
   enableYoudaoDictionary = true;
 
   abortController?: AbortController;
+  abortSignal?: AbortSignal;
 
   delayQueryTimer?: NodeJS.Timeout;
   delayAppleTranslateTimer?: NodeJS.Timeout;
@@ -323,7 +323,7 @@ export class DataManager {
 
     const abortController = new AbortController();
     this.abortController = abortController;
-    axios.defaults.signal = abortController.signal;
+    this.abortSignal = abortController.signal;
   }
 
   /**
@@ -336,7 +336,7 @@ export class DataManager {
       const type = DictionaryType.Linguee;
       this.addQueryToRecordList(type);
 
-      requestLingueeDictionary(queryWordInfo)
+      requestLingueeDictionary(queryWordInfo, this.abortSignal)
         .then((lingueeTypeResult) => {
           const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
           if (lingueeDisplaySections.length === 0) {
@@ -393,7 +393,7 @@ export class DataManager {
     const type = TranslationType.DeepL;
     this.addQueryToRecordList(type);
 
-    requestDeepLTranslate(queryWordInfo)
+    requestDeepLTranslate(queryWordInfo, this.abortSignal)
       .then((deepLTypeResult) => {
         const queryResult: QueryResult = {
           type: type,
@@ -419,7 +419,7 @@ export class DataManager {
     const type = TranslationType.DeepLX;
     this.addQueryToRecordList(type);
 
-    requestDeepLXTranslate(queryWordInfo)
+    requestDeepLXTranslate(queryWordInfo, this.abortSignal)
       .then((deepLXTypeResult) => {
         const queryResult: QueryResult = {
           type: type,
@@ -443,7 +443,7 @@ export class DataManager {
       const type = queryType ?? DictionaryType.Youdao;
       this.addQueryToRecordList(type);
 
-      requestYoudaoWebDictionary(queryWordInfo, type)
+      requestYoudaoWebDictionary(queryWordInfo, type, this.abortSignal)
         .then((youdaoDictionaryResult) => {
           // console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 4)}`);
 
@@ -533,7 +533,7 @@ export class DataManager {
       const type = TranslationType.Bing;
       this.addQueryToRecordList(type);
 
-      requestWebBingTranslate(queryWordInfo)
+      requestWebBingTranslate(queryWordInfo, this.abortSignal)
         .then((bingTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -594,7 +594,7 @@ export class DataManager {
       const type = TranslationType.Baidu;
       this.addQueryToRecordList(type);
 
-      requestBaiduTextTranslate(queryWordInfo)
+      requestBaiduTextTranslate(queryWordInfo, this.abortSignal)
         .then((baiduTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -619,7 +619,7 @@ export class DataManager {
       const type = TranslationType.Tencent;
       this.addQueryToRecordList(type);
 
-      requestTencentTranslate(queryWordInfo)
+      requestTencentTranslate(queryWordInfo, this.abortSignal)
         .then((tencentTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -644,7 +644,7 @@ export class DataManager {
       const type = TranslationType.Volcano;
       this.addQueryToRecordList(type);
 
-      requestVolcanoTranslate(queryWordInfo)
+      requestVolcanoTranslate(queryWordInfo, this.abortSignal)
         .then((volcanoTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -675,7 +675,7 @@ export class DataManager {
       const type = TranslationType.Youdao;
       this.addQueryToRecordList(type);
 
-      requestYoudaoWebTranslate(queryWordInfo, type)
+      requestYoudaoWebTranslate(queryWordInfo, type, this.abortSignal)
         .then((youdaoTypeResult) => {
           youdaoTypeResult.type = type;
           const queryResult: QueryResult = {
@@ -706,7 +706,7 @@ export class DataManager {
       const type = TranslationType.Caiyun;
       this.addQueryToRecordList(type);
 
-      requestCaiyunTextTranslate(queryWordInfo)
+      requestCaiyunTextTranslate(queryWordInfo, this.abortSignal)
         .then((caiyunTypeResult) => {
           const queryResult: QueryResult = {
             type: type,
@@ -806,7 +806,7 @@ export class DataManager {
       const type = TranslationType.Gemini;
       this.addQueryToRecordList(type);
 
-      requestGeminiTranslate(queryWordInfo)
+      requestGeminiTranslate(queryWordInfo, this.abortSignal)
         .then((geminiTypeResult) => {
           const queryResult: QueryResult = {
             type: type,

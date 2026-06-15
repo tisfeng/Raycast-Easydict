@@ -79,12 +79,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
   const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(props.isShowingReleasePrompt);
 
   const displayItem = props.displayItem;
-  const { queryWordInfo, queryType, displayType, copyText, detailsMarkdown } = displayItem;
+  const { queryWordInfo, queryType, copyText } = displayItem;
   const { word, fromLanguage, toLanguage } = queryWordInfo;
-
-  console.log(`---> current list type: ${queryType}, ${displayType}`);
-  console.log(`copyText: ${copyText}`);
-  console.log(`detailsMarkdown: ${detailsMarkdown}`);
 
   const showMoreDetailMarkdown = getShowMoreDetailMarkdown(displayItem);
 

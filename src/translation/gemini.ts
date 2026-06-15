@@ -1,19 +1,15 @@
-import axios, { AxiosError } from "axios";
-import { requestCostTime } from "@/axiosConfig";
+import { timedFetch } from "@/fetchConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { AppKeyStore } from "@/preferences";
 import { GeminiTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
-interface GeminiErrorResponse {
-  error: {
-    message: string;
-  };
-}
-
 /**
  * Gemini translate API using REST request
  */
-export async function requestGeminiTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
+export async function requestGeminiTranslate(
+  queryWordInfo: QueryWordInfo,
+  signal?: AbortSignal,
+): Promise<QueryTypeResult> {
   console.log(`---> start request Gemini`);
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const type = TranslationType.Gemini;
@@ -49,10 +45,14 @@ ${word}`;
   };
 
   return new Promise((resolve, reject) => {
-    axios
-      .post(url, { ...data }, { headers: { "Content-Type": "application/json" } })
+    timedFetch(url, {
+      method: "POST",
+      body: data,
+      headers: { "Content-Type": "application/json" },
+      signal,
+    })
       .then((response) => {
-        const result = response.data;
+        const result = response;
         console.log(`---> Gemini translate result: ${JSON.stringify(result)}`);
 
         if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -60,7 +60,7 @@ ${word}`;
         }
 
         const translatedText = result.candidates[0].content.parts[0].text.trim();
-        console.log(`Gemini translate result: ${translatedText}, cost: ${response.headers[requestCostTime]} ms`);
+        console.log(`Gemini translate result: ${translatedText}`);
 
         const geminiResult: GeminiTranslateResult = {
           translatedText: translatedText,
@@ -76,8 +76,8 @@ ${word}`;
 
         resolve(typeResult);
       })
-      .catch((error: AxiosError<GeminiErrorResponse>) => {
-        if (error.message === "canceled") {
+      .catch((error) => {
+        if (error.message === "canceled" || error.name === "AbortError") {
           console.log(`---> gemini canceled`);
           return reject(undefined);
         }
@@ -85,7 +85,7 @@ ${word}`;
         console.error("Gemini translate error:", error);
         const errorInfo: RequestErrorInfo = {
           type: type,
-          message: error.response?.data?.error?.message || error.message || "Unknown error",
+          message: error.data?.error?.message || error.message || "Unknown error",
         };
         reject(errorInfo);
       });
