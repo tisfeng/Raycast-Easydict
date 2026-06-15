@@ -7,11 +7,6 @@ import { QueryTypeResult, TranslationType } from "@/types";
 import { networkTimeout } from "@/consts";
 import { fetchSSE } from "@/translation/openAI/utils";
 
-const controller = new AbortController();
-const timeout = setTimeout(() => {
-  controller.abort();
-}, networkTimeout); // set timeout to 15s.
-
 const REASONING_MODEL_PATTERN = /^(o1|o3|gpt-5)/i;
 
 const KNOWN_ENDPOINTS = ["https://api.openai.com/"];
@@ -131,10 +126,12 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
   const type = TranslationType.OpenAI;
 
   let isFirst = true;
-
-  let resultText = "";
-  let targetTxt = "";
-  let openAIResult: QueryTypeResult;
+  const chunks: string[] = [];
+  let canceled = false;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, networkTimeout);
 
   return new Promise((resolve, reject) => {
     fetchSSE(`${url}`, {
@@ -143,7 +140,7 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
       body: JSON.stringify(params),
       signal: controller.signal,
       onMessage: (msg) => {
-        // console.warn(`---> openai msg: ${JSON.stringify(msg)}`);
+        if (canceled) return;
         clearTimeout(timeout);
 
         let resp;
@@ -165,9 +162,9 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
           return;
         }
         const { content = "", role } = delta;
-        targetTxt = content;
+        let targetTxt = content;
 
-        const leftQuotes = ['"', "“", "'", "「"];
+        const leftQuotes = ['"', "\u201C", "'", "\u300C"];
         const firstQueryTextChar = queryWordInfo.word[0];
         const firstTranslatedTextChar = targetTxt[0];
         if (
@@ -179,14 +176,19 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
           targetTxt = targetTxt.slice(1);
         }
 
-        // console.warn(`---> openai targetTxt: ${targetTxt}`);
-        resultText += targetTxt;
-
         if (!role) {
           isFirst = false;
         }
 
-        openAIResult = {
+        chunks.push(targetTxt);
+
+        if (queryWordInfo.onMessage) {
+          queryWordInfo.onMessage({ content: targetTxt, role });
+        }
+      },
+      onDone: () => {
+        const resultText = chunks.join("");
+        const openAIResult: QueryTypeResult = {
           type,
           queryWordInfo,
           translations: [resultText],
@@ -194,14 +196,10 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
             translatedText: resultText,
           },
         };
-        // query.onMessage({ content: targetTxt, role });
-        if (queryWordInfo.onMessage) {
-          queryWordInfo.onMessage({ content: targetTxt, role });
-        }
-
         resolve(openAIResult);
       },
       onError: (err) => {
+        canceled = true;
         let errorMessage = "Unknown error";
         let errorName = "Unknown";
 

@@ -1,8 +1,7 @@
-import { OpenAITranslateResult, QueryWordInfo } from "@/types";
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
-
+import { OpenAITranslateResult, QueryWordInfo } from "@/types";
 import { detectLanguage } from "@/detectLanguage/detect";
 import { DetectedLangModel } from "@/detectLanguage/types";
 import { requestLingueeDictionary } from "@/dictionary/linguee/linguee";
@@ -33,6 +32,7 @@ import {
   QueryResult,
   QueryType,
   QueryTypeResult,
+  TranslationItem,
   TranslationType,
 } from "@/types";
 import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "@/utils";
@@ -41,7 +41,8 @@ import {
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
   sortedQueryResults,
-  updateTranslationMarkdown,
+  getTranslationMarkdown,
+  applyTranslationMarkdown,
 } from "@/dataManager/utils";
 import { YoudaoDictionaryFormatResult } from "@/dictionary/youdao/types";
 
@@ -216,7 +217,6 @@ export class DataManager {
    * 2. Update display sections.
    */
   private updateQueryResultAndSections(queryResult: QueryResult) {
-    console.log(`update query sections: ${queryResult.type}`);
 
     this.updateQueryResult(queryResult);
     this.updateDataDisplaySections();
@@ -225,12 +225,17 @@ export class DataManager {
   /**
    * update query result.
    *
-   * 1.push new result to queryResults.
+   * 1.update existing result or push new result to queryResults.
    * 2.sort queryResults.
    * 3.update dictionary section title.
    */
   private updateQueryResult(queryResult: QueryResult) {
-    this.queryResults.push(queryResult);
+    const existingIndex = this.queryResults.findIndex((r) => r.type === queryResult.type);
+    if (existingIndex >= 0) {
+      this.queryResults[existingIndex] = queryResult;
+    } else {
+      this.queryResults.push(queryResult);
+    }
     this.queryResults = sortedQueryResults(this.queryResults);
   }
 
@@ -244,12 +249,21 @@ export class DataManager {
     this.isShowDetail = checkIfShowTranslationDetail(this.queryResults);
     this.updateTypeSectionTitle();
 
+    const translations = [] as TranslationItem[];
+    for (const queryResult of this.queryResults) {
+      const { type, sourceResult } = queryResult;
+      if (sourceResult && checkIsTranslationType(type)) {
+        const typeStr = sourceResult.type as TranslationType;
+        const markdownTranslation = getTranslationMarkdown(sourceResult);
+        translations.push({ type: typeStr, text: markdownTranslation });
+      }
+    }
+
     const displaySections: DisplaySection[][] = [];
     for (const queryResult of this.queryResults) {
       const shouldDisplay = !queryResult.hideDisplay;
       if (shouldDisplay && queryResult.displaySections?.length) {
-        // console.log(`---> update display sections: ${queryResult.type}, length: ${queryResult.displaySections.length}`);
-        updateTranslationMarkdown(queryResult, this.queryResults);
+        applyTranslationMarkdown(queryResult, translations);
         displaySections.push(queryResult.displaySections);
       }
     }
@@ -732,41 +746,52 @@ export class DataManager {
       this.addQueryToRecordList(type);
 
       let openAIQueryResult: QueryResult | undefined;
+      let updateTimer: ReturnType<typeof setTimeout> | undefined;
+      const chunks: string[] = [];
 
-      queryWordInfo.onMessage = (message) => {
-        const resultText = message.content;
-        console.warn(`onMessage content: ${message.content}`);
+      const flushUpdate = (finalText?: string) => {
         if (openAIQueryResult) {
           const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
-          const translatedText = openAIResult.translatedText + message.content;
+          const translatedText = finalText !== undefined ? finalText : chunks.join("");
           openAIResult.translatedText = translatedText;
           openAIQueryResult.sourceResult.translations = [translatedText];
           this.updateTranslationDisplay(openAIQueryResult);
-          console.warn(`onMessage: ${translatedText}`);
-        } else {
+        }
+      };
+
+      queryWordInfo.onMessage = (message) => {
+        chunks.push(message.content);
+        if (!openAIQueryResult) {
           openAIQueryResult = {
             type: type,
             sourceResult: {
               type,
               queryWordInfo,
-              translations: [resultText],
+              translations: [message.content],
               result: {
-                translatedText: resultText,
+                translatedText: message.content,
               },
             },
           };
-          this.updateTranslationDisplay(openAIQueryResult);
+        }
+        if (!updateTimer) {
+          updateTimer = setTimeout(() => {
+            updateTimer = undefined;
+            flushUpdate();
+          }, 100);
         }
       };
       queryWordInfo.onFinish = (value) => {
         console.warn(`onFinish content: ${value}`);
 
         if (value === "stop") {
+          if (updateTimer) {
+            clearTimeout(updateTimer);
+            updateTimer = undefined;
+          }
           if (openAIQueryResult) {
-            const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
-            let translatedText = openAIResult.translatedText;
-            // If the translated last char contains ["”", '"', "」"], remove it.
-            const rightQuotes = ['"', "”", "'", "」"];
+            let translatedText = chunks.join("");
+            const rightQuotes = ['"', "\u201D", "'", "\u300D"];
             if (translatedText.length > 0) {
               const lastQueryTextChar = queryWordInfo.word[queryWordInfo.word.length - 1];
               const lastTranslatedTextChar = translatedText[translatedText.length - 1];
@@ -775,10 +800,7 @@ export class DataManager {
               }
             }
 
-            openAIResult.translatedText = translatedText;
-            openAIQueryResult.sourceResult.translations = [translatedText];
-            this.updateTranslationDisplay(openAIQueryResult);
-            console.warn(`onFinish translatedText: ${translatedText}`);
+            flushUpdate(translatedText);
           }
           this.removeQueryFromRecordList(type);
         }
@@ -867,7 +889,7 @@ export class DataManager {
    */
   private updateTranslationDisplay(queryResult: QueryResult) {
     const { type, sourceResult } = queryResult;
-    console.log(`---> updateTranslationDisplay: ${type}`);
+
     if (!sourceResult.result) {
       console.warn(`---> ${type} result is empty.`);
       return;

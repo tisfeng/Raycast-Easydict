@@ -9,11 +9,12 @@ interface FetchSSEOptions {
   body?: string;
   signal?: AbortSignal;
   onMessage(data: string): void;
+  onDone?(): void;
   onError(error: unknown): void;
 }
 
 export async function fetchSSE(input: string, options: FetchSSEOptions) {
-  const { onMessage, onError, ...fetchOptions } = options;
+  const { onMessage, onDone, onError, ...fetchOptions } = options;
   try {
     const stream = await timedFetch(input, {
       ...fetchOptions,
@@ -37,6 +38,7 @@ export async function fetchSSE(input: string, options: FetchSSEOptions) {
         parser.feed(str);
       }
     }
+    onDone?.();
   } catch (error) {
     onError(error);
   }

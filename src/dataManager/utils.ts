@@ -128,7 +128,6 @@ export function isTextOneLineTooLong(text: string, textLanguage: string): boolea
     isTooLong = true;
   }
   if (isTooLong) {
-    console.log(`---> check is too long: ${isTooLong}, ${textLanguage}, length: ${text.length}`);
   }
   return isTooLong;
 }
@@ -249,7 +248,7 @@ ${explanation}
 /**
  * Get translation markdown.
  */
-function getTranslationMarkdown(sourceResult: QueryTypeResult) {
+export function getTranslationMarkdown(sourceResult: QueryTypeResult) {
   const { type, translations, queryWordInfo: wordInfo } = sourceResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {
@@ -268,24 +267,16 @@ ${text}
 }
 
 /**
- * Update translation markdown.
+ * Apply precomputed translation markdown.
  */
-export function updateTranslationMarkdown(queryResult: QueryResult, queryResults: QueryResult[]) {
+export function applyTranslationMarkdown(queryResult: QueryResult, baseTranslations: TranslationItem[]) {
   const { sourceResult, displaySections } = queryResult;
-  if (!sourceResult || !displaySections?.length) {
+  if (!sourceResult || !displaySections?.length || baseTranslations.length === 0) {
     return;
   }
 
-  const translations = [] as TranslationItem[];
-  for (const queryResult of queryResults) {
-    const { type, sourceResult } = queryResult;
-    const isTranslationType = checkIsTranslationType(type);
-    if (sourceResult && isTranslationType) {
-      const type = sourceResult.type as TranslationType;
-      const markdownTranslation = getTranslationMarkdown(sourceResult);
-      translations.push({ type: type, text: markdownTranslation });
-    }
-  }
+  const translations = [...baseTranslations];
+
   // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
   for (let i = 0; i < translations.length; i++) {
     if (translations[i].type === queryResult.type) {
