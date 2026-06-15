@@ -684,7 +684,7 @@
       "label": "Tencent Translate",
       "required": false,
       "description": "Turn on/off Tencent Translate. App Key is required.",
-      "default": true
+      "default": false
     },
     {
       "name": "enableVolcanoTranslate",
