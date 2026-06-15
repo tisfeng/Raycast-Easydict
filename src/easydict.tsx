@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Icon, LaunchProps, List, getSelectedText } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "@/components";
 import { DataManager } from "@/dataManager/dataManager";
@@ -42,10 +42,8 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
 
   /**
    * Use to display input text.
-   *
-   * * Note: default value should be undefined, it used to call setup function.
    */
-  const [inputText, setInputText] = useState<string>();
+  const [inputText, setInputText] = useState<string>(trimQueryText || "");
   /**
    * searchText = inputText.trim(), avoid frequent request API with blank input.
    */
@@ -81,11 +79,13 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
   dataManager.updateCurrentFromLanguageItem = setCurrentFromLanguageItem;
   dataManager.updateAutoSelectedTargetLanguageItem = setAutoSelectedTargetLanguageItem;
 
+  const setupCalled = useRef(false);
   useEffect(() => {
-    if (inputText === undefined) {
+    if (!setupCalled.current) {
+      setupCalled.current = true;
       setup();
     }
-  }, [inputText]);
+  }, []);
 
   /**
    * Do something setup when the extension is activated. Only run once.
