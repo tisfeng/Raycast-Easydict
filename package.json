@@ -94,7 +94,7 @@
     "lint": "ray lint",
     "fix-lint": "ray lint --fix",
     "postinstall": "npx simple-git-hooks",
-    "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
+    "eslint": "eslint src/ --fix"
   },
   "overrides": {
     "whatlang-node": "file:overrides/whatlang-node"
