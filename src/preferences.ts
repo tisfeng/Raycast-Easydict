@@ -35,13 +35,13 @@ export class AppKeyStore {
   static volcanoSecretKey = myPreferences.volcanoAccessKeySecret?.trim();
 
   static openAIAPIKey = myPreferences.openAIAPIKey?.trim();
-  static openAIEndpoint = myPreferences.openAIAPIURL?.trim() || "https://api.openai.com/v1/chat/completions";
-  static openAIModel = myPreferences.openAIModel?.trim() || "gpt-3.5-turbo";
+  static openAIEndpoint = myPreferences.openAIAPIURL.trim();
+  static openAIModel = myPreferences.openAIModel.trim();
   static forceMaxCompletionTokens = myPreferences.forceMaxCompletionTokens;
 
   static geminiAPIKey = myPreferences.geminiAPIKey?.trim();
-  static geminiEndpoint = myPreferences.geminiAPIURL?.trim() || "https://generativelanguage.googleapis.com";
-  static geminiModel = myPreferences.geminiModel?.trim() || "gemini-2.0-flash";
+  static geminiEndpoint = myPreferences.geminiAPIURL.trim();
+  static geminiModel = myPreferences.geminiModel.trim();
 }
 
 function deriveKey(password: string) {
