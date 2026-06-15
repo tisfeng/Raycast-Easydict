@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { closeMainWindow, open, showHUD } from "@raycast/api";
+import { closeMainWindow, launchCommand, LaunchType, showHUD } from "@raycast/api";
 import { recognizeText } from "@/recognizeText";
 import { logTrace, logError } from "@/devLog";
 
@@ -18,12 +18,16 @@ export default async function command() {
     }
     logTrace("ocr", `recognized text: ${recognizedText}`);
 
-    const encodedQueryText = encodeURIComponent(recognizedText);
-    const easyDictUrl = `raycast://extensions/isfeng/easydict/easydict?fallbackText=${encodedQueryText}`;
     try {
-      await open(easyDictUrl);
+      await launchCommand({
+        name: "easydict",
+        type: LaunchType.UserInitiated,
+        arguments: {
+          queryText: recognizedText,
+        },
+      });
     } catch (error) {
-      logError("ocr", `open easyDictUrl error: ${error}`);
+      logError("ocr", `launch easydict error: ${error}`);
       await showHUD("⚠️ Failed to query Easy Dictionary");
     }
   } catch (e) {
