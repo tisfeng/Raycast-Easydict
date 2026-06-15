@@ -3,7 +3,7 @@
 import { environment } from "@raycast/api";
 import { runPowerShellScript } from "@raycast/utils";
 import { timedFetch } from "@/fetchConfig";
-import { execa } from "execa";
+import { x } from "tinyexec";
 import { fileTypeFromFile } from "file-type";
 import fs from "fs";
 import path from "path";
@@ -71,7 +71,7 @@ async function convertToM4aIfNeeded(filePath: string): Promise<string | undefine
   }
 
   try {
-    await execa("afconvert", ["-f", "m4af", "-d", "aac", wavPath, m4aPath]);
+    await x("afconvert", ["-f", "m4af", "-d", "aac", wavPath, m4aPath], { throwOnError: true });
     fs.unlinkSync(wavPath);
     logTrace("audio", "conversion complete");
     return m4aPath;
@@ -106,8 +106,8 @@ function sayCommand(text: string, youdaoLanguageId: string) {
   const cleanText = text.replace(/"/g, " ");
 
   logTrace("audio", `say -v ${voice}`);
-  execa("say", ["-v", voice, cleanText]).catch((error) => {
-    logError("audio", `say command failed: ${error}`);
+  x("say", ["-v", voice, cleanText]).then((result) => {
+    if (result.stderr) logError("audio", `say command failed: ${result.stderr}`);
   });
 }
 

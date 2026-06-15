@@ -68,7 +68,7 @@ export function appleTranslate(
 
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
 
-  logTrace("scripts", "before execa appleScript");
+  logTrace("scripts", "before exec appleScript");
 
   return runAppleScript(appleScript, { timeout, signal: abortController?.signal })
     .then((result) => {
