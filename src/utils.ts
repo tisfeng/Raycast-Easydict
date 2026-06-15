@@ -14,24 +14,25 @@ import { DictionaryType, ListDisplayItem, QueryType, RequestErrorInfo, RequestTy
 const maxWordLength = 20;
 
 /**
- * Eudic bundleIds.
+ * Eudic bundle IDs.
  *
- * There are two Eudic versions on the Mac, one free version bundleId is `com.eusoft.freeeudic`, and the other paid version bundleId is `com.eusoft.eudic`. But their URL Schemes are the same, eudic://
+ * There are two Eudic versions on macOS:
+ * - Free: com.eusoft.freeeudic
+ * - Paid: com.eusoft.eudic
+ *
+ * Both use the same URL scheme: eudic://
  */
-const eudicBundleIds = ["com.eusoft.freeeudic", "com.eusoft.eudic"];
+const EUDIC_BUNDLE_IDS = new Set(["com.eusoft.freeeudic", "com.eusoft.eudic"]);
 
-/**
- * traverse all applications, check if Eudic is installed
- */
+const EUDIC_WINDOWS_APP_ID = "eudic.exe";
+
 export async function checkIfInstalledEudic(): Promise<boolean> {
-  const installedApplications = await getApplications(); // cost time: 20 ms
-  for (const application of installedApplications) {
-    const appBundleId = application.bundleId;
-    if (appBundleId && eudicBundleIds.includes(appBundleId)) {
-      return Promise.resolve(true);
-    }
-  }
-  return Promise.resolve(false);
+  const applications = await getApplications();
+
+  return applications.some(
+    ({ bundleId, windowsAppId }) =>
+      (bundleId ? EUDIC_BUNDLE_IDS.has(bundleId) : false) || windowsAppId === EUDIC_WINDOWS_APP_ID,
+  );
 }
 
 export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => void) {

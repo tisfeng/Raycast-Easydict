@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { runAppleScript } from "@raycast/utils";
-import { showToast, Toast } from "@raycast/api";
-import { execFile } from "child_process";
+import { runAppleScript, showFailureToast } from "@raycast/utils";
+import { open } from "@raycast/api";
 
 import querystring from "node:querystring";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
@@ -122,13 +121,10 @@ function getShortcutsScript(shortcutName: string, input: string): string {
  */
 export const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
-  execFile("open", [url], (error) => {
-    if (error) {
-      console.error(`open in eudic error: ${error}`);
-      showToast({
-        title: "Eudic is not installed.",
-        style: Toast.Style.Failure,
-      });
-    }
+  open(url).catch((error) => {
+    logError("scripts", `open in eudic error: ${error}`);
+    showFailureToast(String(error), {
+      title: "Eudic is not installed.",
+    });
   });
 };
