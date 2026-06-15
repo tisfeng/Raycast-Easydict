@@ -3,6 +3,7 @@
 import { environment } from "@raycast/api";
 import { ofetch } from "ofetch";
 import { networkTimeout } from "@/consts";
+import { logTrace } from "@/devLog";
 
 declare module "ofetch" {
   interface FetchOptions {
@@ -25,7 +26,7 @@ export const timedFetch = ofetch.create({
   onResponse({ options }) {
     if (environment.isDevelopment && options.startTime !== undefined) {
       const cost = (performance.now() - options.startTime).toFixed(0);
-      console.log(`cost time: ${cost} ms`);
+      logTrace("fetchConfig", `cost time: ${cost} ms`);
     }
   },
 });

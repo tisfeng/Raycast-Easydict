@@ -4,6 +4,7 @@ import { francAll } from "franc";
 import { languageItemList } from "@/language/consts";
 import { getLanguageItemFromFrancCode, getLanguageItemFromYoudaoCode } from "@/language/languages";
 import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { logTrace } from "@/devLog";
 import { isPreferredLanguage } from "@/detectLanguage/utils";
 
 /**
@@ -19,14 +20,14 @@ import { isPreferredLanguage } from "@/detectLanguage/utils";
  */
 export function francLanguageDetect(text: string, confirmedConfidence = 0.8): DetectedLangModel {
   const startTime = new Date().getTime();
-  console.log(`start franc detect: ${text}`);
+  logTrace("franc", `start franc detect: ${text}`);
   let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
   let confirmed = false;
 
   // get all franc language id from languageItemList
   const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLangCode);
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
-  console.log(`franc detect cost time: ${new Date().getTime() - startTime} ms`);
+  logTrace("franc", `franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
   const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
@@ -35,16 +36,17 @@ export function francLanguageDetect(text: string, confirmedConfidence = 0.8): De
     return [youdaoLanguageId, confidence];
   });
 
-  console.log("franc detected language array:", detectedYoudaoLanguageArray);
+  logTrace("franc", `franc detected language array: ${JSON.stringify(detectedYoudaoLanguageArray)}`);
   if (detectedYoudaoLanguageArray.length === 1) {
-    console.log(`---> franc detected language: ${francDetectLanguageList[0]}`);
+    logTrace("franc", `franc detected language: ${francDetectLanguageList[0]}`);
   }
 
   // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
   for (const [languageId, confidence] of detectedYoudaoLanguageArray) {
     if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
-      console.log(
-        `---> franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`,
+      logTrace(
+        "franc",
+        `franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`,
       );
       detectedLanguageId = languageId;
       confirmed = true;

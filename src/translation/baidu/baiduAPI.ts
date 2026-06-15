@@ -14,6 +14,7 @@ import {
   TranslationType,
 } from "@/types";
 import { getTypeErrorInfo, md5 } from "@/utils";
+import { logTrace, logWarn, logError } from "@/devLog";
 
 /**
  * Baidu translate. Cost time: ~0.4s
@@ -24,7 +25,7 @@ export function requestBaiduTextTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request Baidu translate`);
+  logTrace("baidu", "start request Baidu translate");
 
   const type = TranslationType.Baidu;
 
@@ -33,7 +34,7 @@ export function requestBaiduTextTranslate(
   const to = getBaiduLangCode(toLanguage);
 
   if (!from || !to) {
-    console.warn(`Baidu translate not support language: ${fromLanguage} to ${toLanguage}`);
+    logWarn("baidu", `translate not support language: ${fromLanguage} to ${toLanguage}`);
     const result: QueryTypeResult = {
       type: type,
       result: undefined,
@@ -59,16 +60,14 @@ export function requestBaiduTextTranslate(
     salt: salt,
     sign: sign,
   };
-  // console.log(`---> Baidu params: ${JSON.stringify(params, null, 4)}`);
 
   return new Promise((resolve, reject) => {
     timedFetch(url, { params, signal })
       .then((response: BaiduTranslateResult) => {
         const baiduResult = response;
-        // console.log(`---> baiduResult: ${JSON.stringify(baiduResult, null, 4)}`);
         if (baiduResult.trans_result) {
           const translations = baiduResult.trans_result.map((item) => item.dst);
-          console.warn(`Baidu translate: ${translations}, ${baiduResult.from}`);
+          logTrace("baidu", `translate: ${translations}, ${baiduResult.from}`);
           const result: QueryTypeResult = {
             type: type,
             result: baiduResult,
@@ -77,7 +76,7 @@ export function requestBaiduTextTranslate(
           };
           resolve(result);
         } else {
-          console.error(`baidu translate error: ${JSON.stringify(baiduResult)}`); //  {"error_code":"54001","error_msg":"Invalid Sign"}
+          logError("baidu", `translate error: ${JSON.stringify(baiduResult)}`); //  {"error_code":"54001","error_msg":"Invalid Sign"}
           const errorInfo: RequestErrorInfo = {
             type: type,
             code: baiduResult.error_code || "",
@@ -88,12 +87,12 @@ export function requestBaiduTextTranslate(
       })
       .catch((error) => {
         if (error.message === "canceled" || error.name === "AbortError") {
-          console.log(`---> baidu translate canceled`);
+          logTrace("baidu", "translate canceled");
           return reject(undefined);
         }
 
         // It seems that Baidu will never reject, always resolve...
-        console.error(`---> baidu translate error: ${error}`);
+        logError("baidu", `translate error: ${error}`);
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });
@@ -104,7 +103,7 @@ export function requestBaiduTextTranslate(
  * Baidu web language detect, unofficial API. Cost time: ~0.3s
  */
 export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
-  console.log(`---> start web Baidu language detect`);
+  logTrace("baidu", "start web Baidu language detect");
   const type = LanguageDetectType.Baidu;
 
   return new Promise((resolve, reject) => {
@@ -118,15 +117,13 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
       },
     })
       .then((response: BaiduWebLanguageDetect) => {
-        // console.log(`---> web Baidu language detect response: ${JSON.stringify(response)}`);
-
         const baiduWebLanguageDetect = response;
         if (baiduWebLanguageDetect.error === 0) {
           const baiduLanguageId = baiduWebLanguageDetect.lan || "";
           const youdaoLanguageId = getYoudaoLangCodeFromBaiduCode(baiduLanguageId);
           const isConfirmed = isValidLangCode(youdaoLanguageId);
 
-          console.warn(`---> Baidu detect language: ${baiduLanguageId}, youdaoId: ${youdaoLanguageId}`);
+          logTrace("baidu", `detected: ${baiduLanguageId}`);
 
           const detectedLanguageResult: DetectedLangModel = {
             type: type,
@@ -137,7 +134,7 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
           };
           resolve(detectedLanguageResult);
         } else {
-          console.error(`web Baidu detect error: ${JSON.stringify(baiduWebLanguageDetect)}`);
+          logError("baidu", `web detect error: ${JSON.stringify(baiduWebLanguageDetect)}`);
 
           const errorInfo = getBaiduWebLanguageDetectErrorInfo(baiduWebLanguageDetect);
           reject(errorInfo);
@@ -145,11 +142,11 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
       })
       .catch((error) => {
         if (error.message === "canceled" || error.name === "AbortError") {
-          console.log(`---> baidu detect canceled`);
+          logTrace("baidu", "detect canceled");
           return reject(undefined);
         }
 
-        console.error(`---> web Baidu language detect error: ${error}`);
+        logError("baidu", `web Baidu language detect error: ${error}`);
 
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);

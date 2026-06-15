@@ -17,6 +17,7 @@ import {
   TranslationItem,
   TranslationType,
 } from "@/types";
+import { logTrace } from "@/devLog";
 import {
   checkIsDictionaryType,
   checkIsLingueeListItem,
@@ -36,7 +37,6 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
     const typeString = queryResult.type.toString().toLowerCase();
     const index = getSortOrder().indexOf(typeString);
     sortedQueryResults[index] = queryResult;
-    // console.log(`---> sort results: index: ${index}, ${queryResult.type}`);
   }
   // filter undefined, or result is undefined.
   return sortedQueryResults.filter((queryResult) => {
@@ -77,7 +77,6 @@ export function getSortOrder(): string[] {
   // TEPORARY FIX, servicesOrder should be string here, but actually string | undefined.
   const manualOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
 
-  // console.log("---> manualOrder:", manualOrder);
   const formatManualOrder = manualOrder.map((order) => order.trim().toLowerCase());
 
   // eg: [Youdao dictionary, DeepL, Tencent, linguee dictionary, Baidu, Google, Apple, Youdao]
@@ -101,8 +100,6 @@ export function getSortOrder(): string[] {
   }
 
   const finalOrder = [...userOrder, ...defaultOrders].map((title) => title.toLowerCase());
-  // console.log("userOrder:", userOrder);
-  // console.log("finalOrder:", finalOrder);
   return finalOrder;
 }
 
@@ -112,7 +109,6 @@ export function getSortOrder(): string[] {
 export function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
   const isChineseText = textLanguage === chineseLanguageItem.youdaoLangCode;
   const isEnglishText = textLanguage === englishLanguageItem.youdaoLangCode;
-  // console.log(`check if text too long, ${textLanguage}, ${text.length}`);
 
   let isTooLong = false;
   const textLength = text.length;
@@ -126,8 +122,6 @@ export function isTextOneLineTooLong(text: string, textLanguage: string): boolea
     }
   } else if (textLength > maxLineLengthOfEnglishTextDisplay) {
     isTooLong = true;
-  }
-  if (isTooLong) {
   }
   return isTooLong;
 }
@@ -158,7 +152,6 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
       }
     }
   }
-  // console.log(`---> isShowDetail: ${isShowDetail}`);
   return isShowDetail;
 }
 
@@ -287,7 +280,6 @@ export function applyTranslationMarkdown(queryResult: QueryResult, baseTranslati
     }
   }
   const markdown = translations.map((translation) => translation.text).join("\n");
-  // console.log(`---> type: ${queryResult.type},  markdown: ${markdown}`);
 
   const listDisplayItem = displaySections[0].items;
   if (listDisplayItem?.length) {
@@ -302,6 +294,6 @@ export function checkIfEnableYoudaoDictionary(queryWordInfo: QueryWordInfo) {
   const isValidYoudaoDictionaryLanguageQuery = getYoudaoWebDictionaryURL(queryWordInfo) !== undefined;
   const isWord = checkIsWord(queryWordInfo);
   const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
-  console.log(`---> enable Youdao Dictionary: ${enableYoudaoDictionary}`);
+  logTrace("dataManager", `enable Youdao Dictionary: ${enableYoudaoDictionary}`);
   return enableYoudaoDictionary;
 }

@@ -8,6 +8,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
 import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "@/types";
+import { logTrace, logWarn, logError } from "@/devLog";
 
 const SECRET_ID = AppKeyStore.tencentSecretId;
 const SECRET_KEY = AppKeyStore.tencentSecretKey;
@@ -36,14 +37,14 @@ const clientConfig = {
  * Ref: https://github.com/raycast/extensions/blob/8ec3e04197695a78691e508f33db2044dce3e16f/extensions/itranslate/src/itranslate.shared.tsx#L426
  */
 export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
-  console.log(`---> start request Tencent translate`);
+  logTrace("tencent", "start request Tencent translate");
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const from = getTencentLangCode(fromLanguage);
   const to = getTencentLangCode(toLanguage);
   const type = TranslationType.Tencent;
 
   if (!from || !to) {
-    console.warn(`Tencent translate not support language: ${fromLanguage} --> ${toLanguage}`);
+    logWarn("tencent", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
       type: type,
       result: undefined,
@@ -148,7 +149,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: A
 
       const error = tencentResult.Error;
       if (error) {
-        console.error(`Tencent translate error: ${error.Message}`);
+        logError("tencent", `translate error: ${error.Message}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
           message: error.Message,
@@ -158,7 +159,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: A
 
       const targetText = tencentResult.TargetText || "";
       const translations = targetText.split("\n");
-      console.warn(`---> Tencent translations: ${translations}, ${tencentResult.Source}`);
+      logTrace("tencent", `translations: ${translations}, ${tencentResult.Source}`);
       const typeResult: QueryTypeResult = {
         type: type,
         result: tencentResult,
@@ -169,12 +170,12 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: A
     })
     .catch((err) => {
       if (err.message === "canceled" || err.name === "AbortError") {
-        console.log(`---> Tencent canceled`);
+        logTrace("tencent", "canceled");
         throw undefined;
       }
 
       const error = err as { code: string; message: string };
-      console.error(`Tencent translate err, code: ${error.code}, message: ${error.message}`);
+      logError("tencent", `translate err, code: ${error.code}, message: ${error.message}`);
       const errorInfo: RequestErrorInfo = {
         type: type,
         code: error.code,
@@ -192,7 +193,7 @@ export function requestTencentTranslate(queryWordInfo: QueryWordInfo, signal?: A
  * Todo: use axios to rewrite.
  */
 export function tencentDetect(text: string): Promise<DetectedLangModel> {
-  console.log(`---> start sdk request Tencent detect`);
+  logTrace("tencent", "start sdk request Tencent detect");
 
   const params = {
     Text: text,
@@ -202,7 +203,7 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
   const type = LanguageDetectType.Tencent;
 
   if (!hasTencentAppKey()) {
-    console.warn(`Tencent detect has no app key`);
+    logWarn("tencent", "detect has no app key");
     const result: DetectedLangModel = {
       type: type,
       sourceLangCode: "",
@@ -222,8 +223,7 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
         const endTime = new Date().getTime();
         const tencentLanguageId = response.Lang || "";
         const youdaoLanguageId = getYoudaoLangCodeFromTencentCode(tencentLanguageId);
-        console.warn(`tencent detect language: ${tencentLanguageId}, youdaoId: ${youdaoLanguageId}`);
-        console.warn(`tencent cost time: ${endTime - startTime} ms`);
+        logTrace("tencent", `detected: ${tencentLanguageId}, cost: ${endTime - startTime}ms`);
         const typeResult: DetectedLangModel = {
           type: type,
           sourceLangCode: tencentLanguageId,
@@ -234,7 +234,7 @@ export function tencentDetect(text: string): Promise<DetectedLangModel> {
       })
       .catch((err) => {
         const error = err as { code: string; message: string };
-        console.error(`tencent detect error, code: ${error.code}, message: ${error.message}`);
+        logError("tencent", `detect error, code: ${error.code}, message: ${error.message}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
           code: error.code,

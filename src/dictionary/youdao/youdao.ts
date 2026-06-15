@@ -6,13 +6,14 @@ import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudi
 import { userAgent } from "@/consts";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
 import { myPreferences } from "@/preferences";
+import { logTrace, logError } from "@/devLog";
 import { DictionaryType, QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
 import { formatYoudaoWebDictionaryModel } from "@/dictionary/youdao/formatData";
 import { YoudaoWebDictionaryModel } from "@/dictionary/youdao/types";
 import { getYoudaoWebDictionaryLanguageId } from "@/dictionary/youdao/utils";
 
-console.log(`enter youdao.ts`);
+logTrace("youdao", "module loaded");
 
 const youdaoTranslatURL = "https://fanyi.youdao.com";
 
@@ -29,12 +30,11 @@ if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate)
  * Get youdao cookie from youdao web, and store it in local storage.
  */
 function getYoudaoWebCookie(): Promise<string | undefined> {
-  console.log("start getYoudaoWebCookie");
+  logTrace("youdao", "start getYoudaoWebCookie");
 
   LocalStorage.getItem<string>(youdaoCookieKey).then((cookie) => {
     if (cookie) {
       youdaoCookie = cookie;
-      // console.log(`---> get youdaoCookie from local storage: ${youdaoCookie}`);
     }
   });
 
@@ -51,11 +51,11 @@ function getYoudaoWebCookie(): Promise<string | undefined> {
           youdaoCookie = setCookie.join(";");
           resolve(youdaoCookie);
           LocalStorage.setItem(youdaoCookieKey, youdaoCookie);
-          console.log(`get web youdaoCookie: ${youdaoCookie}`);
+          logTrace("youdao", "got web youdaoCookie");
         }
       })
       .catch((error) => {
-        console.error(`get youdaoCookie error: ${error}`);
+        logError("youdao", `get youdaoCookie error: ${error}`);
         LocalStorage.removeItem(youdaoCookieKey);
         resolve(undefined);
       });
@@ -72,7 +72,7 @@ export function requestYoudaoWebDictionary(
   queryType?: QueryType,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start requestYoudaoWebDictionary`);
+  logTrace("youdao", "start requestYoudaoWebDictionary");
 
   const type = queryType ?? DictionaryType.Youdao;
 
@@ -87,7 +87,7 @@ export function requestYoudaoWebDictionary(
 
   const queryYoudaoDictLanguageId = getYoudaoWebDictionaryLanguageId(queryWordInfo);
   if (!queryYoudaoDictLanguageId) {
-    console.error(`Youdao dict not supported language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`);
+    logError("youdao", `not supported language: ${queryWordInfo.fromLanguage} --> ${queryWordInfo.toLanguage}`);
     const errorInfo: RequestErrorInfo = {
       type: type,
       code: "",
@@ -103,10 +103,8 @@ export function requestYoudaoWebDictionary(
   };
 
   const queryString = new URLSearchParams(params).toString();
-  // console.log(`---> youdao web dict queryString: ${queryString}`);
 
   const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
-  // console.log(`dictUrl: ${dictUrl}`);
 
   return timedFetch<YoudaoWebDictionaryModel>(dictUrl, { signal })
     .then((youdaoWebModel) => {
@@ -137,11 +135,11 @@ export function requestYoudaoWebDictionary(
     })
     .catch((error) => {
       if (error.message === "canceled" || error.name === "AbortError") {
-        console.log(`---> youdao web dict canceled`);
+        logTrace("youdao", "web dict canceled");
         throw undefined;
       }
 
-      console.error(`---> Youdao web dict error: ${error}`);
+      logError("youdao", `web dict error: ${error}`);
 
       const errorInfo = getTypeErrorInfo(type, error);
       throw errorInfo;
@@ -180,7 +178,7 @@ export function downloadYoudaoAudio(
   ) {
     downloadYoudaoEnglishWordAudio(queryWordInfo.word, callback, (forceDownload = false));
   } else {
-    console.log(`use say command to play derectly`);
+    logTrace("youdao", "use say command to play directly");
     callback?.();
   }
 }
@@ -200,7 +198,7 @@ export function downloadYoudaoAudio(
  */
 export function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
-  console.log(`download web youdao 'English' word audio: ${word}`);
+  logTrace("youdao", `download english word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }

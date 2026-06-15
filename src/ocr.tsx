@@ -2,6 +2,7 @@
 
 import { closeMainWindow, open, showHUD } from "@raycast/api";
 import { recognizeText } from "@/recognizeText";
+import { logTrace, logError } from "@/devLog";
 
 export default async function command() {
   if (process.platform !== "darwin") {
@@ -15,18 +16,18 @@ export default async function command() {
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
-    console.log(`Recognized text: ${recognizedText}`);
+    logTrace("ocr", `recognized text: ${recognizedText}`);
 
     const encodedQueryText = encodeURIComponent(recognizedText);
     const easyDictUrl = `raycast://extensions/isfeng/easydict/easydict?fallbackText=${encodedQueryText}`;
     try {
       await open(easyDictUrl);
     } catch (error) {
-      console.error(error);
+      logError("ocr", `open easyDictUrl error: ${error}`);
       await showHUD("⚠️ Failed to query Easy Dictionary");
     }
   } catch (e) {
-    console.error(e);
+    logError("ocr", `recognize text error: ${e}`);
     await showHUD("❌ Failed detecting text");
   }
 }

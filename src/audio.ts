@@ -10,11 +10,12 @@ import path from "path";
 import playerImport from "play-sound";
 import { languageItemList } from "@/language/consts";
 import { printObject, trimTextLength } from "@/utils";
+import { logTrace, logWarn, logError } from "@/devLog";
 
-console.log(`enter audio.ts`);
+logTrace("audio", "module loaded");
 
 const audioDirPath = `${environment.supportPath}/audio`;
-console.log(`audio path: ${audioDirPath}`);
+logTrace("audio", `path: ${audioDirPath}`);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let audioPlayer: any; // Play
@@ -25,19 +26,19 @@ let audioPlayer: any; // Play
 export async function playWordAudio(word: string, fromLanguage: string, useSayCommand = true) {
   let audioPath = getWordAudioPath(word);
   if (!fs.existsSync(audioPath)) {
-    console.log(`word audio file not found: ${word}`);
+    logTrace("audio", `file not found: ${word}`);
     if (useSayCommand) {
       sayTruncateCommand(word, fromLanguage);
     }
     return;
   }
 
-  console.log(`play local file audio: ${path.basename(audioPath)}`);
+  logTrace("audio", `play: ${path.basename(audioPath)}`);
 
   if (!audioPlayer) {
     // * Note: this new object will cost ~0.4s
     audioPlayer = playerImport({});
-    console.log(`not exist, new a audioPlayer`);
+    logTrace("audio", "creating player instance");
   }
 
   // Because afplay can't play audio files with .mp3 suffix that are actually .wav, let's try to convert the format.
@@ -52,13 +53,13 @@ export async function playWordAudio(word: string, fromLanguage: string, useSayCo
   audioPlayer.play(audioPath, (err: ExecException) => {
     if (err) {
       if (err.killed) {
-        console.log("audio has been killed");
+        logTrace("audio", "killed previous playback");
         return;
       }
 
       // afplay play the word 'set' throw error: Fail: AudioFileOpenURL failed ???
-      console.error(`play word audio error: ${err}`);
-      console.log(`audioPath: ${encodeURI(audioPath)}`);
+      logError("audio", `play word audio error: ${err}`);
+      logTrace("audio", `path: ${encodeURI(audioPath)}`);
       sayTruncateCommand(word, fromLanguage);
     }
   });
@@ -77,14 +78,14 @@ export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
 */
 function sayCommand(text: string, youdaoLanguageId: string) {
   if (process.platform !== "darwin") {
-    console.warn("Apple TTS is only supported on macOS.");
+    logWarn("audio", "Apple TTS only supported on macOS");
     return;
   }
 
   if (youdaoLanguageId && text) {
     const languageItem = languageItemList.find((languageItem) => languageItem.youdaoLangCode === youdaoLanguageId);
     if (!languageItem || !languageItem.voiceList) {
-      console.warn(`say command language not supported: ${youdaoLanguageId}`);
+      logWarn("audio", `language not supported: ${youdaoLanguageId}`);
       return;
     }
 
@@ -98,10 +99,10 @@ function sayCommand(text: string, youdaoLanguageId: string) {
      * say "[[rate 60]] hello"
      */
     const sayCommand = `say -v ${voice} "${text}" `; // you're so beautiful, my "unfair" girl
-    console.log(sayCommand);
+    logTrace("audio", sayCommand);
 
     execa(sayCommand, { shell: true }).catch((error) => {
-      console.error(`sayCommand error: ${error}`);
+      logError("audio", `sayCommand error: ${error}`);
     });
   }
 }
@@ -112,7 +113,7 @@ export function downloadWordAudioWithURL(
   callback?: () => void,
   forceDownload = false,
 ): void {
-  console.log(`down load word: ${word}, audio url: ${url}`);
+  logTrace("audio", `download: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }
@@ -127,13 +128,13 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
   if (fs.existsSync(audioPath)) {
     if (!forceDownload) {
       const word = audioPath.substring(audioPath.lastIndexOf("/") + 1);
-      console.log(`download audio has exist: ${word}`);
+      logTrace("audio", `cached: ${word}`);
       callback?.();
       return;
     }
-    console.log(`forced download audio, url: ${url}`);
+    logTrace("audio", `force download: ${audioPath}`);
   }
-  console.log(`start download audio, url: ${url}`);
+  logTrace("audio", `downloading: ${audioPath}`);
 
   timedFetch(url, {
     responseType: "blob",
@@ -147,10 +148,10 @@ export async function downloadAudio(url: string, audioPath: string, callback?: (
     })
     .catch((error) => {
       if (error.message === "canceled" || error.name === "AbortError") {
-        console.log(`---> download audio canceled`);
+        logTrace("audio", "download canceled");
         return;
       }
-      console.error(`download url audio error: ${error}, url: ${url}`);
+      logError("audio", `download failed`);
     });
 }
 
@@ -176,7 +177,7 @@ export function getWordAudioPath(word: string) {
  */
 async function tryConvertAudioToM4a(filePath: string) {
   if (await isWavFile(filePath)) {
-    console.warn(`downloaded audio real data format is wav, try to convert to wav from mp3`);
+    logWarn("audio", "downloaded format is wav, converting");
     // rename file extension from mp3 to wav
     const wavPath = filePath.replace(".mp3", ".wav");
     fs.renameSync(filePath, wavPath);
@@ -205,10 +206,10 @@ async function isWavFile(filePath: string) {
  * * Because wav file is too large, so convert to m4a file, which can be reduced to 1/10 of the original size.
  */
 export function convertWavToM4a(filePath: string): Promise<string> {
-  console.log(`convert wav file to m4a: ${filePath}`);
+  logTrace("audio", "converting wav→m4a");
 
   if (process.platform !== "darwin") {
-    console.warn("afconvert is only supported on macOS.");
+    logWarn("audio", "afconvert only on macOS");
     return Promise.resolve(filePath);
   }
 
@@ -219,12 +220,12 @@ export function convertWavToM4a(filePath: string): Promise<string> {
 
     execa(afconvertCommand, { shell: true })
       .then(() => {
-        console.log(`afconvert success, then remove old wav file.`);
+        logTrace("audio", "conversion complete");
         fs.unlinkSync(filePath);
         resolve(m4aFilePath);
       })
       .catch((error) => {
-        console.error(`afconvert error: ${error}`);
+        logError("audio", `conversion failed`);
         reject(error);
       });
   });

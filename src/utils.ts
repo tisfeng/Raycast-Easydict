@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
 import { Easydict } from "@/releaseVersion/versionInfo";
+import { logTrace, logWarn } from "@/devLog";
 import { DictionaryType, ListDisplayItem, QueryType, RequestErrorInfo, RequestType, TranslationType } from "@/types";
 
 /**
@@ -38,7 +39,6 @@ export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => v
   const currentEasydict = new Easydict();
   currentEasydict.getCurrentVersionInfo().then((easydict) => {
     const isShowingReleasePrompt = easydict.isNeedPrompt && !easydict.hasPrompted;
-    // console.log("isShowingReleasePrompt: ", isShowingReleasePrompt);
     callback(isShowingReleasePrompt);
   });
 }
@@ -63,7 +63,7 @@ export function trimTextLength(text: string, length = 1830) {
  */
 export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
   if (!errorInfo?.type) {
-    console.warn(`showErrorToast, errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 4)}`);
+    logWarn("utils", `errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 4)}`);
     return;
   }
 
@@ -164,5 +164,5 @@ export function md5(text: string): string {
 }
 
 export function printObject(name: string, obj: unknown, space = 4) {
-  console.log(`${name}: ${JSON.stringify(obj, null, space)}`);
+  logTrace("utils", `${name}: ${JSON.stringify(obj, null, space)}`);
 }

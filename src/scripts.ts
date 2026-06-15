@@ -6,6 +6,7 @@ import { open } from "@raycast/api";
 import querystring from "node:querystring";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getAppleLangCode } from "@/language/languages";
+import { logTrace, logWarn, logError } from "@/devLog";
 import { RequestErrorInfo, TranslationType } from "@/types";
 
 const execCommandTimeout = 10000; // 10s
@@ -20,7 +21,7 @@ export function appleTranslate(
   abortController?: AbortController,
   timeout = execCommandTimeout,
 ): Promise<string | undefined> {
-  console.log(`---> start Apple translate`);
+  logTrace("scripts", "start Apple translate");
 
   const { word, fromLanguage, toLanguage } = queryTextInfo;
   const startTime = new Date().getTime();
@@ -29,12 +30,12 @@ export function appleTranslate(
   const type = TranslationType.Apple;
 
   if (!appleFromLanguageId || !appleToLanguageId) {
-    console.warn(`apple translate language not support: ${fromLanguage} -> ${toLanguage}`);
+    logWarn("scripts", `apple translate language not support: ${fromLanguage} -> ${toLanguage}`);
     return Promise.resolve(undefined);
   }
 
   if (process.platform !== "darwin") {
-    console.warn("Apple Translate is only supported on macOS.");
+    logWarn("scripts", "Apple Translate is only supported on macOS.");
     return Promise.resolve(undefined);
   }
 
@@ -53,7 +54,7 @@ export function appleTranslate(
    */
   if (appleFromLanguageId === "auto") {
     map.delete("from"); // means use apple language auto detect
-    console.warn(`Apple translate currently not support auto detect this language: ${word}`);
+    logWarn("scripts", `Apple translate currently not support auto detect this language: ${word}`);
     return Promise.resolve(undefined);
   }
 
@@ -63,25 +64,24 @@ export function appleTranslate(
    *  It seems that this method cannot handle special characters.: you're so beautiful, my "unfair" girl
    */
   const queryString = querystring.stringify(object);
-  // console.log(`queryString: ${queryString}`); // text=girl&from=en_US&to=zh_CN
 
   const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
 
-  console.log(`before execa appleScript`);
+  logTrace("scripts", "before execa appleScript");
 
   return runAppleScript(appleScript, { timeout, signal: abortController?.signal })
     .then((result) => {
       const translateText = result.trim();
-      console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+      logTrace("scripts", `Apple translate cost: ${new Date().getTime() - startTime}ms`);
       return translateText;
     })
     .catch((error) => {
       if (error.name === "AbortError" || error.killed || error.message?.includes("timed out")) {
-        console.warn(`---> apple translate canceled or timeout`);
+        logWarn("scripts", "apple translate canceled or timeout");
         return Promise.reject(undefined);
       } else {
-        console.error(`apple translate error: ${JSON.stringify(error, null, 4)}`);
-        console.warn(`Apple translate error: ${appleScript}`);
+        logError("scripts", `apple translate error: ${JSON.stringify(error, null, 4)}`);
+        logWarn("scripts", `Apple translate error: ${appleScript}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
           message: error.message,
@@ -90,7 +90,7 @@ export function appleTranslate(
       }
     })
     .finally(() => {
-      console.log(`---> end Apple translate, cost: ${new Date().getTime() - startTime} ms`);
+      logTrace("scripts", `end Apple translate, cost: ${new Date().getTime() - startTime} ms`);
     });
 }
 
@@ -110,7 +110,6 @@ function getShortcutsScript(shortcutName: string, input: string): string {
           run the shortcut named "${shortcutName}" with input "${escapedInput}"
         end tell
       `;
-  // console.log(`apple script: ${appleScriptContent}`);
   return appleScriptContent;
 }
 

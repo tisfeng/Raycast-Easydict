@@ -10,17 +10,9 @@ import { LanguageItem } from "@/language/type";
 import { myPreferences, preferredLanguage1 } from "@/preferences";
 import { DisplaySection } from "@/types";
 import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "@/utils";
+import { logTrace, logError } from "./devLog";
 
-const disableConsoleLog = false;
-
-if (disableConsoleLog) {
-  // Since too many logs will cause bugs, we need to disable the console.log in development. Ref: https://github.com/raycast/extensions/pull/3917#issuecomment-1370771358
-  console.log = function () {
-    // do nothing
-  };
-}
-
-console.log(`enter easydict.tsx`);
+logTrace("easydict", "module loaded");
 
 const dataManager = new DataManager();
 
@@ -99,10 +91,8 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    // console.log(`setup when extension is activated.`);
-
     if (trimQueryText?.length) {
-      console.warn(`---> arguments queryText: ${trimQueryText}`);
+      logTrace("easydict", `arguments queryText: ${trimQueryText}`);
     }
 
     const userInputText = trimQueryText;
@@ -111,7 +101,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
       updateInputTextAndQueryText(userInputText, false);
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
       querySelecedtText().then(() => {
-        console.log(`after query selected text`);
+        logTrace("easydict", "after query selected text");
       });
     }
 
@@ -128,12 +118,12 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
       getSelectedText()
         .then((selectedText) => {
           selectedText = trimTextLength(selectedText);
-          console.warn(`getSelectedText: ${selectedText}`); // cost about 20 ms
+          logTrace("easydict", `selected text: ${selectedText}`);
           updateInputTextAndQueryText(selectedText, false);
           resolve();
         })
         .catch((error) => {
-          console.log(`getSelectedText error: ${error}`);
+          logError("easydict", `getSelectedText error: ${error}`);
           resolve();
         });
     });
@@ -145,14 +135,14 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
    * Todo: move it to dataManager.
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
-    console.log(`selected language: ${selectedLanguageItem.youdaoLangCode}`);
-    console.log(`current target language: ${userSelectedTargetLanguageItem.youdaoLangCode}`);
+    logTrace("easydict", `selected language: ${selectedLanguageItem.youdaoLangCode}`);
+    logTrace("easydict", `current target language: ${userSelectedTargetLanguageItem.youdaoLangCode}`);
 
     if (selectedLanguageItem.youdaoLangCode === userSelectedTargetLanguageItem.youdaoLangCode) {
       return;
     }
 
-    console.log(`updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLangCode}`);
+    logTrace("easydict", `updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLangCode}`);
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
@@ -171,7 +161,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
    * Update input text and search text, then query text according to @isDelay
    */
   function updateInputTextAndQueryText(text: string, isDelay: boolean) {
-    console.log(`update input text: ${text}, length: ${text.length}`);
+    logTrace(`update input text, length: ${text.length}, text:`, text);
 
     setInputText(text);
     const trimText = trimTextLength(text);
@@ -179,7 +169,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
 
     // If trimText is empty, then do not query.
     if (trimText.length === 0) {
-      console.log("trimText is empty, do not query");
+      logTrace("easydict", "trimText is empty, do not query");
       dataManager.clearQueryResult();
       return;
     }
@@ -193,12 +183,10 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
   }
 
   function onInputChange(text: string) {
-    // console.warn(`onInputChange: ${text}`);
-
     // Ignore the first inputChange event to avoid lost queryText argument, fix https://github.com/tisfeng/Raycast-Easydict/issues/62
     if (!isInputChanged) {
       setInputChangedState(true);
-      console.log("ignore first inputChange event");
+      logTrace("easydict", "ignore first inputChange event");
       return;
     }
     updateInputTextAndQueryText(text, true);

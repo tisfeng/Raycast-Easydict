@@ -6,6 +6,7 @@ import { getCaiyunLangCode } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
 import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
+import { logTrace, logError } from "@/devLog";
 
 /**
  * Caiyun translate API. Cost time: 0.2s
@@ -16,7 +17,7 @@ export function requestCaiyunTextTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request Caiyun`);
+  logTrace("caiyun", "start request Caiyun");
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const url = "https://api.interpreter.caiyunai.com/v1/translator";
@@ -29,7 +30,7 @@ export function requestCaiyunTextTranslate(
   // Note that Caiyun Translate only supports these types of translation at present.
   const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
   if (!supportedTranslatType.includes(trans_type)) {
-    console.log(`Caiyun translate not support language: ${fromLanguage} --> ${toLanguage}`);
+    logTrace("caiyun", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
       type: type,
       result: undefined,
@@ -43,7 +44,6 @@ export function requestCaiyunTextTranslate(
     trans_type,
     detect: from === "auto",
   };
-  // console.log(`---> Caiyun params: ${JSON.stringify(params, null, 4)}`);
   const config = {
     headers: {
       "content-type": "application/json",
@@ -61,7 +61,7 @@ export function requestCaiyunTextTranslate(
       .then((response: CaiyunTranslateResult) => {
         const caiyunResult = response;
         const translations = caiyunResult.target;
-        console.log(`Caiyun translate: ${translations}`);
+        logTrace("caiyun", `translate: ${translations}`);
         resolve({
           type: type,
           result: caiyunResult,
@@ -71,11 +71,11 @@ export function requestCaiyunTextTranslate(
       })
       .catch((error) => {
         if (error.message === "canceled" || error.name === "AbortError") {
-          console.log(`---> caiyun canceled`);
+          logTrace("caiyun", "canceled");
           return reject(undefined);
         }
 
-        console.error(`---> Caiyun translate error: ${error}`);
+        logError("caiyun", `translate error: ${error}`);
         const errorInfo = getTypeErrorInfo(type, error);
         reject(errorInfo);
       });

@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { logTrace } from "@/devLog";
 import { chineseLanguageItem } from "@/language/consts";
 import { DictionaryType, DisplaySection, ListDisplayItem } from "@/types";
 import {
@@ -59,13 +60,13 @@ export function updateYoudaoDictionaryDisplay(
   const modernChineseDict = youdaoResult.modernChineseDict;
   const modernChineseDictType = YoudaoDictionaryListItemType.ModernChineseDict;
 
-  console.log(`Modern Chinese dictionary`);
+  logTrace("formatData", "Modern Chinese dictionary");
 
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((phoneticDict) => {
       const placeholder = `~`;
-      console.log(`forms: ${JSON.stringify(phoneticDict, null, 4)}`);
+      logTrace("formatData", `forms: ${JSON.stringify(phoneticDict, null, 4)}`);
       const pinyin = phoneticDict.pinyin ? `${phoneticDict.pinyin}` : "";
       const accessoryItem = translationItem.accessoryItem;
       if (pinyin && accessoryItem && !accessoryItem.phonetic) {
@@ -77,7 +78,7 @@ export function updateYoudaoDictionaryDisplay(
         const senseGroups: Sense[][] = [];
 
         const copyFormsSense = JSON.parse(JSON.stringify(phoneticDict.sense)) as Sense[];
-        console.log(`copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
+        logTrace("formatData", `copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
 
         // * group senses by category
         let group: Sense[] = [];
@@ -98,12 +99,12 @@ export function updateYoudaoDictionaryDisplay(
           }
         }
         senseGroups.push(group);
-        console.log(`senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
+        logTrace("formatData", `senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
 
         let markdown = pinyin;
         let subtitle = "";
         senseGroups.forEach((groups) => {
-          console.log(`group: ${JSON.stringify(groups, null, 4)}`);
+          logTrace("formatData", `group: ${JSON.stringify(groups, null, 4)}`);
 
           const firstGroup = groups[0];
           const cat = firstGroup.cat;
@@ -125,8 +126,8 @@ export function updateYoudaoDictionaryDisplay(
 
         const title = pinyin ? `${pinyin}` : "";
         const copyText = `${title}  ${subtitle}`;
-        console.log(`markdown: ${markdown}`);
-        console.log(`copyText: ${copyText}`);
+        logTrace("formatData", `markdown: ${markdown}`);
+        logTrace("formatData", `copyText: ${copyText}`);
 
         const displayItem: ListDisplayItem = {
           displayType: modernChineseDictType,
@@ -300,7 +301,7 @@ export function updateYoudaoDictionaryDisplay(
     return displaySections;
   }
 
-  console.log(`Youdao dictionary only has one translation section, so don't show dictionary sections.`);
+  logTrace("formatData", "only one translation section, not showing dictionary sections");
 }
 
 /**
@@ -381,7 +382,6 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
       }
     }
   }
-  // console.log(`webTransList: ${JSON.stringify(webTransList, null, 4)}`);
 
   let webTranslation: KeyValueItem | undefined;
   if (webTransList.length > 0) {
@@ -407,7 +407,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     // Word audio: https://dict.youdao.com/dictvoice?audio=good&type=2
     const usspeech = wordItem?.usspeech; // "good&type=2"
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
-    console.log(`${input}, audioUrl: ${audioUrl}`);
+    logTrace("formatData", `${input}, audioUrl: ${audioUrl}`);
 
     explanations.length = 0;
     const trs = wordItem?.trs;
@@ -423,7 +423,6 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
         }
       }
     }
-    // console.log(`ec, explanations: ${JSON.stringify(explanations, null, 4)}`);
 
     isWord = wordItem !== undefined; // Todo: need to check more.
     examTypes = model.ec.exam_type?.slice(-6);
@@ -459,7 +458,6 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
         }
       }
     }
-    // console.log(`ce, explanations: ${JSON.stringify(explanations, null, 4)}`);
   }
 
   const queryWordInfo: QueryWordInfo = {
@@ -471,7 +469,6 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     speechUrl: speechUrl,
     isWord: isWord,
   };
-  // console.log(`format queryWordInfo: ${JSON.stringify(queryWordInfo, null, 4)}`);
 
   const formatResult: YoudaoDictionaryFormatResult = {
     queryWordInfo: queryWordInfo,
@@ -486,7 +483,6 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
   };
 
   queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formatResult);
-  // console.log(`Youdao format result: ${JSON.stringify(formatResult, null, 4)}`);
 
   return formatResult;
 }
@@ -573,7 +569,7 @@ function removeExamplesHtmlTag(examples: string[] | undefined): string[] {
 function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n", tag?: number): string {
   let markdown = "";
   senseList.forEach((senseItem, i) => {
-    console.log(`senseItem: ${JSON.stringify(senseItem, null, 4)}`);
+    logTrace("formatData", `senseItem: ${JSON.stringify(senseItem, null, 4)}`);
     let defExampleText = preText;
     const tagText = tag ? `${tag}.` : "";
     defExampleText += tagText;
@@ -592,7 +588,7 @@ function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n
     if (!defText.length && senseItem.subsense?.length) {
       defText = ` ${word}`;
     }
-    console.log(`defText: ${defText}`);
+    logTrace("formatData", `defText: ${defText}`);
 
     const example = examples?.map((item) => `\`${item}\``).join("/");
     const exampleText = example ? `：${example}  ` : "";
@@ -601,11 +597,11 @@ function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n
       defExampleText += `${i + 1}.${defText}${exampleText}`;
     }
 
-    console.log(`defExampleText: ${defExampleText}`);
+    logTrace("formatData", `defExampleText: ${defExampleText}`);
     const subsensesList = senseItem.subsense;
     if (subsensesList?.length) {
       const subsenseDefExampleText = getDefExampleMarkdown(subsensesList, word, "\n", i + 1);
-      console.log(`subsenseDefExampleText: ${subsenseDefExampleText}`);
+      logTrace("formatData", `subsenseDefExampleText: ${subsenseDefExampleText}`);
       defExampleText += "  " + subsenseDefExampleText + "";
     }
 

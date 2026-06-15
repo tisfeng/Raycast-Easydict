@@ -3,6 +3,7 @@
 import { translate, type TargetLanguage } from "@deeplx/core";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getDeepLLangCode } from "@/language/languages";
+import { logTrace, logError } from "@/devLog";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
 /**
@@ -17,7 +18,7 @@ export async function requestDeepLXTranslate(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request DeepLX`);
+  logTrace("deeplx", "start request DeepLX");
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLangCode(fromLanguage);
   const targetLang = getDeepLLangCode(toLanguage);
@@ -25,7 +26,7 @@ export async function requestDeepLXTranslate(
   const deepLXType = TranslationType.DeepLX;
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
-    console.log(`DeepLX translate not support language: ${fromLanguage} --> ${toLanguage}`);
+    logTrace("deeplx", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
       type: deepLXType,
       result: undefined,
@@ -41,7 +42,7 @@ export async function requestDeepLXTranslate(
     translate(word, targetLang as TargetLanguage, sourceLang as TargetLanguage)
       .then((translatedText: string) => {
         const costTime = new Date().getTime() - startTime;
-        console.log(`DeepLX translate: ${JSON.stringify(translatedText, null, 4)}, cost: ${costTime} ms`);
+        logTrace("deeplx", `translate: ${translatedText}, cost: ${costTime} ms`);
 
         // Create a result object similar to DeepL API structure
         const deepLXResult = {
@@ -62,7 +63,7 @@ export async function requestDeepLXTranslate(
         resolve(deepLXTypeResult);
       })
       .catch((error: unknown) => {
-        console.error(`---> DeepLX translate error:`, error);
+        logError("deeplx", `translate error: ${error}`);
 
         const errorInfo: RequestErrorInfo = {
           type: deepLXType,

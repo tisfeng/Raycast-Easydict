@@ -7,12 +7,13 @@ import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
 import { getBingLangCode, getYoudaoLangCodeFromBingCode } from "@/language/languages";
+import { logTrace, logWarn, logError } from "@/devLog";
 import { myPreferences } from "@/preferences";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
 import { BingConfig, BingTranslateResult } from "@/translation/microsoft/types";
 
-console.log(`enter bing.ts`);
+logTrace("bing", "module loaded");
 
 const bingConfigKey = "BingConfig";
 let bingConfig: BingConfig | undefined;
@@ -31,7 +32,7 @@ export async function requestWebBingTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`start requestWebBingTranslate`);
+  logTrace("bing", "start requestWebBingTranslate");
 
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const fromLang = getBingLangCode(fromLanguage);
@@ -40,21 +41,21 @@ export async function requestWebBingTranslate(
   const type = TranslationType.Bing;
 
   const isExpired = await checkIfBingTokenExpired();
-  console.log(`bing token expired: ${isExpired}`);
+  logTrace("bing", `token expired: ${isExpired}`);
 
   if (isExpired) {
-    console.log(`bing token expired, request new one`);
+    logTrace("bing", "token expired, request new one");
     bingConfig = await requestBingConfig();
   } else {
     const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
     if (storedBingConfig) {
       bingConfig = JSON.parse(storedBingConfig) as BingConfig;
-      console.log(`use stored bingConfig, IG: ${bingConfig.IG}`);
+      logTrace("bing", `use stored bingConfig, IG: ${bingConfig.IG}`);
     }
   }
 
   if (!bingConfig) {
-    console.error(`get bingConfig failed`);
+    logError("bing", "get bingConfig failed");
 
     const errorInfo: RequestErrorInfo = {
       type: type,
@@ -64,7 +65,6 @@ export async function requestWebBingTranslate(
     return Promise.reject(errorInfo);
   }
 
-  // console.log(`request with bingConfig: ${JSON.stringify(bingConfig, null, 4)}`);
   const { IID, IG, key, token, count } = bingConfig;
   const requestCount = count + 1;
   bingConfig.count = requestCount;
@@ -77,12 +77,11 @@ export async function requestWebBingTranslate(
     token: token,
     key: key,
   };
-  // console.log(`bing request data: ${JSON.stringify(data, null, 4)}`);
 
   const IIDString = `${IID}.${requestCount}`;
 
   const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
-  console.log(`bing url: ${url}`);
+  logTrace("bing", `url: ${url}`);
 
   return timedFetch
     .raw(url, {
@@ -97,7 +96,7 @@ export async function requestWebBingTranslate(
     })
     .then(function (response) {
       const finalUrl = response.url;
-      console.log(`bing finalUrl: ${finalUrl}`);
+      logTrace("bing", `finalUrl: ${finalUrl}`);
 
       // Get new host
       const newBingHost = new URL(finalUrl).host;
@@ -105,8 +104,9 @@ export async function requestWebBingTranslate(
       // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
       if (!responseData) {
         if (bingHost !== newBingHost && retryCount < 3) {
-          console.warn(
-            `bing translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
+          logWarn(
+            "bing",
+            `translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
           );
           retryCount++;
           return requestBingConfig().then((bingConfig) => {
@@ -139,7 +139,7 @@ export async function requestWebBingTranslate(
         const translations = bingTranslateResult.translations[0].text.split("\n");
         const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
         const toLanguage = bingTranslateResult.translations[0].to;
-        console.log(`bing translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
+        logTrace("bing", `translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
 
         const result: QueryTypeResult = {
           type: type,
@@ -152,11 +152,11 @@ export async function requestWebBingTranslate(
     })
     .catch(function (error) {
       if (error.message === "canceled" || error.name === "AbortError") {
-        console.log(`---> bing canceled`);
+        logTrace("bing", "canceled");
         throw undefined;
       }
 
-      console.error(`---> bing translate error: ${error}`);
+      logError("bing", `translate error: ${error}`);
       const errorInfo = getTypeErrorInfo(type, error);
       throw errorInfo;
     });
@@ -166,7 +166,7 @@ export async function requestWebBingTranslate(
  * Bing language detect, use bing translate `audo-detect`.
  */
 export async function bingDetect(text: string): Promise<DetectedLangModel> {
-  console.log(`start bingDetect`);
+  logTrace("bing", "start bingDetect");
 
   const queryWordInfo: QueryWordInfo = {
     word: text,
@@ -181,7 +181,7 @@ export async function bingDetect(text: string): Promise<DetectedLangModel> {
         const bingTranslateResult = result.result as BingTranslateResult;
         const detectedLanguageCode = bingTranslateResult.detectedLanguage.language;
         const youdaoLangCode = getYoudaoLangCodeFromBingCode(detectedLanguageCode);
-        console.warn(`bing detect language: ${detectedLanguageCode}, youdaoLangCode: ${youdaoLangCode}`);
+        logTrace("bing", `detected: ${detectedLanguageCode}`);
 
         const detectedLanguageResult: DetectedLangModel = {
           type: type,
@@ -195,7 +195,7 @@ export async function bingDetect(text: string): Promise<DetectedLangModel> {
       .catch((error) => {
         const errorInfo = error as RequestErrorInfo | undefined;
         if (errorInfo) {
-          console.error(`---> bing detect error: ${JSON.stringify(error)}`);
+          logError("bing", `detect error: ${JSON.stringify(error)}`);
           errorInfo.type = type;
         }
         reject(errorInfo);
@@ -209,11 +209,11 @@ export async function bingDetect(text: string): Promise<DetectedLangModel> {
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
 async function requestBingConfig(): Promise<BingConfig | undefined> {
-  console.log(`start requestBingConfig`);
-  console.log(`config bingTld: ${bingHost}`);
+  logTrace("bing", "start requestBingConfig");
+  logTrace("bing", `config bingTld: ${bingHost}`);
 
   const url = `https://${bingHost}/translator`;
-  console.log(`get bing config url: ${url}`);
+  logTrace("bing", `get config url: ${url}`);
 
   const response = await timedFetch.raw(url, {
     headers: { "User-Agent": userAgent },
@@ -225,17 +225,17 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
 
   if (config) {
     bingConfig = config;
-    console.log(`getBingConfig from web, IG: ${config.IG}`);
+    logTrace("bing", `getBingConfig from web, IG: ${config.IG}`);
     LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
     return config;
   } else {
-    console.warn(`parse bing config failed, html: ${html}`);
-    console.log(`try check if ip in china`);
+    logWarn("bing", `parse config failed, html: ${html}`);
+    logTrace("bing", "try check if ip in china");
 
     const finalUrl = response.url;
     bingHost = new URL(finalUrl).host;
 
-    console.warn(`get bing config failed, host: ${bingHost}, change host, then request again`);
+    logWarn("bing", `get config failed, host: ${bingHost}, change host, then request again`);
     try {
       return await requestBingConfig();
     } catch {
@@ -265,7 +265,6 @@ function parseBingConfig(html: string): BingConfig | undefined {
       expirationInterval: expirationInterval,
       count: 1,
     };
-    // console.log(`getBingConfig from web: ${JSON.stringify(config, null, 4)}`);
 
     bingConfig = config;
     LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
@@ -277,14 +276,13 @@ function parseBingConfig(html: string): BingConfig | undefined {
  * Check if token expired, if expired, get a new one. else use the stored one as bingConfig.
  */
 async function checkIfBingTokenExpired(): Promise<boolean> {
-  console.log(`check if bing token expired`);
+  logTrace("bing", "check if token expired");
   const value = await LocalStorage.getItem<string>(bingConfigKey);
   if (!value) {
     requestBingConfig();
     return true;
   }
 
-  // console.log(`stored bingConfig: ${JSON.stringify(value, null, 4)}`);
   const config = JSON.parse(value) as BingConfig;
   const { key, expirationInterval } = config;
   const tokenStartTime = parseInt(key);
@@ -293,7 +291,7 @@ async function checkIfBingTokenExpired(): Promise<boolean> {
   const tokenUsedTime = Date.now() - tokenStartTime;
   const isExpired = tokenUsedTime > expiration;
   if (isExpired) {
-    console.log(`bing token expired, request new one`);
+    logTrace("bing", "token expired, request new one");
     requestBingConfig();
   } else {
     bingConfig = config;

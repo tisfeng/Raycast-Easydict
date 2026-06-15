@@ -8,12 +8,13 @@ import { timedFetch } from "@/fetchConfig";
 import { userAgent } from "@/consts";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getGoogleLangCode } from "@/language/languages";
+import { logTrace, logError } from "@/devLog";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
-console.log(`enter google.ts`);
+logTrace("google", "module loaded");
 
 export function requestGoogleTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
-  console.log(`---> start request Google`);
+  logTrace("google", "start request Google");
   // return googleRPCTranslate(queryWordInfo, signal);
   return googleWebTranslate(queryWordInfo, signal);
 }
@@ -28,7 +29,7 @@ export function requestGoogleTranslate(queryWordInfo: QueryWordInfo, signal?: Ab
  * Another wild google translate api: http://translate.google.com/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
 export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
-  console.log(`start google web translate`);
+  logTrace("google", "start google web translate");
 
   const fromLanguageId = getGoogleLangCode(queryWordInfo.fromLanguage);
   const toLanguageId = getGoogleLangCode(queryWordInfo.toLanguage);
@@ -43,7 +44,7 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     "User-Agent": userAgent,
   };
   const url = `https://translate.google.com/m?${querystring.stringify(data)}`;
-  console.log(`---> google web url: ${url}`); // https://translate.google.com/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
+  logTrace("google", `web url: ${url}`); // https://translate.google.com/m?sl=auto&tl=zh-CN&hl=zh-CN&q=good
 
   return timedFetch(url, {
     headers,
@@ -56,7 +57,7 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
       // <div class="result-container">好的</div>
       const translation = $(".result-container").text();
       const translations = translation.split("\n");
-      console.warn(`---> google web translation: ${translation}`);
+      logTrace("google", `web translation: ${translation}`);
       const result: QueryTypeResult = {
         type: TranslationType.Google,
         result: { translatedText: translation },
@@ -67,10 +68,10 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     })
     .catch((error) => {
       if (error.message === "canceled" || error.name === "AbortError") {
-        console.log(`---> google web translate cancelled`);
+        logTrace("google", "canceled");
         throw undefined;
       }
-      console.error(`google web error: ${error}`);
+      logError("google", `web error: ${error}`);
 
       const errorInfo: RequestErrorInfo = {
         type: TranslationType.Google,

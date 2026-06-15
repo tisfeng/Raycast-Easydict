@@ -2,6 +2,7 @@
 
 import { preferredLanguages } from "@/preferences";
 import { englishLanguageItem } from "@/language/consts";
+import { logTrace } from "@/devLog";
 
 /**
  * check if the language is preferred language
@@ -68,6 +69,6 @@ export function isChinese(text: string) {
  */
 export function isEnglishOrNumber(text: string) {
   const pureText = removePunctuation(removeBlankSpace(text));
-  console.log("pureText: " + pureText);
+  logTrace("detectUtils", `pureText: ${pureText}`);
   return /^[a-zA-Z0-9]+$/.test(pureText);
 }

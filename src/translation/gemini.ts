@@ -1,5 +1,6 @@
 import { timedFetch } from "@/fetchConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { logTrace, logError } from "@/devLog";
 import { AppKeyStore } from "@/preferences";
 import { GeminiTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
@@ -10,7 +11,7 @@ export async function requestGeminiTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request Gemini`);
+  logTrace("gemini", "start request Gemini");
   const { word, fromLanguage, toLanguage } = queryWordInfo;
   const type = TranslationType.Gemini;
   const apiKey = AppKeyStore.geminiAPIKey;
@@ -53,14 +54,14 @@ ${word}`;
     })
       .then((response) => {
         const result = response;
-        console.log(`---> Gemini translate result: ${JSON.stringify(result)}`);
+        logTrace("gemini", `translate result: ${JSON.stringify(result)}`);
 
         if (!result.candidates?.[0]?.content?.parts?.[0]?.text) {
           throw new Error("Empty response from Gemini API");
         }
 
         const translatedText = result.candidates[0].content.parts[0].text.trim();
-        console.log(`Gemini translate result: ${translatedText}`);
+        logTrace("gemini", `translate result: ${translatedText}`);
 
         const geminiResult: GeminiTranslateResult = {
           translatedText: translatedText,
@@ -78,11 +79,11 @@ ${word}`;
       })
       .catch((error) => {
         if (error.message === "canceled" || error.name === "AbortError") {
-          console.log(`---> gemini canceled`);
+          logTrace("gemini", "canceled");
           return reject(undefined);
         }
 
-        console.error("Gemini translate error:", error);
+        logError("gemini", `translate error: ${error}`);
         const errorInfo: RequestErrorInfo = {
           type: type,
           message: error.data?.error?.message || error.message || "Unknown error",

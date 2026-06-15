@@ -1,6 +1,7 @@
 import { timedFetch } from "@/fetchConfig";
 import crypto from "node:crypto";
 import { userAgent } from "@/consts";
+import { logTrace, logError, logWarn } from "@/devLog";
 import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
 import { YoudaoKey } from "@/dictionary/youdao/key.type";
 import { TranslateParams, YoudaoTranslateResponse } from "@/dictionary/youdao/translate.type";
@@ -11,7 +12,7 @@ export async function requestYoudaoWebTranslate(
   queryType?: QueryType,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
+  logTrace("youdaoTranslate", `start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
   const type = queryType ?? TranslationType.Youdao;
@@ -21,7 +22,7 @@ export async function requestYoudaoWebTranslate(
   try {
     youdaoKey = await getYoudaoKey();
   } catch (error) {
-    console.error("Failed to get Youdao key:", error);
+    logError("youdaoTranslate", `failed to get Youdao key: ${error}`);
     return Promise.reject({
       type: type,
       message: error instanceof Error ? error.message : String(error),
@@ -30,7 +31,7 @@ export async function requestYoudaoWebTranslate(
   }
 
   if (!isValidLanguage) {
-    console.warn(`---> invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
+    logWarn("youdaoTranslate", `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
     return Promise.reject({
       type: type,
       message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
@@ -43,7 +44,7 @@ export async function requestYoudaoWebTranslate(
     const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
       e.map((t) => t.tgt).join(""),
     );
-    console.log(`---> youdao web translate: ${translations}`);
+    logTrace("youdaoTranslate", `translate result: ${translations.join("\n")}`);
 
     return {
       type: type,
@@ -52,7 +53,7 @@ export async function requestYoudaoWebTranslate(
       queryWordInfo: queryWordInfo,
     };
   } catch (error) {
-    console.error("Failed to translate:", error);
+    logError("youdaoTranslate", `failed to translate: ${error}`);
     return Promise.reject({
       type: type,
       message: error instanceof Error ? error.message : String(error),
@@ -187,8 +188,8 @@ function decryptAES(text: string, key: string, iv: string): string | null {
     const decipher = crypto.createDecipheriv("aes-128-cbc", a, r);
     const decrypted = decipher.update(text, "base64", "utf8") + decipher.final("utf8");
     return decrypted;
-  } catch (error) {
-    console.error("---> Decryption error:", error);
+  } catch {
+    logError("youdaoTranslate", "decryption error");
     return null;
   }
 }

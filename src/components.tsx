@@ -28,6 +28,7 @@ import {
   TranslationType,
   WebQueryItem,
 } from "@/types";
+import { logTrace } from "@/devLog";
 import { checkIsLingueeListItem, checkIsTranslationType, checkIsYoudaoDictionaryListItem } from "@/utils";
 
 const queryWebItemTypes = [
@@ -131,7 +132,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
           icon={playSoundIcon("black")}
           shortcut={{ modifiers: ["cmd"], key: "s" }}
           onAction={() => {
-            console.log(`start play sound: ${word}`);
+            logTrace("components", `start play sound: ${word}`);
             playYoudaoWordAudioAfterDownloading(queryWordInfo);
           }}
         />
@@ -193,7 +194,7 @@ function CopyTextAction(props: { copyText: string }) {
   return (
     <Action.CopyToClipboard
       onCopy={() => {
-        console.log("copy: ", copyText);
+        logTrace("components", `copy: ${copyText}`);
       }}
       title={`Copy Text`}
       content={copyText}
@@ -244,7 +245,6 @@ function playSoundIcon(lightTintColor: string) {
  */
 export function getListItemIcon(listItem: ListDisplayItem): Image.ImageLike {
   const { displayType } = listItem;
-  // console.warn(`---> get list type: ${displayType}`);
 
   let itemIcon: Image.ImageLike = {
     source: Icon.Dot,
@@ -266,7 +266,6 @@ export function getListItemIcon(listItem: ListDisplayItem): Image.ImageLike {
  * Get ImageLike based on LingueeDisplayType
  */
 export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType): Image.ImageLike {
-  // console.log(`---> linguee type: ${lingueeDisplayType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (lingueeDisplayType) {
     case LingueeListItemType.Translation: {
@@ -308,7 +307,6 @@ export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType):
       break;
     }
   }
-  // console.log(`---> dot color: ${dotColor}`);
   const itemIcon: Image.ImageLike = {
     source: Icon.Dot,
     tintColor: dotColor,
@@ -320,7 +318,6 @@ export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType):
  * Get ImageLike based on YoudaoDisplayType
  */
 export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemType): Image.ImageLike {
-  // console.log(`---> getYoudaoListItemIcon type: ${queryType}`);
   let dotColor: Color.ColorLike = Color.PrimaryText;
   switch (youdaoListType) {
     case YoudaoDictionaryListItemType.Translation: {
@@ -455,7 +452,6 @@ function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQuer
       break;
     }
   }
-  // console.log(`---> type: ${queryResult.type}, webUrl: ${webUrl}`);
   return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
 }
 
@@ -482,7 +478,7 @@ function WebQueryAction(props: { webQueryItem?: WebQueryItem; enableShortcutKey?
 
 export function checkIfPreferredLanguagesConflict() {
   if (preferredLanguage1.youdaoLangCode === preferredLanguage2.youdaoLangCode) {
-    console.log("referredLanguage1 and referredLanguage2 are the same language");
+    logTrace("components", "referredLanguage1 and referredLanguage2 are the same language");
     return (
       <List searchBarPlaceholder="Error">
         <List.Item

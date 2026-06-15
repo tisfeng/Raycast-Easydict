@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
+import { logTrace } from "@/devLog";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";
@@ -104,14 +105,12 @@ export class Easydict {
     const currentVersionKey = `${versionInfoKey}-${this.version}`;
     const currentEasydictInfo = await this.getVersionInfo(currentVersionKey);
     if (currentEasydictInfo) {
-      // console.log(`get current easydict cost time: ${Date.now() - startTime} ms`);
-      // console.log(`current easydict info: ${JSON.stringify(currentEasydictInfo, null, 4)}`);
       return Promise.resolve(currentEasydictInfo);
     } else {
       const startStoredTime = Date.now();
       await this.storeCurrentVersionInfo();
-      console.log(`store version cost time: ${Date.now() - startStoredTime} ms`);
-      console.log(`store and get current version cost time: ${Date.now() - startTime} ms`);
+      logTrace("version", `store version cost time: ${Date.now() - startStoredTime} ms`);
+      logTrace("version", `store and get current version cost time: ${Date.now() - startTime} ms`);
       return Promise.resolve(this);
     }
   }

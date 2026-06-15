@@ -5,6 +5,7 @@ import { timedFetch } from "@/fetchConfig";
 import { userAgent } from "@/consts";
 import { DictionaryType, QueryTypeResult } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
+import { logTrace, logError } from "@/devLog";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getLingueeWebDictionaryURL, parseLingueeHTML } from "@/dictionary/linguee/parse";
 import { LingueeDictionaryResult } from "@/dictionary/linguee/types";
@@ -20,10 +21,10 @@ export async function requestLingueeDictionary(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request Linguee`);
+  logTrace("linguee", "start request Linguee");
 
   const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
-  console.log(`---> linguee url: ${lingueeUrl}`);
+  logTrace("linguee", `url: ${lingueeUrl}`);
   if (!lingueeUrl) {
     const result: QueryTypeResult = {
       type: DictionaryType.Linguee,
@@ -70,10 +71,10 @@ export async function requestLingueeDictionary(
       })
       .catch((error) => {
         if (error.message === "canceled") {
-          console.log(`---> linguee canceled`);
+          logTrace("linguee", "request canceled");
           return reject(undefined);
         }
-        console.error(`---> linguee error: ${error}`);
+        logError("linguee", `request error: ${error}`);
 
         const errorInfo = getTypeErrorInfo(DictionaryType.Linguee, error);
         if (error.status === 503) {
@@ -90,7 +91,7 @@ export async function requestLingueeDictionary(
  */
 async function recordLingueeRequestTime() {
   const lingueeRequestTime = (await LocalStorage.getItem<number>(lingueeRequestTimeKey)) || 1;
-  console.log(`---> linguee has requested times: ${lingueeRequestTime}`);
+  logTrace("linguee", `requested times: ${lingueeRequestTime}`);
   LocalStorage.setItem(lingueeRequestTimeKey, lingueeRequestTime + 1);
 }
 /**

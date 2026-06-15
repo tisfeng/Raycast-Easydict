@@ -2,6 +2,7 @@
 
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getLanguageEnglishName } from "@/language/languages";
+import { logTrace, logError } from "@/devLog";
 import { AppKeyStore } from "@/preferences";
 import { QueryTypeResult, TranslationType } from "@/types";
 import { networkTimeout } from "@/consts";
@@ -31,7 +32,7 @@ function getTokenLimitParams(endpoint: string, model: string): TokenLimitParams 
 }
 
 export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
-  console.warn(`---> start request OpenAI`);
+  logTrace("openai", "start request OpenAI");
 
   const url = AppKeyStore.openAIEndpoint;
 
@@ -39,7 +40,7 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
   const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
 
   const prompt = `translate the following ${fromLanguage} word or text to ${toLanguage}: """${queryWordInfo.word}"""`;
-  console.warn(`---> prompt: ${prompt}`);
+  logTrace("openai", `prompt: ${prompt}`);
   const message = [
     {
       role: "system",
@@ -146,7 +147,6 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         let resp;
         try {
           resp = JSON.parse(msg);
-          // console.warn(`---> openai response: ${JSON.stringify(resp)}`);
         } catch {
           if (queryWordInfo.onFinish) {
             queryWordInfo.onFinish("stop");
@@ -227,12 +227,11 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         }
 
         if (errorMessage === "canceled") {
-          console.log(`---> OpenAI canceled`);
+          logTrace("openai", "canceled");
           return reject(undefined);
         }
 
-        console.error(`---> OpenAI error: ${JSON.stringify(err)}`);
-        console.warn(`---> OpenAI error: ${errorMessage}`);
+        logError("openai", `error: ${errorMessage}`);
 
         if (errorName === "AbortError") {
           errorMessage = `Request timeout.`;

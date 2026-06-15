@@ -4,6 +4,7 @@ import querystring from "node:querystring";
 import { timedFetch } from "@/fetchConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getDeepLLangCode } from "@/language/languages";
+import { logTrace, logError } from "@/devLog";
 import { AppKeyStore } from "@/preferences";
 import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
@@ -17,7 +18,7 @@ export async function requestDeepLTranslate(
   queryWordInfo: QueryWordInfo,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
-  console.log(`---> start request DeepL`);
+  logTrace("deepl", "start request DeepL");
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const sourceLang = getDeepLLangCode(fromLanguage);
   const targetLang = getDeepLLangCode(toLanguage);
@@ -26,7 +27,7 @@ export async function requestDeepLTranslate(
 
   // if language is not supported, return null
   if (!sourceLang || !targetLang) {
-    console.log(`DeepL translate not support language: ${fromLanguage} --> ${toLanguage}`);
+    logTrace("deepl", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
     const result: QueryTypeResult = {
       type: deepLType,
       result: undefined,
@@ -64,7 +65,6 @@ export async function requestDeepLTranslate(
     source_lang: sourceLang,
     target_lang: targetLang,
   };
-  // console.log(`---> deepL params: ${JSON.stringify(params, null, 4)}`);
 
   return new Promise((resolve, reject) => {
     timedFetch(url, {
@@ -79,7 +79,7 @@ export async function requestDeepLTranslate(
       .then((response: DeepLTranslateResult) => {
         const deepLResult = response;
         const translatedText = deepLResult.translations[0].text;
-        console.log(`DeepL translate: ${JSON.stringify(translatedText, null, 4)}`);
+        logTrace("deepl", `translate: ${translatedText}`);
 
         const deepLTypeResult: QueryTypeResult = {
           type: TranslationType.DeepL,
@@ -91,11 +91,11 @@ export async function requestDeepLTranslate(
       })
       .catch((error) => {
         if (error.message === "canceled" || error.name === "AbortError") {
-          console.log(`---> deepL canceled`);
+          logTrace("deepl", "canceled");
           return reject(undefined);
         }
 
-        console.error("deepL error: ", error);
+        logError("deepl", `error: ${error}`);
 
         const errorInfo = getTypeErrorInfo(TranslationType.DeepL, error);
         const errorCode = error.status;
@@ -107,7 +107,7 @@ export async function requestDeepLTranslate(
           errorInfo.message = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
         }
 
-        console.error("deepL error info: ", errorInfo); // message: 'timeout of 15000ms exceeded'
+        logError("deepl", `error info: ${JSON.stringify(errorInfo)}`); // message: 'timeout of 15000ms exceeded'
         reject(errorInfo);
       });
   });

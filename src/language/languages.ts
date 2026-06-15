@@ -5,6 +5,7 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { preferredLanguages } from "@/preferences";
 import { languageItemList } from "@/language/consts";
 import { LanguageItem } from "@/language/type";
+import { logTrace } from "@/devLog";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 90;
@@ -108,7 +109,10 @@ export function getYoudaoLangCodeFromBaiduCode(baiduLangCode: string): string {
 export function getYoudaoLangCodeFromAppleCode(appleLanguageTitle: string): string {
   const francLanguage = francLanguageDetect(appleLanguageTitle);
   const youdaoLangCode = francLanguage.youdaoLangCode;
-  console.log(`getYoudaoLangCodeFromAppleCode: ${appleLanguageTitle}, franc detect YoudaoLangCode: ${youdaoLangCode}`);
+  logTrace(
+    "language",
+    `getYoudaoLangCodeFromAppleCode: ${appleLanguageTitle}, franc detect YoudaoLangCode: ${youdaoLangCode}`,
+  );
 
   const chineseLanguageItem = getLanguageItemFromAppleChineseTitle(appleLanguageTitle);
   if (chineseLanguageItem) {
@@ -305,6 +309,6 @@ export function getAutoSelectedTargetLanguageItem(fromLangCode: string): Languag
   const targetLanguageItem = preferredLanguages.find(
     (languageItem) => languageItem.youdaoLangCode !== fromLangCode,
   ) as LanguageItem;
-  console.log(`fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);
+  logTrace("language", `fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);
   return targetLanguageItem;
 }

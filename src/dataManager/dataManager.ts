@@ -12,6 +12,7 @@ import { requestYoudaoWebTranslate } from "@/dictionary/youdao/youdaoTranslate";
 import { englishLanguageItem } from "@/language/consts";
 import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoCode } from "@/language/languages";
 import { LanguageItem } from "@/language/type";
+import { logTrace, logWarn } from "@/devLog";
 import { myPreferences } from "@/preferences";
 import { appleTranslate } from "@/scripts";
 import { requestBaiduTextTranslate } from "@/translation/baidu/baiduAPI";
@@ -46,7 +47,7 @@ import {
 } from "@/dataManager/utils";
 import { YoudaoDictionaryFormatResult } from "@/dictionary/youdao/types";
 
-console.log(`enter dataManager.ts`);
+logTrace("dataManager", "module loaded");
 
 /**
  * Data manager.
@@ -116,7 +117,7 @@ export class DataManager {
    * Delay the time to call the query API. Since API has frequency limit.
    */
   public delayQueryText(text: string, toLanguage: string, isDelay: boolean) {
-    console.log(`---> delay query text: ${text}, isDelay: ${isDelay}`);
+    logTrace("delay query text", `${text}, isDelay: ${isDelay}`);
     const delayTime = isDelay ? this.delayRequestTime : 0;
     this.delayQueryTimer = setTimeout(() => {
       this.queryText(text, toLanguage);
@@ -135,8 +136,8 @@ export class DataManager {
     this.resetProperties();
 
     const { word, fromLanguage, toLanguage } = queryWordInfo;
-    console.log(`---> query text: ${word}`);
-    console.log(`---> query fromTo: ${fromLanguage} -> ${toLanguage}`);
+    logTrace("query text", word);
+    logTrace("query fromTo", `${fromLanguage} -> ${toLanguage}`);
 
     // Todo: handle cancel request, add reject(undefined) to the catch.
     this.queryYoudaoDictionary(queryWordInfo);
@@ -182,7 +183,7 @@ export class DataManager {
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
-      console.log(`after delay apple translate`);
+      logTrace("dataManager", "after delay apple translate");
     }, 100);
   }
 
@@ -190,8 +191,6 @@ export class DataManager {
    * Clear query result.
    */
   public clearQueryResult() {
-    // console.log(`---> clear query result`);
-
     this.cancelCurrentQuery();
 
     if (this.delayQueryTimer) {
@@ -217,7 +216,6 @@ export class DataManager {
    * 2. Update display sections.
    */
   private updateQueryResultAndSections(queryResult: QueryResult) {
-
     this.updateQueryResult(queryResult);
     this.updateDataDisplaySections();
   }
@@ -274,7 +272,7 @@ export class DataManager {
    * Query text, automatically detect the language of input text
    */
   private queryText(text: string, toLanguage: string) {
-    console.warn("start queryText: " + text);
+    logTrace("dataManager", `query: ${text}`);
 
     this.updateLoadingState(true);
     this.resetProperties();
@@ -283,13 +281,14 @@ export class DataManager {
     // Todo: record all detect result, maybe can use it as translation result.
 
     detectLanguage(text).then((detectedLanguage) => {
-      console.log(
-        `---> final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
+      logTrace(
+        "dataManager",
+        `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
       );
 
       // * It takes time to detect the language, in the meantime, user may have cancelled the query.
       if (this.shouldClearQuery) {
-        console.log(`---> query has been canceled, stop, return`);
+        logTrace("dataManager", "query has been canceled, stop, return");
         this.updateLoadingState(false);
         return;
       }
@@ -303,17 +302,17 @@ export class DataManager {
    */
   private queryTextWithDetectedLanguage(text: string, toLanguage: string, detectedLanguage: DetectedLangModel) {
     const fromYoudaoLangCode = detectedLanguage.youdaoLangCode;
-    console.log("queryTextWithFromLanguageId:", fromYoudaoLangCode);
+    logTrace("dataManager", `queryTextWithFromLanguageId: ${fromYoudaoLangCode}`);
     this.updateCurrentFromLanguageItem(getLanguageItemFromYoudaoCode(fromYoudaoLangCode));
 
     // priority to use user selected target language, if conflict, use auto selected target language
     let targetLangCode = toLanguage;
-    console.log("userSelectedTargetLanguage:", targetLangCode);
+    logTrace("dataManager", `userSelectedTargetLanguage: ${targetLangCode}`);
     if (fromYoudaoLangCode === targetLangCode) {
       const targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLangCode);
       this.updateAutoSelectedTargetLanguageItem(targetLanguageItem);
       targetLangCode = targetLanguageItem.youdaoLangCode;
-      console.log("---> conflict, use autoSelectedTargetLanguage: ", targetLangCode);
+      logTrace("dataManager", `conflict, use autoSelectedTargetLanguage: ${targetLangCode}`);
     }
 
     const queryTextInfo: QueryWordInfo = {
@@ -328,7 +327,7 @@ export class DataManager {
    * Rest properyies before each query.
    */
   private resetProperties() {
-    console.log(`resetProperties`);
+    logTrace("dataManager", "resetProperties");
 
     this.hasPlayedAudio = false;
     this.isLastQuery = true;
@@ -459,11 +458,9 @@ export class DataManager {
 
       requestYoudaoWebDictionary(queryWordInfo, type, this.abortSignal)
         .then((youdaoDictionaryResult) => {
-          // console.log(`---> youdaoDictionaryResult: ${JSON.stringify(youdaoDictionaryResult, null, 4)}`);
-
           const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
           if (!formatYoudaoResult) {
-            console.warn(`---> formatYoudaoResult is undefined`);
+            logWarn("dataManager", "formatYoudaoResult is undefined");
             return;
           }
 
@@ -495,7 +492,7 @@ export class DataManager {
           }
 
           // Try to update Youdao dictionary translate result, if Youdao translation has finished.
-          console.log("---> Try to update Youdao dictionary translate with Youdao translate");
+          logTrace("dataManager", "Try to update Youdao dictionary translate with Youdao translate");
 
           const youdaoTranslationResult = this.getQueryResult(TranslationType.Youdao);
           if (youdaoTranslationResult) {
@@ -782,8 +779,6 @@ export class DataManager {
         }
       };
       queryWordInfo.onFinish = (value) => {
-        console.warn(`onFinish content: ${value}`);
-
         if (value === "stop") {
           if (updateTimer) {
             clearTimeout(updateTimer);
@@ -858,13 +853,12 @@ export class DataManager {
    */
   private removeQueryFromRecordList(type: QueryType) {
     this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
-    // console.log(`queryRecordList: ${this.queryRecordList}`);
 
     const showingLoadingState = this.queryRecordList.length > 0;
     this.updateLoadingState(showingLoadingState);
 
     if (!showingLoadingState) {
-      console.log("All queries finished.");
+      logTrace("dataManager", "All queries finished.");
       this.abortController = undefined;
     }
   }
@@ -873,7 +867,7 @@ export class DataManager {
    * Remove all query from queryRecordList, and update loading status.
    */
   private cancelAndRemoveAllQueries() {
-    console.log(`cancel, and remove all query list`);
+    logTrace("dataManager", "cancel, and remove all query list");
 
     this.queryRecordList = [];
     this.updateLoadingState(false);
@@ -891,7 +885,7 @@ export class DataManager {
     const { type, sourceResult } = queryResult;
 
     if (!sourceResult.result) {
-      console.warn(`---> ${type} result is empty.`);
+      logWarn("dataManager", `${type} result is empty.`);
       return;
     }
 
@@ -938,7 +932,7 @@ export class DataManager {
 
         // * Check if need to display DeepL translation.
         newQueryResult.hideDisplay = !myPreferences.enableDeepLTranslate;
-        console.log(`---> update deepL translation, disableDisplay: ${newQueryResult.hideDisplay}`);
+        logTrace("dataManager", `update deepL translation, disableDisplay: ${newQueryResult.hideDisplay}`);
       }
       this.updateQueryResultAndSections(newQueryResult);
     }
@@ -967,7 +961,7 @@ export class DataManager {
         firstLingueeDisplayItem.title = translatedText;
         firstLingueeDisplayItem.copyText = translatedText;
       }
-      console.log(`---> update linguee translation: ${firstLingueeDisplayItem.title}`);
+      logTrace("dataManager", `update linguee translation: ${firstLingueeDisplayItem.title}`);
     }
   }
 
@@ -978,7 +972,7 @@ export class DataManager {
    */
   private updateDictionaryTranslation(dictionaryQueryResult: QueryResult, translations: string[]) {
     const translatedText = translations.join(", ");
-    console.log(`---> try updateDictionaryTranslation: ${translatedText}`);
+    logTrace("dataManager", `try updateDictionaryTranslation: ${translatedText}`);
 
     const dictionaryDisplaySections = dictionaryQueryResult.displaySections;
     if (dictionaryDisplaySections?.length) {
@@ -989,7 +983,7 @@ export class DataManager {
       const firstDictionaryDisplayItem = dictionaryDisplaySections[0].items[0];
       firstDictionaryDisplayItem.title = translatedText;
       firstDictionaryDisplayItem.copyText = translatedText;
-      console.log(`---> update dictionary translation: ${translatedText}`);
+      logTrace("dataManager", `update dictionary translation: ${translatedText}`);
     }
   }
 
@@ -997,7 +991,7 @@ export class DataManager {
    * Try to update Youdao dictionary translation, if exist.
    */
   private updateYoudaoDictionaryTranslation(translations: string[]) {
-    console.log(`---> try updateYoudaoDictionaryTranslation: ${translations}`);
+    logTrace("try updateYoudaoDictionaryTranslation", translations.join("\n"));
 
     const youdaoDictionaryResult = this.getQueryResult(DictionaryType.Youdao);
     if (youdaoDictionaryResult) {
@@ -1048,9 +1042,8 @@ export class DataManager {
    * if is dictionary, and enable automatic play audio and query is word, then download audio and play it.
    */
   private downloadAndPlayWordAudio(queryTypeResult: QueryTypeResult) {
-    console.log(`---> downloadAndPlayWordAudio: ${queryTypeResult.type}`);
+    logTrace("dataManager", `downloadAndPlayWordAudio: ${queryTypeResult.type}`);
     const wordInfo = queryTypeResult.queryWordInfo;
-    // console.log(`---> wordInfo: ${JSON.stringify(wordInfo, null, 4)}`);
     const isDictionaryType = checkIsDictionaryType(queryTypeResult.type);
     const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode;
     const enableAutomaticDownloadAudio =
@@ -1080,9 +1073,6 @@ export class DataManager {
    * Cancel current query.
    */
   private cancelCurrentQuery() {
-    // console.warn(`---> cancel current query`);
-    // console.log(`childProcess: ${JSON.stringify(this.abortObject.childProcess, null, 4)}`);
-
     this.cancelAndRemoveAllQueries();
   }
 }
