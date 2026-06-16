@@ -409,7 +409,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
   const copyText = `${translation} ${word}`;
   const displayType = LingueeListItemType.Translation;
   const lingueeTitleSection: DisplaySection = {
-    type: lingueeType,
+    type: LingueeListItemType.Translation,
     sectionTitle: lingueeType,
     items: [
       {
@@ -417,6 +417,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         title: translation,
         subtitle: word,
         copyText: copyText,
+        displayCategory: "dictionary",
         displayType: displayType,
         queryType: lingueeType,
         queryWordInfo: queryWordInfo,
@@ -461,6 +462,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
               subtitle: subtitle,
               copyText: copyText,
               queryWordInfo: queryWordInfo,
+              displayCategory: "dictionary",
               displayType: displayType,
               queryType: lingueeType,
               tooltip: displayType,
@@ -496,6 +498,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
             subtitle: `${subtitleText}  ${lessCommonNote.toLowerCase()}`,
             copyText: copyText,
             queryWordInfo: queryWordInfo,
+            displayCategory: "dictionary",
             displayType: displayType,
             queryType: lingueeType,
             tooltip: displayType,
@@ -504,7 +507,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         }
       }
       const displayResult: DisplaySection = {
-        type: lingueeType,
+        type: LingueeListItemType.Common,
         sectionTitle: sectionTitle,
         items: displayItems,
       };
@@ -528,6 +531,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         subtitle: subtitle,
         copyText: copyText,
         queryWordInfo: queryWordInfo,
+        displayCategory: "dictionary",
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
@@ -535,7 +539,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
       return displayItem;
     });
     const exampleSection: DisplaySection = {
-      type: DictionaryType.Linguee,
+      type: LingueeListItemType.Example,
       sectionTitle: sectionTitle,
       items: displayItems.slice(0, 3), // show up to 3 examples.
     };
@@ -561,6 +565,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         subtitle: subtitle,
         copyText: copyText,
         queryWordInfo: queryWordInfo,
+        displayCategory: "dictionary",
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
@@ -569,7 +574,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
     });
 
     const displayResult: DisplaySection = {
-      type: lingueeType,
+      type: LingueeListItemType.RelatedWord,
       sectionTitle: sectionTitle,
       items: displayItems.slice(0, 3), // only show 3 related words
     };
@@ -589,6 +594,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         title: copyText,
         copyText: copyText,
         queryWordInfo: queryWordInfo,
+        displayCategory: "dictionary",
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
@@ -596,7 +602,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
       return displayItem;
     });
     const displayResult: DisplaySection = {
-      type: lingueeType,
+      type: LingueeListItemType.Wikipedia,
       sectionTitle: sectionTitle,
       items: displayItems,
     };

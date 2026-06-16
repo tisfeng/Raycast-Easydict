@@ -37,6 +37,7 @@ export function updateYoudaoDictionaryDisplay(
   // 1. Translation.
   const translationType = YoudaoDictionaryListItemType.Translation;
   const translationItem: ListDisplayItem = {
+    displayCategory: "dictionary",
     displayType: translationType,
     queryType: youdaoDictionaryType,
     key: oneLineTranslation + youdaoDictionaryType,
@@ -51,7 +52,7 @@ export function updateYoudaoDictionaryDisplay(
     },
   };
   displaySections.push({
-    type: youdaoDictionaryType,
+    type: YoudaoDictionaryListItemType.Translation,
     sectionTitle: youdaoDictionaryType,
     items: [translationItem],
   });
@@ -130,6 +131,7 @@ export function updateYoudaoDictionaryDisplay(
         logTrace("formatData", `copyText: ${copyText}`);
 
         const displayItem: ListDisplayItem = {
+          displayCategory: "dictionary",
           displayType: modernChineseDictType,
           queryType: youdaoDictionaryType,
           key: copyText,
@@ -160,6 +162,7 @@ export function updateYoudaoDictionaryDisplay(
     const copyText = `${title}${subtitle}`;
 
     const displayItem: ListDisplayItem = {
+      displayCategory: "dictionary",
       displayType: explanationType,
       queryType: youdaoDictionaryType,
       key: copyText + i,
@@ -173,7 +176,7 @@ export function updateYoudaoDictionaryDisplay(
   });
   if (explanationItems?.length) {
     displaySections.push({
-      type: youdaoDictionaryType,
+      type: YoudaoDictionaryListItemType.Explanation,
       items: explanationItems,
     });
   }
@@ -187,6 +190,7 @@ export function updateYoudaoDictionaryDisplay(
   const wfsText = wfs?.join("   ");
   if (wfsText) {
     const formsItem: ListDisplayItem = {
+      displayCategory: "dictionary",
       displayType: formsType,
       queryType: youdaoDictionaryType,
       key: wfsText,
@@ -197,7 +201,7 @@ export function updateYoudaoDictionaryDisplay(
       copyText: wfsText,
     };
     displaySections.push({
-      type: youdaoDictionaryType,
+      type: YoudaoDictionaryListItemType.Forms,
       items: [formsItem],
     });
   }
@@ -209,6 +213,7 @@ export function updateYoudaoDictionaryDisplay(
     const copyText = `${webResultKey} ${webResultValue}`;
 
     const webTranslationItem: ListDisplayItem = {
+      displayCategory: "dictionary",
       displayType: YoudaoDictionaryListItemType.WebTranslation,
       queryType: youdaoDictionaryType,
       key: copyText,
@@ -231,6 +236,7 @@ export function updateYoudaoDictionaryDisplay(
     const copyText = `${phraseKey} ${phraseValue}`;
 
     const webPhraseItem: ListDisplayItem = {
+      displayCategory: "dictionary",
       displayType: YoudaoDictionaryListItemType.WebPhrase,
       queryType: youdaoDictionaryType,
       queryWordInfo: queryWordInfo,
@@ -255,6 +261,7 @@ export function updateYoudaoDictionaryDisplay(
   const summary = youdaoResult.baike?.summary || "";
   const baikeText = `${baikeKey} ${summary}`;
   const baikeItem: ListDisplayItem = {
+    displayCategory: "dictionary",
     displayType: baikeType,
     queryType: youdaoDictionaryType,
     queryWordInfo: queryWordInfo,
@@ -277,6 +284,7 @@ export function updateYoudaoDictionaryDisplay(
   const wikipediaSummary = youdaoResult.wikipedia?.summary || "";
   const wikipediaText = `${wikipediaKey} ${wikipediaSummary}`;
   const wikipediaItem: ListDisplayItem = {
+    displayCategory: "dictionary",
     displayType: wikipediaType,
     queryType: youdaoDictionaryType,
     queryWordInfo: queryWordInfo,

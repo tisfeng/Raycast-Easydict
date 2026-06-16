@@ -160,27 +160,40 @@ export interface QueryResult {
 }
 
 export interface DisplaySection {
-  type: ListItemDisplayType;
+  type: DictionaryDisplayType | TranslationType;
   sectionTitle?: string;
   items: ListDisplayItem[];
 }
 
-export interface ListDisplayItem {
+/**
+ * Shared fields for all list display items.
+ */
+interface ListDisplayItemBase {
+  queryType: QueryType;
   queryWordInfo: QueryWordInfo;
   key: string;
   title: string;
   subtitle?: string;
-  displayType: ListItemDisplayType; // LingueeListItemType.Example
-  queryType: QueryType; // LingueeListItemType
   copyText: string;
   tooltip?: string;
   speech?: string;
   detailsMarkdown?: string;
   sourceData?: QueryResponse;
-
-  // accessory item
   accessoryItem?: ListAccessoryItem;
 }
+
+/**
+ * Discriminated union for list display items.
+ * - Linguee dictionary: queryType=Dinguee, displayType=LingueeListItemType
+ * - Youdao dictionary: queryType=Youdao, displayType=YoudaoDictionaryListItemType
+ * - Translation: queryType=TranslationType, displayType=TranslationType
+ */
+export type ListDisplayItem = ListDisplayItemBase &
+  (
+    | { displayCategory: "dictionary"; queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
+    | { displayCategory: "dictionary"; queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }
+    | { displayCategory: "translation"; queryType: TranslationType; displayType: TranslationType }
+  );
 
 export interface ListAccessoryItem {
   phonetic?: string;
@@ -188,7 +201,10 @@ export interface ListAccessoryItem {
   example?: string; // French word example text
 }
 
-export type ListItemDisplayType = LingueeListItemType | YoudaoDictionaryListItemType | QueryType;
+/**
+ * Display type for dictionary items (Linguee or Youdao sub-types).
+ */
+export type DictionaryDisplayType = LingueeListItemType | YoudaoDictionaryListItemType;
 
 export interface QueryRecordedItem {
   timestamp: number;

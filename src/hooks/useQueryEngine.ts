@@ -197,6 +197,10 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   const buildTranslationDisplay = useCallback((queryResult: QueryResult): QueryResult | null => {
     const { type, sourceResult } = queryResult;
 
+    if (!checkIsTranslationType(type)) {
+      return null;
+    }
+
     if (!sourceResult.result) {
       logWarn("useQueryEngine", `${type} result is empty.`);
       return null;
@@ -211,6 +215,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       key = type;
     }
     const displayItem: ListDisplayItem = {
+      displayCategory: "translation",
       displayType: type,
       queryType: type,
       key,

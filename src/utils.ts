@@ -130,8 +130,9 @@ export function checkIsDictionaryType(type: QueryType): boolean {
 /**
  * Check type is Translation type.
  */
-export function checkIsTranslationType(type: QueryType): type is TranslationType {
-  return Object.values(TranslationType).includes(type as TranslationType);
+const translationTypeValues = new Set<string>(Object.values(TranslationType));
+export function checkIsTranslationType(type: string): type is TranslationType {
+  return translationTypeValues.has(type);
 }
 
 /**

@@ -3,8 +3,7 @@
 import { Color, Icon, Image } from "@raycast/api";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
-import { ListDisplayItem, QueryType } from "@/types";
-import { checkIsLingueeListItem, checkIsTranslationListItem, checkIsYoudaoDictionaryListItem } from "@/utils";
+import { DictionaryType, ListDisplayItem, QueryType } from "@/types";
 
 /**
  * Play sound icons with different tint colors.
@@ -20,20 +19,16 @@ export const playSoundIconGray: Image.ImageLike = {
 };
 
 /**
- * Return the corresponding ImageLike based on the ListDisplayType.
+ * Return the corresponding ImageLike based on the display category and type.
  */
-export function getListItemIcon(listItem: ListDisplayItem): Image.ImageLike {
-  if (checkIsYoudaoDictionaryListItem(listItem)) {
-    return getYoudaoListItemIcon(listItem.displayType);
+export function getListItemIcon(item: ListDisplayItem): Image.ImageLike {
+  if (item.displayCategory === "dictionary") {
+    if (item.queryType === DictionaryType.Linguee) {
+      return getLingueeListItemIcon(item.displayType);
+    }
+    return getYoudaoListItemIcon(item.displayType);
   }
-  if (checkIsLingueeListItem(listItem)) {
-    return getLingueeListItemIcon(listItem.displayType);
-  }
-  if (checkIsTranslationListItem(listItem)) {
-    return getQueryTypeIcon(listItem.displayType);
-  }
-
-  return { source: Icon.Dot, tintColor: Color.PrimaryText };
+  return getQueryTypeIcon(item.displayType);
 }
 
 /**
