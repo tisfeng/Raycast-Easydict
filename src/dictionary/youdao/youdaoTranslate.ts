@@ -2,7 +2,7 @@ import { timedFetch } from "@/fetchConfig";
 import crypto from "node:crypto";
 import { userAgent } from "@/consts";
 import { logTrace, logError, logWarn } from "@/devLog";
-import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
+import { QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
 import { getErrorMessage } from "@/utils";
 import { YoudaoKey } from "./key.type";
 import { TranslateParams, YoudaoTranslateResponse } from "./translate.type";
@@ -10,13 +10,12 @@ import { isValidYoudaoWebTranslateLanguage } from "./utils";
 
 export async function requestYoudaoWebTranslate(
   queryWordInfo: QueryWordInfo,
-  queryType?: QueryType,
   signal?: AbortSignal,
 ): Promise<QueryTypeResult> {
   logTrace("youdaoTranslate", `start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
   const { fromLanguage, toLanguage, word } = queryWordInfo;
 
-  const type = queryType ?? TranslationType.Youdao;
+  const type = TranslationType.Youdao;
   const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
 
   let youdaoKey: YoudaoKey | null = null;
