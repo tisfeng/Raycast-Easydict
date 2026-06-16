@@ -58,7 +58,7 @@
   ],
   "dependencies": {
     "@deeplx/core": "^0.1.3",
-    "@raycast/api": "^1.104.16",
+    "@raycast/api": "^1.104.19",
     "@raycast/utils": "^2.2.6",
     "@vitalets/google-translate-api": "^9.2.1",
     "cheerio": "^1.1.0",
@@ -68,7 +68,7 @@
     "node-html-parser": "^7.0.2",
     "ofetch": "^1.5.1",
     "play-sound": "^1.1.6",
-    "tencentcloud-sdk-nodejs-tmt": "^4.1.134",
+    "tencentcloud-sdk-nodejs-tmt": "^4.1.190",
     "tinyexec": "^1.2.4"
   },
   "devDependencies": {
