@@ -1,21 +1,19 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
-import { Easydict } from "@/releaseVersion/versionInfo";
+import { RELEASE_MARKDOWN, EASYDICT_VERSION, getReleaseTagUrl } from "@/consts";
 
 /**
  * Return a release Detail page with the markdown content.
  */
 export default function ReleaseNotesPage() {
-  const easydict = new Easydict();
-
   return (
     <Detail
       navigationTitle="Release Notes"
-      markdown={easydict.releaseMarkdown}
+      markdown={RELEASE_MARKDOWN}
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser icon={Icon.Eye} title="View on GitHub" url={easydict.getCurrentReleaseTagUrl()} />
+          <Action.OpenInBrowser icon={Icon.Eye} title="View on GitHub" url={getReleaseTagUrl(EASYDICT_VERSION)} />
         </ActionPanel>
       }
     />

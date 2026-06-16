@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
-import { useState } from "react";
 import { sayTruncateCommand } from "@/audio";
 import { getShowMoreDetailMarkdown } from "@/dataManager/utils";
 import { getLingueeWebDictionaryURL } from "@/dictionary/linguee/parse";
@@ -18,7 +17,7 @@ import {
 } from "@/language/languages";
 import { myPreferences, preferredLanguage1, preferredLanguage2 } from "@/preferences";
 import ReleaseNotesPage from "@/releaseVersion/releaseNotePage";
-import { Easydict } from "@/releaseVersion/versionInfo";
+import { FEEDBACK_URL, EASYDICT_VERSION, getReleaseTagUrl } from "@/consts";
 import { openInEudic } from "@/scripts";
 import {
   ActionListPanelProps,
@@ -77,7 +76,7 @@ function ExceptCurrentTypeWebQueryActionPanel(props: { queryType: QueryType; que
  * Get the list action panel item with ListItemActionPanelItem
  */
 export function ListActionPanel(props: ActionListPanelProps) {
-  const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(props.isShowingReleasePrompt);
+  const { isShowingReleasePrompt, onHideReleasePrompt } = props;
 
   const displayItem = props.displayItem;
   const { queryWordInfo, queryType, copyText } = displayItem;
@@ -85,19 +84,10 @@ export function ListActionPanel(props: ActionListPanelProps) {
 
   const showMoreDetailMarkdown = getShowMoreDetailMarkdown(displayItem);
 
-  function onNewReleasePromptClick() {
-    const easydict = new Easydict();
-    easydict.hideReleasePrompt().then(() => {
-      setIsShowingReleasePrompt(false);
-    });
-  }
-
   return (
     <ActionPanel>
       <ActionPanel.Section>
-        {isShowingReleasePrompt && (
-          <ReleaseNotesAction title="✨ New Version Released" onPush={onNewReleasePromptClick} />
-        )}
+        {isShowingReleasePrompt && <ReleaseNotesAction title="✨ New Version Released" onPush={onHideReleasePrompt} />}
         {props.isInstalledEudic && myPreferences.showOpenInEudicFirst && (
           <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
         )}
@@ -203,8 +193,7 @@ function CopyTextAction(props: { copyText: string }) {
 }
 
 export function ActionFeedback() {
-  const easydict = new Easydict();
-  return <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={easydict.getIssueUrl()} />;
+  return <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={FEEDBACK_URL} />;
 }
 
 function ActionOpenCommandPreferences() {
@@ -223,12 +212,11 @@ function ReleaseNotesAction(props: { title?: string; onPush?: () => void }) {
 }
 
 function CurrentVersionAction() {
-  const easydict = new Easydict();
   return (
     <Action.OpenInBrowser
       icon={Icon.Document}
-      title={`Version: ${easydict.version}`}
-      url={easydict.getCurrentReleaseTagUrl()}
+      title={`Version: ${EASYDICT_VERSION}`}
+      url={getReleaseTagUrl(EASYDICT_VERSION)}
     />
   );
 }

@@ -9,8 +9,11 @@ import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { LanguageItem } from "@/language/type";
 import { myPreferences, preferredLanguage1 } from "@/preferences";
 import { DisplaySection } from "@/types";
-import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "@/utils";
+import { trimTextLength } from "@/utils";
 import { logTrace, logError } from "./devLog";
+import { useReleasePrompt } from "@/hooks/useReleasePrompt";
+import { useInstalledEudic } from "@/hooks/useInstalledEudic";
+import { useDebouncedQuery } from "@/hooks/useDebouncedQuery";
 
 logTrace("easydict", "module loaded");
 
@@ -31,14 +34,12 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
 
   const [isLoadingState, setLoadingState] = useState<boolean>(false);
   const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
-  const [isInstalledEudic, setIsInstalledEudic] = useState<boolean>(false);
-  const [isShowingReleasePrompt, setIsShowingReleasePrompt] = useState<boolean>(false);
   const [isInputChanged, setInputChangedState] = useState<boolean>(false);
 
-  // check if need show release prompt, every time the list is rendered.
-  checkIfNeedShowReleasePrompt((isShowing) => {
-    setIsShowingReleasePrompt(isShowing);
-  });
+  const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
+  const { isInstalledEudic } = useInstalledEudic();
+
+  const debouncedQuery = useDebouncedQuery(dataManager);
 
   /**
    * Use to display input text.
@@ -104,10 +105,6 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
         logTrace("easydict", "after query selected text");
       });
     }
-
-    checkIfInstalledEudic().then((isInstalled) => {
-      setIsInstalledEudic(isInstalled);
-    });
   }
 
   /**
@@ -178,7 +175,11 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     if (trimText !== searchText) {
       dataManager.clearQueryResult();
       const toLanguage = userSelectedTargetLanguageItem.youdaoLangCode;
-      dataManager.delayQueryText(trimText, toLanguage, isDelay);
+      if (isDelay) {
+        debouncedQuery(trimText, toLanguage);
+      } else {
+        dataManager.queryText(trimText, toLanguage);
+      }
     }
   }
 
@@ -221,6 +222,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
                     <ListActionPanel
                       displayItem={item}
                       isShowingReleasePrompt={isShowingReleasePrompt}
+                      onHideReleasePrompt={hideReleasePrompt}
                       isInstalledEudic={isInstalledEudic}
                       onLanguageUpdate={updateSelectedTargetLanguageItem}
                     />

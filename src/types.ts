@@ -21,6 +21,7 @@ export interface ActionListPanelProps {
   displayItem: ListDisplayItem;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
+  onHideReleasePrompt: () => void;
   onLanguageUpdate: (language: LanguageItem) => void;
 }
 

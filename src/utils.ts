@@ -1,12 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getApplications } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { createHash } from "node:crypto";
 import { FetchError } from "ofetch";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
-import { Easydict } from "@/releaseVersion/versionInfo";
 import { logTrace, logWarn } from "@/devLog";
 import { DictionaryType, ListDisplayItem, QueryType, RequestErrorInfo, RequestType, TranslationType } from "@/types";
 
@@ -14,36 +12,6 @@ import { DictionaryType, ListDisplayItem, QueryType, RequestErrorInfo, RequestTy
  * Max length for word to query dictionary.
  */
 const maxWordLength = 20;
-
-/**
- * Eudic bundle IDs.
- *
- * There are two Eudic versions on macOS:
- * - Free: com.eusoft.freeeudic
- * - Paid: com.eusoft.eudic
- *
- * Both use the same URL scheme: eudic://
- */
-const EUDIC_BUNDLE_IDS = new Set(["com.eusoft.freeeudic", "com.eusoft.eudic"]);
-
-const EUDIC_WINDOWS_APP_ID = "eudic.exe";
-
-export async function checkIfInstalledEudic(): Promise<boolean> {
-  const applications = await getApplications();
-
-  return applications.some(
-    ({ bundleId, windowsAppId }) =>
-      (bundleId ? EUDIC_BUNDLE_IDS.has(bundleId) : false) || windowsAppId === EUDIC_WINDOWS_APP_ID,
-  );
-}
-
-export function checkIfNeedShowReleasePrompt(callback: (isShowing: boolean) => void) {
-  const currentEasydict = new Easydict();
-  currentEasydict.getCurrentVersionInfo().then((easydict) => {
-    const isShowingReleasePrompt = easydict.isNeedPrompt && !easydict.hasPrompted;
-    callback(isShowingReleasePrompt);
-  });
-}
 
 /**
  * Trim the text to the max length, default 1830.
