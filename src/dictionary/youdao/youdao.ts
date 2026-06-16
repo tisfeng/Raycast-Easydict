@@ -16,11 +16,6 @@ import { getYoudaoWebDictionaryLanguageId } from "@/dictionary/youdao/utils";
 
 console.log(`enter youdao.ts`);
 
-/**
- * Max length of text to download youdao tts audio
- */
-export const maxTextLengthOfDownloadYoudaoTTSAudio = 40;
-
 const youdaoTranslatURL = "https://fanyi.youdao.com";
 
 const youdaoCookieKey = "youdaoCookie";

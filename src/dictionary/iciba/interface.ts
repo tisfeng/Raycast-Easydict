@@ -26,29 +26,3 @@ export interface IcibaSymbol {
   ph_en_mp3: string;
   parts: { [key: string]: [value: string | { [key: string]: { value: string | number } }[]] }[]; // word meaning
 }
-
-export interface IcibaChinesePart {
-  part_name: string;
-  means: IcibaChineseMean[];
-}
-
-export interface IcibaChineseMean {
-  word_mean: string;
-  has_mean: string;
-  split: number;
-}
-
-export interface IcibaEnglishPart {
-  part: string;
-  means: string[];
-}
-
-export enum IcibaExchangeType {
-  word_done = "过去分词",
-  word_er = "比较级",
-  word_est = "最高级",
-  word_ing = "现在分词",
-  word_past = "过去式",
-  word_pl = "复数",
-  word_third = "第三人称单数",
-}

@@ -13,73 +13,8 @@ import {
   WordForms,
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
-  YoudaoDictionaryResult,
   YoudaoWebDictionaryModel,
 } from "@/dictionary/youdao/types";
-
-/**
- * Format the Youdao original data for later use.
- */
-export function formatYoudaoDictionaryResult(
-  youdaoResult: YoudaoDictionaryResult,
-): YoudaoDictionaryFormatResult | undefined {
-  // when youdao request error, query is not exist.
-  if (!youdaoResult.query) {
-    return;
-  }
-
-  const [from, to] = youdaoResult.l.split("2"); // from2to
-  const usPhonetic = youdaoResult.basic?.["us-phonetic"]; // may be two phonetic "trænzˈleɪʃn; trænsˈleɪʃn"
-  const phonetic = usPhonetic || youdaoResult.basic?.phonetic;
-  const phoneticText = phonetic ? `[${phonetic}]` : undefined;
-
-  // get no more than 6 exam types
-  const examTypes = youdaoResult.basic?.exam_type?.slice(-6);
-  console.warn(`examTypes: ${examTypes}`);
-
-  const queryWordInfo: QueryWordInfo = {
-    word: youdaoResult.query,
-    phonetic: phoneticText,
-    fromLanguage: from,
-    toLanguage: to,
-    isWord: youdaoResult.isWord,
-    examTypes: examTypes,
-    speechUrl: youdaoResult.speakUrl,
-  };
-
-  let webTranslation;
-  if (youdaoResult.web) {
-    webTranslation = youdaoResult.web[0];
-  }
-  const webPhrases = youdaoResult.web?.slice(1);
-  // * only use the first translation
-  const translation = youdaoResult.translation[0].split("\n")[0];
-
-  let explanations: ExplanationItem[] | undefined;
-  const explains = youdaoResult.basic?.explains;
-
-  if (explains?.length) {
-    explanations = youdaoResult.basic?.explains.map((explain) => {
-      const item: ExplanationItem = {
-        title: explain,
-        subtitle: "",
-      };
-      return item;
-    });
-  }
-
-  const formatResult: YoudaoDictionaryFormatResult = {
-    queryWordInfo: queryWordInfo,
-    translation: translation,
-    explanations: explanations,
-    forms: youdaoResult.basic?.wfs,
-    webTranslation: webTranslation,
-    webPhrases: webPhrases,
-  };
-  queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formatResult);
-
-  return formatResult;
-}
 
 /**
  * Update Youdao dictionary display result.

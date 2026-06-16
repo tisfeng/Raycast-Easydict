@@ -1,23 +1,12 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
+import { getApplications, showToast, Toast } from "@raycast/api";
 import { AxiosError } from "axios";
 import { createHash } from "node:crypto";
-import { clipboardQueryTextKey } from "@/consts";
-import { LanguageDetectType } from "@/detectLanguage/types";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
-import { myPreferences } from "@/preferences";
 import { Easydict } from "@/releaseVersion/versionInfo";
-import {
-  DictionaryType,
-  ListDisplayItem,
-  QueryRecordedItem as QueryRecordedItem,
-  QueryType,
-  RequestErrorInfo,
-  RequestType,
-  TranslationType,
-} from "@/types";
+import { DictionaryType, ListDisplayItem, QueryType, RequestErrorInfo, RequestType, TranslationType } from "@/types";
 
 /**
  * Max length for word to query dictionary.
@@ -30,53 +19,6 @@ const maxWordLength = 20;
  * There are two Eudic versions on the Mac, one free version bundleId is `com.eusoft.freeeudic`, and the other paid version bundleId is `com.eusoft.eudic`. But their URL Schemes are the same, eudic://
  */
 const eudicBundleIds = ["com.eusoft.freeeudic", "com.eusoft.eudic"];
-
-// Time interval for automatic query of the same clipboard text, avoid frequently querying the same word. Default 10min
-const clipboardQueryInterval = 10 * 60 * 1000;
-
-/**
- * query the clipboard text from LocalStorage
- * * deprecate
- */
-export async function tryQueryClipboardText(queryClipboardText: (text: string) => void) {
-  const text = await Clipboard.readText();
-  console.log("query clipboard text: " + text);
-  if (text) {
-    const jsonString = await LocalStorage.getItem<string>(clipboardQueryTextKey);
-    console.log("query jsonString: " + jsonString);
-    if (!jsonString) {
-      queryClipboardText(text);
-    }
-
-    if (jsonString) {
-      const queryRecordedItem: QueryRecordedItem = JSON.parse(jsonString);
-      const timestamp = queryRecordedItem.timestamp;
-      const queryText = queryRecordedItem.queryText;
-      if (queryText === text) {
-        const now = new Date().getTime();
-        console.log(`before: ${new Date(timestamp).toUTCString()}`);
-        console.log(`now:    ${new Date(now).toUTCString()}`);
-        if (!timestamp || now - timestamp > clipboardQueryInterval) {
-          queryClipboardText(text);
-        }
-      } else {
-        queryClipboardText(text);
-      }
-    }
-  }
-}
-
-/**
- * save last Clipboard text and timestamp
- */
-export function saveQueryClipboardRecord(text: string) {
-  const jsonString: string = JSON.stringify({
-    queryText: text,
-    timestamp: new Date().getTime(),
-  });
-  LocalStorage.setItem(clipboardQueryTextKey, jsonString);
-  console.log("saveQueryClipboardRecord: " + jsonString);
-}
 
 /**
  * traverse all applications, check if Eudic is installed
@@ -114,20 +56,6 @@ export function trimTextLength(text: string, length = 1830) {
     return text.substring(0, length) + "...";
   }
   return text.substring(0, length);
-}
-
-/**
- * Get enabled dictionary services.
- */
-export function getEnabledDictionaryServices(): DictionaryType[] {
-  const enabledDictionaryServices: DictionaryType[] = [];
-  if (myPreferences.enableLingueeDictionary) {
-    enabledDictionaryServices.push(DictionaryType.Linguee);
-  }
-  if (myPreferences.enableYoudaoDictionary) {
-    enabledDictionaryServices.push(DictionaryType.Youdao);
-  }
-  return enabledDictionaryServices;
 }
 
 /**
@@ -182,13 +110,6 @@ export function checkIsWord(queryWordInfo: QueryWordInfo) {
 }
 
 /**
- * Copy text to Clipboard.
- */
-export function copyToClipboard(text: string) {
-  Clipboard.copy(text);
-}
-
-/**
  * Check type is Dictionary type.
  */
 export function checkIsDictionaryType(type: QueryType): boolean {
@@ -203,16 +124,6 @@ export function checkIsDictionaryType(type: QueryType): boolean {
  */
 export function checkIsTranslationType(type: QueryType): boolean {
   if (Object.values(TranslationType).includes(type as TranslationType)) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * check type is LanguageDetect type.
- */
-export function checkIsLanguageDetectType(type: RequestType): boolean {
-  if (Object.values(LanguageDetectType).includes(type as LanguageDetectType)) {
     return true;
   }
   return false;

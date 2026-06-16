@@ -1,11 +1,9 @@
-import { RequestErrorInfo } from "@/types";
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios from "axios";
-import { downloadAudio, getWordAudioPath } from "@/audio";
 import { DictionaryType, QueryTypeResult } from "@/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
-import { IcibaDictionaryResult } from "@/dictionary/iciba/interface";
+import { RequestErrorInfo } from "@/types";
 
 /**
  * request iciba dictionary
@@ -39,27 +37,4 @@ export function icibaDictionary(queryWordInfo: QueryWordInfo): Promise<QueryType
         reject(errorInfo);
       });
   });
-}
-
-/**
- * download icicba word audio file
- */
-export async function downloadIcibaWordAudio(queryWordInfo: QueryWordInfo, callback?: () => void) {
-  try {
-    const icibaResult = await icibaDictionary(queryWordInfo);
-    const icibaDictionaryResult = icibaResult.result as IcibaDictionaryResult;
-    const symbol = icibaDictionaryResult.symbols[0];
-    const phoneticUrl = symbol.ph_am_mp3.length
-      ? symbol.ph_am_mp3
-      : symbol.ph_tts_mp3.length
-        ? symbol.ph_tts_mp3
-        : symbol.ph_en_mp3;
-    if (phoneticUrl.length) {
-      const audioPath = getWordAudioPath(queryWordInfo.word);
-      downloadAudio(phoneticUrl, audioPath, callback);
-    }
-    console.log(`iciba dictionary result: ${JSON.stringify(icibaDictionaryResult, null, 4)}`);
-  } catch (error) {
-    console.error(`download iciba audio error: ${error}`);
-  }
 }

@@ -31,23 +31,3 @@ export default function ReleaseNotesPage(props: { fallbackMarkdown?: string }) {
     />
   );
 }
-
-/**
- * Return a markdown page with the markdown content.
- */
-export function MarkdownPage(props: { markdown: string }) {
-  return (
-    <Detail
-      markdown={props.markdown}
-      actions={
-        <ActionPanel>
-          <Action.OpenInBrowser
-            icon={Icon.Link}
-            title="View Details on GitHub"
-            url="https://github.com/tisfeng/Raycast-Easydict#readme"
-          />
-        </ActionPanel>
-      }
-    />
-  );
-}

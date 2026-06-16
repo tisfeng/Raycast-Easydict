@@ -57,13 +57,6 @@ export function removeBlankSpace(text: string) {
 }
 
 /**
- * check if the text contains Chinese characters
- */
-export function isContainChinese(text: string) {
-  return /[\u4e00-\u9fa5]/g.test(text);
-}
-
-/**
  * check text is chinese
  */
 export function isChinese(text: string) {

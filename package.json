@@ -848,6 +848,8 @@
     "Windows"
   ],
   "allowScripts": {
-    "simple-git-hooks@2.13.1": true
-  }
+    "simple-git-hooks@2.13.1": true,
+    "esbuild@0.27.7": true
+  },
+  "packageManager": "npm@11.17.0"
 }

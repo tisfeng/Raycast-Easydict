@@ -2,7 +2,6 @@
 
 import { Image } from "@raycast/api";
 import { RawResponse } from "@vitalets/google-translate-api/dist/cjs/types";
-import { ChildProcess } from "child_process";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 import { LanguageDetectType } from "@/detectLanguage/types";
 import { IcibaDictionaryResult } from "@/dictionary/iciba/interface";
@@ -190,11 +189,6 @@ export interface ListAccessoryItem {
 
 export type ListItemDisplayType = LingueeListItemType | YoudaoDictionaryListItemType | QueryType;
 
-export interface ClipboardRecordedItem {
-  key: string;
-  value: string;
-}
-
 export interface QueryRecordedItem {
   timestamp: number;
   queryText: string;
@@ -208,8 +202,4 @@ export interface WebQueryItem {
   title: string;
 }
 
-export interface AbortObject {
-  abortController?: AbortController;
-  childProcess?: ChildProcess;
-}
 export type { QueryWordInfo };

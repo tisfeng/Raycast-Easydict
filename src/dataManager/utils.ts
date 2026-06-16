@@ -1,9 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { hasLingueeDictionaryEntries } from "@/dictionary/linguee/parse";
-import { LingueeDictionaryResult } from "@/dictionary/linguee/types";
-import { hasYoudaoDictionaryEntries } from "@/dictionary/youdao/formatData";
-import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
 import { chineseLanguageItem, englishLanguageItem } from "@/language/consts";
 import {
@@ -164,32 +161,6 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
   }
   // console.log(`---> isShowDetail: ${isShowDetail}`);
   return isShowDetail;
-}
-
-/**
- * Check if dictionary has entries.
- */
-export function checkIfDictionaryHasEntries(dictionaryResult: QueryResult): boolean {
-  const { type: dictionaryType } = dictionaryResult;
-  const isDictionaryType = checkIsDictionaryType(dictionaryType);
-  if (!isDictionaryType) {
-    return false;
-  }
-
-  const sourceResult = dictionaryResult.sourceResult;
-
-  let hasEntries = false;
-  switch (dictionaryType) {
-    case DictionaryType.Linguee: {
-      hasEntries = hasLingueeDictionaryEntries(sourceResult.result as LingueeDictionaryResult);
-      break;
-    }
-    case DictionaryType.Youdao: {
-      hasEntries = hasYoudaoDictionaryEntries(sourceResult.result as YoudaoDictionaryFormatResult);
-      break;
-    }
-  }
-  return hasEntries;
 }
 
 /**

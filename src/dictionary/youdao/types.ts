@@ -659,12 +659,6 @@ export interface PhrTr {
   tr?: EC_ReturnPhrase;
 }
 
-export interface RelWordClass {
-  word?: string;
-  stem?: string;
-  rels?: RelElement[];
-}
-
 export interface RelElement {
   rel?: RelRel;
 }
