@@ -202,17 +202,41 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         resolve(openAIResult);
       },
       onError: (err) => {
-        if (err.message === "canceled") {
+        let errorMessage = "Unknown error";
+        let errorName = "Unknown";
+
+        if (err instanceof Error) {
+          errorMessage = err.message;
+          errorName = err.name;
+        } else if (typeof err === "object" && err !== null) {
+          if ("message" in err && typeof err.message === "string") {
+            errorMessage = err.message;
+          }
+          if (
+            "error" in err &&
+            typeof err.error === "object" &&
+            err.error !== null &&
+            "message" in err.error &&
+            typeof err.error.message === "string"
+          ) {
+            errorMessage = err.error.message;
+          }
+          if ("name" in err && typeof err.name === "string") {
+            errorName = err.name;
+          }
+        } else if (typeof err === "string") {
+          errorMessage = err;
+        }
+
+        if (errorMessage === "canceled") {
           console.log(`---> OpenAI canceled`);
           return reject(undefined);
         }
 
         console.error(`---> OpenAI error: ${JSON.stringify(err)}`);
-
-        let errorMessage = err.error?.message ?? "Unknown error";
         console.warn(`---> OpenAI error: ${errorMessage}`);
 
-        if (err.name === "AbortError") {
+        if (errorName === "AbortError") {
           errorMessage = `Request timeout.`;
         }
 
