@@ -1,6 +1,5 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getProxyAgent } from "@/axiosConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getLanguageEnglishName } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
@@ -137,23 +136,11 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
   let targetTxt = "";
   let openAIResult: QueryTypeResult;
 
-  const httpsAgent = await getProxyAgent();
-  const httpAgent = await getProxyAgent(false);
-  const agent = function (url: URL) {
-    if (url.protocol === "http:") {
-      return httpAgent;
-    } else {
-      return httpsAgent;
-    }
-  };
-  console.warn(`---> openai agent: ${JSON.stringify(httpsAgent)}`);
-
   return new Promise((resolve, reject) => {
     fetchSSE(`${url}`, {
       method: "POST",
       headers,
       body: JSON.stringify(params),
-      agent: agent,
       signal: controller.signal,
       onMessage: (msg) => {
         // console.warn(`---> openai msg: ${JSON.stringify(msg)}`);

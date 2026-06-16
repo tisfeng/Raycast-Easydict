@@ -2,7 +2,7 @@
 
 import { Icon, LaunchProps, List, getSelectedText } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configAxiosProxy, delayGetSystemProxy } from "@/axiosConfig";
+
 import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "@/components";
 import { DataManager } from "@/dataManager/dataManager";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
@@ -105,46 +105,15 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
       console.warn(`---> arguments queryText: ${trimQueryText}`);
     }
 
-    const startTime = Date.now();
-
     const userInputText = trimQueryText;
 
-    // If enabled system proxy, we need to wait for the system proxy to be ready.
-    if (myPreferences.enableSystemProxy) {
-      // If has arguments, use arguments text as input text first.
-      if (userInputText?.length) {
-        configAxiosProxy().then(() => {
-          console.log(`after config proxy`);
-          updateInputTextAndQueryText(userInputText as string, false);
-        });
-      } else if (myPreferences.enableAutomaticQuerySelectedText) {
-        Promise.all([getSelectedText(), configAxiosProxy()])
-          .then(([selectedText]) => {
-            console.log(`after config proxy, getSelectedText: ${selectedText}`);
-            console.log(`config proxy and get text cost time: ${Date.now() - startTime} ms`);
-            updateInputTextAndQueryText(trimTextLength(selectedText), false);
-          })
-          .catch((error) => {
-            console.error(`set up, config proxy error: ${error}`);
-            querySelecedtText().then(() => {
-              console.log(`after query selected text`);
-              delayGetSystemProxy();
-            });
-          });
-      } else {
-        configAxiosProxy();
-      }
-    } else {
-      if (userInputText?.length) {
-        updateInputTextAndQueryText(userInputText, false);
-      } else if (myPreferences.enableAutomaticQuerySelectedText) {
-        querySelecedtText().then(() => {
-          console.log(`after query selected text`);
-        });
-      }
+    if (userInputText?.length) {
+      updateInputTextAndQueryText(userInputText, false);
+    } else if (myPreferences.enableAutomaticQuerySelectedText) {
+      querySelecedtText().then(() => {
+        console.log(`after query selected text`);
+      });
     }
-
-    delayGetSystemProxy();
 
     checkIfInstalledEudic().then((isInstalled) => {
       setIsInstalledEudic(isInstalled);

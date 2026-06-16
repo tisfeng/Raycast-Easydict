@@ -3,7 +3,7 @@ import { OpenAITranslateResult, QueryWordInfo } from "@/types";
 
 import { environment } from "@raycast/api";
 import axios from "axios";
-import { getProxyAgent } from "@/axiosConfig";
+
 import { detectLanguage } from "@/detectLanguage/detect";
 import { DetectedLangModel } from "@/detectLanguage/types";
 import { requestLingueeDictionary } from "@/dictionary/linguee/linguee";
@@ -47,8 +47,6 @@ import {
 import { YoudaoDictionaryFormatResult } from "@/dictionary/youdao/types";
 
 console.log(`enter dataManager.ts`);
-
-const delayQueryWithProxyTime = 600;
 
 /**
  * Data manager.
@@ -96,7 +94,6 @@ export class DataManager {
 
   delayQueryTimer?: NodeJS.Timeout;
   delayAppleTranslateTimer?: NodeJS.Timeout;
-  delayProxyQueryTimer?: NodeJS.Timeout;
 
   /**
    * Delay the time to call the query API. Since API has frequency limit.
@@ -163,47 +160,29 @@ export class DataManager {
   /**
    * Delay query.
    *
-   * 1. delay requests that need proxy but if no httpsAgent.
+   * 1. delay requests.
    * 2. delay apple translate.
    */
   private delayQuery(queryWordInfo: QueryWordInfo) {
-    this.delayQueryWithProxy(() => {
-      // Query Linguee dictionary, will automatically query DeepL translate.
-      this.queryLingueeDictionary(queryWordInfo);
+    // Query Linguee dictionary, will automatically query DeepL translate.
+    this.queryLingueeDictionary(queryWordInfo);
 
-      if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
-        this.queryDeepLTranslate(queryWordInfo);
-      }
+    if (myPreferences.enableDeepLTranslate && !myPreferences.enableLingueeDictionary) {
+      this.queryDeepLTranslate(queryWordInfo);
+    }
 
-      if (myPreferences.enableDeepLXTranslate) {
-        this.queryDeepLXTranslate(queryWordInfo);
-      }
+    if (myPreferences.enableDeepLXTranslate) {
+      this.queryDeepLXTranslate(queryWordInfo);
+    }
 
-      // We need to pass a abort signal, because google translate is used "got" to request, not axios.
-      this.queryGoogleTranslate(queryWordInfo, this.abortController);
-    });
+    // We need to pass a abort signal, because google translate is used "got" to request, not axios.
+    this.queryGoogleTranslate(queryWordInfo, this.abortController);
 
     // Put Apple translate at the end, because exec Apple Script will block thread, ~0.4s.
     this.delayAppleTranslateTimer = setTimeout(() => {
       this.queryAppleTranslate(queryWordInfo, this.abortController);
       console.log(`after delay apple translate`);
-    }, delayQueryWithProxyTime + 100);
-  }
-
-  /**
-   * Delay query with proxy.
-   */
-  private delayQueryWithProxy(callback: () => void) {
-    if (myPreferences.enableSystemProxy) {
-      return callback();
-    }
-
-    this.delayProxyQueryTimer = setTimeout(() => {
-      console.warn(`delay query with proxy`);
-      getProxyAgent().then(() => {
-        callback();
-      });
-    }, delayQueryWithProxyTime);
+    }, 100);
   }
 
   /**
@@ -229,10 +208,6 @@ export class DataManager {
     // clear delay Apple translate.
     if (this.delayAppleTranslateTimer) {
       clearTimeout(this.delayAppleTranslateTimer);
-    }
-
-    if (this.delayProxyQueryTimer) {
-      clearTimeout(this.delayProxyQueryTimer);
     }
   }
 
@@ -403,13 +378,11 @@ export class DataManager {
 
       // at the same time, query DeepL translate.
 
-      this.delayQueryWithProxy(() => {
-        this.queryDeepLTranslate(queryWordInfo);
+      this.queryDeepLTranslate(queryWordInfo);
 
-        if (myPreferences.enableDeepLXTranslate) {
-          this.queryDeepLXTranslate(queryWordInfo);
-        }
-      });
+      if (myPreferences.enableDeepLXTranslate) {
+        this.queryDeepLXTranslate(queryWordInfo);
+      }
     }
   }
 

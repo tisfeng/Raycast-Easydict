@@ -63,9 +63,6 @@ function getDetectAPIs() {
     detectActionList.push(baiduWebDetect);
   }
 
-  // Because Google detect must use proxy now, and set httpsAgent will block thread, so disable it.
-  // detectActionList.push(googleDetect);
-
   if (myPreferences.enableTencentTranslate && hasTencentAppKey()) {
     detectActionList.push(tencentDetect);
   }

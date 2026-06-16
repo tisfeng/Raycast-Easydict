@@ -3,7 +3,7 @@
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import util from "util";
-import { httpsAgent, requestCostTime } from "@/axiosConfig";
+import { requestCostTime } from "@/axiosConfig";
 import { userAgent } from "@/consts";
 import { DictionaryType, QueryTypeResult } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
@@ -40,7 +40,6 @@ export async function requestLingueeDictionary(queryWordInfo: QueryWordInfo): Pr
         "User-Agent": userAgent,
       },
       responseType: "arraybuffer", // handle French content-type iso-8859-15
-      httpsAgent, // use proxy, if ip was blocked by linguee, we can change ip.
     };
 
     axios

@@ -2,7 +2,7 @@
 
 import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
-import { httpsAgent, requestCostTime } from "@/axiosConfig";
+import { requestCostTime } from "@/axiosConfig";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getDeepLLangCode } from "@/language/languages";
 import { AppKeyStore } from "@/preferences";
@@ -67,7 +67,6 @@ export async function requestDeepLTranslate(queryWordInfo: QueryWordInfo): Promi
   return new Promise((resolve, reject) => {
     axios
       .post(url, querystring.stringify(params), {
-        httpsAgent,
         headers: {
           Authorization: `DeepL-Auth-Key ${deepLAuthKey}`,
         },
