@@ -1,19 +1,11 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-01 10:44
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-08 00:08
- * @fileName: parse.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { parse } from "node-html-parser";
-import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "../../language/languages";
-import { DictionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from "../../types";
-import { checkIsWord } from "../../utils";
-import { QueryWordInfo } from "../youdao/types";
-import { getValidLingueeLanguagePair } from "./languages";
+import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/language/languages";
+import { DictionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from "@/types";
+import { checkIsWord } from "@/utils";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getValidLingueeLanguagePair } from "@/dictionary/linguee/languages";
 import {
   LingueeDictionaryResult,
   LingueeExample,
@@ -22,7 +14,7 @@ import {
   LingueeWikipedia,
   LingueeWordExplanation,
   LingueeWordItem,
-} from "./types";
+} from "@/dictionary/linguee/types";
 
 /**
  * Parse Linguee html. node-html-parser cost: ~40ms

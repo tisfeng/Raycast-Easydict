@@ -1,15 +1,7 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-03 00:02
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 23:31
- * @fileName: formatData.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { chineseLanguageItem } from "../../language/consts";
-import { DictionaryType, DisplaySection, ListDisplayItem } from "../../types";
+import { chineseLanguageItem } from "@/language/consts";
+import { DictionaryType, DisplaySection, ListDisplayItem } from "@/types";
 import {
   BaikeSummary,
   ExplanationItem,
@@ -23,7 +15,7 @@ import {
   YoudaoDictionaryListItemType,
   YoudaoDictionaryResult,
   YoudaoWebDictionaryModel,
-} from "./types";
+} from "@/dictionary/youdao/types";
 
 /**
  * Format the Youdao original data for later use.

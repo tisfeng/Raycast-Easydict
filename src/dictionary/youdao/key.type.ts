@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, YoudaoKey, TranslateParams } from "./file";
+//   import { Convert, YoudaoKey, TranslateParams } from "@/dictionary/youdao/file";
 //
 //   const youdaoKey = Convert.toYoudaoKey(json);
 //   const translateParams = Convert.toTranslateParams(json);

@@ -1,14 +1,6 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-07-25 22:10
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-11 17:59
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { QueryWordInfo } from "../youdao/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
 
 export interface LingueeDictionaryResult {
   queryWordInfo: QueryWordInfo;

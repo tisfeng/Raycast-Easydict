@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-22 16:22
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-07 19:58
- * @fileName: audio.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
 import axios from "axios";
@@ -16,8 +8,8 @@ import { fileTypeFromFile } from "file-type";
 import fs from "fs";
 import path from "path";
 import playerImport from "play-sound";
-import { languageItemList } from "./language/consts";
-import { printObject, trimTextLength } from "./utils";
+import { languageItemList } from "@/language/consts";
+import { printObject, trimTextLength } from "@/utils";
 
 console.log(`enter audio.ts`);
 

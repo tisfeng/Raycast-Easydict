@@ -1,16 +1,8 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-07-01 21:54
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-01-08 17:43
- * @fileName: releaseNotePage.tsx
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
 import { useState } from "react";
-import { Easydict } from "./versionInfo";
+import { Easydict } from "@/releaseVersion/versionInfo";
 
 /**
  * Return a release Detail page with the markdown content.

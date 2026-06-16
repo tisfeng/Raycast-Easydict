@@ -1,17 +1,9 @@
-/*
- * @author: maxchang3
- * @createTime: 2025-06-26 00:16
- * @lastEditor: maxchang3
- * @lastEditTime: 2025-06-26 10:00
- * @fileName: deeplx.ts
- *
- * Copyright (c) 2025 by maxchang3, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { translate, type TargetLanguage } from "@deeplx/core";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getDeepLLangCode } from "../language/languages";
-import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getDeepLLangCode } from "@/language/languages";
+import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
 /**
  * DeepLX translate API - Free DeepL translation using deeplx package

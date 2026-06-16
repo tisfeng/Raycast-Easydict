@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2023-05-15 23:31
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-05-24 21:02
- * @fileName: recognizeText.ts
- *
- * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
 import { execa, ExecaError } from "execa";

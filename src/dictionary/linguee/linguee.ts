@@ -1,23 +1,15 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-07-24 17:58
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-16 16:10
- * @fileName: linguee.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import util from "util";
-import { httpsAgent, requestCostTime } from "../../axiosConfig";
-import { userAgent } from "../../consts";
-import { DictionaryType, QueryTypeResult } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
-import { QueryWordInfo } from "../youdao/types";
-import { getLingueeWebDictionaryURL, parseLingueeHTML } from "./parse";
-import { LingueeDictionaryResult } from "./types";
+import { httpsAgent, requestCostTime } from "@/axiosConfig";
+import { userAgent } from "@/consts";
+import { DictionaryType, QueryTypeResult } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getLingueeWebDictionaryURL, parseLingueeHTML } from "@/dictionary/linguee/parse";
+import { LingueeDictionaryResult } from "@/dictionary/linguee/types";
 
 export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 

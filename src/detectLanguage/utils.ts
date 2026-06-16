@@ -1,15 +1,7 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-12 18:37
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-25 22:56
- * @fileName: utils.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { preferredLanguages } from "../preferences";
-import { englishLanguageItem } from "../language/consts";
+import { preferredLanguages } from "@/preferences";
+import { englishLanguageItem } from "@/language/consts";
 
 /**
  * check if the language is preferred language

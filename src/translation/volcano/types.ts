@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-09-26 22:59
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 23:19
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 /**
  * Volcano Translate.

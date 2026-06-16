@@ -1,14 +1,6 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-05 10:56
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-10-12 16:42
- * @fileName: consts.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LanguageItem } from "./type";
+import { LanguageItem } from "@/language/type";
 
 /**
  * Language item list. Currently support 47 languages.

@@ -1,19 +1,11 @@
-/*
- * @author: tisfeng
- * @createTime: 2023-01-05 22:01
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-09-15 10:53
- * @fileName: axiosConfig.ts
- *
- * Copyright (c) 2023 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage, showToast, Toast } from "@raycast/api";
 import axios from "axios";
 import EventEmitter from "events";
 import { HttpProxyAgent, HttpsProxyAgent } from "hpagent";
 import { getMacSystemProxy } from "mac-system-proxy";
-import { networkTimeout } from "./consts";
+import { networkTimeout } from "@/consts";
 
 EventEmitter.defaultMaxListeners = 15; // default is 10.
 

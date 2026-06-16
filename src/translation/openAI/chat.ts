@@ -1,20 +1,12 @@
-/*
- * @author: tisfeng
- * @createTime: 2023-03-14 22:11
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-04-25 23:05
- * @fileName: chat.ts
- *
- * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getProxyAgent } from "../../axiosConfig";
-import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getLanguageEnglishName } from "../../language/languages";
-import { AppKeyStore } from "../../preferences";
-import { QueryTypeResult, TranslationType } from "../../types";
-import { networkTimeout } from "./../../consts";
-import { fetchSSE } from "./utils";
+import { getProxyAgent } from "@/axiosConfig";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getLanguageEnglishName } from "@/language/languages";
+import { AppKeyStore } from "@/preferences";
+import { QueryTypeResult, TranslationType } from "@/types";
+import { networkTimeout } from "@/consts";
+import { fetchSSE } from "@/translation/openAI/utils";
 
 const controller = new AbortController();
 const timeout = setTimeout(() => {

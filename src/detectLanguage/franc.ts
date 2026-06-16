@@ -1,18 +1,10 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-12 18:34
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:37
- * @fileName: franc.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { francAll } from "franc";
-import { languageItemList } from "../language/consts";
-import { getLanguageItemFromFrancCode, getLanguageItemFromYoudaoCode } from "../language/languages";
-import { DetectedLangModel, LanguageDetectType } from "./types";
-import { isPreferredLanguage } from "./utils";
+import { languageItemList } from "@/language/consts";
+import { getLanguageItemFromFrancCode, getLanguageItemFromYoudaoCode } from "@/language/languages";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { isPreferredLanguage } from "@/detectLanguage/utils";
 
 /**
  * Use franc to detect text language.

@@ -1,31 +1,23 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-03 10:18
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-17 20:33
- * @fileName: baiduAPI.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import querystring from "node:querystring";
-import { requestCostTime } from "../../axiosConfig";
-import { DetectedLangModel, LanguageDetectType } from "../../detectLanguage/types";
-import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { autoDetectLanguageItem, englishLanguageItem } from "../../language/consts";
-import { getBaiduLangCode, getYoudaoLangCodeFromBaiduCode, isValidLangCode } from "../../language/languages";
-import { AppKeyStore } from "../../preferences";
+import { requestCostTime } from "@/axiosConfig";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
+import { getBaiduLangCode, getYoudaoLangCodeFromBaiduCode, isValidLangCode } from "@/language/languages";
+import { AppKeyStore } from "@/preferences";
 import {
   BaiduTranslateResult,
   BaiduWebLanguageDetect,
   QueryTypeResult,
   RequestErrorInfo,
   TranslationType,
-} from "../../types";
-import { getTypeErrorInfo, md5 } from "../../utils";
+} from "@/types";
+import { getTypeErrorInfo, md5 } from "@/utils";
 
-import genBaiduWebSign from "./baiduSign";
+import genBaiduWebSign from "@/translation/baidu/baiduSign";
 
 /**
  * Check has Baidu AppId and AppKey.

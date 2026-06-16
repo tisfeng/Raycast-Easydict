@@ -1,19 +1,11 @@
-import { RequestErrorInfo } from "../../types";
-/*
- * @author: tisfeng
- * @createTime: 2022-06-27 10:26
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-16 15:50
- * @fileName: request.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+import { RequestErrorInfo } from "@/types";
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios from "axios";
-import { downloadAudio, getWordAudioPath } from "../../audio";
-import { DictionaryType, QueryTypeResult } from "../../types";
-import { QueryWordInfo } from "../youdao/types";
-import { IcibaDictionaryResult } from "./interface";
+import { downloadAudio, getWordAudioPath } from "@/audio";
+import { DictionaryType, QueryTypeResult } from "@/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { IcibaDictionaryResult } from "@/dictionary/iciba/interface";
 
 /**
  * request iciba dictionary

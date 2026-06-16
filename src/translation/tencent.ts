@@ -1,22 +1,14 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-03 10:18
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-01 23:48
- * @fileName: tencent.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios from "axios";
 import crypto, { BinaryToTextEncoding } from "crypto";
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-import { requestCostTime } from "../axiosConfig";
-import { DetectedLangModel, LanguageDetectType } from "../detectLanguage/types";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "../language/languages";
-import { AppKeyStore } from "../preferences";
-import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "../types";
+import { requestCostTime } from "@/axiosConfig";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getTencentLangCode, getYoudaoLangCodeFromTencentCode } from "@/language/languages";
+import { AppKeyStore } from "@/preferences";
+import { QueryTypeResult, RequestErrorInfo, TencentTranslateResult, TranslationType } from "@/types";
 
 const SECRET_ID = AppKeyStore.tencentSecretId;
 const SECRET_KEY = AppKeyStore.tencentSecretKey;

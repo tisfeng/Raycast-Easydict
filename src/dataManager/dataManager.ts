@@ -1,39 +1,31 @@
-import { OpenAITranslateResult, QueryWordInfo } from "./../types";
-/*
- * @author: tisfeng
- * @createTime: 2022-06-26 11:13
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-04-25 22:55
- * @fileName: dataManager.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+import { OpenAITranslateResult, QueryWordInfo } from "@/types";
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
 import axios from "axios";
-import { getProxyAgent } from "../axiosConfig";
-import { detectLanguage } from "../detectLanguage/detect";
-import { DetectedLangModel } from "../detectLanguage/types";
-import { requestLingueeDictionary } from "../dictionary/linguee/linguee";
-import { formatLingueeDisplaySections } from "../dictionary/linguee/parse";
-import { updateYoudaoDictionaryDisplay } from "../dictionary/youdao/formatData";
-import { playYoudaoWordAudioAfterDownloading, requestYoudaoWebDictionary } from "../dictionary/youdao/youdao";
-import { requestYoudaoWebTranslate } from "../dictionary/youdao/youdaoTranslate";
-import { englishLanguageItem } from "../language/consts";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoCode } from "../language/languages";
-import { LanguageItem } from "../language/type";
-import { myPreferences } from "../preferences";
-import { appleTranslate } from "../scripts";
-import { requestBaiduTextTranslate } from "../translation/baidu/baiduAPI";
-import { requestCaiyunTextTranslate } from "../translation/caiyun";
-import { requestDeepLTranslate } from "../translation/deepL";
-import { requestDeepLXTranslate } from "../translation/deepLX";
-import { requestGoogleTranslate } from "../translation/google";
-import { requestWebBingTranslate } from "../translation/microsoft/bing";
-import { requestOpenAIStreamTranslate } from "../translation/openAI/chat";
-import { requestGeminiTranslate } from "../translation/gemini";
-import { requestTencentTranslate } from "../translation/tencent";
-import { requestVolcanoTranslate } from "../translation/volcano/volcanoAPI";
+import { getProxyAgent } from "@/axiosConfig";
+import { detectLanguage } from "@/detectLanguage/detect";
+import { DetectedLangModel } from "@/detectLanguage/types";
+import { requestLingueeDictionary } from "@/dictionary/linguee/linguee";
+import { formatLingueeDisplaySections } from "@/dictionary/linguee/parse";
+import { updateYoudaoDictionaryDisplay } from "@/dictionary/youdao/formatData";
+import { playYoudaoWordAudioAfterDownloading, requestYoudaoWebDictionary } from "@/dictionary/youdao/youdao";
+import { requestYoudaoWebTranslate } from "@/dictionary/youdao/youdaoTranslate";
+import { englishLanguageItem } from "@/language/consts";
+import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoCode } from "@/language/languages";
+import { LanguageItem } from "@/language/type";
+import { myPreferences } from "@/preferences";
+import { appleTranslate } from "@/scripts";
+import { requestBaiduTextTranslate } from "@/translation/baidu/baiduAPI";
+import { requestCaiyunTextTranslate } from "@/translation/caiyun";
+import { requestDeepLTranslate } from "@/translation/deepL";
+import { requestDeepLXTranslate } from "@/translation/deepLX";
+import { requestGoogleTranslate } from "@/translation/google";
+import { requestWebBingTranslate } from "@/translation/microsoft/bing";
+import { requestOpenAIStreamTranslate } from "@/translation/openAI/chat";
+import { requestGeminiTranslate } from "@/translation/gemini";
+import { requestTencentTranslate } from "@/translation/tencent";
+import { requestVolcanoTranslate } from "@/translation/volcano/volcanoAPI";
 import {
   DictionaryType,
   DisplaySection,
@@ -43,16 +35,16 @@ import {
   QueryType,
   QueryTypeResult,
   TranslationType,
-} from "../types";
-import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "../utils";
+} from "@/types";
+import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "@/utils";
 import {
   checkIfEnableYoudaoDictionary,
   checkIfShowTranslationDetail,
   getFromToLanguageTitle,
   sortedQueryResults,
   updateTranslationMarkdown,
-} from "./utils";
-import { YoudaoDictionaryFormatResult } from "../dictionary/youdao/types";
+} from "@/dataManager/utils";
+import { YoudaoDictionaryFormatResult } from "@/dictionary/youdao/types";
 
 console.log(`enter dataManager.ts`);
 

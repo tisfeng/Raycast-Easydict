@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2023-03-14 21:55
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-28 11:10
- * @fileName: utils.ts
- *
- * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { createParser } from "eventsource-parser";
 import fetch, { RequestInit } from "node-fetch";

@@ -1,14 +1,6 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-04 23:21
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 09:49
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DetectedLangModel } from "../../detectLanguage/types";
+import { DetectedLangModel } from "@/detectLanguage/types";
 
 export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;
@@ -133,7 +125,7 @@ export interface YoudaoWebTranslateResultItem {
  */
 // To parse this data:
 //
-//   import { Convert, Welcome } from "./file";
+//   import { Convert, Welcome } from "@/dictionary/youdao/file";
 //
 //   const welcome = Convert.toWelcome(json);
 

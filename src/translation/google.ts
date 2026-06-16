@@ -1,25 +1,17 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-05 16:09
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-14 21:31
- * @fileName: google.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { translate as googleTranslateApi } from "@vitalets/google-translate-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import * as cheerio from "cheerio";
 import querystring from "node:querystring";
-import { getProxyAgent, getSystemProxyURL, httpsAgent } from "../axiosConfig";
-import { userAgent } from "../consts";
-import { DetectedLangModel, LanguageDetectType } from "../detectLanguage/types";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { autoDetectLanguageItem, englishLanguageItem } from "../language/consts";
-import { getGoogleLangCode, getYoudaoLangCodeFromGoogleCode } from "../language/languages";
-import { GoogleTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
-import { getTypeErrorInfo } from "../utils";
+import { getProxyAgent, getSystemProxyURL, httpsAgent } from "@/axiosConfig";
+import { userAgent } from "@/consts";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
+import { getGoogleLangCode, getYoudaoLangCodeFromGoogleCode } from "@/language/languages";
+import { GoogleTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
 
 console.log(`enter google.ts`);
 

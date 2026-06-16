@@ -1,21 +1,13 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-26 11:13
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-29 23:37
- * @fileName: scripts.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { showToast, Toast } from "@raycast/api";
 import { exec, execFile } from "child_process";
 import { execa } from "execa";
 import querystring from "node:querystring";
-import { DetectedLangModel, LanguageDetectType } from "./detectLanguage/types";
-import { QueryWordInfo } from "./dictionary/youdao/types";
-import { getAppleLangCode, getYoudaoLangCodeFromAppleCode } from "./language/languages";
-import { RequestErrorInfo, RequestType, TranslationType } from "./types";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getAppleLangCode, getYoudaoLangCodeFromAppleCode } from "@/language/languages";
+import { RequestErrorInfo, RequestType, TranslationType } from "@/types";
 
 const execCommandTimeout = 10000; // 10s
 

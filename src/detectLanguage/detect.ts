@@ -1,31 +1,23 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-24 17:07
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-10-12 16:57
- * @fileName: detect.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "../language/consts";
-import { isValidLangCode } from "../language/languages";
-import { myPreferences } from "../preferences";
-import { baiduWebDetect } from "../translation/baidu/baiduAPI";
-import { bingDetect } from "../translation/microsoft/bing";
-import { hasTencentAppKey, tencentDetect } from "../translation/tencent";
-import { volcanoDetect } from "../translation/volcano/volcanoAPI";
-import { hasVolcanoAppKey } from "../translation/volcano/volcanoSign";
-import { RequestErrorInfo } from "../types";
-import { francLanguageDetect } from "./franc";
-import { DetectedLangModel, LanguageDetectType } from "./types";
+import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/language/consts";
+import { isValidLangCode } from "@/language/languages";
+import { myPreferences } from "@/preferences";
+import { baiduWebDetect } from "@/translation/baidu/baiduAPI";
+import { bingDetect } from "@/translation/microsoft/bing";
+import { hasTencentAppKey, tencentDetect } from "@/translation/tencent";
+import { volcanoDetect } from "@/translation/volcano/volcanoAPI";
+import { hasVolcanoAppKey } from "@/translation/volcano/volcanoSign";
+import { RequestErrorInfo } from "@/types";
+import { francLanguageDetect } from "@/detectLanguage/franc";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import {
   checkIfPreferredLanguagesContainChinese,
   checkIfPreferredLanguagesContainEnglish,
   isChinese,
   isEnglishOrNumber,
   isPreferredLanguage,
-} from "./utils";
+} from "@/detectLanguage/utils";
 
 /**
  * Record all API detected language, if has detected two identical language id, use it.

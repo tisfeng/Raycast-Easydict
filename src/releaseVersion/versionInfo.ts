@@ -1,16 +1,8 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-07-01 19:05
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-05-17 22:34
- * @fileName: versionInfo.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
 import axios from "axios";
-import { requestCostTime } from "../axiosConfig";
+import { requestCostTime } from "@/axiosConfig";
 
 const versionInfoKey = "EasydictVersionInfoKey";
 const githubUrl = "https://github.com";

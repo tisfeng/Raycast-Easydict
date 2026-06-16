@@ -1,20 +1,12 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-03 10:19
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-27 16:40
- * @fileName: caiyun.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios, { AxiosError } from "axios";
-import { requestCostTime } from "../axiosConfig";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getCaiyunLangCode } from "../language/languages";
-import { AppKeyStore } from "../preferences";
-import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "../types";
-import { getTypeErrorInfo } from "../utils";
+import { requestCostTime } from "@/axiosConfig";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getCaiyunLangCode } from "@/language/languages";
+import { AppKeyStore } from "@/preferences";
+import { CaiyunTranslateResult, QueryTypeResult, TranslationType } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
 
 /**
  * Caiyun translate API. Cost time: 0.2s

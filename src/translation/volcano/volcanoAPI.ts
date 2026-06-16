@@ -1,22 +1,14 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-09-26 15:52
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-31 16:02
- * @fileName: volcanoAPI.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios from "axios";
-import { requestCostTime } from "../../axiosConfig";
-import { DetectedLangModel, LanguageDetectType } from "../../detectLanguage/types";
-import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { getVolcanoLangCode, getYoudaoLangCodeFromVolcanoCode } from "../../language/languages";
-import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
-import { VolcanoDetectResult, VolcanoTranslateResult } from "./types";
-import { genVolcanoSign } from "./volcanoSign";
+import { requestCostTime } from "@/axiosConfig";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getVolcanoLangCode, getYoudaoLangCodeFromVolcanoCode } from "@/language/languages";
+import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
+import { VolcanoDetectResult, VolcanoTranslateResult } from "@/translation/volcano/types";
+import { genVolcanoSign } from "@/translation/volcano/volcanoSign";
 
 console.log(`enter volcanoAPI.ts`);
 

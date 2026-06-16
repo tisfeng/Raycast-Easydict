@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-14 11:50
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-17 22:04
- * @fileName: type.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 export interface LanguageItem {
   googleLangCode: string; // ISO 639-1 codes, https://developers.google.com/admin-sdk/directory/v1/languages

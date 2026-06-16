@@ -1,14 +1,6 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-07-25 23:04
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-15 18:43
- * @fileName: languages.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getLanguageEnglishName } from "../../language/languages";
+import { getLanguageEnglishName } from "@/language/languages";
 
 /**
  * This is the list of general languages supported by Linguee dictionary, they can query each other at will.

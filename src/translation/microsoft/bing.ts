@@ -1,25 +1,17 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-09-17 10:35
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 10:12
- * @fileName: bing.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosRequestConfig } from "axios";
-import { requestCostTime } from "../../axiosConfig";
-import { userAgent } from "../../consts";
-import { DetectedLangModel, LanguageDetectType } from "../../detectLanguage/types";
-import { QueryWordInfo } from "../../dictionary/youdao/types";
-import { autoDetectLanguageItem, englishLanguageItem } from "../../language/consts";
-import { getBingLangCode, getYoudaoLangCodeFromBingCode } from "../../language/languages";
-import { myPreferences } from "../../preferences";
-import { QueryTypeResult, RequestErrorInfo, TranslationType } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
-import { BingConfig, BingTranslateResult } from "./types";
+import { requestCostTime } from "@/axiosConfig";
+import { userAgent } from "@/consts";
+import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
+import { getBingLangCode, getYoudaoLangCodeFromBingCode } from "@/language/languages";
+import { myPreferences } from "@/preferences";
+import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
+import { BingConfig, BingTranslateResult } from "@/translation/microsoft/types";
 
 console.log(`enter bing.ts`);
 

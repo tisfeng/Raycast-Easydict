@@ -1,23 +1,15 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-23 14:19
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-11-21 22:18
- * @fileName: easydict.tsx
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Icon, LaunchProps, List, getSelectedText } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { configAxiosProxy, delayGetSystemProxy } from "./axiosConfig";
-import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "./components";
-import { DataManager } from "./dataManager/dataManager";
-import { QueryWordInfo } from "./dictionary/youdao/types";
-import { LanguageItem } from "./language/type";
-import { myPreferences, preferredLanguage1 } from "./preferences";
-import { DisplaySection } from "./types";
-import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "./utils";
+import { configAxiosProxy, delayGetSystemProxy } from "@/axiosConfig";
+import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "@/components";
+import { DataManager } from "@/dataManager/dataManager";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { LanguageItem } from "@/language/type";
+import { myPreferences, preferredLanguage1 } from "@/preferences";
+import { DisplaySection } from "@/types";
+import { checkIfInstalledEudic, checkIfNeedShowReleasePrompt, trimTextLength } from "@/utils";
 
 const disableConsoleLog = false;
 

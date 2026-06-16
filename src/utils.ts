@@ -1,22 +1,14 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-04 12:28
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-17 23:41
- * @fileName: utils.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Clipboard, getApplications, LocalStorage, showToast, Toast } from "@raycast/api";
 import { AxiosError } from "axios";
 import { createHash } from "node:crypto";
-import { clipboardQueryTextKey } from "./consts";
-import { LanguageDetectType } from "./detectLanguage/types";
-import { LingueeListItemType } from "./dictionary/linguee/types";
-import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
-import { myPreferences } from "./preferences";
-import { Easydict } from "./releaseVersion/versionInfo";
+import { clipboardQueryTextKey } from "@/consts";
+import { LanguageDetectType } from "@/detectLanguage/types";
+import { LingueeListItemType } from "@/dictionary/linguee/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
+import { myPreferences } from "@/preferences";
+import { Easydict } from "@/releaseVersion/versionInfo";
 import {
   DictionaryType,
   ListDisplayItem,
@@ -25,7 +17,7 @@ import {
   RequestErrorInfo,
   RequestType,
   TranslationType,
-} from "./types";
+} from "@/types";
 
 /**
  * Max length for word to query dictionary.

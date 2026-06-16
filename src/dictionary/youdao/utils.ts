@@ -1,16 +1,8 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-31 11:07
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-08-31 13:24
- * @fileName: utils.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { chineseLanguageItem } from "../../language/consts";
-import { getLanguageOfTwoExceptChinese } from "../../language/languages";
-import { QueryWordInfo } from "./types";
+import { chineseLanguageItem } from "@/language/consts";
+import { getLanguageOfTwoExceptChinese } from "@/language/languages";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
 
 /**
  * Get youdao web dictionary URL.

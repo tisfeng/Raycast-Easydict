@@ -1,12 +1,4 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-09-18 23:35
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-09-19 00:33
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 export interface BingConfig {
   IG: string; // F4D70DC299D549CE824BFCD7506749E7

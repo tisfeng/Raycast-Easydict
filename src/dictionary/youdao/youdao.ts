@@ -1,26 +1,18 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-26 11:13
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-15 11:41
- * @fileName: youdao.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LocalStorage } from "@raycast/api";
 import axios, { AxiosError } from "axios";
 import util from "util";
-import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "../../audio";
-import { requestCostTime } from "../../axiosConfig";
-import { userAgent } from "../../consts";
-import { autoDetectLanguageItem, englishLanguageItem } from "../../language/consts";
-import { myPreferences } from "../../preferences";
-import { DictionaryType, QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "../../types";
-import { getTypeErrorInfo } from "../../utils";
-import { formatYoudaoWebDictionaryModel } from "./formatData";
-import { YoudaoWebDictionaryModel } from "./types";
-import { getYoudaoWebDictionaryLanguageId } from "./utils";
+import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "@/audio";
+import { requestCostTime } from "@/axiosConfig";
+import { userAgent } from "@/consts";
+import { autoDetectLanguageItem, englishLanguageItem } from "@/language/consts";
+import { myPreferences } from "@/preferences";
+import { DictionaryType, QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
+import { formatYoudaoWebDictionaryModel } from "@/dictionary/youdao/formatData";
+import { YoudaoWebDictionaryModel } from "@/dictionary/youdao/types";
+import { getYoudaoWebDictionaryLanguageId } from "@/dictionary/youdao/utils";
 
 console.log(`enter youdao.ts`);
 

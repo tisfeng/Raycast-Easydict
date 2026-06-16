@@ -1,21 +1,13 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-03 10:18
- * @lastEditor: Tisfeng
- * @lastEditTime: 2022-10-30 23:12
- * @fileName: deepL.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import axios, { AxiosError } from "axios";
 import querystring from "node:querystring";
-import { httpsAgent, requestCostTime } from "../axiosConfig";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { getDeepLLangCode } from "../language/languages";
-import { AppKeyStore } from "../preferences";
-import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
-import { getTypeErrorInfo } from "../utils";
+import { httpsAgent, requestCostTime } from "@/axiosConfig";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { getDeepLLangCode } from "@/language/languages";
+import { AppKeyStore } from "@/preferences";
+import { DeepLTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
+import { getTypeErrorInfo } from "@/utils";
 
 /**
  * DeepL translate API. Cost time: > 1s

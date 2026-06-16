@@ -1,6 +1,6 @@
 // To parse this data:
 //
-//   import { Convert, YoudaoTranslateResponse } from "./file";
+//   import { Convert, YoudaoTranslateResponse } from "@/dictionary/youdao/file";
 //
 //   const youdaoTranslateResponse = Convert.toYoudaoTranslateResponse(json);
 

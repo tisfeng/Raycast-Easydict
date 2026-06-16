@@ -1,8 +1,8 @@
 import axios, { AxiosError } from "axios";
-import { requestCostTime } from "../axiosConfig";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { AppKeyStore } from "../preferences";
-import { GeminiTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "../types";
+import { requestCostTime } from "@/axiosConfig";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { AppKeyStore } from "@/preferences";
+import { GeminiTranslateResult, QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 
 interface GeminiErrorResponse {
   error: {

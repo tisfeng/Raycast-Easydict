@@ -1,25 +1,17 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-17 17:41
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-15 17:45
- * @fileName: utils.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { hasLingueeDictionaryEntries } from "../dictionary/linguee/parse";
-import { LingueeDictionaryResult } from "../dictionary/linguee/types";
-import { hasYoudaoDictionaryEntries } from "../dictionary/youdao/formatData";
-import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "../dictionary/youdao/types";
-import { getYoudaoWebDictionaryURL } from "../dictionary/youdao/utils";
-import { chineseLanguageItem, englishLanguageItem } from "../language/consts";
+import { hasLingueeDictionaryEntries } from "@/dictionary/linguee/parse";
+import { LingueeDictionaryResult } from "@/dictionary/linguee/types";
+import { hasYoudaoDictionaryEntries } from "@/dictionary/youdao/formatData";
+import { QueryWordInfo, YoudaoDictionaryFormatResult, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
+import { chineseLanguageItem, englishLanguageItem } from "@/language/consts";
 import {
   getLanguageItemFromYoudaoCode,
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
-} from "../language/languages";
-import { myPreferences } from "../preferences";
+} from "@/language/languages";
+import { myPreferences } from "@/preferences";
 import {
   DictionaryType,
   ListDisplayItem,
@@ -27,14 +19,14 @@ import {
   QueryTypeResult,
   TranslationItem,
   TranslationType,
-} from "../types";
+} from "@/types";
 import {
   checkIsDictionaryType,
   checkIsLingueeListItem,
   checkIsTranslationType,
   checkIsWord,
   checkIsYoudaoDictionaryListItem,
-} from "../utils";
+} from "@/utils";
 
 /**
  * Sort query results by designated order.

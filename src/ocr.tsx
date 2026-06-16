@@ -1,15 +1,7 @@
-/*
- * @author: tisfeng
- * @createTime: 2023-05-15 23:31
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-05-17 18:42
- * @fileName: ocr.tsx
- *
- * Copyright (c) 2023 by ${git_name}, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { closeMainWindow, open, showHUD } from "@raycast/api";
-import { recognizeText } from "./recognizeText";
+import { recognizeText } from "@/recognizeText";
 
 export default async function command() {
   await closeMainWindow();

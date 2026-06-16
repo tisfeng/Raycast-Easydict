@@ -1,16 +1,8 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-05 10:36
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-31 16:04
- * @fileName: preferences.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment, getPreferenceValues } from "@raycast/api";
 import crypto from "node:crypto";
-import { getLanguageItemFromYoudaoCode } from "./language/languages";
+import { getLanguageItemFromYoudaoCode } from "@/language/languages";
 
 export const myPreferences = getPreferenceValues<Preferences>();
 export const preferredLanguage1 = getLanguageItemFromYoudaoCode(myPreferences.language1);

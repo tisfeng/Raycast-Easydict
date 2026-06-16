@@ -1,30 +1,22 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-04 21:58
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-16 18:32
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Image } from "@raycast/api";
 import { RawResponse } from "@vitalets/google-translate-api/dist/cjs/types";
 import { ChildProcess } from "child_process";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
-import { LanguageDetectType } from "./detectLanguage/types";
-import { IcibaDictionaryResult } from "./dictionary/iciba/interface";
-import { LingueeDictionaryResult, LingueeListItemType } from "./dictionary/linguee/types";
-import { YoudaoTranslateResponse } from "./dictionary/youdao/translate.type";
+import { LanguageDetectType } from "@/detectLanguage/types";
+import { IcibaDictionaryResult } from "@/dictionary/iciba/interface";
+import { LingueeDictionaryResult, LingueeListItemType } from "@/dictionary/linguee/types";
+import { YoudaoTranslateResponse } from "@/dictionary/youdao/translate.type";
 import {
   QueryWordInfo,
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
   YoudaoWebTranslateResult,
-} from "./dictionary/youdao/types";
-import { LanguageItem } from "./language/type";
-import { BingTranslateResult } from "./translation/microsoft/types";
-import { VolcanoDetectResult, VolcanoTranslateResult } from "./translation/volcano/types";
+} from "@/dictionary/youdao/types";
+import { LanguageItem } from "@/language/type";
+import { BingTranslateResult } from "@/translation/microsoft/types";
+import { VolcanoDetectResult, VolcanoTranslateResult } from "@/translation/volcano/types";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;

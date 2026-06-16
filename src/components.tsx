@@ -1,33 +1,25 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-06-26 11:13
- * @lastEditor: tisfeng
- * @lastEditTime: 2023-03-16 23:10
- * @fileName: components.tsx
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { useState } from "react";
-import { sayTruncateCommand } from "./audio";
-import { getShowMoreDetailMarkdown } from "./dataManager/utils";
-import { getLingueeWebDictionaryURL } from "./dictionary/linguee/parse";
-import { LingueeListItemType } from "./dictionary/linguee/types";
-import { QueryWordInfo, YoudaoDictionaryListItemType } from "./dictionary/youdao/types";
-import { getYoudaoWebDictionaryURL } from "./dictionary/youdao/utils";
-import { playYoudaoWordAudioAfterDownloading } from "./dictionary/youdao/youdao";
-import { languageItemList } from "./language/consts";
+import { sayTruncateCommand } from "@/audio";
+import { getShowMoreDetailMarkdown } from "@/dataManager/utils";
+import { getLingueeWebDictionaryURL } from "@/dictionary/linguee/parse";
+import { LingueeListItemType } from "@/dictionary/linguee/types";
+import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
+import { playYoudaoWordAudioAfterDownloading } from "@/dictionary/youdao/youdao";
+import { languageItemList } from "@/language/consts";
 import {
   getBaiduWebTranslateURL,
   getDeepLWebTranslateURL,
   getEudicWebDictionaryURL,
   getGoogleWebTranslateURL,
-} from "./language/languages";
-import { myPreferences, preferredLanguage1, preferredLanguage2 } from "./preferences";
-import ReleaseNotesPage from "./releaseVersion/releaseNotePage";
-import { Easydict } from "./releaseVersion/versionInfo";
-import { openInEudic } from "./scripts";
+} from "@/language/languages";
+import { myPreferences, preferredLanguage1, preferredLanguage2 } from "@/preferences";
+import ReleaseNotesPage from "@/releaseVersion/releaseNotePage";
+import { Easydict } from "@/releaseVersion/versionInfo";
+import { openInEudic } from "@/scripts";
 import {
   ActionListPanelProps,
   DictionaryType,
@@ -35,8 +27,8 @@ import {
   QueryType,
   TranslationType,
   WebQueryItem,
-} from "./types";
-import { checkIsLingueeListItem, checkIsTranslationType, checkIsYoudaoDictionaryListItem } from "./utils";
+} from "@/types";
+import { checkIsLingueeListItem, checkIsTranslationType, checkIsYoudaoDictionaryListItem } from "@/utils";
 
 const queryWebItemTypes = [
   DictionaryType.Youdao,

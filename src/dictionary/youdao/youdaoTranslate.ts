@@ -1,10 +1,10 @@
 import axios from "axios";
 import crypto from "node:crypto";
-import { userAgent } from "../../consts";
-import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "../../types";
-import { YoudaoKey } from "./key.type";
-import { TranslateParams, YoudaoTranslateResponse } from "./translate.type";
-import { isValidYoudaoWebTranslateLanguage } from "./utils";
+import { userAgent } from "@/consts";
+import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
+import { YoudaoKey } from "@/dictionary/youdao/key.type";
+import { TranslateParams, YoudaoTranslateResponse } from "@/dictionary/youdao/translate.type";
+import { isValidYoudaoWebTranslateLanguage } from "@/dictionary/youdao/utils";
 
 export async function requestYoudaoWebTranslate(
   queryWordInfo: QueryWordInfo,

@@ -1,18 +1,10 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-05 10:54
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-17 18:12
- * @fileName: languages.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { francLanguageDetect } from "../detectLanguage/franc";
-import { QueryWordInfo } from "../dictionary/youdao/types";
-import { preferredLanguages } from "../preferences";
-import { languageItemList } from "./consts";
-import { LanguageItem } from "./type";
+import { francLanguageDetect } from "@/detectLanguage/franc";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
+import { preferredLanguages } from "@/preferences";
+import { languageItemList } from "@/language/consts";
+import { LanguageItem } from "@/language/type";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 90;

@@ -1,14 +1,6 @@
-/*
- * @author: tisfeng
- * @createTime: 2022-08-12 18:38
- * @lastEditor: tisfeng
- * @lastEditTime: 2022-10-18 10:11
- * @fileName: types.ts
- *
- * Copyright (c) 2022 by tisfeng, All Rights Reserved.
- */
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { QueryResponse } from "../types";
+import { QueryResponse } from "@/types";
 
 export enum LanguageDetectType {
   Simple = "Simple Detect",
