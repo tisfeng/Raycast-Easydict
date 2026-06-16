@@ -1,13 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { createParser } from "eventsource-parser";
-import fetch, { RequestInit } from "node-fetch";
 
 // Ref: https://github.com/douo/raycast-openai-translator/blob/main/src/providers/openai/utils.ts
 interface FetchSSEOptions extends RequestInit {
   onMessage(data: string): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onError(error: any): void;
+  onError(error: unknown): void;
 }
 
 export async function fetchSSE(input: string, options: FetchSSEOptions) {
@@ -24,12 +22,16 @@ export async function fetchSSE(input: string, options: FetchSSEOptions) {
       },
     });
     if (resp.body) {
+      const reader = resp.body.getReader();
       const decoder = new TextDecoder();
 
-      for await (const chunk of resp.body) {
-        if (!chunk) continue;
-        const str = typeof chunk === "string" ? chunk : decoder.decode(chunk);
-        parser.feed(str);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          const str = typeof value === "string" ? value : decoder.decode(value, { stream: true });
+          parser.feed(str);
+        }
       }
     }
   } catch (error) {
