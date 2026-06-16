@@ -4,20 +4,18 @@ import { Icon, LaunchProps, List, getSelectedText } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 
 import { ListActionPanel, checkIfPreferredLanguagesConflict, getListItemIcon, getWordAccessories } from "@/components";
-import { DataManager } from "@/dataManager/dataManager";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { LanguageItem } from "@/language/type";
 import { myPreferences, preferredLanguage1 } from "@/preferences";
-import { DisplaySection } from "@/types";
 import { trimTextLength } from "@/utils";
 import { logTrace, logError } from "./devLog";
 import { useReleasePrompt } from "@/hooks/useReleasePrompt";
 import { useInstalledEudic } from "@/hooks/useInstalledEudic";
 import { useDebouncedQuery } from "@/hooks/useDebouncedQuery";
+import { useQueryEngine } from "@/hooks/useQueryEngine";
+import { useAutoPlayAudio } from "@/hooks/useAutoPlayAudio";
 
 logTrace("easydict", "module loaded");
-
-const dataManager = new DataManager();
 
 interface EasydictArguments {
   queryText?: string;
@@ -29,17 +27,32 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     return isConflict;
   }
 
-  const { queryText } = props.arguments;
-  const trimQueryText = queryText ? trimTextLength(queryText) : props.fallbackText;
+  const { queryText: initialQueryText } = props.arguments;
+  const trimQueryText = initialQueryText ? trimTextLength(initialQueryText) : props.fallbackText;
 
-  const [isLoadingState, setLoadingState] = useState<boolean>(false);
-  const [isShowingDetail, setIsShowingDetail] = useState<boolean>(false);
   const [isInputChanged, setInputChangedState] = useState<boolean>(false);
 
   const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
   const { isInstalledEudic } = useInstalledEudic();
 
-  const debouncedQuery = useDebouncedQuery(dataManager);
+  const {
+    displaySections,
+    isLoading,
+    isShowDetail,
+    currentFromLanguageItem,
+    autoSelectedTargetLanguageItem,
+    queryText,
+    queryTextWithTextInfo,
+    clearQueryResult,
+    setAutoSelectedTargetLanguageItem,
+    queryResults,
+    hasPlayedAudioRef,
+    isCurrentQueryRef,
+  } = useQueryEngine(preferredLanguage1, preferredLanguage1);
+
+  const debouncedQuery = useDebouncedQuery(queryText);
+
+  useAutoPlayAudio(queryResults, hasPlayedAudioRef, isCurrentQueryRef);
 
   /**
    * Use to display input text.
@@ -50,35 +63,11 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
    */
   const [searchText, setSearchText] = useState<string>("");
 
-  const [displayResult, setDisplayResult] = useState<DisplaySection[]>([]);
-
-  /**
-   * the language type of text, depending on the language type of the current input text.
-   *
-   * Todo: directly use language id.
-   */
-  const [currentFromLanguageItem, setCurrentFromLanguageItem] = useState<LanguageItem>(preferredLanguage1);
-  /**
-   * default translation language, based on user's preference language, can only defaultLanguage1 or defaultLanguage2 depending on the currentFromLanguageState. cannot be changed manually.
-   */
-  const [autoSelectedTargetLanguageItem, setAutoSelectedTargetLanguageItem] =
-    useState<LanguageItem>(preferredLanguage1);
   /**
    * the user selected translation language, used for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
    */
   const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
-
-  function updateDisplaySections(displayItems: DisplaySection[]) {
-    setIsShowingDetail(dataManager.isShowDetail);
-    setDisplayResult(displayItems);
-  }
-
-  // Todo: need to optimize these callbacks.
-  dataManager.updateLoadingState = setLoadingState;
-  dataManager.updateListDisplaySections = updateDisplaySections;
-  dataManager.updateCurrentFromLanguageItem = setCurrentFromLanguageItem;
-  dataManager.updateAutoSelectedTargetLanguageItem = setAutoSelectedTargetLanguageItem;
 
   const setupCalled = useRef(false);
   useEffect(() => {
@@ -129,7 +118,7 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
   /**
    * User select target language manually.
    *
-   * Todo: move it to dataManager.
+
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
     logTrace("easydict", `selected language: ${selectedLanguageItem.youdaoLangCode}`);
@@ -150,8 +139,8 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     };
 
     // Clean up previous query results immediately before new query.
-    dataManager.clearQueryResult();
-    dataManager.queryTextWithTextInfo(queryWordInfo);
+    clearQueryResult();
+    queryTextWithTextInfo(queryWordInfo);
   };
 
   /**
@@ -167,18 +156,18 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
     // If trimText is empty, then do not query.
     if (trimText.length === 0) {
       logTrace("easydict", "trimText is empty, do not query");
-      dataManager.clearQueryResult();
+      clearQueryResult();
       return;
     }
 
     // Only different input text, then clear old results before new input text query.
     if (trimText !== searchText) {
-      dataManager.clearQueryResult();
+      clearQueryResult();
       const toLanguage = userSelectedTargetLanguageItem.youdaoLangCode;
       if (isDelay) {
         debouncedQuery(trimText, toLanguage);
       } else {
-        dataManager.queryText(trimText, toLanguage);
+        queryText(trimText, toLanguage);
       }
     }
   }
@@ -195,14 +184,14 @@ export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
 
   return (
     <List
-      isLoading={isLoadingState}
-      isShowingDetail={isShowingDetail}
+      isLoading={isLoading}
+      isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChange}
       actions={null}
     >
-      {displayResult.map((resultItem, idx) => {
+      {displaySections.map((resultItem, idx) => {
         const sectionKey = `${resultItem.type}${idx}`;
         return (
           <List.Section key={sectionKey} title={resultItem.sectionTitle}>

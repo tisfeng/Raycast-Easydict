@@ -2,7 +2,7 @@
 
 import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
 import { sayTruncateCommand } from "@/audio";
-import { getShowMoreDetailMarkdown } from "@/dataManager/utils";
+import { getShowMoreDetailMarkdown } from "@/query/utils";
 import { getLingueeWebDictionaryURL } from "@/dictionary/linguee/parse";
 import { LingueeListItemType } from "@/dictionary/linguee/types";
 import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";

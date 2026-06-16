@@ -9,14 +9,7 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "@/language/languages";
 import { myPreferences } from "@/preferences";
-import {
-  DictionaryType,
-  ListDisplayItem,
-  QueryResult,
-  QueryTypeResult,
-  TranslationItem,
-  TranslationType,
-} from "@/types";
+import { DictionaryType, ListDisplayItem, QueryResult, QueryTypeResult, TranslationType } from "@/types";
 import { logTrace } from "@/devLog";
 import {
   checkIsDictionaryType,
@@ -257,34 +250,6 @@ export function getTranslationMarkdown(sourceResult: QueryTypeResult) {
 ${text}
 `;
   return markdown;
-}
-
-/**
- * Apply precomputed translation markdown.
- */
-export function applyTranslationMarkdown(queryResult: QueryResult, baseTranslations: TranslationItem[]) {
-  const { sourceResult, displaySections } = queryResult;
-  if (!sourceResult || !displaySections?.length || baseTranslations.length === 0) {
-    return;
-  }
-
-  const translations = [...baseTranslations];
-
-  // Traverse the translations array. If the type of translation element is equal to it, move it to the first of the array.
-  for (let i = 0; i < translations.length; i++) {
-    if (translations[i].type === queryResult.type) {
-      const temp = translations[i];
-      translations.splice(i, 1);
-      translations.unshift(temp);
-      break;
-    }
-  }
-  const markdown = translations.map((translation) => translation.text).join("\n");
-
-  const listDisplayItem = displaySections[0].items;
-  if (listDisplayItem?.length) {
-    listDisplayItem[0].detailsMarkdown = markdown;
-  }
 }
 
 /**
