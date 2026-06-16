@@ -7,8 +7,8 @@ import { getVolcanoLangCode, getYoudaoLangCodeFromVolcanoCode } from "@/language
 import { logTrace, logWarn, logError } from "@/devLog";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
-import { VolcanoDetectResult, VolcanoTranslateResult } from "@/translation/volcano/types";
-import { genVolcanoSign } from "@/translation/volcano/volcanoSign";
+import { VolcanoDetectResult, VolcanoTranslateResult } from "./types";
+import { genVolcanoSign } from "./volcanoSign";
 
 logTrace("volcano", "module loaded");
 

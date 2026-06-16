@@ -3,8 +3,8 @@
 import { francLanguageDetect } from "@/detectLanguage/franc";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { preferredLanguages } from "@/preferences";
-import { languageItemList } from "@/language/consts";
-import { LanguageItem } from "@/language/type";
+import { languageItemList } from "./consts";
+import { LanguageItem } from "./type";
 import { logTrace } from "@/devLog";
 
 export const maxLineLengthOfChineseTextDisplay = 45;

@@ -10,15 +10,15 @@ import { hasTencentAppKey, tencentDetect } from "@/translation/tencent";
 import { volcanoDetect } from "@/translation/volcano/volcanoAPI";
 import { hasVolcanoAppKey } from "@/translation/volcano/volcanoSign";
 import { RequestErrorInfo } from "@/types";
-import { francLanguageDetect } from "@/detectLanguage/franc";
-import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { francLanguageDetect } from "./franc";
+import { DetectedLangModel, LanguageDetectType } from "./types";
 import {
   checkIfPreferredLanguagesContainChinese,
   checkIfPreferredLanguagesContainEnglish,
   isChinese,
   isEnglishOrNumber,
   isPreferredLanguage,
-} from "@/detectLanguage/utils";
+} from "./utils";
 
 /**
  * Record all API detected language, if has detected two identical language id, use it.

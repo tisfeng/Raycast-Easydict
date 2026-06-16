@@ -9,9 +9,9 @@ import { myPreferences } from "@/preferences";
 import { logTrace, logError } from "@/devLog";
 import { DictionaryType, QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
-import { formatYoudaoWebDictionaryModel } from "@/dictionary/youdao/formatData";
-import { YoudaoWebDictionaryModel } from "@/dictionary/youdao/types";
-import { getYoudaoWebDictionaryLanguageId } from "@/dictionary/youdao/utils";
+import { formatYoudaoWebDictionaryModel } from "./formatData";
+import { YoudaoWebDictionaryModel } from "./types";
+import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
 logTrace("youdao", "module loaded");
 

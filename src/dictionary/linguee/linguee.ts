@@ -7,8 +7,8 @@ import { DictionaryType, QueryTypeResult } from "@/types";
 import { getTypeErrorInfo } from "@/utils";
 import { logTrace, logError } from "@/devLog";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
-import { getLingueeWebDictionaryURL, parseLingueeHTML } from "@/dictionary/linguee/parse";
-import { LingueeDictionaryResult } from "@/dictionary/linguee/types";
+import { getLingueeWebDictionaryURL, parseLingueeHTML } from "./parse";
+import { LingueeDictionaryResult } from "./types";
 
 export const lingueeRequestTimeKey = "lingueeRequestTimeKey";
 

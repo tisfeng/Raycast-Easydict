@@ -15,7 +15,7 @@ import {
   YoudaoDictionaryFormatResult,
   YoudaoDictionaryListItemType,
   YoudaoWebDictionaryModel,
-} from "@/dictionary/youdao/types";
+} from "./types";
 
 /**
  * Update Youdao dictionary display result.

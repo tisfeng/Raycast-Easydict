@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LanguageItem } from "@/language/type";
+import { LanguageItem } from "./type";
 
 /**
  * Language item list. Currently support 47 languages.

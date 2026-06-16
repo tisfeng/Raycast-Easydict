@@ -4,9 +4,9 @@ import { userAgent } from "@/consts";
 import { logTrace, logError, logWarn } from "@/devLog";
 import { QueryType, QueryTypeResult, QueryWordInfo, RequestErrorInfo, TranslationType } from "@/types";
 import { getErrorMessage } from "@/utils";
-import { YoudaoKey } from "@/dictionary/youdao/key.type";
-import { TranslateParams, YoudaoTranslateResponse } from "@/dictionary/youdao/translate.type";
-import { isValidYoudaoWebTranslateLanguage } from "@/dictionary/youdao/utils";
+import { YoudaoKey } from "./key.type";
+import { TranslateParams, YoudaoTranslateResponse } from "./translate.type";
+import { isValidYoudaoWebTranslateLanguage } from "./utils";
 
 export async function requestYoudaoWebTranslate(
   queryWordInfo: QueryWordInfo,

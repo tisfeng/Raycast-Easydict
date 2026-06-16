@@ -11,7 +11,7 @@ import { logTrace, logWarn, logError } from "@/devLog";
 import { myPreferences } from "@/preferences";
 import { QueryTypeResult, RequestErrorInfo, TranslationType } from "@/types";
 import { getTypeErrorInfo, getErrorMessage, getErrorName } from "@/utils";
-import { BingConfig, BingTranslateResult } from "@/translation/microsoft/types";
+import { BingConfig, BingTranslateResult } from "./types";
 
 logTrace("bing", "module loaded");
 

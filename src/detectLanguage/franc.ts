@@ -3,9 +3,9 @@
 import { francAll } from "franc";
 import { languageItemList } from "@/language/consts";
 import { getLanguageItemFromFrancCode, getLanguageItemFromYoudaoCode } from "@/language/languages";
-import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
+import { DetectedLangModel, LanguageDetectType } from "./types";
 import { logTrace } from "@/devLog";
-import { isPreferredLanguage } from "@/detectLanguage/utils";
+import { isPreferredLanguage } from "./utils";
 
 /**
  * Use franc to detect text language.

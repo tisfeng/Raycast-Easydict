@@ -6,7 +6,7 @@ import { DictionaryType, DisplaySection, ListDisplayItem, QueryTypeResult } from
 import { checkIsWord } from "@/utils";
 import { logTrace, logWarn } from "@/devLog";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
-import { getValidLingueeLanguagePair } from "@/dictionary/linguee/languages";
+import { getValidLingueeLanguagePair } from "./languages";
 import {
   LingueeDictionaryResult,
   LingueeExample,
@@ -15,7 +15,7 @@ import {
   LingueeWikipedia,
   LingueeWordExplanation,
   LingueeWordItem,
-} from "@/dictionary/linguee/types";
+} from "./types";
 
 /**
  * Parse Linguee html. node-html-parser cost: ~40ms

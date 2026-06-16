@@ -7,7 +7,7 @@ import { AppKeyStore } from "@/preferences";
 import { QueryTypeResult, TranslationType } from "@/types";
 import { getErrorMessage, getErrorName } from "@/utils";
 import { networkTimeout } from "@/consts";
-import { fetchSSE } from "@/translation/openAI/utils";
+import { fetchSSE } from "./utils";
 
 const REASONING_MODEL_PATTERN = /^(o1|o3|gpt-5)/i;
 
