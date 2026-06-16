@@ -4,6 +4,10 @@ import { closeMainWindow, open, showHUD } from "@raycast/api";
 import { recognizeText } from "@/recognizeText";
 
 export default async function command() {
+  if (process.platform !== "darwin") {
+    return await showHUD("❌ OCR feature is currently only supported on macOS.");
+  }
+
   await closeMainWindow();
 
   try {

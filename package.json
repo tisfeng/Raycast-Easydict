@@ -70,8 +70,8 @@
     "node-fetch": "^3.3.2",
     "node-html-parser": "^7.0.2",
     "play-sound": "^1.1.6",
-    "run-applescript": "^7.1.0",
-    "tencentcloud-sdk-nodejs-tmt": "^4.1.134"
+    "tencentcloud-sdk-nodejs-tmt": "^4.1.134",
+    "@raycast/utils": "^1.17.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
@@ -603,7 +603,7 @@
       "type": "checkbox",
       "label": "Apple Translate",
       "required": false,
-      "description": "⚠️ An `Apple Translate` shortcut needs to be installed, please see README for more details.",
+      "description": "⚠️ (macOS only) An `Apple Translate` shortcut needs to be installed, please see README for more details.",
       "default": false
     },
     {
@@ -846,7 +846,8 @@
     }
   ],
   "platforms": [
-    "macOS"
+    "macOS",
+    "Windows"
   ],
   "allowScripts": {
     "simple-git-hooks@2.13.1": true

@@ -1,13 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { runAppleScript } from "@raycast/utils";
 import { showToast, Toast } from "@raycast/api";
-import { exec, execFile } from "child_process";
-import { execa } from "execa";
+import { execFile } from "child_process";
+
 import querystring from "node:querystring";
-import { DetectedLangModel, LanguageDetectType } from "@/detectLanguage/types";
 import { QueryWordInfo } from "@/dictionary/youdao/types";
-import { getAppleLangCode, getYoudaoLangCodeFromAppleCode } from "@/language/languages";
-import { RequestErrorInfo, RequestType, TranslationType } from "@/types";
+import { getAppleLangCode } from "@/language/languages";
+import { RequestErrorInfo, TranslationType } from "@/types";
 
 const execCommandTimeout = 10000; // 10s
 
@@ -34,11 +34,17 @@ export function appleTranslate(
     return Promise.resolve(undefined);
   }
 
+  if (process.platform !== "darwin") {
+    console.warn("Apple Translate is only supported on macOS.");
+    return Promise.resolve(undefined);
+  }
+
   const map = new Map([
     ["text", word],
     ["from", appleFromLanguageId], // * NOTE: if no from language, it will auto detect
     ["to", appleToLanguageId],
   ]);
+
   /**
    * * NOTE: thought apple translate support auto detect language, but it seems only support 12 languages currently that listed in consts.ts.
    * * If use auto detect and detected language is outside of 12 languages, it will throw language not support error.
@@ -64,111 +70,29 @@ export function appleTranslate(
 
   console.log(`before execa appleScript`);
 
-  // If timeout, kill exec child process.
-  const timeoutTimer = setTimeout(() => {
-    abortCommand(type, abortController);
-  }, timeout);
-
-  // I don't know why, sometimes this exec command will block the thread for 0.4s 😓
-  return new Promise((resolve, reject) => {
-    execa("osascript", ["-e", appleScript], { cancelSignal: abortController?.signal })
-      .then((result) => {
-        const translateText = result.stdout.trim(); // execa don't have to trim()
-        console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
-        resolve(translateText);
-      })
-      .catch((error) => {
-        if (error.killed) {
-          // error: { "killed": true, "code": null, "signal": "SIGTERM" }
-          console.warn(`---> apple translate canceled`);
-          // console.log(`error: ${JSON.stringify(error, null, 4)}`)
-          reject(undefined);
-        } else {
-          console.error(`apple translate error: ${JSON.stringify(error, null, 4)}`);
-          console.warn(`Apple translate error: ${appleScript}`);
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            message: error.message,
-          };
-          reject(errorInfo);
-        }
-      })
-      .finally(() => {
-        clearTimeout(timeoutTimer);
-      });
-    console.log(`---> end Apple translate, cost: ${new Date().getTime() - startTime} ms`);
-  });
-}
-
-/**
- * run LanguageDetect shortcuts with the given text. Cost time: ~0.4s
- *
- * * NOTE: Apple language detect support more languages than apple translate!
- */
-export function appleLanguageDetect(
-  text: string,
-  abortController?: AbortController,
-  timeout = execCommandTimeout,
-): Promise<DetectedLangModel> {
-  console.log(`start apple detect: ${text}`);
-  const startTime = new Date().getTime();
-  const appleScript = getShortcutsScript("Easydict-LanguageDetect-V1.2.0", text);
-  const type = LanguageDetectType.Apple;
-
-  const timeoutTimer = setTimeout(() => {
-    abortCommand(type, abortController);
-  }, timeout);
-
-  return new Promise((resolve, reject) => {
-    // * This code is synchronous, it will cost ~0.4s
-    execa("osascript", ["-e", appleScript], { cancelSignal: abortController?.signal })
-      .then((result) => {
-        const appleLangCode = result.stdout.trim(); // will be "" when detect language is not support, eg. ꯅꯨꯄꯤꯃꯆꯥ
-        console.warn(`apple detect language: ${appleLangCode}, cost: ${new Date().getTime() - startTime} ms`);
-        const youdaoLangCode = getYoudaoLangCodeFromAppleCode(appleLangCode);
-        const detectTypeResult: DetectedLangModel = {
+  return runAppleScript(appleScript, { timeout, signal: abortController?.signal })
+    .then((result) => {
+      const translateText = result.trim();
+      console.warn(`Apple translate: ${translateText}, cost: ${new Date().getTime() - startTime} ms`);
+      return translateText;
+    })
+    .catch((error) => {
+      if (error.name === "AbortError" || error.killed || error.message?.includes("timed out")) {
+        console.warn(`---> apple translate canceled or timeout`);
+        return Promise.reject(undefined);
+      } else {
+        console.error(`apple translate error: ${JSON.stringify(error, null, 4)}`);
+        console.warn(`Apple translate error: ${appleScript}`);
+        const errorInfo: RequestErrorInfo = {
           type: type,
-          sourceLangCode: appleLangCode,
-          youdaoLangCode: youdaoLangCode,
-          confirmed: false,
+          message: error.message,
         };
-        console.warn(`final apple detect language: ${appleLangCode}, youdaoId: ${youdaoLangCode}`);
-        resolve(detectTypeResult);
-      })
-      .catch((error) => {
-        if (error.killed) {
-          // error: { "killed": true, "code": null, "signal": "SIGTERM" }
-          console.warn(`---> apple detect canceled`);
-          reject(undefined);
-        } else {
-          console.error(`Apple detect error: ${error}`);
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            message: error.message,
-            code: error.code?.toString(),
-          };
-          reject(errorInfo);
-        }
-      })
-      .finally(() => {
-        clearTimeout(timeoutTimer);
-      });
-    console.log(`---> end Apple detect, cost: ${new Date().getTime() - startTime} ms`);
-  });
-}
-
-function abortCommand(type: RequestType, abortController?: AbortController): RequestErrorInfo | undefined {
-  console.log(`timeout, abortExecaCommand: ${type}, abortController: ${JSON.stringify(abortController, null, 4)}`);
-
-  if (abortController) {
-    abortController?.abort();
-    console.error(`${type} timeout, kill exec child process`);
-    const errorInfo: RequestErrorInfo = {
-      type: type,
-      message: `timeout of ${execCommandTimeout} exceeded`,
-    };
-    return errorInfo;
-  }
+        return Promise.reject(errorInfo);
+      }
+    })
+    .finally(() => {
+      console.log(`---> end Apple translate, cost: ${new Date().getTime() - startTime} ms`);
+    });
 }
 
 /**
@@ -208,33 +132,3 @@ export const openInEudic = (queryText: string) => {
     }
   });
 };
-
-/**
- * Exec osascript to post notification with title and content
- */
-export function postNotification(content: string, title: string, subtitle = "") {
-  const appleScript = `osascript -e 'display notification "${content}" with title "${title}" subtitle "${subtitle}"'`;
-  exec(appleScript, (error) => {
-    if (error) {
-      console.log("postNotification error:", error);
-    }
-  });
-}
-
-export function exitExtension() {
-  console.log("exit extension");
-  // use cmd+W to close the extension, maybe delay a little bit, 0.5s
-  const appleScript = `
-    tell application "System Events"
-    key code 13 using {command down}
-    end tell
-    `;
-
-  exec(`osascript -e '${appleScript}'`, (err, stdout) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-  });
-}

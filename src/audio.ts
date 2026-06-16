@@ -76,6 +76,11 @@ export function sayTruncateCommand(text: string, youdaoLanguageId: string) {
   use shell say to play text sound
 */
 function sayCommand(text: string, youdaoLanguageId: string) {
+  if (process.platform !== "darwin") {
+    console.warn("Apple TTS is only supported on macOS.");
+    return;
+  }
+
   if (youdaoLanguageId && text) {
     const languageItem = languageItemList.find((languageItem) => languageItem.youdaoLangCode === youdaoLanguageId);
     if (!languageItem || !languageItem.voiceList) {
@@ -197,47 +202,17 @@ async function isWavFile(filePath: string) {
 }
 
 /**
- * Get file data format. Use execa 'file' command to get data format.
- */
-export function getFileDataFormat(filePath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    execa("file", ["-b", "--mime-type", filePath])
-      .then((result) => {
-        const dataFormat = result.stdout;
-        console.log(`file data format: ${dataFormat}`); // audio/x-wav
-        resolve(dataFormat);
-      })
-      .catch((error) => {
-        console.error(`getFileDataFormat error: ${error}`);
-        reject(error);
-      });
-  });
-}
-
-/**
- * Check if file is 'wav' format.
- */
-export function isWavFileType(filePath: string): Promise<boolean> {
-  console.log(`check if file is wav format: ${filePath}`);
-  return new Promise((resolve, reject) => {
-    getFileDataFormat(filePath)
-      .then((dataFormat) => {
-        resolve(dataFormat === "audio/x-wav");
-      })
-      .catch((error) => {
-        console.error(`isWavFile error: ${error}`);
-        reject(error);
-      });
-  });
-}
-
-/**
  * Use afconver to convert wav file to m4a file in the same directory, if success, remove wav file.
  *
  * * Because wav file is too large, so convert to m4a file, which can be reduced to 1/10 of the original size.
  */
 export function convertWavToM4a(filePath: string): Promise<string> {
   console.log(`convert wav file to m4a: ${filePath}`);
+
+  if (process.platform !== "darwin") {
+    console.warn("afconvert is only supported on macOS.");
+    return Promise.resolve(filePath);
+  }
 
   return new Promise((resolve, reject) => {
     const m4aFilePath = filePath.replace(".wav", ".m4a"); // the same output filePath can be omitted.
