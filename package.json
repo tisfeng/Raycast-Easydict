@@ -61,7 +61,6 @@
     "@raycast/api": "^1.104.19",
     "@raycast/utils": "^2.2.6",
     "@vitalets/google-translate-api": "^9.2.1",
-    "cheerio": "^1.1.0",
     "eventsource-parser": "^3.0.6",
     "file-type": "^21.3.0",
     "franc": "^6.2.0",

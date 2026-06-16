@@ -1,6 +1,5 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import * as cheerio from "cheerio";
 import querystring from "node:querystring";
 
 import { timedFetch } from "@/fetchConfig";
@@ -53,10 +52,9 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
     responseType: "text",
   })
     .then((html) => {
-      const $ = cheerio.load(html);
-
       // <div class="result-container">好的</div>
-      const translation = $(".result-container").text();
+      const match = html.match(/<div class="result-container">(.*?)<\/div>/s);
+      const translation = match?.[1]?.trim() ?? "";
       const translations = translation.split("\n");
       logTrace("google", `web translation: ${translation}`);
       const result: QueryTypeResult = {
