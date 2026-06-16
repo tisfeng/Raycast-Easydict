@@ -106,7 +106,10 @@ export class DataManager {
       requestFn: requestYoudaoWebTranslate,
       onResult: (queryResult) => {
         // Update Youdao dictionary's translation row with translate result.
-        this.updateYoudaoDictionaryTranslation(queryResult.sourceResult.translations);
+        const youdaoDictionaryResult = this.getQueryResult(DictionaryType.Youdao);
+        if (youdaoDictionaryResult) {
+          this.updateDictionaryTranslation(youdaoDictionaryResult, queryResult.sourceResult.translations);
+        }
       },
     },
   ];
@@ -141,7 +144,7 @@ export class DataManager {
   /**
    * when has new input text, need to cancel previous request.
    */
-  isLastQuery = true;
+  isCurrentQuery = true;
   /**
    * when input text is empty, need to cancel previous request, and clear result.
    */
@@ -152,14 +155,13 @@ export class DataManager {
    */
   isShowDetail = false;
   hasPlayedAudio = false;
-  enableYoudaoDictionary = true;
 
   abortController?: AbortController;
 
   /**
    * Used for recording all the query types. If start a new query, push it to the array, when finished, remove it.
    */
-  queryRecordList: QueryType[] = [];
+  queryRecordList = new Set<QueryType>();
 
   /**
    * Query text with text info, query dictionary API or translate API.
@@ -168,7 +170,7 @@ export class DataManager {
    */
   public queryTextWithTextInfo(queryWordInfo: QueryWordInfo) {
     this.queryWordInfo = queryWordInfo;
-    this.enableYoudaoDictionary = checkIfEnableYoudaoDictionary(this.queryWordInfo);
+    const enableYoudaoDictionary = checkIfEnableYoudaoDictionary(this.queryWordInfo);
 
     this.resetProperties();
 
@@ -177,7 +179,7 @@ export class DataManager {
     logTrace("query fromTo", `${fromLanguage} -> ${toLanguage}`);
 
     // Todo: handle cancel request, add reject(undefined) to the catch.
-    this.queryYoudaoDictionary(queryWordInfo);
+    this.queryYoudaoDictionary(queryWordInfo, enableYoudaoDictionary);
 
     for (const config of this.translationServices) {
       this.runTranslationQuery(config, queryWordInfo);
@@ -189,7 +191,7 @@ export class DataManager {
     this.queryLingueeDictionary(queryWordInfo);
 
     // If no query, stop loading.
-    if (this.queryRecordList.length === 0) {
+    if (this.queryRecordList.size === 0) {
       this.updateLoadingState(false);
     }
   }
@@ -202,7 +204,7 @@ export class DataManager {
 
     this.isShowDetail = false;
     this.shouldClearQuery = true;
-    this.isLastQuery = false;
+    this.isCurrentQuery = false;
     this.updateLoadingState(false);
 
     this.queryResults = [];
@@ -329,9 +331,9 @@ export class DataManager {
     logTrace("dataManager", "resetProperties");
 
     this.hasPlayedAudio = false;
-    this.isLastQuery = true;
+    this.isCurrentQuery = true;
     this.shouldClearQuery = false;
-    this.queryRecordList = [];
+    this.queryRecordList.clear();
 
     const abortController = new AbortController();
     this.abortController = abortController;
@@ -384,7 +386,6 @@ export class DataManager {
         })
         .finally(() => {
           this.removeQueryFromRecordList(type);
-          this.updateDataDisplaySections();
         });
     }
   }
@@ -392,8 +393,8 @@ export class DataManager {
   /**
    * Query Youdao dictionary.
    */
-  private queryYoudaoDictionary(queryWordInfo: QueryWordInfo) {
-    if (this.enableYoudaoDictionary) {
+  private queryYoudaoDictionary(queryWordInfo: QueryWordInfo, enableYoudaoDictionary: boolean) {
+    if (enableYoudaoDictionary) {
       const type = DictionaryType.Youdao;
       this.addQueryToRecordList(type);
 
@@ -529,7 +530,7 @@ export class DataManager {
    * Add query to record list, and update loading status.
    */
   private addQueryToRecordList(type: QueryType) {
-    this.queryRecordList.push(type);
+    this.queryRecordList.add(type);
     this.updateLoadingState(true);
   }
 
@@ -537,9 +538,9 @@ export class DataManager {
    * Remove query type from queryRecordList, and update loading status.
    */
   private removeQueryFromRecordList(type: QueryType) {
-    this.queryRecordList = this.queryRecordList.filter((queryType) => queryType !== type);
+    this.queryRecordList.delete(type);
 
-    const showingLoadingState = this.queryRecordList.length > 0;
+    const showingLoadingState = this.queryRecordList.size > 0;
     this.updateLoadingState(showingLoadingState);
 
     if (!showingLoadingState) {
@@ -554,7 +555,7 @@ export class DataManager {
   private cancelAndRemoveAllQueries() {
     logTrace("dataManager", "cancel, and remove all query list");
 
-    this.queryRecordList = [];
+    this.queryRecordList.clear();
     this.updateLoadingState(false);
 
     this.abortController?.abort();
@@ -683,18 +684,6 @@ export class DataManager {
   }
 
   /**
-   * Try to update Youdao dictionary translation, if exist.
-   */
-  private updateYoudaoDictionaryTranslation(translations: string[]) {
-    logTrace("try updateYoudaoDictionaryTranslation", translations.join("\n"));
-
-    const youdaoDictionaryResult = this.getQueryResult(DictionaryType.Youdao);
-    if (youdaoDictionaryResult) {
-      this.updateDictionaryTranslation(youdaoDictionaryResult, translations);
-    }
-  }
-
-  /**
    * Update Dictionary type section title.
    *
    * 1. Add fromTo language to each `Dictionary` section title.
@@ -743,7 +732,7 @@ export class DataManager {
     const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode;
     const enableAutomaticDownloadAudio =
       myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
-    if (isDictionaryType && enableAutomaticDownloadAudio && this.isLastQuery && !this.hasPlayedAudio) {
+    if (isDictionaryType && enableAutomaticDownloadAudio && this.isCurrentQuery && !this.hasPlayedAudio) {
       // Some Youdao web word audio is not accurate, so if not found word audio url from Youdao dictionary, then directly use say command.
       setTimeout(() => {
         // To avoid blocking UI, delay playing audio.
