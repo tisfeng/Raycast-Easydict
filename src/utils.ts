@@ -130,40 +130,48 @@ export function checkIsDictionaryType(type: QueryType): boolean {
 /**
  * Check type is Translation type.
  */
-export function checkIsTranslationType(type: QueryType): boolean {
-  if (Object.values(TranslationType).includes(type as TranslationType)) {
-    return true;
-  }
-  return false;
+export function checkIsTranslationType(type: QueryType): type is TranslationType {
+  return Object.values(TranslationType).includes(type as TranslationType);
 }
 
 /**
- * check type is YoudaoDictionaryListItem type.
+ * Factory: create a type guard that checks both queryType and displayType.
+ *
+ * @param queryTypeCheck - validates the queryType field
+ * @param displayTypeValues - allowed values for displayType
  */
-export function checkIsYoudaoDictionaryListItem(listItem: ListDisplayItem): boolean {
-  const { queryType, displayType } = listItem;
-  if (
-    queryType === DictionaryType.Youdao &&
-    Object.values(YoudaoDictionaryListItemType).includes(displayType as YoudaoDictionaryListItemType)
-  ) {
-    return true;
-  }
-  return false;
+function createListItemTypeGuard<T extends string>(
+  queryTypeCheck: (queryType: QueryType) => boolean,
+  displayTypeValues: readonly T[],
+) {
+  const displayTypeSet = new Set(displayTypeValues);
+  return (listItem: ListDisplayItem): listItem is ListDisplayItem & { displayType: T } =>
+    queryTypeCheck(listItem.queryType) && displayTypeSet.has(listItem.displayType as T);
 }
 
 /**
- * check type is LingueeListItem type.
+ * Check if list item is a Youdao dictionary item.
  */
-export function checkIsLingueeListItem(listItem: ListDisplayItem): boolean {
-  const { queryType, displayType } = listItem;
-  if (
-    queryType === DictionaryType.Linguee &&
-    Object.values(LingueeListItemType).includes(displayType as LingueeListItemType)
-  ) {
-    return true;
-  }
-  return false;
-}
+export const checkIsYoudaoDictionaryListItem = createListItemTypeGuard(
+  (qt) => qt === DictionaryType.Youdao,
+  Object.values(YoudaoDictionaryListItemType),
+);
+
+/**
+ * Check if list item is a Linguee dictionary item.
+ */
+export const checkIsLingueeListItem = createListItemTypeGuard(
+  (qt) => qt === DictionaryType.Linguee,
+  Object.values(LingueeListItemType),
+);
+
+/**
+ * Check if list item is a translation item.
+ */
+export const checkIsTranslationListItem = createListItemTypeGuard(
+  checkIsTranslationType,
+  Object.values(TranslationType),
+);
 
 export function md5(text: string): string {
   return createHash("md5").update(text).digest("hex");

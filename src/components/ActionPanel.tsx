@@ -1,11 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Action, ActionPanel, Color, Detail, Icon, Image, List, openCommandPreferences } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, Keyboard, openCommandPreferences } from "@raycast/api";
 import { sayTruncateCommand } from "@/audio";
 import { getShowMoreDetailMarkdown } from "@/query/utils";
 import { getLingueeWebDictionaryURL } from "@/dictionary/linguee/parse";
-import { LingueeListItemType } from "@/dictionary/linguee/types";
-import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
+import { QueryWordInfo } from "@/dictionary/youdao/types";
 import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
 import { playYoudaoWordAudioAfterDownloading } from "@/dictionary/youdao/youdao";
 import { languageItemList } from "@/language/consts";
@@ -15,20 +14,19 @@ import {
   getEudicWebDictionaryURL,
   getGoogleWebTranslateURL,
 } from "@/language/languages";
-import { myPreferences, preferredLanguage1, preferredLanguage2 } from "@/preferences";
+import { myPreferences } from "@/preferences";
 import ReleaseNotesPage from "@/releaseVersion/releaseNotePage";
 import { FEEDBACK_URL, EASYDICT_VERSION, getReleaseTagUrl } from "@/consts";
 import { openInEudic } from "@/scripts";
-import {
-  ActionListPanelProps,
-  DictionaryType,
-  ListDisplayItem,
-  QueryType,
-  TranslationType,
-  WebQueryItem,
-} from "@/types";
+import { ActionListPanelProps, DictionaryType, QueryType, TranslationType, WebQueryItem } from "@/types";
 import { logTrace } from "@/devLog";
-import { checkIsLingueeListItem, checkIsTranslationType, checkIsYoudaoDictionaryListItem } from "@/utils";
+import { playSoundIconBlack, getQueryTypeIcon } from "./icons";
+
+const shortcuts = {
+  showDetail: { modifiers: ["cmd"] as Keyboard.KeyModifier[], key: "m" as Keyboard.KeyEquivalent },
+  playText: { modifiers: ["cmd"] as Keyboard.KeyModifier[], key: "s" as Keyboard.KeyEquivalent },
+  openOnline: Keyboard.Shortcut.Common.Open,
+};
 
 const queryWebItemTypes = [
   DictionaryType.Youdao,
@@ -98,7 +96,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         <Action.Push
           title="Show More Details"
           icon={Icon.Eye}
-          shortcut={{ modifiers: ["cmd"], key: "m" }}
+          shortcut={shortcuts.showDetail}
           target={
             <Detail
               markdown={showMoreDetailMarkdown}
@@ -119,8 +117,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
       <ActionPanel.Section title="Play Text Audio">
         <Action
           title="Play Query Text"
-          icon={playSoundIcon("black")}
-          shortcut={{ modifiers: ["cmd"], key: "s" }}
+          icon={playSoundIconBlack}
+          shortcut={shortcuts.playText}
           onAction={() => {
             logTrace("components", `start play sound: ${word}`);
             playYoudaoWordAudioAfterDownloading(queryWordInfo);
@@ -128,7 +126,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
         />
         <Action
           title="Play Result Text"
-          icon={playSoundIcon("black")}
+          icon={playSoundIconBlack}
           onAction={() => {
             /**
              *  Directly use say command to play the result text.
@@ -221,186 +219,6 @@ function CurrentVersionAction() {
   );
 }
 
-function playSoundIcon(lightTintColor: string) {
-  return {
-    source: { light: "play.png", dark: "play.png" },
-    tintColor: { light: lightTintColor, dark: "lightgray" },
-  };
-}
-
-/**
- * Return the corresponding ImageLike based on the ListDisplayType
- */
-export function getListItemIcon(listItem: ListDisplayItem): Image.ImageLike {
-  const { displayType } = listItem;
-
-  let itemIcon: Image.ImageLike = {
-    source: Icon.Dot,
-    tintColor: Color.PrimaryText,
-  };
-
-  if (checkIsYoudaoDictionaryListItem(listItem)) {
-    itemIcon = getYoudaoListItemIcon(displayType as YoudaoDictionaryListItemType);
-  } else if (checkIsLingueeListItem(listItem)) {
-    itemIcon = getLingueeListItemIcon(displayType as LingueeListItemType);
-  } else if (checkIsTranslationType(displayType as TranslationType)) {
-    itemIcon = getQueryTypeIcon(displayType as TranslationType);
-  }
-
-  return itemIcon;
-}
-
-/**
- * Get ImageLike based on LingueeDisplayType
- */
-export function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType): Image.ImageLike {
-  let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (lingueeDisplayType) {
-    case LingueeListItemType.Translation: {
-      dotColor = Color.Red;
-      break;
-    }
-    case LingueeListItemType.AlmostAlwaysUsed:
-    case LingueeListItemType.OftenUsed: {
-      dotColor = "#FF5151";
-      break;
-    }
-    case LingueeListItemType.SpecialForms: {
-      // French forms
-      dotColor = "#00BB00";
-      break;
-    }
-    case LingueeListItemType.Common: {
-      dotColor = Color.Blue;
-      break;
-    }
-    case LingueeListItemType.LessCommon: {
-      dotColor = Color.Yellow;
-      break;
-    }
-    case LingueeListItemType.Unfeatured: {
-      dotColor = "#CA8EC2";
-      break;
-    }
-    case LingueeListItemType.Example: {
-      dotColor = "teal";
-      break;
-    }
-    case LingueeListItemType.RelatedWord: {
-      dotColor = "gray";
-      break;
-    }
-    case LingueeListItemType.Wikipedia: {
-      dotColor = "#8080C0";
-      break;
-    }
-  }
-  const itemIcon: Image.ImageLike = {
-    source: Icon.Dot,
-    tintColor: dotColor,
-  };
-  return itemIcon;
-}
-
-/**
- * Get ImageLike based on YoudaoDisplayType
- */
-export function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemType): Image.ImageLike {
-  let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (youdaoListType) {
-    case YoudaoDictionaryListItemType.Translation: {
-      dotColor = Color.Red;
-      break;
-    }
-    case YoudaoDictionaryListItemType.ModernChineseDict: {
-      dotColor = "#006000";
-      break;
-    }
-    case YoudaoDictionaryListItemType.Explanation: {
-      dotColor = Color.Blue;
-      break;
-    }
-    case YoudaoDictionaryListItemType.WebTranslation: {
-      dotColor = Color.Yellow;
-      break;
-    }
-    case YoudaoDictionaryListItemType.WebPhrase: {
-      dotColor = "teal";
-      break;
-    }
-    case YoudaoDictionaryListItemType.Baike: {
-      dotColor = "#B15BFF";
-      break;
-    }
-    case YoudaoDictionaryListItemType.Wikipedia: {
-      dotColor = "#FF60AF";
-      break;
-    }
-  }
-
-  let itemIcon: Image.ImageLike = {
-    source: Icon.Dot,
-    tintColor: dotColor,
-  };
-
-  if (youdaoListType === YoudaoDictionaryListItemType.Forms) {
-    itemIcon = Icon.Receipt;
-  }
-
-  return itemIcon;
-}
-
-/**
- * Get query type icon based on the query type, translation or dictionary type.
- */
-function getQueryTypeIcon(queryType: QueryType): Image.ImageLike {
-  return {
-    source: `${queryType}.png`,
-    // mask: Image.Mask.RoundedRectangle, // !!!: mask may cause rendering issue, like flickering.
-  };
-}
-
-/**
- *  Get List.Item.Accessory[] based on the ListDisplayItem.
- */
-export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[] {
-  let wordExamTypeAccessory: List.Item.Accessory[] = [];
-  let pronunciationAccessory: List.Item.Accessory[] = [];
-  let wordAccessories: List.Item.Accessory[] = [];
-  const accessoryItem = item.accessoryItem;
-  if (accessoryItem) {
-    if (accessoryItem.examTypes) {
-      wordExamTypeAccessory = [
-        {
-          icon: { source: Icon.StarCircle, tintColor: Color.Blue },
-          tooltip: "Word included in the types of exam",
-        },
-      ];
-      const tags = accessoryItem.examTypes.map((examType) => {
-        const tag: List.Item.Accessory = {
-          tag: {
-            value: examType,
-            color: Color.Blue,
-          },
-        };
-        return tag;
-      });
-      wordAccessories = [...wordExamTypeAccessory, ...tags];
-    }
-    if (accessoryItem.phonetic) {
-      pronunciationAccessory = [
-        {
-          icon: playSoundIcon("gray"),
-          tooltip: "Pronunciation",
-        },
-        { text: accessoryItem.phonetic },
-      ];
-      wordAccessories = [...wordAccessories, ...pronunciationAccessory];
-    }
-  }
-  return wordAccessories;
-}
-
 /**
  * Get WebQueryItem according to the query type and info
  */
@@ -450,7 +268,7 @@ function WebQueryAction(props: { webQueryItem?: WebQueryItem; enableShortcutKey?
         icon={props.webQueryItem.icon}
         title={props.webQueryItem.title}
         url={props.webQueryItem.webUrl}
-        shortcut={{ modifiers: ["cmd"], key: "o" }}
+        shortcut={shortcuts.openOnline}
       />
     ) : null;
   } else {
@@ -462,20 +280,4 @@ function WebQueryAction(props: { webQueryItem?: WebQueryItem; enableShortcutKey?
       />
     ) : null;
   }
-}
-
-export function checkIfPreferredLanguagesConflict() {
-  if (preferredLanguage1.youdaoLangCode === preferredLanguage2.youdaoLangCode) {
-    logTrace("components", "referredLanguage1 and referredLanguage2 are the same language");
-    return (
-      <List searchBarPlaceholder="Error">
-        <List.Item
-          title={"Preferred Languages Conflict"}
-          icon={{ source: Icon.XMarkCircle, tintColor: Color.Red }}
-          subtitle={"Your First Language and Second Language must be different!"}
-        />
-      </List>
-    );
-  }
-  return null;
 }
