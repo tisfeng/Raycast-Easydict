@@ -70,11 +70,12 @@ export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: 
         logTrace("google", "canceled");
         throw undefined;
       }
-      logError("google", `web error: ${getErrorMessage(error)}`);
+      const errorMessage = getErrorMessage(error);
+      logError("google", `web error: ${errorMessage}`);
 
       const errorInfo: RequestErrorInfo = {
         type: TranslationType.Google,
-        message: "Google web translate error",
+        message: errorMessage,
       };
 
       throw errorInfo;

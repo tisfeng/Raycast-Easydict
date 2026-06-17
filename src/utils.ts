@@ -64,7 +64,16 @@ export function getTypeErrorInfo(
  */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof FetchError) {
-    return `${error.status} ${error.statusText}`;
+    if (error.status) {
+      return `${error.status} ${error.statusText}`;
+    }
+    if (error.data) {
+      return typeof error.data === "string" ? error.data : JSON.stringify(error.data);
+    }
+    // FetchError cause chain: FetchError → TypeError → ConnectTimeoutError (max 2 levels)
+    const cause = error.cause instanceof Error ? error.cause : null;
+    const inner = cause?.cause instanceof Error ? cause.cause : null;
+    return inner?.message || cause?.message || error.message || "Fetch error";
   }
   if (error instanceof Error) {
     return error.message;
