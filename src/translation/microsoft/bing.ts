@@ -83,24 +83,38 @@ export async function requestWebBingTranslate(
   const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
   logTrace("bing", `url: ${url}`);
 
-  return timedFetch
-    .raw(url, {
+  const makeRequest = async (requestUrl: string): Promise<{ url: string; data: unknown }> => {
+    const response = await timedFetch.raw(requestUrl, {
       method: "POST",
       body: new URLSearchParams(data).toString(),
       headers: {
         "User-Agent": userAgent,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      redirect: "follow",
+      redirect: "manual",
       signal,
-    })
-    .then(function (response) {
-      const finalUrl = response.url;
-      logTrace("bing", `finalUrl: ${finalUrl}`);
+    });
 
+    const finalUrl = response.url;
+
+    logTrace("bing", `finalUrl: ${finalUrl}`);
+
+    // Handle redirect manually - POST body needs to be resent
+    if (response.status >= 300 && response.status < 400) {
+      const redirectUrl = response.headers.get("location");
+      if (redirectUrl) {
+        logTrace("bing", `redirect to: ${redirectUrl}`);
+        return makeRequest(redirectUrl);
+      }
+    }
+
+    return { url: finalUrl, data: response._data };
+  };
+
+  return makeRequest(url)
+    .then(function ({ url: finalUrl, data: responseData }) {
       // Get new host
       const newBingHost = new URL(finalUrl).host;
-      const responseData = response._data;
       // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
       if (!responseData) {
         if (bingHost !== newBingHost && retryCount < 3) {
@@ -128,7 +142,8 @@ export async function requestWebBingTranslate(
       } else {
         retryCount = 0;
 
-        const bingTranslateResult = responseData[0] as BingTranslateResult | undefined;
+        const responseArray = responseData as unknown[];
+        const bingTranslateResult = responseArray[0] as BingTranslateResult | undefined;
         if (!bingTranslateResult?.translations?.length) {
           throw {
             type: TranslationType.Bing,
