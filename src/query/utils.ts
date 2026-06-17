@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { QueryWordInfo, YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
-import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
+import { YoudaoDictionaryListItemType } from "@/dictionary/youdao/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/language/consts";
 import {
   getLanguageItemFromYoudaoCode,
@@ -10,12 +9,10 @@ import {
 } from "@/language/languages";
 import { myPreferences } from "@/preferences";
 import { DictionaryType, ListDisplayItem, QueryResult, QueryTypeResult, TranslationType } from "@/types";
-import { logTrace } from "@/devLog";
 import {
   checkIsDictionaryType,
   checkIsLingueeListItem,
   checkIsTranslationType,
-  checkIsWord,
   checkIsYoudaoDictionaryListItem,
 } from "@/utils";
 
@@ -250,15 +247,4 @@ export function getTranslationMarkdown(sourceResult: QueryTypeResult) {
 ${text}
 `;
   return markdown;
-}
-
-/**
- * Check if enable Youdao dictionary.
- */
-export function checkIfEnableYoudaoDictionary(queryWordInfo: QueryWordInfo) {
-  const isValidYoudaoDictionaryLanguageQuery = getYoudaoWebDictionaryURL(queryWordInfo) !== undefined;
-  const isWord = checkIsWord(queryWordInfo);
-  const enableYoudaoDictionary = myPreferences.enableYoudaoDictionary && isValidYoudaoDictionaryLanguageQuery && isWord;
-  logTrace("dataManager", `enable Youdao Dictionary: ${enableYoudaoDictionary}`);
-  return enableYoudaoDictionary;
 }

@@ -36,8 +36,9 @@ import {
   TranslationItem,
   TranslationType,
 } from "@/types";
-import { checkIsDictionaryType, checkIsTranslationType, showErrorToast } from "@/utils";
-import { checkIfEnableYoudaoDictionary, getFromToLanguageTitle, getTranslationMarkdown } from "@/query/utils";
+import { checkIsDictionaryType, checkIsTranslationType, checkIsWord, showErrorToast } from "@/utils";
+import { getFromToLanguageTitle, getTranslationMarkdown } from "@/query/utils";
+import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
 import { queryReducer, QueryState } from "@/query/queryReducer";
 import { logTrace, logWarn } from "@/devLog";
 
@@ -50,7 +51,7 @@ interface TranslationServiceConfig {
   preference: keyof Preferences;
   requestFn: (queryWordInfo: QueryWordInfo, signal?: AbortSignal) => Promise<QueryTypeResult>;
   /** Optional: override the default preference check. */
-  isEnabled?: () => boolean;
+  isEnabled?: (queryWordInfo: QueryWordInfo) => boolean;
 }
 
 /** Static registry — same values as current DataManager.translationServices. */
@@ -68,7 +69,9 @@ const translationServices: TranslationServiceConfig[] = [
   {
     type: TranslationType.Youdao,
     preference: "enableYoudaoTranslate",
-    isEnabled: () => myPreferences.enableYoudaoTranslate || myPreferences.enableYoudaoDictionary,
+    isEnabled: (q) =>
+      myPreferences.enableYoudaoTranslate ||
+      (myPreferences.enableYoudaoDictionary && getYoudaoWebDictionaryURL(q) !== undefined && checkIsWord(q)),
     requestFn: requestYoudaoWebTranslate,
   },
 ];
@@ -80,6 +83,7 @@ function computeDisplaySections(state: QueryState): DisplaySection[] {
 
   const translations: TranslationItem[] = [];
   for (const qr of queryResults) {
+    if (qr.hideDisplay) continue;
     if (qr.sourceResult && checkIsTranslationType(qr.type)) {
       const markdown = getTranslationMarkdown(qr.sourceResult);
       translations.push({ type: qr.sourceResult.type as TranslationType, text: markdown });
@@ -244,7 +248,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const runTranslationQuery = useCallback(
     (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo) => {
-      const enabled = config?.isEnabled?.() ?? (myPreferences[config.preference] as boolean);
+      const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
       addQueryToRecordList(config.type);
@@ -437,7 +441,10 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const queryTextWithTextInfo = useCallback(
     (queryWordInfo: QueryWordInfo) => {
-      const enableYoudaoDictionary = checkIfEnableYoudaoDictionary(queryWordInfo);
+      const enableYoudaoDictionary =
+        myPreferences.enableYoudaoDictionary &&
+        getYoudaoWebDictionaryURL(queryWordInfo) !== undefined &&
+        checkIsWord(queryWordInfo);
 
       shouldClearQueryRef.current = false;
       isCurrentQueryRef.current = true;
