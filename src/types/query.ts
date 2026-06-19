@@ -49,11 +49,3 @@ export interface QueryResult {
   displaySections?: DisplaySection[];
   hideDisplay?: boolean;
 }
-
-export interface QueryRecordedItem {
-  timestamp: number;
-  queryText: string;
-  result?: string;
-}
-
-import { DisplaySection } from "./display";

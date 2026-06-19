@@ -25,7 +25,7 @@ export function trimTextLength(text: string, length = 1830) {
 /**
  * Check is word, only word.length < 20 is valid.
  */
-export function checkIsWordLength(word: string) {
+function checkIsWordLength(word: string) {
   return word.trim().length < maxWordLength;
 }
 

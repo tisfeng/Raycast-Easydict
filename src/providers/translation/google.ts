@@ -34,7 +34,7 @@ export function requestGoogleTranslate(queryWordInfo: QueryWordInfo, signal?: Ab
  * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
  * Another wild google translate api: http://translate.google.com/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
  */
-export async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+async function googleWebTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
   logTrace("google", "start google web translate");
 
   const fromLanguageId = getLangCode(queryWordInfo.fromLanguage, "googleLangCode");

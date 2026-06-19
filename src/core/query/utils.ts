@@ -41,7 +41,7 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
  *
  * @return [linguee dictionary, youdao dictionary, deepl...], all lowercase.
  */
-export function getSortOrder(): string[] {
+function getSortOrder(): string[] {
   const defaultOrderList = [
     DictionaryType.Youdao,
     DictionaryType.Linguee,
@@ -96,7 +96,7 @@ export function getSortOrder(): string[] {
 /**
  * Determine whether the title of the result exceeds the maximum value of one line.
  */
-export function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
+function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
   const isChineseText = textLanguage === chineseLanguageItem.youdaoLangCode;
   const isEnglishText = textLanguage === englishLanguageItem.youdaoLangCode;
 
