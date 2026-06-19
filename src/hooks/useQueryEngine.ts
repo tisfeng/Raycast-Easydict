@@ -77,7 +77,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       return null;
     }
 
-    if (!sourceResult.result) {
+    if (!sourceResult.translations || sourceResult.translations.length === 0) {
       logWarn("useQueryEngine", `${type} result is empty.`);
       return null;
     }
