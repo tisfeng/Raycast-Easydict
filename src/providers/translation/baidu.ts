@@ -1,14 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import querystring from "node:querystring";
-
-import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
-import { baiduMap, getLangCode, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
+import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
 import { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { md5 } from "@/utils/crypto";
-import { getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
@@ -89,66 +86,4 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
     logError("baidu", `translate error: ${JSON.stringify(baiduResult)}`);
     throw new RequestError(TranslationType.Baidu, baiduResult.error_msg || "", baiduResult.error_code || "");
   }
-}
-
-/**
- * Baidu web language detect, unofficial API. Cost time: ~0.3s
- */
-export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
-  logTrace("baidu", "start web Baidu language detect");
-  const type = LanguageDetectType.Baidu;
-
-  return new Promise((resolve, reject) => {
-    const url = "https://fanyi.baidu.com/langdetect";
-    const params = { query: text };
-    timedFetch(url, {
-      method: "POST",
-      body: querystring.stringify(params),
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    })
-      .then((response: BaiduWebLanguageDetect) => {
-        const baiduWebLanguageDetect = response;
-        if (baiduWebLanguageDetect.error === 0) {
-          const baiduLanguageId = baiduWebLanguageDetect.lan || "";
-          const youdaoLanguageId = getYoudaoLangCode(baiduLanguageId, baiduMap);
-          const isConfirmed = isValidLangCode(youdaoLanguageId);
-
-          logTrace("baidu", `detected: ${baiduLanguageId}`);
-
-          const detectedLanguageResult: DetectedLangModel = {
-            type: type,
-            sourceLangCode: baiduLanguageId,
-            youdaoLangCode: youdaoLanguageId,
-            confirmed: isConfirmed,
-            result: baiduWebLanguageDetect,
-          };
-          resolve(detectedLanguageResult);
-        } else {
-          logError("baidu", `web detect error: ${JSON.stringify(baiduWebLanguageDetect)}`);
-
-          const errorInfo = getBaiduWebLanguageDetectErrorInfo(baiduWebLanguageDetect);
-          reject(errorInfo);
-        }
-      })
-      .catch((error) => {
-        if (error.message === "canceled" || error.name === "AbortError") {
-          logTrace("baidu", "detect canceled");
-          return reject(undefined);
-        }
-
-        logError("baidu", `web Baidu language detect error: ${error}`);
-
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
-}
-
-function getBaiduWebLanguageDetectErrorInfo(result: BaiduWebLanguageDetect): RequestError {
-  const errorCode = result.error;
-  const errorInfo = new RequestError(LanguageDetectType.Baidu, result.msg || "", errorCode ? errorCode.toString() : "");
-
-  return errorInfo;
 }

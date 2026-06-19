@@ -2,38 +2,43 @@
 
 import { francAll } from "franc";
 
+import type { DetectedLangModel } from "@/core/detect/types";
+import { LanguageDetectType } from "@/core/detect/types";
+import { isPreferredLanguage } from "@/core/detect/utils";
 import { languageItemList } from "@/core/language/consts";
 import { getLanguageItem, getLanguageItemFromFrancCode } from "@/core/language/utils";
 import { logTrace } from "@/utils/logger";
 
-import { DetectedLangModel, LanguageDetectType } from "./types";
-import { isPreferredLanguage } from "./utils";
+import { BaseDetectProvider } from "./base";
+
+export class FrancDetectProvider extends BaseDetectProvider {
+  type = LanguageDetectType.Franc;
+  isLocal = true;
+
+  isEnabled(): boolean {
+    return true;
+  }
+
+  protected async doDetect(text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel> {
+    return francLanguageDetect(text, options?.confirmedConfidence);
+  }
+}
 
 /**
- * Use franc to detect text language.
- * if franc detect language list contains preferred language && confidence > confirmedConfidence, use it and mark it as confirmed = true.
- * else use the first language in franc detect language list, and mark it as confirmed = false.
- *
- * @confirmedConfidence the minimum confidence of franc detect language.
- *
- * @return detectedLanguageArray: All detected languages will recorded.
- * @reutn confirmed: Only mark confirmed = true when > confirmedConfidence && is preferred language.
- * @return detectedLanguageId: The first language id when language is confirmed. If not confirmed, it will be detectedLanguageArray[0].
+ * Use franc to detect text language (offline, n-gram based).
  */
 export function francLanguageDetect(text: string, confirmedConfidence = 0.8): DetectedLangModel {
   const startTime = new Date().getTime();
   logTrace("franc", `start franc detect: ${text}`);
-  let detectedLanguageId = "auto"; // 'und', language code that stands for undetermined.
+  let detectedLanguageId = "auto";
   let confirmed = false;
 
-  // get all franc language id from languageItemList
   const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLangCode);
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
   logTrace("franc", `franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
   const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
-    // * NOTE: when francLanguageId = 'und' or detected unsupported language, the youdaoLanguageId will be 'auto'
     const youdaoLanguageId = getLanguageItemFromFrancCode(francLanguageId).youdaoLangCode;
     return [youdaoLanguageId, confidence];
   });
@@ -43,7 +48,6 @@ export function francLanguageDetect(text: string, confirmedConfidence = 0.8): De
     logTrace("franc", `franc detected language: ${francDetectLanguageList[0]}`);
   }
 
-  // iterate francDetectLanguageList, if confidence > confirmedConfidence and is preferred language, use it.
   for (const [languageId, confidence] of detectedYoudaoLanguageArray) {
     if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
       logTrace(
@@ -56,18 +60,15 @@ export function francLanguageDetect(text: string, confirmedConfidence = 0.8): De
     }
   }
 
-  // if not confirmed, use the first language in the detectLanguageIdList.
   if (!confirmed) {
     [detectedLanguageId] = detectedYoudaoLanguageArray[0];
   }
 
-  const detectTypeResult: DetectedLangModel = {
+  return {
     type: LanguageDetectType.Franc,
     sourceLangCode: getLanguageItem(detectedLanguageId).francLangCode,
     youdaoLangCode: detectedLanguageId,
-    confirmed: confirmed,
+    confirmed,
     detectedLanguageArray: detectedYoudaoLanguageArray,
   };
-
-  return detectTypeResult;
 }

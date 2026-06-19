@@ -3,23 +3,10 @@
 import crypto from "node:crypto";
 
 import { AppKeyStore } from "@/preferences";
+import { hasVolcanoAppKey } from "@/providers/shared";
 
 const accessKey = AppKeyStore.volcanoSecretId;
 const secretKey = AppKeyStore.volcanoSecretKey;
-
-/**
- * Check has Volcano AppId and AppKey.
- */
-export function hasVolcanoAppKey() {
-  const AppId = AppKeyStore.volcanoSecretId;
-  const AppSecret = AppKeyStore.volcanoSecretKey;
-
-  if (AppId && AppSecret) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 /**
  * Generate Volcano Sign.

@@ -3,9 +3,7 @@
 import { LocalStorage } from "@raycast/api";
 
 import { userAgent } from "@/constants";
-import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
-import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
-import { bingMap, getLangCode, getYoudaoLangCode } from "@/core/language/utils";
+import { getLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { TranslationType } from "@/types/api";
 import { QueryTypeResult, QueryWordInfo } from "@/types/query";
@@ -184,50 +182,6 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     return { url: finalUrl, data: response._data };
   }
-}
-
-const bingTranslateProvider = new BingTranslateProvider();
-
-/**
- * Bing language detect, use bing translate `audo-detect`.
- */
-export async function bingDetect(text: string): Promise<DetectedLangModel> {
-  logTrace("bing", "start bingDetect");
-
-  const queryWordInfo: QueryWordInfo = {
-    word: text,
-    fromLanguage: autoDetectLanguageItem.bingLangCode,
-    toLanguage: englishLanguageItem.bingLangCode,
-  };
-  const type = LanguageDetectType.Bing;
-
-  return new Promise((resolve, reject) => {
-    bingTranslateProvider
-      .request(queryWordInfo)
-      .then((result) => {
-        const bingTranslateResult = result.result as BingTranslateResult;
-        const detectedLanguageCode = bingTranslateResult.detectedLanguage.language;
-        const youdaoLangCode = getYoudaoLangCode(detectedLanguageCode, bingMap);
-        logTrace("bing", `detected: ${detectedLanguageCode}`);
-
-        const detectedLanguageResult: DetectedLangModel = {
-          type: type,
-          sourceLangCode: detectedLanguageCode,
-          youdaoLangCode: youdaoLangCode,
-          confirmed: false,
-          result: bingTranslateResult,
-        };
-        resolve(detectedLanguageResult);
-      })
-      .catch((error) => {
-        const errorInfo = error as RequestError | undefined;
-        if (errorInfo) {
-          logError("bing", `detect error: ${JSON.stringify(error)}`);
-          errorInfo.type = type;
-        }
-        reject(errorInfo);
-      });
-  });
 }
 
 /**

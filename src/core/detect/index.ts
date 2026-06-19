@@ -2,16 +2,11 @@
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
-import { baiduWebDetect } from "@/providers/translation/baidu";
-import { bingDetect } from "@/providers/translation/bing";
-import { hasTencentAppKey, tencentDetect } from "@/providers/translation/tencent";
-import { volcanoDetect } from "@/providers/translation/volcano";
-import { hasVolcanoAppKey } from "@/providers/translation/volcano/volcanoSign";
-import {} from "@/types/query";
+import type { BaseDetectProvider } from "@/providers/detect/base";
+import { detectServices } from "@/providers/detect/registry";
 import { RequestError } from "@/utils/errors";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
-import { francLanguageDetect } from "./franc";
 import { DetectedLangModel, LanguageDetectType } from "./types";
 import {
   checkIfPreferredLanguagesContainChinese,
@@ -30,14 +25,21 @@ const defaultConfirmedConfidence = 0.8;
 
 let hasDetectFinished = false;
 
+let apiDetectors: BaseDetectProvider[] | null = null;
+let localDetectors: BaseDetectProvider[] | null = null;
+
+function initDetectors() {
+  const enabled = detectServices.map((c) => new c.provider()).filter((p) => p.isEnabled());
+  apiDetectors = enabled.filter((p) => !p.isLocal);
+  localDetectors = enabled.filter((p) => p.isLocal);
+}
+
 /**
  * given text, callback with LanguageDetectTypeResult.
  *
  * Prioritize the API language detection, if over time, try to use local language detection.
- *
- * Todo: use class to rewrite.
  */
-export function detectLanguage(text: string): Promise<DetectedLangModel> {
+export async function detectLanguage(text: string): Promise<DetectedLangModel> {
   logTrace("detect", "start detectLanguage");
 
   apiDetectedLanguageList = [];
@@ -47,32 +49,16 @@ export function detectLanguage(text: string): Promise<DetectedLangModel> {
   logTrace("api detect queryText", text);
   logTrace("detect lowerCaseText", lowerCaseText);
 
-  return new Promise((resolve) => {
-    raceDetectTextLanguage(lowerCaseText).then((detectedLanguage) => {
-      const finalDetectedLanguage = getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
-      resolve(finalDetectedLanguage);
-    });
-  });
+  const detectedLanguage = await raceDetectTextLanguage(lowerCaseText);
+  return await getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
 }
 
 /**
- * Get detect API functions. If API is enabled, add it to detect function list. Add Bing by default.
+ * Get enabled API detect providers from the registry.
  */
-function getDetectAPIs() {
-  const detectActionList = [bingDetect];
-
-  if (myPreferences.enableBaiduLanguageDetect) {
-    detectActionList.push(baiduWebDetect);
-  }
-
-  if (myPreferences.enableTencentTranslate && hasTencentAppKey()) {
-    detectActionList.push(tencentDetect);
-  }
-  if (myPreferences.enableVolcanoTranslate && hasVolcanoAppKey()) {
-    detectActionList.push(volcanoDetect);
-  }
-
-  return detectActionList;
+function getDetectAPIs(): Array<(text: string) => Promise<DetectedLangModel>> {
+  initDetectors();
+  return apiDetectors!.map((provider) => provider.detect);
 }
 
 /**
@@ -168,7 +154,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
         // Mark two identical language as prior.
         detectedLangModel.prior = true;
 
-        const onlyOneDetectService = getDetectAPIs().length == 1;
+        const onlyOneDetectService = apiDetectors!.length === 1;
 
         if (
           onlyOneDetectService ||
@@ -202,11 +188,11 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
  * 2. Try to use the most accurate language in apiDetectedLanguageList.
  * 3. If all language detect failed, use local detect language.
  */
-function getFinalDetectedLanguage(
+async function getFinalDetectedLanguage(
   text: string,
   detectedLangModel: DetectedLangModel | undefined,
   confirmedConfidence: number,
-): DetectedLangModel {
+): Promise<DetectedLangModel> {
   logTrace("start try get final detect", JSON.stringify(detectedLangModel));
   if (detectedLangModel && detectedLangModel.confirmed) {
     return detectedLangModel;
@@ -218,7 +204,7 @@ function getFinalDetectedLanguage(
     return finalDetectedLang;
   }
 
-  return getLocalTextLanguageDetectResult(text, confirmedConfidence);
+  return await getLocalTextLanguageDetectResult(text, confirmedConfidence);
 }
 
 /**
@@ -271,48 +257,54 @@ function handleFinalDetectedLangFromAPIList(
  *  Second, if detect preferred language confidence > lowConfidence, use it, but not confirmed.
  *  Third, if franc detect language is valid, use it, but not confirmed.
  *  Finally, if simple detect language is preferred language, use it. else use "auto".
- *
- * * Todo: need to optimize.
  */
-function getLocalTextLanguageDetectResult(
+async function getLocalTextLanguageDetectResult(
   text: string,
   confirmedConfidence: number,
   lowConfidence = 0.2,
-): DetectedLangModel {
+): Promise<DetectedLangModel> {
   logTrace("detect", `local detect, confidence >${confirmedConfidence}`);
 
-  // if detect preferred language confidence > confirmedConfidence.
-  const francDetectResult = francLanguageDetect(text, confirmedConfidence);
-  if (francDetectResult.confirmed) {
-    return francDetectResult;
-  }
+  initDetectors();
 
-  // if detect preferred language confidence > lowConfidence, use it, mark it as unconfirmed.
-  const detectedLanguageArray = francDetectResult.detectedLanguageArray;
-  if (detectedLanguageArray) {
-    for (const [languageId, confidence] of detectedLanguageArray) {
-      if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
-        logTrace(
-          "detect",
-          `franc detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence} (>${lowConfidence})`,
-        );
-        const lowConfidenceDetect: DetectedLangModel = {
-          type: francDetectResult.type,
-          sourceLangCode: francDetectResult.sourceLangCode,
-          youdaoLangCode: languageId,
-          confirmed: false,
-          detectedLanguageArray: francDetectResult.detectedLanguageArray,
-        };
-        return lowConfidenceDetect;
+  if (localDetectors && localDetectors.length > 0) {
+    const localProvider = localDetectors[0];
+    try {
+      const localDetectResult = await localProvider.detect(text, { confirmedConfidence });
+      if (localDetectResult.confirmed) {
+        return localDetectResult;
       }
-    }
-  }
 
-  // if franc detect language is valid, use it, such as 'fr', 'it'.
-  const youdaoLangCode = francDetectResult.youdaoLangCode;
-  if (isValidLangCode(youdaoLangCode)) {
-    logTrace("detect", `final use franc unconfirmed but valid detect: ${youdaoLangCode}`);
-    return francDetectResult;
+      // if detect preferred language confidence > lowConfidence, use it, mark it as unconfirmed.
+      const detectedLanguageArray = localDetectResult.detectedLanguageArray;
+      if (detectedLanguageArray) {
+        for (const [languageId, confidence] of detectedLanguageArray) {
+          if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
+            logTrace(
+              "detect",
+              `local detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence} (>${lowConfidence})`,
+            );
+            const lowConfidenceDetect: DetectedLangModel = {
+              type: localDetectResult.type,
+              sourceLangCode: localDetectResult.sourceLangCode,
+              youdaoLangCode: languageId,
+              confirmed: false,
+              detectedLanguageArray: localDetectResult.detectedLanguageArray,
+            };
+            return lowConfidenceDetect;
+          }
+        }
+      }
+
+      // if local detect language is valid, use it, such as 'fr', 'it'.
+      const youdaoLangCode = localDetectResult.youdaoLangCode;
+      if (isValidLangCode(youdaoLangCode)) {
+        logTrace("detect", `final use local unconfirmed but valid detect: ${youdaoLangCode}`);
+        return localDetectResult;
+      }
+    } catch (error) {
+      logError("detect", `local detect error: ${error}`);
+    }
   }
 
   // if simple detect is preferred language, use simple detect language('en', 'zh').
@@ -353,10 +345,4 @@ function simpleDetectTextLanguage(text: string): DetectedLangModel {
     confirmed: false,
   };
   return detectTypeResult;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function apiDetectedListContainsType(detectedLanguagetype: LanguageDetectType): boolean {
-  const isContained = apiDetectedLanguageList.find((item) => item.type === detectedLanguagetype);
-  return isContained !== undefined;
 }

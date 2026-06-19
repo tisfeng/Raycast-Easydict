@@ -1,15 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import crypto, { BinaryToTextEncoding } from "crypto";
-import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 
-import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
-import { getLangCode, getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
+import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
 import { QueryTypeResult, QueryWordInfo } from "@/types/query";
-import { getErrorCode, getErrorMessage, RequestError } from "@/utils/errors";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
@@ -29,20 +27,6 @@ const SECRET_KEY = AppKeyStore.tencentSecretKey;
 
 const endpoint = "tmt.tencentcloudapi.com";
 const region = "ap-guangzhou";
-const projectId = 0;
-
-const clientConfig = {
-  credential: {
-    secretId: SECRET_ID,
-    secretKey: SECRET_KEY,
-  },
-  region: region,
-  profile: {
-    httpProfile: {
-      endpoint: endpoint,
-    },
-  },
-};
 
 /**
  * Tencent translate, use axios, sign manually. Cost time: ~0.1 ms
@@ -177,75 +161,5 @@ export class TencentTranslateProvider extends BaseTranslateProvider {
       translations,
       queryWordInfo,
     };
-  }
-}
-
-/**
- * Tecent language detect, use Tencent nodejs sdk. Cost time: ~150ms
- *
- * 腾讯语种识别，5 次/秒：https://cloud.tencent.com/document/product/551/15620?cps_key=1d358d18a7a17b4a6df8d67a62fd3d3d
- *
- * Todo: use axios to rewrite.
- */
-export function tencentDetect(text: string): Promise<DetectedLangModel> {
-  logTrace("tencent", "start sdk request Tencent detect");
-
-  const params = {
-    Text: text,
-    ProjectId: projectId,
-  };
-  const startTime = new Date().getTime();
-  const type = LanguageDetectType.Tencent;
-
-  if (!hasTencentAppKey()) {
-    logWarn("tencent", "detect has no app key");
-    const result: DetectedLangModel = {
-      type: type,
-      sourceLangCode: "",
-      youdaoLangCode: "",
-      confirmed: false,
-    };
-    return Promise.resolve(result);
-  }
-
-  return new Promise((resolve, reject) => {
-    const TmtClient = tencentcloud.tmt.v20180321.Client;
-    const client = new TmtClient(clientConfig);
-
-    client
-      .LanguageDetect(params)
-      .then((response) => {
-        const endTime = new Date().getTime();
-        const tencentLanguageId = response.Lang || "";
-        const youdaoLanguageId = getYoudaoLangCode(tencentLanguageId, tencentDetectMap);
-        logTrace("tencent", `detected: ${tencentLanguageId}, cost: ${endTime - startTime}ms`);
-        const typeResult: DetectedLangModel = {
-          type: type,
-          sourceLangCode: tencentLanguageId,
-          youdaoLangCode: youdaoLanguageId,
-          confirmed: false,
-        };
-        resolve(typeResult);
-      })
-      .catch((err) => {
-        const message = getErrorMessage(err);
-        const code = getErrorCode(err);
-        logError("tencent", `detect error, code: ${code}, message: ${message}`);
-        reject(new RequestError(type, message, code));
-      });
-  });
-}
-
-/**
- * Check has Tencent AppId and AppKey.
- */
-export function hasTencentAppKey(): boolean {
-  const AppId = AppKeyStore.tencentSecretId;
-  const AppSecret = AppKeyStore.tencentSecretKey;
-
-  if (AppId && AppSecret) {
-    return true;
-  } else {
-    return false;
   }
 }

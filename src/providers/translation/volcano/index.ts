@@ -1,10 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
-import { getLangCode, getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
+import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
 import { QueryTypeResult, QueryWordInfo } from "@/types/query";
-import { getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
@@ -111,75 +110,4 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
       queryWordInfo,
     };
   }
-}
-
-/**
- * Volcengine Detect API. Cost time: ~150ms
- */
-export function volcanoDetect(text: string): Promise<DetectedLangModel> {
-  logTrace("volcano", "start request Volcano Detect");
-  const type = LanguageDetectType.Volcano;
-
-  const query = {
-    Action: "LangDetect",
-    Version: "2020-06-01",
-  };
-  const params = {
-    TextList: [text],
-  };
-
-  const signObject = genVolcanoSign(query, params);
-
-  if (!signObject) {
-    logWarn("volcano", "AccessKey or SecretKey is empty");
-    const result: DetectedLangModel = {
-      type: type,
-      sourceLangCode: "",
-      youdaoLangCode: "",
-      confirmed: false,
-      result: undefined,
-    };
-    return Promise.resolve(result);
-  }
-
-  const url = signObject.getUrl();
-  const config = signObject.getConfig();
-
-  return timedFetch(url, {
-    method: "POST",
-    body: params,
-    headers: config.headers,
-  })
-    .then((volcanoDetectResult: VolcanoDetectResult) => {
-      const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
-      if (volcanoError) {
-        logError("volcano", `detect error: ${JSON.stringify(volcanoDetectResult)}`);
-        const errorInfo = new RequestError(type, volcanoError.Message || "", volcanoError.Code || "");
-        throw errorInfo;
-      }
-
-      const detectedLanguage = volcanoDetectResult.DetectedLanguageList[0];
-      const volcanoLangCode = detectedLanguage.Language;
-      const youdaoLangCode = getYoudaoLangCode(volcanoLangCode, volcanoMap);
-      const isConfirmed = detectedLanguage.Confidence > 0.5;
-      const detectedLanguageModel: DetectedLangModel = {
-        type: type,
-        sourceLangCode: volcanoLangCode,
-        youdaoLangCode: youdaoLangCode,
-        confirmed: isConfirmed,
-        result: volcanoDetectResult,
-      };
-      logWarn("volcano", `detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
-      return detectedLanguageModel;
-    })
-    .catch((error) => {
-      if (error.message === "canceled" || error.name === "AbortError") {
-        logTrace("volcano", "detect canceled");
-        throw undefined;
-      }
-
-      logError("volcano", `detect err: ${JSON.stringify(error, null, 4)}`);
-      const errorInfo = getTypeErrorInfo(type, error);
-      throw errorInfo;
-    });
 }
