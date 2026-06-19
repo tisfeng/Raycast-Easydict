@@ -4,7 +4,7 @@ import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
 import { DictionaryType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import { QueryType } from "@/types/query";
+import type { QueryType } from "@/types/query";
 
 /**
  * Factory: create a type guard that checks both queryType and displayType.

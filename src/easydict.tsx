@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LaunchProps } from "@raycast/api";
+import type { LaunchProps } from "@raycast/api";
 
 import SearchWord from "@/components/pages/SearchWord";
 import { checkIfPreferredLanguagesConflict } from "@/components/ui/LanguageConflictError";

@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
-import { LanguageItem } from "@/core/language/types";
+import type { LanguageItem } from "@/core/language/types";
 import {
   getLanguageItem,
   maxLineLengthOfChineseTextDisplay,
@@ -11,7 +11,7 @@ import { myPreferences, preferredLanguages } from "@/preferences";
 import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
 import { DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import { QueryResult, QueryTypeResult } from "@/types/query";
+import type { QueryResult, QueryTypeResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 import { checkIsDictionaryType, checkIsTranslationType } from "@/utils/text";
 import { checkIsLingueeListItem, checkIsYoudaoDictionaryListItem } from "@/utils/typeGuards";

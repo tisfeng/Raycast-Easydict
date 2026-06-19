@@ -1,12 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import crypto, { BinaryToTextEncoding } from "crypto";
-import { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
+import type { BinaryToTextEncoding } from "crypto";
+import crypto from "crypto";
+import type { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 
 import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";

@@ -1,12 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Color, Icon, Image } from "@raycast/api";
+import type { Image } from "@raycast/api";
+import { Color, Icon } from "@raycast/api";
 
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
 import { DictionaryType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import { QueryType } from "@/types/query";
+import type { QueryType } from "@/types/query";
 
 /**
  * Play sound icons with different tint colors.

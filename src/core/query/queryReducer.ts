@@ -11,9 +11,9 @@
  *   services return results (e.g., DeepL translation updates Linguee dictionary title)
  */
 
-import { LanguageItem } from "@/core/language/types";
+import type { LanguageItem } from "@/core/language/types";
 import { DictionaryType, TranslationType } from "@/types/api";
-import { QueryResult, QueryType } from "@/types/query";
+import type { QueryResult, QueryType } from "@/types/query";
 
 import { checkIfShowTranslationDetail, sortedQueryResults } from "./utils";
 

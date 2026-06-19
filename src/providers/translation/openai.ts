@@ -6,7 +6,7 @@ import { networkTimeout } from "@/constants";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { getErrorMessage, getErrorName } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";

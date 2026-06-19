@@ -1,12 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { TranslationItem } from "@/types/api";
-import { TranslationType } from "@/types/api";
+import type { TranslationItem, TranslationType } from "@/types/api";
 import type { DisplaySection } from "@/types/display";
-import { QueryType, QueryTypeResult } from "@/types/query";
+import type { QueryType, QueryTypeResult } from "@/types/query";
 import { checkIsDictionaryType, checkIsTranslationType } from "@/utils/text";
 
-import { QueryState } from "./queryReducer";
+import type { QueryState } from "./queryReducer";
 import { getFromToLanguageTitle, getTranslationMarkdown } from "./utils";
 
 export function computeDisplaySections(state: QueryState): DisplaySection[] {

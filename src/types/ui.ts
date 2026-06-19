@@ -1,11 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Image } from "@raycast/api";
+import type { Image } from "@raycast/api";
 
-import { LanguageItem } from "@/core/language/types";
+import type { LanguageItem } from "@/core/language/types";
 
-import { ListDisplayItem } from "./display";
-import { QueryType } from "./query";
+import type { ListDisplayItem } from "./display";
+import type { QueryType } from "./query";
 
 export interface ActionListPanelProps {
   displayItem: ListDisplayItem;

@@ -5,7 +5,7 @@ import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import { logTrace } from "@/utils/logger";
 
-import {
+import type {
   BaikeSummary,
   ExplanationItem,
   KeyValueItem,
@@ -15,9 +15,9 @@ import {
   WordExplanation,
   WordForms,
   YoudaoDictionaryFormatResult,
-  YoudaoDictionaryListItemType,
   YoudaoWebDictionaryModel,
 } from "./types";
+import { YoudaoDictionaryListItemType } from "./types";
 
 /**
  * Update Youdao dictionary display result.

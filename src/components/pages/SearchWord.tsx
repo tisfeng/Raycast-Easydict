@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { ListActionPanel } from "@/components/ui/ActionPanel";
 import { getListItemIcon } from "@/components/ui/Icons";
 import { getWordAccessories } from "@/components/ui/WordAccessories";
-import { LanguageItem } from "@/core/language/types";
+import type { LanguageItem } from "@/core/language/types";
 import { useAutoPlayAudio, useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import { myPreferences, preferredLanguage1 } from "@/preferences";
-import { QueryWordInfo } from "@/types/query";
+import type { QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 import { trimTextLength } from "@/utils/text";
 

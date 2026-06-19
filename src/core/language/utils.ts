@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { languageItemList } from "./consts";
-import { LanguageItem } from "./types";
+import type { LanguageItem } from "./types";
 
 export const maxLineLengthOfChineseTextDisplay = 45;
 export const maxLineLengthOfEnglishTextDisplay = 90;

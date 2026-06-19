@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Color, Icon, List } from "@raycast/api";
+import type { List } from "@raycast/api";
+import { Color, Icon } from "@raycast/api";
 
 import { playSoundIconGray } from "@/components/ui/Icons";
 import type { ListDisplayItem } from "@/types/display";

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { playQueryWordAudio } from "@/core/audio";
 import { englishLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
-import { QueryResult } from "@/types/query";
+import type { QueryResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 import { checkIsDictionaryType } from "@/utils/text";
 

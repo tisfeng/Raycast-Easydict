@@ -3,7 +3,7 @@
 import { LanguageDetectType } from "@/core/detect/types";
 
 import { BaiduDetectProvider } from "./baidu";
-import { BaseDetectProvider } from "./base";
+import type { BaseDetectProvider } from "./base";
 import { BingDetectProvider } from "./bing";
 import { FrancDetectProvider } from "./franc";
 import { TencentDetectProvider } from "./tencent";

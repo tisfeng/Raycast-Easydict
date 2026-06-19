@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
-import { DetectedLangModel } from "@/core/detect/types";
-import { RequestError } from "@/utils/errors";
+import type { DetectedLangModel } from "@/core/detect/types";
+import type { RequestError } from "@/utils/errors";
 
-import { DictionaryType, TranslationType } from "./api";
-import { DisplaySection } from "./display";
+import type { DictionaryType, TranslationType } from "./api";
+import type { DisplaySection } from "./display";
 import type { QueryResponse } from "./queryResponse";
 
 /**

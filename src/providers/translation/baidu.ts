@@ -3,7 +3,7 @@
 import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";

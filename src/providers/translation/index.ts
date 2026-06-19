@@ -4,7 +4,7 @@ import { getLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { TranslationType } from "@/types/api";
-import { QueryWordInfo } from "@/types/query";
+import type { QueryWordInfo } from "@/types/query";
 import { checkIsWord } from "@/utils/text";
 
 import { AppleTranslateProvider } from "./apple";

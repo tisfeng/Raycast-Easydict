@@ -3,18 +3,21 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import { detectLanguage } from "@/core/detect";
-import { DetectedLangModel } from "@/core/detect/types";
-import { LanguageItem } from "@/core/language/types";
+import type { DetectedLangModel } from "@/core/detect/types";
+import type { LanguageItem } from "@/core/language/types";
 import { getLanguageItem } from "@/core/language/utils";
 import { computeDisplaySections } from "@/core/query/displaySections";
-import { queryReducer, QueryState } from "@/core/query/queryReducer";
+import type { QueryState } from "@/core/query/queryReducer";
+import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
-import { DictionaryServiceConfig, dictionaryServices } from "@/providers/dictionary";
-import { TranslationServiceConfig, translationServices } from "@/providers/translation";
+import type { DictionaryServiceConfig } from "@/providers/dictionary";
+import { dictionaryServices } from "@/providers/dictionary";
+import type { TranslationServiceConfig } from "@/providers/translation";
+import { translationServices } from "@/providers/translation";
 import { TranslationType } from "@/types/api";
-import { DisplaySection, ListDisplayItem } from "@/types/display";
-import { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { DisplaySection, ListDisplayItem } from "@/types/display";
+import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 import { checkIsTranslationType } from "@/utils/text";

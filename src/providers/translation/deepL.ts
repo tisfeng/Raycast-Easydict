@@ -4,7 +4,7 @@ import querystring from "node:querystring";
 import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { getTypeErrorInfo, RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";

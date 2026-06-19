@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { DictionaryType, TranslationType } from "@/types/api";
-import type { QueryWordInfo } from "@/types/query";
-import { QueryType } from "@/types/query";
+import type { QueryType, QueryWordInfo } from "@/types/query";
 
 /**
  * Max length for word to query dictionary.

@@ -1,11 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
+import type { LingueeListItemType } from "@/providers/dictionary/linguee/types";
+import type { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
 
-import { DictionaryType, TranslationType } from "./api";
-import type { QueryWordInfo } from "./query";
-import { QueryType } from "./query";
+import type { DictionaryType, TranslationType } from "./api";
+import type { QueryType, QueryWordInfo } from "./query";
 import type { QueryResponse } from "./queryResponse";
 
 export type DictionaryDisplayType = LingueeListItemType | YoudaoDictionaryListItemType;

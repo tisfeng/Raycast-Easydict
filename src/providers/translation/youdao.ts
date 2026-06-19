@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import { userAgent } from "@/constants";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";

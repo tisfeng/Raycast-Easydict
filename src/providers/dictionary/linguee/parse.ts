@@ -5,20 +5,20 @@ import { parse } from "node-html-parser";
 import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { logTrace, logWarn } from "@/utils/logger";
 import { checkIsWord } from "@/utils/text";
 
 import { getValidLingueeLanguagePair } from "./languages";
-import {
+import type {
   LingueeDictionaryResult,
   LingueeExample,
-  LingueeListItemType,
   LingueePosText,
   LingueeWikipedia,
   LingueeWordExplanation,
   LingueeWordItem,
 } from "./types";
+import { LingueeListItemType } from "./types";
 
 /**
  * Parse Linguee html. node-html-parser cost: ~40ms

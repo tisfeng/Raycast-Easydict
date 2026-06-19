@@ -6,7 +6,7 @@ import { runAppleScript } from "@raycast/utils";
 
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";

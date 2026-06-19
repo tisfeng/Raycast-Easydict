@@ -6,7 +6,7 @@ import { userAgent } from "@/constants";
 import { getLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";

@@ -5,7 +5,7 @@ import querystring from "node:querystring";
 import { userAgent } from "@/constants";
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
