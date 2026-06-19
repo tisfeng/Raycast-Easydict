@@ -23,6 +23,7 @@ export function useAutoPlayAudio(
   queryResults: QueryResult[],
   hasPlayedAudioRef: React.RefObject<boolean>,
   isCurrentQueryRef: React.RefObject<boolean>,
+  abortControllerRef: React.RefObject<AbortController | undefined>,
 ) {
   const previousLengthRef = useRef(0);
 
@@ -47,12 +48,10 @@ export function useAutoPlayAudio(
 
       if (enableAutomaticDownloadAudio && isCurrentQueryRef.current && !hasPlayedAudioRef.current) {
         logTrace("useAutoPlayAudio", `playing audio for: ${wordInfo.word}`);
-        setTimeout(() => {
-          playQueryWordAudio(wordInfo);
-          hasPlayedAudioRef.current = true;
-        }, 50);
+        playQueryWordAudio(wordInfo, { signal: abortControllerRef.current?.signal });
+        hasPlayedAudioRef.current = true;
         break;
       }
     }
-  }, [queryResults, hasPlayedAudioRef, isCurrentQueryRef]);
+  }, [queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef]);
 }

@@ -5,7 +5,7 @@ import { showFailureToast } from "@raycast/utils";
 
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl } from "@/constants";
-import { playQueryWordAudio, sayTruncateCommand } from "@/core/audio";
+import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import { getShowMoreDetailMarkdown } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
@@ -141,7 +141,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
              *
              *  Todo: add a shortcut to stop playing audio.
              */
-            sayTruncateCommand(copyText, toLanguage);
+            playTTS(copyText, toLanguage, { truncate: true });
           }}
         />
       </ActionPanel.Section>

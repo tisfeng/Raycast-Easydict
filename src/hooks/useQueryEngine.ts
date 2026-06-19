@@ -321,5 +321,6 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     queryResults: state.queryResults,
     hasPlayedAudioRef,
     isCurrentQueryRef,
+    abortControllerRef,
   } as const;
 }

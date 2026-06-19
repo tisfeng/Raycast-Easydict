@@ -66,7 +66,6 @@
     "franc": "^6.2.0",
     "node-html-parser": "^7.0.2",
     "ofetch": "^1.5.1",
-    "play-sound": "^1.1.6",
     "tencentcloud-sdk-nodejs-tmt": "^4.1.190",
     "tinyexec": "^1.2.4"
   },
@@ -75,7 +74,6 @@
     "@commitlint/config-conventional": "^21.0.1",
     "@raycast/eslint-config": "^2.1.1",
     "@types/node": "22.13.10",
-    "@types/play-sound": "^1.1.2",
     "@types/react": "19.2.14",
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "eslint": "^9.39.2",

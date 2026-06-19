@@ -39,11 +39,12 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     queryResults,
     hasPlayedAudioRef,
     isCurrentQueryRef,
+    abortControllerRef,
   } = useQueryEngine(preferredLanguage1, preferredLanguage1);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
-  useAutoPlayAudio(queryResults, hasPlayedAudioRef, isCurrentQueryRef);
+  useAutoPlayAudio(queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef);
 
   /**
    * Use to display input text.
