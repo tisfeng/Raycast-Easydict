@@ -1,7 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { useLocalStorage } from "@raycast/utils";
-import { EASYDICT_VERSION } from "@/consts";
+
+import { EASYDICT_VERSION } from "@/constants";
 
 /**
  * Tracks whether the release notes prompt should be shown for the current version.

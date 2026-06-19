@@ -1,8 +1,18 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { closeMainWindow, launchCommand, LaunchType, showHUD } from "@raycast/api";
-import { recognizeText } from "@/recognizeText";
-import { logTrace, logError } from "@/devLog";
+import { closeMainWindow, environment, launchCommand, LaunchType, showHUD } from "@raycast/api";
+import { chmod } from "fs/promises";
+import { join } from "path";
+import { x } from "tinyexec";
+
+import { logError, logTrace } from "@/utils/logger";
+
+const recognizeText = async () => {
+  const command = join(environment.assetsPath, "recognizeText");
+  await chmod(command, "755");
+  const result = await x(command);
+  return result.stdout.trim();
+};
 
 export default async function command() {
   if (process.platform !== "darwin") {

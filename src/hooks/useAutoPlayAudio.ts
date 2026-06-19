@@ -1,12 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { useEffect, useRef } from "react";
-import { playYoudaoWordAudioAfterDownloading } from "@/dictionary/youdao/youdao";
-import { englishLanguageItem } from "@/language/consts";
+
+import { englishLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
-import { QueryResult } from "@/types";
-import { checkIsDictionaryType } from "@/utils";
-import { logTrace } from "@/devLog";
+import { playYoudaoWordAudioAfterDownloading } from "@/providers/dictionary/youdao";
+import { QueryResult } from "@/types/query";
+import { logTrace } from "@/utils/logger";
+import { checkIsDictionaryType } from "@/utils/text";
 
 /**
  * Watches query results and automatically plays word audio when:

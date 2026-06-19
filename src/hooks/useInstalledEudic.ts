@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { usePromise } from "@raycast/utils";
 import { getApplications } from "@raycast/api";
+import { usePromise } from "@raycast/utils";
 
 /**
  * Eudic bundle IDs.
@@ -16,7 +16,7 @@ const EUDIC_BUNDLE_IDS = new Set(["com.eusoft.freeeudic", "com.eusoft.eudic"]);
 
 const EUDIC_WINDOWS_APP_ID = "eudic.exe";
 
-export async function checkIfInstalledEudic() {
+async function checkIfInstalledEudic() {
   const applications = await getApplications();
 
   return applications.some(

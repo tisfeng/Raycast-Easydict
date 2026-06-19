@@ -1,12 +1,13 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { environment, getPreferenceValues } from "@raycast/api";
-import crypto from "node:crypto";
-import { getLanguageItemFromYoudaoCode } from "@/language/languages";
+import { getPreferenceValues } from "@raycast/api";
+
+import { getLanguageItem } from "@/core/language/utils";
+import { myDecrypt } from "@/utils/crypto";
 
 export const myPreferences = getPreferenceValues<Preferences>();
-export const preferredLanguage1 = getLanguageItemFromYoudaoCode(myPreferences.language1);
-export const preferredLanguage2 = getLanguageItemFromYoudaoCode(myPreferences.language2);
+export const preferredLanguage1 = getLanguageItem(myPreferences.language1);
+export const preferredLanguage2 = getLanguageItem(myPreferences.language2);
 export const preferredLanguages = [preferredLanguage1, preferredLanguage2];
 
 /**

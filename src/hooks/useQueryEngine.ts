@@ -1,153 +1,32 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import { detectLanguage } from "@/detectLanguage/detect";
-import { DetectedLangModel } from "@/detectLanguage/types";
-import { requestLingueeDictionary } from "@/dictionary/linguee/linguee";
-import { formatLingueeDisplaySections } from "@/dictionary/linguee/parse";
-import { updateYoudaoDictionaryDisplay } from "@/dictionary/youdao/formatData";
-import { requestYoudaoWebDictionary } from "@/dictionary/youdao/youdao";
-import { requestYoudaoWebTranslate } from "@/dictionary/youdao/youdaoTranslate";
-import { YoudaoDictionaryFormatResult } from "@/dictionary/youdao/types";
-import { getAutoSelectedTargetLanguageItem, getLanguageItemFromYoudaoCode } from "@/language/languages";
-import { LanguageItem } from "@/language/type";
+
+import { detectLanguage } from "@/core/detect";
+import { DetectedLangModel } from "@/core/detect/types";
+import { LanguageItem } from "@/core/language/types";
+import { getLanguageItem } from "@/core/language/utils";
+import { computeDisplaySections } from "@/core/query/displaySections";
+import { queryReducer, QueryState } from "@/core/query/queryReducer";
+import { TranslationServiceConfig, translationServices } from "@/core/query/services";
+import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
-import { requestAppleTranslate } from "@/translation/apple";
-import { requestBaiduTextTranslate } from "@/translation/baidu/baiduAPI";
-import { requestCaiyunTextTranslate } from "@/translation/caiyun";
-import { requestDeepLTranslate } from "@/translation/deepL";
-import { requestDeepLXTranslate } from "@/translation/deepLX";
-import { requestGoogleTranslate } from "@/translation/google";
-import { requestWebBingTranslate } from "@/translation/microsoft/bing";
-import { requestOpenAIStreamTranslate } from "@/translation/openAI/chat";
-import { requestGeminiTranslate } from "@/translation/gemini";
-import { requestTencentTranslate } from "@/translation/tencent";
-import { requestVolcanoTranslate } from "@/translation/volcano/volcanoAPI";
-import {
-  DictionaryType,
-  DisplaySection,
-  ListAccessoryItem,
-  ListDisplayItem,
-  OpenAITranslateResult,
-  QueryResult,
-  QueryType,
-  QueryTypeResult,
-  QueryWordInfo,
-  TranslationItem,
-  TranslationType,
-} from "@/types";
-import { checkIsDictionaryType, checkIsTranslationType, checkIsWord, showErrorToast } from "@/utils";
-import { getFromToLanguageTitle, getTranslationMarkdown } from "@/query/utils";
-import { getYoudaoWebDictionaryURL } from "@/dictionary/youdao/utils";
-import { queryReducer, QueryState } from "@/query/queryReducer";
-import { logTrace, logWarn } from "@/devLog";
+import { requestLingueeDictionary } from "@/providers/dictionary/linguee/linguee";
+import { formatLingueeDisplaySections } from "@/providers/dictionary/linguee/parse";
+import { updateYoudaoDictionaryDisplay } from "@/providers/dictionary/youdao/formatData";
+import type { YoudaoDictionaryFormatResult } from "@/providers/dictionary/youdao/types";
+import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
+import { requestYoudaoWebDictionary } from "@/providers/dictionary/youdao/youdao";
+import type { OpenAITranslateResult } from "@/providers/translation/openai";
+import { requestOpenAIStreamTranslate } from "@/providers/translation/openai";
+import { DictionaryType, TranslationType } from "@/types/api";
+import { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
+import { QueryResult, QueryType, QueryWordInfo } from "@/types/query";
+import { showErrorToast } from "@/utils/errors";
+import { logTrace, logWarn } from "@/utils/logger";
+import { checkIsTranslationType, checkIsWord } from "@/utils/text";
 
 logTrace("useQueryEngine", "module loaded");
-
-// Translation Service Registry (module-level — static, no state dependency)
-
-interface TranslationServiceConfig {
-  type: TranslationType;
-  preference: keyof Preferences;
-  requestFn: (queryWordInfo: QueryWordInfo, signal?: AbortSignal) => Promise<QueryTypeResult>;
-  /** Optional: override the default preference check. */
-  isEnabled?: (queryWordInfo: QueryWordInfo) => boolean;
-}
-
-/** Static registry — same values as current DataManager.translationServices. */
-const translationServices: TranslationServiceConfig[] = [
-  { type: TranslationType.Bing, preference: "enableBingTranslate", requestFn: requestWebBingTranslate },
-  { type: TranslationType.Baidu, preference: "enableBaiduTranslate", requestFn: requestBaiduTextTranslate },
-  { type: TranslationType.Tencent, preference: "enableTencentTranslate", requestFn: requestTencentTranslate },
-  { type: TranslationType.Volcano, preference: "enableVolcanoTranslate", requestFn: requestVolcanoTranslate },
-  { type: TranslationType.Caiyun, preference: "enableCaiyunTranslate", requestFn: requestCaiyunTextTranslate },
-  { type: TranslationType.Gemini, preference: "enableGeminiTranslate", requestFn: requestGeminiTranslate },
-  { type: TranslationType.Google, preference: "enableGoogleTranslate", requestFn: requestGoogleTranslate },
-  { type: TranslationType.DeepL, preference: "enableDeepLTranslate", requestFn: requestDeepLTranslate },
-  { type: TranslationType.DeepLX, preference: "enableDeepLXTranslate", requestFn: requestDeepLXTranslate },
-  { type: TranslationType.Apple, preference: "enableAppleTranslate", requestFn: requestAppleTranslate },
-  {
-    type: TranslationType.Youdao,
-    preference: "enableYoudaoTranslate",
-    isEnabled: (q) =>
-      myPreferences.enableYoudaoTranslate ||
-      (myPreferences.enableYoudaoDictionary && getYoudaoWebDictionaryURL(q) !== undefined && checkIsWord(q)),
-    requestFn: requestYoudaoWebTranslate,
-  },
-];
-
-// Display Section Derivation (replaces updateDataDisplaySections + updateTypeSectionTitle)
-
-function computeDisplaySections(state: QueryState): DisplaySection[] {
-  const { queryResults, isShowDetail } = state;
-
-  const translations: TranslationItem[] = [];
-  for (const qr of queryResults) {
-    if (qr.hideDisplay) continue;
-    if (qr.sourceResult && checkIsTranslationType(qr.type)) {
-      const markdown = getTranslationMarkdown(qr.sourceResult);
-      translations.push({ type: qr.sourceResult.type as TranslationType, text: markdown });
-    }
-  }
-
-  let isPreviousSectionTranslationType = false;
-  const displaySections: DisplaySection[] = [];
-
-  for (const queryResult of queryResults) {
-    if (queryResult.hideDisplay || !queryResult.displaySections?.length) continue;
-
-    const { type, sourceResult } = queryResult;
-    const isDict = checkIsDictionaryType(type);
-    const isTrans = checkIsTranslationType(type);
-
-    for (const section of queryResult.displaySections) {
-      let sectionTitle = `${sourceResult?.type ?? type}`;
-      if (sourceResult) {
-        const wordInfo = sourceResult.queryWordInfo;
-        const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, isShowDetail);
-        if (isTrans) {
-          sectionTitle = isPreviousSectionTranslationType ? sectionTitle : `${sectionTitle}   (${fromTo})`;
-          isPreviousSectionTranslationType = true;
-        } else if (isDict) {
-          sectionTitle = `${sectionTitle}   (${fromTo})`;
-          isPreviousSectionTranslationType = false;
-        } else {
-          isPreviousSectionTranslationType = false;
-        }
-      }
-
-      const detailsMarkdown =
-        isTrans && sourceResult
-          ? buildDetailMarkdown(translations, type, sourceResult)
-          : section.items?.[0]?.detailsMarkdown;
-
-      displaySections.push({
-        ...section,
-        sectionTitle,
-        items: section.items?.map((item, idx) => (idx === 0 ? { ...item, detailsMarkdown } : item)),
-      });
-    }
-  }
-
-  return displaySections;
-}
-
-/**
- * Build detail markdown for translation type. Puts current type's translation first.
- */
-function buildDetailMarkdown(
-  translations: TranslationItem[],
-  currentType: QueryType,
-  sourceResult: QueryTypeResult,
-): string {
-  const sorted = [...translations];
-  const idx = sorted.findIndex((t) => t.type === sourceResult.type);
-  if (idx > 0) {
-    const [item] = sorted.splice(idx, 1);
-    sorted.unshift(item);
-  }
-  return sorted.map((t) => t.text).join("\n");
-}
 
 // Initial State
 
@@ -474,7 +353,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       const fromYoudaoLangCode = detectedLanguage.youdaoLangCode;
       logTrace("useQueryEngine", `queryTextWithFromLanguageId: ${fromYoudaoLangCode}`);
 
-      const fromLanguageItem = getLanguageItemFromYoudaoCode(fromYoudaoLangCode);
+      const fromLanguageItem = getLanguageItem(fromYoudaoLangCode);
 
       let targetLangCode = toLanguage;
       logTrace("useQueryEngine", `userSelectedTargetLanguage: ${targetLangCode}`);
@@ -485,7 +364,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         targetLangCode = targetLanguageItem.youdaoLangCode;
         logTrace("useQueryEngine", `conflict, use autoSelectedTargetLanguage: ${targetLangCode}`);
       } else {
-        targetLanguageItem = getLanguageItemFromYoudaoCode(targetLangCode);
+        targetLanguageItem = getLanguageItem(targetLangCode);
       }
 
       dispatch({
