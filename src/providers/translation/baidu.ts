@@ -3,7 +3,7 @@
 import { getLangCode } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
@@ -38,7 +38,7 @@ export interface BaiduWebLanguageDetect {
 export class BaiduTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Baidu;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const from = getLangCode(fromLanguage, "baiduLangCode");
     const to = getLangCode(toLanguage, "baiduLangCode");

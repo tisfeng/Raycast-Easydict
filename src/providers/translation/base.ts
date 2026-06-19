@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { RequestType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -16,10 +16,10 @@ import { logError, logTrace } from "@/utils/logger";
 export abstract class BaseTranslateProvider {
   abstract type: RequestType;
 
-  public request = async (queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> => {
+  public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryTypeResult> => {
     logTrace(this.type, `start request ${this.type}`);
     try {
-      return await this.doTranslate(queryWordInfo, signal);
+      return await this.doTranslate(queryWordInfo, options);
     } catch (error) {
       if (
         error instanceof CancelledError ||
@@ -38,5 +38,5 @@ export abstract class BaseTranslateProvider {
     }
   };
 
-  protected abstract doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult>;
+  protected abstract doTranslate(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryTypeResult>;
 }

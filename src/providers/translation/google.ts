@@ -5,7 +5,7 @@ import querystring from "node:querystring";
 import { userAgent } from "@/constants";
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -27,7 +27,7 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
    * From https://github.com/roojay520/bobplugin-google-translate/blob/master/src/google-translate-mobile.ts
    * Another wild google translate api: http://translate.google.com/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
    */
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     logTrace("google", "start google web translate");
 
     const fromLanguageId = getLangCode(queryWordInfo.fromLanguage, "googleLangCode");

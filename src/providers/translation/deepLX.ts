@@ -4,7 +4,7 @@ import { type TargetLanguage, translate } from "@deeplx/core";
 
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
@@ -19,7 +19,7 @@ import { BaseTranslateProvider } from "./base";
 export class DeepLXTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.DeepLX;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async doTranslate(queryWordInfo: QueryWordInfo, _signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     logTrace("deeplx", "start request DeepLX");
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");

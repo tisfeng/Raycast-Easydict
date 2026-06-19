@@ -7,15 +7,16 @@ import type { DisplaySection } from "./display";
 import type { QueryResponse } from "./queryResponse";
 
 /**
- * Streaming callbacks — only used by streaming providers (e.g. OpenAI).
- * Passed via request options, not on QueryWordInfo.
+ * Runtime execution options for a query.
+ * Passed separately from the data payload (QueryWordInfo).
  */
-export interface StreamingCallbacks {
+export interface RequestOptions {
+  signal?: AbortSignal;
   onMessage?: (message: { content: string; role: string }) => void;
   onFinish?: (reason: string) => void;
 }
 
-export interface QueryWordInfo extends StreamingCallbacks {
+export interface QueryWordInfo {
   word: string;
   fromLanguage: string; // ! must be Youdao language id.
   toLanguage: string;

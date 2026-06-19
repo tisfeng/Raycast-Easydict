@@ -17,7 +17,7 @@ import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
 import { TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 import { checkIsTranslationType } from "@/utils/text";
@@ -128,12 +128,17 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
       addQueryToRecordList(config.type);
 
+      // Build the RequestOptions decoupled from QueryWordInfo
+      const options: RequestOptions = {
+        signal: abortControllerRef.current?.signal,
+      };
+
       // Wire streaming callbacks for providers that support progressive updates
       if (streaming) {
         const chunks: string[] = [];
         let updateTimer: ReturnType<typeof setTimeout> | undefined;
 
-        queryWordInfo.onMessage = (message) => {
+        options.onMessage = (message) => {
           chunks.push(message.content);
           if (!updateTimer) {
             updateTimer = setTimeout(() => {
@@ -154,7 +159,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
           }
         };
 
-        queryWordInfo.onFinish = () => {
+        options.onFinish = () => {
           if (updateTimer) {
             clearTimeout(updateTimer);
             updateTimer = undefined;
@@ -165,7 +170,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       const instance = new config.provider();
 
       instance
-        .request(queryWordInfo, abortControllerRef.current?.signal)
+        .request(queryWordInfo, options)
         .then((result) => {
           const rawResult: QueryResult = { type: config.type, sourceResult: result };
           const displayResult = buildTranslationDisplay(rawResult);
@@ -195,7 +200,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       const instance = new config.provider();
 
       instance
-        .request(queryWordInfo, abortControllerRef.current?.signal)
+        .request(queryWordInfo, { signal: abortControllerRef.current?.signal })
         .then((result) => {
           if (result.displaySections && result.displaySections.length > 0) {
             dispatch({ type: "SET_RESULT", queryResult: result });

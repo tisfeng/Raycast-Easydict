@@ -6,7 +6,7 @@ import { userAgent } from "@/constants";
 import { getLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
@@ -67,7 +67,7 @@ let retryCount = 0;
 export class BingTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Bing;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
     const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";

@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import { userAgent } from "@/constants";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
@@ -64,7 +64,7 @@ function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryWordInfo): boolea
 export class YoudaoTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Youdao;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
 
     const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);

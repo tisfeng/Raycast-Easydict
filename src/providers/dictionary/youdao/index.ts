@@ -7,7 +7,7 @@ import { autoDetectLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryResult, QueryWordInfo } from "@/types/query";
+import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -72,7 +72,7 @@ function getYoudaoWebCookie(): Promise<string | undefined> {
 export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.Youdao;
 
-  protected async doQuery(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryResult> {
+  protected async doQuery(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryResult> {
     // * Note: "fanyi" only works when response dicts has only one item ["meta"]
     const dicts = [["web_trans", "ec", "ce", "newhh", "baike", "wikipedia_digest"]];
 

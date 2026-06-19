@@ -6,7 +6,7 @@ import { networkTimeout } from "@/constants";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { getErrorMessage, getErrorName } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
@@ -84,7 +84,10 @@ function getTokenLimitParams(endpoint: string, model: string): TokenLimitParams 
 export class OpenAITranslateProvider extends BaseTranslateProvider {
   type = TranslationType.OpenAI;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(
+    queryWordInfo: QueryWordInfo,
+    { signal, onMessage, onFinish }: RequestOptions = {},
+  ): Promise<QueryTypeResult> {
     const url = AppKeyStore.openAIEndpoint;
 
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
@@ -203,8 +206,8 @@ export class OpenAITranslateProvider extends BaseTranslateProvider {
           try {
             resp = JSON.parse(msg);
           } catch {
-            if (queryWordInfo.onFinish) {
-              queryWordInfo.onFinish("stop");
+            if (onFinish) {
+              onFinish("stop");
             }
             return;
           }
@@ -237,8 +240,8 @@ export class OpenAITranslateProvider extends BaseTranslateProvider {
 
           chunks.push(targetTxt);
 
-          if (queryWordInfo.onMessage) {
-            queryWordInfo.onMessage({ content: targetTxt, role });
+          if (onMessage) {
+            onMessage({ content: targetTxt, role });
           }
         },
         onDone: () => {

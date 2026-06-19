@@ -2,7 +2,7 @@
 
 import { AppKeyStore } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
@@ -19,7 +19,7 @@ export interface GeminiTranslateResult {
 export class GeminiTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Gemini;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     logTrace("gemini", "start request Gemini");
     const { word, fromLanguage, toLanguage } = queryWordInfo;
     const apiKey = AppKeyStore.geminiAPIKey;
