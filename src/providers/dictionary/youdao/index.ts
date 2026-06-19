@@ -3,8 +3,7 @@
 import { LocalStorage } from "@raycast/api";
 
 import { userAgent } from "@/constants";
-import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath, playWordAudio } from "@/core/audio";
-import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
+import { autoDetectLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
@@ -129,47 +128,4 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
       displaySections,
     };
   }
-}
-
-/**
- * Download query word audio and play after download.
- */
-export function playYoudaoWordAudioAfterDownloading(queryWordInfo: QueryWordInfo, enableYoudaoWebAudio = true) {
-  downloadYoudaoAudio(queryWordInfo, enableYoudaoWebAudio, () => {
-    playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
-  });
-}
-
-/**
- * Download word audio file.
- *
- * If query text is a English word, download audio file from youdao web api, otherwise downloaded from youdao tts.
- *
- * * If query text is too long(>40), don't download audio file, later directly use say command to play.
- */
-function downloadYoudaoAudio(
-  queryWordInfo: QueryWordInfo,
-  enableYoudaoWebAudio = true,
-  callback?: () => void,
-  forceDownload = false,
-) {
-  if (queryWordInfo.speechUrl) {
-    downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
-  } else if (
-    enableYoudaoWebAudio &&
-    queryWordInfo.isWord &&
-    queryWordInfo.fromLanguage === englishLanguageItem.youdaoLangCode
-  ) {
-    downloadYoudaoEnglishWordAudio(queryWordInfo.word, callback, (forceDownload = false));
-  } else {
-    logTrace("youdao", "use say command to play directly");
-    callback?.();
-  }
-}
-
-function downloadYoudaoEnglishWordAudio(word: string, callback?: () => void, forceDownload = false) {
-  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
-  logTrace("youdao", `download english word audio: ${word}`);
-  const audioPath = getWordAudioPath(word);
-  downloadAudio(url, audioPath, callback, forceDownload);
 }

@@ -5,16 +5,14 @@ import { showFailureToast } from "@raycast/utils";
 
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl } from "@/constants";
-import { sayTruncateCommand } from "@/core/audio";
+import { playQueryWordAudio, sayTruncateCommand } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import { getShowMoreDetailMarkdown } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
 import { dictionaryServices } from "@/providers/dictionary";
-import { playYoudaoWordAudioAfterDownloading } from "@/providers/dictionary/youdao";
 import { translationServices } from "@/providers/translation";
 import { DictionaryType, TranslationType } from "@/types/api";
-import type { QueryWordInfo } from "@/types/query";
-import { QueryType } from "@/types/query";
+import type { QueryType, QueryWordInfo } from "@/types/query";
 import type { ActionListPanelProps, WebQueryItem } from "@/types/ui";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -129,7 +127,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
           shortcut={shortcuts.playText}
           onAction={() => {
             logTrace("components", `start play sound: ${word}`);
-            playYoudaoWordAudioAfterDownloading(queryWordInfo);
+            playQueryWordAudio(queryWordInfo);
           }}
         />
         <Action

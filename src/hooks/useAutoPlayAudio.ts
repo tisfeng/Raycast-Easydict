@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
+import { playQueryWordAudio } from "@/core/audio";
 import { englishLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
-import { playYoudaoWordAudioAfterDownloading } from "@/providers/dictionary/youdao";
 import { QueryResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 import { checkIsDictionaryType } from "@/utils/text";
@@ -48,7 +48,7 @@ export function useAutoPlayAudio(
       if (enableAutomaticDownloadAudio && isCurrentQueryRef.current && !hasPlayedAudioRef.current) {
         logTrace("useAutoPlayAudio", `playing audio for: ${wordInfo.word}`);
         setTimeout(() => {
-          playYoudaoWordAudioAfterDownloading(wordInfo);
+          playQueryWordAudio(wordInfo);
           hasPlayedAudioRef.current = true;
         }, 50);
         break;

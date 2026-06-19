@@ -8,7 +8,8 @@ import path from "path";
 import playerImport from "play-sound";
 import { x } from "tinyexec";
 
-import { languageItemList } from "@/core/language/consts";
+import { englishLanguageItem, languageItemList } from "@/core/language/consts";
+import type { QueryWordInfo } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 import { trimTextLength } from "@/utils/text";
@@ -237,6 +238,45 @@ export async function downloadAudio(
  */
 export function downloadWordAudioWithURL(word: string, url: string, callback?: () => void, forceDownload = false) {
   logTrace("audio", `download: ${word}`);
+  const audioPath = getWordAudioPath(word);
+  downloadAudio(url, audioPath, callback, forceDownload);
+}
+
+/**
+ * Download query word audio and play after download.
+ *
+ * If query text is an English word, download audio from Youdao web API,
+ * otherwise use TTS via say command.
+ */
+export function playQueryWordAudio(queryWordInfo: QueryWordInfo, enableYoudaoWebAudio = true) {
+  downloadQueryWordAudio(queryWordInfo, enableYoudaoWebAudio, () => {
+    playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage);
+  });
+}
+
+function downloadQueryWordAudio(
+  queryWordInfo: QueryWordInfo,
+  enableYoudaoWebAudio = true,
+  callback?: () => void,
+  forceDownload = false,
+) {
+  if (queryWordInfo.speechUrl) {
+    downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, callback, forceDownload);
+  } else if (
+    enableYoudaoWebAudio &&
+    queryWordInfo.isWord &&
+    queryWordInfo.fromLanguage === englishLanguageItem.youdaoLangCode
+  ) {
+    downloadTTSWordAudio(queryWordInfo.word, callback, forceDownload);
+  } else {
+    logTrace("audio", "use say command to play directly");
+    callback?.();
+  }
+}
+
+function downloadTTSWordAudio(word: string, callback?: () => void, forceDownload = false) {
+  const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
+  logTrace("audio", `download english word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   downloadAudio(url, audioPath, callback, forceDownload);
 }
