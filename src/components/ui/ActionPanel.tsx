@@ -7,12 +7,11 @@ import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl } from "@/constants";
 import { sayTruncateCommand } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
-import { getLangCode } from "@/core/language/utils";
 import { getShowMoreDetailMarkdown } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
-import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
-import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
-import { playYoudaoWordAudioAfterDownloading } from "@/providers/dictionary/youdao/youdao";
+import { dictionaryServices } from "@/providers/dictionary";
+import { playYoudaoWordAudioAfterDownloading } from "@/providers/dictionary/youdao";
+import { translationServices } from "@/providers/translation";
 import { DictionaryType, TranslationType } from "@/types/api";
 import type { QueryWordInfo } from "@/types/query";
 import { QueryType } from "@/types/query";
@@ -20,71 +19,6 @@ import type { ActionListPanelProps, WebQueryItem } from "@/types/ui";
 import { logError, logTrace } from "@/utils/logger";
 
 import { getQueryTypeIcon, playSoundIconBlack } from "./Icons";
-
-/**
- * Get eudic web dictionary url.
- *
- * https://dict.eudic.net/dicts/en/good
- */
-function getEudicWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const LangCode = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
-  if (!LangCode) {
-    return;
-  }
-
-  const eudicDictionaryLanguages = ["en", "fr", "de", "es"]; // 英语，法语，德语，西班牙语
-  if (eudicDictionaryLanguages.includes(LangCode)) {
-    const word = encodeURIComponent(queryTextInfo.word);
-    return `https://dict.eudic.net/dicts/${LangCode}/${word}`;
-  }
-}
-
-/**
- * Get another language item expcept chinese from language item array.
- *
- * eg: [en, zh-CHS] --> en
- * eg: [zh-CHS, fr] --> fr
- */
-function getLanguageOfTwoExceptChinese(youdaoLangCodes: [string, string]): string | undefined {
-  if (youdaoLangCodes.includes("zh-CHS")) {
-    return youdaoLangCodes[0] === "zh-CHS" ? youdaoLangCodes[1] : youdaoLangCodes[0];
-  }
-}
-
-function getGoogleWebTranslateURL(queryTextInfo: QueryWordInfo): string {
-  const text = encodeURIComponent(queryTextInfo.word);
-  const fromLangCode = getLangCode(queryTextInfo.fromLanguage, "googleLangCode");
-  const toLangCode = getLangCode(queryTextInfo.toLanguage, "googleLangCode");
-  return `https://translate.google.com/?sl=${fromLangCode}&tl=${toLangCode}&text=${text}&op=translate`;
-}
-
-/**
- * Get DeepL web translate url
- * https://www.deepl.com/translator#en/zh/look
- */
-function getDeepLWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const text = encodeURIComponent(queryTextInfo.word);
-
-  const fromLangCode = getLangCode(queryTextInfo.fromLanguage, "deepLSourceId")?.toLowerCase();
-  const toLangCode = getLangCode(queryTextInfo.toLanguage, "deepLSourceId")?.toLowerCase();
-  if (fromLangCode && toLangCode) {
-    return `https://www.deepl.com/translator#${fromLangCode}/${toLangCode}/${text}`;
-  }
-}
-
-/**
- * Get Baidu web translate url.
- *
- * https://fanyi.baidu.com/#en/zh/good
- */
-function getBaiduWebTranslateURL(queryTextInfo: QueryWordInfo): string | undefined {
-  const text = encodeURIComponent(queryTextInfo.word);
-  const fromLangCode = getLangCode(queryTextInfo.fromLanguage, "baiduLangCode");
-  const toLangCode = getLangCode(queryTextInfo.toLanguage, "baiduLangCode");
-  if (fromLangCode && toLangCode) {
-    return `https://fanyi.baidu.com/#${fromLangCode}/${toLangCode}/${text}`;
-  }
-}
 
 const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
@@ -297,41 +231,12 @@ function CurrentVersionAction() {
  * Get WebQueryItem according to the query type and info
  */
 function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQueryItem | undefined {
+  const service = [...translationServices, ...dictionaryServices].find((s) => s.type === queryType);
+  const webUrl = service?.getWebUrl?.(wordInfo);
+
   const title = `Open in ${queryType}`;
   const icon = getQueryTypeIcon(queryType);
 
-  let webUrl;
-  switch (queryType) {
-    case TranslationType.Google: {
-      webUrl = getGoogleWebTranslateURL(wordInfo);
-      break;
-    }
-    case TranslationType.DeepL: {
-      webUrl = getDeepLWebTranslateURL(wordInfo);
-      break;
-    }
-    case TranslationType.DeepLX: {
-      // DeepLX uses the same web interface as DeepL
-      webUrl = getDeepLWebTranslateURL(wordInfo);
-      break;
-    }
-    case TranslationType.Baidu: {
-      webUrl = getBaiduWebTranslateURL(wordInfo);
-      break;
-    }
-    case DictionaryType.Linguee: {
-      webUrl = getLingueeWebDictionaryURL(wordInfo);
-      break;
-    }
-    case DictionaryType.Youdao: {
-      webUrl = getYoudaoWebDictionaryURL(wordInfo);
-      break;
-    }
-    case DictionaryType.Eudic: {
-      webUrl = getEudicWebDictionaryURL(wordInfo);
-      break;
-    }
-  }
   return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
 }
 

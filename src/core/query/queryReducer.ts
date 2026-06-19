@@ -127,6 +127,34 @@ function applyTranslationToDisplay(
 }
 
 /**
+ * Sync Youdao dictionary metadata (phonetic, examTypes) to Linguee's accessoryItem.
+ *
+ * When Youdao dictionary result arrives, its sourceResult.queryWordInfo may contain
+ * phonetic and examTypes that should also appear on Linguee's display.
+ */
+function applyMetadataToLinguee(results: QueryResult[], youdaoResult: QueryResult): QueryResult[] {
+  const { phonetic, examTypes } = youdaoResult.sourceResult.queryWordInfo;
+  if (!phonetic && !examTypes?.length) return results;
+
+  const linguee = results.find((r) => r.type === DictionaryType.Linguee);
+  if (!linguee?.displaySections?.length) return results;
+
+  return results.map((r) => {
+    if (r.type !== DictionaryType.Linguee || !r.displaySections?.length) return r;
+
+    const updatedSections = r.displaySections.map((section, idx) => {
+      if (idx !== 0 || !section.items?.length) return section;
+      const updatedItems = section.items.map((item, itemIdx) => {
+        if (itemIdx !== 0) return item;
+        return { ...item, accessoryItem: { ...item.accessoryItem, phonetic, examTypes } };
+      });
+      return { ...section, items: updatedItems };
+    });
+    return { ...r, displaySections: updatedSections };
+  });
+}
+
+/**
  * Pure reducer function. Computes next state from current state + action.
  *
  * Rules:
@@ -180,6 +208,14 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
           (r) => r.sourceResult.translations.join(", "),
           { minSections: 2 },
         );
+      }
+
+      // Sync Youdao dictionary metadata (phonetic, examTypes) to Linguee's accessoryItem
+      if (queryResult.type === DictionaryType.Youdao || queryResult.type === DictionaryType.Linguee) {
+        const youdaoResult = results.find((r) => r.type === DictionaryType.Youdao);
+        if (youdaoResult) {
+          results = applyMetadataToLinguee(results, youdaoResult);
+        }
       }
 
       return {

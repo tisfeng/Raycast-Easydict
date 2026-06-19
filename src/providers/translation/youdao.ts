@@ -1,12 +1,16 @@
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
+
 import crypto from "node:crypto";
 
 import { userAgent } from "@/constants";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "@/types/query";
-import { getErrorMessage } from "@/utils/errors";
+import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
+
+import { BaseTranslateProvider } from "./base";
 
 interface TranslateParams {
   keyid: string;
@@ -24,27 +28,9 @@ interface TranslateParams {
   dictResult?: string;
 }
 
-interface DictResultTr {
-  voice: string;
-  "#text": string;
-  "#tran": string;
-}
-
 interface YoudaoTranslateResponse {
   code: number;
-  dictResult: {
-    ce: {
-      word: {
-        trs: DictResultTr[];
-        "return-phrase": string;
-      };
-    };
-  };
-  translateResult: {
-    tgt: string;
-    src: string;
-    srcPronounce: string;
-  }[][];
+  translateResult: { tgt: string; src: string }[][];
   type: string;
 }
 
@@ -75,38 +61,25 @@ function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryWordInfo): boolea
   return validLanguages.includes(targetLanguage);
 }
 
-export async function requestYoudaoWebTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal?: AbortSignal,
-): Promise<QueryTypeResult> {
-  logTrace("youdaoTranslate", `start requestYoudaoWebTranslate: ${queryWordInfo.word}`);
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
+export class YoudaoTranslateProvider extends BaseTranslateProvider {
+  type = TranslationType.Youdao;
 
-  const type = TranslationType.Youdao;
-  const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
+  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+    const { fromLanguage, toLanguage, word } = queryWordInfo;
 
-  let youdaoKey: YoudaoKey | null = null;
-  try {
-    youdaoKey = await getYoudaoKey();
-  } catch (error) {
-    logError("youdaoTranslate", `failed to get Youdao key: ${error}`);
-    return Promise.reject({
-      type: type,
-      message: getErrorMessage(error),
-      code: "KEY_ERROR",
-    } as RequestErrorInfo);
-  }
+    const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);
 
-  if (!isValidLanguage) {
-    logWarn("youdaoTranslate", `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
-    return Promise.reject({
-      type: type,
-      message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
-      code: "INVALID_LANGUAGE",
-    } as RequestErrorInfo);
-  }
+    const youdaoKey = await getYoudaoKey();
 
-  try {
+    if (!isValidLanguage) {
+      logWarn("youdaoTranslate", `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
+      throw {
+        type: TranslationType.Youdao,
+        message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
+        code: "INVALID_LANGUAGE",
+      } as RequestError;
+    }
+
     const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey, signal);
     const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
       e.map((t) => t.tgt).join(""),
@@ -114,24 +87,10 @@ export async function requestYoudaoWebTranslate(
     logTrace("youdaoTranslate", `translate result: ${translations.join("\n")}`);
 
     return {
-      type: type,
-      result: translateResponse,
-      translations: translations,
-      queryWordInfo: queryWordInfo,
+      type: TranslationType.Youdao,
+      translations,
+      queryWordInfo,
     };
-  } catch (error) {
-    const errorInfo = error as RequestErrorInfo;
-    if (errorInfo.type && errorInfo.message) {
-      logError("youdaoTranslate", `failed to translate: ${errorInfo.message}`);
-      return Promise.reject(errorInfo);
-    }
-    const message = getErrorMessage(error);
-    logError("youdaoTranslate", `failed to translate: ${message}`);
-    return Promise.reject({
-      type: type,
-      message: message,
-      code: "TRANSLATE_ERROR",
-    } as RequestErrorInfo);
   }
 }
 
@@ -153,30 +112,22 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
       .digest("hex"),
   };
 
-  try {
-    const response = await timedFetch<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
-      params,
-      headers: {
-        Origin: "https://fanyi.youdao.com",
-      },
-    });
+  const response = await timedFetch<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
+    params,
+    headers: {
+      Origin: "https://fanyi.youdao.com",
+    },
+  });
 
-    if (response.code !== 0) {
-      return Promise.reject({
-        type: TranslationType.Youdao,
-        message: `Failed to get Youdao key: code=${response.code}, msg=${response.msg}`,
-        code: "KEY_ERROR",
-      } as RequestErrorInfo);
-    }
-
-    return response;
-  } catch (error) {
-    return Promise.reject({
+  if (response.code !== 0) {
+    throw {
       type: TranslationType.Youdao,
-      message: `An unknown error occurred while getting Youdao key: ${error}`,
-      code: "UNKNOWN_ERROR",
-    } as RequestErrorInfo);
+      message: `Failed to get Youdao key: code=${response.code}, msg=${response.msg}`,
+      code: "KEY_ERROR",
+    } as RequestError;
   }
+
+  return response;
 }
 
 /// New Youdao web translate function, 2025.1.12
@@ -209,38 +160,24 @@ async function webTranslate(
     to: to,
   };
 
-  try {
-    const response = await timedFetch("https://dict.youdao.com/webtranslate", {
-      method: "POST",
-      params,
-      headers: {
-        Referer: "https://fanyi.youdao.com/",
-        UserAgent: userAgent,
-        Cookie: "OUTFOX_SEARCH_USER_ID=1796239350@10.110.96.157;",
-      },
-      responseType: "text",
-      signal,
-    });
+  const response = await timedFetch("https://dict.youdao.com/webtranslate", {
+    method: "POST",
+    params,
+    headers: {
+      Referer: "https://fanyi.youdao.com/",
+      UserAgent: userAgent,
+      Cookie: "OUTFOX_SEARCH_USER_ID=1796239350@10.110.96.157;",
+    },
+    responseType: "text",
+    signal,
+  });
 
-    const decryptedData = decryptAES(response, aesKey, aesIv);
-    if (!decryptedData) {
-      return Promise.reject({
-        type: TranslationType.Youdao,
-        message: "Failed to decrypt response data",
-        code: "DECRYPT_ERROR",
-      } as RequestErrorInfo);
-    }
-
-    return JSON.parse(decryptedData);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    const isTooLong = message.includes("400") || message.includes("length");
-    return Promise.reject({
-      type: TranslationType.Youdao,
-      message: isTooLong ? "Text too long for Youdao translate" : `Youdao translate failed: ${message}`,
-      code: isTooLong ? "TEXT_TOO_LONG" : "UNKNOWN_ERROR",
-    } as RequestErrorInfo);
+  const decryptedData = decryptAES(response, aesKey, aesIv);
+  if (!decryptedData) {
+    throw new RequestError(TranslationType.Youdao, "Failed to decrypt response data", "DECRYPT_ERROR");
   }
+
+  return JSON.parse(decryptedData);
 }
 
 function md5Hex(str: string): string {

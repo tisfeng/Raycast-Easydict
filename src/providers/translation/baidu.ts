@@ -2,7 +2,17 @@
 
 import querystring from "node:querystring";
 
-import type { QueryWordInfo } from "@/types/query";
+import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
+import { baiduMap, getLangCode, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
+import { AppKeyStore } from "@/preferences";
+import { TranslationType } from "@/types/api";
+import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import { md5 } from "@/utils/crypto";
+import { getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { timedFetch } from "@/utils/http";
+import { logError, logTrace, logWarn } from "@/utils/logger";
+
+import { BaseTranslateProvider } from "./base";
 
 export interface BaiduTranslateResult {
   from?: string;
@@ -22,98 +32,63 @@ export interface BaiduWebLanguageDetect {
   msg?: string;
   lan?: string;
 }
-import { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
-import { baiduMap, getLangCode, getYoudaoLangCode } from "@/core/language/utils";
-import { isValidLangCode } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
-import { TranslationType } from "@/types/api";
-import { QueryTypeResult, RequestErrorInfo } from "@/types/query";
-import { md5 } from "@/utils/crypto";
-import { getTypeErrorInfo } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
 
 /**
  * Baidu translate. Cost time: ~0.4s
  *
  * 百度翻译 API https://fanyi-api.baidu.com/doc/21
  */
-export function requestBaiduTextTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal?: AbortSignal,
-): Promise<QueryTypeResult> {
-  logTrace("baidu", "start request Baidu translate");
+export class BaiduTranslateProvider extends BaseTranslateProvider {
+  type = TranslationType.Baidu;
 
-  const type = TranslationType.Baidu;
+  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+    const { fromLanguage, toLanguage, word } = queryWordInfo;
+    const from = getLangCode(fromLanguage, "baiduLangCode");
+    const to = getLangCode(toLanguage, "baiduLangCode");
 
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const from = getLangCode(fromLanguage, "baiduLangCode");
-  const to = getLangCode(toLanguage, "baiduLangCode");
+    if (!from || !to) {
+      logWarn("baidu", `translate not support language: ${fromLanguage} to ${toLanguage}`);
+      return {
+        type: TranslationType.Baidu,
+        result: undefined,
+        translations: [],
+        queryWordInfo,
+      };
+    }
 
-  if (!from || !to) {
-    logWarn("baidu", `translate not support language: ${fromLanguage} to ${toLanguage}`);
-    const result: QueryTypeResult = {
-      type: type,
-      result: undefined,
-      translations: [],
-      queryWordInfo: queryWordInfo,
+    const baiduAppId = AppKeyStore.baiduAppId;
+    const baiduAppSecret = AppKeyStore.baiduAppSecret;
+
+    const salt = Math.round(new Date().getTime() / 1000);
+    const md5Content = baiduAppId + word + salt + baiduAppSecret;
+    const sign = md5(md5Content);
+    const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
+    const encodeQueryText = Buffer.from(word, "utf8").toString();
+    const params = {
+      q: encodeQueryText,
+      from: from,
+      to: to,
+      appid: baiduAppId,
+      salt: salt,
+      sign: sign,
     };
-    return Promise.resolve(result);
+
+    const baiduResult = await timedFetch<BaiduTranslateResult>(url, { params, signal });
+
+    if (baiduResult.trans_result) {
+      const translations = baiduResult.trans_result.map((item) => item.dst);
+      logTrace("baidu", `translate: ${translations}, ${baiduResult.from}`);
+      return {
+        type: TranslationType.Baidu,
+        result: baiduResult,
+        translations,
+        queryWordInfo,
+      };
+    }
+
+    logError("baidu", `translate error: ${JSON.stringify(baiduResult)}`);
+    throw new RequestError(TranslationType.Baidu, baiduResult.error_msg || "", baiduResult.error_code || "");
   }
-
-  const baiduAppId = AppKeyStore.baiduAppId;
-  const baiduAppSecret = AppKeyStore.baiduAppSecret;
-
-  const salt = Math.round(new Date().getTime() / 1000);
-  const md5Content = baiduAppId + word + salt + baiduAppSecret;
-  const sign = md5(md5Content);
-  const url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
-  const encodeQueryText = Buffer.from(word, "utf8").toString();
-  const params = {
-    q: encodeQueryText,
-    from: from,
-    to: to,
-    appid: baiduAppId,
-    salt: salt,
-    sign: sign,
-  };
-
-  return new Promise((resolve, reject) => {
-    timedFetch(url, { params, signal })
-      .then((response: BaiduTranslateResult) => {
-        const baiduResult = response;
-        if (baiduResult.trans_result) {
-          const translations = baiduResult.trans_result.map((item) => item.dst);
-          logTrace("baidu", `translate: ${translations}, ${baiduResult.from}`);
-          const result: QueryTypeResult = {
-            type: type,
-            result: baiduResult,
-            translations: translations,
-            queryWordInfo: queryWordInfo,
-          };
-          resolve(result);
-        } else {
-          logError("baidu", `translate error: ${JSON.stringify(baiduResult)}`); //  {"error_code":"54001","error_msg":"Invalid Sign"}
-          const errorInfo: RequestErrorInfo = {
-            type: type,
-            code: baiduResult.error_code || "",
-            message: baiduResult.error_msg || "",
-          };
-          reject(errorInfo);
-        }
-      })
-      .catch((error) => {
-        if (error.message === "canceled" || error.name === "AbortError") {
-          logTrace("baidu", "translate canceled");
-          return reject(undefined);
-        }
-
-        // It seems that Baidu will never reject, always resolve...
-        logError("baidu", `translate error: ${error}`);
-        const errorInfo = getTypeErrorInfo(type, error);
-        reject(errorInfo);
-      });
-  });
 }
 
 /**
@@ -171,13 +146,9 @@ export async function baiduWebDetect(text: string): Promise<DetectedLangModel> {
   });
 }
 
-function getBaiduWebLanguageDetectErrorInfo(result: BaiduWebLanguageDetect): RequestErrorInfo {
+function getBaiduWebLanguageDetectErrorInfo(result: BaiduWebLanguageDetect): RequestError {
   const errorCode = result.error;
-  const errorInfo: RequestErrorInfo = {
-    type: LanguageDetectType.Baidu,
-    code: errorCode ? errorCode.toString() : "",
-    message: result.msg || "",
-  };
+  const errorInfo = new RequestError(LanguageDetectType.Baidu, result.msg || "", errorCode ? errorCode.toString() : "");
 
   return errorInfo;
 }

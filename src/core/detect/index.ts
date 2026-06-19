@@ -1,5 +1,4 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
-
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
@@ -8,7 +7,8 @@ import { bingDetect } from "@/providers/translation/bing";
 import { hasTencentAppKey, tencentDetect } from "@/providers/translation/tencent";
 import { volcanoDetect } from "@/providers/translation/volcano";
 import { hasVolcanoAppKey } from "@/providers/translation/volcano/volcanoSign";
-import { RequestErrorInfo } from "@/types/query";
+import {} from "@/types/query";
+import { RequestError } from "@/utils/errors";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
 import { francLanguageDetect } from "./franc";
@@ -99,7 +99,7 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
         })
         .catch((error) => {
           // If current API detect error, do nothing, just continue try next API.
-          const errorInfo = error as RequestErrorInfo | undefined;
+          const errorInfo = error as RequestError | undefined;
           if (!errorInfo) {
             logTrace("detect", "detect canceled");
           } else {

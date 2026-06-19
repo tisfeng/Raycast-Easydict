@@ -14,7 +14,10 @@ export function getLanguageItem(youdaoCode: string): LanguageItem {
   return languageItemList.find((i) => i.youdaoLangCode === youdaoCode) ?? languageItemList[0];
 }
 
-export function getLangCode<K extends Extract<keyof LanguageItem, LangCodeKeys>>(youdaoCode: string, field: K): LanguageItem[K] {
+export function getLangCode<K extends Extract<keyof LanguageItem, LangCodeKeys>>(
+  youdaoCode: string,
+  field: K,
+): LanguageItem[K] {
   const item = getLanguageItem(youdaoCode);
   return item[field];
 }

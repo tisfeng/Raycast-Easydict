@@ -8,23 +8,16 @@ import { LanguageItem } from "@/core/language/types";
 import { getLanguageItem } from "@/core/language/utils";
 import { computeDisplaySections } from "@/core/query/displaySections";
 import { queryReducer, QueryState } from "@/core/query/queryReducer";
-import { TranslationServiceConfig, translationServices } from "@/core/query/services";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import { myPreferences } from "@/preferences";
-import { requestLingueeDictionary } from "@/providers/dictionary/linguee/linguee";
-import { formatLingueeDisplaySections } from "@/providers/dictionary/linguee/parse";
-import { updateYoudaoDictionaryDisplay } from "@/providers/dictionary/youdao/formatData";
-import type { YoudaoDictionaryFormatResult } from "@/providers/dictionary/youdao/types";
-import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
-import { requestYoudaoWebDictionary } from "@/providers/dictionary/youdao/youdao";
-import type { OpenAITranslateResult } from "@/providers/translation/openai";
-import { requestOpenAIStreamTranslate } from "@/providers/translation/openai";
-import { DictionaryType, TranslationType } from "@/types/api";
-import { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
-import { QueryResult, QueryType, QueryWordInfo } from "@/types/query";
+import { DictionaryServiceConfig, dictionaryServices } from "@/providers/dictionary";
+import { TranslationServiceConfig, translationServices } from "@/providers/translation";
+import { TranslationType } from "@/types/api";
+import { DisplaySection, ListDisplayItem } from "@/types/display";
+import { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
-import { checkIsTranslationType, checkIsWord } from "@/utils/text";
+import { checkIsTranslationType } from "@/utils/text";
 
 logTrace("useQueryEngine", "module loaded");
 
@@ -126,14 +119,50 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   }, []);
 
   const runTranslationQuery = useCallback(
-    (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo) => {
+    (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo, streaming?: boolean) => {
       const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
       addQueryToRecordList(config.type);
 
-      config
-        .requestFn(queryWordInfo, abortControllerRef.current?.signal)
+      // Wire streaming callbacks for providers that support progressive updates
+      if (streaming) {
+        const chunks: string[] = [];
+        let updateTimer: ReturnType<typeof setTimeout> | undefined;
+
+        queryWordInfo.onMessage = (message) => {
+          chunks.push(message.content);
+          if (!updateTimer) {
+            updateTimer = setTimeout(() => {
+              updateTimer = undefined;
+              const translatedText = chunks.join("");
+              const result: QueryTypeResult = {
+                type: config.type,
+                queryWordInfo,
+                translations: [translatedText],
+                result: { translatedText },
+              };
+              const rawResult: QueryResult = { type: config.type, sourceResult: result };
+              const displayResult = buildTranslationDisplay(rawResult);
+              if (displayResult) {
+                dispatch({ type: "SET_RESULT", queryResult: displayResult });
+              }
+            }, 100);
+          }
+        };
+
+        queryWordInfo.onFinish = () => {
+          if (updateTimer) {
+            clearTimeout(updateTimer);
+            updateTimer = undefined;
+          }
+        };
+      }
+
+      const instance = new config.provider();
+
+      instance
+        .request(queryWordInfo, abortControllerRef.current?.signal)
         .then((result) => {
           const rawResult: QueryResult = { type: config.type, sourceResult: result };
           const displayResult = buildTranslationDisplay(rawResult);
@@ -151,180 +180,36 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     [addQueryToRecordList, removeQueryFromRecordList, buildTranslationDisplay],
   );
 
-  const queryLingueeDictionary = useCallback(
-    (queryWordInfo: QueryWordInfo) => {
-      if (!myPreferences.enableLingueeDictionary) return;
+  const runDictionaryQuery = useCallback(
+    (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo) => {
+      const enabled =
+        config?.isEnabled?.(queryWordInfo) ??
+        (config.preference ? (myPreferences[config.preference] as boolean) : true);
+      if (!enabled) return;
 
-      const type = DictionaryType.Linguee;
-      addQueryToRecordList(type);
+      addQueryToRecordList(config.type);
+      if (!config.provider) return;
+      const instance = new config.provider();
 
-      requestLingueeDictionary(queryWordInfo, abortControllerRef.current?.signal)
-        .then((lingueeTypeResult) => {
-          const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
-          if (lingueeDisplaySections.length === 0) return;
-
-          const queryResult: QueryResult = {
-            type,
-            displaySections: lingueeDisplaySections,
-            sourceResult: lingueeTypeResult,
-          };
-
-          if (queryWordInfo.isWord !== undefined) {
-            lingueeTypeResult.queryWordInfo.isWord = queryWordInfo.isWord;
+      instance
+        .request(queryWordInfo, abortControllerRef.current?.signal)
+        .then((result) => {
+          if (result.displaySections && result.displaySections.length > 0) {
+            dispatch({ type: "SET_RESULT", queryResult: result });
           }
-
-          const accessoryItem: ListAccessoryItem = {
-            phonetic: queryWordInfo.phonetic,
-            examTypes: queryWordInfo.examTypes,
-          };
-          lingueeDisplaySections[0].items[0].accessoryItem = accessoryItem;
-
-          dispatch({ type: "SET_RESULT", queryResult });
         })
         .catch((error) => {
           showErrorToast(error);
         })
         .finally(() => {
-          removeQueryFromRecordList(type);
+          removeQueryFromRecordList(config.type);
         });
     },
     [addQueryToRecordList, removeQueryFromRecordList],
   );
 
-  const queryYoudaoDictionary = useCallback(
-    (queryWordInfo: QueryWordInfo, enableYoudaoDictionary: boolean) => {
-      if (!enableYoudaoDictionary) return;
-
-      const type = DictionaryType.Youdao;
-      addQueryToRecordList(type);
-
-      requestYoudaoWebDictionary(queryWordInfo, type, abortControllerRef.current?.signal)
-        .then((youdaoDictionaryResult) => {
-          const formatYoudaoResult = youdaoDictionaryResult.result as YoudaoDictionaryFormatResult | undefined;
-          if (!formatYoudaoResult) {
-            logWarn("useQueryEngine", "formatYoudaoResult is undefined");
-            return;
-          }
-
-          const youdaoDisplaySections = updateYoudaoDictionaryDisplay(formatYoudaoResult);
-          Object.assign(queryWordInfo, formatYoudaoResult.queryWordInfo);
-
-          const youdaoDictResult: QueryResult = {
-            type,
-            sourceResult: youdaoDictionaryResult,
-            displaySections: youdaoDisplaySections,
-          };
-
-          dispatch({ type: "SET_RESULT", queryResult: youdaoDictResult });
-
-          if (myPreferences.enableYoudaoTranslate) {
-            const translationType = TranslationType.Youdao;
-            const youdaoWebTranslateResult = JSON.parse(JSON.stringify(youdaoDictionaryResult));
-            youdaoWebTranslateResult.type = translationType;
-            const youdaoTranslationResult: QueryResult = {
-              type: translationType,
-              sourceResult: youdaoWebTranslateResult,
-            };
-
-            const displayResult = buildTranslationDisplay(youdaoTranslationResult);
-            if (displayResult) {
-              dispatch({ type: "SET_RESULT", queryResult: displayResult });
-            }
-          }
-        })
-        .catch((error) => {
-          showErrorToast(error);
-        })
-        .finally(() => {
-          removeQueryFromRecordList(type);
-        });
-    },
-    [addQueryToRecordList, removeQueryFromRecordList, buildTranslationDisplay],
-  );
-
-  const queryOpenAITranslate = useCallback(
-    (queryWordInfo: QueryWordInfo) => {
-      if (!myPreferences.enableOpenAITranslate) return;
-
-      const type = TranslationType.OpenAI;
-      addQueryToRecordList(type);
-
-      let openAIQueryResult: QueryResult | undefined;
-      let updateTimer: ReturnType<typeof setTimeout> | undefined;
-      const chunks: string[] = [];
-
-      const flushUpdate = (finalText?: string) => {
-        if (openAIQueryResult) {
-          const openAIResult = openAIQueryResult.sourceResult.result as OpenAITranslateResult;
-          const translatedText = finalText !== undefined ? finalText : chunks.join("");
-          openAIResult.translatedText = translatedText;
-          openAIQueryResult.sourceResult.translations = [translatedText];
-
-          const displayResult = buildTranslationDisplay(openAIQueryResult);
-          if (displayResult) {
-            dispatch({ type: "SET_RESULT", queryResult: displayResult });
-          }
-        }
-      };
-
-      queryWordInfo.onMessage = (message) => {
-        chunks.push(message.content);
-        if (!openAIQueryResult) {
-          openAIQueryResult = {
-            type,
-            sourceResult: {
-              type,
-              queryWordInfo,
-              translations: [message.content],
-              result: { translatedText: message.content },
-            },
-          };
-        }
-        if (!updateTimer) {
-          updateTimer = setTimeout(() => {
-            updateTimer = undefined;
-            flushUpdate();
-          }, 100);
-        }
-      };
-
-      queryWordInfo.onFinish = (value) => {
-        if (value === "stop") {
-          if (updateTimer) {
-            clearTimeout(updateTimer);
-            updateTimer = undefined;
-          }
-          if (openAIQueryResult) {
-            let translatedText = chunks.join("");
-            const rightQuotes = ['"', "\u201D", "'", "\u300D"];
-            if (translatedText.length > 0) {
-              const lastQueryTextChar = queryWordInfo.word[queryWordInfo.word.length - 1];
-              const lastTranslatedTextChar = translatedText[translatedText.length - 1];
-              if (!rightQuotes.includes(lastQueryTextChar) && rightQuotes.includes(lastTranslatedTextChar)) {
-                translatedText = translatedText.slice(0, translatedText.length - 1);
-              }
-            }
-            flushUpdate(translatedText);
-          }
-          removeQueryFromRecordList(type);
-        }
-      };
-
-      requestOpenAIStreamTranslate(queryWordInfo).catch((error) => {
-        showErrorToast(error);
-        removeQueryFromRecordList(type);
-      });
-    },
-    [addQueryToRecordList, removeQueryFromRecordList, buildTranslationDisplay],
-  );
-
   const queryTextWithTextInfo = useCallback(
     (queryWordInfo: QueryWordInfo) => {
-      const enableYoudaoDictionary =
-        myPreferences.enableYoudaoDictionary &&
-        getYoudaoWebDictionaryURL(queryWordInfo) !== undefined &&
-        checkIsWord(queryWordInfo);
-
       shouldClearQueryRef.current = false;
       isCurrentQueryRef.current = true;
       hasPlayedAudioRef.current = false;
@@ -336,16 +221,15 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       logTrace("useQueryEngine", `query text: ${word}`);
       logTrace("useQueryEngine", `query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-      queryYoudaoDictionary(queryWordInfo, enableYoudaoDictionary);
-
-      for (const config of translationServices) {
-        runTranslationQuery(config, queryWordInfo);
+      for (const config of dictionaryServices) {
+        runDictionaryQuery(config, queryWordInfo);
       }
 
-      queryOpenAITranslate(queryWordInfo);
-      queryLingueeDictionary(queryWordInfo);
+      for (const config of translationServices) {
+        runTranslationQuery(config, queryWordInfo, config.streaming);
+      }
     },
-    [queryYoudaoDictionary, runTranslationQuery, queryOpenAITranslate, queryLingueeDictionary],
+    [runDictionaryQuery, runTranslationQuery],
   );
 
   const queryTextWithDetectedLanguage = useCallback(

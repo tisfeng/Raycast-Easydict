@@ -3,7 +3,7 @@
 import type { LingueeDictionaryResult } from "@/providers/dictionary/linguee/types";
 import type {
   YoudaoDictionaryFormatResult,
-  YoudaoTranslateResponse,
+  YoudaoTranslateResult,
   YoudaoWebTranslateResult,
 } from "@/providers/dictionary/youdao/types";
 import type { AppleTranslateResult } from "@/providers/translation/apple";
@@ -17,10 +17,17 @@ import type { OpenAITranslateResult } from "@/providers/translation/openai";
 import type { TencentTranslateResult } from "@/providers/translation/tencent";
 import type { VolcanoDetectResult, VolcanoTranslateResult } from "@/providers/translation/volcano";
 
+/**
+ * Union of all provider-specific response types.
+ *
+ * Each member has a completely different shape — there are no common fields.
+ * This union is for type discrimination (via QueryTypeResult.type) only,
+ * not for accessing shared fields across providers.
+ */
 export type QueryResponse =
   | YoudaoDictionaryFormatResult
   | YoudaoWebTranslateResult
-  | YoudaoTranslateResponse
+  | YoudaoTranslateResult
   | LingueeDictionaryResult
   | BaiduTranslateResult
   | BaiduWebLanguageDetect

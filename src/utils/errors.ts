@@ -4,13 +4,12 @@ import { showFailureToast } from "@raycast/utils";
 import { FetchError } from "ofetch";
 
 import type { RequestType } from "@/types/api";
-import type { RequestErrorInfo } from "@/types/query";
 import { logWarn } from "@/utils/logger";
 
 /**
  * Show error toast according to errorInfo.
  */
-export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
+export function showErrorToast(errorInfo: RequestError | undefined) {
   if (!errorInfo?.type) {
     logWarn("utils", `errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 4)}`);
     return;
@@ -27,14 +26,10 @@ export function showErrorToast(errorInfo: RequestErrorInfo | undefined) {
 export function getTypeErrorInfo(
   type: RequestType,
   error: { status?: number; statusText?: string; message?: string },
-): RequestErrorInfo {
+): RequestError {
   const errorCode = error.status;
   const errorMessage = error.statusText || error.message || "something error 😭";
-  const errorInfo: RequestErrorInfo = {
-    type: type,
-    code: `${errorCode || ""}`,
-    message: errorMessage,
-  };
+  const errorInfo = new RequestError(type, errorMessage, `${errorCode || ""}`);
   return errorInfo;
 }
 
@@ -80,7 +75,30 @@ export function getErrorName(error: unknown, fallback = "unknown"): string {
  */
 export function getErrorCode(error: unknown, fallback = ""): string {
   if (typeof error === "object" && error !== null && "code" in error && typeof error.code === "string") {
-    return error.code;
+    return String(error.code);
   }
   return fallback;
+}
+
+/**
+ * Sentinel error for cancelled requests.
+ * Callers should check `error instanceof CancelledError` instead of string matching.
+ */
+
+export class RequestError extends Error {
+  type: string;
+  code?: string;
+
+  constructor(type: string, message: string, code?: string) {
+    super(message);
+    this.name = "RequestError";
+    this.type = type;
+    this.code = code;
+  }
+}
+export class CancelledError extends Error {
+  constructor() {
+    super("cancelled");
+    this.name = "CancelledError";
+  }
 }

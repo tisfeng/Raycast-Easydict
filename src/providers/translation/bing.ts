@@ -8,10 +8,12 @@ import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/con
 import { bingMap, getLangCode, getYoudaoLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { TranslationType } from "@/types/api";
-import { QueryTypeResult, QueryWordInfo, RequestErrorInfo } from "@/types/query";
-import { getErrorMessage, getErrorName, getTypeErrorInfo } from "@/utils/errors";
+import { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
+
+import { BaseTranslateProvider } from "./base";
 
 interface BingConfig {
   IG: string;
@@ -64,62 +66,98 @@ let retryCount = 0;
 /**
  * Request Microsoft Bing Web Translator.
  */
-export async function requestWebBingTranslate(
-  queryWordInfo: QueryWordInfo,
-  signal?: AbortSignal,
-): Promise<QueryTypeResult> {
-  logTrace("bing", "start requestWebBingTranslate");
+export class BingTranslateProvider extends BaseTranslateProvider {
+  type = TranslationType.Bing;
 
-  const { fromLanguage, toLanguage, word } = queryWordInfo;
-  const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
-  const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";
+  protected async doTranslate(queryWordInfo: QueryWordInfo, signal?: AbortSignal): Promise<QueryTypeResult> {
+    const { fromLanguage, toLanguage, word } = queryWordInfo;
+    const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
+    const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";
 
-  const type = TranslationType.Bing;
+    const isExpired = await checkIfBingTokenExpired();
+    logTrace("bing", `token expired: ${isExpired}`);
 
-  const isExpired = await checkIfBingTokenExpired();
-  logTrace("bing", `token expired: ${isExpired}`);
-
-  if (isExpired) {
-    logTrace("bing", "token expired, request new one");
-    bingConfig = await requestBingConfig();
-  } else {
-    const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
-    if (storedBingConfig) {
-      bingConfig = JSON.parse(storedBingConfig) as BingConfig;
-      logTrace("bing", `use stored bingConfig, IG: ${bingConfig.IG}`);
+    if (isExpired) {
+      logTrace("bing", "token expired, request new one");
+      bingConfig = await requestBingConfig();
+    } else {
+      const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
+      if (storedBingConfig) {
+        bingConfig = JSON.parse(storedBingConfig) as BingConfig;
+        logTrace("bing", `use stored bingConfig, IG: ${bingConfig.IG}`);
+      }
     }
-  }
 
-  if (!bingConfig) {
-    logError("bing", "get bingConfig failed");
+    if (!bingConfig) {
+      logError("bing", "get bingConfig failed");
+      throw new RequestError(TranslationType.Bing, "Get bing config failed");
+    }
 
-    const errorInfo: RequestErrorInfo = {
-      type: type,
-      message: "Get bing config failed",
+    const { IID, IG, key, token, count } = bingConfig;
+    const requestCount = count + 1;
+    bingConfig.count = requestCount;
+    LocalStorage.setItem(bingConfigKey, JSON.stringify(bingConfig));
+
+    const data = {
+      text: word,
+      fromLang: fromLang,
+      to: toLang,
+      token: token,
+      key: key,
     };
 
-    return Promise.reject(errorInfo);
+    const IIDString = `${IID}.${requestCount}`;
+
+    const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
+    logTrace("bing", `url: ${url}`);
+
+    const { url: finalUrl, data: responseData } = await this.makeRequest(url, data, signal);
+
+    // Get new host
+    const newBingHost = new URL(finalUrl).host;
+    // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
+    if (!responseData) {
+      if (bingHost !== newBingHost && retryCount < 3) {
+        logWarn(
+          "bing",
+          `translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
+        );
+        retryCount++;
+        const newConfig = await requestBingConfig();
+        if (newConfig) {
+          return this.doTranslate(queryWordInfo, { signal });
+        }
+        throw new RequestError(TranslationType.Bing, "Bing translate response is empty");
+      }
+      throw new RequestError(TranslationType.Bing, "Bing translate response is empty");
+    }
+
+    retryCount = 0;
+
+    const responseArray = responseData as unknown[];
+    const bingTranslateResult = responseArray[0] as BingTranslateResult | undefined;
+    if (!bingTranslateResult?.translations?.length) {
+      throw new RequestError(TranslationType.Bing, "Bing translate response is invalid");
+    }
+
+    const translations = bingTranslateResult.translations[0].text.split("\n");
+    const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
+    const toLangResult = bingTranslateResult.translations[0].to;
+    logTrace("bing", `translate: ${translations}, from: ${detectedLanguage} -> ${toLangResult}`);
+
+    return {
+      type: TranslationType.Bing,
+      queryWordInfo,
+      result: bingTranslateResult,
+      translations,
+    };
   }
 
-  const { IID, IG, key, token, count } = bingConfig;
-  const requestCount = count + 1;
-  bingConfig.count = requestCount;
-  LocalStorage.setItem(bingConfigKey, JSON.stringify(bingConfig));
-
-  const data = {
-    text: word,
-    fromLang: fromLang,
-    to: toLang,
-    token: token,
-    key: key,
-  };
-
-  const IIDString = `${IID}.${requestCount}`;
-
-  const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
-  logTrace("bing", `url: ${url}`);
-
-  const makeRequest = async (requestUrl: string): Promise<{ url: string; data: unknown }> => {
+  private async makeRequest(
+    requestUrl: string,
+    data: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<{ url: string; data: unknown }> {
     const response = await timedFetch.raw(requestUrl, {
       method: "POST",
       body: new URLSearchParams(data).toString(),
@@ -140,78 +178,15 @@ export async function requestWebBingTranslate(
       const redirectUrl = response.headers.get("location");
       if (redirectUrl) {
         logTrace("bing", `redirect to: ${redirectUrl}`);
-        return makeRequest(redirectUrl);
+        return this.makeRequest(redirectUrl, data, signal);
       }
     }
 
     return { url: finalUrl, data: response._data };
-  };
-
-  return makeRequest(url)
-    .then(function ({ url: finalUrl, data: responseData }) {
-      // Get new host
-      const newBingHost = new URL(finalUrl).host;
-      // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
-      if (!responseData) {
-        if (bingHost !== newBingHost && retryCount < 3) {
-          logWarn(
-            "bing",
-            `translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
-          );
-          retryCount++;
-          return requestBingConfig().then((bingConfig) => {
-            if (bingConfig) {
-              return requestWebBingTranslate(queryWordInfo);
-            } else {
-              throw {
-                type: TranslationType.Bing,
-                message: "Bing translate response is empty, get bing config failed",
-              } as RequestErrorInfo;
-            }
-          });
-        } else {
-          throw {
-            type: TranslationType.Bing,
-            message: "Bing translate response is empty",
-          } as RequestErrorInfo;
-        }
-      } else {
-        retryCount = 0;
-
-        const responseArray = responseData as unknown[];
-        const bingTranslateResult = responseArray[0] as BingTranslateResult | undefined;
-        if (!bingTranslateResult?.translations?.length) {
-          throw {
-            type: TranslationType.Bing,
-            message: "Bing translate response is invalid",
-          } as RequestErrorInfo;
-        }
-
-        const translations = bingTranslateResult.translations[0].text.split("\n");
-        const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
-        const toLanguage = bingTranslateResult.translations[0].to;
-        logTrace("bing", `translate: ${translations}, from: ${detectedLanguage} -> ${toLanguage}`);
-
-        const result: QueryTypeResult = {
-          type: type,
-          queryWordInfo: queryWordInfo,
-          result: bingTranslateResult,
-          translations: translations,
-        };
-        return result;
-      }
-    })
-    .catch(function (error) {
-      if (getErrorName(error) === "AbortError" || getErrorMessage(error) === "canceled") {
-        logTrace("bing", "canceled");
-        throw undefined;
-      }
-
-      logError("bing", `translate error: ${getErrorMessage(error)}`);
-      const errorInfo = getTypeErrorInfo(type, { message: getErrorMessage(error) });
-      throw errorInfo;
-    });
+  }
 }
+
+const bingTranslateProvider = new BingTranslateProvider();
 
 /**
  * Bing language detect, use bing translate `audo-detect`.
@@ -227,7 +202,8 @@ export async function bingDetect(text: string): Promise<DetectedLangModel> {
   const type = LanguageDetectType.Bing;
 
   return new Promise((resolve, reject) => {
-    requestWebBingTranslate(queryWordInfo)
+    bingTranslateProvider
+      .request(queryWordInfo)
       .then((result) => {
         const bingTranslateResult = result.result as BingTranslateResult;
         const detectedLanguageCode = bingTranslateResult.detectedLanguage.language;
@@ -244,7 +220,7 @@ export async function bingDetect(text: string): Promise<DetectedLangModel> {
         resolve(detectedLanguageResult);
       })
       .catch((error) => {
-        const errorInfo = error as RequestErrorInfo | undefined;
+        const errorInfo = error as RequestError | undefined;
         if (errorInfo) {
           logError("bing", `detect error: ${JSON.stringify(error)}`);
           errorInfo.type = type;
