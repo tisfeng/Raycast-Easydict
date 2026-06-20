@@ -15,12 +15,11 @@ import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { dictionaryServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
-import { TranslationType } from "@/types/api";
+import { checkIsTranslationType, TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
-import { checkIsTranslationType } from "@/utils/text";
 
 logTrace("useQueryEngine", "module loaded");
 

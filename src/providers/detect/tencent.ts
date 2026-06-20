@@ -3,9 +3,9 @@
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 
 import type { DetectedLangModel } from "@/core/detect/types";
-import { LanguageDetectType } from "@/core/detect/types";
 import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
+import { LanguageDetectType } from "@/types/api";
 import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
@@ -16,8 +16,8 @@ const projectId = 0;
 
 const clientConfig = {
   credential: {
-    secretId: AppKeyStore.tencentSecretId,
-    secretKey: AppKeyStore.tencentSecretKey,
+    secretId: ProviderConfig.tencentSecretId,
+    secretKey: ProviderConfig.tencentSecretKey,
   },
   region,
   profile: {
@@ -31,8 +31,8 @@ export class TencentDetectProvider extends BaseDetectProvider {
   type = LanguageDetectType.Tencent;
 
   isEnabled(): boolean {
-    const hasId = !!AppKeyStore.tencentSecretId;
-    const hasKey = !!AppKeyStore.tencentSecretKey;
+    const hasId = !!ProviderConfig.tencentSecretId;
+    const hasKey = !!ProviderConfig.tencentSecretKey;
     if (!hasId || !hasKey) {
       logWarn("tencent", "detect has no app key");
       return false;

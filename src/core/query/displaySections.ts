@@ -1,9 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { TranslationItem, TranslationType } from "@/types/api";
+import { checkIsDictionaryType, checkIsTranslationType, type TranslationItem, type TranslationType } from "@/types/api";
 import type { DisplaySection } from "@/types/display";
 import type { QueryType, QueryTypeResult } from "@/types/query";
-import { checkIsDictionaryType, checkIsTranslationType } from "@/utils/text";
 
 import type { QueryState } from "./queryReducer";
 import { getFromToLanguageTitle, getTranslationMarkdown } from "./utils";

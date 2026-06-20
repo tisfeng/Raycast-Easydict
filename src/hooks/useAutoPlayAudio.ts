@@ -5,9 +5,9 @@ import { useEffect, useRef } from "react";
 import { playQueryWordAudio } from "@/core/audio";
 import { englishLanguageItem } from "@/core/language/consts";
 import { myPreferences } from "@/preferences";
+import { checkIsDictionaryType } from "@/types/api";
 import type { QueryResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
-import { checkIsDictionaryType } from "@/utils/text";
 
 /**
  * Watches query results and automatically plays word audio when:

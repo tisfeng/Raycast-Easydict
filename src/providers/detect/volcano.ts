@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { DetectedLangModel } from "@/core/detect/types";
-import { LanguageDetectType } from "@/core/detect/types";
 import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
+import { LanguageDetectType } from "@/types/api";
 import type { QueryResponse } from "@/types/queryResponse";
 import { getTypeErrorInfo, RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";

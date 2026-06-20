@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLangCode } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
@@ -53,7 +53,7 @@ export class CaiyunTranslateProvider extends BaseTranslateProvider {
     };
     const headers = {
       "content-type": "application/json",
-      "x-authorization": "token " + AppKeyStore.caiyunToken,
+      "x-authorization": "token " + ProviderConfig.caiyunToken,
     };
 
     const caiyunResult = await timedFetch<CaiyunTranslateResult>(url, {

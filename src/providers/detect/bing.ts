@@ -4,9 +4,9 @@ import { LocalStorage } from "@raycast/api";
 
 import { userAgent } from "@/constants";
 import type { DetectedLangModel } from "@/core/detect/types";
-import { LanguageDetectType } from "@/core/detect/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { bingMap, getYoudaoLangCode } from "@/core/language/utils";
+import { LanguageDetectType } from "@/types/api";
 import type { QueryResponse } from "@/types/queryResponse";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";

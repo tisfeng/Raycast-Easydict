@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
@@ -22,9 +22,9 @@ export class GeminiTranslateProvider extends BaseTranslateProvider {
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
     logTrace("gemini", "start request Gemini");
     const { word, fromLanguage, toLanguage } = queryWordInfo;
-    const apiKey = AppKeyStore.geminiAPIKey;
-    const endpoint = AppKeyStore.geminiEndpoint;
-    const model = AppKeyStore.geminiModel || "gemini-2.0-flash";
+    const apiKey = ProviderConfig.geminiAPIKey;
+    const endpoint = ProviderConfig.geminiEndpoint;
+    const model = ProviderConfig.geminiModel;
 
     // Check if API key exists
     if (!apiKey) {

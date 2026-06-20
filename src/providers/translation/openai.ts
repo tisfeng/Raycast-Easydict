@@ -4,7 +4,7 @@ import { createParser } from "eventsource-parser";
 
 import { networkTimeout } from "@/constants";
 import { getLanguageEnglishName } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { getErrorMessage, getErrorName } from "@/utils/errors";
@@ -74,7 +74,7 @@ type TokenLimitParams = MaxTokensParams | MaxCompletionTokensParams;
 function getTokenLimitParams(endpoint: string, model: string): TokenLimitParams {
   const isKnownEndpoint = KNOWN_ENDPOINTS.some((knownEndpoint) => endpoint.startsWith(knownEndpoint));
   const isReasoningModel = REASONING_MODEL_PATTERN.test(model);
-  const forceMaxCompletionTokens = AppKeyStore.forceMaxCompletionTokens;
+  const forceMaxCompletionTokens = ProviderConfig.forceMaxCompletionTokens;
   const useMaxCompletionTokens = forceMaxCompletionTokens || (isKnownEndpoint && isReasoningModel);
 
   if (useMaxCompletionTokens) return { max_completion_tokens: DEFAULT_MAX_TOKENS };
@@ -88,7 +88,7 @@ export class OpenAITranslateProvider extends BaseTranslateProvider {
     queryWordInfo: QueryWordInfo,
     { signal, onMessage, onFinish }: RequestOptions = {},
   ): Promise<QueryTypeResult> {
-    const url = AppKeyStore.openAIEndpoint;
+    const url = ProviderConfig.openAIEndpoint;
 
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
@@ -159,10 +159,10 @@ export class OpenAITranslateProvider extends BaseTranslateProvider {
       },
     ];
 
-    const tokenLimitParams = getTokenLimitParams(url, AppKeyStore.openAIModel);
+    const tokenLimitParams = getTokenLimitParams(url, ProviderConfig.openAIModel);
 
     const params = {
-      model: AppKeyStore.openAIModel,
+      model: ProviderConfig.openAIModel,
       messages: message,
       temperature: 0,
       ...tokenLimitParams,
@@ -172,7 +172,7 @@ export class OpenAITranslateProvider extends BaseTranslateProvider {
       stream: true,
     };
 
-    const openAIAPIKey = AppKeyStore.openAIAPIKey;
+    const openAIAPIKey = ProviderConfig.openAIAPIKey;
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${openAIAPIKey}`,

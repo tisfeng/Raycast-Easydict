@@ -3,9 +3,9 @@
 import { getLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
+import { checkIsWord } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryWordInfo } from "@/types/query";
-import { checkIsWord } from "@/utils/text";
 
 import { AppleTranslateProvider } from "./apple";
 import { BaiduTranslateProvider } from "./baidu";

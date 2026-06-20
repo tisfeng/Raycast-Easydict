@@ -1,17 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import type { LanguageDetectType } from "@/types/api";
 import type { QueryResponse } from "@/types/queryResponse";
-
-export enum LanguageDetectType {
-  Simple = "Simple Detect",
-  Franc = "Franc Detect",
-  Apple = "Apple Detect",
-  Tencent = "Tencent Detect",
-  Baidu = "Baidu Detect",
-  Google = "Google Detect",
-  Bing = "Bing Detect",
-  Volcano = "Volcano Detect",
-}
 
 export interface DetectedLangModel {
   type: LanguageDetectType;

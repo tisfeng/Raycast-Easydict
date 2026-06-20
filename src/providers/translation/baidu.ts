@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLangCode } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { md5 } from "@/utils/crypto";
@@ -53,8 +53,8 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
       };
     }
 
-    const baiduAppId = AppKeyStore.baiduAppId;
-    const baiduAppSecret = AppKeyStore.baiduAppSecret;
+    const baiduAppId = ProviderConfig.baiduAppId;
+    const baiduAppSecret = ProviderConfig.baiduAppSecret;
 
     const salt = Math.round(new Date().getTime() / 1000);
     const md5Content = baiduAppId + word + salt + baiduAppSecret;

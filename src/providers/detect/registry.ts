@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LanguageDetectType } from "@/core/detect/types";
+import { LanguageDetectType } from "@/types/api";
 
 import { BaiduDetectProvider } from "./baidu";
 import type { BaseDetectProvider } from "./base";

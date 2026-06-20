@@ -2,7 +2,7 @@
 import querystring from "node:querystring";
 
 import { getLangCode } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { getTypeErrorInfo, RequestError } from "@/utils/errors";
@@ -44,7 +44,7 @@ export class DeepLTranslateProvider extends BaseTranslateProvider {
       };
     }
 
-    const deepLAuthKey = AppKeyStore.deepLAuthKey;
+    const deepLAuthKey = ProviderConfig.deepLAuthKey;
 
     if (!deepLAuthKey) {
       throw new RequestError(TranslationType.DeepL, "No deepL key", "");
@@ -55,7 +55,7 @@ export class DeepLTranslateProvider extends BaseTranslateProvider {
       ? "https://api-free.deepl.com/v2/translate"
       : "https://api.deepl.com/v2/translate";
 
-    const deepLEndpoint = AppKeyStore.deepLEndpoint;
+    const deepLEndpoint = ProviderConfig.deepLEndpoint;
     if (deepLEndpoint.length > 0) {
       url = deepLEndpoint;
     }

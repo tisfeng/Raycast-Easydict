@@ -5,7 +5,7 @@ import crypto from "crypto";
 import type { TextTranslateResponse } from "tencentcloud-sdk-nodejs-tmt/tencentcloud/services/tmt/v20180321/tmt_models";
 
 import { getLangCode } from "@/core/language/utils";
-import { AppKeyStore } from "@/preferences";
+import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
@@ -23,8 +23,8 @@ export interface TencentError {
   Message: string;
 }
 
-const SECRET_ID = AppKeyStore.tencentSecretId;
-const SECRET_KEY = AppKeyStore.tencentSecretKey;
+const SECRET_ID = ProviderConfig.tencentSecretId;
+const SECRET_KEY = ProviderConfig.tencentSecretKey;
 
 const endpoint = "tmt.tencentcloudapi.com";
 const region = "ap-guangzhou";

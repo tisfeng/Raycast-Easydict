@@ -3,10 +3,10 @@
 import { francAll } from "franc";
 
 import type { DetectedLangModel } from "@/core/detect/types";
-import { LanguageDetectType } from "@/core/detect/types";
 import { isPreferredLanguage } from "@/core/detect/utils";
 import { languageItemList } from "@/core/language/consts";
 import { getLanguageItem, getLanguageItemFromFrancCode } from "@/core/language/utils";
+import { LanguageDetectType } from "@/types/api";
 import { logTrace } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";

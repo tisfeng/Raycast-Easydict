@@ -3,11 +3,11 @@
 import { parse } from "node-html-parser";
 
 import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
+import { checkIsWord } from "@/providers/shared";
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { logTrace, logWarn } from "@/utils/logger";
-import { checkIsWord } from "@/utils/text";
 
 import { getValidLingueeLanguagePair } from "./languages";
 import type {
@@ -425,6 +425,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         queryType: lingueeType,
         queryWordInfo: queryWordInfo,
         tooltip: displayType,
+        detailsMarkdown: copyText,
       },
     ],
   };
@@ -469,6 +470,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
               displayType: displayType,
               queryType: lingueeType,
               tooltip: displayType,
+              detailsMarkdown: copyText,
             };
             displayItems.push(displayItem);
           }
@@ -505,6 +507,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
             displayType: displayType,
             queryType: lingueeType,
             tooltip: displayType,
+            detailsMarkdown: copyText,
           };
           displayItems.push(unFeaturedDisplayItem);
         }
@@ -538,6 +541,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
+        detailsMarkdown: copyText,
       };
       return displayItem;
     });
@@ -572,6 +576,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
+        detailsMarkdown: copyText,
       };
       return displayItem;
     });
@@ -601,6 +606,7 @@ export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult)
         displayType: displayType,
         queryType: lingueeType,
         tooltip: displayType,
+        detailsMarkdown: copyText,
       };
       return displayItem;
     });

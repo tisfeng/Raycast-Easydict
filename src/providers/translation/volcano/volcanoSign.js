@@ -2,11 +2,10 @@
 
 import crypto from "node:crypto";
 
-import { AppKeyStore } from "@/preferences";
-import { hasVolcanoAppKey } from "@/providers/shared";
+import { hasVolcanoAppKey, ProviderConfig } from "@/providers/shared";
 
-const accessKey = AppKeyStore.volcanoSecretId;
-const secretKey = AppKeyStore.volcanoSecretKey;
+const accessKey = ProviderConfig.volcanoSecretId;
+const secretKey = ProviderConfig.volcanoSecretKey;
 
 /**
  * Generate Volcano Sign.

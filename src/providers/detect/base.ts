@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { DetectedLangModel, LanguageDetectType } from "@/core/detect/types";
+import type { DetectedLangModel } from "@/core/detect/types";
+import type { LanguageDetectType } from "@/types/api";
 import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 

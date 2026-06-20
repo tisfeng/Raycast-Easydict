@@ -20,6 +20,25 @@ import type {
 import { YoudaoDictionaryListItemType } from "./types";
 
 /**
+ * Compute detailsMarkdown for a Youdao dictionary list item.
+ *
+ */
+function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string {
+  let detailsMarkdown = subtitle ? `${title} ${subtitle}` : title;
+  if (subtitle?.startsWith(title)) {
+    detailsMarkdown = subtitle;
+  }
+  if (subtitle) {
+    const reg = /"(.*)"/;
+    const match = reg.exec(subtitle);
+    if (match && match[1] === title) {
+      detailsMarkdown = subtitle;
+    }
+  }
+  return detailsMarkdown;
+}
+
+/**
  * Update Youdao dictionary display result.
  */
 export function updateYoudaoDictionaryDisplay(
@@ -173,6 +192,7 @@ export function updateYoudaoDictionaryDisplay(
       queryWordInfo: queryWordInfo,
       tooltip: explanationType,
       copyText: copyText,
+      detailsMarkdown: computeYoudaoDetailsMarkdown(title, subtitle),
     };
     return displayItem;
   });
@@ -201,6 +221,7 @@ export function updateYoudaoDictionaryDisplay(
       tooltip: formsType,
       subtitle: ` [ ${wfsText} ]`,
       copyText: wfsText,
+      detailsMarkdown: ` [ ${wfsText} ]`,
     };
     displaySections.push({
       type: YoudaoDictionaryListItemType.Forms,
@@ -224,6 +245,7 @@ export function updateYoudaoDictionaryDisplay(
       tooltip: YoudaoDictionaryListItemType.WebTranslation,
       subtitle: webResultValue,
       copyText: copyText,
+      detailsMarkdown: computeYoudaoDetailsMarkdown(webResultKey, webResultValue),
     };
     displaySections.push({
       type: YoudaoDictionaryListItemType.WebTranslation,
@@ -247,6 +269,7 @@ export function updateYoudaoDictionaryDisplay(
       title: phraseKey,
       subtitle: phraseValue,
       copyText: copyText,
+      detailsMarkdown: computeYoudaoDetailsMarkdown(phraseKey, phraseValue),
     };
     return webPhraseItem;
   });
@@ -272,6 +295,7 @@ export function updateYoudaoDictionaryDisplay(
     title: baikeKey,
     subtitle: summary,
     copyText: baikeText,
+    detailsMarkdown: computeYoudaoDetailsMarkdown(baikeKey, summary),
   };
   if (summary) {
     displaySections.push({
@@ -295,6 +319,7 @@ export function updateYoudaoDictionaryDisplay(
     title: wikipediaKey,
     subtitle: wikipediaSummary,
     copyText: wikipediaText,
+    detailsMarkdown: computeYoudaoDetailsMarkdown(wikipediaKey, wikipediaSummary),
   };
   if (wikipediaSummary) {
     displaySections.push({

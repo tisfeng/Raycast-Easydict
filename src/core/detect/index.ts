@@ -4,11 +4,11 @@ import { isValidLangCode } from "@/core/language/utils";
 import { myPreferences } from "@/preferences";
 import type { BaseDetectProvider } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
+import { LanguageDetectType } from "@/types/api";
 import type { RequestError } from "@/utils/errors";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
 import type { DetectedLangModel } from "./types";
-import { LanguageDetectType } from "./types";
 import {
   checkIfPreferredLanguagesContainChinese,
   checkIfPreferredLanguagesContainEnglish,

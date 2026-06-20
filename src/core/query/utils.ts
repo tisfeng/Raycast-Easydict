@@ -8,13 +8,10 @@ import {
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
 import { myPreferences, preferredLanguages } from "@/preferences";
-import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
-import { DictionaryType, TranslationType } from "@/types/api";
+import { checkIsDictionaryType, checkIsTranslationType, DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
 import type { QueryResult, QueryTypeResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
-import { checkIsDictionaryType, checkIsTranslationType } from "@/utils/text";
-import { checkIsLingueeListItem, checkIsYoudaoDictionaryListItem } from "@/utils/typeGuards";
 
 /**
  * Sort query results by designated order.
@@ -162,7 +159,7 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
  * Get show more detail markdown.
  */
 export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
-  const { queryType, displayType, title, subtitle, copyText, detailsMarkdown } = displayItem;
+  const { queryType, title, copyText, detailsMarkdown } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
   const type = queryType.toString();
@@ -186,41 +183,12 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
     return markdown;
   }
 
-  let queryWord = word;
-  let explanation = title;
-
-  // Linguee dictionary
-  if (checkIsLingueeListItem(displayItem)) {
-    queryWord = word;
-    explanation = displayItem.copyText;
-  }
-
-  // Youdao dictionary
-  if (checkIsYoudaoDictionaryListItem(displayItem)) {
-    queryWord = word;
-    explanation = subtitle ? `${title} ${subtitle}` : title;
-    if (subtitle?.startsWith(title)) {
-      explanation = subtitle;
-    }
-    // if subtitle starts with "title", use subtitle
-    if (subtitle) {
-      const reg = /"(.*)"/;
-      const match = reg.exec(subtitle);
-      if (match) {
-        const startWord = match[1];
-        if (startWord === title) {
-          explanation = subtitle;
-        }
-      }
-    }
-    if (displayType === YoudaoDictionaryListItemType.ModernChineseDict) {
-      explanation = detailsMarkdown || copyText;
-    }
-  }
+  // Dictionary type — use pre-computed detailsMarkdown from provider formatters
+  const explanation = detailsMarkdown || title;
 
   markdown = `
 ## ${fromToTitle} 
-### ${queryWord}
+### ${word}
 ----
 ${explanation}
 `;
