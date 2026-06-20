@@ -61,7 +61,8 @@
     "@raycast/api": "^1.104.19",
     "@raycast/utils": "^2.2.6",
     "@vitalets/google-translate-api": "^9.2.1",
-    "eventsource-parser": "^3.0.6",
+    "@xsai/shared-chat": "^0.5.0-beta.6",
+    "@xsai/stream-text": "^0.5.0-beta.6",
     "file-type": "^21.3.0",
     "franc": "^6.2.0",
     "node-html-parser": "^7.0.2",
@@ -731,8 +732,8 @@
       "type": "textfield",
       "required": false,
       "description": "Custom OpenAI API URL",
-      "default": "https://api.openai.com/v1/chat/completions",
-      "placeholder": "https://api.openai.com/v1/chat/completions"
+      "default": "https://api.openai.com/v1",
+      "placeholder": "https://api.openai.com/v1"
     },
     {
       "title": "OpenAI Model",
@@ -772,7 +773,7 @@
       "type": "textfield",
       "required": false,
       "description": "Gemini Model",
-      "default": "gemini-2.0-flash"
+      "default": "gemini-2.5-flash"
     },
     {
       "title": "DeepL Auth Key",

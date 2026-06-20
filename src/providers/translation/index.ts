@@ -14,9 +14,8 @@ import { BingTranslateProvider } from "./bing";
 import { CaiyunTranslateProvider } from "./caiyun";
 import { DeepLTranslateProvider } from "./deepL";
 import { DeepLXTranslateProvider } from "./deepLX";
-import { GeminiTranslateProvider } from "./gemini";
 import { GoogleTranslateProvider } from "./google";
-import { OpenAITranslateProvider } from "./openai";
+import { GeminiTranslateProvider, OpenAITranslateProvider } from "./openai-compatible";
 import { TencentTranslateProvider } from "./tencent";
 import { VolcanoTranslateProvider } from "./volcano";
 import { YoudaoTranslateProvider } from "./youdao";
@@ -27,8 +26,6 @@ export interface TranslationServiceConfig {
   provider: new () => BaseTranslateProvider;
   getWebUrl?: (queryWordInfo: QueryWordInfo) => string | undefined;
   isEnabled?: (queryWordInfo: QueryWordInfo) => boolean;
-  /** Indicates this provider supports streaming (progressive UI updates). Engine wires onProgress at runtime. */
-  streaming?: boolean;
 }
 
 /** Static registry — provider classes, instantiated by the engine. */
@@ -95,6 +92,5 @@ export const translationServices: TranslationServiceConfig[] = [
     type: TranslationType.OpenAI,
     preference: "enableOpenAITranslate",
     provider: OpenAITranslateProvider,
-    streaming: true,
   },
 ];

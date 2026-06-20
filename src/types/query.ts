@@ -12,8 +12,11 @@ import type { QueryResponse } from "./queryResponse";
  */
 export interface RequestOptions {
   signal?: AbortSignal;
-  onMessage?: (message: { content: string; role: string }) => void;
-  onFinish?: (reason: string) => void;
+}
+
+export interface StreamChunk {
+  content: string;
+  role?: string;
 }
 
 export interface QueryWordInfo {

@@ -3,7 +3,7 @@
   "include": ["src/**/*", "raycast-env.d.ts"],
   "compilerOptions": {
     "rootDir": "./src",
-    "lib": ["ES2023", "DOM"],
+    "lib": ["ES2023", "DOM", "DOM.AsyncIterable"],
     "module": "commonjs",
     "target": "ES2023",
     "strict": true,

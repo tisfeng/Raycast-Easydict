@@ -11,9 +11,8 @@ import type { BaiduTranslateResult, BaiduWebLanguageDetect } from "@/providers/t
 import type { BingTranslateResult } from "@/providers/translation/bing";
 import type { CaiyunTranslateResult } from "@/providers/translation/caiyun";
 import type { DeepLTranslateResult } from "@/providers/translation/deepL";
-import type { GeminiTranslateResult } from "@/providers/translation/gemini";
 import type { GoogleTranslateResult } from "@/providers/translation/google";
-import type { OpenAITranslateResult } from "@/providers/translation/openai";
+import type { OpenAICompatibleTranslateResult } from "@/providers/translation/openai-compatible";
 import type { TencentTranslateResult } from "@/providers/translation/tencent";
 import type { VolcanoDetectResult, VolcanoTranslateResult } from "@/providers/translation/volcano";
 
@@ -39,5 +38,4 @@ export type QueryResponse =
   | VolcanoTranslateResult
   | VolcanoDetectResult
   | GoogleTranslateResult
-  | OpenAITranslateResult
-  | GeminiTranslateResult;
+  | OpenAICompatibleTranslateResult;

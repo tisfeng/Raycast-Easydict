@@ -57,7 +57,7 @@ export interface QueryState {
  * Discriminated union of all state transitions.
  * Each action type maps to a specific reducer case.
  */
-type QueryAction =
+export type QueryAction =
   /** A new query started (e.g., Bing Translate request fired). Add to pending list. */
   | { type: "START_QUERY"; queryType: QueryType }
   /** A query finished (success or error). Remove from pending list. */

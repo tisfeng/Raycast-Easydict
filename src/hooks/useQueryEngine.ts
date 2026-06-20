@@ -8,7 +8,7 @@ import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageItem } from "@/core/language/types";
 import { getLanguageItem } from "@/core/language/utils";
 import { computeDisplaySections } from "@/core/query/displaySections";
-import type { QueryState } from "@/core/query/queryReducer";
+import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
@@ -17,8 +17,8 @@ import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
 import { checkIsTranslationType, TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
-import { showErrorToast } from "@/utils/errors";
+import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import { type RequestError, showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
 logTrace("useQueryEngine", "module loaded");
@@ -43,6 +43,52 @@ function createInitialState({
 }
 
 // Hook
+
+function createStreamDebouncer(
+  configType: TranslationType,
+  queryWordInfo: QueryWordInfo,
+  dispatch: React.Dispatch<QueryAction>,
+  buildTranslationDisplay: (rawResult: QueryResult) => QueryResult | null,
+  delay = 80,
+) {
+  let updateTimer: ReturnType<typeof setTimeout> | undefined;
+  let accumulatedText = "";
+
+  const flushUpdate = () => {
+    if (accumulatedText) {
+      const result: QueryTypeResult = {
+        type: configType,
+        queryWordInfo,
+        translations: [accumulatedText],
+        result: { translatedText: accumulatedText },
+      };
+      const rawResult: QueryResult = { type: configType, sourceResult: result };
+      const displayResult = buildTranslationDisplay(rawResult);
+      if (displayResult) {
+        dispatch({ type: "SET_RESULT", queryResult: displayResult });
+      }
+    }
+  };
+
+  return {
+    push(text: string) {
+      accumulatedText += text;
+      if (!updateTimer) {
+        updateTimer = setTimeout(() => {
+          updateTimer = undefined;
+          flushUpdate();
+        }, delay);
+      }
+    },
+    clear() {
+      if (updateTimer) {
+        clearTimeout(updateTimer);
+        updateTimer = undefined;
+      }
+      flushUpdate();
+    },
+  };
+}
 
 export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetLanguage: LanguageItem) {
   const [state, dispatch] = useReducer(
@@ -121,68 +167,43 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   }, []);
 
   const runTranslationQuery = useCallback(
-    (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo, streaming?: boolean) => {
+    async (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo) => {
       const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
       addQueryToRecordList(config.type);
 
-      // Build the RequestOptions decoupled from QueryWordInfo
-      const options: RequestOptions = {
-        signal: abortControllerRef.current?.signal,
-      };
-
-      // Wire streaming callbacks for providers that support progressive updates
-      if (streaming) {
-        const chunks: string[] = [];
-        let updateTimer: ReturnType<typeof setTimeout> | undefined;
-
-        options.onMessage = (message) => {
-          chunks.push(message.content);
-          if (!updateTimer) {
-            updateTimer = setTimeout(() => {
-              updateTimer = undefined;
-              const translatedText = chunks.join("");
-              const result: QueryTypeResult = {
-                type: config.type,
-                queryWordInfo,
-                translations: [translatedText],
-                result: { translatedText },
-              };
-              const rawResult: QueryResult = { type: config.type, sourceResult: result };
-              const displayResult = buildTranslationDisplay(rawResult);
-              if (displayResult) {
-                dispatch({ type: "SET_RESULT", queryResult: displayResult });
-              }
-            }, 100);
-          }
-        };
-
-        options.onFinish = () => {
-          if (updateTimer) {
-            clearTimeout(updateTimer);
-            updateTimer = undefined;
-          }
-        };
-      }
-
+      const signal = abortControllerRef.current?.signal;
       const instance = new config.provider();
 
-      instance
-        .request(queryWordInfo, options)
-        .then((result) => {
-          const rawResult: QueryResult = { type: config.type, sourceResult: result };
+      try {
+        const iterator = instance.request(queryWordInfo, { signal });
+        const debouncer = createStreamDebouncer(config.type, queryWordInfo, dispatch, buildTranslationDisplay);
+        let finalResult: QueryTypeResult | undefined;
+
+        while (true) {
+          const { done, value } = await iterator.next();
+          if (done) {
+            finalResult = value;
+            break;
+          }
+          debouncer.push(value.content);
+        }
+
+        if (finalResult) {
+          const rawResult: QueryResult = { type: config.type, sourceResult: finalResult };
           const displayResult = buildTranslationDisplay(rawResult);
           if (displayResult) {
             dispatch({ type: "SET_RESULT", queryResult: displayResult });
           }
-        })
-        .catch((error) => {
-          showErrorToast(error);
-        })
-        .finally(() => {
-          removeQueryFromRecordList(config.type);
-        });
+        }
+
+        debouncer.clear();
+      } catch (error) {
+        showErrorToast(error as RequestError);
+      } finally {
+        removeQueryFromRecordList(config.type);
+      }
     },
     [addQueryToRecordList, removeQueryFromRecordList, buildTranslationDisplay],
   );
@@ -233,7 +254,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       }
 
       for (const config of translationServices) {
-        runTranslationQuery(config, queryWordInfo, config.streaming);
+        runTranslationQuery(config, queryWordInfo);
       }
     },
     [runDictionaryQuery, runTranslationQuery],

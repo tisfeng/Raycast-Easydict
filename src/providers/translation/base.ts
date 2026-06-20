@@ -1,25 +1,38 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { RequestType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
 import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
+
+export type ProviderResult = Promise<QueryTypeResult> | AsyncGenerator<StreamChunk, QueryTypeResult, unknown>;
 
 /**
  * Abstract base for translation providers.
  *
  * Template method pattern:
- * - `request()` is the public entry point — handles cancellation and error normalization
- * - `doTranslate()` is implemented by each subclass with the actual API call
- *
+ * - `request()` is the public entry point — an async generator that transparently
+ *   handles both legacy `Promise` returns and new `AsyncGenerator` returns from `doTranslate()`.
+ *   Non-streaming providers are wrapped automatically: their Promise result is awaited
+ *   and yielded once, so consumers always use `for await`.
+ * - `doTranslate()` is implemented by each subclass with the actual API call.
  */
 export abstract class BaseTranslateProvider {
   abstract type: RequestType;
 
-  public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryTypeResult> => {
+  public async *request(
+    queryWordInfo: QueryWordInfo,
+    options?: RequestOptions,
+  ): AsyncGenerator<StreamChunk, QueryTypeResult, unknown> {
     logTrace(this.type, `start request ${this.type}`);
     try {
-      return await this.doTranslate(queryWordInfo, options);
+      const response = this.doTranslate(queryWordInfo, options);
+      // Detect AsyncGenerator: delegate all yields and return the final value
+      if (response != null && Symbol.asyncIterator in Object(response)) {
+        return yield* response as AsyncGenerator<StreamChunk, QueryTypeResult, unknown>;
+      }
+      // Legacy Promise path: await and yield the single final result
+      return await (response as Promise<QueryTypeResult>);
     } catch (error) {
       if (
         error instanceof CancelledError ||
@@ -31,12 +44,10 @@ export abstract class BaseTranslateProvider {
       }
       logError(this.type, `translate error: ${getErrorMessage(error)}`);
       // If doTranslate already threw a RequestError (e.g. with custom message), use it directly
-      if (error instanceof RequestError) {
-        throw error;
-      }
+      if (error instanceof RequestError) throw error;
       throw getTypeErrorInfo(this.type, error as { status?: number; statusText?: string; message?: string });
     }
-  };
+  }
 
-  protected abstract doTranslate(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryTypeResult>;
+  protected abstract doTranslate(queryWordInfo: QueryWordInfo, options?: RequestOptions): ProviderResult;
 }
