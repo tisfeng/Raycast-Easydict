@@ -1,6 +1,6 @@
 import raycastConfig from "@raycast/eslint-config";
 import { defineConfig } from "eslint/config";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default defineConfig([
