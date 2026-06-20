@@ -2,7 +2,7 @@
 
 import { LocalStorage } from "@raycast/api";
 
-import { userAgent } from "@/constants";
+import { userAgent } from "@/consts";
 import type { DetectedLangModel } from "@/core/detect/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { bingMap, getYoudaoLangCode } from "@/core/language/utils";

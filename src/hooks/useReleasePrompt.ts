@@ -2,7 +2,7 @@
 
 import { useLocalStorage } from "@raycast/utils";
 
-import { EASYDICT_VERSION } from "@/constants";
+import { EASYDICT_VERSION } from "@/consts";
 
 /**
  * Tracks whether the release notes prompt should be shown for the current version.

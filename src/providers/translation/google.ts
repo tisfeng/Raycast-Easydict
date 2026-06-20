@@ -2,7 +2,7 @@
 
 import querystring from "node:querystring";
 
-import { userAgent } from "@/constants";
+import { userAgent } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";

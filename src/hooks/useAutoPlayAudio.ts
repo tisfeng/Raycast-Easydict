@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
+import { myPreferences } from "@/consts";
 import { playQueryWordAudio } from "@/core/audio";
 import { englishLanguageItem } from "@/core/language/consts";
-import { myPreferences } from "@/preferences";
 import { checkIsDictionaryType } from "@/types/api";
 import type { QueryResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";

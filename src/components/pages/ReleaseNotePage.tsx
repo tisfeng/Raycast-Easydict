@@ -2,7 +2,7 @@
 
 import { Action, ActionPanel, Detail, Icon } from "@raycast/api";
 
-import { EASYDICT_VERSION, getReleaseTagUrl, RELEASE_MARKDOWN } from "@/constants";
+import { EASYDICT_VERSION, getReleaseTagUrl, RELEASE_MARKDOWN } from "@/consts";
 
 /**
  * Return a release Detail page with the markdown content.

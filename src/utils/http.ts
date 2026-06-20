@@ -3,7 +3,7 @@
 import { environment } from "@raycast/api";
 import { ofetch } from "ofetch";
 
-import { networkTimeout } from "@/constants";
+import { networkTimeout } from "@/consts";
 import { logTrace } from "@/utils/logger";
 
 declare module "ofetch" {

@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { myPreferences } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
-import { myPreferences } from "@/preferences";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared";
 import { TranslationType } from "@/types/api";

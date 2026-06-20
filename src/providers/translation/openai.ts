@@ -2,7 +2,7 @@
 
 import { createParser } from "eventsource-parser";
 
-import { networkTimeout } from "@/constants";
+import { networkTimeout } from "@/consts";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";

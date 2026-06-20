@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
+import { config } from "@/core/config";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
-import { myPreferences } from "@/preferences";
 import type { BaseDetectProvider } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
 import { LanguageDetectType } from "@/types/api";
@@ -157,10 +157,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
 
         const onlyOneDetectService = apiDetectors!.length === 1;
 
-        if (
-          onlyOneDetectService ||
-          (isPreferredLanguage(detectedLangCode) && myPreferences.enableDetectLanguageSpeedFirst)
-        ) {
+        if (onlyOneDetectService || (isPreferredLanguage(detectedLangCode) && config.enableDetectLanguageSpeedFirst)) {
           detectedLangModel.confirmed = true;
           logTrace("detect", `speed first, detected: ${detectedTypes}`);
           return resolve(detectedLangModel);

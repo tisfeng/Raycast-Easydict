@@ -2,9 +2,9 @@
 
 import querystring from "node:querystring";
 
+import { myPreferences } from "@/consts";
 import type { DetectedLangModel } from "@/core/detect/types";
 import { baiduMap, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
-import { myPreferences } from "@/preferences";
 import { LanguageDetectType } from "@/types/api";
 import type { QueryResponse } from "@/types/queryResponse";
 import { getTypeErrorInfo, RequestError } from "@/utils/errors";

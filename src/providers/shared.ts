@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { myPreferences } from "@/preferences";
+import { myPreferences } from "@/consts";
 import type { QueryWordInfo } from "@/types/query";
 import { myDecrypt } from "@/utils/crypto";
 

@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { myPreferences } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
-import { myPreferences } from "@/preferences";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared";

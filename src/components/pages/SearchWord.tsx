@@ -6,9 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { ListActionPanel } from "@/components/ui/ActionPanel";
 import { getListItemIcon } from "@/components/ui/Icons";
 import { getWordAccessories } from "@/components/ui/WordAccessories";
+import { myPreferences } from "@/consts";
+import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { useAutoPlayAudio, useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
-import { myPreferences, preferredLanguage1 } from "@/preferences";
 import type { QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 import { trimTextLength } from "@/utils/text";
@@ -40,7 +41,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     hasPlayedAudioRef,
     isCurrentQueryRef,
     abortControllerRef,
-  } = useQueryEngine(preferredLanguage1, preferredLanguage1);
+  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage1);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 

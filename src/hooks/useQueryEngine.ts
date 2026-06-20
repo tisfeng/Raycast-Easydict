@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
+import { myPreferences } from "@/consts";
 import { detectLanguage } from "@/core/detect";
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageItem } from "@/core/language/types";
@@ -10,7 +11,6 @@ import { computeDisplaySections } from "@/core/query/displaySections";
 import type { QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
-import { myPreferences } from "@/preferences";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { dictionaryServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";

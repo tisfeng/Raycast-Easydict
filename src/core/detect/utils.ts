@@ -1,21 +1,23 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { config } from "@/core/config";
 import { englishLanguageItem } from "@/core/language/consts";
-import { preferredLanguages } from "@/preferences";
 import { logTrace } from "@/utils/logger";
 
 /**
  * check if the language is preferred language
  */
 export function isPreferredLanguage(languageId: string): boolean {
-  return preferredLanguages.map((item) => item.youdaoLangCode).includes(languageId);
+  return config.preferredLanguages.map((item) => item.youdaoLangCode).includes(languageId);
 }
 
 /**
  * check if preferred languages contains English language
  */
 export function checkIfPreferredLanguagesContainEnglish(): boolean {
-  return preferredLanguages.find((item) => item.youdaoLangCode === englishLanguageItem.youdaoLangCode) !== undefined;
+  return (
+    config.preferredLanguages.find((item) => item.youdaoLangCode === englishLanguageItem.youdaoLangCode) !== undefined
+  );
 }
 
 /**
@@ -23,7 +25,7 @@ export function checkIfPreferredLanguagesContainEnglish(): boolean {
  */
 export function checkIfPreferredLanguagesContainChinese(): boolean {
   const lanuguageIdPrefix = "zh";
-  return preferredLanguages.find((item) => item.youdaoLangCode.startsWith(lanuguageIdPrefix)) !== undefined;
+  return config.preferredLanguages.find((item) => item.youdaoLangCode.startsWith(lanuguageIdPrefix)) !== undefined;
 }
 
 /**

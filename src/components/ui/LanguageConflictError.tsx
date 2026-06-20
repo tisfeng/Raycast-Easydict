@@ -2,7 +2,7 @@
 
 import { Color, Icon, List } from "@raycast/api";
 
-import { preferredLanguage1, preferredLanguage2 } from "@/preferences";
+import { config } from "@/core/config";
 import { logTrace } from "@/utils/logger";
 
 /**
@@ -10,7 +10,7 @@ import { logTrace } from "@/utils/logger";
  * Returns an error List component if conflict, null otherwise.
  */
 export function checkIfPreferredLanguagesConflict() {
-  if (preferredLanguage1.youdaoLangCode === preferredLanguage2.youdaoLangCode) {
+  if (config.preferredLanguage1.youdaoLangCode === config.preferredLanguage2.youdaoLangCode) {
     logTrace("components", "preferredLanguage1 and preferredLanguage2 are the same language");
     return (
       <List searchBarPlaceholder="Error">

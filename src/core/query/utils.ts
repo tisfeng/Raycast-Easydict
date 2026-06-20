@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { config } from "@/core/config";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
 import {
@@ -7,7 +8,6 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
-import { myPreferences, preferredLanguages } from "@/preferences";
 import { checkIsDictionaryType, checkIsTranslationType, DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
 import type { QueryResult, QueryTypeResult } from "@/types/query";
@@ -62,7 +62,7 @@ function getSortOrder(): string[] {
 
   // * NOTE: user manually set the sort order may not be complete, or even tpye wrong name.
   // TEPORARY FIX, servicesOrder should be string here, but actually string | undefined.
-  const manualOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
+  const manualOrder = config.servicesOrder;
 
   const formatManualOrder = manualOrder.map((order) => order.trim().toLowerCase());
 
@@ -221,7 +221,7 @@ ${text}
  * Get auto select target language according to the LangCode.
  */
 export function getAutoSelectedTargetLanguageItem(fromLangCode: string): LanguageItem {
-  const targetLanguageItem = preferredLanguages.find(
+  const targetLanguageItem = config.preferredLanguages.find(
     (languageItem) => languageItem.youdaoLangCode !== fromLangCode,
   ) as LanguageItem;
   logTrace("language", `fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);

@@ -2,9 +2,8 @@
 
 import { LocalStorage } from "@raycast/api";
 
-import { userAgent } from "@/constants";
+import { myPreferences, userAgent } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
-import { myPreferences } from "@/preferences";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";

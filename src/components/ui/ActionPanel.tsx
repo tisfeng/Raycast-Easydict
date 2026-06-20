@@ -4,11 +4,10 @@ import { Action, ActionPanel, Detail, Icon, Keyboard, open, openCommandPreferenc
 import { showFailureToast } from "@raycast/utils";
 
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
-import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl } from "@/constants";
+import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import { getShowMoreDetailMarkdown } from "@/core/query/utils";
-import { myPreferences } from "@/preferences";
 import { dictionaryServices } from "@/providers/dictionary";
 import { translationServices } from "@/providers/translation";
 import { DictionaryType, TranslationType } from "@/types/api";

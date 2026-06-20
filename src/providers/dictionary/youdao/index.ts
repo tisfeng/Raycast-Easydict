@@ -2,9 +2,8 @@
 
 import { LocalStorage } from "@raycast/api";
 
-import { userAgent } from "@/constants";
+import { myPreferences, userAgent } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
-import { myPreferences } from "@/preferences";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
 import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
