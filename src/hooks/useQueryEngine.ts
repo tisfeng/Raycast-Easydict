@@ -214,9 +214,9 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         config?.isEnabled?.(queryWordInfo) ??
         (config.preference ? (myPreferences[config.preference] as boolean) : true);
       if (!enabled) return;
+      if (!config.provider) return;
 
       addQueryToRecordList(config.type);
-      if (!config.provider) return;
       const instance = new config.provider();
 
       instance
