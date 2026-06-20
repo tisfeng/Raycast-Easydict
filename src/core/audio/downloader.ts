@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { environment } from "@raycast/api";
-import { fileTypeFromBuffer } from "file-type";
 import fs from "fs";
 import path from "path";
 import { x } from "tinyexec";
@@ -51,6 +50,23 @@ async function convertWavToM4a(wavPath: string, m4aPath: string): Promise<string
 }
 
 /**
+ * Detect if buffer is a WAV audio file from magic bytes.
+ */
+function isWav(buffer: Buffer): boolean {
+  return (
+    buffer.length >= 12 &&
+    buffer[0] === 0x52 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x46 &&
+    buffer[8] === 0x57 &&
+    buffer[9] === 0x41 &&
+    buffer[10] === 0x56 &&
+    buffer[11] === 0x45
+  );
+}
+
+/**
  * Download audio file from URL.
  * Detects actual file type from the buffer before writing to disk.
  * On macOS, WAV files are automatically converted to M4A.
@@ -72,19 +88,13 @@ export async function downloadAudio(
     const blob = await timedFetch(url, { responseType: "blob", signal });
     const buffer = Buffer.from(await blob.arrayBuffer());
 
-    const type = await fileTypeFromBuffer(buffer);
-    const ext = type?.ext;
-
-    if (ext === "wav" && process.platform === "darwin") {
+    if (isWav(buffer) && process.platform === "darwin") {
       const wavPath = audioPath.replace(/\.mp3$|\.m4a$/, ".wav");
       const m4aPath = audioPath.replace(/\.mp3$|\.wav$/, ".m4a");
       fs.writeFileSync(wavPath, buffer);
       await convertWavToM4a(wavPath, m4aPath);
     } else {
-      // Write as the actual detected type (or fallback to original path)
-      const targetPath =
-        ext && ext !== path.extname(audioPath).slice(1) ? audioPath.replace(/\.[^.]+$/, `.${ext}`) : audioPath;
-      fs.writeFileSync(targetPath, buffer);
+      fs.writeFileSync(audioPath, buffer);
     }
   } catch (error) {
     if (error instanceof Error && (error.message === "canceled" || error.name === "AbortError")) {
