@@ -12,7 +12,6 @@ import type { LanguageItem } from "@/core/language/types";
 import { useAutoPlayAudio, useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import type { QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
-import { trimTextLength } from "@/utils/text";
 
 interface SearchWordProps {
   initialQueryText?: string;
@@ -20,7 +19,7 @@ interface SearchWordProps {
 }
 
 export default function SearchWord({ initialQueryText, fallbackText }: SearchWordProps) {
-  const trimQueryText = initialQueryText ? trimTextLength(initialQueryText) : fallbackText;
+  const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
 
   const [isInputChanged, setInputChangedState] = useState<boolean>(false);
 
@@ -96,7 +95,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     return new Promise((resolve) => {
       getSelectedText()
         .then((selectedText) => {
-          selectedText = trimTextLength(selectedText);
+          selectedText = selectedText.trim();
           logTrace("easydict", `selected text: ${selectedText}`);
           updateInputTextAndQueryText(selectedText, false);
           resolve();
@@ -139,10 +138,15 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    * Update input text and search text, then query text according to @isDelay
    */
   function updateInputTextAndQueryText(text: string, isDelay: boolean) {
-    logTrace(`update input text, length: ${text.length}, text:`, text);
+    // Normalize newlines to spaces to match Raycast's internal SearchBar behavior.
+    // This prevents the SearchBar from firing an onSearchTextChange event with the collapsed
+    // text later, which would cause a duplicate query and abort this initial one.
+    const normalizedText = text.replace(/\r?\n/g, " ");
 
-    setInputText(text);
-    const trimText = trimTextLength(text);
+    logTrace("easydict", `update input text, length: ${normalizedText.length}`);
+
+    setInputText(normalizedText);
+    const trimText = normalizedText.trim();
     setSearchText(trimText);
 
     // If trimText is empty, then do not query.

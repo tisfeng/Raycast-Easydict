@@ -8,6 +8,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
+import { trimTextLength } from "@/utils/text";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -32,11 +33,12 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
 
     const fromLanguageId = getLangCode(queryWordInfo.fromLanguage, "googleLangCode");
     const toLanguageId = getLangCode(queryWordInfo.toLanguage, "googleLangCode");
+    const word = trimTextLength(queryWordInfo.word);
     const data = {
       sl: fromLanguageId,
       tl: toLanguageId,
       hl: toLanguageId,
-      q: queryWordInfo.word,
+      q: word,
     };
 
     const headers = {
