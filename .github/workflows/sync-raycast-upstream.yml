@@ -1,0 +1,100 @@
+name: Sync Raycast Upstream
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  EXTENSION_NAME: easydict
+
+jobs:
+  sync:
+    name: Pull upstream Raycast changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout raycast/extensions
+        shell: bash
+        run: git clone --depth 1 https://github.com/raycast/extensions.git "$RUNNER_TEMP/raycast-extensions"
+
+      - name: Resolve upstream extension SHA
+        id: upstream
+        shell: bash
+        run: |
+          upstream_sha="$(git -C "$RUNNER_TEMP/raycast-extensions" log -1 --format=%H -- "extensions/${EXTENSION_NAME}")"
+          if [[ -z "$upstream_sha" ]]; then
+            echo "Could not find upstream changes for extensions/${EXTENSION_NAME}." >&2
+            exit 1
+          fi
+          echo "sha=$upstream_sha" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${upstream_sha:0:12}" >> "$GITHUB_OUTPUT"
+
+      - name: Copy upstream extension into repository
+        shell: bash
+        run: |
+          rsync -a --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "node_modules/" \
+            --exclude "dist/" \
+            --exclude ".DS_Store" \
+            --exclude ".idea/" \
+            --exclude ".vscode/" \
+            --exclude ".VSCodeCounter/" \
+            --exclude ".ipynb_checkpoints/" \
+            --exclude ".build/" \
+            --exclude ".swiftpm/" \
+            "$RUNNER_TEMP/raycast-extensions/extensions/${EXTENSION_NAME}/" \
+            "$GITHUB_WORKSPACE/"
+
+      - name: Create pull request for upstream changes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_SHA: ${{ steps.upstream.outputs.sha }}
+          UPSTREAM_SHORT_SHA: ${{ steps.upstream.outputs.short_sha }}
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No upstream changes detected."
+            exit 0
+          fi
+
+          branch_name="sync/raycast-upstream-${UPSTREAM_SHORT_SHA}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch_name"
+          git add -A
+          git commit -m "Sync Raycast upstream changes"
+          git push --force origin "$branch_name"
+
+          body_file="$RUNNER_TEMP/raycast-upstream-pr-body.md"
+          {
+            echo "This PR syncs changes made upstream in raycast/extensions."
+            echo
+            echo "Upstream extension SHA: ${UPSTREAM_SHA}"
+            echo
+            echo "Merge this PR without extra edits so this repository stays aligned with the Raycast Store source."
+          } > "$body_file"
+
+          existing_pr="$(gh pr list --head "$branch_name" --json url --jq '.[0].url')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Upstream sync PR already exists: $existing_pr"
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$branch_name" \
+            --title "Sync Raycast upstream changes" \
+            --body-file "$body_file"

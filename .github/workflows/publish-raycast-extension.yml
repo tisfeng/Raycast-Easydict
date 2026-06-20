@@ -1,0 +1,159 @@
+name: Publish Raycast Extension
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish, for example v2.11.3"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  EXTENSION_NAME: easydict
+
+jobs:
+  publish:
+    name: Create Raycast Store PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        env:
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          tag="${EVENT_TAG:-$INPUT_TAG}"
+          if [[ -z "$tag" ]]; then
+            echo "Release tag is required." >&2
+            exit 1
+          fi
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must use vX.Y.Z format, got: $tag" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "branch=${EXTENSION_NAME}-${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate workflow configuration
+        shell: bash
+        env:
+          RAYCAST_EXTENSIONS_PAT: ${{ secrets.RAYCAST_EXTENSIONS_PAT }}
+          RAYCAST_EXTENSIONS_FORK: ${{ vars.RAYCAST_EXTENSIONS_FORK }}
+          RAYCAST_GITHUB_USERNAME: ${{ vars.RAYCAST_GITHUB_USERNAME }}
+        run: |
+          missing=0
+          if [[ -z "${RAYCAST_EXTENSIONS_PAT:-}" ]]; then
+            echo "Missing repository secret RAYCAST_EXTENSIONS_PAT." >&2
+            missing=1
+          fi
+          if [[ -z "${RAYCAST_EXTENSIONS_FORK:-}" ]]; then
+            echo "Missing repository variable RAYCAST_EXTENSIONS_FORK." >&2
+            missing=1
+          fi
+          if [[ -z "${RAYCAST_GITHUB_USERNAME:-}" ]]; then
+            echo "Missing repository variable RAYCAST_GITHUB_USERNAME." >&2
+            missing=1
+          fi
+          exit "$missing"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint extension
+        run: npm run lint:ci
+
+      - name: Build extension
+        run: npm run build:ci
+
+      - name: Check release metadata
+        run: npm run release:check -- "${{ steps.release.outputs.tag }}"
+
+      - name: Checkout raycast/extensions
+        shell: bash
+        run: git clone --depth 1 https://github.com/raycast/extensions.git "$RUNNER_TEMP/raycast-extensions"
+
+      - name: Copy extension into raycast/extensions
+        shell: bash
+        run: |
+          target="$RUNNER_TEMP/raycast-extensions/extensions/${EXTENSION_NAME}"
+          mkdir -p "$target"
+          rsync -a --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude "node_modules/" \
+            --exclude "dist/" \
+            --exclude ".DS_Store" \
+            --exclude ".idea/" \
+            --exclude ".vscode/" \
+            --exclude ".VSCodeCounter/" \
+            --exclude ".ipynb_checkpoints/" \
+            --exclude ".build/" \
+            --exclude ".swiftpm/" \
+            "$GITHUB_WORKSPACE/" \
+            "$target/"
+
+      - name: Create or update Raycast Store pull request
+        shell: bash
+        working-directory: ${{ runner.temp }}/raycast-extensions
+        env:
+          GH_TOKEN: ${{ secrets.RAYCAST_EXTENSIONS_PAT }}
+          RAYCAST_EXTENSIONS_PAT: ${{ secrets.RAYCAST_EXTENSIONS_PAT }}
+          RAYCAST_EXTENSIONS_FORK: ${{ vars.RAYCAST_EXTENSIONS_FORK }}
+          RAYCAST_GITHUB_USERNAME: ${{ vars.RAYCAST_GITHUB_USERNAME }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          BRANCH_NAME: ${{ steps.release.outputs.branch }}
+        run: |
+          if [[ -z "$(git status --porcelain -- "extensions/${EXTENSION_NAME}")" ]]; then
+            echo "No Raycast Store changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH_NAME"
+          git add -A "extensions/${EXTENSION_NAME}"
+          git commit -m "Update ${EXTENSION_NAME} to ${RELEASE_TAG}"
+
+          git remote add fork "https://x-access-token:${RAYCAST_EXTENSIONS_PAT}@github.com/${RAYCAST_EXTENSIONS_FORK}.git"
+          git push --force fork "$BRANCH_NAME"
+
+          body_file="$RUNNER_TEMP/raycast-pr-body.md"
+          {
+            echo "Automated Raycast Store sync for ${EXTENSION_NAME} ${RELEASE_TAG}."
+            echo
+            echo "Source release: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${RELEASE_TAG}"
+            echo
+            echo "Validation completed before opening this PR:"
+            echo "- npm run lint:ci"
+            echo "- npm run build:ci"
+            echo "- npm run release:check -- ${RELEASE_TAG}"
+          } > "$body_file"
+
+          existing_pr="$(gh pr list --repo raycast/extensions --head "${RAYCAST_GITHUB_USERNAME}:${BRANCH_NAME}" --json url --jq '.[0].url')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Raycast Store PR already exists: $existing_pr"
+            exit 0
+          fi
+
+          gh pr create \
+            --repo raycast/extensions \
+            --base main \
+            --head "${RAYCAST_GITHUB_USERNAME}:${BRANCH_NAME}" \
+            --title "Update ${EXTENSION_NAME} to ${RELEASE_TAG}" \
+            --body-file "$body_file"

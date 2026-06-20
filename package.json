@@ -93,12 +93,17 @@
   },
   "scripts": {
     "build": "ray build -e dist",
+    "build:ci": "ray build -e dist -I --exit-on-error --output dist",
     "build-swift": "swift build --configuration=release --arch arm64 --arch x86_64 && mv .build/apple/Products/Release/recognizeText assets",
     "dev": "ray develop",
     "lint": "ray lint",
+    "lint:ci": "ray lint -I --exit-on-error",
     "fix-lint": "ray lint --fix",
     "nano-staged": "nano-staged",
     "prepare": "husky",
+    "publish": "ray publish",
+    "pull-contributions": "ray pull-contributions",
+    "release:check": "node scripts/check-release-version.mjs",
     "eslint": "eslint src/** --fix --ext .ts,.tsx,.js,.jsx"
   },
   "overrides": {
