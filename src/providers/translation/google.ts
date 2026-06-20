@@ -29,8 +29,6 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
    * Another wild google translate api: http://translate.google.com/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=zh_TW&q=good
    */
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
-    logTrace("google", "start google web translate");
-
     const fromLanguageId = getLangCode(queryWordInfo.fromLanguage, "googleLangCode");
     const toLanguageId = getLangCode(queryWordInfo.toLanguage, "googleLangCode");
     const word = trimTextLength(queryWordInfo.word);
@@ -45,7 +43,7 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
       "User-Agent": userAgent,
     };
     const url = `https://translate.google.com/m?${querystring.stringify(data)}`;
-    logTrace("google", `web url: ${url}`);
+    logTrace(this.type, `web url: ${url}`);
 
     const html = await timedFetch(url, {
       headers,
@@ -57,7 +55,7 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
     const match = html.match(/<div class="result-container">(.*?)<\/div>/s);
     const translation = match?.[1]?.trim() ?? "";
     const translations = translation.split("\n");
-    logTrace("google", `web translation: ${translation}`);
+    logTrace(this.type, `web translation: ${translation}`);
 
     return {
       type: TranslationType.Google,

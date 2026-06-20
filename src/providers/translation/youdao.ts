@@ -12,6 +12,8 @@ import { logError, logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
+const TAG = "Youdao Translate";
+
 interface TranslateParams {
   keyid: string;
   client: string;
@@ -72,7 +74,7 @@ export class YoudaoTranslateProvider extends BaseTranslateProvider {
     const youdaoKey = await getYoudaoKey();
 
     if (!isValidLanguage) {
-      logWarn("youdaoTranslate", `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
+      logWarn(this.type, `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
       throw {
         type: TranslationType.Youdao,
         message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
@@ -84,7 +86,7 @@ export class YoudaoTranslateProvider extends BaseTranslateProvider {
     const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
       e.map((t) => t.tgt).join(""),
     );
-    logTrace("youdaoTranslate", `translate result: ${translations.join("\n")}`);
+    logTrace(this.type, `translate result: ${translations.join("\n")}`);
 
     return {
       type: TranslationType.Youdao,
@@ -199,7 +201,7 @@ function decryptAES(text: string, key: string, iv: string): string | null {
     const decrypted = decipher.update(text, "base64", "utf8") + decipher.final("utf8");
     return decrypted;
   } catch {
-    logError("youdaoTranslate", "decryption error");
+    logError(TAG, "decryption error");
     return null;
   }
 }

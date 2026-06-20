@@ -48,7 +48,9 @@ interface BingTransliteration {
   text: string;
 }
 
-logTrace("bing", "module loaded");
+const TAG = "Bing Translate";
+
+logTrace(TAG, "module loaded");
 
 const bingConfigKey = "BingConfig";
 let bingConfig: BingConfig | undefined;
@@ -72,21 +74,21 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";
 
     const isExpired = await checkIfBingTokenExpired();
-    logTrace("bing", `token expired: ${isExpired}`);
+    logTrace(this.type, `token expired: ${isExpired}`);
 
     if (isExpired) {
-      logTrace("bing", "token expired, request new one");
+      logTrace(this.type, "token expired, request new one");
       bingConfig = await requestBingConfig();
     } else {
       const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
       if (storedBingConfig) {
         bingConfig = JSON.parse(storedBingConfig) as BingConfig;
-        logTrace("bing", `use stored bingConfig, IG: ${bingConfig.IG}`);
+        logTrace(this.type, `use stored bingConfig, IG: ${bingConfig.IG}`);
       }
     }
 
     if (!bingConfig) {
-      logError("bing", "get bingConfig failed");
+      logError(this.type, "get bingConfig failed");
       throw new RequestError(TranslationType.Bing, "Get bing config failed");
     }
 
@@ -106,7 +108,7 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     const IIDString = `${IID}.${requestCount}`;
 
     const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
-    logTrace("bing", `url: ${url}`);
+    logTrace(this.type, `url: ${url}`);
 
     const { url: finalUrl, data: responseData } = await this.makeRequest(url, data, signal);
 
@@ -116,7 +118,7 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     if (!responseData) {
       if (bingHost !== newBingHost && retryCount < 3) {
         logWarn(
-          "bing",
+          this.type,
           `translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
         );
         retryCount++;
@@ -140,7 +142,7 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     const translations = bingTranslateResult.translations[0].text.split("\n");
     const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
     const toLangResult = bingTranslateResult.translations[0].to;
-    logTrace("bing", `translate: ${translations}, from: ${detectedLanguage} -> ${toLangResult}`);
+    logTrace(this.type, `translate: ${translations}, from: ${detectedLanguage} -> ${toLangResult}`);
 
     return {
       type: TranslationType.Bing,
@@ -168,13 +170,13 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     const finalUrl = response.url;
 
-    logTrace("bing", `finalUrl: ${finalUrl}`);
+    logTrace(this.type, `finalUrl: ${finalUrl}`);
 
     // Handle redirect manually - POST body needs to be resent
     if (response.status >= 300 && response.status < 400) {
       const redirectUrl = response.headers.get("location");
       if (redirectUrl) {
-        logTrace("bing", `redirect to: ${redirectUrl}`);
+        logTrace(this.type, `redirect to: ${redirectUrl}`);
         return this.makeRequest(redirectUrl, data, signal);
       }
     }
@@ -189,11 +191,11 @@ export class BingTranslateProvider extends BaseTranslateProvider {
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
 async function requestBingConfig(): Promise<BingConfig | undefined> {
-  logTrace("bing", "start requestBingConfig");
-  logTrace("bing", `config bingTld: ${bingHost}`);
+  logTrace(TAG, "start requestBingConfig");
+  logTrace(TAG, `config bingTld: ${bingHost}`);
 
   const url = `https://${bingHost}/translator`;
-  logTrace("bing", `get config url: ${url}`);
+  logTrace(TAG, `get config url: ${url}`);
 
   const response = await timedFetch.raw(url, {
     headers: { "User-Agent": userAgent },
@@ -205,17 +207,17 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
 
   if (config) {
     bingConfig = config;
-    logTrace("bing", `getBingConfig from web, IG: ${config.IG}`);
+    logTrace(TAG, `getBingConfig from web, IG: ${config.IG}`);
     LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
     return config;
   } else {
-    logWarn("bing", `parse config failed, html: ${html}`);
-    logTrace("bing", "try check if ip in china");
+    logWarn(TAG, `parse config failed, html: ${html}`);
+    logTrace(TAG, "try check if ip in china");
 
     const finalUrl = response.url;
     bingHost = new URL(finalUrl).host;
 
-    logWarn("bing", `get config failed, host: ${bingHost}, change host, then request again`);
+    logWarn(TAG, `get config failed, host: ${bingHost}, change host, then request again`);
     try {
       return await requestBingConfig();
     } catch {
@@ -256,7 +258,7 @@ function parseBingConfig(html: string): BingConfig | undefined {
  * Check if token expired, if expired, get a new one. else use the stored one as bingConfig.
  */
 async function checkIfBingTokenExpired(): Promise<boolean> {
-  logTrace("bing", "check if token expired");
+  logTrace(TAG, "check if token expired");
   const value = await LocalStorage.getItem<string>(bingConfigKey);
   if (!value) {
     requestBingConfig();
@@ -271,7 +273,7 @@ async function checkIfBingTokenExpired(): Promise<boolean> {
   const tokenUsedTime = Date.now() - tokenStartTime;
   const isExpired = tokenUsedTime > expiration;
   if (isExpired) {
-    logTrace("bing", "token expired, request new one");
+    logTrace(TAG, "token expired, request new one");
     requestBingConfig();
   } else {
     bingConfig = config;

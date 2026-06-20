@@ -33,12 +33,11 @@ export class AppleTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Apple;
 
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
-    logTrace("apple", "start Apple translate");
     const { word, fromLanguage, toLanguage } = queryWordInfo;
     const type = TranslationType.Apple;
 
     if (process.platform !== "darwin") {
-      logWarn("apple", "Apple Translate is only supported on macOS.");
+      logWarn(this.type, "Apple Translate is only supported on macOS.");
       return { type, queryWordInfo, translations: [], result: undefined };
     }
 
@@ -46,12 +45,12 @@ export class AppleTranslateProvider extends BaseTranslateProvider {
     const appleToLanguageId = getLangCode(toLanguage, "appleLangCode");
 
     if (!appleFromLanguageId || !appleToLanguageId) {
-      logWarn("apple", `language not support: ${fromLanguage} -> ${toLanguage}`);
+      logWarn(this.type, `language not support: ${fromLanguage} -> ${toLanguage}`);
       return { type, queryWordInfo, translations: [], result: undefined };
     }
 
     if (appleFromLanguageId === "auto") {
-      logWarn("apple", `auto detect not supported for this language: ${word}`);
+      logWarn(this.type, `auto detect not supported for this language: ${word}`);
       return { type, queryWordInfo, translations: [], result: undefined };
     }
 
@@ -64,7 +63,7 @@ export class AppleTranslateProvider extends BaseTranslateProvider {
     const queryString = querystring.stringify(Object.fromEntries(map.entries()));
     const appleScript = getShortcutsScript("Easydict-Translate-V1.2.0", queryString);
 
-    logTrace("apple", "before exec appleScript");
+    logTrace(this.type, "before exec appleScript");
 
     const translatedText = await runAppleScript(appleScript, { timeout: execCommandTimeout, signal });
     const trimmed = translatedText.trim();

@@ -44,7 +44,7 @@ export class TencentTranslateProvider extends BaseTranslateProvider {
     const to = getLangCode(toLanguage, "tencentLangCode");
 
     if (!from || !to) {
-      logWarn("tencent", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
+      logWarn(this.type, `translate not support language: ${fromLanguage} --> ${toLanguage}`);
       return {
         type: TranslationType.Tencent,
         result: undefined,
@@ -148,13 +148,13 @@ export class TencentTranslateProvider extends BaseTranslateProvider {
 
     const error = tencentResult.Error;
     if (error) {
-      logError("tencent", `translate error: ${error.Message}`);
+      logError(this.type, `translate error: ${error.Message}`);
       throw new RequestError(TranslationType.Tencent, error.Message);
     }
 
     const targetText = tencentResult.TargetText || "";
     const translations = targetText.split("\n");
-    logTrace("tencent", `translations: ${translations}, ${tencentResult.Source}`);
+    logTrace(this.type, `translations: ${translations}, ${tencentResult.Source}`);
 
     return {
       type: TranslationType.Tencent,

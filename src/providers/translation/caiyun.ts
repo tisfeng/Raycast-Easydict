@@ -24,7 +24,6 @@ export class CaiyunTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Caiyun;
 
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
-    logTrace("caiyun", "start request Caiyun");
     const { fromLanguage, toLanguage, word } = queryWordInfo;
 
     const url = "https://api.interpreter.caiyunai.com/v1/translator";
@@ -37,7 +36,7 @@ export class CaiyunTranslateProvider extends BaseTranslateProvider {
     // Note that Caiyun Translate only supports these types of translation at present.
     const supportedTranslatType = ["zh2en", "zh2ja", "en2zh", "ja2zh"];
     if (!supportedTranslatType.includes(trans_type)) {
-      logTrace("caiyun", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
+      logTrace(this.type, `translate not support language: ${fromLanguage} --> ${toLanguage}`);
       return {
         type,
         result: undefined,
@@ -64,7 +63,7 @@ export class CaiyunTranslateProvider extends BaseTranslateProvider {
     });
 
     const translations = caiyunResult.target;
-    logTrace("caiyun", `translate: ${translations}`);
+    logTrace(this.type, `translate: ${translations}`);
 
     return {
       type,

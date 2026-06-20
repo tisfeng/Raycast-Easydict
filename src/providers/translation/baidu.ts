@@ -44,7 +44,7 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
     const to = getLangCode(toLanguage, "baiduLangCode");
 
     if (!from || !to) {
-      logWarn("baidu", `translate not support language: ${fromLanguage} to ${toLanguage}`);
+      logWarn(this.type, `translate not support language: ${fromLanguage} to ${toLanguage}`);
       return {
         type: TranslationType.Baidu,
         result: undefined,
@@ -74,7 +74,7 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
 
     if (baiduResult.trans_result) {
       const translations = baiduResult.trans_result.map((item) => item.dst);
-      logTrace("baidu", `translate: ${translations}, ${baiduResult.from}`);
+      logTrace(this.type, `translate: ${translations}, ${baiduResult.from}`);
       return {
         type: TranslationType.Baidu,
         result: baiduResult,
@@ -83,7 +83,7 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
       };
     }
 
-    logError("baidu", `translate error: ${JSON.stringify(baiduResult)}`);
+    logError(this.type, `translate error: ${JSON.stringify(baiduResult)}`);
     throw new RequestError(TranslationType.Baidu, baiduResult.error_msg || "", baiduResult.error_code || "");
   }
 }

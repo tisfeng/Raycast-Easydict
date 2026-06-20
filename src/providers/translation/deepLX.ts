@@ -20,13 +20,12 @@ export class DeepLXTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.DeepLX;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
-    logTrace("deeplx", "start request DeepLX");
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
     const targetLang = getLangCode(toLanguage, "deepLSourceId");
 
     if (!sourceLang || !targetLang) {
-      logTrace("deeplx", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
+      logTrace(this.type, `translate not support language: ${fromLanguage} --> ${toLanguage}`);
       return {
         type: TranslationType.DeepLX,
         result: undefined,
@@ -36,7 +35,7 @@ export class DeepLXTranslateProvider extends BaseTranslateProvider {
     }
 
     const translatedText = await translate(word, targetLang as TargetLanguage, sourceLang as TargetLanguage);
-    logTrace("deeplx", `translate: ${translatedText}`);
+    logTrace(this.type, `translate: ${translatedText}`);
 
     // Create a result object similar to DeepL API structure
     const deepLXResult = {

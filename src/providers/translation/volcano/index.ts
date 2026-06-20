@@ -44,7 +44,9 @@ interface VolcanoDetectedLanguageList {
   Confidence: number;
 }
 
-logTrace("volcano", "module loaded");
+const TAG = "Volcano Translate";
+
+logTrace(TAG, "module loaded");
 
 /**
  * Volcengine Translate API.
@@ -72,7 +74,7 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
 
     const signObject = genVolcanoSign(query, params);
     if (!signObject) {
-      logWarn("volcano", "AccessKey or SecretKey is empty");
+      logWarn(this.type, "AccessKey or SecretKey is empty");
       throw new RequestError(TranslationType.Volcano, "Volcano AccessKey or SecretKey is empty", "");
     }
 
@@ -86,13 +88,13 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
       signal,
     });
 
-    logTrace("volcano", `translate result: ${JSON.stringify(volcanoResult)}`);
-    logTrace("volcano", `response metadata: ${JSON.stringify(volcanoResult.ResponseMetadata)}`);
+    logTrace(this.type, `translate result: ${JSON.stringify(volcanoResult)}`);
+    logTrace(this.type, `response metadata: ${JSON.stringify(volcanoResult.ResponseMetadata)}`);
 
     const volcanoError = volcanoResult.ResponseMetadata?.Error;
 
     if (volcanoError) {
-      logError("volcano", `translate error: ${JSON.stringify(volcanoResult)}`);
+      logError(this.type, `translate error: ${JSON.stringify(volcanoResult)}`);
       throw new RequestError(TranslationType.Volcano, volcanoError.Message || "", volcanoError.Code || "");
     }
 
@@ -101,7 +103,7 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
     }
 
     const translations = volcanoResult.TranslationList[0].Translation.split("\n");
-    logTrace("volcano", `Translate: ${translations}`);
+    logTrace(this.type, `Translate: ${translations}`);
 
     return {
       type: TranslationType.Volcano,

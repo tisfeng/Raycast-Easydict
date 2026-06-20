@@ -37,7 +37,7 @@ export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslate
 
     // if language is not supported, return null
     if (!sourceLang || !targetLang) {
-      logTrace("deepl", `translate not support language: ${fromLanguage} --> ${toLanguage}`);
+      logTrace(this.type, `translate not support language: ${fromLanguage} --> ${toLanguage}`);
       return {
         type: TranslationType.DeepL,
         result: undefined,
@@ -91,7 +91,7 @@ export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslate
     }
 
     const translatedText = deepLResult.translations[0].text;
-    logTrace("deepl", `translate: ${translatedText}`);
+    logTrace(this.type, `translate: ${translatedText}`);
 
     return {
       type: TranslationType.DeepL,
