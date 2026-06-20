@@ -21,7 +21,7 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider {
 
   protected async doQuery(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
     const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
-    logTrace("linguee", `url: ${lingueeUrl}`);
+    logTrace(this.type, `url: ${lingueeUrl}`);
 
     if (!lingueeUrl) {
       return {
