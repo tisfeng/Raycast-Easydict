@@ -22,7 +22,9 @@ export abstract class BaseDictionaryProvider<T = unknown> {
   public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>> => {
     logTrace(this.type, `start request ${this.type}`);
     try {
-      return await this.doQuery(queryWordInfo, options);
+      const result = await this.doQuery(queryWordInfo, options);
+      logTrace(this.type, "finish request");
+      return result;
     } catch (error) {
       const { name, message } = normalizeError(error);
       if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {

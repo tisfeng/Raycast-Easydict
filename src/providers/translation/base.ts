@@ -34,7 +34,9 @@ export abstract class BaseTranslateProvider<T = unknown> {
         return yield* response as AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
       }
       // Legacy Promise path: await and yield the single final result
-      return await (response as Promise<QueryTypeResult<T>>);
+      const result = await (response as Promise<QueryTypeResult<T>>);
+      logTrace(this.type, "finish request");
+      return result;
     } catch (error) {
       const { name, message } = normalizeError(error);
       if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {

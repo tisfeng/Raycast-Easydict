@@ -23,7 +23,9 @@ export abstract class BaseDetectProvider<T = unknown> {
   public detect = async (text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>> => {
     logTrace(this.type, `start detect ${this.type}`);
     try {
-      return await this.doDetect(text, options);
+      const result = await this.doDetect(text, options);
+      logTrace(this.type, "finish detect");
+      return result;
     } catch (error) {
       const { name, message } = normalizeError(error);
       if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
