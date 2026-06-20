@@ -24,14 +24,12 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
   }
 
   protected async doDetect(text: string) {
-    logTrace("volcano", "start VolcanoDetectProvider.doDetect");
-
     const query = { Action: "LangDetect", Version: "2020-06-01" };
     const params = { TextList: [text] };
 
     const signObject = genVolcanoSign(query, params);
     if (!signObject) {
-      logWarn("volcano", "AccessKey or SecretKey is empty");
+      logWarn(this.type, "AccessKey or SecretKey is empty");
       return {
         type: LanguageDetectType.Volcano,
         sourceLangCode: "",
@@ -52,7 +50,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
 
     const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
     if (volcanoError) {
-      logError("volcano", `detect error: ${JSON.stringify(volcanoDetectResult)}`);
+      logError(this.type, `detect error: ${JSON.stringify(volcanoDetectResult)}`);
       throw new RequestError(LanguageDetectType.Volcano, volcanoError.Message || "", volcanoError.Code || "");
     }
 
@@ -60,7 +58,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
     const volcanoLangCode = detectedLanguage.Language;
     const youdaoLangCode = getYoudaoLangCode(volcanoLangCode, volcanoMap);
     const isConfirmed = detectedLanguage.Confidence > 0.5;
-    logTrace("volcano", `detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
+    logTrace(this.type, `detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
 
     return {
       type: LanguageDetectType.Volcano,

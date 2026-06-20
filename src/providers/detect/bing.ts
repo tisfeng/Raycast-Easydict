@@ -39,8 +39,6 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
   }
 
   protected async doDetect(text: string) {
-    logTrace("bing", "start BingDetectProvider.doDetect");
-
     const isExpired = await checkIfBingTokenExpired();
     if (isExpired) {
       bingConfig = await requestBingConfig();
@@ -100,7 +98,7 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
 
     const detectedLanguageCode = bingResult.detectedLanguage.language;
     const youdaoLangCode = getYoudaoLangCode(detectedLanguageCode, bingMap);
-    logTrace("bing", `detected: ${detectedLanguageCode}`);
+    logTrace(this.type, `detected: ${detectedLanguageCode}`);
 
     return {
       type: LanguageDetectType.Bing,

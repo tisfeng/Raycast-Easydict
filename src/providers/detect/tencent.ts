@@ -33,15 +33,13 @@ export class TencentDetectProvider extends BaseDetectProvider {
     const hasId = !!ProviderConfig.tencentSecretId;
     const hasKey = !!ProviderConfig.tencentSecretKey;
     if (!hasId || !hasKey) {
-      logWarn("tencent", "detect has no app key");
+      logWarn(this.type, "detect has no app key");
       return false;
     }
     return true;
   }
 
   protected async doDetect(text: string) {
-    logTrace("tencent", "start TencentDetectProvider.doDetect");
-
     const startTime = new Date().getTime();
     const params = { Text: text, ProjectId: projectId };
 
@@ -52,7 +50,7 @@ export class TencentDetectProvider extends BaseDetectProvider {
     const endTime = new Date().getTime();
     const tencentLanguageId = response.Lang || "";
     const youdaoLanguageId = getYoudaoLangCode(tencentLanguageId, tencentDetectMap);
-    logTrace("tencent", `detected: ${tencentLanguageId}, cost: ${endTime - startTime}ms`);
+    logTrace(this.type, `detected: ${tencentLanguageId}, cost: ${endTime - startTime}ms`);
 
     return {
       type: LanguageDetectType.Tencent,

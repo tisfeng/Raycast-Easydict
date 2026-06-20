@@ -25,8 +25,6 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
   }
 
   protected async doDetect(text: string) {
-    logTrace("baidu", "start BaiduDetectProvider.doDetect");
-
     const url = "https://fanyi.baidu.com/langdetect";
     const params = { query: text };
 
@@ -42,7 +40,7 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
       const baiduLanguageId = response.lan || "";
       const youdaoLanguageId = getYoudaoLangCode(baiduLanguageId, baiduMap);
       const isConfirmed = isValidLangCode(youdaoLanguageId);
-      logTrace("baidu", `detected: ${baiduLanguageId}`);
+      logTrace(this.type, `detected: ${baiduLanguageId}`);
 
       return {
         type: LanguageDetectType.Baidu,
@@ -58,7 +56,7 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
       response.msg || "",
       response.error ? response.error.toString() : "",
     );
-    logError("baidu", `web detect error: ${JSON.stringify(response)}`);
+    logError(this.type, `web detect error: ${JSON.stringify(response)}`);
     throw errorInfo;
   }
 }
