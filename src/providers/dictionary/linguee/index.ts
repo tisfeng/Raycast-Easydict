@@ -34,13 +34,17 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider {
       };
     }
 
-    const response = await timedFetch.native(lingueeUrl, {
+    const response = await timedFetch.raw(lingueeUrl, {
       headers: { "User-Agent": userAgent },
       signal,
+      responseType: "arrayBuffer",
     });
 
     const contentType = response.headers.get("content-type");
-    const arrayBuffer = await response.arrayBuffer();
+    const arrayBuffer = response._data;
+    if (!arrayBuffer) {
+      throw new Error("No data received from Linguee");
+    }
     const data = Buffer.from(arrayBuffer);
     const html = data.toString(
       typeof contentType === "string" && contentType.includes("iso-8859-15") ? "latin1" : "utf-8",
