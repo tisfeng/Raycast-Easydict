@@ -2,7 +2,7 @@
 
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/types/api";
-import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
+import { CancelledError, normalizeError, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 /**
@@ -25,15 +25,12 @@ export abstract class BaseDetectProvider<T = unknown> {
     try {
       return await this.doDetect(text, options);
     } catch (error) {
-      if (
-        error instanceof CancelledError ||
-        getErrorName(error) === "AbortError" ||
-        getErrorMessage(error) === "canceled"
-      ) {
+      const { name, message } = normalizeError(error);
+      if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
         logTrace(this.type, "canceled");
         throw new CancelledError();
       }
-      logError(this.type, `detect error: ${getErrorMessage(error)}`);
+      logError(this.type, `detect error: ${message}`);
       if (error instanceof RequestError) {
         throw error;
       }

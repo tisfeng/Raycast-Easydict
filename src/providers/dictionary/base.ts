@@ -2,7 +2,7 @@
 
 import type { DictionaryType } from "@/types/api";
 import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
-import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
+import { CancelledError, normalizeError, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 /**
@@ -24,15 +24,12 @@ export abstract class BaseDictionaryProvider<T = unknown> {
     try {
       return await this.doQuery(queryWordInfo, options);
     } catch (error) {
-      if (
-        error instanceof CancelledError ||
-        getErrorName(error) === "AbortError" ||
-        getErrorMessage(error) === "canceled"
-      ) {
+      const { name, message } = normalizeError(error);
+      if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
         logTrace(this.type, "canceled");
         throw new CancelledError();
       }
-      logError(this.type, `dictionary error: ${getErrorMessage(error)}`);
+      logError(this.type, `dictionary error: ${message}`);
       if (error instanceof RequestError) {
         throw error;
       }

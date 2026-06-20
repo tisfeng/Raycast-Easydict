@@ -2,7 +2,7 @@
 
 import type { RequestType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
-import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
+import { CancelledError, normalizeError, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 export type ProviderResult<T = unknown> =
@@ -36,15 +36,12 @@ export abstract class BaseTranslateProvider<T = unknown> {
       // Legacy Promise path: await and yield the single final result
       return await (response as Promise<QueryTypeResult<T>>);
     } catch (error) {
-      if (
-        error instanceof CancelledError ||
-        getErrorName(error) === "AbortError" ||
-        getErrorMessage(error) === "canceled"
-      ) {
+      const { name, message } = normalizeError(error);
+      if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
         logTrace(this.type, "canceled");
         throw new CancelledError();
       }
-      logError(this.type, `translate error: ${getErrorMessage(error)}`);
+      logError(this.type, `translate error: ${message}`);
       // If doTranslate already threw a RequestError (e.g. with custom message), use it directly
       if (error instanceof RequestError) throw error;
       throw parseRequestError(this.type, error);
