@@ -11,7 +11,7 @@ import { logTrace } from "@/utils/logger";
  */
 export function checkIfPreferredLanguagesConflict() {
   if (config.preferredLanguage1.youdaoLangCode === config.preferredLanguage2.youdaoLangCode) {
-    logTrace("components", "preferredLanguage1 and preferredLanguage2 are the same language");
+    logTrace("LanguageConflictError", "preferredLanguage1 and preferredLanguage2 are the same language");
     return (
       <List searchBarPlaceholder="Error">
         <List.Item

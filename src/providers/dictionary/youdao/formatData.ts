@@ -19,8 +19,6 @@ import type {
 } from "./types";
 import { YoudaoDictionaryListItemType } from "./types";
 
-const TAG = "YoudaoFormatData";
-
 /**
  * Compute detailsMarkdown for a Youdao dictionary list item.
  *
@@ -84,13 +82,13 @@ export function updateYoudaoDictionaryDisplay(
   const modernChineseDict = youdaoResult.modernChineseDict;
   const modernChineseDictType = YoudaoDictionaryListItemType.ModernChineseDict;
 
-  logTrace(TAG, "Modern Chinese dictionary");
+  logTrace("YoudaoFormatData", "Modern Chinese dictionary");
 
   if (modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
     modernChineseDict.forEach((phoneticDict) => {
       const placeholder = `~`;
-      logTrace(TAG, `forms: ${JSON.stringify(phoneticDict, null, 4)}`);
+      logTrace("YoudaoFormatData", `forms: ${JSON.stringify(phoneticDict, null, 4)}`);
       const pinyin = phoneticDict.pinyin ? `${phoneticDict.pinyin}` : "";
       const accessoryItem = translationItem.accessoryItem;
       if (pinyin && accessoryItem && !accessoryItem.phonetic) {
@@ -102,7 +100,7 @@ export function updateYoudaoDictionaryDisplay(
         const senseGroups: Sense[][] = [];
 
         const copyFormsSense = JSON.parse(JSON.stringify(phoneticDict.sense)) as Sense[];
-        logTrace(TAG, `copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
+        logTrace("YoudaoFormatData", `copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
 
         // * group senses by category
         let group: Sense[] = [];
@@ -123,12 +121,12 @@ export function updateYoudaoDictionaryDisplay(
           }
         }
         senseGroups.push(group);
-        logTrace(TAG, `senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
+        logTrace("YoudaoFormatData", `senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
 
         let markdown = pinyin;
         let subtitle = "";
         senseGroups.forEach((groups) => {
-          logTrace(TAG, `group: ${JSON.stringify(groups, null, 4)}`);
+          logTrace("YoudaoFormatData", `group: ${JSON.stringify(groups, null, 4)}`);
 
           const firstGroup = groups[0];
           const cat = firstGroup.cat;
@@ -150,8 +148,8 @@ export function updateYoudaoDictionaryDisplay(
 
         const title = pinyin ? `${pinyin}` : "";
         const copyText = `${title}  ${subtitle}`;
-        logTrace(TAG, `markdown: ${markdown}`);
-        logTrace(TAG, `copyText: ${copyText}`);
+        logTrace("YoudaoFormatData", `markdown: ${markdown}`);
+        logTrace("YoudaoFormatData", `copyText: ${copyText}`);
 
         const displayItem: ListDisplayItem = {
           displayCategory: "dictionary",
@@ -338,7 +336,7 @@ export function updateYoudaoDictionaryDisplay(
     return displaySections;
   }
 
-  logTrace(TAG, "only one translation section, not showing dictionary sections");
+  logTrace("YoudaoFormatData", "only one translation section, not showing dictionary sections");
 }
 
 /**
@@ -444,7 +442,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     // Word audio: https://dict.youdao.com/dictvoice?audio=good&type=2
     const usspeech = wordItem?.usspeech; // "good&type=2"
     const audioUrl = usspeech ? `https://dict.youdao.com/dictvoice?audio=${usspeech}` : undefined;
-    logTrace(TAG, `${input}, audioUrl: ${audioUrl}`);
+    logTrace("YoudaoFormatData", `${input}, audioUrl: ${audioUrl}`);
 
     explanations.length = 0;
     const trs = wordItem?.trs;
@@ -606,7 +604,7 @@ function removeExamplesHtmlTag(examples: string[] | undefined): string[] {
 function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n", tag?: number): string {
   let markdown = "";
   senseList.forEach((senseItem, i) => {
-    logTrace(TAG, `senseItem: ${JSON.stringify(senseItem, null, 4)}`);
+    logTrace("YoudaoFormatData", `senseItem: ${JSON.stringify(senseItem, null, 4)}`);
     let defExampleText = preText;
     const tagText = tag ? `${tag}.` : "";
     defExampleText += tagText;
@@ -625,7 +623,7 @@ function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n
     if (!defText.length && senseItem.subsense?.length) {
       defText = ` ${word}`;
     }
-    logTrace(TAG, `defText: ${defText}`);
+    logTrace("YoudaoFormatData", `defText: ${defText}`);
 
     const example = examples?.map((item) => `\`${item}\``).join("/");
     const exampleText = example ? `：${example}  ` : "";
@@ -634,11 +632,11 @@ function getDefExampleMarkdown(senseList: Sense[], word: string, preText = "\n\n
       defExampleText += `${i + 1}.${defText}${exampleText}`;
     }
 
-    logTrace(TAG, `defExampleText: ${defExampleText}`);
+    logTrace("YoudaoFormatData", `defExampleText: ${defExampleText}`);
     const subsensesList = senseItem.subsense;
     if (subsensesList?.length) {
       const subsenseDefExampleText = getDefExampleMarkdown(subsensesList, word, "\n", i + 1);
-      logTrace(TAG, `subsenseDefExampleText: ${subsenseDefExampleText}`);
+      logTrace("YoudaoFormatData", `subsenseDefExampleText: ${subsenseDefExampleText}`);
       defExampleText += "  " + subsenseDefExampleText + "";
     }
 

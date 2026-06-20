@@ -20,7 +20,7 @@ import { getQueryTypeIcon, playSoundIconBlack } from "./Icons";
 const openInEudic = (queryText: string) => {
   const url = `eudic://dict/${queryText}`;
   open(url).catch((error) => {
-    logError("scripts", `open in eudic error: ${error}`);
+    logError("ActionPanel", `open in eudic error: ${error}`);
     showFailureToast(String(error), {
       title: "Eudic is not installed.",
     });
@@ -125,7 +125,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
           icon={playSoundIconBlack}
           shortcut={shortcuts.playText}
           onAction={() => {
-            logTrace("components", `start play sound: ${word}`);
+            logTrace("ActionPanel", `start play sound: ${word}`);
             playQueryWordAudio(queryWordInfo);
           }}
         />
@@ -187,7 +187,7 @@ function CopyTextAction(props: { copyText: string }) {
   return (
     <Action.CopyToClipboard
       onCopy={() => {
-        logTrace("components", `copy: ${copyText}`);
+        logTrace("ActionPanel", `copy: ${copyText}`);
       }}
       title={`Copy Text`}
       content={copyText}

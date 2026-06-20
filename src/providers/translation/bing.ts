@@ -48,9 +48,7 @@ interface BingTransliteration {
   text: string;
 }
 
-const TAG = "Bing Translate";
-
-logTrace(TAG, "module loaded");
+logTrace("Bing Translate", "module loaded");
 
 const bingConfigKey = "BingConfig";
 let bingConfig: BingConfig | undefined;
@@ -191,11 +189,11 @@ export class BingTranslateProvider extends BaseTranslateProvider {
  * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
  */
 async function requestBingConfig(): Promise<BingConfig | undefined> {
-  logTrace(TAG, "start requestBingConfig");
-  logTrace(TAG, `config bingTld: ${bingHost}`);
+  logTrace("Bing Translate", "start requestBingConfig");
+  logTrace("Bing Translate", `config bingTld: ${bingHost}`);
 
   const url = `https://${bingHost}/translator`;
-  logTrace(TAG, `get config url: ${url}`);
+  logTrace("Bing Translate", `get config url: ${url}`);
 
   const response = await timedFetch.raw(url, {
     headers: { "User-Agent": userAgent },
@@ -207,17 +205,17 @@ async function requestBingConfig(): Promise<BingConfig | undefined> {
 
   if (config) {
     bingConfig = config;
-    logTrace(TAG, `getBingConfig from web, IG: ${config.IG}`);
+    logTrace("Bing Translate", `getBingConfig from web, IG: ${config.IG}`);
     LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
     return config;
   } else {
-    logWarn(TAG, `parse config failed, html: ${html}`);
-    logTrace(TAG, "try check if ip in china");
+    logWarn("Bing Translate", `parse config failed, html: ${html}`);
+    logTrace("Bing Translate", "try check if ip in china");
 
     const finalUrl = response.url;
     bingHost = new URL(finalUrl).host;
 
-    logWarn(TAG, `get config failed, host: ${bingHost}, change host, then request again`);
+    logWarn("Bing Translate", `get config failed, host: ${bingHost}, change host, then request again`);
     try {
       return await requestBingConfig();
     } catch {
@@ -258,7 +256,7 @@ function parseBingConfig(html: string): BingConfig | undefined {
  * Check if token expired, if expired, get a new one. else use the stored one as bingConfig.
  */
 async function checkIfBingTokenExpired(): Promise<boolean> {
-  logTrace(TAG, "check if token expired");
+  logTrace("Bing Translate", "check if token expired");
   const value = await LocalStorage.getItem<string>(bingConfigKey);
   if (!value) {
     requestBingConfig();
@@ -273,7 +271,7 @@ async function checkIfBingTokenExpired(): Promise<boolean> {
   const tokenUsedTime = Date.now() - tokenStartTime;
   const isExpired = tokenUsedTime > expiration;
   if (isExpired) {
-    logTrace(TAG, "token expired, request new one");
+    logTrace("Bing Translate", "token expired, request new one");
     requestBingConfig();
   } else {
     bingConfig = config;

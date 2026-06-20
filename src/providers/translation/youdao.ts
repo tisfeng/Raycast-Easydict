@@ -12,8 +12,6 @@ import { logError, logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
-const TAG = "Youdao Translate";
-
 interface TranslateParams {
   keyid: string;
   client: string;
@@ -201,7 +199,7 @@ function decryptAES(text: string, key: string, iv: string): string | null {
     const decrypted = decipher.update(text, "base64", "utf8") + decipher.final("utf8");
     return decrypted;
   } catch {
-    logError(TAG, "decryption error");
+    logError("Youdao Translate", "decryption error");
     return null;
   }
 }

@@ -61,12 +61,12 @@ export async function playWordAudio(
   const audioPath = getWordAudioPath(word);
 
   if (!fs.existsSync(audioPath)) {
-    logTrace("audio", `file not found: ${word}, fallback to TTS directly`);
+    logTrace("AudioPlayer", `file not found: ${word}, fallback to TTS directly`);
     await playTTS(word, fromLanguage, { truncate: true, signal });
     return;
   }
 
-  logTrace("audio", `play: ${path.basename(audioPath)}`);
+  logTrace("AudioPlayer", `play: ${path.basename(audioPath)}`);
 
   try {
     if (process.platform === "win32") {
@@ -79,10 +79,10 @@ export async function playWordAudio(
       return;
     }
 
-    logWarn("audio", `unsupported platform: ${process.platform}`);
+    logWarn("AudioPlayer", `unsupported platform: ${process.platform}`);
   } catch (err) {
     if (signal?.aborted) return;
-    logError("audio", `play file failed: ${err}, fallback to TTS`);
+    logError("AudioPlayer", `play file failed: ${err}, fallback to TTS`);
     await playTTS(word, fromLanguage, { truncate: true, signal });
   }
 }

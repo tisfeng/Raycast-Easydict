@@ -44,9 +44,7 @@ interface VolcanoDetectedLanguageList {
   Confidence: number;
 }
 
-const TAG = "Volcano Translate";
-
-logTrace(TAG, "module loaded");
+logTrace("Volcano Translate", "module loaded");
 
 /**
  * Volcengine Translate API.

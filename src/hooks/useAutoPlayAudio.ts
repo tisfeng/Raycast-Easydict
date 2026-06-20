@@ -47,7 +47,7 @@ export function useAutoPlayAudio(
         myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;
 
       if (enableAutomaticDownloadAudio && isCurrentQueryRef.current && !hasPlayedAudioRef.current) {
-        logTrace("useAutoPlayAudio", `playing audio for: ${wordInfo.word}`);
+        logTrace("UseAutoPlayAudio", `playing audio for: ${wordInfo.word}`);
         playQueryWordAudio(wordInfo, { signal: abortControllerRef.current?.signal });
         hasPlayedAudioRef.current = true;
         break;

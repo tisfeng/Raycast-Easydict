@@ -37,15 +37,15 @@ async function convertWavToM4a(wavPath: string, m4aPath: string): Promise<string
     return undefined;
   }
 
-  logTrace("audio", "converting wav→m4a");
+  logTrace("AudioDownloader", "converting wav→m4a");
 
   try {
     await x("afconvert", ["-f", "m4af", "-d", "aac", wavPath, m4aPath], { throwOnError: true });
     fs.unlinkSync(wavPath);
-    logTrace("audio", "conversion complete");
+    logTrace("AudioDownloader", "conversion complete");
     return m4aPath;
   } catch {
-    logError("audio", "conversion failed");
+    logError("AudioDownloader", "conversion failed");
     return undefined;
   }
 }
@@ -62,11 +62,11 @@ export async function downloadAudio(
 ): Promise<void> {
   const { forceDownload = false, signal } = options || {};
   if (fs.existsSync(audioPath) && !forceDownload) {
-    logTrace("audio", `cached: ${audioPath}`);
+    logTrace("AudioDownloader", `cached: ${audioPath}`);
     return;
   }
 
-  logTrace("audio", `downloading: ${audioPath}`);
+  logTrace("AudioDownloader", `downloading: ${audioPath}`);
 
   try {
     const blob = await timedFetch(url, { responseType: "blob", signal });
@@ -88,11 +88,11 @@ export async function downloadAudio(
     }
   } catch (error) {
     if (error instanceof Error && (error.message === "canceled" || error.name === "AbortError")) {
-      logTrace("audio", "download canceled");
+      logTrace("AudioDownloader", "download canceled");
       return;
     }
 
-    logError("audio", "download failed");
+    logError("AudioDownloader", "download failed");
   }
 }
 
@@ -104,7 +104,7 @@ export async function downloadWordAudioWithURL(
   url: string,
   options?: { forceDownload?: boolean; signal?: AbortSignal },
 ): Promise<void> {
-  logTrace("audio", `download: ${word}`);
+  logTrace("AudioDownloader", `download: ${word}`);
   const audioPath = getWordAudioPath(word);
   await downloadAudio(url, audioPath, options);
 }

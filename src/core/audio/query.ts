@@ -27,7 +27,7 @@ async function downloadQueryWordAudio(
   ) {
     await downloadTTSWordAudio(queryWordInfo.word, signal);
   } else {
-    logTrace("audio", "use say command to play directly");
+    logTrace("AudioQuery", "use say command to play directly");
   }
 }
 
@@ -36,7 +36,7 @@ async function downloadQueryWordAudio(
  */
 async function downloadTTSWordAudio(word: string, signal?: AbortSignal): Promise<void> {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
-  logTrace("audio", `download english word audio: ${word}`);
+  logTrace("AudioQuery", `download english word audio: ${word}`);
   const audioPath = getWordAudioPath(word);
   await downloadAudio(url, audioPath, { signal });
 }

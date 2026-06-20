@@ -224,6 +224,6 @@ export function getAutoSelectedTargetLanguageItem(fromLangCode: string): Languag
   const targetLanguageItem = config.preferredLanguages.find(
     (languageItem) => languageItem.youdaoLangCode !== fromLangCode,
   ) as LanguageItem;
-  logTrace("language", `fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);
+  logTrace("QueryUtils", `fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);
   return targetLanguageItem;
 }

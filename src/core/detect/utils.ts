@@ -71,6 +71,6 @@ export function isChinese(text: string) {
  */
 export function isEnglishOrNumber(text: string) {
   const pureText = removePunctuation(removeBlankSpace(text));
-  logTrace("detectUtils", `pureText: ${pureText}`);
+  logTrace("DetectUtils", `pureText: ${pureText}`);
   return /^[a-zA-Z0-9]+$/.test(pureText);
 }

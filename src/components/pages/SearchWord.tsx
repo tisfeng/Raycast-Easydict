@@ -74,7 +74,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    */
   function setup() {
     if (trimQueryText?.length) {
-      logTrace("easydict", `arguments queryText: ${trimQueryText}`);
+      logTrace("SearchWord", `arguments queryText: ${trimQueryText}`);
     }
 
     const userInputText = trimQueryText;
@@ -83,7 +83,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       updateInputTextAndQueryText(userInputText, false);
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
       querySelecedtText().then(() => {
-        logTrace("easydict", "after query selected text");
+        logTrace("SearchWord", "after query selected text");
       });
     }
   }
@@ -96,12 +96,12 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       getSelectedText()
         .then((selectedText) => {
           selectedText = selectedText.trim();
-          logTrace("easydict", `selected text: ${selectedText}`);
+          logTrace("SearchWord", `selected text: ${selectedText}`);
           updateInputTextAndQueryText(selectedText, false);
           resolve();
         })
         .catch((error) => {
-          logError("easydict", `getSelectedText error: ${error}`);
+          logError("SearchWord", `getSelectedText error: ${error}`);
           resolve();
         });
     });
@@ -112,14 +112,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    *
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
-    logTrace("easydict", `selected language: ${selectedLanguageItem.youdaoLangCode}`);
-    logTrace("easydict", `current target language: ${userSelectedTargetLanguageItem.youdaoLangCode}`);
+    logTrace("SearchWord", `selected language: ${selectedLanguageItem.youdaoLangCode}`);
+    logTrace("SearchWord", `current target language: ${userSelectedTargetLanguageItem.youdaoLangCode}`);
 
     if (selectedLanguageItem.youdaoLangCode === userSelectedTargetLanguageItem.youdaoLangCode) {
       return;
     }
 
-    logTrace("easydict", `updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLangCode}`);
+    logTrace("SearchWord", `updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLangCode}`);
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
@@ -143,7 +143,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     // text later, which would cause a duplicate query and abort this initial one.
     const normalizedText = text.replace(/\r?\n/g, " ");
 
-    logTrace("easydict", `update input text, length: ${normalizedText.length}`);
+    logTrace("SearchWord", `update input text, length: ${normalizedText.length}`);
 
     setInputText(normalizedText);
     const trimText = normalizedText.trim();
@@ -151,7 +151,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
     // If trimText is empty, then do not query.
     if (trimText.length === 0) {
-      logTrace("easydict", "trimText is empty, do not query");
+      logTrace("SearchWord", "trimText is empty, do not query");
       clearQueryResult();
       return;
     }
@@ -172,7 +172,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     // Ignore the first inputChange event to avoid lost queryText argument, fix https://github.com/tisfeng/Raycast-Easydict/issues/62
     if (!isInputChanged) {
       setInputChangedState(true);
-      logTrace("easydict", "ignore first inputChange event");
+      logTrace("SearchWord", "ignore first inputChange event");
       return;
     }
     updateInputTextAndQueryText(text, true);

@@ -14,9 +14,7 @@ import { formatYoudaoWebDictionaryModel, updateYoudaoDictionaryDisplay } from ".
 import type { YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
-const TAG = "Youdao Dictionary";
-
-logTrace(TAG, "module loaded");
+logTrace("Youdao Dictionary", "module loaded");
 
 const youdaoTranslatURL = "https://fanyi.youdao.com";
 
@@ -33,7 +31,7 @@ if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate)
  * Get youdao cookie from youdao web, and store it in local storage.
  */
 function getYoudaoWebCookie(): Promise<string | undefined> {
-  logTrace(TAG, "start getYoudaoWebCookie");
+  logTrace("Youdao Dictionary", "start getYoudaoWebCookie");
 
   LocalStorage.getItem<string>(youdaoCookieKey).then((cookie) => {
     if (cookie) {
@@ -54,11 +52,11 @@ function getYoudaoWebCookie(): Promise<string | undefined> {
           youdaoCookie = setCookie.join(";");
           resolve(youdaoCookie);
           LocalStorage.setItem(youdaoCookieKey, youdaoCookie);
-          logTrace(TAG, "got web youdaoCookie");
+          logTrace("Youdao Dictionary", "got web youdaoCookie");
         }
       })
       .catch((error) => {
-        logError(TAG, `get youdaoCookie error: ${error}`);
+        logError("Youdao Dictionary", `get youdaoCookie error: ${error}`);
         LocalStorage.removeItem(youdaoCookieKey);
         resolve(undefined);
       });

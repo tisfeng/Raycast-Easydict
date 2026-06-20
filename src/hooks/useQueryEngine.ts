@@ -21,7 +21,7 @@ import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/t
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
-logTrace("useQueryEngine", "module loaded");
+logTrace("UseQueryEngine", "module loaded");
 
 // Initial State
 
@@ -126,7 +126,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     }
 
     if (!sourceResult.translations || sourceResult.translations.length === 0) {
-      logWarn("useQueryEngine", `${type} result is empty.`);
+      logWarn("UseQueryEngine", `${type} result is empty.`);
       return null;
     }
 
@@ -246,8 +246,8 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       dispatch({ type: "RESET_FOR_NEW_QUERY" });
 
       const { word, fromLanguage, toLanguage } = queryWordInfo;
-      logTrace("useQueryEngine", `query text: ${word}`);
-      logTrace("useQueryEngine", `query fromTo: ${fromLanguage} -> ${toLanguage}`);
+      logTrace("UseQueryEngine", `query text: ${word}`);
+      logTrace("UseQueryEngine", `query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
       for (const config of dictionaryServices) {
         runDictionaryQuery(config, queryWordInfo);
@@ -263,18 +263,18 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   const queryTextWithDetectedLanguage = useCallback(
     (text: string, toLanguage: string, detectedLanguage: DetectedLangModel) => {
       const fromYoudaoLangCode = detectedLanguage.youdaoLangCode;
-      logTrace("useQueryEngine", `queryTextWithFromLanguageId: ${fromYoudaoLangCode}`);
+      logTrace("UseQueryEngine", `queryTextWithFromLanguageId: ${fromYoudaoLangCode}`);
 
       const fromLanguageItem = getLanguageItem(fromYoudaoLangCode);
 
       let targetLangCode = toLanguage;
-      logTrace("useQueryEngine", `userSelectedTargetLanguage: ${targetLangCode}`);
+      logTrace("UseQueryEngine", `userSelectedTargetLanguage: ${targetLangCode}`);
 
       let targetLanguageItem: LanguageItem;
       if (fromYoudaoLangCode === targetLangCode) {
         targetLanguageItem = getAutoSelectedTargetLanguageItem(fromYoudaoLangCode);
         targetLangCode = targetLanguageItem.youdaoLangCode;
-        logTrace("useQueryEngine", `conflict, use autoSelectedTargetLanguage: ${targetLangCode}`);
+        logTrace("UseQueryEngine", `conflict, use autoSelectedTargetLanguage: ${targetLangCode}`);
       } else {
         targetLanguageItem = getLanguageItem(targetLangCode);
       }
@@ -297,18 +297,18 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const queryText = useCallback(
     (text: string, toLanguage: string) => {
-      logTrace("useQueryEngine", `query: ${text}`);
+      logTrace("UseQueryEngine", `query: ${text}`);
 
       shouldClearQueryRef.current = false;
 
       detectLanguage(text).then((detectedLanguage: DetectedLangModel) => {
         logTrace(
-          "useQueryEngine",
+          "UseQueryEngine",
           `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
         );
 
         if (shouldClearQueryRef.current) {
-          logTrace("useQueryEngine", "query has been canceled, stop, return");
+          logTrace("UseQueryEngine", "query has been canceled, stop, return");
           return;
         }
 
@@ -319,7 +319,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const clearQueryResult = useCallback(() => {
-    logTrace("useQueryEngine", "clearQueryResult");
+    logTrace("UseQueryEngine", "clearQueryResult");
 
     shouldClearQueryRef.current = true;
     isCurrentQueryRef.current = false;

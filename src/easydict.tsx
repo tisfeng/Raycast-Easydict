@@ -6,7 +6,7 @@ import SearchWord from "@/components/pages/SearchWord";
 import { checkIfPreferredLanguagesConflict } from "@/components/ui/LanguageConflictError";
 import { logTrace } from "@/utils/logger";
 
-logTrace("easydict", "module loaded");
+logTrace("Easydict", "module loaded");
 
 interface EasydictArguments {
   queryText?: string;

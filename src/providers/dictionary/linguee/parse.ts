@@ -20,8 +20,6 @@ import type {
 } from "./types";
 import { LingueeListItemType } from "./types";
 
-const TAG = "LingueeParse";
-
 /**
  * Parse Linguee html. node-html-parser cost: ~40ms
  *
@@ -40,7 +38,7 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
   const queryWord = rootElement.querySelector(".l_deepl_ad__querytext");
   const sourceLanguage = getYoudaoLanguageId("sourceLang", rootElement as unknown as HTMLElement);
   const targetLanguage = getYoudaoLanguageId("targetLang", rootElement as unknown as HTMLElement);
-  logTrace(TAG, `sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
+  logTrace("LingueeParse", `sourceLanguage: ${sourceLanguage}, targetLanguage: ${targetLanguage}`);
 
   // 2. get the exact word list
   const wordItems = getWordItemList(exactLemmaElement as unknown as HTMLElement[]);
@@ -98,7 +96,7 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
   };
   const hasEntries = hasLingueeDictionaryEntries(lingueeResult);
   if (!hasEntries) {
-    logWarn(TAG, "no entries found in Linguee dictionary");
+    logWarn("LingueeParse", "no entries found in Linguee dictionary");
   }
 
   queryWordInfo.hasDictionaryEntries = hasEntries;
@@ -129,7 +127,7 @@ function hasLingueeDictionaryEntries(lingueeResult: LingueeDictionaryResult): bo
  * Get word item list.  > .exact .lemma
  */
 function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
-  logTrace(TAG, "getWordItemList");
+  logTrace("LingueeParse", "getWordItemList");
   const wordItemList: LingueeWordItem[] = [];
   if (lemmas?.length) {
     for (const lemma of lemmas) {
@@ -139,7 +137,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       let placeholderText = "";
       if (placeholder) {
         placeholderText = placeholder.textContent ?? "";
-        logTrace(TAG, `placeholder: ${placeholderText}`);
+        logTrace("LingueeParse", `placeholder: ${placeholderText}`);
         placeholder.remove(); // * .dictLink contains .placeholder
       }
 
@@ -159,7 +157,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const tag_lemma_context = lemma?.querySelector(".tag_lemma_context");
       if (tag_lemma_context) {
         placeholderText = tag_lemma_context.textContent ?? "";
-        logTrace(TAG, `tag_lemma_context: ${placeholderText}`);
+        logTrace("LingueeParse", `tag_lemma_context: ${placeholderText}`);
       }
       const tag_wordtype = lemma?.querySelector(".lemma_desc .tag_wordtype"); // "noun, feminine"
       const tag_forms = lemma?.querySelector(".lemma_desc .tag_forms"); // eg. "good" in French, "(bonne f sl, bons m pl, bonnes f pl)"
@@ -298,7 +296,7 @@ function getTagFormsText(tagForms: Element | null): string {
  * Get example list.  | .inexact  Examples:  .lemma
  */
 function getExampleList(exampleLemma: HTMLElement[] | undefined) {
-  logTrace(TAG, "getExampleList");
+  logTrace("LingueeParse", "getExampleList");
   const exampleItems: LingueeExample[] = [];
   if (exampleLemma?.length) {
     for (const lemma of exampleLemma) {
@@ -335,7 +333,7 @@ function getExampleList(exampleLemma: HTMLElement[] | undefined) {
  * Get LingueeWikipedia from wikipedia HTMLElement. | .wikipedia .abstract
  */
 function getWikipedia(abstractElement: HTMLElement[] | undefined) {
-  logTrace(TAG, "getWikipedia");
+  logTrace("LingueeParse", "getWikipedia");
   const wikipedias: LingueeWikipedia[] = [];
   if (abstractElement?.length) {
     for (const element of abstractElement as unknown as HTMLElement[]) {

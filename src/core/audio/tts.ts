@@ -17,18 +17,18 @@ async function playTTSOnMac(text: string, youdaoLanguageId: string, signal?: Abo
 
   const languageItem = languageItemList.find((item) => item.youdaoLangCode === youdaoLanguageId);
   if (!languageItem?.voiceList) {
-    logWarn("audio", `language not supported: ${youdaoLanguageId}`);
+    logWarn("AudioTTS", `language not supported: ${youdaoLanguageId}`);
     return;
   }
 
   const voice = languageItem.voiceList[0];
   const cleanText = text.replace(/"/g, " ");
 
-  logTrace("audio", `say -v ${voice}`);
+  logTrace("AudioTTS", `say -v ${voice}`);
   try {
     await x("say", ["-v", voice, cleanText], { throwOnError: true, signal });
   } catch (error) {
-    logError("audio", `say command failed: ${error}`);
+    logError("AudioTTS", `say command failed: ${error}`);
   }
 }
 
@@ -49,11 +49,11 @@ export async function playTTS(
   }
 
   if (process.platform === "win32") {
-    logWarn("audio", "TTS not implemented on Windows yet");
+    logWarn("AudioTTS", "TTS not implemented on Windows yet");
     showFailureToast("TTS is not supported on Windows yet.", { title: "Audio Error" });
     return;
   }
 
-  logWarn("audio", `unsupported platform for TTS: ${process.platform}`);
+  logWarn("AudioTTS", `unsupported platform for TTS: ${process.platform}`);
   showFailureToast(`TTS is not supported on ${process.platform}`, { title: "Audio Error" });
 }

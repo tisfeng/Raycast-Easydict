@@ -26,7 +26,7 @@ export default async function command() {
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
-    logTrace("ocr", `recognized text: ${recognizedText}`);
+    logTrace("OCR", `recognized text: ${recognizedText}`);
 
     try {
       await launchCommand({
@@ -37,11 +37,11 @@ export default async function command() {
         },
       });
     } catch (error) {
-      logError("ocr", `launch easydict error: ${error}`);
+      logError("OCR", `launch easydict error: ${error}`);
       await showHUD("⚠️ Failed to query Easy Dictionary");
     }
   } catch (e) {
-    logError("ocr", `recognize text error: ${e}`);
+    logError("OCR", `recognize text error: ${e}`);
     await showHUD("❌ Failed detecting text");
   }
 }
