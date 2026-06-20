@@ -3,11 +3,9 @@
 import { LocalStorage } from "@raycast/api";
 
 import { userAgent } from "@/consts";
-import type { DetectedLangModel } from "@/core/detect/types";
 import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { bingMap, getYoudaoLangCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
-import type { QueryResponse } from "@/types/queryResponse";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -33,14 +31,14 @@ const defaultBingHost = "www.bing.com";
 let bingHost = defaultBingHost;
 let bingConfig: BingConfig | undefined;
 
-export class BingDetectProvider extends BaseDetectProvider {
+export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> {
   type = LanguageDetectType.Bing;
 
   isEnabled(): boolean {
     return true;
   }
 
-  protected async doDetect(text: string): Promise<DetectedLangModel> {
+  protected async doDetect(text: string) {
     logTrace("bing", "start BingDetectProvider.doDetect");
 
     const isExpired = await checkIfBingTokenExpired();
@@ -109,7 +107,7 @@ export class BingDetectProvider extends BaseDetectProvider {
       sourceLangCode: detectedLanguageCode,
       youdaoLangCode,
       confirmed: false,
-      result: bingResult as QueryResponse,
+      result: bingResult,
     };
   }
 }

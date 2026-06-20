@@ -40,7 +40,7 @@ export interface OpenAICompatibleTranslateResult {
   translatedText: string;
 }
 
-export abstract class BaseOpenAICompatibleTranslateProvider extends BaseTranslateProvider {
+export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends BaseTranslateProvider<T> {
   protected abstract getEndpoint(): string;
   protected abstract getModel(): string;
   protected abstract getAPIKey(): string | undefined;
@@ -93,7 +93,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider extends BaseTranslat
   protected async *doTranslate(
     queryWordInfo: QueryWordInfo,
     { signal }: RequestOptions = {},
-  ): AsyncGenerator<StreamChunk, QueryTypeResult, unknown> {
+  ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
     const url = this.getEndpoint();
     const apiKey = this.getAPIKey();
     const modelName = this.getModel();
@@ -136,7 +136,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider extends BaseTranslat
       type: this.type as TranslationType,
       queryWordInfo,
       translations: [resultText],
-      result: { translatedText: resultText },
+      result: { translatedText: resultText } as T,
     };
   }
 }

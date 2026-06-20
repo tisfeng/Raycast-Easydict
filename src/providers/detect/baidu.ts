@@ -3,10 +3,8 @@
 import querystring from "node:querystring";
 
 import { myPreferences } from "@/consts";
-import type { DetectedLangModel } from "@/core/detect/types";
 import { baiduMap, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
-import type { QueryResponse } from "@/types/queryResponse";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
@@ -19,14 +17,14 @@ interface BaiduWebLanguageDetect {
   lan?: string;
 }
 
-export class BaiduDetectProvider extends BaseDetectProvider {
+export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDetect> {
   type = LanguageDetectType.Baidu;
 
   isEnabled(): boolean {
     return myPreferences.enableBaiduLanguageDetect;
   }
 
-  protected async doDetect(text: string): Promise<DetectedLangModel> {
+  protected async doDetect(text: string) {
     logTrace("baidu", "start BaiduDetectProvider.doDetect");
 
     const url = "https://fanyi.baidu.com/langdetect";
@@ -51,7 +49,7 @@ export class BaiduDetectProvider extends BaseDetectProvider {
         sourceLangCode: baiduLanguageId,
         youdaoLangCode: youdaoLanguageId,
         confirmed: isConfirmed,
-        result: response as QueryResponse,
+        result: response,
       };
     }
 

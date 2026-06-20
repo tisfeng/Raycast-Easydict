@@ -1,9 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { DetectedLangModel } from "@/core/detect/types";
 import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
-import type { QueryResponse } from "@/types/queryResponse";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
@@ -18,14 +16,14 @@ interface VolcanoDetectResult {
   };
 }
 
-export class VolcanoDetectProvider extends BaseDetectProvider {
+export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResult> {
   type = LanguageDetectType.Volcano;
 
   isEnabled(): boolean {
     return true;
   }
 
-  protected async doDetect(text: string): Promise<DetectedLangModel> {
+  protected async doDetect(text: string) {
     logTrace("volcano", "start VolcanoDetectProvider.doDetect");
 
     const query = { Action: "LangDetect", Version: "2020-06-01" };
@@ -69,7 +67,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider {
       sourceLangCode: volcanoLangCode,
       youdaoLangCode,
       confirmed: isConfirmed,
-      result: volcanoDetectResult as QueryResponse,
+      result: volcanoDetectResult,
     };
   }
 }

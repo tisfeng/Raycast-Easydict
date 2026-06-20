@@ -12,7 +12,7 @@ import { logError, logTrace } from "@/utils/logger";
  * - `detect()` is the public entry point — handles cancellation and error normalization
  * - `doDetect()` is implemented by each subclass with the actual detection logic
  */
-export abstract class BaseDetectProvider {
+export abstract class BaseDetectProvider<T = unknown> {
   abstract type: LanguageDetectType;
 
   /** Indicates if this is a local offline detector (like Franc) vs a network API */
@@ -20,7 +20,7 @@ export abstract class BaseDetectProvider {
 
   abstract isEnabled(): boolean;
 
-  public detect = async (text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel> => {
+  public detect = async (text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>> => {
     logTrace(this.type, `start detect ${this.type}`);
     try {
       return await this.doDetect(text, options);
@@ -41,5 +41,5 @@ export abstract class BaseDetectProvider {
     }
   };
 
-  protected abstract doDetect(text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel>;
+  protected abstract doDetect(text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>>;
 }

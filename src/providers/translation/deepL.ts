@@ -6,7 +6,7 @@ import { FetchError } from "ofetch";
 import { getLangCode } from "@/core/language/utils";
 import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
@@ -27,10 +27,10 @@ export interface DeepLTranslationItem {
  *
  * https://www.deepl.com/zh/docs-api/translating-text
  */
-export class DeepLTranslateProvider extends BaseTranslateProvider {
+export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslateResult> {
   type = TranslationType.DeepL;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
     const targetLang = getLangCode(toLanguage, "deepLSourceId");

@@ -4,7 +4,6 @@ import type { RequestError } from "@/utils/errors";
 
 import type { DictionaryType, TranslationType } from "./api";
 import type { DisplaySection } from "./display";
-import type { QueryResponse } from "./queryResponse";
 
 /**
  * Runtime execution options for a query.
@@ -33,18 +32,18 @@ export interface QueryWordInfo {
 
 export type QueryType = TranslationType | DictionaryType;
 
-export interface QueryTypeResult {
+export interface QueryTypeResult<T = unknown> {
   type: QueryType;
   queryWordInfo: QueryWordInfo;
-  result?: QueryResponse;
+  result?: T;
   translations: string[];
   oneLineTranslation?: string;
   errorInfo?: RequestError;
 }
 
-export interface QueryResult {
+export interface QueryResult<T = unknown> {
   type: QueryType;
-  sourceResult: QueryTypeResult;
-  displaySections?: DisplaySection[];
+  sourceResult: QueryTypeResult<T>;
+  displaySections?: DisplaySection<T>[];
   hideDisplay?: boolean;
 }

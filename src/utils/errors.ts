@@ -4,20 +4,27 @@ import { showFailureToast } from "@raycast/utils";
 import { FetchError } from "ofetch";
 
 import type { RequestType } from "@/types/api";
-import { logWarn } from "@/utils/logger";
 
 /**
  * Show error toast according to errorInfo.
  */
-export function showErrorToast(errorInfo: RequestError | undefined) {
-  if (!errorInfo?.type) {
-    logWarn("utils", `errorInfo type is undefined: ${JSON.stringify(errorInfo, null, 4)}`);
+export function showErrorToast(errorInfo: unknown) {
+  // Silently ignore cancellation errors
+  const errName = getErrorName(errorInfo);
+  if (errName === "CancelledError" || errName === "AbortError") {
     return;
   }
 
-  showFailureToast(errorInfo.message, {
-    title: `${errorInfo.type} Error${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
-  });
+  if (errorInfo instanceof RequestError) {
+    showFailureToast(errorInfo.message, {
+      title: `${errorInfo.type} Error${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
+    });
+  } else {
+    const errorMessage = getErrorMessage(errorInfo);
+    showFailureToast(errorMessage, {
+      title: "Error",
+    });
+  }
 }
 
 /**
@@ -87,10 +94,8 @@ export function getErrorCode(error: unknown, fallback = ""): string {
 }
 
 /**
- * Sentinel error for cancelled requests.
- * Callers should check `error instanceof CancelledError` instead of string matching.
+ * Custom error class to standardize errors thrown by API providers.
  */
-
 export class RequestError extends Error {
   type: string;
   code?: string;
@@ -102,6 +107,11 @@ export class RequestError extends Error {
     this.code = code;
   }
 }
+
+/**
+ * Sentinel error for cancelled requests.
+ * Callers should check `error instanceof CancelledError` instead of string matching.
+ */
 export class CancelledError extends Error {
   constructor() {
     super("cancelled");

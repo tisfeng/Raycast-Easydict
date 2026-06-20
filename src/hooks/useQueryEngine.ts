@@ -18,7 +18,7 @@ import { translationServices } from "@/providers/translation";
 import { checkIsTranslationType, TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
-import { type RequestError, showErrorToast } from "@/utils/errors";
+import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
 logTrace("useQueryEngine", "module loaded");
@@ -200,7 +200,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
         debouncer.clear();
       } catch (error) {
-        showErrorToast(error as RequestError);
+        showErrorToast(error);
       } finally {
         removeQueryFromRecordList(config.type);
       }

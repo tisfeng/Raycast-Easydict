@@ -3,7 +3,7 @@
 import { userAgent } from "@/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -19,7 +19,7 @@ import type { LingueeDictionaryResult } from "./types";
 export class LingueeDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.Linguee;
 
-  protected async doQuery(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryResult> {
+  protected async doQuery(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
     const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
     logTrace("linguee", `url: ${lingueeUrl}`);
 

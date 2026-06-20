@@ -19,7 +19,7 @@ export class FrancDetectProvider extends BaseDetectProvider {
     return true;
   }
 
-  protected async doDetect(text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel> {
+  protected async doDetect(text: string, options?: { confirmedConfidence?: number }) {
     return francLanguageDetect(text, options?.confirmedConfidence);
   }
 }

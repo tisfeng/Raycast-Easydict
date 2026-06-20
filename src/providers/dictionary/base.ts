@@ -16,10 +16,10 @@ import { logError, logTrace } from "@/utils/logger";
  * display logic is provider-specific (Linguee: formatLingueeDisplaySections,
  * Youdao: updateYoudaoDictionaryDisplay).
  */
-export abstract class BaseDictionaryProvider {
+export abstract class BaseDictionaryProvider<T = unknown> {
   abstract type: DictionaryType;
 
-  public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult> => {
+  public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>> => {
     logTrace(this.type, `start request ${this.type}`);
     try {
       return await this.doQuery(queryWordInfo, options);
@@ -40,5 +40,5 @@ export abstract class BaseDictionaryProvider {
     }
   };
 
-  protected abstract doQuery(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult>;
+  protected abstract doQuery(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>>;
 }

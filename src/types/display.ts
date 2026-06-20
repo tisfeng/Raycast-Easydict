@@ -5,17 +5,16 @@ import type { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao
 
 import type { DictionaryType, TranslationType } from "./api";
 import type { QueryType, QueryWordInfo } from "./query";
-import type { QueryResponse } from "./queryResponse";
 
 export type DictionaryDisplayType = LingueeListItemType | YoudaoDictionaryListItemType;
 
-export interface DisplaySection {
+export interface DisplaySection<T = unknown> {
   type: DictionaryDisplayType | TranslationType;
   sectionTitle?: string;
-  items: ListDisplayItem[];
+  items: ListDisplayItem<T>[];
 }
 
-interface ListDisplayItemBase {
+interface ListDisplayItemBase<T = unknown> {
   queryType: QueryType;
   queryWordInfo: QueryWordInfo;
   key: string;
@@ -25,11 +24,11 @@ interface ListDisplayItemBase {
   tooltip?: string;
   speech?: string;
   detailsMarkdown?: string;
-  sourceData?: QueryResponse;
+  sourceData?: T;
   accessoryItem?: ListAccessoryItem;
 }
 
-export type ListDisplayItem = ListDisplayItemBase &
+export type ListDisplayItem<T = unknown> = ListDisplayItemBase<T> &
   (
     | { displayCategory: "dictionary"; queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
     | { displayCategory: "dictionary"; queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }

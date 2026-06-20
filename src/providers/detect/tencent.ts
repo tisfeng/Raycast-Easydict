@@ -2,7 +2,6 @@
 
 import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
 
-import type { DetectedLangModel } from "@/core/detect/types";
 import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
 import { ProviderConfig } from "@/providers/shared";
 import { LanguageDetectType } from "@/types/api";
@@ -40,7 +39,7 @@ export class TencentDetectProvider extends BaseDetectProvider {
     return true;
   }
 
-  protected async doDetect(text: string): Promise<DetectedLangModel> {
+  protected async doDetect(text: string) {
     logTrace("tencent", "start TencentDetectProvider.doDetect");
 
     const startTime = new Date().getTime();
