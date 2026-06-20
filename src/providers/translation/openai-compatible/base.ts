@@ -110,7 +110,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
     let isFirst = true;
     const chunks: string[] = [];
 
-    const { textStream } = streamText({
+    const streamResult = streamText({
       baseURL: url,
       apiKey,
       model: modelName,
@@ -119,6 +119,13 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
       fetch: timedFetch.native,
       ...tokenParams,
     });
+
+    // Suppress unhandled rejection warnings for unused promises (e.g. usage, messages)
+    Object.values(streamResult).forEach((value) => {
+      if (value instanceof Promise) value.catch(() => {});
+    });
+
+    const { textStream } = streamResult;
 
     for await (const chunk of textStream) {
       let targetTxt = chunk;

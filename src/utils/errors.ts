@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { showFailureToast } from "@raycast/utils";
+import { APICallError, RemoteAPIError } from "@xsai/shared";
 import { FetchError } from "ofetch";
 
 import type { RequestType } from "@/types/api";
@@ -47,6 +48,22 @@ export function parseRequestError(type: RequestType, error: unknown): RequestErr
 }
 
 /**
+ * Parses the JSON payload string returned by the Gemini/OpenAI API
+ */
+function parseXsaiErrorMessage(error: APICallError | RemoteAPIError): string {
+  if (!error.responseBody || typeof error.responseBody !== "string") return error.message;
+  try {
+    const parsed = JSON.parse(error.responseBody);
+    const body = Array.isArray(parsed) ? parsed[0] : parsed;
+    if (typeof body?.error?.message === "string") return body.error.message;
+  } catch {
+    // If responseBody is not valid JSON, we just fall back
+  }
+  // Fallback to original ugly message
+  return error.message;
+}
+
+/**
  * Extract error message from unknown error object safely
  */
 export function getErrorMessage(error: unknown): string {
@@ -60,6 +77,9 @@ export function getErrorMessage(error: unknown): string {
     const cause = error.cause instanceof Error ? error.cause : null;
     const inner = cause?.cause instanceof Error ? cause.cause : null;
     return inner?.message || cause?.message || error.message || "Fetch error";
+  }
+  if (error instanceof APICallError || error instanceof RemoteAPIError) {
+    return parseXsaiErrorMessage(error);
   }
   if (error instanceof Error) {
     return error.message;
