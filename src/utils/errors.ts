@@ -23,14 +23,20 @@ export function showErrorToast(errorInfo: RequestError | undefined) {
 /**
  * Get request error info.
  */
-export function getTypeErrorInfo(
-  type: RequestType,
-  error: { status?: number; statusText?: string; message?: string },
-): RequestError {
-  const errorCode = error.status;
-  const errorMessage = error.statusText || error.message || "something error 😭";
-  const errorInfo = new RequestError(type, errorMessage, `${errorCode || ""}`);
-  return errorInfo;
+export function parseRequestError(type: RequestType, error: unknown): RequestError {
+  if (error instanceof RequestError) return error;
+
+  let errorCode = "";
+  const errorMessage = getErrorMessage(error);
+
+  if (error instanceof FetchError) {
+    errorCode = error.status ? String(error.status) : "";
+  } else if (typeof error === "object" && error !== null) {
+    const err = error as Record<string, unknown>;
+    errorCode = err.status ? String(err.status) : err.code ? String(err.code) : "";
+  }
+
+  return new RequestError(type, errorMessage, errorCode);
 }
 
 /**

@@ -2,7 +2,7 @@
 
 import type { DictionaryType } from "@/types/api";
 import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
-import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 /**
@@ -36,7 +36,7 @@ export abstract class BaseDictionaryProvider {
       if (error instanceof RequestError) {
         throw error;
       }
-      throw getTypeErrorInfo(this.type, error as { status?: number; statusText?: string; message?: string });
+      throw parseRequestError(this.type, error);
     }
   };
 

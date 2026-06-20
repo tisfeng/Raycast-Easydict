@@ -2,7 +2,7 @@
 
 import type { RequestType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
-import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 export type ProviderResult = Promise<QueryTypeResult> | AsyncGenerator<StreamChunk, QueryTypeResult, unknown>;
@@ -45,7 +45,7 @@ export abstract class BaseTranslateProvider {
       logError(this.type, `translate error: ${getErrorMessage(error)}`);
       // If doTranslate already threw a RequestError (e.g. with custom message), use it directly
       if (error instanceof RequestError) throw error;
-      throw getTypeErrorInfo(this.type, error as { status?: number; statusText?: string; message?: string });
+      throw parseRequestError(this.type, error);
     }
   }
 

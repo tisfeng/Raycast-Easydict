@@ -1,13 +1,15 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 import querystring from "node:querystring";
 
+import { FetchError } from "ofetch";
+
 import { getLangCode } from "@/core/language/utils";
 import { ProviderConfig } from "@/providers/shared";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
-import { getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace } from "@/utils/logger";
+import { logTrace } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -78,23 +80,14 @@ export class DeepLTranslateProvider extends BaseTranslateProvider {
         signal,
       });
     } catch (error) {
-      logError("deepl", `error: ${error}`);
-
-      const errorInfo = getTypeErrorInfo(
-        TranslationType.DeepL,
-        error as { status?: number; statusText?: string; message?: string },
-      );
-      const errorCode = (error as { status?: number }).status;
-
-      // https://www.deepl.com/zh/docs-api/api-access/error-handling/
-      if (errorCode === 456) {
-        errorInfo.message = "Quota exceeded"; // Quota exceeded. The character limit has been reached.
-      } else if (errorCode === 403) {
-        errorInfo.message = "Authorization failed"; // Authorization failed. Please supply a valid auth_key parameter.
+      if (error instanceof FetchError) {
+        if (error.status === 456) {
+          throw new RequestError(TranslationType.DeepL, "Quota exceeded", "456");
+        } else if (error.status === 403) {
+          throw new RequestError(TranslationType.DeepL, "Authorization failed", "403");
+        }
       }
-
-      logError("deepl", `error info: ${JSON.stringify(errorInfo)}`);
-      throw errorInfo;
+      throw error;
     }
 
     const translatedText = deepLResult.translations[0].text;

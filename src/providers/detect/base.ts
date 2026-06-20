@@ -2,7 +2,7 @@
 
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/types/api";
-import { CancelledError, getErrorMessage, getErrorName, getTypeErrorInfo, RequestError } from "@/utils/errors";
+import { CancelledError, getErrorMessage, getErrorName, parseRequestError, RequestError } from "@/utils/errors";
 import { logError, logTrace } from "@/utils/logger";
 
 /**
@@ -37,7 +37,7 @@ export abstract class BaseDetectProvider {
       if (error instanceof RequestError) {
         throw error;
       }
-      throw getTypeErrorInfo(this.type, error as { status?: number; statusText?: string; message?: string });
+      throw parseRequestError(this.type, error);
     }
   };
 
