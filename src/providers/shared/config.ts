@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { myPreferences } from "@/consts";
-import type { QueryWordInfo } from "@/types/query";
 import { myDecrypt } from "@/utils/crypto";
 
 /**
@@ -49,17 +48,4 @@ export function hasTencentAppKey(): boolean {
 
 export function hasVolcanoAppKey(): boolean {
   return !!(ProviderConfig.volcanoSecretId && ProviderConfig.volcanoSecretKey);
-}
-
-const maxWordLength = 20;
-
-function checkIsWordLength(word: string) {
-  return word.trim().length < maxWordLength;
-}
-
-export function checkIsWord(queryWordInfo: QueryWordInfo) {
-  if (queryWordInfo.isWord !== undefined) {
-    return queryWordInfo.isWord;
-  }
-  return checkIsWordLength(queryWordInfo.word);
 }

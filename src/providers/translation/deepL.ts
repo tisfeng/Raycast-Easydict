@@ -4,7 +4,7 @@ import querystring from "node:querystring";
 import { FetchError } from "ofetch";
 
 import { getLangCode } from "@/core/language/utils";
-import { ProviderConfig } from "@/providers/shared";
+import { ProviderConfig } from "@/providers/shared/config";
 import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";

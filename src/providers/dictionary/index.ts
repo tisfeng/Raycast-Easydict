@@ -4,7 +4,7 @@ import { myPreferences } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
-import { checkIsWord } from "@/providers/shared";
+import { checkIsWord } from "@/providers/shared/utils";
 import { DictionaryType } from "@/types/api";
 import type { QueryWordInfo } from "@/types/query";
 

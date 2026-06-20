@@ -2,7 +2,7 @@
 
 import crypto from "node:crypto";
 
-import { hasVolcanoAppKey, ProviderConfig } from "@/providers/shared";
+import { hasVolcanoAppKey, ProviderConfig } from "@/providers/shared/config";
 
 const accessKey = ProviderConfig.volcanoSecretId;
 const secretKey = ProviderConfig.volcanoSecretKey;

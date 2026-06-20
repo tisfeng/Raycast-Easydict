@@ -3,7 +3,7 @@
 import { myPreferences } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
-import { checkIsWord } from "@/providers/shared";
+import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
 import type { QueryWordInfo } from "@/types/query";
 

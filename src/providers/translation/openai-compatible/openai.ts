@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { ProviderConfig } from "@/providers/shared";
+import { ProviderConfig } from "@/providers/shared/config";
 import { TranslationType } from "@/types/api";
 
 import { BaseOpenAICompatibleTranslateProvider } from "./base";

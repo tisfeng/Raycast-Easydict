@@ -1,30 +1,32 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import * as tencentcloud from "tencentcloud-sdk-nodejs-tmt";
-
 import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
-import { ProviderConfig } from "@/providers/shared";
+import { ProviderConfig } from "@/providers/shared/config";
+import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
 import { LanguageDetectType } from "@/types/api";
+import { timedFetch } from "@/utils/http";
 import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
 
-const endpoint = "tmt.tencentcloudapi.com";
-const region = "ap-guangzhou";
-const projectId = 0;
+interface LanguageDetectResponse {
+  /**
+   * 识别出的语言种类，参考语言列表
+   *  zh : 中文; en : 英文; jp : 日语; kr : 韩语; de : 德语;
+   *  fr : 法语;es : 西班牙文; it : 意大利文 ; tr : 土耳其文;
+   *  ru : 俄文; pt : 葡萄牙文; vi : 越南文 ; id : 印度尼西亚文;
+   *  ms : 马来西亚文; th : 泰文
+   */
+  Lang?: string;
+  /**
+   * 唯一请求 ID，由服务端生成，每次请求都会返回（若请求因其他原因未能抵达服务端，则该次请求不会获得 RequestId）。定位问题时需要提供该次请求的 RequestId。
+   */
+  RequestId?: string;
+}
 
-const clientConfig = {
-  credential: {
-    secretId: ProviderConfig.tencentSecretId,
-    secretKey: ProviderConfig.tencentSecretKey,
-  },
-  region,
-  profile: {
-    httpProfile: {
-      endpoint,
-    },
-  },
-};
+interface TencentDetectResult extends LanguageDetectResponse {
+  Error?: TencentError;
+}
 
 export class TencentDetectProvider extends BaseDetectProvider {
   type = LanguageDetectType.Tencent;
@@ -41,11 +43,17 @@ export class TencentDetectProvider extends BaseDetectProvider {
 
   protected async doDetect(text: string) {
     const startTime = new Date().getTime();
-    const params = { Text: text, ProjectId: projectId };
+    const payload = { Text: text, ProjectId: 0 };
 
-    const TmtClient = tencentcloud.tmt.v20180321.Client;
-    const client = new TmtClient(clientConfig);
-    const response = await client.LanguageDetect(params);
+    const { url, headers } = tencentSign("LanguageDetect", payload);
+
+    const data = await timedFetch<{ Response: TencentDetectResult }>(url, {
+      method: "POST",
+      body: payload,
+      headers,
+    });
+
+    const response = data.Response;
 
     const endTime = new Date().getTime();
     const tencentLanguageId = response.Lang || "";

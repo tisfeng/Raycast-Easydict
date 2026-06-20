@@ -3,7 +3,7 @@
 import { parse } from "node-html-parser";
 
 import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
-import { checkIsWord } from "@/providers/shared";
+import { checkIsWord } from "@/providers/shared/utils";
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
