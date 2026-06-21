@@ -1,53 +1,61 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { environment } from "@raycast/api";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { x } from "tinyexec";
 
+import { EASYDICT_TMP_DIR } from "@/consts";
 import { normalizeError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
 
-const audioDirPath = `${environment.supportPath}/audio`;
+const audioDirPath = path.join(EASYDICT_TMP_DIR, "audio");
 
-/**
- * Get cached audio file path for a word.
- * Priority: .m4a > .mp3
- */
-export function getWordAudioPath(word: string): string {
+function getAudioBasePath(url: string): string {
   if (!fs.existsSync(audioDirPath)) {
-    fs.mkdirSync(audioDirPath);
+    fs.mkdirSync(audioDirPath, { recursive: true });
   }
+  const hash = crypto.createHash("md5").update(url).digest("hex");
+  return path.join(audioDirPath, hash);
+}
 
-  const m4aPath = path.join(audioDirPath, `${word}.m4a`);
-  if (fs.existsSync(m4aPath)) {
-    return m4aPath;
+export function getCachedAudioPath(url: string): string | undefined {
+  const basePath = getAudioBasePath(url);
+  for (const ext of [".mp3", ".m4a", ".wav"]) {
+    const fullPath = basePath + ext;
+    if (fs.existsSync(fullPath)) return fullPath;
   }
-
-  return path.join(audioDirPath, `${word}.mp3`);
+  return undefined;
 }
 
 /**
  * Convert WAV to M4A using afconvert (macOS).
  * Returns m4a path on success, undefined on failure.
  */
-async function convertWavToM4a(wavPath: string, m4aPath: string): Promise<string | undefined> {
+async function convertWavToM4a(wavPath: string, m4aPath: string, signal?: AbortSignal): Promise<string | undefined> {
   if (process.platform !== "darwin") {
     return undefined;
   }
 
   logTrace("AudioDownloader", "converting wav→m4a");
 
-  try {
-    await x("afconvert", ["-f", "m4af", "-d", "aac", wavPath, m4aPath], { throwOnError: true });
-    fs.unlinkSync(wavPath);
-    logTrace("AudioDownloader", "conversion complete");
-    return m4aPath;
-  } catch {
-    logError("AudioDownloader", "conversion failed");
+  const proc = x("afconvert", ["-f", "m4af", "-d", "aac", wavPath, m4aPath], { signal });
+  const result = await proc;
+
+  if (proc.aborted) {
+    logTrace("AudioDownloader", "conversion cancelled");
     return undefined;
   }
+
+  if (result.exitCode !== 0) {
+    logError("AudioDownloader", `conversion failed (exit code: ${result.exitCode})`);
+    return undefined;
+  }
+
+  fs.unlinkSync(wavPath);
+  logTrace("AudioDownloader", "conversion complete");
+  return m4aPath;
 }
 
 /**
@@ -68,35 +76,53 @@ function isWav(buffer: Buffer): boolean {
 }
 
 /**
+ * Saves the audio buffer to disk.
+ * If it's a WAV file on macOS, converts it to M4A.
+ * Otherwise, saves it as WAV or MP3 based on the magic bytes.
+ * Returns the final absolute path of the saved file.
+ */
+async function saveAudioBuffer(basePath: string, buffer: Buffer, signal?: AbortSignal): Promise<string | undefined> {
+  if (isWav(buffer)) {
+    const wavPath = basePath + ".wav";
+    fs.writeFileSync(wavPath, buffer);
+
+    if (process.platform === "darwin") {
+      const m4aPath = basePath + ".m4a";
+      const finalPath = await convertWavToM4a(wavPath, m4aPath, signal);
+      if (finalPath) return finalPath;
+      if (signal?.aborted) return undefined; // Return undefined cleanly if aborted
+    }
+    return wavPath;
+  }
+
+  const mp3Path = basePath + ".mp3";
+  fs.writeFileSync(mp3Path, buffer);
+  return mp3Path;
+}
+
+/**
  * Download audio file from URL.
  * Detects actual file type from the buffer before writing to disk.
- * On macOS, WAV files are automatically converted to M4A.
+ * Returns the final path where the file is saved.
  */
 export async function downloadAudio(
   url: string,
-  audioPath: string,
   options?: { forceDownload?: boolean; signal?: AbortSignal },
-): Promise<void> {
+): Promise<string | undefined> {
   const { forceDownload = false, signal } = options || {};
-  if (fs.existsSync(audioPath) && !forceDownload) {
-    logTrace("AudioDownloader", `cached: ${audioPath}`);
-    return;
+  const cachedPath = getCachedAudioPath(url);
+  if (cachedPath && !forceDownload) {
+    logTrace("AudioDownloader", `cached: ${cachedPath}`);
+    return cachedPath;
   }
 
-  logTrace("AudioDownloader", `downloading: ${audioPath}`);
+  logTrace("AudioDownloader", `downloading: ${url}`);
+  const basePath = getAudioBasePath(url);
 
   try {
     const blob = await timedFetch(url, { responseType: "blob", signal });
     const buffer = Buffer.from(await blob.arrayBuffer());
-
-    if (isWav(buffer) && process.platform === "darwin") {
-      const wavPath = audioPath.replace(/\.mp3$|\.m4a$/, ".wav");
-      const m4aPath = audioPath.replace(/\.mp3$|\.wav$/, ".m4a");
-      fs.writeFileSync(wavPath, buffer);
-      await convertWavToM4a(wavPath, m4aPath);
-    } else {
-      fs.writeFileSync(audioPath, buffer);
-    }
+    return await saveAudioBuffer(basePath, buffer, signal);
   } catch (error) {
     const { name, message } = normalizeError(error);
     if (name === "AbortError") {
@@ -109,15 +135,11 @@ export async function downloadAudio(
   }
 }
 
-/**
- * Download word audio by URL.
- */
 export async function downloadWordAudioWithURL(
   word: string,
   url: string,
   options?: { forceDownload?: boolean; signal?: AbortSignal },
-): Promise<void> {
+): Promise<string | undefined> {
   logTrace("AudioDownloader", `download: ${word}`);
-  const audioPath = getWordAudioPath(word);
-  await downloadAudio(url, audioPath, options);
+  return await downloadAudio(url, options);
 }

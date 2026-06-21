@@ -7,7 +7,6 @@ import { x } from "tinyexec";
 
 import { logError, logTrace, logWarn } from "@/utils/logger";
 
-import { getWordAudioPath } from "./downloader";
 import { playTTS } from "./tts";
 
 interface PlayParams {
@@ -55,12 +54,11 @@ async function playOnMac({ audioPath, signal }: PlayParams) {
 export async function playWordAudio(
   word: string,
   fromLanguage: string,
-  options?: { signal?: AbortSignal },
+  options?: { audioPath?: string; signal?: AbortSignal },
 ): Promise<void> {
-  const { signal } = options || {};
-  const audioPath = getWordAudioPath(word);
+  const { audioPath, signal } = options || {};
 
-  if (!fs.existsSync(audioPath)) {
+  if (!audioPath || !fs.existsSync(audioPath)) {
     logTrace("AudioPlayer", `file not found: ${word}, fallback to TTS directly`);
     await playTTS(word, fromLanguage, { truncate: true, signal });
     return;

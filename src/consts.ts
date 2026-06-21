@@ -1,8 +1,12 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getPreferenceValues } from "@raycast/api";
+import os from "os";
+import path from "path";
 
 export const myPreferences = getPreferenceValues<Preferences>();
+
+export const EASYDICT_TMP_DIR = path.join(os.tmpdir(), "raycast-easydict");
 
 export const userAgent =
   "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";

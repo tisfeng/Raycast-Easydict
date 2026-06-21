@@ -4,7 +4,7 @@ import { englishLanguageItem } from "@/core/language/consts";
 import type { QueryWordInfo } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
-import { downloadAudio, downloadWordAudioWithURL, getWordAudioPath } from "./downloader";
+import { downloadAudio, downloadWordAudioWithURL } from "./downloader";
 import { playWordAudio } from "./player";
 
 /**
@@ -12,33 +12,34 @@ import { playWordAudio } from "./player";
  *
  * If query text has a speech URL, download from that.
  * Otherwise if it's an English word, download from Youdao TTS.
+ * Returns the local file path if successfully downloaded.
  */
 async function downloadQueryWordAudio(
   queryWordInfo: QueryWordInfo,
   options?: { enableYoudaoWebAudio?: boolean; signal?: AbortSignal },
-): Promise<void> {
+): Promise<string | undefined> {
   const { enableYoudaoWebAudio = true, signal } = options || {};
   if (queryWordInfo.speechUrl) {
-    await downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, { signal });
+    return await downloadWordAudioWithURL(queryWordInfo.word, queryWordInfo.speechUrl, { signal });
   } else if (
     enableYoudaoWebAudio &&
     queryWordInfo.isWord &&
     queryWordInfo.fromLanguage === englishLanguageItem.youdaoLangCode
   ) {
-    await downloadTTSWordAudio(queryWordInfo.word, signal);
+    return await downloadTTSWordAudio(queryWordInfo.word, signal);
   } else {
     logTrace("AudioQuery", "use say command to play directly");
+    return undefined;
   }
 }
 
 /**
  * Download English word audio from Youdao TTS.
  */
-async function downloadTTSWordAudio(word: string, signal?: AbortSignal): Promise<void> {
+async function downloadTTSWordAudio(word: string, signal?: AbortSignal): Promise<string | undefined> {
   const url = `https://dict.youdao.com/dictvoice?type=2&audio=${encodeURIComponent(word)}`;
   logTrace("AudioQuery", `download english word audio: ${word}`);
-  const audioPath = getWordAudioPath(word);
-  await downloadAudio(url, audioPath, { signal });
+  return await downloadAudio(url, { signal });
 }
 
 /**
@@ -49,6 +50,6 @@ export async function playQueryWordAudio(
   options?: { enableYoudaoWebAudio?: boolean; signal?: AbortSignal },
 ): Promise<void> {
   const { enableYoudaoWebAudio = true, signal } = options || {};
-  await downloadQueryWordAudio(queryWordInfo, { enableYoudaoWebAudio, signal });
-  await playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage, { signal });
+  const audioPath = await downloadQueryWordAudio(queryWordInfo, { enableYoudaoWebAudio, signal });
+  await playWordAudio(queryWordInfo.word, queryWordInfo.fromLanguage, { audioPath, signal });
 }
