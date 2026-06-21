@@ -3,7 +3,7 @@
 import type { RequestType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
 import { handleRequestError } from "@/utils/errors";
-import { logTrace } from "@/utils/logger";
+import { createTimer } from "@/utils/logger";
 
 export type ProviderResult<T = unknown> =
   | Promise<QueryTypeResult<T>>
@@ -26,18 +26,21 @@ export abstract class BaseTranslateProvider<T = unknown> {
     queryWordInfo: QueryWordInfo,
     options?: RequestOptions,
   ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
-    logTrace(this.type, `start request ${this.type}`);
+    const timer = createTimer(this.type);
     try {
       const response = this.doTranslate(queryWordInfo, options);
       // Detect AsyncGenerator: delegate all yields and return the final value
       if (response != null && Symbol.asyncIterator in Object(response)) {
-        return yield* response as AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
+        const result = yield* response as AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
+        timer.done(result.translations?.join(", ") ?? "(no result)");
+        return result;
       }
       // Legacy Promise path: await and yield the single final result
       const result = await (response as Promise<QueryTypeResult<T>>);
-      logTrace(this.type, "finish request");
+      timer.done(result.translations?.join(", ") ?? "(no result)");
       return result;
     } catch (error) {
+      timer.fail();
       throw handleRequestError(this.type, error);
     }
   }

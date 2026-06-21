@@ -4,7 +4,7 @@ import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import { genVolcanoSign } from "../translation/volcano/volcanoSign";
 import { BaseDetectProvider } from "./base";
@@ -50,7 +50,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
 
     const volcanoError = volcanoDetectResult.ResponseMetaData.Error;
     if (volcanoError) {
-      logError(this.type, `detect error: ${JSON.stringify(volcanoDetectResult)}`);
+      logError(this.type, `detect error: ${volcanoError.Message}`);
       throw new RequestError(LanguageDetectType.Volcano, volcanoError.Message || "", volcanoError.Code || "");
     }
 
@@ -58,7 +58,6 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
     const volcanoLangCode = detectedLanguage.Language;
     const youdaoLangCode = getYoudaoLangCode(volcanoLangCode, volcanoMap);
     const isConfirmed = detectedLanguage.Confidence > 0.5;
-    logTrace(this.type, `detect language: ${JSON.stringify(detectedLanguage)}, youdaoLangCode: ${youdaoLangCode}`);
 
     return {
       type: LanguageDetectType.Volcano,

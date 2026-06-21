@@ -6,7 +6,7 @@ import type { BaseDetectProvider } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
 import { LanguageDetectType } from "@/types/api";
 import type { RequestError } from "@/utils/errors";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logSummary, logTrace, logWarn } from "@/utils/logger";
 
 import type { DetectedLangModel } from "./types";
 import {
@@ -41,17 +41,24 @@ function initDetectors() {
  * Prioritize the API language detection, if over time, try to use local language detection.
  */
 export async function detectLanguage(text: string): Promise<DetectedLangModel> {
-  logTrace("Detect", "start detectLanguage");
-
   apiDetectedLanguageList = [];
 
   // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
-  logTrace("Detect", `api detect queryText: ${text}`);
-  logTrace("Detect", `detect lowerCaseText: ${lowerCaseText}`);
 
+  const startTime = performance.now();
   const detectedLanguage = await raceDetectTextLanguage(lowerCaseText);
-  return await getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
+  const result = await getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
+  const duration = (performance.now() - startTime).toFixed(0);
+
+  const source =
+    result.type === LanguageDetectType.Simple || result.type === LanguageDetectType.Franc
+      ? `local:${result.type}`
+      : result.type.toString();
+  const confirmed = result.confirmed ? "confirmed" : "unconfirmed";
+  logSummary("Detect", `${result.youdaoLangCode} (${source}, ${duration}ms, ${confirmed})`);
+
+  return result;
 }
 
 /**
@@ -66,7 +73,6 @@ function getDetectAPIs(): Array<(text: string) => Promise<DetectedLangModel>> {
  * Race to detect language, if success, callback API detect language, else local detect language
  */
 function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangModel | undefined> {
-  logTrace("Detect", "start raceDetectLanguage");
   const detectActionList = getDetectAPIs().map((detect) => detect(lowerCaseText));
 
   hasDetectFinished = false;
@@ -76,7 +82,6 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
     detectActionList.forEach((detectAction) => {
       detectAction
         .then((detectedLang) => {
-          logTrace("Detect", `detectAction success: ${detectedLang.type}`);
           handleDetectedLanguage(detectedLang).then((result) => {
             if (result) {
               hasDetectFinished = true;
@@ -90,14 +95,14 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
           if (!errorInfo) {
             logTrace("Detect", "detect cancelled");
           } else {
-            logError("Detect", `race detect language error: ${JSON.stringify(error, null, 4)}`);
+            logError("Detect", `race detect error`, error);
           }
         })
         .finally(() => {
           detectCount += 1;
           // If the last detection action is still not resolve, return undefined.
           if (detectCount === detectActionList.length && !hasDetectFinished) {
-            logWarn("Detect", "last detect action fail, return undefine");
+            logWarn("Detect", "all detect actions failed");
             resolve(undefined);
           }
         });
@@ -111,11 +116,8 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
 function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<DetectedLangModel | undefined> {
   return new Promise((resolve) => {
     if (hasDetectFinished) {
-      logTrace("Detect", "detect has finished, return");
       return resolve(undefined);
     }
-
-    logTrace("Detect", `handleDetectedLanguage: ${JSON.stringify(detectedLangModel)}`);
 
     // Record it in the apiDetectedLanguage.
     apiDetectedLanguageList.push(detectedLangModel);
@@ -128,7 +130,6 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
      * So we have to try to use other types of language detection first.
      */
     if (detectedLangModel.type === LanguageDetectType.Google && detectedLangModel.sourceLangCode.length > 0) {
-      logTrace("Detect", `using Google detect: ${detectedLangModel.sourceLangCode}`);
       detectedLangModel.confirmed = true;
       return resolve(detectedLangModel);
     }
@@ -140,11 +141,9 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
     // 2. Iterate API detected language List, check if has detected >= `two` identical valid language.
     const detectedIdenticalLanguages: DetectedLangModel[] = [];
     const detectedTypes: string[] = [];
-    logTrace("Detect", `detectedLangCode: ${detectedLangCode}, detectedList: ${apiDetectedLanguageList.length}`);
 
     for (const lang of apiDetectedLanguageList) {
       if (lang.youdaoLangCode === detectedLangCode) {
-        logTrace("Detect", `detected push: ${lang.type}`);
         detectedIdenticalLanguages.push(lang);
         detectedTypes.push(lang.type.toString().split(" ")[0]);
       }
@@ -159,22 +158,16 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
 
         if (onlyOneDetectService || (isPreferredLanguage(detectedLangCode) && config.enableDetectLanguageSpeedFirst)) {
           detectedLangModel.confirmed = true;
-          logTrace("Detect", `speed first, detected: ${detectedTypes}`);
           return resolve(detectedLangModel);
         }
       }
 
       if (detectedIdenticalLanguages.length >= 2) {
         detectedLangModel.confirmed = true;
-        logTrace("Detect", `>=2 identical languages detected`);
         return resolve(detectedLangModel);
       }
     }
 
-    logTrace(
-      "Detect",
-      `type: '${detectedLangModel.type}' detected '${detectedLangCode}' is not confirmed, continue next`,
-    );
     return resolve(undefined);
   });
 }
@@ -191,14 +184,12 @@ async function getFinalDetectedLanguage(
   detectedLangModel: DetectedLangModel | undefined,
   confirmedConfidence: number,
 ): Promise<DetectedLangModel> {
-  logTrace("Detect", `start try get final detect: ${JSON.stringify(detectedLangModel)}`);
   if (detectedLangModel && detectedLangModel.confirmed) {
     return detectedLangModel;
   }
 
   const finalDetectedLang = handleFinalDetectedLangFromAPIList(apiDetectedLanguageList);
   if (finalDetectedLang) {
-    logTrace("Detect", `use final detected language from API list: ${JSON.stringify(finalDetectedLang)}`);
     return finalDetectedLang;
   }
 
@@ -211,37 +202,30 @@ async function getFinalDetectedLanguage(
 function handleFinalDetectedLangFromAPIList(
   apiDetectedLanguageList: DetectedLangModel[],
 ): DetectedLangModel | undefined {
-  logTrace("Detect", "handleFinalDetectedLangFromAPIList");
-
   // If only one detected language, return it.
   if (apiDetectedLanguageList.length === 1) {
-    logTrace("Detect", "only one detected language, return it");
     return apiDetectedLanguageList[0];
   }
 
   // If prior is true, return it.
   const priorDetectedLang = apiDetectedLanguageList.find((lang) => lang.prior);
   if (priorDetectedLang) {
-    logTrace("Detect", "prior detected language, return it");
     return priorDetectedLang;
   }
 
   // If Baidu detected language is valid, return it.
   const baiduDetectedLang = apiDetectedLanguageList.find((lang) => lang.type === LanguageDetectType.Baidu);
   if (baiduDetectedLang && isValidLangCode(baiduDetectedLang.youdaoLangCode)) {
-    logTrace("Detect", "Baidu detected language is valid, return it");
     return baiduDetectedLang;
   }
 
   // If Bing detected language, return it.
   for (const lang of apiDetectedLanguageList) {
     if (lang.type === LanguageDetectType.Bing) {
-      logTrace("Detect", "Bing detected language, return it");
       return lang;
     }
   }
 
-  logTrace("Detect", "no detected language, return undefined");
   return undefined;
 }
 
@@ -261,8 +245,6 @@ async function getLocalTextLanguageDetectResult(
   confirmedConfidence: number,
   lowConfidence = 0.2,
 ): Promise<DetectedLangModel> {
-  logTrace("Detect", `local detect, confidence >${confirmedConfidence}`);
-
   initDetectors();
 
   if (localDetectors && localDetectors.length > 0) {
@@ -278,10 +260,6 @@ async function getLocalTextLanguageDetectResult(
       if (detectedLanguageArray) {
         for (const [languageId, confidence] of detectedLanguageArray) {
           if (confidence > lowConfidence && isPreferredLanguage(languageId)) {
-            logTrace(
-              "Detect",
-              `local detect preferred but unconfirmed language: ${languageId}, confidence: ${confidence} (>${lowConfidence})`,
-            );
             const lowConfidenceDetect: DetectedLangModel = {
               type: localDetectResult.type,
               sourceLangCode: localDetectResult.sourceLangCode,
@@ -297,30 +275,26 @@ async function getLocalTextLanguageDetectResult(
       // if local detect language is valid, use it, such as 'fr', 'it'.
       const youdaoLangCode = localDetectResult.youdaoLangCode;
       if (isValidLangCode(youdaoLangCode)) {
-        logTrace("Detect", `final use local unconfirmed but valid detect: ${youdaoLangCode}`);
         return localDetectResult;
       }
     } catch (error) {
-      logError("Detect", `local detect error: ${error}`);
+      logError("Detect", "local detect error", error);
     }
   }
 
   // if simple detect is preferred language, use simple detect language('en', 'zh').
   const simpleDetectLangTypeResult = simpleDetectTextLanguage(text);
   if (isPreferredLanguage(simpleDetectLangTypeResult.youdaoLangCode)) {
-    logTrace("Detect", `use simple detect: ${JSON.stringify(simpleDetectLangTypeResult, null, 4)}`);
     return simpleDetectLangTypeResult;
   }
 
   // finally, use "auto" as fallback.
-  logTrace("Detect", "final use auto");
-  const finalAutoLanguageTypeResult: DetectedLangModel = {
+  return {
     type: LanguageDetectType.Simple,
     sourceLangCode: "",
     youdaoLangCode: "auto",
     confirmed: false,
   };
-  return finalAutoLanguageTypeResult;
 }
 
 /**
@@ -335,12 +309,10 @@ function simpleDetectTextLanguage(text: string): DetectedLangModel {
   } else if (isChinese(text) && checkIfPreferredLanguagesContainChinese()) {
     fromYoudaoLangCode = chineseLanguageItem.youdaoLangCode;
   }
-  logTrace("Detect", `simple detect language -->: ${fromYoudaoLangCode}`);
-  const detectTypeResult: DetectedLangModel = {
+  return {
     type: LanguageDetectType.Simple,
     sourceLangCode: fromYoudaoLangCode,
     youdaoLangCode: fromYoudaoLangCode,
     confirmed: false,
   };
-  return detectTypeResult;
 }

@@ -7,7 +7,7 @@ import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -74,7 +74,7 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
 
     if (baiduResult.trans_result) {
       const translations = baiduResult.trans_result.map((item) => item.dst);
-      logTrace(this.type, `translate: ${translations}, ${baiduResult.from}`);
+
       return {
         type: TranslationType.Baidu,
         result: baiduResult,
@@ -83,7 +83,7 @@ export class BaiduTranslateProvider extends BaseTranslateProvider {
       };
     }
 
-    logError(this.type, `translate error: ${JSON.stringify(baiduResult)}`);
+    logError(this.type, `translate error: ${baiduResult.error_msg}`);
     throw new RequestError(TranslationType.Baidu, baiduResult.error_msg || "", baiduResult.error_code || "");
   }
 }

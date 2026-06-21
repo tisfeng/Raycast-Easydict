@@ -7,7 +7,7 @@ import { baiduMap, getYoudaoLangCode, isValidLangCode } from "@/core/language/ut
 import { LanguageDetectType } from "@/types/api";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace } from "@/utils/logger";
+import { logError } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
 
@@ -40,7 +40,6 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
       const baiduLanguageId = response.lan || "";
       const youdaoLanguageId = getYoudaoLangCode(baiduLanguageId, baiduMap);
       const isConfirmed = isValidLangCode(youdaoLanguageId);
-      logTrace(this.type, `detected: ${baiduLanguageId}`);
 
       return {
         type: LanguageDetectType.Baidu,
@@ -56,7 +55,7 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
       response.msg || "",
       response.error ? response.error.toString() : "",
     );
-    logError(this.type, `web detect error: ${JSON.stringify(response)}`);
+    logError(this.type, `detect error: ${response.msg}`);
     throw errorInfo;
   }
 }

@@ -3,7 +3,7 @@
 import type { DictionaryType } from "@/types/api";
 import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { handleRequestError } from "@/utils/errors";
-import { logTrace } from "@/utils/logger";
+import { createTimer } from "@/utils/logger";
 
 /**
  * Abstract base for dictionary providers.
@@ -20,12 +20,14 @@ export abstract class BaseDictionaryProvider<T = unknown> {
   abstract type: DictionaryType;
 
   public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>> => {
-    logTrace(this.type, `start request ${this.type}`);
+    const timer = createTimer(this.type);
     try {
       const result = await this.doQuery(queryWordInfo, options);
-      logTrace(this.type, "finish request");
+      const sectionCount = result.displaySections?.length ?? 0;
+      timer.done(sectionCount > 0 ? `${sectionCount} sections` : "no entries");
       return result;
     } catch (error) {
+      timer.fail();
       throw handleRequestError(this.type, error);
     }
   };

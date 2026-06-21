@@ -6,7 +6,6 @@ import { bingMap, getYoudaoLangCode } from "@/core/language/utils";
 import { ensureBingConfig, getBingHost, incrementBingConfigCount } from "@/providers/shared/bing-config";
 import { LanguageDetectType } from "@/types/api";
 import { timedFetch } from "@/utils/http";
-import { logTrace } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
 
@@ -67,7 +66,6 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
 
     const detectedLanguageCode = bingResult.detectedLanguage.language;
     const youdaoLangCode = getYoudaoLangCode(detectedLanguageCode, bingMap);
-    logTrace(this.type, `detected: ${detectedLanguageCode}`);
 
     return {
       type: LanguageDetectType.Bing,

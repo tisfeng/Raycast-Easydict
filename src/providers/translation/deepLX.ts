@@ -35,7 +35,6 @@ export class DeepLXTranslateProvider extends BaseTranslateProvider {
     }
 
     const translatedText = await translate(word, targetLang as TargetLanguage, sourceLang as TargetLanguage);
-    logTrace(this.type, `translate: ${translatedText}`);
 
     // Create a result object similar to DeepL API structure
     const deepLXResult = {

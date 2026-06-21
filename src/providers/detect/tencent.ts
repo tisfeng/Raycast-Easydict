@@ -5,7 +5,7 @@ import { ProviderConfig } from "@/providers/shared/config";
 import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
 import { LanguageDetectType } from "@/types/api";
 import { timedFetch } from "@/utils/http";
-import { logTrace, logWarn } from "@/utils/logger";
+import { logWarn } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
 
@@ -42,7 +42,6 @@ export class TencentDetectProvider extends BaseDetectProvider {
   }
 
   protected async doDetect(text: string) {
-    const startTime = new Date().getTime();
     const payload = { Text: text, ProjectId: 0 };
 
     const { url, headers } = tencentSign("LanguageDetect", payload);
@@ -55,10 +54,8 @@ export class TencentDetectProvider extends BaseDetectProvider {
 
     const response = data.Response;
 
-    const endTime = new Date().getTime();
     const tencentLanguageId = response.Lang || "";
     const youdaoLanguageId = getYoudaoLangCode(tencentLanguageId, tencentDetectMap);
-    logTrace(this.type, `detected: ${tencentLanguageId}, cost: ${endTime - startTime}ms`);
 
     return {
       type: LanguageDetectType.Tencent,

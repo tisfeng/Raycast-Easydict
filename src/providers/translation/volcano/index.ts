@@ -5,7 +5,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "../base";
 import { genVolcanoSign } from "./volcanoSign";
@@ -43,8 +43,6 @@ interface VolcanoDetectedLanguageList {
   Language: string;
   Confidence: number;
 }
-
-logTrace("Volcano Translate", "module loaded");
 
 /**
  * Volcengine Translate API.
@@ -86,13 +84,10 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
       signal,
     });
 
-    logTrace(this.type, `translate result: ${JSON.stringify(volcanoResult)}`);
-    logTrace(this.type, `response metadata: ${JSON.stringify(volcanoResult.ResponseMetadata)}`);
-
     const volcanoError = volcanoResult.ResponseMetadata?.Error;
 
     if (volcanoError) {
-      logError(this.type, `translate error: ${JSON.stringify(volcanoResult)}`);
+      logError(this.type, `translate error: ${volcanoError.Message}`);
       throw new RequestError(TranslationType.Volcano, volcanoError.Message || "", volcanoError.Code || "");
     }
 
@@ -101,7 +96,6 @@ export class VolcanoTranslateProvider extends BaseTranslateProvider {
     }
 
     const translations = volcanoResult.TranslationList[0].Translation.split("\n");
-    logTrace(this.type, `Translate: ${translations}`);
 
     return {
       type: TranslationType.Volcano,

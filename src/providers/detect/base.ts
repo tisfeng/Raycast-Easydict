@@ -3,7 +3,7 @@
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/types/api";
 import { handleRequestError } from "@/utils/errors";
-import { logTrace } from "@/utils/logger";
+import { createTimer } from "@/utils/logger";
 
 /**
  * Abstract base for language detection providers.
@@ -21,12 +21,14 @@ export abstract class BaseDetectProvider<T = unknown> {
   abstract isEnabled(): boolean;
 
   public detect = async (text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>> => {
-    logTrace(this.type, `start detect ${this.type}`);
+    const timer = createTimer(this.type);
     try {
       const result = await this.doDetect(text, options);
-      logTrace(this.type, "finish detect");
+      const confidence = result.confirmed ? "confirmed" : "unconfirmed";
+      timer.done(`${result.youdaoLangCode} (${confidence})`);
       return result;
     } catch (error) {
+      timer.fail();
       throw handleRequestError(this.type, error);
     }
   };

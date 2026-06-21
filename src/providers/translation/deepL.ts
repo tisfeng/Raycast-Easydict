@@ -91,7 +91,6 @@ export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslate
     }
 
     const translatedText = deepLResult.translations[0].text;
-    logTrace(this.type, `translate: ${translatedText}`);
 
     return {
       type: TranslationType.DeepL,

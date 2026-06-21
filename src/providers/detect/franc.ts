@@ -7,7 +7,6 @@ import { isPreferredLanguage } from "@/core/detect/utils";
 import { languageItemList } from "@/core/language/consts";
 import { getLanguageItem, getLanguageItemFromFrancCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
-import { logTrace } from "@/utils/logger";
 
 import { BaseDetectProvider } from "./base";
 
@@ -20,22 +19,19 @@ export class FrancDetectProvider extends BaseDetectProvider {
   }
 
   protected async doDetect(text: string, options?: { confirmedConfidence?: number }) {
-    return francLanguageDetect(text, options?.confirmedConfidence, this.type);
+    return francLanguageDetect(text, options?.confirmedConfidence);
   }
 }
 
 /**
  * Use franc to detect text language (offline, n-gram based).
  */
-export function francLanguageDetect(text: string, confirmedConfidence = 0.8, label = "franc"): DetectedLangModel {
-  const startTime = new Date().getTime();
-  logTrace(label, `start franc detect: ${text}`);
+export function francLanguageDetect(text: string, confirmedConfidence = 0.8): DetectedLangModel {
   let detectedLanguageId = "auto";
   let confirmed = false;
 
   const onlyFrancLanguageIdList = languageItemList.map((item) => item.francLangCode);
   const francDetectLanguageList = francAll(text, { minLength: 2, only: onlyFrancLanguageIdList });
-  logTrace(label, `franc detect cost time: ${new Date().getTime() - startTime} ms`);
 
   const detectedYoudaoLanguageArray: [string, number][] = francDetectLanguageList.map((languageTuple) => {
     const [francLanguageId, confidence] = languageTuple;
@@ -43,17 +39,8 @@ export function francLanguageDetect(text: string, confirmedConfidence = 0.8, lab
     return [youdaoLanguageId, confidence];
   });
 
-  logTrace(label, `franc detected language array: ${JSON.stringify(detectedYoudaoLanguageArray)}`);
-  if (detectedYoudaoLanguageArray.length === 1) {
-    logTrace(label, `franc detected language: ${francDetectLanguageList[0]}`);
-  }
-
   for (const [languageId, confidence] of detectedYoudaoLanguageArray) {
     if (confidence > confirmedConfidence && isPreferredLanguage(languageId)) {
-      logTrace(
-        label,
-        `franc detect confirmed language: ${languageId}, confidence: ${confidence} (>${confirmedConfidence})`,
-      );
       detectedLanguageId = languageId;
       confirmed = true;
       break;

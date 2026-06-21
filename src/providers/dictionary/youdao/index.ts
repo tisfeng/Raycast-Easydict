@@ -6,14 +6,12 @@ import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace } from "@/utils/logger";
+import { logError } from "@/utils/logger";
 
 import { ensureYoudaoCookie } from "./cookie";
 import { formatYoudaoWebDictionaryModel, updateYoudaoDictionaryDisplay } from "./formatData";
 import type { YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
-
-logTrace("Youdao Dictionary", "module loaded");
 
 // * Cookie will be expired after 1 day, so we need to update it every time we start.
 if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {

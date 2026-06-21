@@ -12,7 +12,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logTrace, logWarn } from "@/utils/logger";
+import { logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -42,8 +42,6 @@ interface BingTransliteration {
   script: string;
   text: string;
 }
-
-logTrace("Bing Translate", "module loaded");
 
 /**
  * Request Microsoft Bing Web Translator.
@@ -78,7 +76,6 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     const bingHost = getBingHost();
     const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
-    logTrace(this.type, `url: ${url}`);
 
     const { url: finalUrl, data: responseData } = await this.makeRequest(url, data, signal);
 
@@ -108,9 +105,6 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     }
 
     const translations = bingTranslateResult.translations[0].text.split("\n");
-    const detectedLanguage = bingTranslateResult.detectedLanguage?.language;
-    const toLangResult = bingTranslateResult.translations[0].to;
-    logTrace(this.type, `translate: ${translations}, from: ${detectedLanguage} -> ${toLangResult}`);
 
     return {
       type: TranslationType.Bing,
@@ -138,13 +132,10 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     const finalUrl = response.url;
 
-    logTrace(this.type, `finalUrl: ${finalUrl}`);
-
     // Handle redirect manually - POST body needs to be resent
     if (response.status >= 300 && response.status < 400) {
       const redirectUrl = response.headers.get("location");
       if (redirectUrl) {
-        logTrace(this.type, `redirect to: ${redirectUrl}`);
         return this.makeRequest(redirectUrl, data, signal);
       }
     }

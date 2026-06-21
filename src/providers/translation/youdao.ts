@@ -9,7 +9,7 @@ import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -85,7 +85,6 @@ export class YoudaoTranslateProvider extends BaseTranslateProvider {
     const translations = translateResponse.translateResult.map((e: Array<{ tgt: string }>) =>
       e.map((t) => t.tgt).join(""),
     );
-    logTrace(this.type, `translate result: ${translations.join("\n")}`);
 
     return {
       type: TranslationType.Youdao,

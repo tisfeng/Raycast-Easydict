@@ -55,7 +55,6 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
     const match = html.match(/<div class="result-container">(.*?)<\/div>/s);
     const translation = match?.[1]?.trim() ?? "";
     const translations = translation.split("\n");
-    logTrace(this.type, `web translation: ${translation}`);
 
     return {
       type: TranslationType.Google,

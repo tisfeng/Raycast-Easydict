@@ -6,7 +6,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -86,7 +86,6 @@ export class TencentTranslateProvider extends BaseTranslateProvider {
 
     const targetText = tencentResult.TargetText || "";
     const translations = targetText.split("\n");
-    logTrace(this.type, `translations: ${translations}, ${tencentResult.Source}`);
 
     return {
       type: TranslationType.Tencent,

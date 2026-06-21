@@ -19,14 +19,9 @@ export function logTrace(label: string, text: string) {
   console.log(formatMsg("🔍", label, text));
 }
 
-export function logDebug(label: string, text: string) {
+export function logSummary(label: string, text: string) {
   if (!isDev) return;
-  console.log(formatMsg("🐛", label, text));
-}
-
-export function logInfo(label: string, text: string) {
-  if (!isDev) return;
-  console.log(formatMsg("ℹ️", label, text));
+  console.log(formatMsg("📋", label, text));
 }
 
 export function logWarn(label: string, text: string) {
@@ -34,7 +29,30 @@ export function logWarn(label: string, text: string) {
   console.warn(formatMsg("⚠️", label, text));
 }
 
-export function logError(label: string, text: string) {
+export function logError(label: string, text: string, error?: unknown) {
   if (!isDev) return;
-  console.error(`❌ [${label}] ${text}`);
+  console.error(`❌ [${label}] ${truncate(text)}`, error ?? "");
+}
+
+/**
+ * Creates a timer that logs duration on completion or failure.
+ * Use in provider base classes to centralize timing logic.
+ *
+ * @example
+ * const timer = createTimer(this.type);
+ * const result = await doWork();
+ * timer.done(`${result.translations.join(", ")}`);
+ */
+export function createTimer(label: string) {
+  const start = performance.now();
+  return {
+    done(summary: string) {
+      const duration = (performance.now() - start).toFixed(0);
+      logTrace(label, `${summary} (${duration}ms)`);
+    },
+    fail() {
+      const duration = (performance.now() - start).toFixed(0);
+      logTrace(label, `request failed (${duration}ms)`);
+    },
+  };
 }

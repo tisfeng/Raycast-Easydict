@@ -63,7 +63,6 @@ export class CaiyunTranslateProvider extends BaseTranslateProvider {
     });
 
     const translations = caiyunResult.target;
-    logTrace(this.type, `translate: ${translations}`);
 
     return {
       type,

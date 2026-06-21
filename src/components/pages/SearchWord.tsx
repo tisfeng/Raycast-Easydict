@@ -66,18 +66,12 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    if (trimQueryText?.length) {
-      logTrace("SearchWord", `arguments queryText: ${trimQueryText}`);
-    }
-
     const userInputText = trimQueryText;
 
     if (userInputText?.length) {
       updateInputTextAndQueryText(userInputText, false);
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
-      querySelectedText().then(() => {
-        logTrace("SearchWord", "after query selected text");
-      });
+      querySelectedText();
     }
   }
 
@@ -105,14 +99,10 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    *
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
-    logTrace("SearchWord", `selected language: ${selectedLanguageItem.youdaoLangCode}`);
-    logTrace("SearchWord", `current target language: ${userSelectedTargetLanguageItem.youdaoLangCode}`);
-
     if (selectedLanguageItem.youdaoLangCode === userSelectedTargetLanguageItem.youdaoLangCode) {
       return;
     }
 
-    logTrace("SearchWord", `updateSelectedTargetLanguageItem: ${selectedLanguageItem.youdaoLangCode}`);
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
@@ -132,19 +122,13 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
    */
   function updateInputTextAndQueryText(text: string, isDelay: boolean) {
     // Normalize newlines to spaces to match Raycast's internal SearchBar behavior.
-    // This prevents the SearchBar from firing an onSearchTextChange event with the collapsed
-    // text later, which would cause a duplicate query and abort this initial one.
     const normalizedText = text.replace(/\r?\n/g, " ");
-
-    logTrace("SearchWord", `update input text, length: ${normalizedText.length}`);
 
     setInputText(normalizedText);
     const trimText = normalizedText.trim();
     setSearchText(trimText);
 
-    // If trimText is empty, then do not query.
     if (trimText.length === 0) {
-      logTrace("SearchWord", "trimText is empty, do not query");
       debouncedQuery.cancel();
       clearQueryResult();
       return;
