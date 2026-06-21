@@ -8,6 +8,7 @@ import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageItem } from "@/core/language/types";
 import { getLanguageItem } from "@/core/language/utils";
 import { computeDisplaySections } from "@/core/query/displaySections";
+import { computeHideDisplay } from "@/core/query/hideRules";
 import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
@@ -15,11 +16,13 @@ import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { dictionaryServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
-import { checkIsTranslationType, TranslationType } from "@/types/api";
+import { checkIsTranslationType, type TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryType, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryResult, QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
+
+import { useAutoPlayAudio } from "./useAutoPlayAudio";
 
 logTrace("UseQueryEngine", "module loaded");
 
@@ -102,20 +105,14 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   const isCurrentQueryRef = useRef(true);
   const hasPlayedAudioRef = useRef(false);
 
+  useAutoPlayAudio(state.queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef);
+
   const displaySections = useMemo(() => computeDisplaySections(state), [state]);
 
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
     };
-  }, []);
-
-  const addQueryToRecordList = useCallback((type: QueryType) => {
-    dispatch({ type: "START_QUERY", queryType: type });
-  }, []);
-
-  const removeQueryFromRecordList = useCallback((type: QueryType) => {
-    dispatch({ type: "FINISH_QUERY", queryType: type });
   }, []);
 
   const buildTranslationDisplay = useCallback((queryResult: QueryResult): QueryResult | null => {
@@ -131,37 +128,26 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     }
 
     const oneLineTranslation = sourceResult.translations.join(", ");
-    sourceResult.oneLineTranslation = oneLineTranslation;
+    const updatedSourceResult = { ...sourceResult, oneLineTranslation };
     const copyText = sourceResult.translations.join("\n");
 
     const displayItem: ListDisplayItem = {
       displayCategory: "translation",
       displayType: type,
       queryType: type,
-      // Use `type` as a stable key to prevent UI flickering during streaming (e.g., OpenAI, Gemini),
-      // and to optimize React rendering performance. The global uniqueness hash is handled in SearchWord.tsx.
       key: type,
-      title: ` ${oneLineTranslation}`,
+      title: oneLineTranslation,
       copyText,
       queryWordInfo: sourceResult.queryWordInfo,
     };
     const displaySections: DisplaySection[] = [{ type, sectionTitle: type, items: [displayItem] }];
 
-    const newResult: QueryResult = { ...queryResult, displaySections };
-
-    if (type === TranslationType.DeepL) {
-      newResult.hideDisplay = !myPreferences.enableDeepLTranslate;
-    }
-
-    if (
-      type === TranslationType.Youdao &&
-      myPreferences.enableYoudaoDictionary &&
-      !myPreferences.enableYoudaoTranslate
-    ) {
-      newResult.hideDisplay = true;
-    }
-
-    return newResult;
+    return {
+      ...queryResult,
+      sourceResult: updatedSourceResult,
+      displaySections,
+      hideDisplay: computeHideDisplay(type),
+    };
   }, []);
 
   const runTranslationQuery = useCallback(
@@ -169,7 +155,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
-      addQueryToRecordList(config.type);
+      dispatch({ type: "START_QUERY", queryType: config.type });
 
       const signal = abortControllerRef.current?.signal;
       const instance = new config.provider();
@@ -200,39 +186,32 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       } catch (error) {
         showErrorToast(error);
       } finally {
-        removeQueryFromRecordList(config.type);
+        dispatch({ type: "FINISH_QUERY", queryType: config.type });
       }
     },
-    [addQueryToRecordList, removeQueryFromRecordList, buildTranslationDisplay],
+    [buildTranslationDisplay],
   );
 
-  const runDictionaryQuery = useCallback(
-    (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo) => {
-      const enabled =
-        config?.isEnabled?.(queryWordInfo) ??
-        (config.preference ? (myPreferences[config.preference] as boolean) : true);
-      if (!enabled) return;
-      if (!config.provider) return;
+  const runDictionaryQuery = useCallback(async (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo) => {
+    const enabled =
+      config?.isEnabled?.(queryWordInfo) ?? (config.preference ? (myPreferences[config.preference] as boolean) : true);
+    if (!enabled) return;
+    if (!config.provider) return;
 
-      addQueryToRecordList(config.type);
-      const instance = new config.provider();
+    dispatch({ type: "START_QUERY", queryType: config.type });
+    const instance = new config.provider();
 
-      instance
-        .request(queryWordInfo, { signal: abortControllerRef.current?.signal })
-        .then((result) => {
-          if (result.displaySections && result.displaySections.length > 0) {
-            dispatch({ type: "SET_RESULT", queryResult: result });
-          }
-        })
-        .catch((error) => {
-          showErrorToast(error);
-        })
-        .finally(() => {
-          removeQueryFromRecordList(config.type);
-        });
-    },
-    [addQueryToRecordList, removeQueryFromRecordList],
-  );
+    try {
+      const result = await instance.request(queryWordInfo, { signal: abortControllerRef.current?.signal });
+      if (result.displaySections && result.displaySections.length > 0) {
+        dispatch({ type: "SET_RESULT", queryResult: result });
+      }
+    } catch (error) {
+      showErrorToast(error);
+    } finally {
+      dispatch({ type: "FINISH_QUERY", queryType: config.type });
+    }
+  }, []);
 
   const queryTextWithTextInfo = useCallback(
     (queryWordInfo: QueryWordInfo) => {
@@ -343,10 +322,5 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     queryTextWithTextInfo,
     clearQueryResult,
     setAutoSelectedTargetLanguageItem,
-
-    queryResults: state.queryResults,
-    hasPlayedAudioRef,
-    isCurrentQueryRef,
-    abortControllerRef,
   } as const;
 }

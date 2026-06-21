@@ -20,14 +20,22 @@ import { logTrace } from "@/utils/logger";
  */
 export function sortedQueryResults(queryResults: QueryResult[]) {
   const sortedQueryResults: QueryResult[] = [];
+  const unclassifiedResults: QueryResult[] = [];
+
   for (const queryResult of queryResults) {
     const typeString = queryResult.type.toString().toLowerCase();
     const index = getSortOrder().indexOf(typeString);
-    sortedQueryResults[index] = queryResult;
+    if (index === -1) {
+      unclassifiedResults.push(queryResult);
+    } else {
+      sortedQueryResults[index] = queryResult;
+    }
   }
+
+  const combinedResults = [...sortedQueryResults, ...unclassifiedResults];
   // filter undefined, or result is undefined.
-  return sortedQueryResults.filter((queryResult) => {
-    if (queryResult?.sourceResult.result) {
+  return combinedResults.filter((queryResult) => {
+    if (queryResult?.sourceResult?.result) {
       return true;
     }
   });

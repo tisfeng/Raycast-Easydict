@@ -9,7 +9,7 @@ import { getWordAccessories } from "@/components/ui/WordAccessories";
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
-import { useAutoPlayAudio, useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
+import { useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import type { QueryWordInfo } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { logError, logTrace } from "@/utils/logger";
@@ -35,15 +35,9 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     queryTextWithTextInfo,
     clearQueryResult,
     setAutoSelectedTargetLanguageItem,
-    queryResults,
-    hasPlayedAudioRef,
-    isCurrentQueryRef,
-    abortControllerRef,
-  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage1);
+  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2);
 
   const debouncedQuery = useDebouncedQuery(queryText);
-
-  useAutoPlayAudio(queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef);
 
   /**
    * Use to display input text.
@@ -81,7 +75,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     if (userInputText?.length) {
       updateInputTextAndQueryText(userInputText, false);
     } else if (myPreferences.enableAutomaticQuerySelectedText) {
-      querySelecedtText().then(() => {
+      querySelectedText().then(() => {
         logTrace("SearchWord", "after query selected text");
       });
     }
@@ -90,7 +84,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
    */
-  function querySelecedtText(): Promise<void> {
+  function querySelectedText(): Promise<void> {
     return new Promise((resolve) => {
       getSelectedText()
         .then((selectedText) => {
