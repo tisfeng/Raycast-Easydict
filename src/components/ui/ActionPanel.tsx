@@ -16,7 +16,7 @@ import type { ListDisplayItem } from "@/types/display";
 import type { QueryType, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 
-import { getQueryTypeIcon, playSoundIconBlack } from "./Icons";
+import { getQueryTypeIcon } from "./Icons";
 
 interface ActionListPanelProps {
   displayItem: ListDisplayItem;
@@ -35,7 +35,11 @@ interface WebQueryItem {
 
 const shortcuts = {
   showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
-  playText: { macOS: { modifiers: ["cmd"], key: "s" }, Windows: { modifiers: ["ctrl"], key: "s" } },
+  readQueryText: { macOS: { modifiers: ["cmd"], key: "r" }, Windows: { modifiers: ["ctrl"], key: "r" } },
+  readResultText: {
+    macOS: { modifiers: ["cmd", "shift"], key: "r" },
+    Windows: { modifiers: ["ctrl", "shift"], key: "r" },
+  },
   openOnline: Keyboard.Shortcut.Common.Open,
 } satisfies Record<string, Keyboard.Shortcut>;
 
@@ -169,19 +173,20 @@ function AudioActions({
   toLanguage: string;
 }) {
   return (
-    <ActionPanel.Section title="Play Text Audio">
+    <ActionPanel.Section title="Read Text Audio">
       <Action
-        title="Play Query Text"
-        icon={playSoundIconBlack}
-        shortcut={shortcuts.playText}
+        title="Read Query Text"
+        icon={Icon.Play}
+        shortcut={shortcuts.readQueryText}
         onAction={() => {
-          logTrace("ActionPanel", `start play sound: ${queryWordInfo.word}`);
+          logTrace("ActionPanel", `start read sound: ${queryWordInfo.word}`);
           playQueryWordAudio(queryWordInfo);
         }}
       />
       <Action
-        title="Play Result Text"
-        icon={playSoundIconBlack}
+        title="Read Result Text"
+        icon={Icon.Play}
+        shortcut={shortcuts.readResultText}
         onAction={() => playTTS(copyText, toLanguage, { truncate: true })}
       />
     </ActionPanel.Section>
