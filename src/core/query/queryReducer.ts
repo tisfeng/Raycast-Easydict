@@ -7,14 +7,13 @@
  * - QueryState: the single source of truth for all query-related UI state
  * - QueryAction: discriminated union of all possible state transitions
  * - queryReducer: pure function that computes next state from current state + action
- * - Cross-service coupling helpers: pure functions that update display when related
- *   services return results (e.g., DeepL translation updates Linguee dictionary title)
+ * - Cross-service coupling: declarative rules in couplingRules.ts
  */
 
 import type { LanguageItem } from "@/core/language/types";
-import { DictionaryType, TranslationType } from "@/types/api";
 import type { QueryResult, QueryType } from "@/types/query";
 
+import { COUPLING_RULES } from "./couplingRules";
 import { checkIfShowTranslationDetail, sortedQueryResults } from "./utils";
 
 export interface QueryState {
@@ -74,87 +73,6 @@ export type QueryAction =
   | { type: "RESET_FOR_NEW_QUERY" };
 
 /**
- * Cross-Service Coupling
- *
- * When a translation service returns a result, it may need to update a related
- * dictionary's display. For example:
- * - DeepL translation → updates Linguee dictionary's title
- * - Youdao translation → updates Youdao dictionary's translation row
- *
- * All coupling follows the same pattern: find source result, find target result,
- * update target's first display item's title/copyText. So we use a single generic
- * function with a text extractor callback.
- */
-
-/**
- * Generic: copy translation text from a source result to a target dictionary's display item.
- *
- * @param results - current query results array
- * @param sourceType - translation type to pull text from (e.g., DeepL)
- * @param targetType - dictionary type to update (e.g., Linguee)
- * @param getText - extracts display text from the source result
- * @param options.minSections - skip update if target has fewer sections (e.g., Youdao needs ≥2)
- */
-function applyTranslationToDisplay(
-  results: QueryResult[],
-  sourceType: QueryType,
-  targetType: QueryType,
-  getText: (source: QueryResult) => string | undefined,
-  options?: { minSections?: number },
-): QueryResult[] {
-  const source = results.find((r) => r.type === sourceType);
-  const target = results.find((r) => r.type === targetType);
-
-  if (!source || !target) return results;
-
-  const text = getText(source);
-  if (!text) return results;
-
-  return results.map((r) => {
-    if (r.type !== targetType || !r.displaySections?.length) return r;
-    if (options?.minSections && r.displaySections.length < options.minSections) return r;
-
-    const updatedSections = r.displaySections.map((section, idx) => {
-      if (idx !== 0 || !section.items?.length) return section;
-      const updatedItems = section.items.map((item, itemIdx) => {
-        if (itemIdx !== 0) return item;
-        return { ...item, title: text, copyText: text };
-      });
-      return { ...section, items: updatedItems };
-    });
-    return { ...r, displaySections: updatedSections };
-  });
-}
-
-/**
- * Sync Youdao dictionary metadata (phonetic, examTypes) to Linguee's accessoryItem.
- *
- * When Youdao dictionary result arrives, its sourceResult.queryWordInfo may contain
- * phonetic and examTypes that should also appear on Linguee's display.
- */
-function applyMetadataToLinguee(results: QueryResult[], youdaoResult: QueryResult): QueryResult[] {
-  const { phonetic, examTypes } = youdaoResult.sourceResult.queryWordInfo;
-  if (!phonetic && !examTypes?.length) return results;
-
-  const linguee = results.find((r) => r.type === DictionaryType.Linguee);
-  if (!linguee?.displaySections?.length) return results;
-
-  return results.map((r) => {
-    if (r.type !== DictionaryType.Linguee || !r.displaySections?.length) return r;
-
-    const updatedSections = r.displaySections.map((section, idx) => {
-      if (idx !== 0 || !section.items?.length) return section;
-      const updatedItems = section.items.map((item, itemIdx) => {
-        if (itemIdx !== 0) return item;
-        return { ...item, accessoryItem: { ...item.accessoryItem, phonetic, examTypes } };
-      });
-      return { ...section, items: updatedItems };
-    });
-    return { ...r, displaySections: updatedSections };
-  });
-}
-
-/**
  * Pure reducer function. Computes next state from current state + action.
  *
  * Rules:
@@ -192,29 +110,9 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
       results = sortedQueryResults(results);
 
       // Apply cross-service coupling
-      if (queryResult.type === TranslationType.DeepL || queryResult.type === DictionaryType.Linguee) {
-        results = applyTranslationToDisplay(
-          results,
-          TranslationType.DeepL,
-          DictionaryType.Linguee,
-          (r) => r.sourceResult.oneLineTranslation,
-        );
-      }
-      if (queryResult.type === TranslationType.Youdao) {
-        results = applyTranslationToDisplay(
-          results,
-          TranslationType.Youdao,
-          DictionaryType.Youdao,
-          (r) => r.sourceResult.translations.join(", "),
-          { minSections: 2 },
-        );
-      }
-
-      // Sync Youdao dictionary metadata (phonetic, examTypes) to Linguee's accessoryItem
-      if (queryResult.type === DictionaryType.Youdao || queryResult.type === DictionaryType.Linguee) {
-        const youdaoResult = results.find((r) => r.type === DictionaryType.Youdao);
-        if (youdaoResult) {
-          results = applyMetadataToLinguee(results, youdaoResult);
+      for (const rule of COUPLING_RULES) {
+        if (rule.triggers.includes(queryResult.type)) {
+          results = rule.apply(results);
         }
       }
 
