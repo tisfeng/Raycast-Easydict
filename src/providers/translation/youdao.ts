@@ -6,6 +6,7 @@ import { userAgent } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace, logWarn } from "@/utils/logger";
@@ -106,10 +107,7 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
     pointParam: "client,mysticTime,product",
     mysticTime: ts,
     keyfrom: "fanyi.web",
-    sign: crypto
-      .createHash("md5")
-      .update(`client=fanyideskweb&mysticTime=${ts}&product=webfanyi&key=asdjnjfenknafdfsdfsd`)
-      .digest("hex"),
+    sign: md5(`client=fanyideskweb&mysticTime=${ts}&product=webfanyi&key=asdjnjfenknafdfsdfsd`),
   };
 
   const response = await timedFetch<YoudaoKey>("https://dict.youdao.com/webtranslate/key", {
@@ -141,10 +139,7 @@ async function webTranslate(
   const { secretKey, aesKey, aesIv } = youdaoKey.data;
 
   const ts: string = String(new Date().getTime());
-  const sign = crypto
-    .createHash("md5")
-    .update(`client=fanyideskweb&mysticTime=${ts}&product=webfanyi&key=${secretKey}`)
-    .digest("hex");
+  const sign = md5(`client=fanyideskweb&mysticTime=${ts}&product=webfanyi&key=${secretKey}`);
   const params: TranslateParams = {
     keyid: "webfanyi",
     client: "fanyideskweb",
@@ -180,10 +175,6 @@ async function webTranslate(
   return JSON.parse(decryptedData);
 }
 
-function md5Hex(str: string): string {
-  return crypto.createHash("md5").update(str).digest("hex");
-}
-
 function decryptAES(text: string, key: string, iv: string): string | null {
   if (!text) {
     return null;
@@ -191,8 +182,8 @@ function decryptAES(text: string, key: string, iv: string): string | null {
 
   text = text.replace(/-/g, "+").replace(/_/g, "/");
 
-  const a = Buffer.from(md5Hex(key), "hex");
-  const r = Buffer.from(md5Hex(iv), "hex");
+  const a = Buffer.from(md5(key), "hex");
+  const r = Buffer.from(md5(iv), "hex");
 
   try {
     const decipher = crypto.createDecipheriv("aes-128-cbc", a, r);

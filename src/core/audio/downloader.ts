@@ -1,11 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { x } from "tinyexec";
 
 import { EASYDICT_TMP_DIR } from "@/consts";
+import { md5 } from "@/utils/crypto";
 import { normalizeError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
@@ -16,7 +16,7 @@ function getAudioBasePath(url: string): string {
   if (!fs.existsSync(audioDirPath)) {
     fs.mkdirSync(audioDirPath, { recursive: true });
   }
-  const hash = crypto.createHash("md5").update(url).digest("hex");
+  const hash = md5(url);
   return path.join(audioDirPath, hash);
 }
 
