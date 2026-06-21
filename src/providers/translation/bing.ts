@@ -1,25 +1,20 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LocalStorage } from "@raycast/api";
-
-import { myPreferences, userAgent } from "@/consts";
+import { userAgent } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
+import {
+  ensureBingConfig,
+  getBingHost,
+  incrementBingConfigCount,
+  requestBingConfig,
+} from "@/providers/shared/bing-config";
 import { TranslationType } from "@/types/api";
 import type { QueryTypeResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
-
-interface BingConfig {
-  IG: string;
-  IID: string;
-  key: string;
-  token: string;
-  expirationInterval: string;
-  count: number;
-}
 
 export interface BingTranslateResult {
   detectedLanguage: BingDetectedLanguage;
@@ -50,14 +45,6 @@ interface BingTransliteration {
 
 logTrace("Bing Translate", "module loaded");
 
-const bingConfigKey = "BingConfig";
-let bingConfig: BingConfig | undefined;
-
-const defaultBingHost = "www.bing.com";
-
-// * bing host depends ip, if ip is in china, `must` use cn.bing.com, otherwise use www.bing.com. And vice versa.
-let bingHost: string = myPreferences.bingHost || defaultBingHost;
-
 let retryCount = 0;
 
 /**
@@ -71,29 +58,9 @@ export class BingTranslateProvider extends BaseTranslateProvider {
     const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
     const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";
 
-    const isExpired = await checkIfBingTokenExpired();
-    logTrace(this.type, `token expired: ${isExpired}`);
-
-    if (isExpired) {
-      logTrace(this.type, "token expired, request new one");
-      bingConfig = await requestBingConfig();
-    } else {
-      const storedBingConfig = await LocalStorage.getItem<string>(bingConfigKey);
-      if (storedBingConfig) {
-        bingConfig = JSON.parse(storedBingConfig) as BingConfig;
-        logTrace(this.type, `use stored bingConfig, IG: ${bingConfig.IG}`);
-      }
-    }
-
-    if (!bingConfig) {
-      logError(this.type, "get bingConfig failed");
-      throw new RequestError(TranslationType.Bing, "Get bing config failed");
-    }
-
-    const { IID, IG, key, token, count } = bingConfig;
-    const requestCount = count + 1;
-    bingConfig.count = requestCount;
-    LocalStorage.setItem(bingConfigKey, JSON.stringify(bingConfig));
+    const bingConfig = await ensureBingConfig();
+    const { IG, key, token } = bingConfig;
+    const IIDString = incrementBingConfigCount();
 
     const data = {
       text: word,
@@ -103,8 +70,7 @@ export class BingTranslateProvider extends BaseTranslateProvider {
       key: key,
     };
 
-    const IIDString = `${IID}.${requestCount}`;
-
+    const bingHost = getBingHost();
     const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
     logTrace(this.type, `url: ${url}`);
 
@@ -112,12 +78,13 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     // Get new host
     const newBingHost = new URL(finalUrl).host;
+    const currentBingHost = getBingHost();
     // If bing translate response is empty, may be ip has been changed, bing tld is not correct, so check ip again, then request again.
     if (!responseData) {
-      if (bingHost !== newBingHost && retryCount < 3) {
+      if (currentBingHost !== newBingHost && retryCount < 3) {
         logWarn(
           this.type,
-          `translate response is empty, change to use new host: ${bingHost}, then request again, retryCount: ${retryCount}`,
+          `translate response is empty, change to use new host: ${currentBingHost}, then request again, retryCount: ${retryCount}`,
         );
         retryCount++;
         const newConfig = await requestBingConfig();
@@ -181,103 +148,4 @@ export class BingTranslateProvider extends BaseTranslateProvider {
 
     return { url: finalUrl, data: response._data };
   }
-}
-
-/**
- * Request Bing Translator API Token from web, and store it.
- *
- * Ref: https://github.com/plainheart/bing-translate-api/blob/master/src/index.js
- */
-async function requestBingConfig(): Promise<BingConfig | undefined> {
-  logTrace("Bing Translate", "start requestBingConfig");
-  logTrace("Bing Translate", `config bingTld: ${bingHost}`);
-
-  const url = `https://${bingHost}/translator`;
-  logTrace("Bing Translate", `get config url: ${url}`);
-
-  const response = await timedFetch.raw(url, {
-    headers: { "User-Agent": userAgent },
-    responseType: "text",
-  });
-
-  const html = response._data as string;
-  const config = parseBingConfig(html);
-
-  if (config) {
-    bingConfig = config;
-    logTrace("Bing Translate", `getBingConfig from web, IG: ${config.IG}`);
-    LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
-    return config;
-  } else {
-    logWarn("Bing Translate", `parse config failed, html: ${html}`);
-    logTrace("Bing Translate", "try check if ip in china");
-
-    const finalUrl = response.url;
-    bingHost = new URL(finalUrl).host;
-
-    logWarn("Bing Translate", `get config failed, host: ${bingHost}, change host, then request again`);
-    try {
-      return await requestBingConfig();
-    } catch {
-      return undefined;
-    }
-  }
-}
-
-/**
- * Parse bing config from html.
- */
-function parseBingConfig(html: string): BingConfig | undefined {
-  // IG:"C064D2C8D4F84111B96C9F14E2F5CE07"
-  const IG = html.match(/IG:"(.*?)"/)?.[1];
-  // data-iid="translator.5023"
-  const IID = html.match(/data-iid="(.*?)"/)?.[1];
-  // var params_AbusePreventionHelper = [1663259642763, "ETrbGhqGa5PwV8WL3sTYSBxsYRagh5bl", 3600000, true, null, false, "必应翻译", false, false, null, null];
-  const params_AbusePreventionHelper = html.match(/var params_AbusePreventionHelper = (.*?);/)?.[1];
-  if (IG && params_AbusePreventionHelper) {
-    const paramsArray = JSON.parse(params_AbusePreventionHelper);
-    const [key, token, expirationInterval] = paramsArray;
-    const config: BingConfig = {
-      IG: IG,
-      IID: IID || "translator.5023",
-      key: key,
-      token: token,
-      expirationInterval: expirationInterval,
-      count: 1,
-    };
-
-    bingConfig = config;
-    LocalStorage.setItem(bingConfigKey, JSON.stringify(config));
-    return config;
-  }
-}
-
-/**
- * Check if token expired, if expired, get a new one. else use the stored one as bingConfig.
- */
-async function checkIfBingTokenExpired(): Promise<boolean> {
-  logTrace("Bing Translate", "check if token expired");
-  const value = await LocalStorage.getItem<string>(bingConfigKey);
-  if (!value) {
-    requestBingConfig();
-    return true;
-  }
-
-  const config = JSON.parse(value) as BingConfig;
-  const { key, expirationInterval } = config;
-  const tokenStartTime = parseInt(key);
-  const expiration = parseInt(expirationInterval);
-  // default expiration is 10 min, for better experience, we get a new token after 5 min.
-  const tokenUsedTime = Date.now() - tokenStartTime;
-  const isExpired = tokenUsedTime > expiration;
-  if (isExpired) {
-    logTrace("Bing Translate", "token expired, request new one");
-    requestBingConfig();
-  } else {
-    bingConfig = config;
-    if (tokenUsedTime > expiration / 2) {
-      requestBingConfig();
-    }
-  }
-  return isExpired;
 }
