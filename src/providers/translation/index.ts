@@ -83,9 +83,12 @@ export const translationServices: TranslationServiceConfig[] = [
   {
     type: TranslationType.Youdao,
     preference: "enableYoudaoTranslate",
-    isEnabled: (q) =>
-      myPreferences.enableYoudaoTranslate ||
-      (myPreferences.enableYoudaoDictionary && getYoudaoWebDictionaryURL(q) !== undefined && checkIsWord(q)),
+    isEnabled: (q) => {
+      const explicitlyEnabled = myPreferences.enableYoudaoTranslate;
+      const implicitlyEnabledByDictionary =
+        myPreferences.enableYoudaoDictionary && getYoudaoWebDictionaryURL(q) !== undefined && checkIsWord(q);
+      return explicitlyEnabled || implicitlyEnabledByDictionary;
+    },
     provider: YoudaoTranslateProvider,
   },
   {
