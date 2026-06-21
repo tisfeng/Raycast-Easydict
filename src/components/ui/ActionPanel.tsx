@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import type { Image } from "@raycast/api";
 import { Action, ActionPanel, Detail, Icon, Keyboard, open, openCommandPreferences } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 
@@ -7,253 +8,244 @@ import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
+import type { LanguageItem } from "@/core/language/types";
 import { getShowMoreDetailMarkdown } from "@/core/query/utils";
 import { dictionaryServices } from "@/providers/dictionary";
 import { translationServices } from "@/providers/translation";
-import { DictionaryType, TranslationType } from "@/types/api";
+import type { ListDisplayItem } from "@/types/display";
 import type { QueryType, QueryWordInfo } from "@/types/query";
-import type { ActionListPanelProps, WebQueryItem } from "@/types/ui";
 import { logError, logTrace } from "@/utils/logger";
 
 import { getQueryTypeIcon, playSoundIconBlack } from "./Icons";
 
-const openInEudic = (queryText: string) => {
+interface ActionListPanelProps {
+  displayItem: ListDisplayItem;
+  isInstalledEudic: boolean;
+  isShowingReleasePrompt: boolean;
+  onHideReleasePrompt: () => void;
+  onLanguageUpdate: (language: LanguageItem) => void;
+}
+
+interface WebQueryItem {
+  type: QueryType;
+  webUrl: string;
+  icon: Image.ImageLike;
+  title: string;
+}
+
+const shortcuts = {
+  showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
+  playText: { macOS: { modifiers: ["cmd"], key: "s" }, Windows: { modifiers: ["ctrl"], key: "s" } },
+  openOnline: Keyboard.Shortcut.Common.Open,
+} satisfies Record<string, Keyboard.Shortcut>;
+
+const allServices = [...translationServices, ...dictionaryServices];
+const queryWebItemTypes = allServices.filter((s) => s.getWebUrl).map((s) => s.type);
+
+function openInEudic(queryText: string) {
   const url = `eudic://dict/${queryText}`;
   open(url).catch((error) => {
     logError("ActionPanel", `open in eudic error: ${error}`);
-    showFailureToast(String(error), {
-      title: "Eudic is not installed.",
-    });
+    showFailureToast(String(error), { title: "Eudic is not installed." });
   });
-};
-
-const shortcuts = {
-  showDetail: { modifiers: ["cmd"] as Keyboard.KeyModifier[], key: "m" as Keyboard.KeyEquivalent },
-  playText: { modifiers: ["cmd"] as Keyboard.KeyModifier[], key: "s" as Keyboard.KeyEquivalent },
-  openOnline: Keyboard.Shortcut.Common.Open,
-};
-
-const queryWebItemTypes = [
-  DictionaryType.Youdao,
-  DictionaryType.Linguee,
-  DictionaryType.Eudic,
-  TranslationType.DeepL,
-  TranslationType.DeepLX,
-  TranslationType.Google,
-  TranslationType.Baidu,
-  TranslationType.Volcano,
-];
-
-/**
- * Current type web query item.
- */
-function CurrentTypeWebQueryAction(props: { queryType: QueryType; queryWordInfo: QueryWordInfo }) {
-  const { queryType, queryWordInfo } = props;
-
-  if (!queryWebItemTypes.includes(queryType)) {
-    return null;
-  }
-
-  const currentWebItem = getWebQueryItem(queryType, queryWordInfo);
-  return <WebQueryAction webQueryItem={currentWebItem} enableShortcutKey={true} />;
 }
 
-/**
- * Except current type web query item.
- */
-function ExceptCurrentTypeWebQueryActionPanel(props: { queryType: QueryType; queryWordInfo: QueryWordInfo }) {
-  const { queryType, queryWordInfo } = props;
+function getWebQueryItem({
+  queryType,
+  wordInfo,
+}: {
+  queryType: QueryType;
+  wordInfo: QueryWordInfo;
+}): WebQueryItem | undefined {
+  const service = allServices.find((s) => s.type === queryType);
+  const webUrl = service?.getWebUrl?.(wordInfo);
+  if (!webUrl) return undefined;
+  return { type: queryType, webUrl, icon: getQueryTypeIcon(queryType), title: `Open in ${queryType}` };
+}
 
-  const exceptWebItemTypes = queryWebItemTypes.filter((item) => item !== queryType);
+function WebQueryAction({
+  webQueryItem,
+  enableShortcutKey,
+}: {
+  webQueryItem?: WebQueryItem;
+  enableShortcutKey?: boolean;
+}) {
+  if (!webQueryItem?.webUrl) return null;
   return (
-    <ActionPanel.Section title="Search Query Text Online">
-      {exceptWebItemTypes.map((queryType) => {
-        const webQueryItem = getWebQueryItem(queryType, queryWordInfo);
-        return <WebQueryAction webQueryItem={webQueryItem} enableShortcutKey={false} key={queryType} />;
-      })}
+    <Action.OpenInBrowser
+      icon={webQueryItem.icon}
+      title={webQueryItem.title}
+      url={webQueryItem.webUrl}
+      shortcut={enableShortcutKey ? shortcuts.openOnline : undefined}
+    />
+  );
+}
+
+function ReleaseNotesAction({ title, onPush }: { title?: string; onPush?: () => void }) {
+  return (
+    <Action.Push icon={Icon.Stars} title={title || "Recent Updates"} target={<ReleaseNotesPage />} onPush={onPush} />
+  );
+}
+
+function PrimaryActions({
+  displayItem,
+  isInstalledEudic,
+  isShowingReleasePrompt,
+  onHideReleasePrompt,
+}: {
+  displayItem: ListDisplayItem;
+  isInstalledEudic: boolean;
+  isShowingReleasePrompt: boolean;
+  onHideReleasePrompt: () => void;
+}) {
+  const { queryWordInfo, queryType, copyText } = displayItem;
+  const { word } = queryWordInfo;
+  const showEudic = isInstalledEudic && myPreferences.showOpenInEudicFirst;
+
+  const currentWebQueryAction = queryWebItemTypes.includes(queryType) ? (
+    <WebQueryAction webQueryItem={getWebQueryItem({ queryType, wordInfo: queryWordInfo })} enableShortcutKey />
+  ) : null;
+
+  return (
+    <ActionPanel.Section>
+      {isShowingReleasePrompt && <ReleaseNotesAction title="✨ New Version Released" onPush={onHideReleasePrompt} />}
+
+      {showEudic && <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />}
+
+      <Action.CopyToClipboard
+        title="Copy Text"
+        content={copyText}
+        onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
+      />
+
+      {!showEudic && isInstalledEudic && (
+        <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
+      )}
+
+      <Action.Push
+        title="Show More Details"
+        icon={Icon.Eye}
+        shortcut={shortcuts.showDetail}
+        target={
+          <Detail
+            markdown={getShowMoreDetailMarkdown(displayItem)}
+            actions={
+              <ActionPanel>
+                <Action.CopyToClipboard
+                  title="Copy Text"
+                  content={copyText}
+                  onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
+                />
+                {currentWebQueryAction}
+              </ActionPanel>
+            }
+          />
+        }
+      />
+      {currentWebQueryAction}
     </ActionPanel.Section>
   );
 }
 
-/**
- * Get the list action panel item with ListItemActionPanelItem
- */
+function OtherWebQuerySection({ queryType, queryWordInfo }: { queryType: QueryType; queryWordInfo: QueryWordInfo }) {
+  return (
+    <ActionPanel.Section title="Search Query Text Online">
+      {queryWebItemTypes
+        .filter((t) => t !== queryType)
+        .map((t) => (
+          <WebQueryAction webQueryItem={getWebQueryItem({ queryType: t, wordInfo: queryWordInfo })} key={t} />
+        ))}
+    </ActionPanel.Section>
+  );
+}
+
+function AudioActions({
+  queryWordInfo,
+  copyText,
+  toLanguage,
+}: {
+  queryWordInfo: QueryWordInfo;
+  copyText: string;
+  toLanguage: string;
+}) {
+  return (
+    <ActionPanel.Section title="Play Text Audio">
+      <Action
+        title="Play Query Text"
+        icon={playSoundIconBlack}
+        shortcut={shortcuts.playText}
+        onAction={() => {
+          logTrace("ActionPanel", `start play sound: ${queryWordInfo.word}`);
+          playQueryWordAudio(queryWordInfo);
+        }}
+      />
+      <Action
+        title="Play Result Text"
+        icon={playSoundIconBlack}
+        onAction={() => playTTS(copyText, toLanguage, { truncate: true })}
+      />
+    </ActionPanel.Section>
+  );
+}
+
+function TargetLanguageSection({
+  fromLanguage,
+  toLanguage,
+  onLanguageUpdate,
+}: {
+  fromLanguage: string;
+  toLanguage: string;
+  onLanguageUpdate: (language: LanguageItem) => void;
+}) {
+  if (!myPreferences.enableSelectTargetLanguage) return null;
+  return (
+    <ActionPanel.Section title="Target Language">
+      {languageItemList
+        .filter((lang) => lang.youdaoLangCode !== "auto" && lang.youdaoLangCode !== fromLanguage)
+        .map((lang) => (
+          <Action
+            key={lang.youdaoLangCode}
+            title={lang.langEnglishName}
+            onAction={() => onLanguageUpdate(lang)}
+            icon={lang.youdaoLangCode === toLanguage ? Icon.ArrowRight : { source: lang.emoji }}
+          />
+        ))}
+    </ActionPanel.Section>
+  );
+}
+
+function SettingsActions({ isShowingReleasePrompt }: { isShowingReleasePrompt: boolean }) {
+  return (
+    <ActionPanel.Section>
+      {!isShowingReleasePrompt && <ReleaseNotesAction />}
+      <Action.OpenInBrowser
+        icon={Icon.Document}
+        title={`Version: ${EASYDICT_VERSION}`}
+        url={getReleaseTagUrl(EASYDICT_VERSION)}
+      />
+      <Action icon={Icon.Gear} title="Preferences" onAction={openCommandPreferences} />
+      <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={FEEDBACK_URL} />
+    </ActionPanel.Section>
+  );
+}
+
 export function ListActionPanel(props: ActionListPanelProps) {
-  const { isShowingReleasePrompt, onHideReleasePrompt } = props;
-
-  const displayItem = props.displayItem;
+  const { displayItem, isShowingReleasePrompt, onHideReleasePrompt, isInstalledEudic, onLanguageUpdate } = props;
   const { queryWordInfo, queryType, copyText } = displayItem;
-  const { word, fromLanguage, toLanguage } = queryWordInfo;
-
-  const showMoreDetailMarkdown = getShowMoreDetailMarkdown(displayItem);
+  const { fromLanguage, toLanguage } = queryWordInfo;
 
   return (
     <ActionPanel>
-      <ActionPanel.Section>
-        {isShowingReleasePrompt && <ReleaseNotesAction title="✨ New Version Released" onPush={onHideReleasePrompt} />}
-        {props.isInstalledEudic && myPreferences.showOpenInEudicFirst && (
-          <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
-        )}
-        {CopyTextAction({ copyText })}
-        {props.isInstalledEudic && !myPreferences.showOpenInEudicFirst && (
-          <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
-        )}
-        <Action.Push
-          title="Show More Details"
-          icon={Icon.Eye}
-          shortcut={shortcuts.showDetail}
-          target={
-            <Detail
-              markdown={showMoreDetailMarkdown}
-              actions={
-                <ActionPanel>
-                  {CopyTextAction({ copyText })}
-                  <CurrentTypeWebQueryAction queryType={queryType} queryWordInfo={queryWordInfo} />
-                </ActionPanel>
-              }
-            />
-          }
-        />
-        <CurrentTypeWebQueryAction queryType={queryType} queryWordInfo={queryWordInfo} />
-      </ActionPanel.Section>
-
-      <ExceptCurrentTypeWebQueryActionPanel queryType={queryType} queryWordInfo={queryWordInfo} />
-
-      <ActionPanel.Section title="Play Text Audio">
-        <Action
-          title="Play Query Text"
-          icon={playSoundIconBlack}
-          shortcut={shortcuts.playText}
-          onAction={() => {
-            logTrace("ActionPanel", `start play sound: ${word}`);
-            playQueryWordAudio(queryWordInfo);
-          }}
-        />
-        <Action
-          title="Play Result Text"
-          icon={playSoundIconBlack}
-          onAction={() => {
-            /**
-             *  Directly use say command to play the result text.
-             *  Because it is difficult to determine whether the result is a word, impossible to use Youdao web audio directly.
-             *  In addition, TTS needs to send additional youdao query requests.
-             *
-             *  Todo: add a shortcut to stop playing audio.
-             */
-            playTTS(copyText, toLanguage, { truncate: true });
-          }}
-        />
-      </ActionPanel.Section>
-
-      {myPreferences.enableSelectTargetLanguage && (
-        <ActionPanel.Section title="Target Language">
-          {languageItemList.map((selectedLanguageItem) => {
-            // hide auto language
-            const isAutoLanguage = selectedLanguageItem.youdaoLangCode === "auto";
-            // hide current detected language
-            const isSameWithDetectedLanguage = selectedLanguageItem.youdaoLangCode === fromLanguage;
-            const isSameWithTargetLanguage = selectedLanguageItem.youdaoLangCode === toLanguage;
-            if (isAutoLanguage || isSameWithDetectedLanguage) {
-              return null;
-            }
-
-            return (
-              <Action
-                key={selectedLanguageItem.youdaoLangCode}
-                title={selectedLanguageItem.langEnglishName}
-                onAction={() => props.onLanguageUpdate(selectedLanguageItem)}
-                icon={isSameWithTargetLanguage ? Icon.ArrowRight : { source: selectedLanguageItem.emoji }}
-              />
-            );
-          })}
-        </ActionPanel.Section>
-      )}
-
-      <ActionPanel.Section>
-        {!isShowingReleasePrompt && <ReleaseNotesAction />}
-        <CurrentVersionAction />
-        <ActionOpenCommandPreferences />
-        <ActionFeedback />
-      </ActionPanel.Section>
+      <PrimaryActions
+        displayItem={displayItem}
+        isInstalledEudic={isInstalledEudic}
+        isShowingReleasePrompt={isShowingReleasePrompt}
+        onHideReleasePrompt={onHideReleasePrompt}
+      />
+      <OtherWebQuerySection queryType={queryType} queryWordInfo={queryWordInfo} />
+      <AudioActions queryWordInfo={queryWordInfo} copyText={copyText} toLanguage={toLanguage} />
+      <TargetLanguageSection fromLanguage={fromLanguage} toLanguage={toLanguage} onLanguageUpdate={onLanguageUpdate} />
+      <SettingsActions isShowingReleasePrompt={isShowingReleasePrompt} />
     </ActionPanel>
   );
-}
-
-/**
- * Copy text action
- */
-function CopyTextAction(props: { copyText: string }) {
-  const { copyText } = props;
-  return (
-    <Action.CopyToClipboard
-      onCopy={() => {
-        logTrace("ActionPanel", `copy: ${copyText}`);
-      }}
-      title={`Copy Text`}
-      content={copyText}
-    />
-  );
-}
-
-function ActionFeedback() {
-  return <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={FEEDBACK_URL} />;
-}
-
-function ActionOpenCommandPreferences() {
-  return <Action icon={Icon.Gear} title="Preferences" onAction={openCommandPreferences} />;
-}
-
-function ReleaseNotesAction(props: { title?: string; onPush?: () => void }) {
-  return (
-    <Action.Push
-      icon={Icon.Stars}
-      title={props.title || "Recent Updates"}
-      target={<ReleaseNotesPage />}
-      onPush={props.onPush}
-    />
-  );
-}
-
-function CurrentVersionAction() {
-  return (
-    <Action.OpenInBrowser
-      icon={Icon.Document}
-      title={`Version: ${EASYDICT_VERSION}`}
-      url={getReleaseTagUrl(EASYDICT_VERSION)}
-    />
-  );
-}
-
-/**
- * Get WebQueryItem according to the query type and info
- */
-function getWebQueryItem(queryType: QueryType, wordInfo: QueryWordInfo): WebQueryItem | undefined {
-  const service = [...translationServices, ...dictionaryServices].find((s) => s.type === queryType);
-  const webUrl = service?.getWebUrl?.(wordInfo);
-
-  const title = `Open in ${queryType}`;
-  const icon = getQueryTypeIcon(queryType);
-
-  return webUrl ? { type: queryType, webUrl, icon, title } : undefined;
-}
-
-function WebQueryAction(props: { webQueryItem?: WebQueryItem; enableShortcutKey?: boolean }) {
-  if (props.enableShortcutKey) {
-    return props.webQueryItem?.webUrl ? (
-      <Action.OpenInBrowser
-        icon={props.webQueryItem.icon}
-        title={props.webQueryItem.title}
-        url={props.webQueryItem.webUrl}
-        shortcut={shortcuts.openOnline}
-      />
-    ) : null;
-  } else {
-    return props.webQueryItem?.webUrl ? (
-      <Action.OpenInBrowser
-        icon={props.webQueryItem.icon}
-        title={props.webQueryItem.title}
-        url={props.webQueryItem.webUrl}
-      />
-    ) : null;
-  }
 }
