@@ -1,8 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { LocalStorage } from "@raycast/api";
-
-import { myPreferences, userAgent } from "@/consts";
+import { myPreferences } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
@@ -10,57 +8,16 @@ import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
 
+import { ensureYoudaoCookie } from "./cookie";
 import { formatYoudaoWebDictionaryModel, updateYoudaoDictionaryDisplay } from "./formatData";
 import type { YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
 logTrace("Youdao Dictionary", "module loaded");
 
-const youdaoTranslatURL = "https://fanyi.youdao.com";
-
-const youdaoCookieKey = "youdaoCookie";
-
-let youdaoCookie: string | undefined;
-
 // * Cookie will be expired after 1 day, so we need to update it every time we start.
 if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
-  getYoudaoWebCookie();
-}
-
-/**
- * Get youdao cookie from youdao web, and store it in local storage.
- */
-function getYoudaoWebCookie(): Promise<string | undefined> {
-  logTrace("Youdao Dictionary", "start getYoudaoWebCookie");
-
-  LocalStorage.getItem<string>(youdaoCookieKey).then((cookie) => {
-    if (cookie) {
-      youdaoCookie = cookie;
-    }
-  });
-
-  const headers = {
-    "User-Agent": userAgent,
-  };
-
-  return new Promise((resolve) => {
-    timedFetch
-      .raw(youdaoTranslatURL, { headers })
-      .then((response) => {
-        const setCookie = response.headers.getSetCookie?.() || [];
-        if (setCookie.length > 0) {
-          youdaoCookie = setCookie.join(";");
-          resolve(youdaoCookie);
-          LocalStorage.setItem(youdaoCookieKey, youdaoCookie);
-          logTrace("Youdao Dictionary", "got web youdaoCookie");
-        }
-      })
-      .catch((error) => {
-        logError("Youdao Dictionary", `get youdaoCookie error: ${error}`);
-        LocalStorage.removeItem(youdaoCookieKey);
-        resolve(undefined);
-      });
-  });
+  ensureYoudaoCookie().catch((error) => logError("Youdao Dictionary", `ensure cookie error: ${error}`));
 }
 
 /**
