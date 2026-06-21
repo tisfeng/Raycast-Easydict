@@ -45,15 +45,21 @@ interface BingTransliteration {
 
 logTrace("Bing Translate", "module loaded");
 
-let retryCount = 0;
-
 /**
  * Request Microsoft Bing Web Translator.
  */
 export class BingTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Bing;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, options: RequestOptions = {}): Promise<QueryTypeResult> {
+    return this.doTranslateInternal(queryWordInfo, options, 0);
+  }
+
+  private async doTranslateInternal(
+    queryWordInfo: QueryWordInfo,
+    { signal }: RequestOptions = {},
+    retryCount: number,
+  ): Promise<QueryTypeResult> {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
     const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";
@@ -86,17 +92,14 @@ export class BingTranslateProvider extends BaseTranslateProvider {
           this.type,
           `translate response is empty, change to use new host: ${currentBingHost}, then request again, retryCount: ${retryCount}`,
         );
-        retryCount++;
         const newConfig = await requestBingConfig();
         if (newConfig) {
-          return this.doTranslate(queryWordInfo, { signal });
+          return this.doTranslateInternal(queryWordInfo, { signal }, retryCount + 1);
         }
         throw new RequestError(TranslationType.Bing, "Bing translate response is empty");
       }
       throw new RequestError(TranslationType.Bing, "Bing translate response is empty");
     }
-
-    retryCount = 0;
 
     const responseArray = responseData as unknown[];
     const bingTranslateResult = responseArray[0] as BingTranslateResult | undefined;
