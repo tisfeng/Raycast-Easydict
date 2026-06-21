@@ -27,7 +27,7 @@ export const timedFetch = ofetch.create({
   onResponse({ options }) {
     if (environment.isDevelopment && options.startTime !== undefined) {
       const cost = (performance.now() - options.startTime).toFixed(0);
-      logTrace("fetchConfig", `cost time: ${cost} ms`);
+      logTrace("HTTP", `cost time: ${cost} ms`);
     }
   },
 });
