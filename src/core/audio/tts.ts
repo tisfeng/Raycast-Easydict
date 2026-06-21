@@ -26,7 +26,7 @@ async function playTTSOnMac(text: string, youdaoLanguageId: string, signal?: Abo
 
   logTrace("AudioTTS", `say -v ${voice}`);
   try {
-    await x("say", ["-v", voice, cleanText], { throwOnError: true, signal });
+    await x("/usr/bin/afplay", ["-v", voice, cleanText], { throwOnError: true, signal });
   } catch (error) {
     logError("AudioTTS", `say command failed: ${error}`);
   }

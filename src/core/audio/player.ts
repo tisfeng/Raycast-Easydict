@@ -41,7 +41,7 @@ public class Audio {
  * macOS: play audio file using afplay.
  */
 async function playOnMac({ audioPath, signal }: PlayParams) {
-  await x("afplay", [audioPath], { throwOnError: true, signal });
+  await x("/usr/bin/afplay", [audioPath], { throwOnError: true, signal });
 }
 
 /**
