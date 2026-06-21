@@ -22,8 +22,6 @@ interface SearchWordProps {
 export default function SearchWord({ initialQueryText, fallbackText }: SearchWordProps) {
   const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
 
-  const [isInputChanged, setInputChangedState] = useState<boolean>(false);
-
   const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
   const { isInstalledEudic } = useInstalledEudic();
 
@@ -172,14 +170,6 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   }
 
   function onInputChange(text: string) {
-    // Ignore the first inputChange event to avoid lost queryText argument, fix https://github.com/tisfeng/Raycast-Easydict/issues/62
-    if (!isInputChanged) {
-      setInputChangedState(true);
-      if (text === "") {
-        logTrace("SearchWord", "ignore first inputChange event");
-        return;
-      }
-    }
     updateInputTextAndQueryText(text, true);
   }
 

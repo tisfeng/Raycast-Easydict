@@ -19,7 +19,7 @@ import { BaseTranslateProvider } from "./base";
 export class DeepLXTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.DeepLX;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal: _signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
     const targetLang = getLangCode(toLanguage, "deepLSourceId");
