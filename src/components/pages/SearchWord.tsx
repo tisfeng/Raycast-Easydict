@@ -11,6 +11,7 @@ import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { useAutoPlayAudio, useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import type { QueryWordInfo } from "@/types/query";
+import { md5 } from "@/utils/crypto";
 import { logError, logTrace } from "@/utils/logger";
 
 interface SearchWordProps {
@@ -152,12 +153,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     // If trimText is empty, then do not query.
     if (trimText.length === 0) {
       logTrace("SearchWord", "trimText is empty, do not query");
+      debouncedQuery.cancel();
       clearQueryResult();
       return;
     }
 
     // Only different input text, then clear old results before new input text query.
     if (trimText !== searchText) {
+      debouncedQuery.cancel();
       clearQueryResult();
       const toLanguage = userSelectedTargetLanguageItem.youdaoLangCode;
       if (isDelay) {
@@ -172,8 +175,10 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     // Ignore the first inputChange event to avoid lost queryText argument, fix https://github.com/tisfeng/Raycast-Easydict/issues/62
     if (!isInputChanged) {
       setInputChangedState(true);
-      logTrace("SearchWord", "ignore first inputChange event");
-      return;
+      if (text === "") {
+        logTrace("SearchWord", "ignore first inputChange event");
+        return;
+      }
     }
     updateInputTextAndQueryText(text, true);
   }
@@ -188,13 +193,21 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       actions={null}
     >
       {displaySections.map((resultItem, idx) => {
-        const sectionKey = `${resultItem.type}${idx}`;
+        const currentWord = resultItem.items?.[0]?.queryWordInfo?.word || "";
+        const wordHash = md5(currentWord);
+
+        const provider = resultItem.items?.[0]?.queryType || "Unknown";
+        // idx ensures that when items are reordered, they get new keys,
+        // which forces Raycast to reset the cursor to the top result (index 0).
+        // wordHash ensures that keys are never reused across different queries, fixing the blank space bug.
+        const sectionKey = `${idx}-${provider}-${resultItem.type}-${wordHash}`;
         return (
           <List.Section key={sectionKey} title={resultItem.sectionTitle}>
             {resultItem.items?.map((item) => {
+              const itemKey = `${idx}-${item.key}-${wordHash}`;
               return (
                 <List.Item
-                  key={item.key}
+                  key={itemKey}
                   icon={{
                     value: getListItemIcon(item),
                     tooltip: item.tooltip || "",

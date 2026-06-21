@@ -134,15 +134,13 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     sourceResult.oneLineTranslation = oneLineTranslation;
     const copyText = sourceResult.translations.join("\n");
 
-    let key = `${oneLineTranslation}-${type}`;
-    if (type === TranslationType.OpenAI) {
-      key = type;
-    }
     const displayItem: ListDisplayItem = {
       displayCategory: "translation",
       displayType: type,
       queryType: type,
-      key,
+      // Use `type` as a stable key to prevent UI flickering during streaming (e.g., OpenAI, Gemini),
+      // and to optimize React rendering performance. The global uniqueness hash is handled in SearchWord.tsx.
+      key: type,
       title: ` ${oneLineTranslation}`,
       copyText,
       queryWordInfo: sourceResult.queryWordInfo,
