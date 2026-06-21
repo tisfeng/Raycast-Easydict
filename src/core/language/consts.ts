@@ -41,7 +41,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Chinese-Simplified",
     langChineseName: "简体中文",
     appleDetectLangChineseName: "简体中文",
-    voiceList: ["Ting-Ting"], // use { say -v '?'} to get voice list.
+    voiceList: { macOS: ["TingTing"] }, // Ting-Ting now change to TingTing in macOS
     emoji: "🇨🇳",
   },
   {
@@ -61,7 +61,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "English",
     langChineseName: "英语",
     appleDetectLangChineseName: "英语",
-    voiceList: ["Samantha", "Alex"], // * Note: 'Alex' is not built-in voice in macOS 13.0+, user need to download manually and cost 885M storage.
+    voiceList: { macOS: ["Samantha", "Alex"] }, // * Note: 'Alex' is not built-in voice in macOS 13.0+, user need to download manually and cost 885M storage.
     emoji: "🇺🇸",
   },
   {
@@ -77,7 +77,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Chinese-Traditional",
     langChineseName: "繁体中文",
     appleDetectLangChineseName: "繁体中文",
-    voiceList: ["Ting-Ting"],
+    voiceList: { macOS: ["TingTing"] },
     emoji: "🇭🇰",
   },
   {
@@ -96,7 +96,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Japanese",
     langChineseName: "日语",
     appleDetectLangChineseName: "日语",
-    voiceList: ["Kyoko"],
+    voiceList: { macOS: ["Kyoko"] },
     emoji: "🇯🇵",
   },
   {
@@ -114,7 +114,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Korean",
     langChineseName: "韩语",
     appleDetectLangChineseName: "韩语",
-    voiceList: ["Yuna"],
+    voiceList: { macOS: ["Yuna"] },
     emoji: "🇰🇷",
   },
   {
@@ -132,7 +132,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "French",
     langChineseName: "法语",
     appleDetectLangChineseName: "法语",
-    voiceList: ["Amélie", "Thomas"],
+    voiceList: { macOS: ["Amélie", "Thomas"] },
     emoji: "🇫🇷",
   },
   {
@@ -150,7 +150,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Spanish",
     langChineseName: "西班牙语",
     appleDetectLangChineseName: "西班牙语",
-    voiceList: ["Jorge", "Juan", "Diego", "Monica", "Paulina"],
+    voiceList: { macOS: ["Jorge", "Juan", "Diego", "Monica", "Paulina"] },
     emoji: "🇪🇸",
   },
   {
@@ -169,7 +169,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Portuguese",
     langChineseName: "葡萄牙语",
     appleDetectLangChineseName: "葡萄牙语",
-    voiceList: ["Joana", "Luciana"],
+    voiceList: { macOS: ["Joana", "Luciana"] },
     emoji: "🇵🇹",
   },
   {
@@ -187,7 +187,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Italian",
     langChineseName: "意大利语",
     appleDetectLangChineseName: "意大利语",
-    voiceList: ["Alice", "Luca"],
+    voiceList: { macOS: ["Alice", "Luca"] },
     emoji: "🇮🇹",
   },
   {
@@ -205,7 +205,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "German",
     langChineseName: "德语",
     appleDetectLangChineseName: "德语",
-    voiceList: ["Anna"],
+    voiceList: { macOS: ["Anna"] },
     emoji: "🇩🇪",
   },
   {
@@ -223,7 +223,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Russian",
     langChineseName: "俄语",
     appleDetectLangChineseName: "俄语",
-    voiceList: ["Milena", "Yuri"],
+    voiceList: { macOS: ["Milena", "Yuri"] },
     emoji: "🇷🇺",
   },
   {
@@ -240,7 +240,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Arabic",
     langChineseName: "阿拉伯语",
     appleDetectLangChineseName: "阿拉伯语",
-    voiceList: ["Maged"],
+    voiceList: { macOS: ["Maged"] },
     emoji: "🇦🇪",
   },
   {
@@ -255,7 +255,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Swedish",
     langChineseName: "瑞典语",
     appleDetectLangChineseName: "瑞典语",
-    voiceList: ["Alva"],
+    voiceList: { macOS: ["Alva"] },
     emoji: "🇸🇪",
   },
   {
@@ -270,7 +270,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Romanian",
     langChineseName: "罗马尼亚语",
     appleDetectLangChineseName: "罗马尼亚语",
-    voiceList: ["Ioana"],
+    voiceList: { macOS: ["Ioana"] },
     emoji: "🇷🇴",
   },
   {
@@ -287,7 +287,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Thai",
     langChineseName: "泰语",
     appleDetectLangChineseName: "泰语",
-    voiceList: ["Kanya"],
+    voiceList: { macOS: ["Kanya"] },
     emoji: "🇹🇭",
   },
   {
@@ -302,7 +302,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Slovak",
     langChineseName: "斯洛伐克语",
     appleDetectLangChineseName: "斯洛伐克语",
-    voiceList: ["Laura"],
+    voiceList: { macOS: ["Laura"] },
     emoji: "🇸🇰",
   },
   {
@@ -316,7 +316,7 @@ export const languageItemList: LanguageItem[] = [
     aliyunLangCode: "nl",
     baiduLangCode: "nl", // commone lang
     langEnglishName: "Dutch",
-    voiceList: ["Ellen", "Xander"],
+    voiceList: { macOS: ["Ellen", "Xander"] },
     langChineseName: "荷兰语",
     appleDetectLangChineseName: "荷兰语",
     emoji: "🇳🇱",
@@ -333,7 +333,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Hungarian",
     langChineseName: "匈牙利语",
     appleDetectLangChineseName: "匈牙利语",
-    voiceList: ["Mariska"],
+    voiceList: { macOS: ["Mariska"] },
     emoji: "🇭🇺",
   },
   {
@@ -348,7 +348,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Greek",
     langChineseName: "希腊语",
     appleDetectLangChineseName: "希腊语",
-    voiceList: ["Melina"],
+    voiceList: { macOS: ["Melina"] },
     emoji: "🇬🇷",
   },
   {
@@ -363,7 +363,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Danish",
     langChineseName: "丹麦语",
     appleDetectLangChineseName: "丹麦语",
-    voiceList: ["Sara"],
+    voiceList: { macOS: ["Sara"] },
     emoji: "🇩🇰",
   },
   {
@@ -378,7 +378,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Finnish",
     langChineseName: "芬兰语",
     appleDetectLangChineseName: "芬兰语",
-    voiceList: ["Satu"],
+    voiceList: { macOS: ["Satu"] },
     emoji: "🇫🇮",
   },
   {
@@ -394,7 +394,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Polish",
     langChineseName: "波兰语",
     appleDetectLangChineseName: "波兰语",
-    voiceList: ["Zosia"],
+    voiceList: { macOS: ["Zosia"] },
     emoji: "🇵🇱",
   },
   {
@@ -409,7 +409,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Czech",
     langChineseName: "捷克语",
     appleDetectLangChineseName: "捷克语",
-    voiceList: ["Zuzana"],
+    voiceList: { macOS: ["Zuzana"] },
     emoji: "🇨🇿",
   },
   {
@@ -427,7 +427,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Turkish",
     langChineseName: "土耳其语",
     appleDetectLangChineseName: "土耳其语",
-    voiceList: ["Filiz"],
+    voiceList: { macOS: ["Filiz"] },
     emoji: "🇹🇷",
   },
   {
@@ -442,7 +442,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Lithuanian",
     langChineseName: "立陶宛语",
     appleDetectLangChineseName: "立陶宛语",
-    voiceList: ["Milda"],
+    voiceList: { macOS: ["Milda"] },
     emoji: "🇱🇹",
   },
   {
@@ -457,7 +457,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Latvian",
     langChineseName: "拉脱维亚语",
     appleDetectLangChineseName: "拉脱维亚语",
-    voiceList: ["Liga"],
+    voiceList: { macOS: ["Liga"] },
     emoji: "🇱🇻",
   },
   {
@@ -473,7 +473,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Ukrainian",
     langChineseName: "乌克兰语",
     appleDetectLangChineseName: "乌克兰语",
-    voiceList: ["Oksana"],
+    voiceList: { macOS: ["Oksana"] },
     emoji: "🇺🇦",
   },
   {
@@ -488,7 +488,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Bulgarian",
     langChineseName: "保加利亚语",
     appleDetectLangChineseName: "保加利亚语",
-    voiceList: ["Tanya"],
+    voiceList: { macOS: ["Tanya"] },
     emoji: "🇧🇬",
   },
   {
@@ -506,7 +506,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Indonesian",
     langChineseName: "印尼语",
     appleDetectLangChineseName: "印尼语",
-    voiceList: ["Ardi"],
+    voiceList: { macOS: ["Ardi"] },
     emoji: "🇮🇩",
   },
   {
@@ -522,7 +522,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Malay",
     langChineseName: "马来语",
     appleDetectLangChineseName: "马来语",
-    voiceList: ["Rizwan"],
+    voiceList: { macOS: ["Rizwan"] },
     emoji: "🇲🇾",
   },
 
@@ -538,7 +538,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Slovenian",
     langChineseName: "斯洛文尼亚语",
     appleDetectLangChineseName: "斯洛文尼亚语",
-    voiceList: ["Lado"],
+    voiceList: { macOS: ["Lado"] },
     emoji: "🇸🇮",
   },
   {
@@ -553,7 +553,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Estonian",
     langChineseName: "爱沙尼亚语",
     appleDetectLangChineseName: "爱沙尼亚语",
-    voiceList: ["Kertu"],
+    voiceList: { macOS: ["Kertu"] },
     emoji: "🇪🇪",
   },
   {
@@ -570,7 +570,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Vietnamese",
     langChineseName: "越南语",
     appleDetectLangChineseName: "越南语",
-    voiceList: ["Minh"],
+    voiceList: { macOS: ["Minh"] },
     emoji: "🇻🇳",
   },
   {
@@ -584,7 +584,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Persian",
     langChineseName: "波斯语",
     appleDetectLangChineseName: "波斯语",
-    voiceList: ["Zahra"],
+    voiceList: { macOS: ["Zahra"] },
     emoji: "🇮🇷",
   },
   {
@@ -599,7 +599,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Hindi",
     langChineseName: "印地语",
     appleDetectLangChineseName: "印地语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇮🇳",
   },
   {
@@ -613,7 +613,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Telugu",
     langChineseName: "泰卢固语",
     appleDetectLangChineseName: "泰卢固语",
-    voiceList: ["Chitra"],
+    voiceList: { macOS: ["Chitra"] },
     emoji: "🇮🇳",
   },
   {
@@ -627,7 +627,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Tamil",
     langChineseName: "泰米尔语",
     appleDetectLangChineseName: "泰米尔语",
-    voiceList: ["Chitra"],
+    voiceList: { macOS: ["Chitra"] },
     emoji: "🇮🇳",
   },
   {
@@ -641,7 +641,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Urdu",
     langChineseName: "乌尔都语",
     appleDetectLangChineseName: "乌尔都语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇵🇰",
   },
   {
@@ -655,7 +655,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Tagalog",
     langChineseName: "菲律宾语",
     appleDetectLangChineseName: "菲律宾语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇵🇭",
   },
   {
@@ -669,7 +669,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Khmer",
     langChineseName: "高棉语",
     appleDetectLangChineseName: "高棉语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇰🇭",
   },
   {
@@ -683,7 +683,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Lao",
     langChineseName: "老挝语",
     appleDetectLangChineseName: "老挝语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇱🇦",
   },
   {
@@ -697,7 +697,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Bengali",
     langChineseName: "孟加拉语",
     appleDetectLangChineseName: "孟加拉语",
-    voiceList: ["Nusrat"],
+    voiceList: { macOS: ["Nusrat"] },
     emoji: "🇧🇩",
   },
   {
@@ -711,7 +711,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Burmese",
     langChineseName: "缅甸语",
     appleDetectLangChineseName: "缅甸语",
-    voiceList: ["Aditi"],
+    voiceList: { macOS: ["Aditi"] },
     emoji: "🇲🇲",
   },
   {
@@ -726,7 +726,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Norwegian",
     langChineseName: "挪威语",
     appleDetectLangChineseName: "书面挪威语",
-    voiceList: ["Liv"],
+    voiceList: { macOS: ["Liv"] },
     emoji: "🇳🇴",
   },
   {
@@ -739,7 +739,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Serbian",
     langChineseName: "塞尔维亚语",
     appleDetectLangChineseName: "塞尔维亚语",
-    voiceList: ["Liv"],
+    voiceList: { macOS: ["Liv"] },
     emoji: "🇷🇸",
   },
   {
@@ -753,7 +753,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Croatian",
     langChineseName: "克罗地亚语",
     appleDetectLangChineseName: "克罗地亚语",
-    voiceList: ["Liv"],
+    voiceList: { macOS: ["Liv"] },
     emoji: "🇭🇷",
   },
   {
@@ -767,7 +767,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Mongolian",
     langChineseName: "蒙古语",
     appleDetectLangChineseName: "蒙古语",
-    voiceList: ["Liv"],
+    voiceList: { macOS: ["Liv"] },
     emoji: "🇲🇳",
   },
   {
@@ -781,7 +781,7 @@ export const languageItemList: LanguageItem[] = [
     langEnglishName: "Hebrew",
     langChineseName: "希伯来语",
     appleDetectLangChineseName: "希伯来语",
-    voiceList: ["Liv"],
+    voiceList: { macOS: ["Liv"] },
     emoji: "🇮🇱",
   },
 ];

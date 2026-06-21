@@ -17,6 +17,6 @@ export interface LanguageItem {
   langEnglishName: string; // eg "English". When system language is English, Apple detect language is equal to langEnglishName.
   langChineseName: string; // eg "英语". When system language is Chinese, Apple detect language is equal to langChineseName.
   appleDetectLangChineseName?: string; // such as 中文，英语. ⚠️ Apple detect more languages than apple translate.
-  voiceList?: string[]; // eg. ["Ting-Ting"] for Chinese-Simplified.
+  voiceList?: { macOS?: string[]; Windows?: string[] }; // eg. { macOS: ["TingTing"] } for Chinese-Simplified.
   emoji: string; // eg. 🇨🇳
 }

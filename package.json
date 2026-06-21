@@ -63,6 +63,7 @@
     "@xsai/shared-chat": "^0.5.0-beta.6",
     "@xsai/stream-text": "^0.5.0-beta.6",
     "franc": "^6.2.0",
+    "native-say": "^0.0.2",
     "node-html-parser": "^7.0.2",
     "ofetch": "^1.5.1",
     "tinyexec": "^1.2.4"

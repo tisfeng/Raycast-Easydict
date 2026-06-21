@@ -1,39 +1,66 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { showFailureToast } from "@raycast/utils";
-import { x } from "tinyexec";
+import type { Voice } from "native-say";
+import { getVoices, killRunningSay, say } from "native-say";
 
 import { languageItemList } from "@/core/language/consts";
+import type { LanguageItem } from "@/core/language/types";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 import { trimTextLength } from "@/utils/text";
 
+let cachedVoices: Voice[] | null = null;
+
 /**
- * Play text using macOS say command.
+ * Dynamically finds the best matching voice for a given language item.
+ * Prioritizes preferred voices configured in voiceList, gracefully falling back
+ * to strict culture matches, and finally fuzzy language prefix matches.
  */
-async function playTTSOnMac(text: string, youdaoLanguageId: string, signal?: AbortSignal) {
-  if (!youdaoLanguageId || !text) {
-    return;
+async function getBestMatchVoice(languageItem: LanguageItem): Promise<string | undefined> {
+  if (!cachedVoices) {
+    try {
+      cachedVoices = await getVoices();
+    } catch (e) {
+      logError("AudioTTS", `failed to get voices: ${e}`);
+      cachedVoices = [];
+    }
   }
 
-  const languageItem = languageItemList.find((item) => item.youdaoLangCode === youdaoLanguageId);
-  if (!languageItem?.voiceList) {
-    logWarn("AudioTTS", `language not supported: ${youdaoLanguageId}`);
-    return;
+  const isWindows = process.platform === "win32";
+
+  // 1. Try to use a preferred voice if it's installed on the system
+  const preferredVoices = isWindows ? languageItem.voiceList?.Windows : languageItem.voiceList?.macOS;
+  const matchedPreferred = preferredVoices
+    ?.map((pref) => cachedVoices!.find((v) => v.name.toLowerCase() === pref.toLowerCase()))
+    .find(Boolean);
+
+  if (matchedPreferred) {
+    return matchedPreferred.name;
   }
 
-  const voice = languageItem.voiceList[0];
-  const cleanText = text.replace(/"/g, " ");
+  // 2. If no preferred voice is found (or none installed), dynamically find by language code
+  const langCode = languageItem.appleLangCode?.replace("_", "-") || languageItem.googleLangCode;
+  if (!langCode) return undefined;
 
-  logTrace("AudioTTS", `say -v ${voice}`);
-  try {
-    await x("/usr/bin/afplay", ["-v", voice, cleanText], { throwOnError: true, signal });
-  } catch (error) {
-    logError("AudioTTS", `say command failed: ${error}`);
-  }
+  const targetCulture = langCode.toLowerCase();
+
+  // Helper to extract a normalized language code from a voice object
+  const getVoiceLang = (v: Voice) =>
+    "culture" in v ? v.culture.toLowerCase() : v.languageCode.toLowerCase().replace("_", "-");
+
+  // 3. Exact culture match (e.g. "zh-cn" === "zh-cn")
+  const exactVoice = cachedVoices.find((v) => getVoiceLang(v) === targetCulture);
+  if (exactVoice) return exactVoice.name;
+
+  // 4. Fuzzy language prefix match (e.g. "zh-cn" -> "zh")
+  const langPrefix = targetCulture.split("-")[0];
+  const fuzzyVoice = cachedVoices.find((v) => getVoiceLang(v).startsWith(langPrefix));
+
+  return fuzzyVoice?.name;
 }
 
 /**
- * Play text using TTS. Optionally truncate to 40 chars.
+ * Play text using native-say. Optionally truncate to 40 chars.
  * Dispatches to platform-specific TTS engines.
  */
 export async function playTTS(
@@ -43,17 +70,42 @@ export async function playTTS(
 ) {
   const output = options?.truncate ? trimTextLength(text, 40) : text;
 
-  if (process.platform === "darwin") {
-    await playTTSOnMac(output, youdaoLanguageId, options?.signal);
+  if (process.platform !== "darwin" && process.platform !== "win32") {
+    logWarn("AudioTTS", `unsupported platform for TTS: ${process.platform}`);
+    showFailureToast(`TTS is not supported on ${process.platform}`, { title: "Audio Error" });
     return;
   }
 
-  if (process.platform === "win32") {
-    logWarn("AudioTTS", "TTS not implemented on Windows yet");
-    showFailureToast("TTS is not supported on Windows yet.", { title: "Audio Error" });
+  if (!youdaoLanguageId || !output) {
     return;
   }
 
-  logWarn("AudioTTS", `unsupported platform for TTS: ${process.platform}`);
-  showFailureToast(`TTS is not supported on ${process.platform}`, { title: "Audio Error" });
+  const languageItem = languageItemList.find((item) => item.youdaoLangCode === youdaoLanguageId);
+  if (!languageItem) {
+    logWarn("AudioTTS", `language not supported: ${youdaoLanguageId}`);
+    return;
+  }
+
+  const cleanText = output.replace(/"/g, " ");
+
+  // Handle AbortSignal to kill running process
+  const onAbort = async () => {
+    try {
+      await killRunningSay();
+    } catch (e) {
+      logError("AudioTTS", `failed to kill say: ${e}`);
+    }
+  };
+
+  options?.signal?.addEventListener("abort", onAbort);
+
+  try {
+    const voiceName = await getBestMatchVoice(languageItem);
+    logTrace("AudioTTS", `say (${process.platform})${voiceName ? ` -v ${voiceName}` : ""}`);
+    await say(cleanText, voiceName ? { voice: voiceName } : undefined);
+  } catch (error) {
+    logError("AudioTTS", `say command failed: ${error}`);
+  } finally {
+    options?.signal?.removeEventListener("abort", onAbort);
+  }
 }
