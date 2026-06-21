@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { x } from "tinyexec";
 
+import { normalizeError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -97,12 +98,14 @@ export async function downloadAudio(
       fs.writeFileSync(audioPath, buffer);
     }
   } catch (error) {
-    if (error instanceof Error && (error.message === "canceled" || error.name === "AbortError")) {
-      logTrace("AudioDownloader", "download canceled");
-      return;
+    const { name, message } = normalizeError(error);
+    if (name === "AbortError") {
+      logTrace("AudioDownloader", "download cancelled");
+      return undefined;
     }
 
-    logError("AudioDownloader", "download failed");
+    logError("AudioDownloader", `download failed: ${message}`);
+    return undefined;
   }
 }
 

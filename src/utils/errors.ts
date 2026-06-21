@@ -5,50 +5,32 @@ import { APICallError, RemoteAPIError } from "@xsai/shared";
 import { FetchError } from "ofetch";
 
 import type { RequestType } from "@/types/api";
+import { logError, logTrace } from "@/utils/logger";
 
 /**
- * Show error toast according to errorInfo.
+ * Custom error class to standardize errors thrown by API providers.
  */
-export function showErrorToast(errorInfo: unknown) {
-  // Silently ignore cancellation errors
-  const { name, message } = normalizeError(errorInfo);
-  if (name === "CancelledError" || name === "AbortError" || message === "canceled") return;
+export class RequestError extends Error {
+  type: string;
+  code?: string;
 
-  if (errorInfo instanceof RequestError) {
-    showFailureToast(errorInfo.message, {
-      title: `${errorInfo.type} Error${errorInfo.code ? `: ${errorInfo.code}` : ""}`,
-    });
-  } else {
-    showFailureToast(message, {
-      title: "Error",
-    });
+  constructor(type: string, message: string, code?: string) {
+    super(message);
+    this.name = "RequestError";
+    this.type = type;
+    this.code = code;
   }
 }
 
 /**
- * Get request error info.
+ * Sentinel error for cancelled requests.
+ * Callers should check `error instanceof CancelledError` instead of string matching.
  */
-export function parseRequestError(type: RequestType, error: unknown): RequestError {
-  if (error instanceof RequestError) return error;
-
-  const { message, code } = normalizeError(error);
-  return new RequestError(type, message, code);
-}
-
-/**
- * Parses the JSON payload string returned by the Gemini/OpenAI API
- */
-function parseXsaiErrorMessage(error: APICallError | RemoteAPIError): string {
-  if (!error.responseBody || typeof error.responseBody !== "string") return error.message;
-  try {
-    const parsed = JSON.parse(error.responseBody);
-    const body = Array.isArray(parsed) ? parsed[0] : parsed;
-    if (typeof body?.error?.message === "string") return body.error.message;
-  } catch {
-    // If responseBody is not valid JSON, we just fall back
+export class CancelledError extends Error {
+  constructor() {
+    super("cancelled");
+    this.name = "CancelledError";
   }
-  // Fallback to original ugly message
-  return error.message;
 }
 
 /**
@@ -125,27 +107,59 @@ export function normalizeError(error: unknown): NormalizedError {
 }
 
 /**
- * Custom error class to standardize errors thrown by API providers.
+ * Show error toast according to errorInfo.
  */
-export class RequestError extends Error {
-  type: string;
-  code?: string;
+export function showErrorToast(error: unknown) {
+  // Silently ignore cancellation errors
+  if (error instanceof CancelledError) return;
 
-  constructor(type: string, message: string, code?: string) {
-    super(message);
-    this.name = "RequestError";
-    this.type = type;
-    this.code = code;
+  const { message } = normalizeError(error);
+  if (error instanceof RequestError) {
+    showFailureToast(error.message, {
+      title: `${error.type} Error${error.code ? `: ${error.code}` : ""}`,
+    });
+  } else {
+    showFailureToast(message, {
+      title: "Error",
+    });
   }
 }
 
 /**
- * Sentinel error for cancelled requests.
- * Callers should check `error instanceof CancelledError` instead of string matching.
+ * Centralized error handler for API providers.
+ * - If cancelled, logs a trace and returns a standardized CancelledError.
+ * - If real error, logs the error, normalizes it, and returns a RequestError.
  */
-export class CancelledError extends Error {
-  constructor() {
-    super("cancelled");
-    this.name = "CancelledError";
+export function handleRequestError(type: RequestType, error: unknown): Error {
+  if (error instanceof RequestError) {
+    logError(type, `error: ${error.message}`);
+    return error;
   }
+
+  const normalized = normalizeError(error);
+
+  if (normalized.name === "CancelledError" || normalized.name === "AbortError") {
+    logTrace(type, "cancelled");
+    return new CancelledError();
+  }
+
+  const reqError = new RequestError(type, normalized.message, normalized.code);
+  logError(type, `error: ${reqError.message}`);
+  return reqError;
+}
+
+/**
+ * Parses the JSON payload string returned by the Gemini/OpenAI API
+ */
+function parseXsaiErrorMessage(error: APICallError | RemoteAPIError): string {
+  if (!error.responseBody || typeof error.responseBody !== "string") return error.message;
+  try {
+    const parsed = JSON.parse(error.responseBody);
+    const body = Array.isArray(parsed) ? parsed[0] : parsed;
+    if (typeof body?.error?.message === "string") return body.error.message;
+  } catch {
+    // If responseBody is not valid JSON, we just fall back
+  }
+  // Fallback to original ugly message
+  return error.message;
 }

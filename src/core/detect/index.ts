@@ -88,7 +88,7 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
           // If current API detect error, do nothing, just continue try next API.
           const errorInfo = error as RequestError | undefined;
           if (!errorInfo) {
-            logTrace("Detect", "detect canceled");
+            logTrace("Detect", "detect cancelled");
           } else {
             logError("Detect", `race detect language error: ${JSON.stringify(error, null, 4)}`);
           }

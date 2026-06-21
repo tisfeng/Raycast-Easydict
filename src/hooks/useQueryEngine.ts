@@ -308,7 +308,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         );
 
         if (shouldClearQueryRef.current) {
-          logTrace("UseQueryEngine", "query has been canceled, stop, return");
+          logTrace("UseQueryEngine", "query has been cancelled, stop, return");
           return;
         }
 

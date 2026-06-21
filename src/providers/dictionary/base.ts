@@ -2,8 +2,8 @@
 
 import type { DictionaryType } from "@/types/api";
 import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
-import { CancelledError, normalizeError, parseRequestError, RequestError } from "@/utils/errors";
-import { logError, logTrace } from "@/utils/logger";
+import { handleRequestError } from "@/utils/errors";
+import { logTrace } from "@/utils/logger";
 
 /**
  * Abstract base for dictionary providers.
@@ -26,16 +26,7 @@ export abstract class BaseDictionaryProvider<T = unknown> {
       logTrace(this.type, "finish request");
       return result;
     } catch (error) {
-      const { name, message } = normalizeError(error);
-      if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
-        logTrace(this.type, "canceled");
-        throw new CancelledError();
-      }
-      logError(this.type, `dictionary error: ${message}`);
-      if (error instanceof RequestError) {
-        throw error;
-      }
-      throw parseRequestError(this.type, error);
+      throw handleRequestError(this.type, error);
     }
   };
 

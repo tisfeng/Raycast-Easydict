@@ -170,7 +170,7 @@ function getWordItemList(lemmas: HTMLElement[] | undefined): LingueeWordItem[] {
       const featured = lemma.getAttribute("class")?.includes("featured") ?? false;
       // * note: audio is not always exist.
       const audio = tag_lemma?.querySelector(".audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}.mp3` : "";
 
       const featuredTranslations = lemma?.querySelectorAll(".translation.sortablemg.featured"); // <div class='translation sortablemg featured'>
 
@@ -228,7 +228,7 @@ function getWordExplanationList(
       const tag_forms_text = getTagFormsText(tag_forms);
       const tagText = `${tag_c?.textContent ?? ""} ${tag_forms_text}`;
       const audio = translation?.querySelector(".audio")?.getAttribute("id");
-      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}` : "";
+      const audioUrl = audio ? `https://www.linguee.com/mp3/${audio}.mp3` : "";
       const examples = translation?.querySelectorAll(".example");
       const exampleItems: LingueeExample[] = [];
       if (examples?.length) {

@@ -2,8 +2,8 @@
 
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/types/api";
-import { CancelledError, normalizeError, parseRequestError, RequestError } from "@/utils/errors";
-import { logError, logTrace } from "@/utils/logger";
+import { handleRequestError } from "@/utils/errors";
+import { logTrace } from "@/utils/logger";
 
 /**
  * Abstract base for language detection providers.
@@ -27,16 +27,7 @@ export abstract class BaseDetectProvider<T = unknown> {
       logTrace(this.type, "finish detect");
       return result;
     } catch (error) {
-      const { name, message } = normalizeError(error);
-      if (error instanceof CancelledError || name === "AbortError" || message === "canceled") {
-        logTrace(this.type, "canceled");
-        throw new CancelledError();
-      }
-      logError(this.type, `detect error: ${message}`);
-      if (error instanceof RequestError) {
-        throw error;
-      }
-      throw parseRequestError(this.type, error);
+      throw handleRequestError(this.type, error);
     }
   };
 
