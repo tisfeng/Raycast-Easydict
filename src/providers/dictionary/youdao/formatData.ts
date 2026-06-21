@@ -24,18 +24,14 @@ import { YoudaoDictionaryListItemType } from "./types";
  *
  */
 function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string {
-  let detailsMarkdown = subtitle ? `${title} ${subtitle}` : title;
-  if (subtitle?.startsWith(title)) {
-    detailsMarkdown = subtitle;
+  if (!subtitle || subtitle.startsWith(title)) {
+    return subtitle || title;
   }
-  if (subtitle) {
-    const reg = /"(.*)"/;
-    const match = reg.exec(subtitle);
-    if (match && match[1] === title) {
-      detailsMarkdown = subtitle;
-    }
+  const match = subtitle.match(/"(.*?)"/);
+  if (match?.[1] === title) {
+    return subtitle;
   }
-  return detailsMarkdown;
+  return `${title} ${subtitle}`;
 }
 
 /**
@@ -96,31 +92,21 @@ export function updateYoudaoDictionaryDisplay(
       }
 
       if (phoneticDict.sense?.length) {
-        let lastCat: string | undefined;
         const senseGroups: Sense[][] = [];
-
-        const copyFormsSense = JSON.parse(JSON.stringify(phoneticDict.sense)) as Sense[];
-        logTrace("YoudaoFormatData", `copyFormsSense: ${JSON.stringify(copyFormsSense, null, 4)}`);
+        let group: Sense[] = [];
+        let lastCat: string | undefined;
 
         // * group senses by category
-        let group: Sense[] = [];
-        while (copyFormsSense.length > 0) {
-          const senseItem = copyFormsSense.shift();
-          if (senseItem) {
-            const cat = senseItem.cat;
-            if (cat !== lastCat) {
-              if (group.length) {
-                senseGroups.push(group);
-              }
-              group = [];
-              group.push(senseItem);
-              lastCat = cat;
-            } else {
-              group.push(senseItem);
-            }
+        for (const senseItem of phoneticDict.sense) {
+          if (senseItem.cat !== lastCat) {
+            if (group.length) senseGroups.push(group);
+            group = [senseItem];
+            lastCat = senseItem.cat;
+          } else {
+            group.push(senseItem);
           }
         }
-        senseGroups.push(group);
+        if (group.length) senseGroups.push(group);
         logTrace("YoudaoFormatData", `senseGroups: ${JSON.stringify(senseGroups, null, 4)}`);
 
         let markdown = pinyin;
@@ -138,11 +124,10 @@ export function updateYoudaoDictionaryDisplay(
           markdown += `\n\n${catText}`;
           subtitle += catText;
 
-          const defExampleMarkdown = "" + getDefExampleMarkdown(groups, placeholder);
-          markdown += `${defExampleMarkdown}`;
+          const defExampleMarkdown = getDefExampleMarkdown(groups, placeholder);
+          markdown += defExampleMarkdown;
 
-          let subtitleText = defExampleMarkdown.replaceAll("\n", " ");
-          subtitleText = subtitleText.replaceAll("`", "");
+          const subtitleText = defExampleMarkdown.replace(/\n/g, " ").replace(/`/g, "");
           subtitle += subtitleText;
         });
 
@@ -395,35 +380,19 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
   }
 
   // format web translation.
-  const webTransList: KeyValueItem[] = [];
-  const webTrans = model.web_trans;
-  if (webTrans) {
-    const webTransItems = webTrans["web-translation"];
-    if (webTransItems) {
-      for (const webTransItem of webTransItems) {
-        if (webTransItem.trans) {
-          const transTextList: string[] = [];
-          for (const trans of webTransItem.trans) {
-            if (trans.value) {
-              transTextList.push(trans.value);
-            }
-          }
-          const trans: KeyValueItem = {
-            key: webTransItem.key,
-            value: transTextList,
-          };
-          webTransList.push(trans);
-        }
-      }
-    }
-  }
+  const webTransList: KeyValueItem[] = (model.web_trans?.["web-translation"] || [])
+    .filter((item) => item.trans?.length)
+    .map((item) => ({
+      key: item.key,
+      value: item.trans!.map((t) => t.value).filter((v): v is string => !!v),
+    }));
 
   let webTranslation: KeyValueItem | undefined;
   if (webTransList.length > 0) {
     const firstWebTranslation = webTransList[0];
     if (firstWebTranslation.key.toUpperCase() === input.toUpperCase()) {
-      webTranslation = webTransList.shift() as KeyValueItem;
-      if (webTranslation.value.length > 0) {
+      webTranslation = webTransList.shift();
+      if (webTranslation?.value.length) {
         translation = webTranslation.value[0].split("; ")[0];
       }
     }
@@ -445,17 +414,11 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     logTrace("YoudaoFormatData", `${input}, audioUrl: ${audioUrl}`);
 
     explanations.length = 0;
-    const trs = wordItem?.trs;
-    if (trs?.length) {
-      for (const tr of trs) {
-        if (tr.tr?.length && tr.tr[0].l?.i?.length) {
-          const explanation = tr.tr[0].l?.i[0];
-          const explanationItem: ExplanationItem = {
-            title: explanation,
-            subtitle: "",
-          };
-          explanations.push(explanationItem);
-        }
+    const trs = wordItem?.trs || [];
+    for (const tr of trs) {
+      const explanation = tr.tr?.[0]?.l?.i?.[0];
+      if (explanation) {
+        explanations.push({ title: explanation, subtitle: "" });
       }
     }
 
@@ -473,24 +436,16 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     phoneticText = getPhoneticDisplayText(wordItem?.phone);
 
     explanations.length = 0;
-    const trs = wordItem?.trs;
-    if (trs) {
-      for (const trsOjb of trs) {
-        if (trsOjb.tr && trsOjb.tr.length) {
-          const l = trsOjb.tr[0].l;
-          if (l) {
-            const explanationItemList = l.i.filter((item) => typeof item !== "string") as WordExplanation[];
-            const text = explanationItemList.map((item) => item["#text"]).join(" ");
-            const pos = l.pos ? `${l.pos}` : "";
-            const tran = l["#tran"] ? `${l["#tran"]}` : "";
-            const tranText = pos.length > 0 ? `${pos}  ${tran}` : tran;
-            const explanationItem: ExplanationItem = {
-              title: text,
-              subtitle: `${tranText}`,
-            };
-            explanations.push(explanationItem);
-          }
-        }
+    const trs = wordItem?.trs || [];
+    for (const trsOjb of trs) {
+      const l = trsOjb.tr?.[0]?.l;
+      if (l) {
+        const explanationItemList = l.i.filter((item) => typeof item !== "string") as WordExplanation[];
+        const text = explanationItemList.map((item) => item["#text"]).join(" ");
+        const pos = l.pos ? `${l.pos}` : "";
+        const tran = l["#tran"] ? `${l["#tran"]}` : "";
+        const tranText = pos ? `${pos}  ${tran}` : tran;
+        explanations.push({ title: text, subtitle: tranText });
       }
     }
   }
@@ -550,50 +505,34 @@ function getPhoneticDisplayText(phonetic: string | undefined): string | undefine
  * Format New Chinese dictionary.
  */
 function formatNewChineseDict(dataList: ModernChineseDataList[]): ModernChineseDataList[] | undefined {
-  if (!dataList.length) {
-    return;
-  }
+  if (!dataList.length) return undefined;
 
-  const newDataList: ModernChineseDataList[] = JSON.parse(JSON.stringify(dataList));
-  if (newDataList.length) {
-    for (const dict of newDataList) {
-      const senseList = dict.sense;
-      if (senseList?.length) {
-        for (const sense of senseList) {
-          sense.examples = removeExamplesHtmlTag(sense.examples);
-
-          if (sense.subsense?.length) {
-            for (const subsense of sense.subsense) {
-              subsense.examples = removeExamplesHtmlTag(subsense.examples);
-            }
-          }
-        }
-      }
-    }
-  }
-  return newDataList;
+  return dataList.map((dict) => ({
+    ...dict,
+    sense: dict.sense?.map((sense) => ({
+      ...sense,
+      examples: removeExamplesHtmlTag(sense.examples),
+      subsense: sense.subsense?.map((subsense) => ({
+        ...subsense,
+        examples: removeExamplesHtmlTag(subsense.examples),
+      })),
+    })),
+  }));
 }
 
 /**
  * Remove self html tag.
  */
 function removeSelfHtmlTag(text: string): string {
-  // return text.replace(/<[^>]+>/g, "");
-  return text.replaceAll(/<self>|<\/self>/g, "");
+  return text.replace(/<self>|<\/self>/g, "");
 }
 
 /**
  * Remove examples html tag.
  */
 function removeExamplesHtmlTag(examples: string[] | undefined): string[] {
-  const newExamples: string[] = [];
-  if (examples?.length) {
-    for (const example of examples) {
-      const newExample = removeSelfHtmlTag(example);
-      newExamples.push(newExample);
-    }
-  }
-  return newExamples;
+  if (!examples?.length) return [];
+  return examples.map(removeSelfHtmlTag);
 }
 
 /**
