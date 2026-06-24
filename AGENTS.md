@@ -25,12 +25,14 @@ npm run dev
 ### Verification & Auto Fix
 
 ```bash
-npm run fix-lint
+npx tsc --noEmit        # TypeScript type check
+npm run fix-lint         # ESLint auto-fix
+npm run build            # Build verification
 ```
 
 Before completing a task:
 
-1. Run relevant verification commands.
+1. Run the verification commands above in sequence.
 2. Ensure the extension still builds and functions correctly.
 3. Report verification status in the final summary.
 
@@ -79,13 +81,19 @@ Keep commits atomic and bisectable. Every commit must build successfully, pass r
 - Rely on type inference when possible; avoid explicit type annotations unless necessary for exports, public APIs, or clarity.
 - Prefer functional array methods (`map`, `filter`, `flatMap`) over loops where readability is not harmed.
 - Use type guards with `filter` to preserve type inference downstream.
-- Prefer `const` and arrow functions; avoid `let` and `function` unless reassignment or hoisting is required.
+
+### Imports
+
+- All imports use `@/` alias for cross-module references (e.g. `@/types`, `@/dictionary/youdao/types`).
+- Same-directory imports use `./` relative paths when the module is only used within that directory.
 
 ### Type Safety
 
 - Do not manually define `Preferences` or `Arguments` interfaces.
 - Use `getPreferenceValues<Preferences>()`; types are generated automatically in `raycast-env.d.ts`.
 - Avoid unnecessary optional chaining (`?.`) and fallback operators (`??`, `||`) when values are guaranteed by schema or runtime constraints.
+- Do not use `as unknown as` double-cast hacks. Type incompatibilities must be resolved through proper type alignment.
+- Do not use the `any` type. Use `unknown` and narrow with type guards when the type is genuinely unknown.
 
 ## Release Process
 
@@ -93,7 +101,7 @@ When creating a release:
 
 1. Update `CHANGELOG.md` with the new version's changes.
 2. Keep the `{PR_MERGE_DATE}` placeholder unchanged.
-3. Update `version` and `releaseMarkdown` in `src/releaseVersion/versionInfo.ts`.
+3. Update `EASYDICT_VERSION` and `RELEASE_MARKDOWN` in `src/consts.ts`.
 4. Ensure the version matches the changelog entry.
 5. Commit and push the changes.
 
