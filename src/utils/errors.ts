@@ -115,12 +115,14 @@ export function showErrorToast(error: unknown) {
 
   const { message } = normalizeError(error);
   if (error instanceof RequestError) {
-    showFailureToast(error.message, {
+    showFailureToast(error, {
       title: `${error.type} Error${error.code ? `: ${error.code}` : ""}`,
+      message,
     });
   } else {
-    showFailureToast(message, {
+    showFailureToast(error, {
       title: "Error",
+      message,
     });
   }
 }
