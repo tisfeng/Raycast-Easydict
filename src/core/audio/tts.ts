@@ -1,11 +1,12 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { showFailureToast } from "@raycast/utils";
+import { showToast, Toast } from "@raycast/api";
 import type { Voice } from "native-say";
 import { getVoices, killRunningSay, say } from "native-say";
 
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
+import { showErrorToast } from "@/utils/errors";
 import { logError, logTrace, logWarn } from "@/utils/logger";
 import { trimTextLength } from "@/utils/text";
 
@@ -72,7 +73,11 @@ export async function playTTS(
 
   if (process.platform !== "darwin" && process.platform !== "win32") {
     logWarn("AudioTTS", `unsupported platform for TTS: ${process.platform}`);
-    showFailureToast(`TTS is not supported on ${process.platform}`, { title: "Audio Error" });
+    showToast({
+      style: Toast.Style.Failure,
+      title: "Audio Error",
+      message: `TTS is not supported on ${process.platform}`,
+    });
     return;
   }
 
@@ -82,6 +87,12 @@ export async function playTTS(
 
   const languageItem = languageItemList.find((item) => item.youdaoLangCode === youdaoLanguageId);
   if (!languageItem) {
+    showToast({
+      style: Toast.Style.Failure,
+      title: "Language not supported",
+      message: `Language ${youdaoLanguageId} is not supported`,
+    });
+
     logWarn("AudioTTS", `language not supported: ${youdaoLanguageId}`);
     return;
   }
@@ -104,6 +115,7 @@ export async function playTTS(
     logTrace("AudioTTS", `say (${process.platform})${voiceName ? ` -v ${voiceName}` : ""}`);
     await say(cleanText, voiceName ? { voice: voiceName } : undefined);
   } catch (error) {
+    showErrorToast(error);
     logError("AudioTTS", `say command failed: ${error}`);
   } finally {
     options?.signal?.removeEventListener("abort", onAbort);
