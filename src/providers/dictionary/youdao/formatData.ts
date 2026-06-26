@@ -2,7 +2,7 @@
 
 import { chineseLanguageItem } from "@/core/language/consts";
 import { DictionaryType } from "@/types/api";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
+import type { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
 import { logTrace } from "@/utils/logger";
 
 import type {
@@ -34,6 +34,50 @@ function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string 
   return `${title} ${subtitle}`;
 }
 
+interface DictionaryItemOptions {
+  key: string;
+  title: string;
+  subtitle?: string;
+  copyText: string;
+  detailsMarkdown?: string;
+  accessoryItem?: ListAccessoryItem;
+}
+
+function buildDictionaryItem(
+  displayType: YoudaoDictionaryListItemType,
+  queryWordInfo: QueryWordInfo,
+  { key, title, subtitle, copyText, detailsMarkdown, accessoryItem }: DictionaryItemOptions,
+): ListDisplayItem {
+  return {
+    displayCategory: "dictionary",
+    displayType,
+    queryType: DictionaryType.Youdao,
+    queryWordInfo,
+    tooltip: displayType,
+    key,
+    title,
+    subtitle,
+    copyText,
+    detailsMarkdown: detailsMarkdown ?? computeYoudaoDetailsMarkdown(title, subtitle),
+    accessoryItem,
+  };
+}
+
+function buildSummarySection(
+  type: YoudaoDictionaryListItemType.Baike | YoudaoDictionaryListItemType.Wikipedia,
+  queryWordInfo: QueryWordInfo,
+  summaryData: BaikeSummary | undefined,
+): DisplaySection | undefined {
+  const key = summaryData?.key || "";
+  const summary = summaryData?.summary || "";
+  if (!summary) return;
+  const copyText = `${key} ${summary}`;
+  return {
+    type,
+    items: [buildDictionaryItem(type, queryWordInfo, { key: copyText, title: key, subtitle: summary, copyText })],
+  };
+}
+
 /**
  * Update Youdao dictionary display result.
  */
@@ -47,42 +91,32 @@ export function updateYoudaoDictionaryDisplay(
   const displaySections: Array<DisplaySection> = [];
 
   const queryWordInfo = youdaoResult.queryWordInfo;
-  const youdaoDictionaryType = DictionaryType.Youdao;
   const oneLineTranslation = youdaoResult.translation.split("\n").join(", ");
   const subtitle = queryWordInfo.word.split("\n").join(" ");
 
   // 1. Translation.
-  const translationType = YoudaoDictionaryListItemType.Translation;
-  const translationItem: ListDisplayItem = {
-    displayCategory: "dictionary",
-    displayType: translationType,
-    queryType: youdaoDictionaryType,
-    key: oneLineTranslation + youdaoDictionaryType,
+  const translationItem = buildDictionaryItem(YoudaoDictionaryListItemType.Translation, queryWordInfo, {
+    key: oneLineTranslation + DictionaryType.Youdao,
     title: oneLineTranslation,
-    subtitle: subtitle,
-    tooltip: translationType,
+    subtitle,
     copyText: oneLineTranslation,
-    queryWordInfo: queryWordInfo,
     accessoryItem: {
       phonetic: queryWordInfo.phonetic,
       examTypes: queryWordInfo.examTypes,
     },
-  };
+  });
   displaySections.push({
     type: YoudaoDictionaryListItemType.Translation,
-    sectionTitle: youdaoDictionaryType,
+    sectionTitle: DictionaryType.Youdao,
     items: [translationItem],
   });
 
   // 2. Modern Chinese dictionary.
-  const modernChineseDict = youdaoResult.modernChineseDict;
-  const modernChineseDictType = YoudaoDictionaryListItemType.ModernChineseDict;
-
   logTrace("YoudaoFormatData", "Modern Chinese dictionary");
 
-  if (modernChineseDict?.length) {
+  if (youdaoResult.modernChineseDict?.length) {
     const modernChineseDictItems: ListDisplayItem[] = [];
-    modernChineseDict.forEach((phoneticDict) => {
+    youdaoResult.modernChineseDict.forEach((phoneticDict) => {
       const placeholder = `~`;
       logTrace("YoudaoFormatData", `forms: ${JSON.stringify(phoneticDict, null, 4)}`);
       const pinyin = phoneticDict.pinyin ? `${phoneticDict.pinyin}` : "";
@@ -136,25 +170,21 @@ export function updateYoudaoDictionaryDisplay(
         logTrace("YoudaoFormatData", `markdown: ${markdown}`);
         logTrace("YoudaoFormatData", `copyText: ${copyText}`);
 
-        const displayItem: ListDisplayItem = {
-          displayCategory: "dictionary",
-          displayType: modernChineseDictType,
-          queryType: youdaoDictionaryType,
-          key: copyText,
-          title: title,
-          subtitle: subtitle,
-          queryWordInfo: queryWordInfo,
-          tooltip: modernChineseDictType,
-          copyText: copyText,
-          detailsMarkdown: markdown,
-        };
-        modernChineseDictItems.push(displayItem);
+        modernChineseDictItems.push(
+          buildDictionaryItem(YoudaoDictionaryListItemType.ModernChineseDict, queryWordInfo, {
+            key: copyText,
+            title: title,
+            subtitle: subtitle,
+            copyText: copyText,
+            detailsMarkdown: markdown,
+          }),
+        );
       }
     });
 
     if (modernChineseDictItems?.length) {
       displaySections.push({
-        type: modernChineseDictType,
+        type: YoudaoDictionaryListItemType.ModernChineseDict,
         items: modernChineseDictItems,
       });
     }
@@ -166,20 +196,7 @@ export function updateYoudaoDictionaryDisplay(
     const title = explanation.title;
     const subtitle = explanation.subtitle ? ` ${explanation.subtitle}` : "";
     const copyText = `${title}${subtitle}`;
-
-    const displayItem: ListDisplayItem = {
-      displayCategory: "dictionary",
-      displayType: explanationType,
-      queryType: youdaoDictionaryType,
-      key: copyText + i,
-      title: title,
-      subtitle: subtitle,
-      queryWordInfo: queryWordInfo,
-      tooltip: explanationType,
-      copyText: copyText,
-      detailsMarkdown: computeYoudaoDetailsMarkdown(title, subtitle),
-    };
-    return displayItem;
+    return buildDictionaryItem(explanationType, queryWordInfo, { key: copyText + i, title, subtitle, copyText });
   });
   if (explanationItems?.length) {
     displaySections.push({
@@ -196,21 +213,18 @@ export function updateYoudaoDictionaryDisplay(
   // [ 复数：goods   比较级：better   最高级：best ]
   const wfsText = wfs?.join("   ");
   if (wfsText) {
-    const formsItem: ListDisplayItem = {
-      displayCategory: "dictionary",
-      displayType: formsType,
-      queryType: youdaoDictionaryType,
-      key: wfsText,
-      title: "",
-      queryWordInfo: queryWordInfo,
-      tooltip: formsType,
-      subtitle: ` [ ${wfsText} ]`,
-      copyText: wfsText,
-      detailsMarkdown: ` [ ${wfsText} ]`,
-    };
+    const formsMarkdown = ` [ ${wfsText} ]`;
     displaySections.push({
       type: YoudaoDictionaryListItemType.Forms,
-      items: [formsItem],
+      items: [
+        buildDictionaryItem(formsType, queryWordInfo, {
+          key: wfsText,
+          title: "",
+          subtitle: formsMarkdown,
+          copyText: wfsText,
+          detailsMarkdown: formsMarkdown,
+        }),
+      ],
     });
   }
 
@@ -219,22 +233,16 @@ export function updateYoudaoDictionaryDisplay(
     const webResultKey = youdaoResult.webTranslation.key;
     const webResultValue = youdaoResult.webTranslation.value.join("；");
     const copyText = `${webResultKey} ${webResultValue}`;
-
-    const webTranslationItem: ListDisplayItem = {
-      displayCategory: "dictionary",
-      displayType: YoudaoDictionaryListItemType.WebTranslation,
-      queryType: youdaoDictionaryType,
-      key: copyText,
-      title: webResultKey,
-      queryWordInfo: queryWordInfo,
-      tooltip: YoudaoDictionaryListItemType.WebTranslation,
-      subtitle: webResultValue,
-      copyText: copyText,
-      detailsMarkdown: computeYoudaoDetailsMarkdown(webResultKey, webResultValue),
-    };
     displaySections.push({
       type: YoudaoDictionaryListItemType.WebTranslation,
-      items: [webTranslationItem],
+      items: [
+        buildDictionaryItem(YoudaoDictionaryListItemType.WebTranslation, queryWordInfo, {
+          key: copyText,
+          title: webResultKey,
+          subtitle: webResultValue,
+          copyText,
+        }),
+      ],
     });
   }
 
@@ -243,20 +251,12 @@ export function updateYoudaoDictionaryDisplay(
     const phraseKey = phrase.key;
     const phraseValue = phrase.value.join("；");
     const copyText = `${phraseKey} ${phraseValue}`;
-
-    const webPhraseItem: ListDisplayItem = {
-      displayCategory: "dictionary",
-      displayType: YoudaoDictionaryListItemType.WebPhrase,
-      queryType: youdaoDictionaryType,
-      queryWordInfo: queryWordInfo,
-      tooltip: YoudaoDictionaryListItemType.WebPhrase,
+    return buildDictionaryItem(YoudaoDictionaryListItemType.WebPhrase, queryWordInfo, {
       key: copyText + i,
       title: phraseKey,
       subtitle: phraseValue,
-      copyText: copyText,
-      detailsMarkdown: computeYoudaoDetailsMarkdown(phraseKey, phraseValue),
-    };
-    return webPhraseItem;
+      copyText,
+    });
   });
   if (webPhraseItems?.length) {
     displaySections.push({
@@ -266,52 +266,16 @@ export function updateYoudaoDictionaryDisplay(
   }
 
   // 7. Baike.
-  const baikeType = YoudaoDictionaryListItemType.Baike;
-  const baikeKey = youdaoResult.baike?.key || "";
-  const summary = youdaoResult.baike?.summary || "";
-  const baikeText = `${baikeKey} ${summary}`;
-  const baikeItem: ListDisplayItem = {
-    displayCategory: "dictionary",
-    displayType: baikeType,
-    queryType: youdaoDictionaryType,
-    queryWordInfo: queryWordInfo,
-    tooltip: baikeType,
-    key: baikeText,
-    title: baikeKey,
-    subtitle: summary,
-    copyText: baikeText,
-    detailsMarkdown: computeYoudaoDetailsMarkdown(baikeKey, summary),
-  };
-  if (summary) {
-    displaySections.push({
-      type: baikeType,
-      items: [baikeItem],
-    });
-  }
+  const baikeSection = buildSummarySection(YoudaoDictionaryListItemType.Baike, queryWordInfo, youdaoResult.baike);
+  if (baikeSection) displaySections.push(baikeSection);
 
   // 8. Wikipedia.
-  const wikipediaType = YoudaoDictionaryListItemType.Wikipedia;
-  const wikipediaKey = youdaoResult.wikipedia?.key || "";
-  const wikipediaSummary = youdaoResult.wikipedia?.summary || "";
-  const wikipediaText = `${wikipediaKey} ${wikipediaSummary}`;
-  const wikipediaItem: ListDisplayItem = {
-    displayCategory: "dictionary",
-    displayType: wikipediaType,
-    queryType: youdaoDictionaryType,
-    queryWordInfo: queryWordInfo,
-    tooltip: wikipediaType,
-    key: wikipediaText,
-    title: wikipediaKey,
-    subtitle: wikipediaSummary,
-    copyText: wikipediaText,
-    detailsMarkdown: computeYoudaoDetailsMarkdown(wikipediaKey, wikipediaSummary),
-  };
-  if (wikipediaSummary) {
-    displaySections.push({
-      type: wikipediaType,
-      items: [wikipediaItem],
-    });
-  }
+  const wikipediaSection = buildSummarySection(
+    YoudaoDictionaryListItemType.Wikipedia,
+    queryWordInfo,
+    youdaoResult.wikipedia,
+  );
+  if (wikipediaSection) displaySections.push(wikipediaSection);
 
   // * Only has "Details" can show dictionary sections. Default has one translation section.
   if (displaySections.length > 1) {
