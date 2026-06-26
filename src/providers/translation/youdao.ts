@@ -74,11 +74,11 @@ export class YoudaoTranslateProvider extends BaseTranslateProvider {
 
     if (!isValidLanguage) {
       logWarn(this.type, `invalid Youdao web translate language: ${fromLanguage} --> ${toLanguage}`);
-      throw {
-        type: TranslationType.Youdao,
-        message: `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
-        code: "INVALID_LANGUAGE",
-      } as RequestError;
+      throw new RequestError(
+        TranslationType.Youdao,
+        `Unsupported language pair: ${fromLanguage} -> ${toLanguage}`,
+        "INVALID_LANGUAGE",
+      );
     }
 
     const translateResponse = await webTranslate(word, fromLanguage, toLanguage, youdaoKey, signal);
@@ -117,11 +117,11 @@ async function getYoudaoKey(): Promise<YoudaoKey> {
   });
 
   if (response.code !== 0) {
-    throw {
-      type: TranslationType.Youdao,
-      message: `Failed to get Youdao key: code=${response.code}, msg=${response.msg}`,
-      code: "KEY_ERROR",
-    } as RequestError;
+    throw new RequestError(
+      TranslationType.Youdao,
+      `Failed to get Youdao key: code=${response.code}, msg=${response.msg}`,
+      "KEY_ERROR",
+    );
   }
 
   return response;

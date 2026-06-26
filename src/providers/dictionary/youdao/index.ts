@@ -5,6 +5,7 @@ import { autoDetectLanguageItem } from "@/core/language/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
 
@@ -32,11 +33,7 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
 
     const queryYoudaoDictLanguageId = getYoudaoWebDictionaryLanguageId(queryWordInfo);
     if (!queryYoudaoDictLanguageId) {
-      throw {
-        type: DictionaryType.Youdao,
-        code: "",
-        message: "not supported language",
-      };
+      throw new RequestError(DictionaryType.Youdao, "not supported language");
     }
 
     const params = {
