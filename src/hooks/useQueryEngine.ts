@@ -278,7 +278,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
       shouldClearQueryRef.current = false;
 
-      detectLanguage(text).then((detectedLanguage: DetectedLangModel) => {
+      detectLanguage(text, abortControllerRef.current?.signal).then((detectedLanguage: DetectedLangModel) => {
         logTrace(
           "UseQueryEngine",
           `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,

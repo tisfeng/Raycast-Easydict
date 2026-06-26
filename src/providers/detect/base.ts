@@ -12,6 +12,11 @@ import { createTimer } from "@/utils/logger";
  * - `detect()` is the public entry point — handles cancellation and error normalization
  * - `doDetect()` is implemented by each subclass with the actual detection logic
  */
+export interface DetectOptions {
+  confirmedConfidence?: number;
+  signal?: AbortSignal;
+}
+
 export abstract class BaseDetectProvider<T = unknown> {
   abstract type: LanguageDetectType;
 
@@ -20,7 +25,7 @@ export abstract class BaseDetectProvider<T = unknown> {
 
   abstract isEnabled(): boolean;
 
-  public detect = async (text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>> => {
+  public detect = async (text: string, options?: DetectOptions): Promise<DetectedLangModel<T>> => {
     const timer = createTimer(this.type);
     try {
       const result = await this.doDetect(text, options);
@@ -33,5 +38,5 @@ export abstract class BaseDetectProvider<T = unknown> {
     }
   };
 
-  protected abstract doDetect(text: string, options?: { confirmedConfidence?: number }): Promise<DetectedLangModel<T>>;
+  protected abstract doDetect(text: string, options?: DetectOptions): Promise<DetectedLangModel<T>>;
 }

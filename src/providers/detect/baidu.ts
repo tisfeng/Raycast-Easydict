@@ -9,6 +9,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
 
+import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
 
 interface BaiduWebLanguageDetect {
@@ -24,7 +25,7 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
     return myPreferences.enableBaiduLanguageDetect;
   }
 
-  protected async doDetect(text: string) {
+  protected async doDetect(text: string, options?: DetectOptions) {
     const url = "https://fanyi.baidu.com/langdetect";
     const params = { query: text };
 
@@ -34,6 +35,7 @@ export class BaiduDetectProvider extends BaseDetectProvider<BaiduWebLanguageDete
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      signal: options?.signal,
     });
 
     if (response.error === 0) {

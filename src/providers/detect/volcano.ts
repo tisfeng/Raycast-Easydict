@@ -7,6 +7,7 @@ import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
 import { genVolcanoSign } from "../translation/volcano/volcanoSign";
+import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
 
 interface VolcanoDetectResult {
@@ -23,7 +24,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
     return true;
   }
 
-  protected async doDetect(text: string) {
+  protected async doDetect(text: string, options?: DetectOptions) {
     const query = { Action: "LangDetect", Version: "2020-06-01" };
     const params = { TextList: [text] };
 
@@ -46,6 +47,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
       method: "POST",
       body: params,
       headers: config.headers,
+      signal: options?.signal,
     });
 
     const volcanoError = volcanoDetectResult.ResponseMetaData.Error;

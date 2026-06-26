@@ -2,7 +2,7 @@
 import { config } from "@/core/config";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
-import type { BaseDetectProvider } from "@/providers/detect/base";
+import type { BaseDetectProvider, DetectOptions } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
 import { LanguageDetectType } from "@/types/api";
 import type { RequestError } from "@/utils/errors";
@@ -17,14 +17,13 @@ import {
   isPreferredLanguage,
 } from "./utils";
 
-/**
- * Record all API detected language, if has detected two identical language id, use it.
- */
-let apiDetectedLanguageList: DetectedLangModel[];
+interface DetectContext {
+  apiDetectedLanguageList: DetectedLangModel[];
+  hasDetectFinished: boolean;
+  signal?: AbortSignal;
+}
 
 const defaultConfirmedConfidence = 0.8;
-
-let hasDetectFinished = false;
 
 let apiDetectors: BaseDetectProvider[] | null = null;
 let localDetectors: BaseDetectProvider[] | null = null;
@@ -40,15 +39,15 @@ function initDetectors() {
  *
  * Prioritize the API language detection, if over time, try to use local language detection.
  */
-export async function detectLanguage(text: string): Promise<DetectedLangModel> {
-  apiDetectedLanguageList = [];
+export async function detectLanguage(text: string, signal?: AbortSignal): Promise<DetectedLangModel> {
+  const ctx: DetectContext = { apiDetectedLanguageList: [], hasDetectFinished: false, signal };
 
   // Covert text to lowercase, because Tencent LanguageDetect API is case sensitive, such as 'Section' is detected as 'fr' 😑
   const lowerCaseText = text.toLowerCase();
 
   const startTime = performance.now();
-  const detectedLanguage = await raceDetectTextLanguage(lowerCaseText);
-  const result = await getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence);
+  const detectedLanguage = await raceDetectTextLanguage(lowerCaseText, ctx);
+  const result = await getFinalDetectedLanguage(text, detectedLanguage, defaultConfirmedConfidence, ctx);
   const duration = (performance.now() - startTime).toFixed(0);
 
   const source =
@@ -64,27 +63,28 @@ export async function detectLanguage(text: string): Promise<DetectedLangModel> {
 /**
  * Get enabled API detect providers from the registry.
  */
-function getDetectAPIs(): Array<(text: string) => Promise<DetectedLangModel>> {
+function getDetectAPIs(signal?: AbortSignal): Array<(text: string) => Promise<DetectedLangModel>> {
   initDetectors();
-  return apiDetectors!.map((provider) => provider.detect);
+  const opts: DetectOptions = { signal };
+  return apiDetectors!.map((provider) => (text: string) => provider.detect(text, opts));
 }
 
 /**
  * Race to detect language, if success, callback API detect language, else local detect language
  */
-function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangModel | undefined> {
-  const detectActionList = getDetectAPIs().map((detect) => detect(lowerCaseText));
+function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Promise<DetectedLangModel | undefined> {
+  const detectActionList = getDetectAPIs(ctx.signal).map((detect) => detect(lowerCaseText));
 
-  hasDetectFinished = false;
+  ctx.hasDetectFinished = false;
   let detectCount = 0;
 
   return new Promise((resolve) => {
     detectActionList.forEach((detectAction) => {
       detectAction
         .then((detectedLang) => {
-          handleDetectedLanguage(detectedLang).then((result) => {
+          handleDetectedLanguage(detectedLang, ctx).then((result) => {
             if (result) {
-              hasDetectFinished = true;
+              ctx.hasDetectFinished = true;
               resolve(result);
             }
           });
@@ -101,7 +101,7 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
         .finally(() => {
           detectCount += 1;
           // If the last detection action is still not resolve, return undefined.
-          if (detectCount === detectActionList.length && !hasDetectFinished) {
+          if (detectCount === detectActionList.length && !ctx.hasDetectFinished) {
             logWarn("Detect", "all detect actions failed");
             resolve(undefined);
           }
@@ -113,14 +113,17 @@ function raceDetectTextLanguage(lowerCaseText: string): Promise<DetectedLangMode
 /**
  * Handle detected language.
  */
-function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<DetectedLangModel | undefined> {
+function handleDetectedLanguage(
+  detectedLangModel: DetectedLangModel,
+  ctx: DetectContext,
+): Promise<DetectedLangModel | undefined> {
   return new Promise((resolve) => {
-    if (hasDetectFinished) {
+    if (ctx.hasDetectFinished) {
       return resolve(undefined);
     }
 
     // Record it in the apiDetectedLanguage.
-    apiDetectedLanguageList.push(detectedLangModel);
+    ctx.apiDetectedLanguageList.push(detectedLangModel);
     const detectedLangCode = detectedLangModel.youdaoLangCode;
 
     /**
@@ -142,7 +145,7 @@ function handleDetectedLanguage(detectedLangModel: DetectedLangModel): Promise<D
     const detectedIdenticalLanguages: DetectedLangModel[] = [];
     const detectedTypes: string[] = [];
 
-    for (const lang of apiDetectedLanguageList) {
+    for (const lang of ctx.apiDetectedLanguageList) {
       if (lang.youdaoLangCode === detectedLangCode) {
         detectedIdenticalLanguages.push(lang);
         detectedTypes.push(lang.type.toString().split(" ")[0]);
@@ -183,17 +186,18 @@ async function getFinalDetectedLanguage(
   text: string,
   detectedLangModel: DetectedLangModel | undefined,
   confirmedConfidence: number,
+  ctx: DetectContext,
 ): Promise<DetectedLangModel> {
   if (detectedLangModel && detectedLangModel.confirmed) {
     return detectedLangModel;
   }
 
-  const finalDetectedLang = handleFinalDetectedLangFromAPIList(apiDetectedLanguageList);
+  const finalDetectedLang = handleFinalDetectedLangFromAPIList(ctx.apiDetectedLanguageList);
   if (finalDetectedLang) {
     return finalDetectedLang;
   }
 
-  return await getLocalTextLanguageDetectResult(text, confirmedConfidence);
+  return await getLocalTextLanguageDetectResult(text, confirmedConfidence, ctx.signal);
 }
 
 /**
@@ -243,6 +247,7 @@ function handleFinalDetectedLangFromAPIList(
 async function getLocalTextLanguageDetectResult(
   text: string,
   confirmedConfidence: number,
+  signal?: AbortSignal,
   lowConfidence = 0.2,
 ): Promise<DetectedLangModel> {
   initDetectors();
@@ -250,7 +255,7 @@ async function getLocalTextLanguageDetectResult(
   if (localDetectors && localDetectors.length > 0) {
     const localProvider = localDetectors[0];
     try {
-      const localDetectResult = await localProvider.detect(text, { confirmedConfidence });
+      const localDetectResult = await localProvider.detect(text, { confirmedConfidence, signal });
       if (localDetectResult.confirmed) {
         return localDetectResult;
       }

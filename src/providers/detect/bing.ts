@@ -7,6 +7,7 @@ import { ensureBingConfig, getBingHost, incrementBingConfigCount } from "@/provi
 import { LanguageDetectType } from "@/types/api";
 import { timedFetch } from "@/utils/http";
 
+import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
 
 interface BingTranslateResult {
@@ -21,7 +22,7 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
     return true;
   }
 
-  protected async doDetect(text: string) {
+  protected async doDetect(text: string, options?: DetectOptions) {
     const bingConfig = await ensureBingConfig();
     const { IG, key, token } = bingConfig;
     const IIDString = incrementBingConfigCount();
@@ -45,6 +46,7 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
         "Content-Type": "application/x-www-form-urlencoded",
       },
       redirect: "manual",
+      signal: options?.signal,
     });
 
     const finalUrl = response.url;

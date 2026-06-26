@@ -7,6 +7,7 @@ import { LanguageDetectType } from "@/types/api";
 import { timedFetch } from "@/utils/http";
 import { logWarn } from "@/utils/logger";
 
+import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
 
 interface LanguageDetectResponse {
@@ -41,7 +42,7 @@ export class TencentDetectProvider extends BaseDetectProvider {
     return true;
   }
 
-  protected async doDetect(text: string) {
+  protected async doDetect(text: string, options?: DetectOptions) {
     const payload = { Text: text, ProjectId: 0 };
 
     const { url, headers } = tencentSign("LanguageDetect", payload);
@@ -50,6 +51,7 @@ export class TencentDetectProvider extends BaseDetectProvider {
       method: "POST",
       body: payload,
       headers,
+      signal: options?.signal,
     });
 
     const response = data.Response;

@@ -8,6 +8,7 @@ import { languageItemList } from "@/core/language/consts";
 import { getLanguageItem, getLanguageItemFromFrancCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/types/api";
 
+import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
 
 export class FrancDetectProvider extends BaseDetectProvider {
@@ -18,7 +19,7 @@ export class FrancDetectProvider extends BaseDetectProvider {
     return true;
   }
 
-  protected async doDetect(text: string, options?: { confirmedConfidence?: number }) {
+  protected async doDetect(text: string, options?: DetectOptions) {
     return francLanguageDetect(text, options?.confirmedConfidence);
   }
 }
