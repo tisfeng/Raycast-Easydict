@@ -57,7 +57,11 @@ function parseBingConfig(html: string): BingConfig | undefined {
   }
 }
 
-export async function requestBingConfig(): Promise<BingConfig | undefined> {
+export async function requestBingConfig(depth = 0): Promise<BingConfig | undefined> {
+  if (depth >= 2) {
+    logWarn("Bing", `requestBingConfig recursion depth limit reached (${depth})`);
+    return undefined;
+  }
   logTrace("Bing", "start requestBingConfig");
   logTrace("Bing", `config bingHost: ${bingHost}`);
 
@@ -82,7 +86,7 @@ export async function requestBingConfig(): Promise<BingConfig | undefined> {
   bingHost = new URL(finalUrl).host;
   logWarn("Bing", `get config failed, host: ${bingHost}, change host, then request again`);
   try {
-    return await requestBingConfig();
+    return await requestBingConfig(depth + 1);
   } catch {
     return undefined;
   }
