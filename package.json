@@ -597,7 +597,7 @@
       "label": "Enable Tencent Language Detect",
       "required": false,
       "description": "Turn on/off Tencent Language Detect.",
-      "default": true
+      "default": false
     },
     {
       "name": "enableVolcanoLanguageDetect",
@@ -605,7 +605,7 @@
       "label": "Enable Volcano Language Detect",
       "required": false,
       "description": "Turn on/off Volcano Language Detect.",
-      "default": true
+      "default": false
     },
     {
       "title": "Apple System Features",

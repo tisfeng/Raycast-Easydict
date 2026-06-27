@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
+import { hasVolcanoAppKey } from "@/providers/shared/config";
 import { LanguageDetectType } from "@/types/api";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
@@ -21,6 +22,10 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
   type = LanguageDetectType.Volcano;
 
   isEnabled(): boolean {
+    if (!hasVolcanoAppKey()) {
+      logWarn(this.type, "detect has no app key");
+      return false;
+    }
     return true;
   }
 
@@ -30,14 +35,7 @@ export class VolcanoDetectProvider extends BaseDetectProvider<VolcanoDetectResul
 
     const signObject = genVolcanoSign(query, params);
     if (!signObject) {
-      logWarn(this.type, "AccessKey or SecretKey is empty");
-      return {
-        type: LanguageDetectType.Volcano,
-        sourceLangCode: "",
-        youdaoLangCode: "",
-        confirmed: false,
-        result: undefined,
-      };
+      throw new RequestError(this.type, "AccessKey or SecretKey is empty", "");
     }
 
     const url = signObject.getUrl();

@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
-import { ProviderConfig } from "@/providers/shared/config";
+import { hasTencentAppKey } from "@/providers/shared/config";
 import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
 import { LanguageDetectType } from "@/types/api";
 import { timedFetch } from "@/utils/http";
@@ -33,9 +33,7 @@ export class TencentDetectProvider extends BaseDetectProvider {
   type = LanguageDetectType.Tencent;
 
   isEnabled(): boolean {
-    const hasId = !!ProviderConfig.tencentSecretId;
-    const hasKey = !!ProviderConfig.tencentSecretKey;
-    if (!hasId || !hasKey) {
+    if (!hasTencentAppKey()) {
       logWarn(this.type, "detect has no app key");
       return false;
     }
