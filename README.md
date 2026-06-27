@@ -71,7 +71,7 @@ npm install && npm run dev
 - [x] Supports Youdao Text-to-Speech (TTS).
 - [x] Supports manually sorting query results.
 - [x] Supports [Arguments](https://developers.raycast.com/information/lifecycle/arguments).
-- [x] Supports [Fallback Commands](https://manual.raycast.com/fallback-commands).
+- [x] Supports [Fallback Commands](https://manual.raycast.com/settings#Fallback%20Commands).
 - [x] Supports system proxies.
 - [x] Supports Linguee and Youdao Dictionary.
 - [x] Supports macOS System Translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
