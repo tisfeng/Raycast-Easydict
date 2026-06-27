@@ -730,6 +730,18 @@ export const languageItemList: LanguageItem[] = [
     emoji: "🇳🇴",
   },
   {
+    googleLangCode: "ka",
+    youdaoLangCode: "ka",
+    volcanoLangCode: "ka",
+    bingLangCode: "ka",
+    francLangCode: "kat",
+    baiduLangCode: "geo",
+    langEnglishName: "Georgian",
+    langChineseName: "格鲁吉亚语",
+    appleDetectLangChineseName: "格鲁吉亚语",
+    emoji: "🇬🇪",
+  },
+  {
     googleLangCode: "sr",
     youdaoLangCode: "sr-Latn",
     volcanoLangCode: "sr",
