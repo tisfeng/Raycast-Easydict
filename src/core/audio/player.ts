@@ -31,7 +31,8 @@ public class Audio {
 }
 '@
 }
-[Audio]::mciSendString("play \`${safePath}\` wait", $null, 0, 0)
+$result = [Audio]::mciSendString("play \`"${safePath}\`" wait", $null, 0, 0)
+if ($result -ne 0) { throw "mciSendString failed with code $result" }
   `,
     { signal },
   );
