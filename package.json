@@ -604,6 +604,15 @@
       "default": false
     },
     {
+      "title": "Display Options",
+      "name": "flagsAreNotLanguages",
+      "type": "checkbox",
+      "label": "Flags are not languages",
+      "required": false,
+      "description": "Hide country flags next to language names, respecting that flags represent countries, not languages.",
+      "default": false
+    },
+    {
       "title": "Dictionary Services",
       "type": "checkbox",
       "name": "enableYoudaoDictionary",

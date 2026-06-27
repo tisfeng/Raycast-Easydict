@@ -212,7 +212,13 @@ function TargetLanguageSection({
             key={lang.youdaoLangCode}
             title={lang.langEnglishName}
             onAction={() => onLanguageUpdate(lang)}
-            icon={lang.youdaoLangCode === toLanguage ? Icon.ArrowRight : { source: lang.emoji }}
+            icon={
+              lang.youdaoLangCode === toLanguage
+                ? Icon.ArrowRight
+                : myPreferences.flagsAreNotLanguages
+                  ? Icon.Globe
+                  : { source: lang.emoji }
+            }
           />
         ))}
     </ActionPanel.Section>

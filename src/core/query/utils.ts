@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
@@ -157,6 +158,14 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
 export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = false) {
   const fromLanguageItem = getLanguageItem(from);
   const toLanguageItem = getLanguageItem(to);
+
+  if (myPreferences.flagsAreNotLanguages) {
+    // If onlyEmoji is requested but flags are disabled, we could use short names or langEnglishName.
+    // Using langEnglishName since there are no short abbreviations available.
+    const fromToLanguageName = `${fromLanguageItem.langEnglishName} --> ${toLanguageItem.langEnglishName}`;
+    return fromToLanguageName;
+  }
+
   const fromToEmoji = `${fromLanguageItem.emoji} --> ${toLanguageItem.emoji}`;
   const fromToLanguageNameAndEmoji = `${fromLanguageItem.langEnglishName}${fromLanguageItem.emoji} --> ${toLanguageItem.langEnglishName}${toLanguageItem.emoji}`;
   return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
