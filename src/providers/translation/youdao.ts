@@ -88,6 +88,7 @@ export class YoudaoTranslateProvider extends BaseTranslateProvider {
 
     return {
       type: TranslationType.Youdao,
+      result: translateResponse,
       translations,
       queryWordInfo,
     };
