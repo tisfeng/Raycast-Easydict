@@ -238,6 +238,10 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       for (const config of translationServices) {
         runTranslationQuery(config, queryWordInfo);
       }
+
+      // If all providers were disabled, no START_QUERY was dispatched.
+      // This will ensure we don't get stuck in a loading state.
+      dispatch({ type: "CHECK_PENDING_QUERIES" });
     },
     [runDictionaryQuery, runTranslationQuery],
   );

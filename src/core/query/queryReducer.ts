@@ -70,7 +70,9 @@ export type QueryAction =
   /** Clear all results and reset loading state (e.g., when input is cleared). */
   | { type: "CLEAR_ALL" }
   /** Prepare for a new query: clear pending list, show loading spinner. */
-  | { type: "RESET_FOR_NEW_QUERY" };
+  | { type: "RESET_FOR_NEW_QUERY" }
+  /** Check if any queries are pending; if not, stop the loading spinner. */
+  | { type: "CHECK_PENDING_QUERIES" };
 
 /**
  * Pure reducer function. Computes next state from current state + action.
@@ -156,6 +158,13 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
         queryRecordList: [],
         isLoading: true,
       };
+    }
+
+    case "CHECK_PENDING_QUERIES": {
+      if (state.queryRecordList.length === 0) {
+        return { ...state, isLoading: false };
+      }
+      return state;
     }
 
     default:
