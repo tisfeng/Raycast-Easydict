@@ -2,32 +2,44 @@
 
 ## [v3.0.0] - {PR_MERGE_DATE}
 
+### ⚠️ Behavioral Changes
+
+- Removed the built-in system proxy detection and forwarding mechanism. If you rely on your operating system's proxy settings, please enable **Raycast → Settings → Advanced → Use System Proxy Settings**.
+- Renamed **Play Text** to **Read Text**. The shortcut is now `Cmd+R`, and **Read Result Text** now has its own shortcut: `Cmd+Shift+R`.
+
 ### ✨ New Features
 
-- Added support for Windows platform (including native TTS voice reading and cross-platform audio playback capabilities).
+- Added Windows support, including native TTS voice synthesis and cross-platform audio playback.
 - Added Traditional Chinese as a supported target language for DeepL.
-- Added preference option to hide country/region emojis in language selection and titles.
+- Added an option to hide country/region emojis in language selectors and titles.
 
-### 💎 Improvement
+### 💎 Improvements
 
-#### Architecture & Refactoring
+#### Architecture & Performance
 
-- Completely refactored the underlying architecture (standardized query engine, API providers, and directory structure), introducing the template method pattern and declarative service decoupling to improve code maintainability and scalability.
-- Refactored and decoupled the audio module (unified management of download, playback, and voice synthesis logic).
-- Streamlined project dependencies (e.g., removed `file-type`, `crypto-js`), further reducing the plugin size by implementing equivalent functionalities natively.
+- Rebuilt the underlying architecture to improve maintainability, extensibility, and long-term stability.
+- Refactored the audio system with unified management for downloading, playback, and speech synthesis.
+- Reorganized the project structure and reduced the extension size by removing unnecessary dependencies and replacing them with native implementations where appropriate.
 
-#### Functional Optimization
+#### Translation Experience
 
-- Optimized OpenAI translation prompts.
-- Renamed "Play Text" to "Read Text" and updated corresponding shortcuts (`Cmd+R` / `Cmd+Shift+R`).
-- Optimized Youdao dictionary data formatting logic and Linguee HTML parsing algorithm.
+- Optimized OpenAI translation prompts for better translation quality with lower token usage.
+- Improved Youdao dictionary formatting.
+- Optimized the Linguee HTML parsing logic.
+- Improved language handling consistency across translation providers.
 
-### 🐞 Fixed
+#### Developer Experience
 
-- Fixed a legacy issue where the search text would occasionally flicker or reappear when the app resumed from the background.
-- Fixed an issue where Bing translation would fail due to excessive recursion in specific cases and result in race conditions during concurrent queries.
-- Fixed a playback conflict and cache overwrite issue that could occur during continuous audio playback for some dictionaries.
-- Fixed an issue where Georgian appeared in the target language options but could not actually be queried.
+- Improved project documentation and repository organization.
+- Introduced automated documentation generation to keep language support tables synchronized with the implementation.
+- Improved build tooling and development automation.
+
+### 🐞 Bug Fixes
+
+- Fixed a longstanding issue where the search text could briefly reappear after the extension resumed from the background.
+- Fixed Bing translation failures caused by excessive recursion in edge cases and resolved race conditions during concurrent requests.
+- Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
+- Removed Georgian from the target language list because it was displayed despite not being supported.
 
 ## [v2.11.3] - 2026-05-15
 
