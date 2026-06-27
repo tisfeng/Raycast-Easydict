@@ -38,24 +38,13 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
     const bingHost = getBingHost();
     const url = `https://${bingHost}/ttranslatev3?isVertical=1&IG=${IG}&IID=${IIDString}`;
 
-    const response = await timedFetch.raw(url, {
-      method: "POST",
-      body: new URLSearchParams(data).toString(),
-      headers: {
-        "User-Agent": userAgent,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      redirect: "manual",
-      signal: options?.signal,
-    });
+    const { url: finalUrl, data: responseData } = await this.makeRequest(url, data, options?.signal);
 
-    const finalUrl = response.url;
     const newHost = new URL(finalUrl).host;
     if (newHost !== bingHost) {
       // Host mismatch detected; shared module handles host switching on next request.
     }
 
-    const responseData = response._data;
     if (!responseData) {
       throw new Error("Bing detect: empty response");
     }
@@ -76,5 +65,34 @@ export class BingDetectProvider extends BaseDetectProvider<BingTranslateResult> 
       confirmed: false,
       result: bingResult,
     };
+  }
+
+  private async makeRequest(
+    requestUrl: string,
+    data: Record<string, string>,
+    signal?: AbortSignal,
+  ): Promise<{ url: string; data: unknown }> {
+    const response = await timedFetch.raw(requestUrl, {
+      method: "POST",
+      body: new URLSearchParams(data).toString(),
+      headers: {
+        "User-Agent": userAgent,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "manual",
+      signal,
+    });
+
+    const finalUrl = response.url;
+
+    // Handle redirect manually - POST body needs to be resent
+    if (response.status >= 300 && response.status < 400) {
+      const redirectUrl = response.headers.get("location");
+      if (redirectUrl) {
+        return this.makeRequest(redirectUrl, data, signal);
+      }
+    }
+
+    return { url: finalUrl, data: response._data };
   }
 }
