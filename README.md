@@ -95,7 +95,7 @@ npm install && npm run dev
 |  |  |
 | - | - |
 | ![xiaxi-1665674049](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/xiaxi-1665674049.png) | ![yi-1665582552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/yi-1665582552.png) |
-| ![ai](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/ai-1666538579.png) | [艾](https://youdao.com/result?word=%E8%89%BE&lang=en)<br>![ai-1665582690](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/ai-1665582690.png) |
+
 
 **[Linguee Dictionary](https://www.linguee.com/): English <--> Chinese**
 
