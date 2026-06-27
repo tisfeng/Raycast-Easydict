@@ -59,6 +59,11 @@ export async function playWordAudio(
 ): Promise<void> {
   const { audioPath, signal } = options || {};
 
+  if (signal?.aborted) {
+    logTrace("AudioPlayer", `play cancelled: ${word}`);
+    return;
+  }
+
   if (!audioPath || !fs.existsSync(audioPath)) {
     logTrace("AudioPlayer", `file not found: ${word}, fallback to TTS directly`);
     await playTTS(word, fromLanguage, { truncate: true, signal });
