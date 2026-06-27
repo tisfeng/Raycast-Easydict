@@ -1,5 +1,34 @@
 # `Easydict` Changelog
 
+## [v3.0.0] - {PR_MERGE_DATE}
+
+### ✨ New Features
+
+- Added support for Windows platform (including native TTS voice reading and cross-platform audio playback capabilities).
+- Added Traditional Chinese as a supported target language for DeepL.
+- Added preference option to hide country/region emojis in language selection and titles.
+
+### 💎 Improvement
+
+#### Architecture & Refactoring
+
+- Completely refactored the underlying architecture (standardized query engine, API providers, and directory structure), introducing the template method pattern and declarative service decoupling to improve code maintainability and scalability.
+- Refactored and decoupled the audio module (unified management of download, playback, and voice synthesis logic).
+- Streamlined project dependencies (e.g., removed `file-type`, `crypto-js`), further reducing the plugin size by implementing equivalent functionalities natively.
+
+#### Functional Optimization
+
+- Optimized OpenAI translation prompts.
+- Renamed "Play Text" to "Read Text" and updated corresponding shortcuts (`Cmd+R` / `Cmd+Shift+R`).
+- Optimized Youdao dictionary data formatting logic and Linguee HTML parsing algorithm.
+
+### 🐞 Fixed
+
+- Fixed a legacy issue where the search text would occasionally flicker or reappear when the app resumed from the background.
+- Fixed an issue where Bing translation would fail due to excessive recursion in specific cases and result in race conditions during concurrent queries.
+- Fixed a playback conflict and cache overwrite issue that could occur during continuous audio playback for some dictionaries.
+- Fixed an issue where Georgian appeared in the target language options but could not actually be queried.
+
 ## [v2.11.3] - 2026-05-15
 
 ### 💎 Improvement
