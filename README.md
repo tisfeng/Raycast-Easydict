@@ -36,7 +36,7 @@ For translation, it supports OpenAI, macOS System Translation, [DeepL](https://w
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/OpenAI-Translate-1679670891.gif" width="49%" />
+  <img src="https://github.com/user-attachments/assets/268ced8a-1ba8-47f4-bee5-bc3af4987c7a" width="49%" />
 </p>
 
 ## Installation
