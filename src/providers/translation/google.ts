@@ -8,7 +8,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
-import { trimTextLength } from "@/utils/text";
+import { trimTextLength, unescapeHtml } from "@/utils/text";
 
 import { BaseTranslateProvider } from "./base";
 
@@ -53,7 +53,11 @@ export class GoogleTranslateProvider extends BaseTranslateProvider {
 
     // <div class="result-container">好的</div>
     const match = html.match(/<div class="result-container">(.*?)<\/div>/s);
-    const translation = match?.[1]?.trim() ?? "";
+    let translation = match?.[1]?.trim() ?? "";
+
+    // Decode HTML entities (e.g., &quot;, &#39;, &amp;)
+    translation = unescapeHtml(translation);
+
     const translations = translation.split("\n");
 
     return {

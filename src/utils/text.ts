@@ -12,3 +12,26 @@ export function trimTextLength(text: string, length = 1830) {
   }
   return text.substring(0, length);
 }
+
+/**
+ * Decode basic HTML entities to their raw text representation.
+ */
+export function unescapeHtml(html: string): string {
+  return html.replace(/&(#\d+|#x[a-fA-F0-9]+|[a-zA-Z]+);/g, (match, entity) => {
+    if (entity.startsWith("#x")) {
+      return String.fromCharCode(parseInt(entity.slice(2), 16));
+    } else if (entity.startsWith("#")) {
+      return String.fromCharCode(parseInt(entity.slice(1), 10));
+    } else {
+      const map: Record<string, string> = {
+        amp: "&",
+        lt: "<",
+        gt: ">",
+        quot: '"',
+        apos: "'",
+        nbsp: " ",
+      };
+      return map[entity] || match;
+    }
+  });
+}
