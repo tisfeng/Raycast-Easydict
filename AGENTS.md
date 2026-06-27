@@ -4,7 +4,7 @@
 
 ### Key Context
 
-- Integrates with multiple translation and dictionary providers (Linguee, Youdao, DeepL, Google, Bing, Baidu, Tencent, Volcano, OpenAI, Gemini, Apple System Translate, etc.).
+- Integrates with multiple translation and dictionary providers (Linguee, Youdao, DeepL, DeepLX, Google, Bing, Baidu, Tencent, Volcano, Caiyun, OpenAI, Gemini, Apple System Translate, etc.).
 - Provider response formats differ significantly. Maintain strict typing and provider-specific parsing logic.
 - Uses Raycast-native UI components and follows Raycast UX conventions.
 - API keys and credentials are managed through Raycast Preferences.
@@ -13,6 +13,12 @@
 ## Agent Skills
 
 Apply the `raycast-extension` skill when needed for UI components, Preferences, or standard Raycast extension architecture.
+
+Skills are managed via `skills-lock.json`. Each entry records the GitHub source, skill path, and integrity hash. Developers sync skills with:
+
+```bash
+npx skills experimental_install
+```
 
 ## Build & Verification
 
@@ -40,7 +46,19 @@ Before completing a task:
 
 ### Translation Providers
 
-- Keep provider implementations isolated.
+Three provider categories, each with an abstract base class using the **template method pattern**:
+
+- **`BaseTranslateProvider`** — public `request()` (AsyncGenerator), abstract `doTranslate()`. Non-streaming providers are auto-wrapped.
+- **`BaseDetectProvider`** — public `detect()`, abstract `doDetect()`.
+- **`BaseDictionaryProvider`** — public `request()`, abstract `doQuery()`.
+
+Base classes handle timer instrumentation and error normalization (`handleRequestError`); subclasses focus on API logic only.
+
+Each category has a **static registry** in its `index.ts` — declarative arrays of `{ type, preference, provider }` configs. Provider classes are instantiated by the engine, not at module load.
+
+OpenAI-compatible providers (in the `openai-compatible/` directory) share a common `base.ts` for streaming protocol and endpoint/model/key configuration.
+
+- Keep provider implementations isolated — no cross-provider dependencies.
 - Preserve provider-specific response types.
 - Prefer following existing provider patterns.
 - Avoid introducing shared abstractions unless multiple providers genuinely benefit.
@@ -62,6 +80,15 @@ Do not introduce alternative configuration, persistence, or state-management mec
 - Maintain consistency with neighboring commands.
 - Follow established loading, empty-state, metadata, and shortcut conventions.
 
+### Core Domain (`src/core/`)
+
+- `query/` — `queryReducer` with typed actions (`START_QUERY`, `SET_RESULT`, `CLEAR_ALL`, etc.), display section computation, and cross-service coupling rules.
+- `audio/` — download, play, TTS, and query audio handling.
+- `detect/` — language detection utilities and types.
+- `language/` — language constants, types, and utility functions.
+
+The core layer is decoupled from UI and providers. Providers produce raw results; core transforms them into display-ready sections.
+
 ## Code Guidelines
 
 ### Commits and PR Titles
@@ -81,6 +108,13 @@ Keep commits atomic and bisectable. Every commit must build successfully, pass r
 - Rely on type inference when possible; avoid explicit type annotations unless necessary for exports, public APIs, or clarity.
 - Prefer functional array methods (`map`, `filter`, `flatMap`) over loops where readability is not harmed.
 - Use type guards with `filter` to preserve type inference downstream.
+
+### Error Handling
+
+- Provider subclasses never catch errors — base classes wrap via `handleRequestError`.
+- Use `RequestError` and `CancelledError` from `@/utils/errors` for typed error shapes.
+- Use `normalizeError` to convert unknown errors (FetchError, APICallError, generic) into consistent types.
+- Use `showErrorToast` / `showFailureToast` for user-facing error notifications.
 
 ### Imports
 
