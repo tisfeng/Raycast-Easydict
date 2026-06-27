@@ -95,9 +95,6 @@
     "eslint": "eslint src/ --fix",
     "docs:gen": "automd"
   },
-  "overrides": {
-    "whatlang-node": "file:overrides/whatlang-node"
-  },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",
     "commit-msg": "npx --no-install commitlint --edit $1"
