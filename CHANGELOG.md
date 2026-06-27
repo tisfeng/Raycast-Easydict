@@ -12,6 +12,7 @@
 - Added Windows support, including native TTS voice synthesis and cross-platform audio playback.
 - Added Traditional Chinese as a supported target language for DeepL.
 - Added an option to hide country/region emojis in language selectors and titles.
+- Added independent preference toggles for Tencent and Volcano language detection to improve API quota management.
 
 ### 💎 Improvements
 
@@ -41,6 +42,7 @@
 - Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
 - Fixed DeepLX translate is always failed.
 - Fixed an issue where Georgian could be selected in preferences but failed to translate by properly implementing its internal language configuration.
+- Fixed an issue where single quotes in text were incorrectly escaped before being sent to Apple Translate.
 
 ## [v2.11.3] - 2026-05-15
 
