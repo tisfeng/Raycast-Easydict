@@ -64,7 +64,7 @@ export const RELEASE_MARKDOWN = `
 - 修复必应翻译在特定边界情况下因递归过深导致的查询失败，并解决并发请求中的竞态问题。
 - 修复部分词典连续播放音频时产生的播放冲突与缓存覆盖问题。
 - 修复 DeepLX 翻译错误
-- 从目标语言列表中移除格鲁吉亚语（因其不支持但被错误显示）。
+- 修复格鲁吉亚语虽然能在偏好设置中选择但无法正常翻译的问题，已在内部补全了对该语言的完整支持。
 
 ---
 
@@ -106,5 +106,5 @@ export const RELEASE_MARKDOWN = `
 - Fixed Bing translation failures caused by excessive recursion in edge cases and resolved race conditions during concurrent requests.
 - Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
 - Fixed DeepLx translate is always failed.
-- Added Georgian to the supported language list.
+- Fixed an issue where Georgian could be selected in preferences but failed to translate by properly implementing its internal language configuration.
 `;

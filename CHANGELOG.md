@@ -40,7 +40,7 @@
 - Fixed Bing translation failures caused by excessive recursion in edge cases and resolved race conditions during concurrent requests.
 - Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
 - Fixed Deeplx translate is always failed.
-- Removed Georgian from the target language list because it was displayed despite not being supported.
+- Fixed an issue where Georgian could be selected in preferences but failed to translate by properly implementing its internal language configuration.
 
 ## [v2.11.3] - 2026-05-15
 
