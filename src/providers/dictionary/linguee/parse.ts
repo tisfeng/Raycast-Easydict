@@ -79,9 +79,9 @@ function partitionFeatured(items: LingueeWordExplanation[]): [LingueeWordExplana
   return [featured, unfeatured];
 }
 
-function parseExamples(examples: HtmlNode | null): LingueeExample[] {
-  if (!examples) return [];
-  return examples.querySelectorAll(".example").map((example) => ({
+function parseExamples(examples: HtmlNode[]): LingueeExample[] {
+  if (!examples?.length) return [];
+  return examples.map((example) => ({
     example: { text: example?.querySelector(".tag_s")?.textContent ?? "", pos: "" },
     translations: [{ text: example?.querySelector(".tag_t")?.textContent ?? "", pos: "" }],
   }));
@@ -101,7 +101,7 @@ function parseExplanation(
     pos: translation.querySelector(".tag_type")?.textContent ?? "",
     featured: isFeatured,
     audioUrl: getAudioUrl(translation, ".audio"),
-    examples: parseExamples(translation.querySelector(".example")),
+    examples: parseExamples(translation.querySelectorAll(".example")),
     frequencyTag: { tagForms: tagText, displayType: designatedFrequency ?? getExplanationDisplayType(tagText) },
   };
 }
