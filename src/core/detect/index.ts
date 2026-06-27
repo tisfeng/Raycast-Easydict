@@ -1,4 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
+import { getPreferenceValues } from "@raycast/api";
+
 import { config } from "@/core/config";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
@@ -29,7 +31,17 @@ let apiDetectors: BaseDetectProvider[] | null = null;
 let localDetectors: BaseDetectProvider[] | null = null;
 
 function initDetectors() {
-  const enabled = detectServices.map((c) => new c.provider()).filter((p) => p.isEnabled());
+  const preferences = getPreferenceValues<Preferences>();
+  const enabled = detectServices
+    .filter((c) => {
+      if (c.preference && preferences[c.preference] === false) {
+        return false;
+      }
+      return true;
+    })
+    .map((c) => new c.provider())
+    .filter((p) => p.isEnabled());
+
   apiDetectors = enabled.filter((p) => !p.isLocal);
   localDetectors = enabled.filter((p) => p.isLocal);
 }

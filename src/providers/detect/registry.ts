@@ -19,7 +19,7 @@ export interface DetectServiceConfig {
 export const detectServices: DetectServiceConfig[] = [
   { type: LanguageDetectType.Bing, provider: BingDetectProvider },
   { type: LanguageDetectType.Baidu, preference: "enableBaiduLanguageDetect", provider: BaiduDetectProvider },
-  { type: LanguageDetectType.Tencent, preference: "enableTencentTranslate", provider: TencentDetectProvider },
-  { type: LanguageDetectType.Volcano, preference: "enableVolcanoTranslate", provider: VolcanoDetectProvider },
+  { type: LanguageDetectType.Tencent, preference: "enableTencentLanguageDetect", provider: TencentDetectProvider },
+  { type: LanguageDetectType.Volcano, preference: "enableVolcanoLanguageDetect", provider: VolcanoDetectProvider },
   { type: LanguageDetectType.Franc, provider: FrancDetectProvider },
 ];

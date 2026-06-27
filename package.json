@@ -595,6 +595,22 @@
       "default": true
     },
     {
+      "name": "enableTencentLanguageDetect",
+      "type": "checkbox",
+      "label": "Enable Tencent Language Detect",
+      "required": false,
+      "description": "Turn on/off Tencent Language Detect.",
+      "default": true
+    },
+    {
+      "name": "enableVolcanoLanguageDetect",
+      "type": "checkbox",
+      "label": "Enable Volcano Language Detect",
+      "required": false,
+      "description": "Turn on/off Volcano Language Detect.",
+      "default": true
+    },
+    {
       "title": "Apple System Features",
       "name": "enableAppleTranslate",
       "type": "checkbox",
@@ -818,7 +834,7 @@
       "name": "tencentSecretId",
       "type": "textfield",
       "required": false,
-      "description": "Your Tencent SecretId",
+      "description": "Your Tencent SecretId (for Translate & Detect)",
       "default": ""
     },
     {
@@ -826,14 +842,14 @@
       "name": "tencentSecretKey",
       "type": "password",
       "required": false,
-      "description": "Your Tencent SecretKey"
+      "description": "Your Tencent SecretKey (for Translate & Detect)"
     },
     {
       "title": "Volcano Access Key ID",
       "name": "volcanoAccessKeyId",
       "type": "textfield",
       "required": false,
-      "description": "Your Volcano Access Key ID",
+      "description": "Your Volcano Access Key ID (for Translate & Detect)",
       "default": ""
     },
     {
@@ -841,7 +857,7 @@
       "name": "volcanoAccessKeySecret",
       "type": "password",
       "required": false,
-      "description": "Your Volcano Access Key Secret"
+      "description": "Your Volcano Access Key Secret (for Translate & Detect)"
     },
     {
       "title": "Caiyun Token",
