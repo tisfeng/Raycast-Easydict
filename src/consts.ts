@@ -63,6 +63,7 @@ export const RELEASE_MARKDOWN = `
 - 修复扩展从后台恢复时，搜索文本偶尔会闪现的历史遗留问题。
 - 修复必应翻译在特定边界情况下因递归过深导致的查询失败，并解决并发请求中的竞态问题。
 - 修复部分词典连续播放音频时产生的播放冲突与缓存覆盖问题。
+- 修复 DeepLX 翻译错误
 - 从目标语言列表中移除格鲁吉亚语（因其不支持但被错误显示）。
 
 ---
@@ -104,5 +105,6 @@ export const RELEASE_MARKDOWN = `
 - Fixed a longstanding issue where the search text could briefly reappear after the extension resumed from the background.
 - Fixed Bing translation failures caused by excessive recursion in edge cases and resolved race conditions during concurrent requests.
 - Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
-- Removed Georgian from the target language list because it was displayed despite not being supported.
+- Fixed DeepLx translate is always failed.
+- Added Georgian to the supported language list.
 `;

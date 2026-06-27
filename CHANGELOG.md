@@ -39,6 +39,7 @@
 - Fixed a longstanding issue where the search text could briefly reappear after the extension resumed from the background.
 - Fixed Bing translation failures caused by excessive recursion in edge cases and resolved race conditions during concurrent requests.
 - Fixed playback conflicts and cache overwrite issues during consecutive audio playback for certain dictionaries.
+- Fixed Deeplx translate is always failed.
 - Removed Georgian from the target language list because it was displayed despite not being supported.
 
 ## [v2.11.3] - 2026-05-15
