@@ -83,12 +83,14 @@ function createStreamDebouncer(
         }, delay);
       }
     },
-    clear() {
+    clear(flush = true) {
       if (updateTimer) {
         clearTimeout(updateTimer);
         updateTimer = undefined;
       }
-      flushUpdate();
+      if (flush) {
+        flushUpdate();
+      }
     },
   };
 }
@@ -160,9 +162,11 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       const signal = abortControllerRef.current?.signal;
       const instance = new config.provider();
 
+      let debouncer: ReturnType<typeof createStreamDebouncer> | undefined;
+
       try {
         const iterator = instance.request(queryWordInfo, { signal });
-        const debouncer = createStreamDebouncer(config.type, queryWordInfo, dispatch, buildTranslationDisplay);
+        debouncer = createStreamDebouncer(config.type, queryWordInfo, dispatch, buildTranslationDisplay);
         let finalResult: QueryTypeResult | undefined;
 
         while (true) {
@@ -184,6 +188,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
         debouncer.clear();
       } catch (error) {
+        debouncer?.clear(false);
         showErrorToast(error);
       } finally {
         dispatch({ type: "FINISH_QUERY", queryType: config.type });
