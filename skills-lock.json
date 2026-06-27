@@ -1,11 +1,35 @@
 {
   "version": 1,
   "skills": {
+    "code-simplifier": {
+      "source": "tisfeng/Easydict",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/code-simplifier/SKILL.md",
+      "computedHash": "436374bd3d1b53667d736f156e1027e9426c0110721f2f21fae778dfd013db6d"
+    },
+    "fireworks-tech-graph": {
+      "source": "yizhiyanhua-ai/fireworks-tech-graph",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7ec3487a6621ff274760c8285d410cd0f3adb00134deda69cbeb36dbc98f43ab"
+    },
     "raycast-extension": {
       "source": "maxchang3/skills",
       "sourceType": "github",
       "skillPath": "raycast-extension/SKILL.md",
-      "computedHash": "91cf2b954b4a234f9714e610da6588d6879b689ec74499cb4015159b67f6970c"
+      "computedHash": "018e735ece9fb964460b95d7aea4d1a51948ba5ae59166a1573782878766348f"
+    },
+    "review-pr": {
+      "source": "tisfeng/Easydict",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/review-pr/SKILL.md",
+      "computedHash": "32a327d2288390270f0bca209694fdde762e06f410314c87a0b4c58749605287"
+    },
+    "worktree-rebase-merge": {
+      "source": "tisfeng/Easydict",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/worktree-rebase-merge/SKILL.md",
+      "computedHash": "26f8f64710f07eb75bc9c72d59acf4841a5da2d7ad0db99ad930dd3c29257d89"
     }
   }
 }
