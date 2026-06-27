@@ -74,6 +74,7 @@
     "@raycast/eslint-config": "^2.1.1",
     "@types/node": "22.13.10",
     "@types/react": "19.2.14",
+    "automd": "^0.4.3",
     "eslint": "^9.39.2",
     "eslint-plugin-import-x": "^4.16.1",
     "eslint-plugin-simple-import-sort": "^13.0.0",
@@ -91,7 +92,8 @@
     "lint": "ray lint",
     "fix-lint": "ray lint --fix",
     "postinstall": "npx simple-git-hooks",
-    "eslint": "eslint src/ --fix"
+    "eslint": "eslint src/ --fix",
+    "docs:gen": "automd"
   },
   "overrides": {
     "whatlang-node": "file:overrides/whatlang-node"

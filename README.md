@@ -219,7 +219,11 @@ You can also specify a part of the sort, for example: `youdao dictionary, apple,
 
 ## Supported Languages
 
-Currently we support 49 languages: **Chinese-Simplified, Chinese-Traditional, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech, Turkish, Lithuanian, Latvian, Ukrainian, Bulgarian, Indonesian, Malay, Slovenian, Estonian, Vietnamese, Persian, Hindi, Telugu, Tamil, Urdu, Filipino, Khmer, Lao, Bengali, Burmese, Norwegian, Georgian, Serbian, Croatian, Mongolian, Hebrew.**
+<!-- automd:easydictLanguages locale="en" -->
+
+Currently we support 49 languages: **Simplified Chinese, Traditional Chinese, English, Japanese, Korean, French, Spanish, Portuguese, Italian, German, Russian, Arabic, Swedish, Romanian, Thai, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech, Turkish, Lithuanian, Latvian, Ukrainian, Bulgarian, Indonesian, Malay, Slovenian, Estonian, Vietnamese, Persian, Hindi, Telugu, Tamil, Urdu, Filipino, Khmer, Lao, Bangla, Burmese, Norwegian, Georgian, Serbian, Croatian, Mongolian, Hebrew.**
+
+<!-- /automd -->
 
 ### Language Detection
 
@@ -229,10 +233,12 @@ Considering user privacy, only Bing language detection is enabled by default (no
 
 Details of the languages supported by each language detection service are as follows:
 
+<!-- automd:easydictDetectionTable locale="en" -->
+
 | Languages | Bing | 🍎 Apple | Baidu | Volcano | Tencent |
-| :- | :-: | :-: | :-: | :-: | :-: |
-| Chinese (Simplified) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Chinese (Traditional) | ✅ | ❌ | ❌ | ✅ | ❌ |
+| - | - | - | - | - | - |
+| Simplified Chinese | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Traditional Chinese | ✅ | ✅ | ✅ | ✅ | ❌ |
 | English | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Japanese | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Korean | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -272,14 +278,16 @@ Details of the languages supported by each language detection service are as fol
 | Filipino | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Khmer | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Lao | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Bengali | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Bangla | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Burmese | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Norwegian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Georgian | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Georgian | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Serbian | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Croatian | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Mongolian | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Hebrew | ✅ | ✅ | ✅ | ✅ | ❌ |
+
+<!-- /automd -->
 
 ### Dictionary
 
@@ -301,20 +309,22 @@ Google and DeepL translations support system proxy. To enable proxy, turn on `Us
 
 Supported translation languages:
 
+<!-- automd:easydictTranslationTable locale="en" -->
+
 | Languages | Youdao | DeepL | Google | Bing | 🍎 Apple | Baidu | Volcano | Tencent | Caiyun |
-| :- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| Chinese (Simplified) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Chinese (Traditional) | ✅ | ⚠️ | ✅ | ✅ | ⚠️ | ✅ | ✅ | ✅ | ⚠️ |
+| - | - | - | - | - | - | - | - | - | - |
+| Simplified Chinese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Traditional Chinese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | English | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Japanese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Korean | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Korean | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | French | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Spanish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Portuguese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Italian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | German | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Russian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Arabic | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Arabic | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Swedish | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Romanian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Thai | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
@@ -329,7 +339,7 @@ Supported translation languages:
 | Turkish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Lithuanian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Latvian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Ukrainian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Ukrainian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Bulgarian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Indonesian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Malay | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
@@ -344,16 +354,16 @@ Supported translation languages:
 | Filipino | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Khmer | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Lao | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Bengali | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Bangla | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Burmese | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Norwegian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Norwegian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Georgian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Serbian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Croatian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Mongolian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Hebrew | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 
-> Note: ⚠️ means the translation of source language to Traditional Chinese is not supported, such as DeepL. If you enter Traditional Chinese for translation, it will be treated as Simplified Chinese.
+<!-- /automd -->
 
 ## Translation Services Setup
 

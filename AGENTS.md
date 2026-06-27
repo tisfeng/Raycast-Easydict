@@ -42,6 +42,14 @@ Before completing a task:
 2. Ensure the extension still builds and functions correctly.
 3. Report verification status in the final summary.
 
+### Documentation Generation (automd)
+
+Do NOT manually edit content inside `<!-- automd -->` blocks — they are auto-generated.
+
+```bash
+npm run docs:gen           # regenerate automd blocks in READMEs
+```
+
 ## Architecture Constraints
 
 ### Translation Providers
