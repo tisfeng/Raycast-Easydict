@@ -33,7 +33,7 @@ export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslate
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
-    const targetLang = getLangCode(toLanguage, "deepLSourceId");
+    const targetLang = getLangCode(toLanguage, "deepLTargetId") || getLangCode(toLanguage, "deepLSourceId");
 
     // if language is not supported, return null
     if (!sourceLang || !targetLang) {

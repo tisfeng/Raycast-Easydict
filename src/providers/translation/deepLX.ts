@@ -22,7 +22,7 @@ export class DeepLXTranslateProvider extends BaseTranslateProvider {
   protected async doTranslate(queryWordInfo: QueryWordInfo, { signal: _signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
-    const targetLang = getLangCode(toLanguage, "deepLSourceId");
+    const targetLang = getLangCode(toLanguage, "deepLTargetId") || getLangCode(toLanguage, "deepLSourceId");
 
     if (!sourceLang || !targetLang) {
       logTrace(this.type, `translate not support language: ${fromLanguage} --> ${toLanguage}`);
