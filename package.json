@@ -57,7 +57,7 @@
     "gemini"
   ],
   "dependencies": {
-    "@deeplx/core": "^0.2.0",
+    "@deeplx/core": "^0.2.2",
     "@raycast/api": "^1.104.19",
     "@raycast/utils": "^2.2.6",
     "@xsai/shared-chat": "^0.5.0-beta.6",
