@@ -4,8 +4,9 @@ import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
 import { hasTencentAppKey } from "@/providers/shared/config";
 import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
 import { LanguageDetectType } from "@/types/api";
+import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
-import { logWarn } from "@/utils/logger";
+import { logError, logWarn } from "@/utils/logger";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
@@ -53,6 +54,12 @@ export class TencentDetectProvider extends BaseDetectProvider {
     });
 
     const response = data.Response;
+
+    const error = response.Error;
+    if (error) {
+      logError(this.type, `detect error: ${error.Message}`);
+      throw new RequestError(LanguageDetectType.Tencent, error.Message);
+    }
 
     const tencentLanguageId = response.Lang || "";
     const youdaoLanguageId = getYoudaoLangCode(tencentLanguageId, tencentDetectMap);
