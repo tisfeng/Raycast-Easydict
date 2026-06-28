@@ -60,6 +60,11 @@ export const translationServices: TranslationServiceConfig[] = [
   {
     type: TranslationType.DeepL,
     preference: "enableDeepLTranslate",
+    isEnabled: () => {
+      const explicitlyEnabled = myPreferences.enableDeepLTranslate;
+      const implicitlyEnabledByLinguee = myPreferences.enableLingueeDictionary && !!myPreferences.deepLAuthKey;
+      return explicitlyEnabled || implicitlyEnabledByLinguee;
+    },
     provider: DeepLTranslateProvider,
     getWebUrl: (q) => {
       const text = encodeURIComponent(q.word);
