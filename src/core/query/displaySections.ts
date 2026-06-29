@@ -28,9 +28,10 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
     const { type, sourceResult } = queryResult;
     const isDict = checkIsDictionaryType(type);
     const isTrans = checkIsTranslationType(type);
+    let isFirstDictSection = true;
 
     for (const section of queryResult.displaySections) {
-      let sectionTitle = `${sourceResult?.type ?? type}`;
+      let sectionTitle: string | undefined = `${sourceResult?.type ?? type}`;
       if (sourceResult) {
         const wordInfo = sourceResult.queryWordInfo;
         const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, isShowDetail);
@@ -38,7 +39,12 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
           sectionTitle = isPreviousSectionTranslationType ? sectionTitle : `${sectionTitle}   (${fromTo})`;
           isPreviousSectionTranslationType = true;
         } else if (isDict) {
-          sectionTitle = `${sectionTitle}   (${fromTo})`;
+          if (isFirstDictSection) {
+            sectionTitle = `${sectionTitle}   (${fromTo})`;
+            isFirstDictSection = false;
+          } else {
+            sectionTitle = section.sectionTitle;
+          }
           isPreviousSectionTranslationType = false;
         } else {
           isPreviousSectionTranslationType = false;
