@@ -84,43 +84,44 @@ npm install && npm run dev
 
 ### Arguments
 
-|  |  |
-| - | - |
-| ![arguments-1666060638](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png) | ![hello-1666060655](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png) |
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png" width="49%" />
+</p>
 
 ### Dictionary Details
 
 **Youdao Modern Chinese Dict**
 
-|  |  |
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/xiaxi-1665674049.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/yi-1665582552.png" width="49%" />
+</p>
+
+**[Linguee Dictionary](https://www.linguee.com/)**
+
+| English <--> Chinese | English <--> French |
 | - | - |
-| ![xiaxi-1665674049](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/xiaxi-1665674049.png) | ![yi-1665582552](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/yi-1665582552.png) |
-
-
-**[Linguee Dictionary](https://www.linguee.com/): English <--> Chinese**
-
-|  | [float](https://www.linguee.com/english-chinese/search?query=float) |
-| - | - |
-| ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1666538642.png) | ![image-20220822170315915](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png) |
-
-**[Linguee Dictionary](https://www.linguee.com/): English <--> French**
-
-|  | [good](https://www.linguee.com/english-french/search?query=good) |
-| - | - |
-| ![easydict-3](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png) | ![image-20220822163332948](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png) |
+| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1666538642.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png) |
+| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png) |
 
 ### Show More Details（Shortcut `Cmd + M`）
 
-|  |  |
-| - | - |
-| ![showMore-1664440735](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png) | ![uk](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/uk-1666538447.png) |
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/uk-1666538447.png" width="49%" />
+</p>
 
 ### Translation Results
 
-|  |  |
-| - | - |
-| ![easydict-4-1663604001](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png) | ![easydict-5-1663604086](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png) |
-| ![easydict-6-1666538717](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1666538717.png) |  |
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png" width="49%" />
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png" width="49%" />
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1666538717.png" width="49%" />
+</p>
 
 ## Configuration
 
