@@ -16,11 +16,6 @@ import { QueryTypeResult, TranslationType } from "../../types";
 import { networkTimeout } from "./../../consts";
 import { fetchSSE } from "./utils";
 
-const controller = new AbortController();
-const timeout = setTimeout(() => {
-  controller.abort();
-}, networkTimeout); // set timeout to 15s.
-
 const REASONING_MODEL_PATTERN = /^(o1|o3|gpt-5)/i;
 
 const KNOWN_ENDPOINTS = ["https://api.openai.com/"];
@@ -46,6 +41,11 @@ function getTokenLimitParams(endpoint: string, model: string): TokenLimitParams 
 
 export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo): Promise<QueryTypeResult> {
   console.warn(`---> start request OpenAI`);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, networkTimeout); // set timeout to 15s.
 
   const url = AppKeyStore.openAIEndpoint;
 
@@ -181,12 +181,12 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         if (!choices || choices.length === 0) {
           return { error: "No result" };
         }
-        const { delta, finish_reason: finishReason } = choices[0];
+        const { delta = {}, finish_reason: finishReason } = choices[0];
         if (finishReason) {
           return;
         }
-        const { content = "", role } = delta;
-        targetTxt = content;
+        const { role } = delta;
+        targetTxt = delta.content ?? "";
 
         const leftQuotes = ['"', "“", "'", "「"];
         const firstQueryTextChar = queryWordInfo.word[0];
@@ -223,17 +223,19 @@ export async function requestOpenAIStreamTranslate(queryWordInfo: QueryWordInfo)
         resolve(openAIResult);
       },
       onError: (err) => {
-        if (err.message === "canceled") {
+        clearTimeout(timeout);
+
+        if (err?.message === "canceled") {
           console.log(`---> OpenAI canceled`);
           return reject(undefined);
         }
 
         console.error(`---> OpenAI error: ${JSON.stringify(err)}`);
 
-        let errorMessage = err.error?.message ?? "Unknown error";
+        let errorMessage = err?.error?.message ?? err?.message ?? "Unknown error";
         console.warn(`---> OpenAI error: ${errorMessage}`);
 
-        if (err.name === "AbortError") {
+        if (err?.name === "AbortError") {
           errorMessage = `Request timeout.`;
         }
 
