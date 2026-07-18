@@ -10,7 +10,9 @@ import { logError, logTrace } from "@/utils/logger";
 const recognizeText = async () => {
   const command = join(environment.assetsPath, "recognizeText");
   await chmod(command, "755");
-  const result = await x(command);
+  const result = await x(command, [], {
+    throwOnError: true,
+  });
   return result.stdout.trim();
 };
 
