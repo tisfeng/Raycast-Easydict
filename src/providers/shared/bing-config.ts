@@ -20,6 +20,7 @@ const defaultBingHost = "www.bing.com";
 
 let bingHost: string = myPreferences.bingHost || defaultBingHost;
 let bingConfig: BingConfig | undefined;
+let bingConfigRequest: Promise<BingConfig | undefined> | undefined;
 
 const cache = new Cache();
 
@@ -57,7 +58,7 @@ function parseBingConfig(html: string): BingConfig | undefined {
   }
 }
 
-export async function requestBingConfig(depth = 0): Promise<BingConfig | undefined> {
+async function fetchBingConfig(depth = 0): Promise<BingConfig | undefined> {
   if (depth >= 2) {
     logWarn("Bing", `requestBingConfig recursion depth limit reached (${depth})`);
     return undefined;
@@ -86,9 +87,27 @@ export async function requestBingConfig(depth = 0): Promise<BingConfig | undefin
   bingHost = new URL(finalUrl).host;
   logWarn("Bing", `get config failed, host: ${bingHost}, change host, then request again`);
   try {
-    return await requestBingConfig(depth + 1);
+    return await fetchBingConfig(depth + 1);
   } catch {
     return undefined;
+  }
+}
+
+export async function requestBingConfig(): Promise<BingConfig | undefined> {
+  if (bingConfigRequest) {
+    logTrace("Bing", "reuse in-flight config request");
+    return bingConfigRequest;
+  }
+
+  const request = fetchBingConfig();
+  bingConfigRequest = request;
+
+  try {
+    return await request;
+  } finally {
+    if (bingConfigRequest === request) {
+      bingConfigRequest = undefined;
+    }
   }
 }
 
