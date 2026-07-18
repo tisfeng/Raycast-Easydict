@@ -7,7 +7,8 @@ import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
-import { formatLingueeDisplaySections, getLingueeWebDictionaryURL, parseLingueeHTML } from "./parse";
+import { formatLingueeDisplaySections } from "./format";
+import { getLingueeWebDictionaryURL, parseLingueeHTML } from "./parse";
 import type { LingueeDictionaryResult } from "./types";
 
 /**
