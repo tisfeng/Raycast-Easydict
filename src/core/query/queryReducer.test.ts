@@ -126,18 +126,27 @@ describe("queryReducer", () => {
     expect(updatedLinguee?.displaySections![0].items[0].copyText).toBe("Coupled Translation");
   });
 
-  it("RESET_FOR_NEW_QUERY preserves queryResults, clears pending providers, and sets isLoading true", () => {
+  it("RESET_FOR_NEW_QUERY clears previous results and pending providers, and sets isLoading true", () => {
     let state = queryReducer(initialState, {
       type: "SET_RESULT",
       queryResult: createTranslationResult(TranslationType.DeepL),
       generation: 0,
     });
-    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google, generation: 0 });
+    state = queryReducer(state, {
+      type: "START_QUERY",
+      queryType: TranslationType.Google,
+      generation: 0,
+    });
 
-    state = queryReducer(state, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
-    expect(state.queryResults).toHaveLength(1);
+    state = queryReducer(state, {
+      type: "RESET_FOR_NEW_QUERY",
+      generation: 1,
+    });
+
+    expect(state.queryResults).toEqual([]);
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(true);
+    expect(state.isShowDetail).toBe(false);
     expect(state.activeGeneration).toBe(1);
   });
 
