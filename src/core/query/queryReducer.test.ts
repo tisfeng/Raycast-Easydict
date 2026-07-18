@@ -1,0 +1,161 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { languageItemList } from "@/core/language/consts";
+import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
+import { DictionaryType, TranslationType } from "@/types/api";
+import type { ListDisplayItem } from "@/types/display";
+import type { QueryResult } from "@/types/query";
+
+import type { QueryState } from "./queryReducer";
+import { queryReducer } from "./queryReducer";
+
+// 1. Mock dependencies
+vi.mock("@raycast/api", () => ({
+  environment: { isDevelopment: false },
+}));
+
+vi.mock("@/consts", () => ({
+  myPreferences: {
+    enableDeepLTranslate: true,
+    enableYoudaoDictionary: true,
+    enableYoudaoTranslate: false,
+    enableLingueeDictionary: true,
+  },
+}));
+
+vi.mock("@/core/config", () => ({
+  config: { servicesOrder: [] },
+}));
+
+const initialState: QueryState = {
+  queryResults: [],
+  queryRecordList: [],
+  isLoading: false,
+  isShowDetail: false,
+  currentFromLanguageItem: languageItemList[2], // English
+  autoSelectedTargetLanguageItem: languageItemList[1], // Chinese
+};
+
+function createTranslationResult(type: TranslationType): QueryResult {
+  const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
+  const displayItem: ListDisplayItem = {
+    displayCategory: "translation",
+    displayType: type,
+    queryType: type,
+    queryWordInfo,
+    key: "test-1",
+    title: "test",
+    copyText: "test",
+  };
+
+  return {
+    type,
+    sourceResult: {
+      type,
+      queryWordInfo,
+      result: {},
+      translations: ["test"],
+    },
+    displaySections: [{ type, items: [displayItem] }],
+  };
+}
+
+function createLingueeResult(): QueryResult {
+  const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
+  const displayItem: ListDisplayItem = {
+    displayCategory: "dictionary",
+    displayType: LingueeListItemType.Translation,
+    queryType: DictionaryType.Linguee,
+    queryWordInfo,
+    key: "test-1",
+    title: "test",
+    copyText: "test",
+  };
+
+  return {
+    type: DictionaryType.Linguee,
+    sourceResult: {
+      type: DictionaryType.Linguee,
+      queryWordInfo,
+      result: {},
+      translations: ["test"],
+    },
+    displaySections: [{ type: LingueeListItemType.Translation, items: [displayItem] }],
+  };
+}
+
+describe("queryReducer", () => {
+  it("FINISH_QUERY removes only its provider and stops loading only after the final pending provider finishes", () => {
+    let state = queryReducer(initialState, { type: "START_QUERY", queryType: TranslationType.DeepL });
+    state = queryReducer(state, { type: "START_QUERY", queryType: DictionaryType.Linguee });
+    expect(state.queryRecordList).toEqual([TranslationType.DeepL, DictionaryType.Linguee]);
+    expect(state.isLoading).toBe(true);
+
+    state = queryReducer(state, { type: "FINISH_QUERY", queryType: TranslationType.DeepL });
+    expect(state.queryRecordList).toEqual([DictionaryType.Linguee]);
+    expect(state.isLoading).toBe(true);
+
+    state = queryReducer(state, { type: "FINISH_QUERY", queryType: DictionaryType.Linguee });
+    expect(state.queryRecordList).toEqual([]);
+    expect(state.isLoading).toBe(false);
+  });
+
+  it("SET_RESULT replaces an earlier result of the same provider type", () => {
+    const result1 = createTranslationResult(TranslationType.DeepL);
+    const result2 = createTranslationResult(TranslationType.DeepL);
+    result2.sourceResult.translations = ["updated"];
+
+    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: result1 });
+    expect(state.queryResults).toHaveLength(1);
+    expect(state.queryResults[0].sourceResult.translations).toEqual(["test"]);
+
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: result2 });
+    expect(state.queryResults).toHaveLength(1);
+    expect(state.queryResults[0].sourceResult.translations).toEqual(["updated"]);
+  });
+
+  it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {
+    const deepLResult = createTranslationResult(TranslationType.DeepL);
+    deepLResult.sourceResult.translations = ["Coupled Translation"];
+    deepLResult.sourceResult.oneLineTranslation = "Coupled Translation";
+
+    const lingueeResult = createLingueeResult();
+    lingueeResult.displaySections![0].items[0].title = "Original Linguee Title";
+    lingueeResult.displaySections![0].items[0].copyText = "Original Linguee Title";
+
+    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: deepLResult });
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: lingueeResult });
+
+    const updatedLinguee = state.queryResults.find((r) => r.type === DictionaryType.Linguee);
+    expect(updatedLinguee).toBeDefined();
+    expect(updatedLinguee?.displaySections![0].items[0].title).toBe("Coupled Translation");
+    expect(updatedLinguee?.displaySections![0].items[0].copyText).toBe("Coupled Translation");
+  });
+
+  it("RESET_FOR_NEW_QUERY preserves queryResults, clears pending providers, and sets isLoading true", () => {
+    let state = queryReducer(initialState, {
+      type: "SET_RESULT",
+      queryResult: createTranslationResult(TranslationType.DeepL),
+    });
+    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google });
+
+    state = queryReducer(state, { type: "RESET_FOR_NEW_QUERY" });
+    expect(state.queryResults).toHaveLength(1);
+    expect(state.queryRecordList).toEqual([]);
+    expect(state.isLoading).toBe(true);
+  });
+
+  it("CLEAR_ALL empties results and pending providers and resets detail/loading", () => {
+    let state = queryReducer(initialState, {
+      type: "SET_RESULT",
+      queryResult: createTranslationResult(TranslationType.DeepL),
+    });
+    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google });
+
+    state = queryReducer(state, { type: "CLEAR_ALL" });
+    expect(state.queryResults).toEqual([]);
+    expect(state.queryRecordList).toEqual([]);
+    expect(state.isLoading).toBe(false);
+    expect(state.isShowDetail).toBe(false);
+  });
+});

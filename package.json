@@ -83,7 +83,8 @@
     "prettier": "^3.8.1",
     "react": "^19.2.1",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "build": "ray build -e dist",
@@ -93,7 +94,9 @@
     "fix-lint": "ray lint --fix",
     "postinstall": "npx simple-git-hooks",
     "eslint": "eslint src/ --fix",
-    "docs:gen": "automd"
+    "docs:gen": "automd",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",
