@@ -139,7 +139,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
       }
     } else {
       // check if translation is too long
-      const oneLineTranslation = sourceResult?.oneLineTranslation || "";
+      const oneLineTranslation = sourceResult.translations.join(", ");
       const isTooLong = isTextOneLineTooLong(oneLineTranslation, wordInfo.toLanguage);
       if (isTooLong) {
         isShowDetail = true;

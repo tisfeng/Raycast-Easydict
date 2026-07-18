@@ -158,7 +158,6 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     }
 
     const oneLineTranslation = sourceResult.translations.join(", ");
-    const updatedSourceResult = { ...sourceResult, oneLineTranslation };
     const copyText = sourceResult.translations.join("\n");
     const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 
@@ -175,7 +174,6 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
     return {
       ...queryResult,
-      sourceResult: updatedSourceResult,
       displaySections,
       hideDisplay: computeHideDisplay(type),
     };

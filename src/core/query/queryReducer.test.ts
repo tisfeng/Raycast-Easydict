@@ -118,7 +118,6 @@ describe("queryReducer", () => {
   it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {
     const deepLResult = createTranslationResult(TranslationType.DeepL);
     deepLResult.sourceResult.translations = ["Coupled Translation"];
-    deepLResult.sourceResult.oneLineTranslation = "Coupled Translation";
 
     const lingueeResult = createLingueeResult();
     lingueeResult.displaySections![0].items[0].title = "Original Linguee Title";

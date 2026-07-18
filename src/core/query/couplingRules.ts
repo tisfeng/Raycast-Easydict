@@ -106,11 +106,8 @@ export const COUPLING_RULES: ServiceCouplingRule[] = [
   {
     triggers: [TranslationType.DeepL, DictionaryType.Linguee],
     apply: (results) =>
-      applyTranslationToDisplay(
-        results,
-        TranslationType.DeepL,
-        DictionaryType.Linguee,
-        (r) => r.sourceResult.oneLineTranslation,
+      applyTranslationToDisplay(results, TranslationType.DeepL, DictionaryType.Linguee, (r) =>
+        r.sourceResult.translations.join(", "),
       ),
   },
   /** Youdao translation → update Youdao dictionary's first item title (requires ≥2 sections). */

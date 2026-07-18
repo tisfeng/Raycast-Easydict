@@ -1,5 +1,4 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
-import type { DetectedLangModel } from "@/core/detect/types";
 
 import type { DictionaryType, TranslationType } from "./api";
 import type { DisplaySection } from "./display";
@@ -26,7 +25,6 @@ export interface QueryInput {
 
 export interface QueryWordInfo extends QueryInput {
   hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
-  detectedLangModel?: DetectedLangModel;
   phonetic?: string; // [ɡʊd]
   examTypes?: string[];
   speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
@@ -39,7 +37,6 @@ export interface QueryTypeResult<T = unknown> {
   queryWordInfo: QueryWordInfo;
   result?: T;
   translations: string[];
-  oneLineTranslation?: string;
 }
 
 export interface QueryResult<T = unknown> {

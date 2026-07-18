@@ -26,7 +26,6 @@ function createTranslationResult(text = "translated"): QueryResult {
       queryWordInfo,
       result: {},
       translations: [text],
-      oneLineTranslation: text,
     },
     displaySections: [{ type: TranslationType.DeepL, items: [item] }],
   };
@@ -75,7 +74,7 @@ describe("applyTranslationToDisplay", () => {
       [source, target],
       TranslationType.DeepL,
       DictionaryType.Linguee,
-      (result) => result.sourceResult.oneLineTranslation,
+      (result) => result.sourceResult.translations.join(", "),
     );
 
     const updatedTarget = updated.find((result) => result.type === DictionaryType.Linguee);
@@ -96,7 +95,7 @@ describe("applyTranslationToDisplay", () => {
       results,
       TranslationType.DeepL,
       DictionaryType.Linguee,
-      (result) => result.sourceResult.oneLineTranslation,
+      (result) => result.sourceResult.translations.join(", "),
       { minSections: 2 },
     );
 
