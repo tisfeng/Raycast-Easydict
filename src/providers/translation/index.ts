@@ -2,6 +2,7 @@
 
 import { myPreferences } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
+import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
@@ -60,9 +61,12 @@ export const translationServices: TranslationServiceConfig[] = [
   {
     type: TranslationType.DeepL,
     preference: "enableDeepLTranslate",
-    isEnabled: () => {
+    isEnabled: (q) => {
       const explicitlyEnabled = myPreferences.enableDeepLTranslate;
-      const implicitlyEnabledByLinguee = myPreferences.enableLingueeDictionary && !!myPreferences.deepLAuthKey;
+      const implicitlyEnabledByLinguee =
+        myPreferences.enableLingueeDictionary &&
+        !!myPreferences.deepLAuthKey &&
+        getLingueeWebDictionaryURL(q) !== undefined;
       return explicitlyEnabled || implicitlyEnabledByLinguee;
     },
     provider: DeepLTranslateProvider,
