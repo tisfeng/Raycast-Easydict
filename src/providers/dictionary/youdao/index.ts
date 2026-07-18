@@ -10,7 +10,8 @@ import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
 
 import { ensureYoudaoCookie } from "./cookie";
-import { formatYoudaoWebDictionaryModel, updateYoudaoDictionaryDisplay } from "./formatData";
+import { formatYoudaoDisplaySections } from "./format";
+import { formatYoudaoWebDictionaryModel } from "./formatData";
 import type { YoudaoDictionaryFormatResult, YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
@@ -76,7 +77,7 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
             },
           };
 
-    const displaySections = updateYoudaoDictionaryDisplay(result);
+    const displaySections = formatYoudaoDisplaySections(result);
 
     return {
       type: DictionaryType.Youdao,

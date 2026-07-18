@@ -14,7 +14,7 @@ import { createTimer } from "@/utils/logger";
  *
  * Returns `QueryResult` (with `displaySections` pre-computed) because dictionary
  * display logic is provider-specific (Linguee: formatLingueeDisplaySections,
- * Youdao: updateYoudaoDictionaryDisplay).
+ * Youdao: formatYoudaoDisplaySections).
  */
 export abstract class BaseDictionaryProvider<T = unknown> {
   abstract type: DictionaryType;
