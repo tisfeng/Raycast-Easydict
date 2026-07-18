@@ -16,7 +16,7 @@ import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { dictionaryServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
-import { checkIsTranslationType, type TranslationType } from "@/types/api";
+import { checkIsTranslationType, TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryInput, QueryResult, QueryTypeResult } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
@@ -160,12 +160,13 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     const oneLineTranslation = sourceResult.translations.join(", ");
     const updatedSourceResult = { ...sourceResult, oneLineTranslation };
     const copyText = sourceResult.translations.join("\n");
+    const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 
     const displayItem: ListDisplayItem = {
       displayCategory: "translation",
       displayType: type,
       queryType: type,
-      key: type,
+      key: isStreamingProvider ? type : `${oneLineTranslation}-${type}`,
       title: oneLineTranslation,
       copyText,
       queryWordInfo: sourceResult.queryWordInfo,

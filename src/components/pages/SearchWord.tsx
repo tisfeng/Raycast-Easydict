@@ -11,7 +11,6 @@ import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import type { QueryInput } from "@/types/query";
-import { md5 } from "@/utils/crypto";
 import { logError, logTrace } from "@/utils/logger";
 
 interface SearchWordProps {
@@ -160,22 +159,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       onSearchTextChange={onInputChange}
       actions={null}
     >
-      {displaySections.map((resultItem, idx) => {
-        const currentWord = resultItem.items?.[0]?.queryWordInfo?.word || "";
-        const wordHash = md5(currentWord);
-
-        const provider = resultItem.items?.[0]?.queryType || "Unknown";
-        // idx ensures that when items are reordered, they get new keys,
-        // which forces Raycast to reset the cursor to the top result (index 0).
-        // wordHash ensures that keys are never reused across different queries, fixing the blank space bug.
-        const sectionKey = `${idx}-${provider}-${resultItem.type}-${wordHash}`;
+      {displaySections.map((resultItem, sectionIndex) => {
+        const sectionKey = `${resultItem.type}${sectionIndex}`;
         return (
           <List.Section key={sectionKey} title={resultItem.sectionTitle}>
             {resultItem.items?.map((item) => {
-              const itemKey = `${idx}-${item.key}-${wordHash}`;
               return (
                 <List.Item
-                  key={itemKey}
+                  key={item.key}
                   icon={{
                     value: getListItemIcon(item),
                     tooltip: item.tooltip || "",
