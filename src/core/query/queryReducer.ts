@@ -18,9 +18,9 @@ import { checkIfShowTranslationDetail, sortedQueryResults } from "./utils";
 
 export interface QueryState {
   /**
-   * All query results, sorted by user preference order (via sortedQueryResults).
-   * Each result contains the API response data and display sections for the UI.
-   * Updated by SET_RESULT action; cleared by CLEAR_ALL.
+   * All results belonging to the active query generation, sorted by user
+   * preference order via sortedQueryResults.
+   * Updated by SET_RESULT; cleared when a new query starts or by CLEAR_ALL.
    */
   queryResults: QueryResult[];
 
@@ -80,7 +80,7 @@ export type QueryAction =
   | { type: "SET_TARGET_LANGUAGE"; targetLanguageItem: LanguageItem }
   /** Clear all results and reset loading state (e.g., when input is cleared). */
   | { type: "CLEAR_ALL"; generation: number }
-  /** Prepare for a new query: clear pending list, show loading spinner. */
+  /** Prepare for a new query: clear previous results and pending queries, then show loading. */
   | { type: "RESET_FOR_NEW_QUERY"; generation: number }
   /** Check if any queries are pending; if not, stop the loading spinner. */
   | { type: "CHECK_PENDING_QUERIES"; generation: number };
@@ -171,13 +171,15 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
     }
 
     case "RESET_FOR_NEW_QUERY": {
-      // Clear pending queries and show loading, but keep existing results visible
-      // until new results arrive (better UX than flashing empty state)
+      // Start a fresh query session. Previous results must be cleared because
+      // the set of participating providers may differ between queries.
       return {
         ...state,
         activeGeneration: action.generation,
+        queryResults: [],
         queryRecordList: [],
         isLoading: true,
+        isShowDetail: false,
       };
     }
 
