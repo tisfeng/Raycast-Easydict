@@ -8,11 +8,7 @@ import { logTrace } from "@/utils/logger";
 
 logTrace("Easydict", "module loaded");
 
-interface EasydictArguments {
-  queryText?: string;
-}
-
-export default function (props: LaunchProps<{ arguments: EasydictArguments }>) {
+export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) {
   const isConflict = checkIfPreferredLanguagesConflict();
   if (isConflict) {
     return isConflict;
