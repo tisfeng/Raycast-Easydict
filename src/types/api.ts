@@ -38,7 +38,7 @@ export type RequestType = TranslationType | DictionaryType | LanguageDetectType;
  * Check type is Dictionary type.
  */
 const dictionaryTypeValues = new Set<string>(Object.values(DictionaryType));
-export function checkIsDictionaryType(type: string): boolean {
+export function checkIsDictionaryType(type: string): type is DictionaryType {
   return dictionaryTypeValues.has(type);
 }
 

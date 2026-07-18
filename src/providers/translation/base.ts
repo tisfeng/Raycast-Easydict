@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { RequestType } from "@/types/api";
+import type { TranslationType } from "@/types/api";
 import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
@@ -20,7 +20,7 @@ export type ProviderResult<T = unknown> =
  * - `doTranslate()` is implemented by each subclass with the actual API call.
  */
 export abstract class BaseTranslateProvider<T = unknown> {
-  abstract type: RequestType;
+  abstract type: TranslationType;
 
   public async *request(
     queryWordInfo: QueryInput,

@@ -5,7 +5,6 @@ import { streamText } from "@xsai/stream-text";
 
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { BaseTranslateProvider } from "@/providers/translation/base";
-import type { TranslationType } from "@/types/api";
 import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
@@ -18,7 +17,7 @@ export interface OpenAICompatibleTranslateResult {
   translatedText: string;
 }
 
-export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends BaseTranslateProvider<T> {
+export abstract class BaseOpenAICompatibleTranslateProvider extends BaseTranslateProvider<OpenAICompatibleTranslateResult> {
   protected abstract getEndpoint(): string;
   protected abstract getModel(): string;
   protected abstract getAPIKey(): string | undefined;
@@ -59,7 +58,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
   protected async *doTranslate(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
+  ): AsyncGenerator<StreamChunk, QueryTypeResult<OpenAICompatibleTranslateResult>, unknown> {
     const url = this.getEndpoint();
     const apiKey = this.getAPIKey();
     const modelName = this.getModel();
@@ -101,10 +100,10 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
     const resultText = chunks.join("");
 
     return {
-      type: this.type as TranslationType,
+      type: this.type,
       queryWordInfo,
       translations: [resultText],
-      result: { translatedText: resultText } as T,
+      result: { translatedText: resultText },
     };
   }
 }

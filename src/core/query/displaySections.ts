@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { checkIsDictionaryType, checkIsTranslationType, type TranslationItem, type TranslationType } from "@/types/api";
+import { checkIsDictionaryType, checkIsTranslationType, type TranslationItem } from "@/types/api";
 import type { DisplaySection } from "@/types/display";
 import type { QueryType, QueryTypeResult } from "@/types/query";
 
@@ -15,7 +15,7 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
     if (qr.hideDisplay) continue;
     if (checkIsTranslationType(qr.type)) {
       const markdown = getTranslationMarkdown(qr);
-      translations.push({ type: qr.type as TranslationType, text: markdown });
+      translations.push({ type: qr.type, text: markdown });
     }
   }
 
