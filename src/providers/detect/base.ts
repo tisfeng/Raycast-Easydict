@@ -34,7 +34,7 @@ export abstract class BaseDetectProvider<T = unknown> {
       return result;
     } catch (error) {
       timer.fail();
-      throw handleRequestError(this.type, error);
+      throw handleRequestError(this.type, error, options?.signal);
     }
   };
 

@@ -91,7 +91,9 @@ export class DeepLXTranslateProvider extends BaseTranslateProvider {
       });
     } catch (e) {
       // If the request fails, it might be due to an invalid cookie. Clear it so the next request starts fresh.
-      cookieCache.clear();
+      if (!signal?.aborted) {
+        cookieCache.clear();
+      }
       throw e;
     }
 

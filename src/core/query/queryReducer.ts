@@ -50,6 +50,12 @@ export interface QueryState {
    * auto-switches to Chinese).
    */
   autoSelectedTargetLanguageItem: LanguageItem;
+
+  /**
+   * Current query session generation. Incremented on every new query.
+   * Actions from older generations are ignored.
+   */
+  activeGeneration: number;
 }
 
 /**
@@ -58,21 +64,26 @@ export interface QueryState {
  */
 export type QueryAction =
   /** A new query started (e.g., Bing Translate request fired). Add to pending list. */
-  | { type: "START_QUERY"; queryType: QueryType }
+  | { type: "START_QUERY"; queryType: QueryType; generation: number }
   /** A query finished (success or error). Remove from pending list. */
-  | { type: "FINISH_QUERY"; queryType: QueryType }
+  | { type: "FINISH_QUERY"; queryType: QueryType; generation: number }
   /** API returned a result. Add/update in queryResults, trigger cross-service coupling. */
-  | { type: "SET_RESULT"; queryResult: QueryResult }
+  | { type: "SET_RESULT"; queryResult: QueryResult; generation: number }
   /** Language detection completed. Update source and target language display. */
-  | { type: "SET_DETECTED_LANGUAGE"; fromLanguageItem: LanguageItem; targetLanguageItem: LanguageItem }
+  | {
+      type: "SET_DETECTED_LANGUAGE";
+      fromLanguageItem: LanguageItem;
+      targetLanguageItem: LanguageItem;
+      generation: number;
+    }
   /** User manually selected a target language. Update target language display. */
   | { type: "SET_TARGET_LANGUAGE"; targetLanguageItem: LanguageItem }
   /** Clear all results and reset loading state (e.g., when input is cleared). */
-  | { type: "CLEAR_ALL" }
+  | { type: "CLEAR_ALL"; generation: number }
   /** Prepare for a new query: clear pending list, show loading spinner. */
-  | { type: "RESET_FOR_NEW_QUERY" }
+  | { type: "RESET_FOR_NEW_QUERY"; generation: number }
   /** Check if any queries are pending; if not, stop the loading spinner. */
-  | { type: "CHECK_PENDING_QUERIES" };
+  | { type: "CHECK_PENDING_QUERIES"; generation: number };
 
 /**
  * Pure reducer function. Computes next state from current state + action.
@@ -83,6 +94,14 @@ export type QueryAction =
  * - May return current state if action is a no-op (e.g., duplicate START_QUERY)
  */
 export function queryReducer(state: QueryState, action: QueryAction): QueryState {
+  if ("generation" in action) {
+    if (action.type !== "RESET_FOR_NEW_QUERY" && action.type !== "CLEAR_ALL") {
+      if (action.generation !== state.activeGeneration) {
+        return state;
+      }
+    }
+  }
+
   switch (action.type) {
     case "START_QUERY": {
       // Dedup: don't add if already tracking this query type
@@ -143,6 +162,7 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
     case "CLEAR_ALL": {
       return {
         ...state,
+        activeGeneration: action.generation,
         queryResults: [],
         queryRecordList: [],
         isLoading: false,
@@ -155,6 +175,7 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
       // until new results arrive (better UX than flashing empty state)
       return {
         ...state,
+        activeGeneration: action.generation,
         queryRecordList: [],
         isLoading: true,
       };

@@ -26,6 +26,11 @@ import { useAutoPlayAudio } from "./useAutoPlayAudio";
 
 logTrace("UseQueryEngine", "module loaded");
 
+interface QuerySession {
+  generation: number;
+  signal: AbortSignal;
+}
+
 // Initial State
 
 function createInitialState({
@@ -36,6 +41,7 @@ function createInitialState({
   initialTargetLanguage: LanguageItem;
 }): QueryState {
   return {
+    activeGeneration: 0,
     queryResults: [],
     queryRecordList: [],
     isLoading: false,
@@ -52,6 +58,7 @@ function createStreamDebouncer(
   queryWordInfo: QueryWordInfo,
   dispatch: React.Dispatch<QueryAction>,
   buildTranslationDisplay: (rawResult: QueryResult) => QueryResult | null,
+  generation: number,
   delay = 80,
 ) {
   let updateTimer: ReturnType<typeof setTimeout> | undefined;
@@ -68,7 +75,7 @@ function createStreamDebouncer(
       const rawResult: QueryResult = { type: configType, sourceResult: result };
       const displayResult = buildTranslationDisplay(rawResult);
       if (displayResult) {
-        dispatch({ type: "SET_RESULT", queryResult: displayResult });
+        dispatch({ type: "SET_RESULT", queryResult: displayResult, generation });
       }
     }
   };
@@ -103,17 +110,38 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const abortControllerRef = useRef<AbortController | undefined>(undefined);
-  const shouldClearQueryRef = useRef(false);
   const isCurrentQueryRef = useRef(true);
   const hasPlayedAudioRef = useRef(false);
+  const generationRef = useRef(0);
+  const isEffectMountedRef = useRef(false);
+
+  const beginQuerySession = useCallback((): QuerySession => {
+    generationRef.current += 1;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+    isCurrentQueryRef.current = true;
+    hasPlayedAudioRef.current = false;
+    const session = {
+      generation: generationRef.current,
+      signal: abortControllerRef.current.signal,
+    };
+    dispatch({ type: "RESET_FOR_NEW_QUERY", generation: session.generation });
+    return session;
+  }, []);
 
   useAutoPlayAudio(state.queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef);
 
   const displaySections = useMemo(() => computeDisplaySections(state), [state]);
 
   useEffect(() => {
+    isEffectMountedRef.current = true;
     return () => {
-      abortControllerRef.current?.abort();
+      isEffectMountedRef.current = false;
+      queueMicrotask(() => {
+        if (!isEffectMountedRef.current) {
+          abortControllerRef.current?.abort();
+        }
+      });
     };
   }, []);
 
@@ -153,20 +181,24 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   }, []);
 
   const runTranslationQuery = useCallback(
-    async (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo) => {
+    async (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo, session: QuerySession) => {
       const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
-      dispatch({ type: "START_QUERY", queryType: config.type });
+      dispatch({ type: "START_QUERY", queryType: config.type, generation: session.generation });
 
-      const signal = abortControllerRef.current?.signal;
       const instance = new config.provider();
-
       let debouncer: ReturnType<typeof createStreamDebouncer> | undefined;
 
       try {
-        const iterator = instance.request(queryWordInfo, { signal });
-        debouncer = createStreamDebouncer(config.type, queryWordInfo, dispatch, buildTranslationDisplay);
+        const iterator = instance.request(queryWordInfo, { signal: session.signal });
+        debouncer = createStreamDebouncer(
+          config.type,
+          queryWordInfo,
+          dispatch,
+          buildTranslationDisplay,
+          session.generation,
+        );
         let finalResult: QueryTypeResult | undefined;
 
         while (true) {
@@ -182,7 +214,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
           const rawResult: QueryResult = { type: config.type, sourceResult: finalResult };
           const displayResult = buildTranslationDisplay(rawResult);
           if (displayResult) {
-            dispatch({ type: "SET_RESULT", queryResult: displayResult });
+            dispatch({ type: "SET_RESULT", queryResult: displayResult, generation: session.generation });
           }
         }
 
@@ -191,63 +223,69 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         debouncer?.clear(false);
         showErrorToast(error);
       } finally {
-        dispatch({ type: "FINISH_QUERY", queryType: config.type });
+        dispatch({ type: "FINISH_QUERY", queryType: config.type, generation: session.generation });
       }
     },
     [buildTranslationDisplay],
   );
 
-  const runDictionaryQuery = useCallback(async (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo) => {
-    const enabled =
-      config?.isEnabled?.(queryWordInfo) ?? (config.preference ? (myPreferences[config.preference] as boolean) : true);
-    if (!enabled) return;
-    if (!config.provider) return;
+  const runDictionaryQuery = useCallback(
+    async (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo, session: QuerySession) => {
+      const enabled =
+        config?.isEnabled?.(queryWordInfo) ??
+        (config.preference ? (myPreferences[config.preference] as boolean) : true);
+      if (!enabled) return;
+      if (!config.provider) return;
 
-    dispatch({ type: "START_QUERY", queryType: config.type });
-    const instance = new config.provider();
+      dispatch({ type: "START_QUERY", queryType: config.type, generation: session.generation });
+      const instance = new config.provider();
 
-    try {
-      const result = await instance.request(queryWordInfo, { signal: abortControllerRef.current?.signal });
-      if (result.displaySections && result.displaySections.length > 0) {
-        dispatch({ type: "SET_RESULT", queryResult: result });
+      try {
+        const result = await instance.request(queryWordInfo, { signal: session.signal });
+        if (result.displaySections && result.displaySections.length > 0) {
+          dispatch({ type: "SET_RESULT", queryResult: result, generation: session.generation });
+        }
+      } catch (error) {
+        showErrorToast(error);
+      } finally {
+        dispatch({ type: "FINISH_QUERY", queryType: config.type, generation: session.generation });
       }
-    } catch (error) {
-      showErrorToast(error);
-    } finally {
-      dispatch({ type: "FINISH_QUERY", queryType: config.type });
-    }
-  }, []);
+    },
+    [],
+  );
+
+  const runAllProviders = useCallback(
+    (queryWordInfo: QueryWordInfo, session: QuerySession) => {
+      for (const config of dictionaryServices) {
+        runDictionaryQuery(config, queryWordInfo, session);
+      }
+
+      for (const config of translationServices) {
+        runTranslationQuery(config, queryWordInfo, session);
+      }
+
+      // If all providers were disabled, no START_QUERY was dispatched.
+      // This will ensure we don't get stuck in a loading state.
+      dispatch({ type: "CHECK_PENDING_QUERIES", generation: session.generation });
+    },
+    [runDictionaryQuery, runTranslationQuery],
+  );
 
   const queryTextWithTextInfo = useCallback(
     (queryWordInfo: QueryWordInfo) => {
-      shouldClearQueryRef.current = false;
-      isCurrentQueryRef.current = true;
-      hasPlayedAudioRef.current = false;
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = new AbortController();
-      dispatch({ type: "RESET_FOR_NEW_QUERY" });
+      const session = beginQuerySession();
 
       const { word, fromLanguage, toLanguage } = queryWordInfo;
       logTrace("UseQueryEngine", `query text: ${word}`);
       logTrace("UseQueryEngine", `query fromTo: ${fromLanguage} -> ${toLanguage}`);
 
-      for (const config of dictionaryServices) {
-        runDictionaryQuery(config, queryWordInfo);
-      }
-
-      for (const config of translationServices) {
-        runTranslationQuery(config, queryWordInfo);
-      }
-
-      // If all providers were disabled, no START_QUERY was dispatched.
-      // This will ensure we don't get stuck in a loading state.
-      dispatch({ type: "CHECK_PENDING_QUERIES" });
+      runAllProviders(queryWordInfo, session);
     },
-    [runDictionaryQuery, runTranslationQuery],
+    [beginQuerySession, runAllProviders],
   );
 
   const queryTextWithDetectedLanguage = useCallback(
-    (text: string, toLanguage: string, detectedLanguage: DetectedLangModel) => {
+    (text: string, toLanguage: string, detectedLanguage: DetectedLangModel, session: QuerySession) => {
       const fromYoudaoLangCode = detectedLanguage.youdaoLangCode;
       logTrace("UseQueryEngine", `queryTextWithFromLanguageId: ${fromYoudaoLangCode}`);
 
@@ -269,6 +307,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         type: "SET_DETECTED_LANGUAGE",
         fromLanguageItem,
         targetLanguageItem,
+        generation: session.generation,
       });
 
       const queryTextInfo: QueryWordInfo = {
@@ -276,44 +315,44 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         fromLanguage: fromYoudaoLangCode,
         toLanguage: targetLangCode,
       };
-      queryTextWithTextInfo(queryTextInfo);
+      runAllProviders(queryTextInfo, session);
     },
-    [queryTextWithTextInfo],
+    [runAllProviders],
   );
 
   const queryText = useCallback(
     (text: string, toLanguage: string) => {
       logTrace("UseQueryEngine", `query: ${text}`);
 
-      shouldClearQueryRef.current = false;
+      const session = beginQuerySession();
 
-      detectLanguage(text, abortControllerRef.current?.signal).then((detectedLanguage: DetectedLangModel) => {
+      detectLanguage(text, session.signal).then((detectedLanguage: DetectedLangModel) => {
         logTrace(
           "UseQueryEngine",
           `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
         );
 
-        if (shouldClearQueryRef.current) {
+        if (session.signal.aborted || session.generation !== generationRef.current) {
           logTrace("UseQueryEngine", "query has been cancelled, stop, return");
           return;
         }
 
-        queryTextWithDetectedLanguage(text, toLanguage, detectedLanguage);
+        queryTextWithDetectedLanguage(text, toLanguage, detectedLanguage, session);
       });
     },
-    [queryTextWithDetectedLanguage],
+    [beginQuerySession, queryTextWithDetectedLanguage],
   );
 
   const clearQueryResult = useCallback(() => {
     logTrace("UseQueryEngine", "clearQueryResult");
 
-    shouldClearQueryRef.current = true;
+    generationRef.current += 1;
     isCurrentQueryRef.current = false;
 
     abortControllerRef.current?.abort();
     abortControllerRef.current = undefined;
 
-    dispatch({ type: "CLEAR_ALL" });
+    dispatch({ type: "CLEAR_ALL", generation: generationRef.current });
   }, []);
 
   const setAutoSelectedTargetLanguageItem = useCallback((item: LanguageItem) => {

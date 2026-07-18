@@ -28,6 +28,7 @@ vi.mock("@/core/config", () => ({
 }));
 
 const initialState: QueryState = {
+  activeGeneration: 0,
   queryResults: [],
   queryRecordList: [],
   isLoading: false,
@@ -86,16 +87,16 @@ function createLingueeResult(): QueryResult {
 
 describe("queryReducer", () => {
   it("FINISH_QUERY removes only its provider and stops loading only after the final pending provider finishes", () => {
-    let state = queryReducer(initialState, { type: "START_QUERY", queryType: TranslationType.DeepL });
-    state = queryReducer(state, { type: "START_QUERY", queryType: DictionaryType.Linguee });
+    let state = queryReducer(initialState, { type: "START_QUERY", queryType: TranslationType.DeepL, generation: 0 });
+    state = queryReducer(state, { type: "START_QUERY", queryType: DictionaryType.Linguee, generation: 0 });
     expect(state.queryRecordList).toEqual([TranslationType.DeepL, DictionaryType.Linguee]);
     expect(state.isLoading).toBe(true);
 
-    state = queryReducer(state, { type: "FINISH_QUERY", queryType: TranslationType.DeepL });
+    state = queryReducer(state, { type: "FINISH_QUERY", queryType: TranslationType.DeepL, generation: 0 });
     expect(state.queryRecordList).toEqual([DictionaryType.Linguee]);
     expect(state.isLoading).toBe(true);
 
-    state = queryReducer(state, { type: "FINISH_QUERY", queryType: DictionaryType.Linguee });
+    state = queryReducer(state, { type: "FINISH_QUERY", queryType: DictionaryType.Linguee, generation: 0 });
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(false);
   });
@@ -105,11 +106,11 @@ describe("queryReducer", () => {
     const result2 = createTranslationResult(TranslationType.DeepL);
     result2.sourceResult.translations = ["updated"];
 
-    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: result1 });
+    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: result1, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
     expect(state.queryResults[0].sourceResult.translations).toEqual(["test"]);
 
-    state = queryReducer(state, { type: "SET_RESULT", queryResult: result2 });
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: result2, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
     expect(state.queryResults[0].sourceResult.translations).toEqual(["updated"]);
   });
@@ -123,8 +124,8 @@ describe("queryReducer", () => {
     lingueeResult.displaySections![0].items[0].title = "Original Linguee Title";
     lingueeResult.displaySections![0].items[0].copyText = "Original Linguee Title";
 
-    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: deepLResult });
-    state = queryReducer(state, { type: "SET_RESULT", queryResult: lingueeResult });
+    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: deepLResult, generation: 0 });
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: lingueeResult, generation: 0 });
 
     const updatedLinguee = state.queryResults.find((r) => r.type === DictionaryType.Linguee);
     expect(updatedLinguee).toBeDefined();
@@ -136,26 +137,64 @@ describe("queryReducer", () => {
     let state = queryReducer(initialState, {
       type: "SET_RESULT",
       queryResult: createTranslationResult(TranslationType.DeepL),
+      generation: 0,
     });
-    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google });
+    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google, generation: 0 });
 
-    state = queryReducer(state, { type: "RESET_FOR_NEW_QUERY" });
+    state = queryReducer(state, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
     expect(state.queryResults).toHaveLength(1);
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(true);
+    expect(state.activeGeneration).toBe(1);
   });
 
   it("CLEAR_ALL empties results and pending providers and resets detail/loading", () => {
     let state = queryReducer(initialState, {
       type: "SET_RESULT",
       queryResult: createTranslationResult(TranslationType.DeepL),
+      generation: 0,
     });
-    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google });
+    state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.Google, generation: 0 });
 
-    state = queryReducer(state, { type: "CLEAR_ALL" });
+    state = queryReducer(state, { type: "CLEAR_ALL", generation: 2 });
     expect(state.queryResults).toEqual([]);
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(false);
     expect(state.isShowDetail).toBe(false);
+    expect(state.activeGeneration).toBe(2);
+  });
+
+  describe("stale generation behaviors", () => {
+    it("stale SET_RESULT cannot change results", () => {
+      const state = queryReducer(initialState, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
+      const newState = queryReducer(state, {
+        type: "SET_RESULT",
+        queryResult: createTranslationResult(TranslationType.DeepL),
+        generation: 0, // older generation
+      });
+      expect(newState).toBe(state); // returns same state
+      expect(newState.queryResults).toEqual([]);
+    });
+
+    it("stale FINISH_QUERY cannot remove the active generation's pending provider or stop loading", () => {
+      let state = queryReducer(initialState, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
+      state = queryReducer(state, { type: "START_QUERY", queryType: TranslationType.DeepL, generation: 1 });
+
+      const newState = queryReducer(state, { type: "FINISH_QUERY", queryType: TranslationType.DeepL, generation: 0 });
+      expect(newState).toBe(state);
+      expect(newState.queryRecordList).toEqual([TranslationType.DeepL]);
+      expect(newState.isLoading).toBe(true);
+    });
+
+    it("stale SET_DETECTED_LANGUAGE cannot change displayed languages", () => {
+      const state = queryReducer(initialState, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
+      const newState = queryReducer(state, {
+        type: "SET_DETECTED_LANGUAGE",
+        fromLanguageItem: languageItemList[1],
+        targetLanguageItem: languageItemList[2],
+        generation: 0,
+      });
+      expect(newState).toBe(state);
+    });
   });
 });

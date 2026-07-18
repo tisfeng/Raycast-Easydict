@@ -132,7 +132,12 @@ export function showErrorToast(error: unknown) {
  * - If cancelled, logs a trace and returns a standardized CancelledError.
  * - If real error, logs the error, normalizes it, and returns a RequestError.
  */
-export function handleRequestError(type: RequestType, error: unknown): Error {
+export function handleRequestError(type: RequestType, error: unknown, signal?: AbortSignal): Error {
+  if (signal?.aborted) {
+    logTrace(type, "cancelled");
+    return new CancelledError();
+  }
+
   if (error instanceof RequestError) {
     logError(type, `error: ${error.message}`);
     return error;
