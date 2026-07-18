@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLangCode } from "@/core/language/utils";
+import { genVolcanoSign } from "@/providers/shared/volcano-sign";
 import { TranslationType } from "@/types/api";
 import type { QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
@@ -8,7 +9,6 @@ import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "../base";
-import { genVolcanoSign } from "./volcanoSign";
 
 export interface VolcanoTranslateResult {
   TranslationList?: VolcanoTranslationList[];
