@@ -8,14 +8,13 @@ import type { QueryType, QueryWordInfo } from "./query";
 
 export type DictionaryDisplayType = LingueeListItemType | YoudaoDictionaryListItemType;
 
-export interface DisplaySection<T = unknown> {
+export interface DisplaySection {
   type: DictionaryDisplayType | TranslationType;
   sectionTitle?: string;
-  items: ListDisplayItem<T>[];
+  items: ListDisplayItem[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface ListDisplayItemBase<T = unknown> {
+interface ListDisplayItemBase {
   queryType: QueryType;
   queryWordInfo: QueryWordInfo;
   key: string;
@@ -27,7 +26,7 @@ interface ListDisplayItemBase<T = unknown> {
   accessoryItem?: ListAccessoryItem;
 }
 
-export type ListDisplayItem<T = unknown> = ListDisplayItemBase<T> &
+export type ListDisplayItem = ListDisplayItemBase &
   (
     | { displayCategory: "dictionary"; queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
     | { displayCategory: "dictionary"; queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }

@@ -42,6 +42,6 @@ export interface QueryTypeResult<T = unknown> {
 export interface QueryResult<T = unknown> {
   type: QueryType;
   sourceResult: QueryTypeResult<T>;
-  displaySections?: DisplaySection<T>[];
+  displaySections?: DisplaySection[];
   hideDisplay?: boolean;
 }
