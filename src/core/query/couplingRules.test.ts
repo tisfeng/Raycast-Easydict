@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { DictionaryType, TranslationType } from "@/types/api";
@@ -70,7 +70,6 @@ describe("applyTranslationToDisplay", () => {
     const source = createTranslationResult();
     const target = createLingueeResult(2);
     const originalSections = target.displaySections;
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
     const updated = applyTranslationToDisplay(
       [source, target],
@@ -88,14 +87,11 @@ describe("applyTranslationToDisplay", () => {
     expect(updatedTarget?.displaySections?.[1].items[0].title).toBe("original-1");
     expect(target.displaySections).toBe(originalSections);
     expect(target.displaySections?.[0].items[0].title).toBe("original-0");
-
-    consoleSpy.mockRestore();
   });
 
   it("returns the original array when minSections is not met", () => {
     const results = [createTranslationResult(), createLingueeResult()];
     const target = results[1];
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
     const updated = applyTranslationToDisplay(
       results,
       TranslationType.DeepL,
@@ -107,8 +103,6 @@ describe("applyTranslationToDisplay", () => {
     expect(updated).toEqual(results);
     expect(updated[1]).toBe(target);
     expect(updated[1].displaySections?.[0].items[0].title).toBe("original-0");
-
-    consoleSpy.mockRestore();
   });
 });
 
@@ -120,7 +114,6 @@ describe("applyMetadataToLinguee", () => {
     youdao.sourceResult.type = DictionaryType.Youdao;
     youdao.sourceResult.queryWordInfo.phonetic = "test-phonetic";
     youdao.sourceResult.queryWordInfo.examTypes = ["CET4"];
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
     const updated = applyMetadataToLinguee([linguee, youdao], youdao);
 
@@ -130,7 +123,5 @@ describe("applyMetadataToLinguee", () => {
       examTypes: ["CET4"],
     });
     expect(linguee.displaySections?.[0].items[0].accessoryItem).toEqual({ example: "preserved" });
-
-    consoleSpy.mockRestore();
   });
 });

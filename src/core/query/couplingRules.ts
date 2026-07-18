@@ -42,8 +42,6 @@ export function applyTranslationToDisplay(
   const text = getText(source);
   if (!text) return results;
 
-  console.log(`[Coupling Rule] Syncing text from ${sourceType} to ${targetType}. Target text: ${text}`);
-
   // Immutable update: drill down results → first section → first item, copy each layer
   return results.map((r) => {
     if (r.type !== targetType || !r.displaySections?.length) return r;
@@ -81,8 +79,6 @@ export function applyMetadataToLinguee(results: QueryResult[], youdaoResult: Que
 
   const linguee = results.find((r) => r.type === DictionaryType.Linguee);
   if (!linguee?.displaySections?.length) return results;
-
-  console.log(`[Coupling Rule] Syncing metadata from Youdao to Linguee.`);
 
   // Immutable update: drill down results → first section → first item → accessoryItem
   return results.map((r) => {
