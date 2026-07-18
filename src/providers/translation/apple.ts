@@ -11,10 +11,6 @@ import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
 
-export interface AppleTranslateResult {
-  translatedText: string;
-}
-
 const execCommandTimeout = 10000; // 10s
 
 /**

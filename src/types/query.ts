@@ -1,6 +1,5 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 import type { DetectedLangModel } from "@/core/detect/types";
-import type { RequestError } from "@/utils/errors";
 
 import type { DictionaryType, TranslationType } from "./api";
 import type { DisplaySection } from "./display";
@@ -38,7 +37,6 @@ export interface QueryTypeResult<T = unknown> {
   result?: T;
   translations: string[];
   oneLineTranslation?: string;
-  errorInfo?: RequestError;
 }
 
 export interface QueryResult<T = unknown> {

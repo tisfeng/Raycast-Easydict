@@ -12,10 +12,6 @@ import { trimTextLength, unescapeHtml } from "@/utils/text";
 
 import { BaseTranslateProvider } from "./base";
 
-export type GoogleTranslateResult = {
-  translatedText: string;
-};
-
 export class GoogleTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Google;
 

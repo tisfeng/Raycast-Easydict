@@ -14,6 +14,7 @@ export interface DisplaySection<T = unknown> {
   items: ListDisplayItem<T>[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ListDisplayItemBase<T = unknown> {
   queryType: QueryType;
   queryWordInfo: QueryWordInfo;
@@ -22,9 +23,7 @@ interface ListDisplayItemBase<T = unknown> {
   subtitle?: string;
   copyText: string;
   tooltip?: string;
-  speech?: string;
   detailsMarkdown?: string;
-  sourceData?: T;
   accessoryItem?: ListAccessoryItem;
 }
 

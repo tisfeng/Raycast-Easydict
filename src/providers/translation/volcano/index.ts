@@ -34,16 +34,6 @@ interface VolcanoError {
   Message: string;
 }
 
-export interface VolcanoDetectResult {
-  DetectedLanguageList: VolcanoDetectedLanguageList[];
-  ResponseMetaData: VolcanoResponseMetaData;
-}
-
-interface VolcanoDetectedLanguageList {
-  Language: string;
-  Confidence: number;
-}
-
 /**
  * Volcengine Translate API.
  *

@@ -39,8 +39,6 @@ export interface YoudaoDictionaryResult {
   speakUrl: string;
 }
 
-export type YoudaoTranslateResult = YoudaoDictionaryResult;
-
 export interface YoudaoTranslateResultBasicItem {
   explains: string[];
   "us-phonetic"?: string; // American phonetic
