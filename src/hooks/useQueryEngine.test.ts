@@ -30,6 +30,7 @@ interface DictionaryRequest {
 const testDoubles = vi.hoisted(() => ({
   detectLanguage: vi.fn(),
   dictionaryServices: [] as DictionaryServiceConfig[],
+  playQueryWordAudio: vi.fn(),
   showErrorToast: vi.fn(),
 }));
 
@@ -43,6 +44,7 @@ vi.mock("@/consts", () => ({
     enableYoudaoDictionary: false,
     enableYoudaoTranslate: false,
     enableLingueeDictionary: true,
+    enableAutomaticPlayWordAudio: true,
     flagsAreNotLanguages: false,
   },
 }));
@@ -56,6 +58,10 @@ vi.mock("@/core/config", () => ({
 
 vi.mock("@/core/detect", () => ({
   detectLanguage: testDoubles.detectLanguage,
+}));
+
+vi.mock("@/core/audio", () => ({
+  playQueryWordAudio: testDoubles.playQueryWordAudio,
 }));
 
 vi.mock("@/providers/dictionary", () => ({
@@ -79,10 +85,6 @@ vi.mock("@/utils/logger", () => ({
   logWarn: vi.fn(),
 }));
 
-vi.mock("./useAutoPlayAudio", () => ({
-  useAutoPlayAudio: vi.fn(),
-}));
-
 const dictionaryRequests: DictionaryRequest[] = [];
 
 class DeferredDictionaryProvider extends BaseDictionaryProvider {
@@ -98,6 +100,7 @@ class DeferredDictionaryProvider extends BaseDictionaryProvider {
 beforeEach(() => {
   dictionaryRequests.length = 0;
   testDoubles.detectLanguage.mockReset();
+  testDoubles.playQueryWordAudio.mockReset().mockResolvedValue(undefined);
   testDoubles.showErrorToast.mockReset();
   testDoubles.dictionaryServices.splice(0, testDoubles.dictionaryServices.length, {
     type: DictionaryType.Linguee,
@@ -228,6 +231,29 @@ describe("useQueryEngine query generations", () => {
     expect(result.current.displaySections).toEqual([]);
     expect(result.current.isLoading).toBe(false);
   });
+
+  it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+
+    act(() => {
+      result.current.queryTextWithTextInfo(createQueryInput("first"));
+    });
+    await resolveDictionaryRequest(0);
+    await waitFor(() => expect(testDoubles.playQueryWordAudio).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      result.current.queryTextWithTextInfo(createQueryInput("second"));
+    });
+    await resolveDictionaryRequest(1);
+
+    await waitFor(() => {
+      expect(testDoubles.playQueryWordAudio).toHaveBeenCalledTimes(2);
+      expect(testDoubles.playQueryWordAudio).toHaveBeenLastCalledWith(
+        expect.objectContaining({ word: "second" }),
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
+    });
+  });
 });
 
 function createDeferred<T>(): Deferred<T> {
@@ -250,7 +276,7 @@ function createDetectedLanguage(youdaoLangCode: string): DetectedLangModel {
 }
 
 function createQueryInput(word: string): QueryInput {
-  return { word, fromLanguage: "en", toLanguage: "zh-CHS" };
+  return { word, fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 }
 
 function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {

@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import { myPreferences } from "@/consts";
+import { playQueryWordAudio } from "@/core/audio";
 import { detectLanguage } from "@/core/detect";
 import type { DetectedLangModel } from "@/core/detect/types";
+import { englishLanguageItem } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
 import { getLanguageItem } from "@/core/language/utils";
 import { computeDisplaySections } from "@/core/query/displaySections";
@@ -21,8 +23,6 @@ import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type { QueryInput, QueryResult, QueryTypeResult } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
-
-import { useAutoPlayAudio } from "./useAutoPlayAudio";
 
 logTrace("UseQueryEngine", "module loaded");
 
@@ -127,8 +127,6 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     dispatch({ type: "RESET_FOR_NEW_QUERY", generation: session.generation });
     return session;
   }, []);
-
-  useAutoPlayAudio(state.queryResults, hasPlayedAudioRef, isCurrentQueryRef, abortControllerRef);
 
   const displaySections = useMemo(() => computeDisplaySections(state), [state]);
 
@@ -241,6 +239,26 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         const result = await instance.request(queryWordInfo, { signal: session.signal });
         if (result.displaySections && result.displaySections.length > 0) {
           dispatch({ type: "SET_RESULT", queryResult: result, generation: session.generation });
+
+          const wordInfo = result.queryWordInfo;
+          const shouldAutoPlay =
+            myPreferences.enableAutomaticPlayWordAudio &&
+            wordInfo.isWord &&
+            wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode &&
+            session.generation === generationRef.current &&
+            !session.signal.aborted &&
+            isCurrentQueryRef.current &&
+            !hasPlayedAudioRef.current;
+
+          if (shouldAutoPlay) {
+            hasPlayedAudioRef.current = true;
+            logTrace("UseQueryEngine", `playing audio for: ${wordInfo.word}`);
+            playQueryWordAudio(wordInfo, { signal: session.signal }).catch((error) => {
+              if (!session.signal.aborted) {
+                logWarn("UseQueryEngine", `failed to play audio for ${wordInfo.word}: ${error}`);
+              }
+            });
+          }
         }
       } catch (error) {
         showErrorToast(error);
