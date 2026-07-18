@@ -145,7 +145,7 @@ describe("useQueryEngine query generations", () => {
     await resolveDictionaryRequest(0);
   });
 
-  it("ignores an older language detection that resolves after the current query", async () => {
+  it("ignores an older language detection that rejects after the current query", async () => {
     const oldDetection = createDeferred<DetectedLangModel>();
     const currentDetection = createDeferred<DetectedLangModel>();
     testDoubles.detectLanguage.mockReturnValueOnce(oldDetection.promise).mockReturnValueOnce(currentDetection.promise);
@@ -168,12 +168,13 @@ describe("useQueryEngine query generations", () => {
     });
 
     await act(async () => {
-      oldDetection.resolve(createDetectedLanguage("ko"));
-      await oldDetection.promise;
+      oldDetection.reject(new Error("cancelled"));
+      await oldDetection.promise.catch(() => undefined);
     });
 
     expect(result.current.currentFromLanguageItem.youdaoLangCode).toBe("ja");
     expect(dictionaryRequests).toHaveLength(1);
+    expect(testDoubles.showErrorToast).not.toHaveBeenCalled();
 
     await resolveDictionaryRequest(0);
   });

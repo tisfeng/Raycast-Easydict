@@ -85,6 +85,10 @@ function getDetectAPIs(signal?: AbortSignal): Array<(text: string) => Promise<De
  * Race to detect language, if success, callback API detect language, else local detect language
  */
 function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Promise<DetectedLangModel | undefined> {
+  if (ctx.signal?.aborted) {
+    return Promise.reject(new CancelledError());
+  }
+
   const raceController = new AbortController();
   const signal = ctx.signal ? AbortSignal.any([ctx.signal, raceController.signal]) : raceController.signal;
   const detectActionList = getDetectAPIs(signal).map((detect) => detect(lowerCaseText));
@@ -92,21 +96,49 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
   ctx.hasDetectFinished = false;
   let detectCount = 0;
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const handleAbort = () => {
+      if (settled) return;
+      settled = true;
+      ctx.hasDetectFinished = true;
+      raceController.abort();
+      ctx.signal?.removeEventListener("abort", handleAbort);
+      reject(new CancelledError());
+    };
+    const finish = (result: DetectedLangModel | undefined) => {
+      if (settled) return;
+      settled = true;
+      ctx.signal?.removeEventListener("abort", handleAbort);
+      resolve(result);
+    };
+
+    if (ctx.signal?.aborted) {
+      handleAbort();
+      return;
+    }
+    ctx.signal?.addEventListener("abort", handleAbort, { once: true });
+
+    if (detectActionList.length === 0) {
+      finish(undefined);
+      return;
+    }
+
     detectActionList.forEach((detectAction) => {
       detectAction
-        .then((detectedLang) => {
-          handleDetectedLanguage(detectedLang, ctx).then((result) => {
-            if (result) {
-              ctx.hasDetectFinished = true;
-              raceController.abort();
-              resolve(result);
-            }
-          });
+        .then((detectedLang) => handleDetectedLanguage(detectedLang, ctx))
+        .then((result) => {
+          if (result) {
+            ctx.hasDetectFinished = true;
+            raceController.abort();
+            finish(result);
+          }
         })
         .catch((error) => {
           if (error instanceof CancelledError) {
-            logTrace("Detect", "detect cancelled");
+            if (!ctx.signal?.aborted) {
+              logTrace("Detect", "detect cancelled");
+            }
           } else {
             logError("Detect", `race detect error`, error);
           }
@@ -118,7 +150,7 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
             if (!ctx.signal?.aborted) {
               logTrace("Detect", "no confirmed API detection");
             }
-            resolve(undefined);
+            finish(undefined);
           }
         });
     });

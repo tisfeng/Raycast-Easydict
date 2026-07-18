@@ -131,13 +131,13 @@ describe("detectLanguage cancellation", () => {
     expect(testDoubles.timerFail).not.toHaveBeenCalled();
   });
 
-  it("does not report expected cancellation as an error", async () => {
+  it("stops detection when the query signal is already cancelled", async () => {
     const controller = new AbortController();
     controller.abort();
 
-    const result = await detectLanguage("testimony", controller.signal);
+    const result = detectLanguage("testimony", controller.signal);
 
-    expect(result.youdaoLangCode).toBe("en");
+    await expect(result).rejects.toBeInstanceOf(CancelledError);
     expect(testDoubles.logError).not.toHaveBeenCalled();
   });
 });

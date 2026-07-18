@@ -326,19 +326,27 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
       const session = beginQuerySession();
 
-      detectLanguage(text, session.signal).then((detectedLanguage: DetectedLangModel) => {
-        logTrace(
-          "UseQueryEngine",
-          `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
-        );
+      detectLanguage(text, session.signal)
+        .then((detectedLanguage: DetectedLangModel) => {
+          logTrace(
+            "UseQueryEngine",
+            `final confirmed: ${detectedLanguage.confirmed}, type: ${detectedLanguage.type}, detectLanguage: ${detectedLanguage.youdaoLangCode}`,
+          );
 
-        if (session.signal.aborted || session.generation !== generationRef.current) {
-          logTrace("UseQueryEngine", "query has been cancelled, stop, return");
-          return;
-        }
+          if (session.signal.aborted || session.generation !== generationRef.current) {
+            logTrace("UseQueryEngine", "query has been cancelled, stop, return");
+            return;
+          }
 
-        queryTextWithDetectedLanguage(text, toLanguage, detectedLanguage, session);
-      });
+          queryTextWithDetectedLanguage(text, toLanguage, detectedLanguage, session);
+        })
+        .catch((error) => {
+          if (session.signal.aborted) {
+            logTrace("UseQueryEngine", "language detection cancelled");
+            return;
+          }
+          showErrorToast(error);
+        });
     },
     [beginQuerySession, queryTextWithDetectedLanguage],
   );
