@@ -73,7 +73,7 @@ export function applyTranslationToDisplay(
  * on Linguee's display so users see consistent word info across both dictionaries.
  */
 export function applyMetadataToLinguee(results: QueryResult[], youdaoResult: QueryResult): QueryResult[] {
-  const { phonetic, examTypes } = youdaoResult.sourceResult.queryWordInfo;
+  const { phonetic, examTypes } = youdaoResult.queryWordInfo;
   // Only apply when there's actual metadata to sync
   if (!phonetic && !examTypes?.length) return results;
 
@@ -107,7 +107,7 @@ export const COUPLING_RULES: ServiceCouplingRule[] = [
     triggers: [TranslationType.DeepL, DictionaryType.Linguee],
     apply: (results) =>
       applyTranslationToDisplay(results, TranslationType.DeepL, DictionaryType.Linguee, (r) =>
-        r.sourceResult.translations.join(", "),
+        r.translations.join(", "),
       ),
   },
   /** Youdao translation → update Youdao dictionary's first item title (requires ≥2 sections). */
@@ -118,7 +118,7 @@ export const COUPLING_RULES: ServiceCouplingRule[] = [
         results,
         TranslationType.Youdao,
         DictionaryType.Youdao,
-        (r) => r.sourceResult.translations.join(", "),
+        (r) => r.translations.join(", "),
         { minSections: 2 },
       ),
   },

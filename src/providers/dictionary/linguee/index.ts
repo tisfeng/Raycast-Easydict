@@ -30,11 +30,8 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
     if (!lingueeUrl) {
       return {
         type: DictionaryType.Linguee,
-        sourceResult: {
-          type: DictionaryType.Linguee,
-          queryWordInfo,
-          translations: [],
-        },
+        queryWordInfo,
+        translations: [],
       };
     }
 
@@ -86,8 +83,7 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
     const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
 
     return {
-      type: DictionaryType.Linguee,
-      sourceResult: lingueeTypeResult,
+      ...lingueeTypeResult,
       displaySections: lingueeDisplaySections.length > 0 ? lingueeDisplaySections : undefined,
     };
   }

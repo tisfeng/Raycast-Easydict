@@ -39,9 +39,7 @@ export interface QueryTypeResult<T = unknown> {
   translations: string[];
 }
 
-export interface QueryResult<T = unknown> {
-  type: QueryType;
-  sourceResult: QueryTypeResult<T>;
+export interface QueryResult<T = unknown> extends QueryTypeResult<T> {
   displaySections?: DisplaySection[];
   hideDisplay?: boolean;
 }

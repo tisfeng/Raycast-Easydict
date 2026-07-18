@@ -36,7 +36,7 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
   const combinedResults = [...sortedQueryResults, ...unclassifiedResults];
   // filter undefined, or result is undefined.
   return combinedResults.filter((queryResult) => {
-    if (queryResult?.sourceResult?.result) {
+    if (queryResult?.result) {
       return true;
     }
   });
@@ -129,8 +129,7 @@ function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
 export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boolean {
   let isShowDetail = false;
   for (const queryResult of queryResults) {
-    const sourceResult = queryResult.sourceResult;
-    const wordInfo = sourceResult.queryWordInfo;
+    const wordInfo = queryResult.queryWordInfo;
     const isDictionaryType = checkIsDictionaryType(queryResult.type);
     if (isDictionaryType) {
       if (wordInfo.hasDictionaryEntries) {
@@ -139,7 +138,7 @@ export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boole
       }
     } else {
       // check if translation is too long
-      const oneLineTranslation = sourceResult.translations.join(", ");
+      const oneLineTranslation = queryResult.translations.join(", ");
       const isTooLong = isTextOneLineTooLong(oneLineTranslation, wordInfo.toLanguage);
       if (isTooLong) {
         isShowDetail = true;
@@ -215,8 +214,8 @@ ${explanation}
 /**
  * Get translation markdown.
  */
-export function getTranslationMarkdown(sourceResult: QueryTypeResult) {
-  const { type, translations, queryWordInfo: wordInfo } = sourceResult;
+export function getTranslationMarkdown(queryResult: QueryTypeResult) {
+  const { type, translations, queryWordInfo: wordInfo } = queryResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {
     return "";

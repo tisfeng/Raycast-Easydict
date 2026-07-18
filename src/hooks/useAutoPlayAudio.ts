@@ -35,13 +35,10 @@ export function useAutoPlayAudio(
     previousLengthRef.current = queryResults.length;
 
     for (const queryResult of queryResults) {
-      const sourceResult = queryResult.sourceResult;
-      if (!sourceResult) continue;
-
       const isDictionaryType = checkIsDictionaryType(queryResult.type);
       if (!isDictionaryType) continue;
 
-      const wordInfo = sourceResult.queryWordInfo;
+      const wordInfo = queryResult.queryWordInfo;
       const isEnglishLanguage = wordInfo.fromLanguage === englishLanguageItem.youdaoLangCode;
       const enableAutomaticDownloadAudio =
         myPreferences.enableAutomaticPlayWordAudio && wordInfo.isWord && isEnglishLanguage;

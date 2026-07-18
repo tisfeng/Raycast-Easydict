@@ -265,12 +265,9 @@ function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {
   };
   return {
     type: DictionaryType.Linguee,
-    sourceResult: {
-      type: DictionaryType.Linguee,
-      queryWordInfo,
-      result: {},
-      translations: [],
-    },
+    queryWordInfo,
+    result: {},
+    translations: [],
     displaySections: [{ type: LingueeListItemType.Translation, items: [item] }],
   };
 }

@@ -21,12 +21,9 @@ function createTranslationResult(text = "translated"): QueryResult {
 
   return {
     type: TranslationType.DeepL,
-    sourceResult: {
-      type: TranslationType.DeepL,
-      queryWordInfo,
-      result: {},
-      translations: [text],
-    },
+    queryWordInfo,
+    result: {},
+    translations: [text],
     displaySections: [{ type: TranslationType.DeepL, items: [item] }],
   };
 }
@@ -50,12 +47,9 @@ function createLingueeResult(sectionCount = 1): QueryResult {
 
   return {
     type: DictionaryType.Linguee,
-    sourceResult: {
-      type: DictionaryType.Linguee,
-      queryWordInfo,
-      result: {},
-      translations: [],
-    },
+    queryWordInfo,
+    result: {},
+    translations: [],
     displaySections: sections,
   };
 }
@@ -74,7 +68,7 @@ describe("applyTranslationToDisplay", () => {
       [source, target],
       TranslationType.DeepL,
       DictionaryType.Linguee,
-      (result) => result.sourceResult.translations.join(", "),
+      (result) => result.translations.join(", "),
     );
 
     const updatedTarget = updated.find((result) => result.type === DictionaryType.Linguee);
@@ -95,7 +89,7 @@ describe("applyTranslationToDisplay", () => {
       results,
       TranslationType.DeepL,
       DictionaryType.Linguee,
-      (result) => result.sourceResult.translations.join(", "),
+      (result) => result.translations.join(", "),
       { minSections: 2 },
     );
 
@@ -110,9 +104,8 @@ describe("applyMetadataToLinguee", () => {
     const linguee = createLingueeResult();
     const youdao = createLingueeResult();
     youdao.type = DictionaryType.Youdao;
-    youdao.sourceResult.type = DictionaryType.Youdao;
-    youdao.sourceResult.queryWordInfo.phonetic = "test-phonetic";
-    youdao.sourceResult.queryWordInfo.examTypes = ["CET4"];
+    youdao.queryWordInfo.phonetic = "test-phonetic";
+    youdao.queryWordInfo.examTypes = ["CET4"];
 
     const updated = applyMetadataToLinguee([linguee, youdao], youdao);
 

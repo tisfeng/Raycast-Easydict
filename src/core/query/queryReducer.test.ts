@@ -51,12 +51,9 @@ function createTranslationResult(type: TranslationType): QueryResult {
 
   return {
     type,
-    sourceResult: {
-      type,
-      queryWordInfo,
-      result: {},
-      translations: ["test"],
-    },
+    queryWordInfo,
+    result: {},
+    translations: ["test"],
     displaySections: [{ type, items: [displayItem] }],
   };
 }
@@ -75,12 +72,9 @@ function createLingueeResult(): QueryResult {
 
   return {
     type: DictionaryType.Linguee,
-    sourceResult: {
-      type: DictionaryType.Linguee,
-      queryWordInfo,
-      result: {},
-      translations: ["test"],
-    },
+    queryWordInfo,
+    result: {},
+    translations: ["test"],
     displaySections: [{ type: LingueeListItemType.Translation, items: [displayItem] }],
   };
 }
@@ -104,20 +98,20 @@ describe("queryReducer", () => {
   it("SET_RESULT replaces an earlier result of the same provider type", () => {
     const result1 = createTranslationResult(TranslationType.DeepL);
     const result2 = createTranslationResult(TranslationType.DeepL);
-    result2.sourceResult.translations = ["updated"];
+    result2.translations = ["updated"];
 
     let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: result1, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
-    expect(state.queryResults[0].sourceResult.translations).toEqual(["test"]);
+    expect(state.queryResults[0].translations).toEqual(["test"]);
 
     state = queryReducer(state, { type: "SET_RESULT", queryResult: result2, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
-    expect(state.queryResults[0].sourceResult.translations).toEqual(["updated"]);
+    expect(state.queryResults[0].translations).toEqual(["updated"]);
   });
 
   it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {
     const deepLResult = createTranslationResult(TranslationType.DeepL);
-    deepLResult.sourceResult.translations = ["Coupled Translation"];
+    deepLResult.translations = ["Coupled Translation"];
 
     const lingueeResult = createLingueeResult();
     lingueeResult.displaySections![0].items[0].title = "Original Linguee Title";

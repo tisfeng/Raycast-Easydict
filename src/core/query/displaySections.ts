@@ -13,9 +13,9 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
   const translations: TranslationItem[] = [];
   for (const qr of queryResults) {
     if (qr.hideDisplay) continue;
-    if (qr.sourceResult && checkIsTranslationType(qr.type)) {
-      const markdown = getTranslationMarkdown(qr.sourceResult);
-      translations.push({ type: qr.sourceResult.type as TranslationType, text: markdown });
+    if (checkIsTranslationType(qr.type)) {
+      const markdown = getTranslationMarkdown(qr);
+      translations.push({ type: qr.type as TranslationType, text: markdown });
     }
   }
 
@@ -25,36 +25,33 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
   for (const queryResult of queryResults) {
     if (queryResult.hideDisplay || !queryResult.displaySections?.length) continue;
 
-    const { type, sourceResult } = queryResult;
+    const { type } = queryResult;
     const isDict = checkIsDictionaryType(type);
     const isTrans = checkIsTranslationType(type);
     let isFirstDictSection = true;
 
     for (const section of queryResult.displaySections) {
-      let sectionTitle: string | undefined = `${sourceResult?.type ?? type}`;
-      if (sourceResult) {
-        const wordInfo = sourceResult.queryWordInfo;
-        const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, isShowDetail);
-        if (isTrans) {
-          sectionTitle = isPreviousSectionTranslationType ? sectionTitle : `${sectionTitle}   (${fromTo})`;
-          isPreviousSectionTranslationType = true;
-        } else if (isDict) {
-          if (isFirstDictSection) {
-            sectionTitle = `${sectionTitle}   (${fromTo})`;
-            isFirstDictSection = false;
-          } else {
-            sectionTitle = section.sectionTitle;
-          }
-          isPreviousSectionTranslationType = false;
+      let sectionTitle: string | undefined = `${type}`;
+      const wordInfo = queryResult.queryWordInfo;
+      const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, isShowDetail);
+      if (isTrans) {
+        sectionTitle = isPreviousSectionTranslationType ? sectionTitle : `${sectionTitle}   (${fromTo})`;
+        isPreviousSectionTranslationType = true;
+      } else if (isDict) {
+        if (isFirstDictSection) {
+          sectionTitle = `${sectionTitle}   (${fromTo})`;
+          isFirstDictSection = false;
         } else {
-          isPreviousSectionTranslationType = false;
+          sectionTitle = section.sectionTitle;
         }
+        isPreviousSectionTranslationType = false;
+      } else {
+        isPreviousSectionTranslationType = false;
       }
 
-      const detailsMarkdown =
-        isTrans && sourceResult
-          ? buildDetailMarkdown(translations, type, sourceResult)
-          : section.items?.[0]?.detailsMarkdown;
+      const detailsMarkdown = isTrans
+        ? buildDetailMarkdown(translations, type, queryResult)
+        : section.items?.[0]?.detailsMarkdown;
 
       displaySections.push({
         ...section,
@@ -73,10 +70,10 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
 function buildDetailMarkdown(
   translations: TranslationItem[],
   currentType: QueryType,
-  sourceResult: QueryTypeResult,
+  queryResult: QueryTypeResult,
 ): string {
   const sorted = [...translations];
-  const idx = sorted.findIndex((t) => t.type === sourceResult.type);
+  const idx = sorted.findIndex((t) => t.type === queryResult.type);
   if (idx > 0) {
     const [item] = sorted.splice(idx, 1);
     sorted.unshift(item);

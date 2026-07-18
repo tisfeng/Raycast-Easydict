@@ -56,11 +56,8 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
     if (!youdaoQueryWordInfo.hasDictionaryEntries) {
       return {
         type: DictionaryType.Youdao,
-        sourceResult: {
-          type: DictionaryType.Youdao,
-          queryWordInfo,
-          translations: [],
-        },
+        queryWordInfo,
+        translations: [],
       };
     }
 
@@ -81,12 +78,9 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
 
     return {
       type: DictionaryType.Youdao,
-      sourceResult: {
-        type: DictionaryType.Youdao,
-        queryWordInfo: result.queryWordInfo,
-        result,
-        translations: result.translation.split("\n"),
-      },
+      queryWordInfo: result.queryWordInfo,
+      result,
+      translations: result.translation.split("\n"),
       displaySections,
     };
   }

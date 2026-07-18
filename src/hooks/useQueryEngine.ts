@@ -72,8 +72,7 @@ function createStreamDebouncer(
         translations: [accumulatedText],
         result: { translatedText: accumulatedText },
       };
-      const rawResult: QueryResult = { type: configType, sourceResult: result };
-      const displayResult = buildTranslationDisplay(rawResult);
+      const displayResult = buildTranslationDisplay(result);
       if (displayResult) {
         dispatch({ type: "SET_RESULT", queryResult: displayResult, generation });
       }
@@ -146,19 +145,19 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   }, []);
 
   const buildTranslationDisplay = useCallback((queryResult: QueryResult): QueryResult | null => {
-    const { type, sourceResult } = queryResult;
+    const { type, translations, queryWordInfo } = queryResult;
 
     if (!checkIsTranslationType(type)) {
       return null;
     }
 
-    if (!sourceResult.translations || sourceResult.translations.length === 0) {
+    if (translations.length === 0) {
       logWarn("UseQueryEngine", `${type} result is empty.`);
       return null;
     }
 
-    const oneLineTranslation = sourceResult.translations.join(", ");
-    const copyText = sourceResult.translations.join("\n");
+    const oneLineTranslation = translations.join(", ");
+    const copyText = translations.join("\n");
     const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 
     const displayItem: ListDisplayItem = {
@@ -168,7 +167,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
       key: isStreamingProvider ? type : `${oneLineTranslation}-${type}`,
       title: oneLineTranslation,
       copyText,
-      queryWordInfo: sourceResult.queryWordInfo,
+      queryWordInfo,
     };
     const displaySections: DisplaySection[] = [{ type, sectionTitle: type, items: [displayItem] }];
 
@@ -210,8 +209,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         }
 
         if (finalResult) {
-          const rawResult: QueryResult = { type: config.type, sourceResult: finalResult };
-          const displayResult = buildTranslationDisplay(rawResult);
+          const displayResult = buildTranslationDisplay(finalResult);
           if (displayResult) {
             dispatch({ type: "SET_RESULT", queryResult: displayResult, generation: session.generation });
           }
