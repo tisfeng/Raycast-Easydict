@@ -2,7 +2,7 @@
 
 import type { DictionaryType } from "@/types/api";
 import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
-import { handleRequestError } from "@/utils/errors";
+import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
 /**
@@ -27,8 +27,11 @@ export abstract class BaseDictionaryProvider<T = unknown> {
       timer.done(sectionCount > 0 ? `${sectionCount} sections` : "no entries");
       return result;
     } catch (error) {
-      timer.fail();
-      throw handleRequestError(this.type, error, options?.signal);
+      const requestError = handleRequestError(this.type, error, options?.signal);
+      if (!(requestError instanceof CancelledError)) {
+        timer.fail();
+      }
+      throw requestError;
     }
   };
 

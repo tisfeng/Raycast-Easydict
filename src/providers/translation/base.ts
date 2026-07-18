@@ -2,7 +2,7 @@
 
 import type { RequestType } from "@/types/api";
 import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
-import { handleRequestError } from "@/utils/errors";
+import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
 export type ProviderResult<T = unknown> =
@@ -40,8 +40,11 @@ export abstract class BaseTranslateProvider<T = unknown> {
       timer.done(result.translations?.join(", ") ?? "(no result)");
       return result;
     } catch (error) {
-      timer.fail();
-      throw handleRequestError(this.type, error, options?.signal);
+      const requestError = handleRequestError(this.type, error, options?.signal);
+      if (!(requestError instanceof CancelledError)) {
+        timer.fail();
+      }
+      throw requestError;
     }
   }
 

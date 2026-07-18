@@ -8,7 +8,7 @@ import type { BaseDetectProvider, DetectOptions } from "@/providers/detect/base"
 import { detectServices } from "@/providers/detect/registry";
 import { LanguageDetectType } from "@/types/api";
 import { CancelledError } from "@/utils/errors";
-import { logError, logSummary, logTrace, logWarn } from "@/utils/logger";
+import { logError, logSummary, logTrace } from "@/utils/logger";
 
 import type { DetectedLangModel } from "./types";
 import {
@@ -116,7 +116,7 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
           // If the last detection action is still not resolve, return undefined.
           if (detectCount === detectActionList.length && !ctx.hasDetectFinished) {
             if (!ctx.signal?.aborted) {
-              logWarn("Detect", "all detect actions failed");
+              logTrace("Detect", "no confirmed API detection");
             }
             resolve(undefined);
           }

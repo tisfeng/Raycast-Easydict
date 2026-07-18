@@ -12,7 +12,6 @@ const testDoubles = vi.hoisted(() => ({
   detectServices: [] as DetectServiceConfig[],
   loserAborted: vi.fn(),
   logError: vi.fn(),
-  logWarn: vi.fn(),
   timerFail: vi.fn(),
 }));
 
@@ -36,7 +35,6 @@ vi.mock("@/utils/logger", () => ({
   logError: testDoubles.logError,
   logSummary: vi.fn(),
   logTrace: vi.fn(),
-  logWarn: testDoubles.logWarn,
 }));
 
 class CancelledRemoteDetectProvider extends BaseDetectProvider {
@@ -107,7 +105,6 @@ class LosingDetectProvider extends BaseDetectProvider {
 beforeEach(() => {
   testDoubles.loserAborted.mockReset();
   testDoubles.logError.mockReset();
-  testDoubles.logWarn.mockReset();
   testDoubles.timerFail.mockReset();
   testDoubles.detectServices.splice(
     0,
@@ -134,7 +131,7 @@ describe("detectLanguage cancellation", () => {
     expect(testDoubles.timerFail).not.toHaveBeenCalled();
   });
 
-  it("does not report expected cancellation as an error or all-provider failure", async () => {
+  it("does not report expected cancellation as an error", async () => {
     const controller = new AbortController();
     controller.abort();
 
@@ -142,6 +139,5 @@ describe("detectLanguage cancellation", () => {
 
     expect(result.youdaoLangCode).toBe("en");
     expect(testDoubles.logError).not.toHaveBeenCalled();
-    expect(testDoubles.logWarn).not.toHaveBeenCalled();
   });
 });
