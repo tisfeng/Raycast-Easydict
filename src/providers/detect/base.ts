@@ -2,7 +2,7 @@
 
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/types/api";
-import { handleRequestError } from "@/utils/errors";
+import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
 /**
@@ -33,8 +33,11 @@ export abstract class BaseDetectProvider<T = unknown> {
       timer.done(`${result.youdaoLangCode} (${confidence})`);
       return result;
     } catch (error) {
-      timer.fail();
-      throw handleRequestError(this.type, error, options?.signal);
+      const requestError = handleRequestError(this.type, error, options?.signal);
+      if (!(requestError instanceof CancelledError)) {
+        timer.fail();
+      }
+      throw requestError;
     }
   };
 

@@ -85,7 +85,9 @@ function getDetectAPIs(signal?: AbortSignal): Array<(text: string) => Promise<De
  * Race to detect language, if success, callback API detect language, else local detect language
  */
 function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Promise<DetectedLangModel | undefined> {
-  const detectActionList = getDetectAPIs(ctx.signal).map((detect) => detect(lowerCaseText));
+  const raceController = new AbortController();
+  const signal = ctx.signal ? AbortSignal.any([ctx.signal, raceController.signal]) : raceController.signal;
+  const detectActionList = getDetectAPIs(signal).map((detect) => detect(lowerCaseText));
 
   ctx.hasDetectFinished = false;
   let detectCount = 0;
@@ -97,6 +99,7 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
           handleDetectedLanguage(detectedLang, ctx).then((result) => {
             if (result) {
               ctx.hasDetectFinished = true;
+              raceController.abort();
               resolve(result);
             }
           });
