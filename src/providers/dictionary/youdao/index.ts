@@ -4,14 +4,14 @@ import { myPreferences } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
 
 import { ensureYoudaoCookie } from "./cookie";
 import { formatYoudaoWebDictionaryModel, updateYoudaoDictionaryDisplay } from "./formatData";
-import type { YoudaoWebDictionaryModel } from "./types";
+import type { YoudaoDictionaryFormatResult, YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
 // * Cookie will be expired after 1 day, so we need to update it every time we start.
@@ -24,10 +24,13 @@ if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate)
  *
  * Cost time: 0.2s. Supported zh <--> targetLanguage (en, fr, ja, ko).
  */
-export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
+export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDictionaryFormatResult> {
   type = DictionaryType.Youdao;
 
-  protected async doQuery(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected override async doQuery(
+    queryWordInfo: QueryWordInfo,
+    { signal }: RequestOptions = {},
+  ): Promise<QueryResult<YoudaoDictionaryFormatResult>> {
     // * Note: "fanyi" only works when response dicts has only one item ["meta"]
     const dicts = [["web_trans", "ec", "ce", "newhh", "baike", "wikipedia_digest"]];
 
@@ -61,20 +64,27 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
     }
 
     // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂，so we need to update it.
-    if (queryWordInfo.fromLanguage !== autoDetectLanguageItem.youdaoLangCode) {
-      youdaoQueryWordInfo.fromLanguage = queryWordInfo.fromLanguage;
-      youdaoQueryWordInfo.toLanguage = queryWordInfo.toLanguage;
-    }
+    const result =
+      queryWordInfo.fromLanguage === autoDetectLanguageItem.youdaoLangCode
+        ? youdaoFormatResult
+        : {
+            ...youdaoFormatResult,
+            queryWordInfo: {
+              ...youdaoQueryWordInfo,
+              fromLanguage: queryWordInfo.fromLanguage,
+              toLanguage: queryWordInfo.toLanguage,
+            },
+          };
 
-    const displaySections = updateYoudaoDictionaryDisplay(youdaoFormatResult);
+    const displaySections = updateYoudaoDictionaryDisplay(result);
 
     return {
       type: DictionaryType.Youdao,
       sourceResult: {
         type: DictionaryType.Youdao,
-        queryWordInfo: youdaoQueryWordInfo,
-        result: youdaoFormatResult,
-        translations: youdaoFormatResult.translation.split("\n"),
+        queryWordInfo: result.queryWordInfo,
+        result,
+        translations: result.translation.split("\n"),
       },
       displaySections,
     };

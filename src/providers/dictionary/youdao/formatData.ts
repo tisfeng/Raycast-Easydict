@@ -425,7 +425,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
   };
 
   const formatResult: YoudaoDictionaryFormatResult = {
-    queryWordInfo: queryWordInfo,
+    queryWordInfo,
     translation: translation,
     explanations: explanations,
     forms: forms,
@@ -436,9 +436,13 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     modernChineseDict: newChineseDataList,
   };
 
-  queryWordInfo.hasDictionaryEntries = hasYoudaoDictionaryEntries(formatResult);
-
-  return formatResult;
+  return {
+    ...formatResult,
+    queryWordInfo: {
+      ...queryWordInfo,
+      hasDictionaryEntries: hasYoudaoDictionaryEntries(formatResult),
+    },
+  };
 }
 
 /**

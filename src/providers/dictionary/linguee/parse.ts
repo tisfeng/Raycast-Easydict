@@ -293,7 +293,7 @@ function buildWikipediaSection(
   return { type: LingueeListItemType.Wikipedia, sectionTitle: "Wikipedia", items };
 }
 
-export function parseLingueeHTML(html: string): QueryTypeResult {
+export function parseLingueeHTML(html: string): QueryTypeResult<LingueeDictionaryResult> {
   const root = parse(html);
   const dictionary = root.querySelector("#dictionary");
   const exactLemmas = dictionary?.querySelectorAll(".exact .lemma");
@@ -324,20 +324,19 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
   const relatedWords = parseWordItems(relatedWordsElement);
   const wikipedias = parseWikipediaItems(dictionary?.querySelectorAll(".wikipedia .abstract"));
 
-  const queryWordInfo: QueryWordInfo = {
-    word: queryWord?.textContent ?? "",
-    fromLanguage: sourceLanguage ?? "",
-    toLanguage: targetLanguage ?? "",
-    speechUrl: wordItems[0]?.audioUrl ?? "",
-  };
-
   const hasEntries = wordItems.length > 0 || examples.length > 0 || relatedWords.length > 0 || wikipedias.length > 0;
   if (!hasEntries) {
     logWarn("LingueeParse", "no entries found in Linguee dictionary");
   }
 
-  queryWordInfo.hasDictionaryEntries = hasEntries;
-  queryWordInfo.isWord = hasEntries;
+  const queryWordInfo: QueryWordInfo = {
+    word: queryWord?.textContent ?? "",
+    fromLanguage: sourceLanguage ?? "",
+    toLanguage: targetLanguage ?? "",
+    speechUrl: wordItems[0]?.audioUrl ?? "",
+    hasDictionaryEntries: hasEntries,
+    isWord: hasEntries,
+  };
 
   return {
     type: DictionaryType.Linguee,
@@ -347,11 +346,12 @@ export function parseLingueeHTML(html: string): QueryTypeResult {
   };
 }
 
-export function formatLingueeDisplaySections(lingueeTypeResult: QueryTypeResult): DisplaySection[] {
+export function formatLingueeDisplaySections(
+  lingueeTypeResult: QueryTypeResult<LingueeDictionaryResult>,
+): DisplaySection[] {
   if (!lingueeTypeResult.result) return [];
 
-  const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } =
-    lingueeTypeResult.result as LingueeDictionaryResult;
+  const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } = lingueeTypeResult.result;
 
   return [
     buildTitleSection(queryWordInfo, wordItems),
