@@ -7,7 +7,7 @@ import { isValidLangCode } from "@/core/language/utils";
 import type { BaseDetectProvider, DetectOptions } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
 import { LanguageDetectType } from "@/types/api";
-import type { RequestError } from "@/utils/errors";
+import { CancelledError } from "@/utils/errors";
 import { logError, logSummary, logTrace, logWarn } from "@/utils/logger";
 
 import type { DetectedLangModel } from "./types";
@@ -102,9 +102,7 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
           });
         })
         .catch((error) => {
-          // If current API detect error, do nothing, just continue try next API.
-          const errorInfo = error as RequestError | undefined;
-          if (!errorInfo) {
+          if (error instanceof CancelledError) {
             logTrace("Detect", "detect cancelled");
           } else {
             logError("Detect", `race detect error`, error);
@@ -114,7 +112,9 @@ function raceDetectTextLanguage(lowerCaseText: string, ctx: DetectContext): Prom
           detectCount += 1;
           // If the last detection action is still not resolve, return undefined.
           if (detectCount === detectActionList.length && !ctx.hasDetectFinished) {
-            logWarn("Detect", "all detect actions failed");
+            if (!ctx.signal?.aborted) {
+              logWarn("Detect", "all detect actions failed");
+            }
             resolve(undefined);
           }
         });
@@ -295,7 +295,11 @@ async function getLocalTextLanguageDetectResult(
         return localDetectResult;
       }
     } catch (error) {
-      logError("Detect", "local detect error", error);
+      if (error instanceof CancelledError) {
+        logTrace("Detect", "local detect cancelled");
+      } else {
+        logError("Detect", "local detect error", error);
+      }
     }
   }
 
