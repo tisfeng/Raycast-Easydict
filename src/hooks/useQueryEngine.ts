@@ -352,12 +352,15 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const clearQueryResult = useCallback(() => {
-    logTrace("UseQueryEngine", "clearQueryResult");
+    const activeController = abortControllerRef.current;
+    if (activeController) {
+      logTrace("UseQueryEngine", "clearQueryResult");
+      activeController.abort();
+    }
 
     generationRef.current += 1;
     isCurrentQueryRef.current = false;
 
-    abortControllerRef.current?.abort();
     abortControllerRef.current = undefined;
 
     dispatch({ type: "CLEAR_ALL", generation: generationRef.current });
