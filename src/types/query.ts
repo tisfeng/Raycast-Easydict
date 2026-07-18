@@ -6,7 +6,7 @@ import type { DisplaySection } from "./display";
 
 /**
  * Runtime execution options for a query.
- * Passed separately from the data payload (QueryWordInfo).
+ * Passed separately from the data payload (QueryInput).
  */
 export interface RequestOptions {
   signal?: AbortSignal;
@@ -17,11 +17,14 @@ export interface StreamChunk {
   role?: string;
 }
 
-export interface QueryWordInfo {
-  word: string;
-  fromLanguage: string; // ! must be Youdao language id.
-  toLanguage: string;
-  isWord?: boolean; // * Dictionary Type should has value, show web url need this value.
+export interface QueryInput {
+  readonly word: string;
+  readonly fromLanguage: string; // ! must be Youdao language id.
+  readonly toLanguage: string;
+  readonly isWord?: boolean; // * Dictionary Type should has value, show web url need this value.
+}
+
+export interface QueryWordInfo extends QueryInput {
   hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
   detectedLangModel?: DetectedLangModel;
   phonetic?: string; // [ɡʊd]

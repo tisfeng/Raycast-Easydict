@@ -11,7 +11,7 @@ import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { DictionaryType, LanguageDetectType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
 
 import { useQueryEngine } from "./useQueryEngine";
 
@@ -22,7 +22,7 @@ interface Deferred<T> {
 }
 
 interface DictionaryRequest {
-  queryWordInfo: QueryWordInfo;
+  queryWordInfo: QueryInput;
   signal?: AbortSignal;
   deferred: Deferred<QueryResult>;
 }
@@ -88,7 +88,7 @@ const dictionaryRequests: DictionaryRequest[] = [];
 class DeferredDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.Linguee;
 
-  protected doQuery(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult> {
+  protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult> {
     const deferred = createDeferred<QueryResult>();
     dictionaryRequests.push({ queryWordInfo, signal: options?.signal, deferred });
     return deferred.promise;
@@ -182,8 +182,8 @@ describe("useQueryEngine query generations", () => {
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
 
     act(() => {
-      result.current.queryTextWithTextInfo(createQueryWordInfo("old"));
-      result.current.queryTextWithTextInfo(createQueryWordInfo("current"));
+      result.current.queryTextWithTextInfo(createQueryInput("old"));
+      result.current.queryTextWithTextInfo(createQueryInput("current"));
     });
 
     expect(dictionaryRequests[0].signal?.aborted).toBe(true);
@@ -198,8 +198,8 @@ describe("useQueryEngine query generations", () => {
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
 
     act(() => {
-      result.current.queryTextWithTextInfo(createQueryWordInfo("old"));
-      result.current.queryTextWithTextInfo(createQueryWordInfo("current"));
+      result.current.queryTextWithTextInfo(createQueryInput("old"));
+      result.current.queryTextWithTextInfo(createQueryInput("current"));
     });
 
     await waitFor(() => expect(result.current.isLoading).toBe(true));
@@ -214,7 +214,7 @@ describe("useQueryEngine query generations", () => {
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
 
     act(() => {
-      result.current.queryTextWithTextInfo(createQueryWordInfo("old"));
+      result.current.queryTextWithTextInfo(createQueryInput("old"));
     });
     act(() => {
       result.current.clearQueryResult();
@@ -248,11 +248,11 @@ function createDetectedLanguage(youdaoLangCode: string): DetectedLangModel {
   };
 }
 
-function createQueryWordInfo(word: string): QueryWordInfo {
+function createQueryInput(word: string): QueryInput {
   return { word, fromLanguage: "en", toLanguage: "zh-CHS" };
 }
 
-function createDictionaryResult(queryWordInfo: QueryWordInfo): QueryResult {
+function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {
   const item: ListDisplayItem = {
     displayCategory: "dictionary",
     displayType: LingueeListItemType.Translation,

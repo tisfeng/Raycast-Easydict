@@ -4,7 +4,7 @@ import { myPreferences } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
@@ -28,7 +28,7 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
   type = DictionaryType.Youdao;
 
   protected override async doQuery(
-    queryWordInfo: QueryWordInfo,
+    queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
   ): Promise<QueryResult<YoudaoDictionaryFormatResult>> {
     // * Note: "fanyi" only works when response dicts has only one item ["meta"]

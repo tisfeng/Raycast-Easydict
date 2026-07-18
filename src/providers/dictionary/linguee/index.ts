@@ -3,7 +3,7 @@
 import { userAgent } from "@/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -20,7 +20,7 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
   type = DictionaryType.Linguee;
 
   protected override async doQuery(
-    queryWordInfo: QueryWordInfo,
+    queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
   ): Promise<QueryResult<LingueeDictionaryResult>> {
     const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
@@ -83,14 +83,6 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
     };
 
     const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
-
-    // Set accessoryItem (phonetic, examTypes) from queryWordInfo
-    if (lingueeDisplaySections.length > 0 && lingueeDisplaySections[0].items.length > 0) {
-      lingueeDisplaySections[0].items[0].accessoryItem = {
-        phonetic: queryWordInfo.phonetic,
-        examTypes: queryWordInfo.examTypes,
-      };
-    }
 
     return {
       type: DictionaryType.Linguee,

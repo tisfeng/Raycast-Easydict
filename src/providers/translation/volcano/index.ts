@@ -3,7 +3,7 @@
 import { getLangCode } from "@/core/language/utils";
 import { genVolcanoSign } from "@/providers/shared/volcano-sign";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
@@ -42,7 +42,7 @@ interface VolcanoError {
 export class VolcanoTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Volcano;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const from = getLangCode(fromLanguage, "volcanoLangCode");
     const to = getLangCode(toLanguage, "volcanoLangCode");

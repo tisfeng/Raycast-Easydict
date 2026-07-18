@@ -2,8 +2,7 @@
 
 import { chineseLanguageItem } from "@/core/language/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
-
-import type { QueryWordInfo } from "./types";
+import type { QueryInput } from "@/types/query";
 
 /**
  * Get youdao web dictionary URL.
@@ -13,7 +12,7 @@ import type { QueryWordInfo } from "./types";
  *
  * crawler parser: https://github.com/keenwon/eazydict-youdao/blob/master/lib/parser.js
  */
-export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string | undefined {
+export function getYoudaoWebDictionaryURL(queryTextInfo: QueryInput): string | undefined {
   const languageId = getLanguageOfTwoExceptChinese([queryTextInfo.fromLanguage, queryTextInfo.toLanguage]);
   if (!languageId) {
     return;
@@ -32,7 +31,7 @@ export function getYoudaoWebDictionaryURL(queryTextInfo: QueryWordInfo): string 
  * eg: en --> zh-CHS, return: en
  * eg: zh-CHS --> fr, return: fr
  */
-export function getYoudaoWebDictionaryLanguageId(queryTextInfo: QueryWordInfo): string | undefined {
+export function getYoudaoWebDictionaryLanguageId(queryTextInfo: QueryInput): string | undefined {
   if (getYoudaoWebDictionaryURL(queryTextInfo) === undefined) {
     return;
   }

@@ -18,7 +18,7 @@ import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
 import { checkIsTranslationType, type TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryInput, QueryResult, QueryTypeResult } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
@@ -55,7 +55,7 @@ function createInitialState({
 
 function createStreamDebouncer(
   configType: TranslationType,
-  queryWordInfo: QueryWordInfo,
+  queryWordInfo: QueryInput,
   dispatch: React.Dispatch<QueryAction>,
   buildTranslationDisplay: (rawResult: QueryResult) => QueryResult | null,
   generation: number,
@@ -181,7 +181,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   }, []);
 
   const runTranslationQuery = useCallback(
-    async (config: TranslationServiceConfig, queryWordInfo: QueryWordInfo, session: QuerySession) => {
+    async (config: TranslationServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
       const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
       if (!enabled) return;
 
@@ -230,7 +230,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const runDictionaryQuery = useCallback(
-    async (config: DictionaryServiceConfig, queryWordInfo: QueryWordInfo, session: QuerySession) => {
+    async (config: DictionaryServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
       const enabled =
         config?.isEnabled?.(queryWordInfo) ??
         (config.preference ? (myPreferences[config.preference] as boolean) : true);
@@ -255,7 +255,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const runAllProviders = useCallback(
-    (queryWordInfo: QueryWordInfo, session: QuerySession) => {
+    (queryWordInfo: QueryInput, session: QuerySession) => {
       for (const config of dictionaryServices) {
         runDictionaryQuery(config, queryWordInfo, session);
       }
@@ -272,7 +272,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   );
 
   const queryTextWithTextInfo = useCallback(
-    (queryWordInfo: QueryWordInfo) => {
+    (queryWordInfo: QueryInput) => {
       const session = beginQuerySession();
 
       const { word, fromLanguage, toLanguage } = queryWordInfo;
@@ -310,7 +310,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
         generation: session.generation,
       });
 
-      const queryTextInfo: QueryWordInfo = {
+      const queryTextInfo: QueryInput = {
         word: text,
         fromLanguage: fromYoudaoLangCode,
         toLanguage: targetLangCode,

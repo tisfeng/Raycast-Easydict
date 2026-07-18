@@ -5,7 +5,7 @@ import { Cache } from "@raycast/api";
 
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
@@ -66,7 +66,7 @@ const cookieCache = new CookieCacheManager();
 export class DeepLXTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.DeepLX;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const sourceLang = getLangCode(fromLanguage, "deepLSourceId");
     const targetLang = getLangCode(toLanguage, "deepLTargetId") || getLangCode(toLanguage, "deepLSourceId");

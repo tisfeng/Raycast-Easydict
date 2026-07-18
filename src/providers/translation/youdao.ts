@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import { userAgent } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
@@ -50,7 +50,7 @@ interface YoudaoKey {
  *
  * See: https://fanyi.youdao.com/
  */
-function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryWordInfo): boolean {
+function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryInput): boolean {
   const { fromLanguage, toLanguage } = queryTextInfo;
   const targetLanguage = getLanguageOfTwoExceptChinese([fromLanguage, toLanguage]);
   if (!targetLanguage) {
@@ -65,7 +65,7 @@ function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryWordInfo): boolea
 export class YoudaoTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Youdao;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
 
     const isValidLanguage = isValidYoudaoWebTranslateLanguage(queryWordInfo);

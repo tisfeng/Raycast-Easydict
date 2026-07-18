@@ -7,7 +7,7 @@ import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/co
 import { checkIsWord } from "@/providers/shared/utils";
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryInput, QueryTypeResult, QueryWordInfo } from "@/types/query";
 import { logWarn } from "@/utils/logger";
 
 import { getValidLingueeLanguagePair } from "./languages";
@@ -362,7 +362,7 @@ export function formatLingueeDisplaySections(
   ].filter((section): section is DisplaySection => section !== undefined);
 }
 
-export function getLingueeWebDictionaryURL(queryWordInfo: QueryWordInfo): string | undefined {
+export function getLingueeWebDictionaryURL(queryWordInfo: QueryInput): string | undefined {
   const { fromLanguage, toLanguage } = queryWordInfo;
   const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
   const isWord = checkIsWord(queryWordInfo);

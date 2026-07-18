@@ -3,7 +3,7 @@
 import { getLangCode } from "@/core/language/utils";
 import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
@@ -45,7 +45,7 @@ export interface TencentTranslateResult extends TextTranslateResponse {
 export class TencentTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Tencent;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const from = getLangCode(fromLanguage, "tencentLangCode");
     const to = getLangCode(toLanguage, "tencentLangCode");

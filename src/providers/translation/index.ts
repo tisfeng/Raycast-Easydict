@@ -5,7 +5,7 @@ import { getLangCode } from "@/core/language/utils";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo } from "@/types/query";
+import type { QueryInput } from "@/types/query";
 
 import { AppleTranslateProvider } from "./apple";
 import { BaiduTranslateProvider } from "./baidu";
@@ -24,8 +24,8 @@ export interface TranslationServiceConfig {
   type: TranslationType;
   preference: keyof Preferences;
   provider: new () => BaseTranslateProvider;
-  getWebUrl?: (queryWordInfo: QueryWordInfo) => string | undefined;
-  isEnabled?: (queryWordInfo: QueryWordInfo) => boolean;
+  getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
+  isEnabled?: (queryWordInfo: QueryInput) => boolean;
 }
 
 /** Static registry — provider classes, instantiated by the engine. */

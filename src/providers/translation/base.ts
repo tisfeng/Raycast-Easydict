@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { RequestType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
+import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
 import { handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
@@ -23,7 +23,7 @@ export abstract class BaseTranslateProvider<T = unknown> {
   abstract type: RequestType;
 
   public async *request(
-    queryWordInfo: QueryWordInfo,
+    queryWordInfo: QueryInput,
     options?: RequestOptions,
   ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
     const timer = createTimer(this.type);
@@ -45,5 +45,5 @@ export abstract class BaseTranslateProvider<T = unknown> {
     }
   }
 
-  protected abstract doTranslate(queryWordInfo: QueryWordInfo, options?: RequestOptions): ProviderResult<T>;
+  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): ProviderResult<T>;
 }

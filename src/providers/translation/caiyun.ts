@@ -3,7 +3,7 @@
 import { getLangCode } from "@/core/language/utils";
 import { ProviderConfig } from "@/providers/shared/config";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -23,7 +23,7 @@ export interface CaiyunTranslateResult {
 export class CaiyunTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Caiyun;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
 
     const url = "https://api.interpreter.caiyunai.com/v1/translator";

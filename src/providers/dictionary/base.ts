@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { DictionaryType } from "@/types/api";
-import type { QueryResult, QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
 import { handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
@@ -19,7 +19,7 @@ import { createTimer } from "@/utils/logger";
 export abstract class BaseDictionaryProvider<T = unknown> {
   abstract type: DictionaryType;
 
-  public request = async (queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>> => {
+  public request = async (queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult<T>> => {
     const timer = createTimer(this.type);
     try {
       const result = await this.doQuery(queryWordInfo, options);
@@ -32,5 +32,5 @@ export abstract class BaseDictionaryProvider<T = unknown> {
     }
   };
 
-  protected abstract doQuery(queryWordInfo: QueryWordInfo, options?: RequestOptions): Promise<QueryResult<T>>;
+  protected abstract doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult<T>>;
 }

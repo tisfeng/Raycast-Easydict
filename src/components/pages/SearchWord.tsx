@@ -10,7 +10,7 @@ import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { useDebouncedQuery, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
-import type { QueryWordInfo } from "@/types/query";
+import type { QueryInput } from "@/types/query";
 import { md5 } from "@/utils/crypto";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -106,7 +106,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
-    const queryWordInfo: QueryWordInfo = {
+    const queryWordInfo: QueryInput = {
       word: searchText,
       fromLanguage: currentFromLanguageItem.youdaoLangCode,
       toLanguage: selectedLanguageItem.youdaoLangCode,

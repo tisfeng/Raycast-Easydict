@@ -6,7 +6,7 @@ import { runAppleScript } from "@raycast/utils";
 
 import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/types/api";
-import type { QueryWordInfo, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions } from "@/types/query";
 import { logTrace, logWarn } from "@/utils/logger";
 
 import { BaseTranslateProvider } from "./base";
@@ -29,7 +29,7 @@ function getShortcutsScript(shortcutName: string, input: string): string {
 export class AppleTranslateProvider extends BaseTranslateProvider {
   type = TranslationType.Apple;
 
-  protected async doTranslate(queryWordInfo: QueryWordInfo, { signal }: RequestOptions = {}) {
+  protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
     const { word, fromLanguage, toLanguage } = queryWordInfo;
     const type = TranslationType.Apple;
 

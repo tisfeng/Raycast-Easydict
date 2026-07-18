@@ -6,7 +6,7 @@ import { streamText } from "@xsai/stream-text";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { BaseTranslateProvider } from "@/providers/translation/base";
 import type { TranslationType } from "@/types/api";
-import type { QueryTypeResult, QueryWordInfo, RequestOptions, StreamChunk } from "@/types/query";
+import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -27,7 +27,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
     return { max_tokens: 2000 }; // Default base implementation
   }
 
-  protected buildMessages(queryWordInfo: QueryWordInfo, fromLanguage: string, toLanguage: string): Message[] {
+  protected buildMessages(queryWordInfo: QueryInput, fromLanguage: string, toLanguage: string): Message[] {
     return [
       {
         role: "system",
@@ -57,7 +57,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider<T = unknown> extends
   }
 
   protected async *doTranslate(
-    queryWordInfo: QueryWordInfo,
+    queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
   ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
     const url = this.getEndpoint();
