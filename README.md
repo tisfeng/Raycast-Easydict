@@ -228,65 +228,65 @@ Currently we support 49 languages: **Simplified Chinese, Traditional Chinese, En
 
 ### Language Detection
 
-Currently, we support 5 language detection APIs, including Baidu, Tencent, Volcano, Apple and Bing. Apple language detection is a macOS feature, but you need to install a shortcut to use it.
+Easydict uses four remote language detection services: Bing, Baidu, Tencent, and Volcano. Franc provides the local fallback.
 
-Considering user privacy, only Bing language detection is enabled by default (no App Key is required, and no user personal data is recorded!) Other language detection APIs are enabled only when the corresponding translation feature is enabled. Note, however, that in general, the more language detection APIs are enabled, the more accurate the text will be and the faster the response time will be.
+Bing and Baidu language detection are enabled by default. Tencent and Volcano can be enabled independently in preferences and require their corresponding credentials. In general, enabling more detection services can improve accuracy and response time.
 
 Details of the languages supported by each language detection service are as follows:
 
 <!-- automd:easydictDetectionTable locale="en" -->
 
-| Languages | Bing | 🍎 Apple | Baidu | Volcano | Tencent |
-| - | - | - | - | - | - |
-| Simplified Chinese | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Traditional Chinese | ✅ | ✅ | ✅ | ✅ | ❌ |
-| English | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Japanese | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Korean | ✅ | ✅ | ✅ | ✅ | ✅ |
-| French | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Spanish | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Portuguese | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Italian | ✅ | ✅ | ✅ | ✅ | ✅ |
-| German | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Russian | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Arabic | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Swedish | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Romanian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Thai | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Slovak | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Dutch | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Hungarian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Greek | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Danish | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Finnish | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Polish | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Czech | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Turkish | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Lithuanian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Latvian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Ukrainian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Bulgarian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Indonesian | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Malay | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Slovenian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Estonian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Vietnamese | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Persian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Hindi | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Telugu | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Tamil | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Urdu | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Filipino | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Khmer | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Lao | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Bangla | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Burmese | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Norwegian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Georgian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Serbian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Croatian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Mongolian | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Hebrew | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Languages | Bing | Baidu | Volcano | Tencent |
+| - | - | - | - | - |
+| Simplified Chinese | ✅ | ✅ | ✅ | ✅ |
+| Traditional Chinese | ✅ | ✅ | ✅ | ❌ |
+| English | ✅ | ✅ | ✅ | ✅ |
+| Japanese | ✅ | ✅ | ✅ | ✅ |
+| Korean | ✅ | ✅ | ✅ | ✅ |
+| French | ✅ | ✅ | ✅ | ✅ |
+| Spanish | ✅ | ✅ | ✅ | ✅ |
+| Portuguese | ✅ | ✅ | ✅ | ✅ |
+| Italian | ✅ | ✅ | ✅ | ✅ |
+| German | ✅ | ✅ | ✅ | ✅ |
+| Russian | ✅ | ✅ | ✅ | ✅ |
+| Arabic | ✅ | ✅ | ✅ | ❌ |
+| Swedish | ✅ | ✅ | ✅ | ❌ |
+| Romanian | ✅ | ✅ | ✅ | ❌ |
+| Thai | ✅ | ✅ | ✅ | ✅ |
+| Slovak | ✅ | ✅ | ✅ | ❌ |
+| Dutch | ✅ | ✅ | ✅ | ❌ |
+| Hungarian | ✅ | ✅ | ✅ | ❌ |
+| Greek | ✅ | ✅ | ✅ | ❌ |
+| Danish | ✅ | ✅ | ✅ | ❌ |
+| Finnish | ✅ | ✅ | ✅ | ❌ |
+| Polish | ✅ | ✅ | ✅ | ❌ |
+| Czech | ✅ | ✅ | ✅ | ❌ |
+| Turkish | ✅ | ✅ | ✅ | ✅ |
+| Lithuanian | ✅ | ✅ | ✅ | ❌ |
+| Latvian | ✅ | ✅ | ✅ | ❌ |
+| Ukrainian | ✅ | ✅ | ✅ | ❌ |
+| Bulgarian | ✅ | ✅ | ✅ | ❌ |
+| Indonesian | ✅ | ✅ | ✅ | ✅ |
+| Malay | ✅ | ✅ | ✅ | ✅ |
+| Slovenian | ✅ | ✅ | ✅ | ❌ |
+| Estonian | ✅ | ✅ | ✅ | ❌ |
+| Vietnamese | ✅ | ✅ | ✅ | ✅ |
+| Persian | ✅ | ✅ | ✅ | ❌ |
+| Hindi | ✅ | ✅ | ✅ | ❌ |
+| Telugu | ✅ | ✅ | ✅ | ❌ |
+| Tamil | ✅ | ✅ | ✅ | ❌ |
+| Urdu | ✅ | ✅ | ✅ | ❌ |
+| Filipino | ✅ | ✅ | ✅ | ❌ |
+| Khmer | ✅ | ✅ | ✅ | ❌ |
+| Lao | ✅ | ✅ | ✅ | ❌ |
+| Bangla | ✅ | ✅ | ✅ | ❌ |
+| Burmese | ✅ | ✅ | ✅ | ❌ |
+| Norwegian | ✅ | ✅ | ✅ | ❌ |
+| Georgian | ✅ | ✅ | ✅ | ❌ |
+| Serbian | ✅ | ✅ | ✅ | ❌ |
+| Croatian | ✅ | ✅ | ✅ | ❌ |
+| Mongolian | ✅ | ✅ | ✅ | ❌ |
+| Hebrew | ✅ | ✅ | ✅ | ❌ |
 
 <!-- /automd -->
 

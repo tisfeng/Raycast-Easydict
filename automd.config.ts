@@ -87,8 +87,8 @@ const generateEasydictDetectionTable = ({ args }: GenerateContext) => {
   const isZh = locale === "zh";
 
   const headers = isZh
-    ? ["语言", "Bing", "🍎 苹果", "百度", "火山", "腾讯"]
-    : ["Languages", "Bing", "🍎 Apple", "Baidu", "Volcano", "Tencent"];
+    ? ["语言", "Bing", "百度", "火山", "腾讯"]
+    : ["Languages", "Bing", "Baidu", "Volcano", "Tencent"];
 
   const rows: string[][] = [];
 
@@ -97,7 +97,6 @@ const generateEasydictDetectionTable = ({ args }: GenerateContext) => {
     rows.push([
       name,
       getYesNo(lang.bingLangCode),
-      getYesNo(lang.appleDetectLangChineseName),
       getYesNo(lang.baiduLangCode),
       getYesNo(lang.volcanoLangCode),
       getYesNo(lang.tencentDetectCode),

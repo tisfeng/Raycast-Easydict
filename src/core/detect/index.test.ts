@@ -62,8 +62,25 @@ class CancelledLocalDetectProvider extends BaseDetectProvider {
   }
 }
 
-class WinningDetectProvider extends BaseDetectProvider {
-  type = LanguageDetectType.Google;
+class FirstConsensusDetectProvider extends BaseDetectProvider {
+  type = LanguageDetectType.Baidu;
+
+  isEnabled() {
+    return true;
+  }
+
+  protected async doDetect(): Promise<DetectedLangModel> {
+    return {
+      type: this.type,
+      sourceLangCode: "en",
+      youdaoLangCode: "en",
+      confirmed: false,
+    };
+  }
+}
+
+class WinningConsensusDetectProvider extends BaseDetectProvider {
+  type = LanguageDetectType.Tencent;
 
   isEnabled() {
     return true;
@@ -119,13 +136,14 @@ describe("detectLanguage cancellation", () => {
     testDoubles.detectServices.splice(
       0,
       testDoubles.detectServices.length,
-      { type: LanguageDetectType.Google, provider: WinningDetectProvider },
+      { type: LanguageDetectType.Baidu, provider: FirstConsensusDetectProvider },
+      { type: LanguageDetectType.Tencent, provider: WinningConsensusDetectProvider },
       { type: LanguageDetectType.Bing, provider: LosingDetectProvider },
     );
 
     const result = await detectLanguage("testimony");
 
-    expect(result.type).toBe(LanguageDetectType.Google);
+    expect(result.type).toBe(LanguageDetectType.Tencent);
     expect(testDoubles.loserAborted).toHaveBeenCalledOnce();
     expect(testDoubles.logError).not.toHaveBeenCalled();
     expect(testDoubles.timerFail).not.toHaveBeenCalled();

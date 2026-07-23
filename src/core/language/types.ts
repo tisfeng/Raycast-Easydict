@@ -14,9 +14,8 @@ export interface LanguageItem {
   tencentLangCode?: string; // tencent translate language code, https://cloud.tencent.com/document/product/551/15619
   baiduLangCode?: string; // baidu language code, https://fanyi-api.baidu.com/doc/21
   caiyunLangCode?: string;
-  langEnglishName: string; // eg "English". When system language is English, Apple detect language is equal to langEnglishName.
-  langChineseName: string; // eg "英语". When system language is Chinese, Apple detect language is equal to langChineseName.
-  appleDetectLangChineseName?: string; // such as 中文，英语. ⚠️ Apple detect more languages than apple translate.
+  langEnglishName: string; // eg "English"
+  langChineseName: string; // eg "英语"
   voiceList?: { macOS?: string[]; Windows?: string[] }; // eg. { macOS: ["TingTing"] } for Chinese-Simplified.
   emoji: string; // eg. 🇨🇳
 }

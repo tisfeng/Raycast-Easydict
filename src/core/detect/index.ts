@@ -173,22 +173,12 @@ function handleDetectedLanguage(
     ctx.apiDetectedLanguageList.push(detectedLangModel);
     const detectedLangCode = detectedLangModel.youdaoLangCode;
 
-    /**
-     * 1. Preferred to use Google language detect, mark it as confirmed.
-     *
-     * Generally speaking, Google language detect is the most accurate, but it is too slow, it takes more than 1s.
-     * So we have to try to use other types of language detection first.
-     */
-    if (detectedLangModel.type === LanguageDetectType.Google && detectedLangModel.sourceLangCode.length > 0) {
-      detectedLangModel.confirmed = true;
-      return resolve(detectedLangModel);
-    }
-
     // Detected language must be valid language.
     if (!isValidLangCode(detectedLangCode)) {
       return resolve(undefined);
     }
-    // 2. Iterate API detected language List, check if has detected >= `two` identical valid language.
+
+    // Iterate API detected language list, checking for at least two identical valid results.
     const detectedIdenticalLanguages: DetectedLangModel[] = [];
     const detectedTypes: string[] = [];
 

@@ -24,10 +24,8 @@ export enum DictionaryType {
 export enum LanguageDetectType {
   Simple = "Simple Detect",
   Franc = "Franc Detect",
-  Apple = "Apple Detect",
   Tencent = "Tencent Detect",
   Baidu = "Baidu Detect",
-  Google = "Google Detect",
   Bing = "Bing Detect",
   Volcano = "Volcano Detect",
 }
