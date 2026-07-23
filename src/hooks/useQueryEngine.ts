@@ -18,9 +18,9 @@ import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { dictionaryProviderServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
-import { checkIsTranslationType, TranslationType } from "@/types/api";
+import { TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryInput, QueryResult, QueryTypeResult } from "@/types/query";
+import type { DictionaryQueryResult, QueryInput, TranslationQueryResult, TranslationResult } from "@/types/query";
 import { showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
@@ -57,7 +57,7 @@ function createStreamDebouncer(
   configType: TranslationType,
   queryWordInfo: QueryInput,
   dispatch: React.Dispatch<QueryAction>,
-  buildTranslationDisplay: (rawResult: QueryResult) => QueryResult | null,
+  buildTranslationDisplay: (rawResult: TranslationResult) => TranslationQueryResult | null,
   generation: number,
   delay = 80,
 ) {
@@ -66,7 +66,7 @@ function createStreamDebouncer(
 
   const flushUpdate = () => {
     if (accumulatedText) {
-      const result: QueryTypeResult = {
+      const result: TranslationResult = {
         type: configType,
         queryWordInfo,
         translations: [accumulatedText],
@@ -142,12 +142,8 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     };
   }, []);
 
-  const buildTranslationDisplay = useCallback((queryResult: QueryResult): QueryResult | null => {
+  const buildTranslationDisplay = useCallback((queryResult: TranslationResult): TranslationQueryResult | null => {
     const { type, translations, queryWordInfo } = queryResult;
-
-    if (!checkIsTranslationType(type)) {
-      return null;
-    }
 
     if (translations.length === 0) {
       logWarn("UseQueryEngine", `${type} result is empty.`);
@@ -193,7 +189,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
           buildTranslationDisplay,
           session.generation,
         );
-        let finalResult: QueryTypeResult | undefined;
+        let finalResult: TranslationResult | undefined;
 
         while (true) {
           const { done, value } = await iterator.next();
@@ -232,10 +228,12 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
       try {
         const result = await instance.request(queryWordInfo, { signal: session.signal });
-        if (result.displaySections && result.displaySections.length > 0) {
-          dispatch({ type: "SET_RESULT", queryResult: result, generation: session.generation });
+        const displaySections = result.displaySections;
+        if (displaySections?.length) {
+          const queryResult: DictionaryQueryResult = { ...result, displaySections };
+          dispatch({ type: "SET_RESULT", queryResult, generation: session.generation });
 
-          const wordInfo = result.queryWordInfo;
+          const wordInfo = queryResult.queryWordInfo;
           const shouldAutoPlay =
             myPreferences.enableAutomaticPlayWordAudio &&
             wordInfo.isWord &&

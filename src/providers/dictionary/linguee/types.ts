@@ -2,8 +2,12 @@
 
 import type { QueryWordInfo } from "@/types/query";
 
-export interface LingueeDictionaryResult {
+export interface LingueeParseResult {
   queryWordInfo: QueryWordInfo;
+  result?: LingueeDictionaryResult;
+}
+
+export interface LingueeDictionaryResult {
   wordItems: LingueeWordItem[];
   examples: LingueeExample[];
   relatedWords: LingueeWordItem[];

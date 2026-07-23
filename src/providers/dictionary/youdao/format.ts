@@ -5,7 +5,7 @@ import type { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types
 import type { QueryWordInfo } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
-import type { BaikeSummary, Sense, YoudaoDictionaryFormatResult } from "./types";
+import type { BaikeSummary, Sense, YoudaoDictionaryData } from "./types";
 import { YoudaoDictionaryListItemType } from "./types";
 
 function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string {
@@ -28,7 +28,7 @@ interface DictionaryItemOptions {
   accessoryItem?: ListAccessoryItem;
 }
 
-export function hasYoudaoDictionaryDetails(result: YoudaoDictionaryFormatResult): boolean {
+export function hasYoudaoDictionaryDetails(result: YoudaoDictionaryData): boolean {
   return Boolean(
     result.modernChineseDict?.some((dictionary) => dictionary.sense?.length) ||
     result.explanations?.length ||
@@ -74,12 +74,14 @@ function buildSummarySection(
   };
 }
 
-export function formatYoudaoDisplaySections(youdaoResult: YoudaoDictionaryFormatResult): DisplaySection[] | undefined {
+export function formatYoudaoDisplaySections(
+  queryWordInfo: QueryWordInfo,
+  youdaoResult: YoudaoDictionaryData,
+): DisplaySection[] | undefined {
   if (!hasYoudaoDictionaryDetails(youdaoResult)) return;
 
   const displaySections: Array<DisplaySection> = [];
 
-  const queryWordInfo = youdaoResult.queryWordInfo;
   const oneLineTranslation = youdaoResult.translation.split("\n").join(", ");
   const subtitle = queryWordInfo.word.split("\n").join(" ");
 

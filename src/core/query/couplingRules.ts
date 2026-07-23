@@ -11,7 +11,7 @@
  */
 
 import { DictionaryType, TranslationType } from "@/types/api";
-import type { QueryResult, QueryType } from "@/types/query";
+import type { DictionaryQueryResult, QueryResult, QueryType, TranslationQueryResult } from "@/types/query";
 
 /** A rule that fires when any of its trigger types arrives. */
 export interface ServiceCouplingRule {
@@ -29,22 +29,25 @@ export interface ServiceCouplingRule {
  */
 export function applyTranslationToDisplay(
   results: QueryResult[],
-  sourceType: QueryType,
-  targetType: QueryType,
-  getText: (source: QueryResult) => string | undefined,
+  sourceType: TranslationType,
+  targetType: DictionaryType,
   options?: { minSections?: number },
 ): QueryResult[] {
-  const source = results.find((r) => r.type === sourceType);
-  const target = results.find((r) => r.type === targetType);
+  const source = results.find(
+    (result): result is TranslationQueryResult => "translations" in result && result.type === sourceType,
+  );
+  const target = results.find(
+    (result): result is DictionaryQueryResult => !("translations" in result) && result.type === targetType,
+  );
 
   if (!source || !target) return results;
 
-  const text = getText(source);
+  const text = source.translations.join(", ");
   if (!text) return results;
 
   // Immutable update: drill down results → first section → first item, copy each layer
   return results.map((r) => {
-    if (r.type !== targetType || !r.displaySections?.length) return r;
+    if ("translations" in r || r.type !== targetType) return r;
     if (options?.minSections && r.displaySections.length < options.minSections) return r;
 
     const updatedSections = r.displaySections.map((section, idx) => {
@@ -72,17 +75,19 @@ export function applyTranslationToDisplay(
  * When Youdao dictionary returns phonetic/examTypes, those should also appear
  * on Linguee's display so users see consistent word info across both dictionaries.
  */
-export function applyMetadataToLinguee(results: QueryResult[], youdaoResult: QueryResult): QueryResult[] {
+export function applyMetadataToLinguee(results: QueryResult[], youdaoResult: DictionaryQueryResult): QueryResult[] {
   const { phonetic, examTypes } = youdaoResult.queryWordInfo;
   // Only apply when there's actual metadata to sync
   if (!phonetic && !examTypes?.length) return results;
 
-  const linguee = results.find((r) => r.type === DictionaryType.Linguee);
-  if (!linguee?.displaySections?.length) return results;
+  const linguee = results.find(
+    (result): result is DictionaryQueryResult => !("translations" in result) && result.type === DictionaryType.Linguee,
+  );
+  if (!linguee) return results;
 
   // Immutable update: drill down results → first section → first item → accessoryItem
   return results.map((r) => {
-    if (r.type !== DictionaryType.Linguee || !r.displaySections?.length) return r;
+    if ("translations" in r || r.type !== DictionaryType.Linguee) return r;
 
     const updatedSections = r.displaySections.map((section, idx) => {
       if (idx !== 0 || !section.items?.length) return section; // only update the first section
@@ -105,28 +110,22 @@ export const COUPLING_RULES: ServiceCouplingRule[] = [
   /** DeepL translation → update Linguee dictionary's first item title. */
   {
     triggers: [TranslationType.DeepL, DictionaryType.Linguee],
-    apply: (results) =>
-      applyTranslationToDisplay(results, TranslationType.DeepL, DictionaryType.Linguee, (r) =>
-        r.translations.join(", "),
-      ),
+    apply: (results) => applyTranslationToDisplay(results, TranslationType.DeepL, DictionaryType.Linguee),
   },
   /** Youdao translation → update Youdao dictionary's first item title (requires ≥2 sections). */
   {
     triggers: [TranslationType.Youdao, DictionaryType.Youdao],
     apply: (results) =>
-      applyTranslationToDisplay(
-        results,
-        TranslationType.Youdao,
-        DictionaryType.Youdao,
-        (r) => r.translations.join(", "),
-        { minSections: 2 },
-      ),
+      applyTranslationToDisplay(results, TranslationType.Youdao, DictionaryType.Youdao, { minSections: 2 }),
   },
   /** Youdao dictionary metadata (phonetic, examTypes) → sync to Linguee's accessoryItem. */
   {
     triggers: [DictionaryType.Youdao, DictionaryType.Linguee],
     apply: (results) => {
-      const youdaoResult = results.find((r) => r.type === DictionaryType.Youdao);
+      const youdaoResult = results.find(
+        (result): result is DictionaryQueryResult =>
+          !("translations" in result) && result.type === DictionaryType.Youdao,
+      );
       return youdaoResult ? applyMetadataToLinguee(results, youdaoResult) : results;
     },
   },

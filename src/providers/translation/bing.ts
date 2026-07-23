@@ -9,7 +9,7 @@ import {
   requestBingConfig,
 } from "@/providers/shared/bing-config";
 import { TranslationType } from "@/types/api";
-import type { QueryInput, QueryTypeResult, RequestOptions } from "@/types/query";
+import type { QueryInput, RequestOptions, TranslationResult } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logWarn } from "@/utils/logger";
@@ -49,7 +49,7 @@ interface BingTransliteration {
 export class BingTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Bing;
 
-  protected async doTranslate(queryWordInfo: QueryInput, options: RequestOptions = {}): Promise<QueryTypeResult> {
+  protected async doTranslate(queryWordInfo: QueryInput, options: RequestOptions = {}): Promise<TranslationResult> {
     return this.doTranslateInternal(queryWordInfo, options, 0);
   }
 
@@ -57,7 +57,7 @@ export class BingTranslateProvider extends BaseNonStreamingTranslateProvider {
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
     retryCount: number,
-  ): Promise<QueryTypeResult> {
+  ): Promise<TranslationResult> {
     const { fromLanguage, toLanguage, word } = queryWordInfo;
     const fromLang = getLangCode(fromLanguage, "bingLangCode") ?? "";
     const toLang = getLangCode(toLanguage, "bingLangCode") ?? "";

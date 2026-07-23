@@ -11,16 +11,17 @@ import type {
   ModernChineseDataList,
   WordExplanation,
   WordForms,
-  YoudaoDictionaryFormatResult,
+  YoudaoDictionaryData,
+  YoudaoParseResult,
   YoudaoWebDictionaryModel,
 } from "./types";
 
 /**
- * Format YoudaoWebDictionaryModel to YoudaoDictionaryFormatResult.
+ * Format YoudaoWebDictionaryModel into word metadata and provider-specific dictionary data.
  *
  * Todo: support more dictionary, currently only support English <--> Chinese.
  */
-export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel): YoudaoDictionaryFormatResult {
+export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel): YoudaoParseResult {
   const [from, to] = getFromToLanguage(model);
   const input = model.input;
   let isWord = false;
@@ -134,8 +135,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     isWord: isWord,
   };
 
-  const formatResult: YoudaoDictionaryFormatResult = {
-    queryWordInfo,
+  const result: YoudaoDictionaryData = {
     translation: translation,
     explanations: explanations,
     forms: forms,
@@ -146,7 +146,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     modernChineseDict: newChineseDataList,
   };
 
-  return formatResult;
+  return { queryWordInfo, result };
 }
 
 /**

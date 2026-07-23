@@ -2,8 +2,12 @@
 
 import type { QueryWordInfo } from "@/types/query";
 
-export interface YoudaoDictionaryFormatResult {
+export interface YoudaoParseResult {
   queryWordInfo: QueryWordInfo;
+  result: YoudaoDictionaryData;
+}
+
+export interface YoudaoDictionaryData {
   translation: string;
   explanations?: ExplanationItem[];
   forms?: WordForms[];
@@ -25,27 +29,6 @@ export enum YoudaoDictionaryListItemType {
   Wikipedia = "Wikipedia",
 }
 
-export interface YoudaoDictionaryResult {
-  l: string;
-  query: string;
-  returnPhrase: [];
-  errorCode: string;
-  translation: string[]; // ! do not change property name! current only has one translation.
-  web?: KeyValueItem[];
-  basic?: YoudaoTranslateResultBasicItem;
-  isWord: boolean;
-  speakUrl: string;
-}
-
-export interface YoudaoTranslateResultBasicItem {
-  explains: string[];
-  "us-phonetic"?: string; // American phonetic
-  "us-speech"?: string;
-  phonetic?: string; // Chinese word phonetic
-  exam_type?: string[];
-  wfs?: WordForms[]; // word forms
-}
-
 export interface WordForms {
   wf?: WordForm;
 }
@@ -63,32 +46,6 @@ export interface KeyValueItem {
 export interface ExplanationItem {
   title: string;
   subtitle: string;
-}
-
-/**
-Youdao Web Translation.
-
-eg:
-{
-  "errorCode": 0,
-  "translateResult": [[{ "tgt": "壁虎", "src": "Gecko" }]],
-  "type": "en2zh-CHS",
-  "smartResult": { "entries": ["", "n. [脊椎] 壁虎\r\n"], "type": 1 }
-}
-*/
-export interface YoudaoWebTranslateResult {
-  errorCode?: number;
-  translateResult: [[YoudaoWebTranslateResultItem]];
-  type: string;
-  smartResult?: {
-    entries: [string];
-    type: number;
-  };
-}
-
-export interface YoudaoWebTranslateResultItem {
-  tgt: string;
-  src: string;
 }
 
 //-----------------------Youdao web dictionary------------------------------

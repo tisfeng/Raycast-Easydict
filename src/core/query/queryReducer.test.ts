@@ -4,7 +4,7 @@ import { languageItemList } from "@/core/language/consts";
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import type { QueryResult } from "@/types/query";
+import type { DictionaryQueryResult, TranslationQueryResult } from "@/types/query";
 
 import type { QueryState } from "./queryReducer";
 import { queryReducer } from "./queryReducer";
@@ -37,7 +37,7 @@ const initialState: QueryState = {
   autoSelectedTargetLanguageItem: languageItemList[1], // Chinese
 };
 
-function createTranslationResult(type: TranslationType): QueryResult {
+function createTranslationResult(type: TranslationType): TranslationQueryResult {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
   const displayItem: ListDisplayItem = {
     queryType: type,
@@ -53,10 +53,11 @@ function createTranslationResult(type: TranslationType): QueryResult {
     result: {},
     translations: ["test"],
     displaySections: [{ type, items: [displayItem] }],
+    hideDisplay: false,
   };
 }
 
-function createLingueeResult(): QueryResult {
+function createLingueeResult(): DictionaryQueryResult {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
   const displayItem: ListDisplayItem = {
     displayType: LingueeListItemType.Translation,
@@ -71,7 +72,6 @@ function createLingueeResult(): QueryResult {
     type: DictionaryType.Linguee,
     queryWordInfo,
     result: {},
-    translations: ["test"],
     displaySections: [{ type: LingueeListItemType.Translation, items: [displayItem] }],
   };
 }
@@ -99,11 +99,11 @@ describe("queryReducer", () => {
 
     let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: result1, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
-    expect(state.queryResults[0].translations).toEqual(["test"]);
+    expect(state.queryResults[0]).toHaveProperty("translations", ["test"]);
 
     state = queryReducer(state, { type: "SET_RESULT", queryResult: result2, generation: 0 });
     expect(state.queryResults).toHaveLength(1);
-    expect(state.queryResults[0].translations).toEqual(["updated"]);
+    expect(state.queryResults[0]).toHaveProperty("translations", ["updated"]);
   });
 
   it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {

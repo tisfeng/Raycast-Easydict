@@ -5,7 +5,7 @@ import { streamText } from "@xsai/stream-text";
 
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
-import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
+import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -58,7 +58,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider extends BaseStreamin
   protected async *doTranslate(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): AsyncGenerator<StreamChunk, QueryTypeResult<OpenAICompatibleTranslateResult>, unknown> {
+  ): AsyncGenerator<StreamChunk, TranslationResult<OpenAICompatibleTranslateResult>, unknown> {
     const url = this.getEndpoint();
     const apiKey = this.getAPIKey();
     const modelName = this.getModel();

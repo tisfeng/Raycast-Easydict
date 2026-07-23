@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryWordInfo } from "@/types/query";
+import type { DictionaryQueryResult, QueryWordInfo, TranslationQueryResult } from "@/types/query";
 
 import { applyMetadataToLinguee, applyTranslationToDisplay } from "./couplingRules";
 
-function createTranslationResult(text = "translated"): QueryResult {
+function createTranslationResult(text = "translated"): TranslationQueryResult {
   const queryWordInfo = createQueryWordInfo();
   const item: ListDisplayItem = {
     queryType: TranslationType.DeepL,
@@ -23,10 +23,11 @@ function createTranslationResult(text = "translated"): QueryResult {
     result: {},
     translations: [text],
     displaySections: [{ type: TranslationType.DeepL, items: [item] }],
+    hideDisplay: false,
   };
 }
 
-function createLingueeResult(sectionCount = 1): QueryResult {
+function createLingueeResult(sectionCount = 1): DictionaryQueryResult {
   const queryWordInfo = createQueryWordInfo();
   const sections = Array.from({ length: sectionCount }, (_, index) => {
     const item: ListDisplayItem = {
@@ -46,7 +47,6 @@ function createLingueeResult(sectionCount = 1): QueryResult {
     type: DictionaryType.Linguee,
     queryWordInfo,
     result: {},
-    translations: [],
     displaySections: sections,
   };
 }
@@ -61,12 +61,7 @@ describe("applyTranslationToDisplay", () => {
     const target = createLingueeResult(2);
     const originalSections = target.displaySections;
 
-    const updated = applyTranslationToDisplay(
-      [source, target],
-      TranslationType.DeepL,
-      DictionaryType.Linguee,
-      (result) => result.translations.join(", "),
-    );
+    const updated = applyTranslationToDisplay([source, target], TranslationType.DeepL, DictionaryType.Linguee);
 
     const updatedTarget = updated.find((result) => result.type === DictionaryType.Linguee);
     expect(updatedTarget?.displaySections?.[0].items[0]).toMatchObject({
@@ -82,13 +77,9 @@ describe("applyTranslationToDisplay", () => {
   it("returns the original array when minSections is not met", () => {
     const results = [createTranslationResult(), createLingueeResult()];
     const target = results[1];
-    const updated = applyTranslationToDisplay(
-      results,
-      TranslationType.DeepL,
-      DictionaryType.Linguee,
-      (result) => result.translations.join(", "),
-      { minSections: 2 },
-    );
+    const updated = applyTranslationToDisplay(results, TranslationType.DeepL, DictionaryType.Linguee, {
+      minSections: 2,
+    });
 
     expect(updated).toEqual(results);
     expect(updated[1]).toBe(target);

@@ -9,9 +9,9 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
-import { checkIsDictionaryType, checkIsTranslationType, DictionaryType, TranslationType } from "@/types/api";
+import { checkIsTranslationType, DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import type { QueryResult, QueryTypeResult } from "@/types/query";
+import type { QueryResult, TranslationResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
 /**
@@ -20,7 +20,7 @@ import { logTrace } from "@/utils/logger";
  * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
  */
 export function sortedQueryResults(queryResults: QueryResult[]) {
-  const sortedQueryResults: QueryResult[] = [];
+  const sortedQueryResults: Array<QueryResult | undefined> = [];
   const unclassifiedResults: QueryResult[] = [];
 
   for (const queryResult of queryResults) {
@@ -34,12 +34,7 @@ export function sortedQueryResults(queryResults: QueryResult[]) {
   }
 
   const combinedResults = [...sortedQueryResults, ...unclassifiedResults];
-  // filter undefined, or result is undefined.
-  return combinedResults.filter((queryResult) => {
-    if (queryResult?.result) {
-      return true;
-    }
-  });
+  return combinedResults.filter((queryResult): queryResult is QueryResult => queryResult !== undefined);
 }
 
 /**
@@ -127,13 +122,11 @@ function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
  * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
  */
 export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boolean {
-  const hasDictionaryResult = queryResults.some(
-    (queryResult) => checkIsDictionaryType(queryResult.type) && Boolean(queryResult.displaySections?.length),
-  );
+  const hasDictionaryResult = queryResults.some((queryResult) => !("translations" in queryResult));
   if (hasDictionaryResult) return false;
 
   for (const queryResult of queryResults) {
-    if (checkIsTranslationType(queryResult.type)) {
+    if ("translations" in queryResult) {
       const oneLineTranslation = queryResult.translations.join(", ");
       if (isTextOneLineTooLong(oneLineTranslation, queryResult.queryWordInfo.toLanguage)) {
         return true;
@@ -209,7 +202,7 @@ ${explanation}
 /**
  * Get translation markdown.
  */
-export function getTranslationMarkdown(queryResult: QueryTypeResult) {
+export function getTranslationMarkdown(queryResult: TranslationResult) {
   const { type, translations, queryWordInfo: wordInfo } = queryResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {

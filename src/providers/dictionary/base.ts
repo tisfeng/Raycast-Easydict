@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { DictionaryType } from "@/types/api";
-import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
@@ -12,14 +12,14 @@ import { createTimer } from "@/utils/logger";
  * - `request()` is the public entry point — handles cancellation and error normalization
  * - `doQuery()` is implemented by each subclass with the actual API call
  *
- * Returns `QueryResult` (with `displaySections` pre-computed) because dictionary
+ * Returns `DictionaryResult` (with `displaySections` pre-computed) because dictionary
  * display logic is provider-specific (Linguee: formatLingueeDisplaySections,
  * Youdao: formatYoudaoDisplaySections).
  */
 export abstract class BaseDictionaryProvider<T = unknown> {
   abstract type: DictionaryType;
 
-  public request = async (queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult<T>> => {
+  public request = async (queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryResult<T>> => {
     const timer = createTimer(this.type);
     try {
       const result = await this.doQuery(queryWordInfo, options);
@@ -35,5 +35,5 @@ export abstract class BaseDictionaryProvider<T = unknown> {
     }
   };
 
-  protected abstract doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult<T>>;
+  protected abstract doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryResult<T>>;
 }

@@ -1,11 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { TranslationType } from "@/types/api";
-import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
+import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/types/query";
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
-type TranslationGenerator<T> = AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
+type TranslationGenerator<T> = AsyncGenerator<StreamChunk, TranslationResult<T>, unknown>;
 
 /**
  * Abstract base for translation providers.
@@ -43,7 +43,7 @@ export abstract class BaseNonStreamingTranslateProvider<T = unknown> extends Bas
     return await this.doTranslate(queryWordInfo, options);
   }
 
-  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryTypeResult<T>>;
+  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<TranslationResult<T>>;
 }
 
 export abstract class BaseStreamingTranslateProvider<T = unknown> extends BaseTranslateProvider<T> {

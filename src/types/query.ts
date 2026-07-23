@@ -31,14 +31,27 @@ export interface QueryWordInfo extends QueryInput {
 
 export type QueryType = TranslationType | DictionaryType;
 
-export interface QueryTypeResult<T = unknown> {
-  type: QueryType;
+interface ProviderResult<T, TType extends QueryType> {
+  type: TType;
   queryWordInfo: QueryWordInfo;
   result?: T;
+}
+
+export interface TranslationResult<T = unknown> extends ProviderResult<T, TranslationType> {
   translations: string[];
 }
 
-export interface QueryResult<T = unknown> extends QueryTypeResult<T> {
+export interface DictionaryResult<T = unknown> extends ProviderResult<T, DictionaryType> {
   displaySections?: DisplaySection[];
-  hideDisplay?: boolean;
 }
+
+export interface TranslationQueryResult<T = unknown> extends TranslationResult<T> {
+  displaySections: DisplaySection[];
+  hideDisplay: boolean;
+}
+
+export interface DictionaryQueryResult<T = unknown> extends DictionaryResult<T> {
+  displaySections: DisplaySection[];
+}
+
+export type QueryResult<T = unknown> = TranslationQueryResult<T> | DictionaryQueryResult<T>;

@@ -2,7 +2,7 @@
 
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryWordInfo } from "@/types/query";
 
 import type {
   LingueeDictionaryResult,
@@ -149,11 +149,12 @@ function buildWikipediaSection(
 }
 
 export function formatLingueeDisplaySections(
-  lingueeTypeResult: QueryTypeResult<LingueeDictionaryResult>,
+  queryWordInfo: QueryWordInfo,
+  result: LingueeDictionaryResult | undefined,
 ): DisplaySection[] {
-  if (!lingueeTypeResult.result) return [];
+  if (!result) return [];
 
-  const { queryWordInfo, wordItems, examples, relatedWords, wikipedias } = lingueeTypeResult.result;
+  const { wordItems, examples, relatedWords, wikipedias } = result;
 
   return [
     buildTitleSection(queryWordInfo, wordItems),

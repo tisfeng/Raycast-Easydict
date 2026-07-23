@@ -11,7 +11,7 @@ import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { DictionaryType, LanguageDetectType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
-import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 
 import { useQueryEngine } from "./useQueryEngine";
 
@@ -24,7 +24,7 @@ interface Deferred<T> {
 interface DictionaryRequest {
   queryWordInfo: QueryInput;
   signal?: AbortSignal;
-  deferred: Deferred<QueryResult>;
+  deferred: Deferred<DictionaryResult>;
 }
 
 const testDoubles = vi.hoisted(() => ({
@@ -90,8 +90,8 @@ const dictionaryRequests: DictionaryRequest[] = [];
 class DeferredDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.Linguee;
 
-  protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryResult> {
-    const deferred = createDeferred<QueryResult>();
+  protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryResult> {
+    const deferred = createDeferred<DictionaryResult>();
     dictionaryRequests.push({ queryWordInfo, signal: options?.signal, deferred });
     return deferred.promise;
   }
@@ -280,7 +280,7 @@ function createQueryInput(word: string): QueryInput {
   return { word, fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 }
 
-function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {
+function createDictionaryResult(queryWordInfo: QueryInput): DictionaryResult {
   const item: ListDisplayItem = {
     displayType: LingueeListItemType.Translation,
     queryType: DictionaryType.Linguee,
@@ -293,7 +293,6 @@ function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {
     type: DictionaryType.Linguee,
     queryWordInfo,
     result: {},
-    translations: [],
     displaySections: [{ type: LingueeListItemType.Translation, items: [item] }],
   };
 }

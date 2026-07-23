@@ -3,7 +3,7 @@
 import { userAgent } from "@/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
@@ -23,7 +23,7 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
   protected override async doQuery(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): Promise<QueryResult<LingueeDictionaryResult>> {
+  ): Promise<DictionaryResult<LingueeDictionaryResult>> {
     const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
     logTrace(this.type, `url: ${lingueeUrl}`);
 
@@ -31,7 +31,6 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
       return {
         type: DictionaryType.Linguee,
         queryWordInfo,
-        translations: [],
       };
     }
 
@@ -50,40 +49,34 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider<LingueeDic
     const html = data.toString(
       typeof contentType === "string" && contentType.includes("iso-8859-15") ? "latin1" : "utf-8",
     );
-    const parsedTypeResult = parseLingueeHTML(html);
+    const parsedResult = parseLingueeHTML(html);
 
     /**
      * Generally, the language of the queryWordInfo is the language of the dictionary result.
      * But sometimes, linguee detect language may be wrong when word item is empty, so we use queryWordInfo language.
      * eg. sql, auto detect is chinese -> english.
      */
-    const lingueeDictionaryResult = parsedTypeResult.result;
-    const resultQueryWordInfo =
+    const lingueeDictionaryResult = parsedResult.result;
+    const parsedQueryWordInfo =
       queryWordInfo.isWord === undefined
-        ? parsedTypeResult.queryWordInfo
-        : { ...parsedTypeResult.queryWordInfo, isWord: queryWordInfo.isWord };
-    const dictionaryQueryWordInfo =
+        ? parsedResult.queryWordInfo
+        : { ...parsedResult.queryWordInfo, isWord: queryWordInfo.isWord };
+    const resultQueryWordInfo =
       lingueeDictionaryResult && lingueeDictionaryResult.wordItems.length === 0
         ? {
-            ...lingueeDictionaryResult.queryWordInfo,
+            ...parsedQueryWordInfo,
             word: queryWordInfo.word,
             fromLanguage: queryWordInfo.fromLanguage,
             toLanguage: queryWordInfo.toLanguage,
           }
-        : resultQueryWordInfo;
+        : parsedQueryWordInfo;
 
-    const lingueeTypeResult = {
-      ...parsedTypeResult,
-      queryWordInfo: resultQueryWordInfo,
-      result: lingueeDictionaryResult
-        ? { ...lingueeDictionaryResult, queryWordInfo: dictionaryQueryWordInfo }
-        : undefined,
-    };
-
-    const lingueeDisplaySections = formatLingueeDisplaySections(lingueeTypeResult);
+    const lingueeDisplaySections = formatLingueeDisplaySections(resultQueryWordInfo, lingueeDictionaryResult);
 
     return {
-      ...lingueeTypeResult,
+      type: DictionaryType.Linguee,
+      queryWordInfo: resultQueryWordInfo,
+      result: lingueeDictionaryResult,
       displaySections: lingueeDisplaySections.length > 0 ? lingueeDisplaySections : undefined,
     };
   }

@@ -5,14 +5,13 @@ import type { default as HtmlNode } from "node-html-parser/dist/nodes/html";
 
 import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
 import { checkIsWord } from "@/providers/shared/utils";
-import { DictionaryType } from "@/types/api";
-import type { QueryInput, QueryTypeResult, QueryWordInfo } from "@/types/query";
+import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logWarn } from "@/utils/logger";
 
 import { getValidLingueeLanguagePair } from "./languages";
 import type {
-  LingueeDictionaryResult,
   LingueeExample,
+  LingueeParseResult,
   LingueeWikipedia,
   LingueeWordExplanation,
   LingueeWordItem,
@@ -157,7 +156,7 @@ function parseWikipediaItems(elements: HtmlNode[] | undefined): LingueeWikipedia
   });
 }
 
-export function parseLingueeHTML(html: string): QueryTypeResult<LingueeDictionaryResult> {
+export function parseLingueeHTML(html: string): LingueeParseResult {
   const root = parse(html);
   const dictionary = root.querySelector("#dictionary");
   const exactLemmas = dictionary?.querySelectorAll(".exact .lemma");
@@ -202,10 +201,8 @@ export function parseLingueeHTML(html: string): QueryTypeResult<LingueeDictionar
   };
 
   return {
-    type: DictionaryType.Linguee,
-    result: hasEntries ? { queryWordInfo, wordItems, examples, relatedWords, wikipedias } : undefined,
-    translations: [],
     queryWordInfo,
+    result: hasEntries ? { wordItems, examples, relatedWords, wikipedias } : undefined,
   };
 }
 

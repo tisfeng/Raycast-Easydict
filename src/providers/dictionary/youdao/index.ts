@@ -4,7 +4,7 @@ import { myPreferences } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { DictionaryType } from "@/types/api";
-import type { QueryInput, QueryResult, RequestOptions } from "@/types/query";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
@@ -12,7 +12,7 @@ import { logError } from "@/utils/logger";
 import { ensureYoudaoCookie } from "./cookie";
 import { formatYoudaoDisplaySections, hasYoudaoDictionaryDetails } from "./format";
 import { formatYoudaoWebDictionaryModel } from "./formatData";
-import type { YoudaoDictionaryFormatResult, YoudaoWebDictionaryModel } from "./types";
+import type { YoudaoDictionaryData, YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
 
 // * Cookie will be expired after 1 day, so we need to update it every time we start.
@@ -25,13 +25,13 @@ if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate)
  *
  * Cost time: 0.2s. Supported zh <--> targetLanguage (en, fr, ja, ko).
  */
-export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDictionaryFormatResult> {
+export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDictionaryData> {
   type = DictionaryType.Youdao;
 
   protected override async doQuery(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): Promise<QueryResult<YoudaoDictionaryFormatResult>> {
+  ): Promise<DictionaryResult<YoudaoDictionaryData>> {
     // * Note: "fanyi" only works when response dicts has only one item ["meta"]
     const dicts = [["web_trans", "ec", "ce", "newhh", "baike", "wikipedia_digest"]];
 
@@ -50,38 +50,34 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
     const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
 
     const youdaoWebModel = await timedFetch<YoudaoWebDictionaryModel>(dictUrl, { signal });
-    const youdaoFormatResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
-    const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
-    const hasDictionaryDetails = hasYoudaoDictionaryDetails(youdaoFormatResult);
+    const parsedResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
+    const youdaoQueryWordInfo = parsedResult.queryWordInfo;
+    const dictionaryData = parsedResult.result;
+    const hasDictionaryDetails = hasYoudaoDictionaryDetails(dictionaryData);
 
     if (!hasDictionaryDetails) {
       return {
         type: DictionaryType.Youdao,
         queryWordInfo,
-        translations: [],
       };
     }
 
     // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂，so we need to update it.
     const shouldKeepDetectedLanguage = queryWordInfo.fromLanguage === autoDetectLanguageItem.youdaoLangCode;
-    const result = {
-      ...youdaoFormatResult,
-      queryWordInfo: {
-        ...youdaoQueryWordInfo,
-        ...(!shouldKeepDetectedLanguage && {
-          fromLanguage: queryWordInfo.fromLanguage,
-          toLanguage: queryWordInfo.toLanguage,
-        }),
-      },
+    const resultQueryWordInfo = {
+      ...youdaoQueryWordInfo,
+      ...(!shouldKeepDetectedLanguage && {
+        fromLanguage: queryWordInfo.fromLanguage,
+        toLanguage: queryWordInfo.toLanguage,
+      }),
     };
 
-    const displaySections = formatYoudaoDisplaySections(result);
+    const displaySections = formatYoudaoDisplaySections(resultQueryWordInfo, dictionaryData);
 
     return {
       type: DictionaryType.Youdao,
-      queryWordInfo: result.queryWordInfo,
-      result,
-      translations: result.translation.split("\n"),
+      queryWordInfo: resultQueryWordInfo,
+      result: dictionaryData,
       displaySections,
     };
   }
