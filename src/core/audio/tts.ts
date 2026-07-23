@@ -98,6 +98,11 @@ export async function playTTS(
   }
 
   const cleanText = output.replace(/"/g, " ");
+  const signal = options?.signal;
+
+  if (signal?.aborted) {
+    return;
+  }
 
   // Handle AbortSignal to kill running process
   const onAbort = async () => {
@@ -108,16 +113,31 @@ export async function playTTS(
     }
   };
 
-  options?.signal?.addEventListener("abort", onAbort);
+  signal?.addEventListener("abort", onAbort);
 
   try {
     const voiceName = await getBestMatchVoice(languageItem);
+
+    if (signal?.aborted) {
+      return;
+    }
+
+    await killRunningSay();
+
+    if (signal?.aborted) {
+      return;
+    }
+
     logTrace("AudioTTS", `say (${process.platform})${voiceName ? ` -v ${voiceName}` : ""}`);
-    await say(cleanText, voiceName ? { voice: voiceName } : undefined);
+    await say(cleanText, { voice: voiceName, skipRunningCheck: true });
   } catch (error) {
+    if (signal?.aborted) {
+      return;
+    }
+
     showErrorToast(error);
     logError("AudioTTS", `say command failed: ${error}`);
   } finally {
-    options?.signal?.removeEventListener("abort", onAbort);
+    signal?.removeEventListener("abort", onAbort);
   }
 }
