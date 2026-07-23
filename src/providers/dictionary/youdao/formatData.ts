@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { chineseLanguageItem } from "@/core/language/consts";
+import type { QueryWordInfo } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
 import type {
@@ -8,7 +9,6 @@ import type {
   ExplanationItem,
   KeyValueItem,
   ModernChineseDataList,
-  QueryWordInfo,
   WordExplanation,
   WordForms,
   YoudaoDictionaryFormatResult,
@@ -18,11 +18,7 @@ import type {
 /**
  * Check if Youdao dictionary has entries.
  */
-function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult | undefined) {
-  if (!formatResult) {
-    return false;
-  }
-
+function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult) {
   return (
     (formatResult.explanations ||
       formatResult.forms ||

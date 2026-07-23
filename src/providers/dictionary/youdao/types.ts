@@ -2,8 +2,6 @@
 
 import type { QueryWordInfo } from "@/types/query";
 
-export type { QueryWordInfo };
-
 export interface YoudaoDictionaryFormatResult {
   queryWordInfo: QueryWordInfo;
   translation: string;

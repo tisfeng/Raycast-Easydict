@@ -2,9 +2,10 @@
 
 import { DictionaryType } from "@/types/api";
 import type { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
+import type { QueryWordInfo } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
-import type { BaikeSummary, QueryWordInfo, Sense, YoudaoDictionaryFormatResult } from "./types";
+import type { BaikeSummary, Sense, YoudaoDictionaryFormatResult } from "./types";
 import { YoudaoDictionaryListItemType } from "./types";
 
 function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string {
@@ -61,13 +62,7 @@ function buildSummarySection(
   };
 }
 
-export function formatYoudaoDisplaySections(
-  youdaoResult: YoudaoDictionaryFormatResult | undefined,
-): DisplaySection[] | undefined {
-  if (!youdaoResult) {
-    return;
-  }
-
+export function formatYoudaoDisplaySections(youdaoResult: YoudaoDictionaryFormatResult): DisplaySection[] | undefined {
   const displaySections: Array<DisplaySection> = [];
 
   const queryWordInfo = youdaoResult.queryWordInfo;
