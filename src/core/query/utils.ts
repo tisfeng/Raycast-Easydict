@@ -9,7 +9,7 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
-import { checkIsTranslationType, DictionaryType, TranslationType } from "@/types/api";
+import { DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
 import type { QueryResult, TranslationResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
@@ -158,11 +158,8 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
   return onlyEmoji ? fromToEmoji : fromToLanguageNameAndEmoji;
 }
 
-/**
- * Get show more detail markdown.
- */
-export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
-  const { queryType, title, copyText, detailsMarkdown } = displayItem;
+export function getTranslationShowMoreDetailsMarkdown(displayItem: ListDisplayItem): string {
+  const { queryType, copyText } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
   const type = queryType.toString();
@@ -170,33 +167,31 @@ export function getShowMoreDetailMarkdown(displayItem: ListDisplayItem) {
   const fromToTitle = `${type}  (${fromToLang})`;
 
   let markdown = "";
+  markdown += `## ${fromToTitle} \n`;
+  // * Note: word may contain wrap character, so we need to handle it.
+  word.split("\n").forEach((line) => {
+    markdown += `### ${line} \n`;
+  });
+  markdown += `----\n`;
+  copyText.split("\n").forEach((line) => {
+    markdown += `${line} \n\n`;
+  });
+  return markdown;
+}
 
-  // Translate type
-  if (checkIsTranslationType(queryType)) {
-    markdown += `## ${fromToTitle} \n`;
-    // * Note: word may contain wrap character, so we need to handle it.
-    word.split("\n").forEach((line) => {
-      markdown += `### ${line} \n`;
-    });
-    markdown += `----\n`;
-    copyText.split("\n").forEach((line) => {
-      markdown += `${line} \n\n`;
-    });
-
-    return markdown;
-  }
-
-  // Dictionary type — use pre-computed detailsMarkdown from provider formatters
+export function getDictionaryShowMoreDetailsMarkdown(displayItem: ListDisplayItem): string {
+  const { queryType, title, detailsMarkdown } = displayItem;
+  const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
+  const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
+  const fromToTitle = `${queryType}  (${fromToLang})`;
   const explanation = detailsMarkdown || title;
 
-  markdown = `
+  return `
 ## ${fromToTitle} 
 ### ${word}
 ----
 ${explanation}
 `;
-
-  return markdown;
 }
 
 /**

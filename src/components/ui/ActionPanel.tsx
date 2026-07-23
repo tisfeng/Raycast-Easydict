@@ -9,7 +9,6 @@ import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from 
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
-import { getShowMoreDetailMarkdown } from "@/core/query/utils";
 import { dictionaryServices } from "@/providers/dictionary";
 import { translationServices } from "@/providers/translation";
 import type { ListDisplayItem } from "@/types/display";
@@ -132,7 +131,7 @@ function PrimaryActions({
         shortcut={shortcuts.showDetail}
         target={
           <Detail
-            markdown={getShowMoreDetailMarkdown(displayItem)}
+            markdown={displayItem.showMoreDetailsMarkdown ?? displayItem.detailsMarkdown ?? displayItem.copyText}
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard

@@ -5,7 +5,12 @@ import type { DisplaySection } from "@/types/display";
 import type { TranslationQueryResult } from "@/types/query";
 
 import type { QueryState } from "./queryReducer";
-import { getFromToLanguageTitle, getTranslationMarkdown } from "./utils";
+import {
+  getDictionaryShowMoreDetailsMarkdown,
+  getFromToLanguageTitle,
+  getTranslationMarkdown,
+  getTranslationShowMoreDetailsMarkdown,
+} from "./utils";
 
 export function computeDisplaySections(state: QueryState): DisplaySection[] {
   const { queryResults, isShowDetail } = state;
@@ -53,7 +58,13 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
       displaySections.push({
         ...section,
         sectionTitle,
-        items: section.items?.map((item, idx) => (idx === 0 ? { ...item, detailsMarkdown } : item)),
+        items: section.items.map((item, idx) => {
+          const displayItem = idx === 0 ? { ...item, detailsMarkdown } : item;
+          const showMoreDetailsMarkdown = isTrans
+            ? getTranslationShowMoreDetailsMarkdown(displayItem)
+            : getDictionaryShowMoreDetailsMarkdown(displayItem);
+          return { ...displayItem, showMoreDetailsMarkdown };
+        }),
       });
     }
   }

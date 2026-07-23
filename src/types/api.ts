@@ -34,22 +34,6 @@ export enum LanguageDetectType {
 
 export type RequestType = TranslationType | DictionaryType | LanguageDetectType;
 
-/**
- * Check type is Dictionary type.
- */
-const dictionaryTypeValues = new Set<string>(Object.values(DictionaryType));
-export function checkIsDictionaryType(type: string): type is DictionaryType {
-  return dictionaryTypeValues.has(type);
-}
-
-/**
- * Check type is Translation type.
- */
-const translationTypeValues = new Set<string>(Object.values(TranslationType));
-export function checkIsTranslationType(type: string): type is TranslationType {
-  return translationTypeValues.has(type);
-}
-
 export interface TranslationItem {
   type: TranslationType;
   text: string;
