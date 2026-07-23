@@ -178,7 +178,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const runTranslationQuery = useCallback(
     async (config: TranslationServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
-      const enabled = config?.isEnabled?.(queryWordInfo) ?? (myPreferences[config.preference] as boolean);
+      const enabled = config.isEnabled?.(queryWordInfo) ?? myPreferences[config.preference];
       if (!enabled) return;
 
       dispatch({ type: "START_QUERY", queryType: config.type, generation: session.generation });
@@ -227,8 +227,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
   const runDictionaryQuery = useCallback(
     async (config: DictionaryServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
       const enabled =
-        config?.isEnabled?.(queryWordInfo) ??
-        (config.preference ? (myPreferences[config.preference] as boolean) : true);
+        config.isEnabled?.(queryWordInfo) ?? (config.preference ? myPreferences[config.preference] : true);
       if (!enabled) return;
       if (!config.provider) return;
 

@@ -6,6 +6,7 @@ import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
 import { DictionaryType } from "@/types/api";
+import type { BooleanPreferenceKey } from "@/types/preferences";
 import type { QueryInput } from "@/types/query";
 
 import type { BaseDictionaryProvider } from "./base";
@@ -14,7 +15,7 @@ import { YoudaoDictionaryProvider } from "./youdao";
 
 export interface DictionaryServiceConfig {
   type: DictionaryType;
-  preference?: keyof Preferences;
+  preference?: BooleanPreferenceKey;
   provider?: new () => BaseDictionaryProvider;
   isEnabled?: (queryWordInfo: QueryInput) => boolean;
   getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;

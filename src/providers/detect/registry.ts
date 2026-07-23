@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { LanguageDetectType } from "@/types/api";
+import type { BooleanPreferenceKey } from "@/types/preferences";
 
 import { BaiduDetectProvider } from "./baidu";
 import type { BaseDetectProvider } from "./base";
@@ -11,7 +12,7 @@ import { VolcanoDetectProvider } from "./volcano";
 
 export interface DetectServiceConfig {
   type: LanguageDetectType;
-  preference?: keyof Preferences;
+  preference?: BooleanPreferenceKey;
   provider: new () => BaseDetectProvider;
 }
 

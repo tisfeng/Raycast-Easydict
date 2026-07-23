@@ -6,6 +6,7 @@ import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
+import type { BooleanPreferenceKey } from "@/types/preferences";
 import type { QueryInput } from "@/types/query";
 
 import { AppleTranslateProvider } from "./apple";
@@ -23,7 +24,7 @@ import { YoudaoTranslateProvider } from "./youdao";
 
 export interface TranslationServiceConfig {
   type: TranslationType;
-  preference: keyof Preferences;
+  preference: BooleanPreferenceKey;
   provider: new () => BaseTranslateProvider;
   getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
   isEnabled?: (queryWordInfo: QueryInput) => boolean;
