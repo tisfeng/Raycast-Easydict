@@ -127,26 +127,21 @@ function isTextOneLineTooLong(text: string, textLanguage: string): boolean {
  * Iterate QueryResult, if dictionary is not empty, and translation is too long, show translation detail.
  */
 export function checkIfShowTranslationDetail(queryResults: QueryResult[]): boolean {
-  let isShowDetail = false;
+  const hasDictionaryResult = queryResults.some(
+    (queryResult) => checkIsDictionaryType(queryResult.type) && Boolean(queryResult.displaySections?.length),
+  );
+  if (hasDictionaryResult) return false;
+
   for (const queryResult of queryResults) {
-    const wordInfo = queryResult.queryWordInfo;
-    const isDictionaryType = checkIsDictionaryType(queryResult.type);
-    if (isDictionaryType) {
-      if (wordInfo.hasDictionaryEntries) {
-        isShowDetail = false;
-        break;
-      }
-    } else {
-      // check if translation is too long
+    if (checkIsTranslationType(queryResult.type)) {
       const oneLineTranslation = queryResult.translations.join(", ");
-      const isTooLong = isTextOneLineTooLong(oneLineTranslation, wordInfo.toLanguage);
-      if (isTooLong) {
-        isShowDetail = true;
-        break;
+      if (isTextOneLineTooLong(oneLineTranslation, queryResult.queryWordInfo.toLanguage)) {
+        return true;
       }
     }
   }
-  return isShowDetail;
+
+  return false;
 }
 
 /**

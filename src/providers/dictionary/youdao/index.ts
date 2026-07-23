@@ -52,9 +52,9 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
     const youdaoWebModel = await timedFetch<YoudaoWebDictionaryModel>(dictUrl, { signal });
     const youdaoFormatResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
     const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
-    const hasDictionaryEntries = hasYoudaoDictionaryDetails(youdaoFormatResult);
+    const hasDictionaryDetails = hasYoudaoDictionaryDetails(youdaoFormatResult);
 
-    if (!hasDictionaryEntries) {
+    if (!hasDictionaryDetails) {
       return {
         type: DictionaryType.Youdao,
         queryWordInfo,
@@ -72,7 +72,6 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
           fromLanguage: queryWordInfo.fromLanguage,
           toLanguage: queryWordInfo.toLanguage,
         }),
-        hasDictionaryEntries,
       },
     };
 

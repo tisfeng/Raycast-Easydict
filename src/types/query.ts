@@ -24,7 +24,6 @@ export interface QueryInput {
 }
 
 export interface QueryWordInfo extends QueryInput {
-  hasDictionaryEntries?: boolean; // it is true if the word has dictionary entries.
   phonetic?: string; // [ɡʊd]
   examTypes?: string[];
   speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"

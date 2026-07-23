@@ -198,7 +198,6 @@ export function parseLingueeHTML(html: string): QueryTypeResult<LingueeDictionar
     fromLanguage: sourceLanguage ?? "",
     toLanguage: targetLanguage ?? "",
     speechUrl: wordItems[0]?.audioUrl ?? "",
-    hasDictionaryEntries: hasEntries,
     isWord: hasEntries,
   };
 
