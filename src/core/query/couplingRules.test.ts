@@ -10,8 +10,6 @@ import { applyMetadataToLinguee, applyTranslationToDisplay } from "./couplingRul
 function createTranslationResult(text = "translated"): QueryResult {
   const queryWordInfo = createQueryWordInfo();
   const item: ListDisplayItem = {
-    displayCategory: "translation",
-    displayType: TranslationType.DeepL,
     queryType: TranslationType.DeepL,
     queryWordInfo,
     key: "deepl",
@@ -32,7 +30,6 @@ function createLingueeResult(sectionCount = 1): QueryResult {
   const queryWordInfo = createQueryWordInfo();
   const sections = Array.from({ length: sectionCount }, (_, index) => {
     const item: ListDisplayItem = {
-      displayCategory: "dictionary",
       displayType: LingueeListItemType.Translation,
       queryType: DictionaryType.Linguee,
       queryWordInfo,

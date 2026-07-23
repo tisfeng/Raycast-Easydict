@@ -282,7 +282,6 @@ function createQueryInput(word: string): QueryInput {
 
 function createDictionaryResult(queryWordInfo: QueryInput): QueryResult {
   const item: ListDisplayItem = {
-    displayCategory: "dictionary",
     displayType: LingueeListItemType.Translation,
     queryType: DictionaryType.Linguee,
     queryWordInfo,

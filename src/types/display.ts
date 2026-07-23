@@ -28,9 +28,9 @@ interface ListDisplayItemBase {
 
 export type ListDisplayItem = ListDisplayItemBase &
   (
-    | { displayCategory: "dictionary"; queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
-    | { displayCategory: "dictionary"; queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }
-    | { displayCategory: "translation"; queryType: TranslationType; displayType: TranslationType }
+    | { queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
+    | { queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }
+    | { queryType: TranslationType; displayType?: never }
   );
 
 export interface ListAccessoryItem {

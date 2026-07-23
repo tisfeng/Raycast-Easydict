@@ -40,8 +40,6 @@ const initialState: QueryState = {
 function createTranslationResult(type: TranslationType): QueryResult {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
   const displayItem: ListDisplayItem = {
-    displayCategory: "translation",
-    displayType: type,
     queryType: type,
     queryWordInfo,
     key: "test-1",
@@ -61,7 +59,6 @@ function createTranslationResult(type: TranslationType): QueryResult {
 function createLingueeResult(): QueryResult {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
   const displayItem: ListDisplayItem = {
-    displayCategory: "dictionary",
     displayType: LingueeListItemType.Translation,
     queryType: DictionaryType.Linguee,
     queryWordInfo,

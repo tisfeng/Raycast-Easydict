@@ -33,7 +33,6 @@ function buildDictionaryItem(
   { key, title, subtitle, copyText, detailsMarkdown, accessoryItem }: DictionaryItemOptions,
 ): ListDisplayItem {
   return {
-    displayCategory: "dictionary",
     displayType,
     queryType: DictionaryType.Youdao,
     queryWordInfo,

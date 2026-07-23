@@ -159,8 +159,6 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
     const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 
     const displayItem: ListDisplayItem = {
-      displayCategory: "translation",
-      displayType: type,
       queryType: type,
       key: isStreamingProvider ? type : `${oneLineTranslation}-${type}`,
       title: oneLineTranslation,

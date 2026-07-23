@@ -29,7 +29,6 @@ function createDisplayItem(
     subtitle,
     copyText,
     queryWordInfo,
-    displayCategory: "dictionary",
     displayType,
     queryType: DictionaryType.Linguee,
     tooltip: displayType,

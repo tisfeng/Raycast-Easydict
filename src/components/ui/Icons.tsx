@@ -23,16 +23,16 @@ export const playSoundIconGray: Image.ImageLike = {
 };
 
 /**
- * Return the corresponding ImageLike based on the display category and type.
+ * Return the corresponding ImageLike based on the query and display types.
  */
 export function getListItemIcon(item: ListDisplayItem): Image.ImageLike {
-  if (item.displayCategory === "dictionary") {
-    if (item.queryType === DictionaryType.Linguee) {
-      return getLingueeListItemIcon(item.displayType);
-    }
+  if (item.queryType === DictionaryType.Linguee) {
+    return getLingueeListItemIcon(item.displayType);
+  }
+  if (item.queryType === DictionaryType.Youdao) {
     return getYoudaoListItemIcon(item.displayType);
   }
-  return getQueryTypeIcon(item.displayType);
+  return getQueryTypeIcon(item.queryType);
 }
 
 /**
