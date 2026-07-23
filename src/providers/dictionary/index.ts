@@ -13,15 +13,18 @@ import type { BaseDictionaryProvider } from "./base";
 import { LingueeDictionaryProvider } from "./linguee";
 import { YoudaoDictionaryProvider } from "./youdao";
 
-export interface DictionaryServiceConfig {
+interface DictionaryWebServiceConfig {
   type: DictionaryType;
-  preference?: BooleanPreferenceKey;
-  provider?: new () => BaseDictionaryProvider;
-  isEnabled?: (queryWordInfo: QueryInput) => boolean;
   getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
 }
 
-export const dictionaryServices: DictionaryServiceConfig[] = [
+export interface DictionaryServiceConfig extends DictionaryWebServiceConfig {
+  preference: BooleanPreferenceKey;
+  provider: new () => BaseDictionaryProvider;
+  isEnabled?: (queryWordInfo: QueryInput) => boolean;
+}
+
+export const dictionaryProviderServices: DictionaryServiceConfig[] = [
   {
     type: DictionaryType.Youdao,
     preference: "enableYoudaoDictionary",
@@ -36,6 +39,10 @@ export const dictionaryServices: DictionaryServiceConfig[] = [
     provider: LingueeDictionaryProvider,
     getWebUrl: getLingueeWebDictionaryURL,
   },
+];
+
+export const dictionaryServices: DictionaryWebServiceConfig[] = [
+  ...dictionaryProviderServices,
   {
     type: DictionaryType.Eudic,
     getWebUrl: (q) => {

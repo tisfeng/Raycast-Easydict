@@ -15,7 +15,7 @@ import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
-import { dictionaryServices } from "@/providers/dictionary";
+import { dictionaryProviderServices } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
 import { checkIsTranslationType, TranslationType } from "@/types/api";
@@ -226,10 +226,8 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const runDictionaryQuery = useCallback(
     async (config: DictionaryServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
-      const enabled =
-        config.isEnabled?.(queryWordInfo) ?? (config.preference ? myPreferences[config.preference] : true);
+      const enabled = config.isEnabled?.(queryWordInfo) ?? myPreferences[config.preference];
       if (!enabled) return;
-      if (!config.provider) return;
 
       dispatch({ type: "START_QUERY", queryType: config.type, generation: session.generation });
       const instance = new config.provider();
@@ -270,7 +268,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   const runAllProviders = useCallback(
     (queryWordInfo: QueryInput, session: QuerySession) => {
-      for (const config of dictionaryServices) {
+      for (const config of dictionaryProviderServices) {
         runDictionaryQuery(config, queryWordInfo, session);
       }
 

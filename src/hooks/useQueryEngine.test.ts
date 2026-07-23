@@ -65,7 +65,7 @@ vi.mock("@/core/audio", () => ({
 }));
 
 vi.mock("@/providers/dictionary", () => ({
-  dictionaryServices: testDoubles.dictionaryServices,
+  dictionaryProviderServices: testDoubles.dictionaryServices,
 }));
 
 vi.mock("@/providers/translation", () => ({
@@ -104,6 +104,7 @@ beforeEach(() => {
   testDoubles.showErrorToast.mockReset();
   testDoubles.dictionaryServices.splice(0, testDoubles.dictionaryServices.length, {
     type: DictionaryType.Linguee,
+    preference: "enableLingueeDictionary",
     provider: DeferredDictionaryProvider,
     isEnabled: () => true,
   });
