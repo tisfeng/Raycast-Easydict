@@ -8,7 +8,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 interface TextTranslateResponse {
   /**
@@ -42,7 +42,7 @@ export interface TencentTranslateResult extends TextTranslateResponse {
  *
  * Docs: https://cloud.tencent.com/document/api/551/15619
  */
-export class TencentTranslateProvider extends BaseTranslateProvider {
+export class TencentTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Tencent;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

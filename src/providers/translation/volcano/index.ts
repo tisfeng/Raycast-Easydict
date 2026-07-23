@@ -8,7 +8,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "../base";
+import { BaseNonStreamingTranslateProvider } from "../base";
 
 export interface VolcanoTranslateResult {
   TranslationList?: VolcanoTranslationList[];
@@ -39,7 +39,7 @@ interface VolcanoError {
  *
  * Docs: https://www.volcengine.com/docs/4640/65067
  */
-export class VolcanoTranslateProvider extends BaseTranslateProvider {
+export class VolcanoTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Volcano;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

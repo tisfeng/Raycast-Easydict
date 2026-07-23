@@ -4,7 +4,7 @@ import type { Message } from "@xsai/shared-chat";
 import { streamText } from "@xsai/stream-text";
 
 import { getLanguageEnglishName } from "@/core/language/utils";
-import { BaseTranslateProvider } from "@/providers/translation/base";
+import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
 import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
@@ -17,7 +17,7 @@ export interface OpenAICompatibleTranslateResult {
   translatedText: string;
 }
 
-export abstract class BaseOpenAICompatibleTranslateProvider extends BaseTranslateProvider<OpenAICompatibleTranslateResult> {
+export abstract class BaseOpenAICompatibleTranslateProvider extends BaseStreamingTranslateProvider<OpenAICompatibleTranslateResult> {
   protected abstract getEndpoint(): string;
   protected abstract getModel(): string;
   protected abstract getAPIKey(): string | undefined;

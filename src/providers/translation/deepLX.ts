@@ -8,7 +8,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryInput, RequestOptions } from "@/types/query";
 import { logTrace } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 class CookieCacheManager {
   private cache = new Cache();
@@ -63,7 +63,7 @@ const cookieCache = new CookieCacheManager();
  * Uses the unofficial but free DeepL API client
  * https://github.com/un-ts/deeplx
  */
-export class DeepLXTranslateProvider extends BaseTranslateProvider {
+export class DeepLXTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.DeepLX;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

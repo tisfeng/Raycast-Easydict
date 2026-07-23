@@ -9,7 +9,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 export interface BaiduTranslateResult {
   from?: string;
@@ -35,7 +35,7 @@ export interface BaiduWebLanguageDetect {
  *
  * 百度翻译 API https://fanyi-api.baidu.com/doc/21
  */
-export class BaiduTranslateProvider extends BaseTranslateProvider {
+export class BaiduTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Baidu;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

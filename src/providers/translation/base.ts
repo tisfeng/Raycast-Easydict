@@ -5,39 +5,24 @@ import type { QueryInput, QueryTypeResult, RequestOptions, StreamChunk } from "@
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 
-export type ProviderResult<T = unknown> =
-  | Promise<QueryTypeResult<T>>
-  | AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
+type TranslationGenerator<T> = AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
 
 /**
  * Abstract base for translation providers.
  *
  * Template method pattern:
- * - `request()` is the public entry point — an async generator that transparently
- *   handles both legacy `Promise` returns and new `AsyncGenerator` returns from `doTranslate()`.
- *   Non-streaming providers are wrapped automatically: their Promise result is awaited
- *   and yielded once, so consumers always use `for await`.
- * - `doTranslate()` is implemented by each subclass with the actual API call.
+ * - `request()` is the public entry point and always exposes an async generator.
+ * - Protocol-specific subclasses adapt Promise and streaming implementations.
+ * - Provider implementations only implement their correctly typed `doTranslate()` method.
  */
 export abstract class BaseTranslateProvider<T = unknown> {
   abstract type: TranslationType;
 
-  public async *request(
-    queryWordInfo: QueryInput,
-    options?: RequestOptions,
-  ): AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown> {
+  public async *request(queryWordInfo: QueryInput, options?: RequestOptions): TranslationGenerator<T> {
     const timer = createTimer(this.type);
     try {
-      const response = this.doTranslate(queryWordInfo, options);
-      // Detect AsyncGenerator: delegate all yields and return the final value
-      if (response != null && Symbol.asyncIterator in Object(response)) {
-        const result = yield* response as AsyncGenerator<StreamChunk, QueryTypeResult<T>, unknown>;
-        timer.done(result.translations?.join(", ") ?? "(no result)");
-        return result;
-      }
-      // Legacy Promise path: await and yield the single final result
-      const result = await (response as Promise<QueryTypeResult<T>>);
-      timer.done(result.translations?.join(", ") ?? "(no result)");
+      const result = yield* this.performTranslate(queryWordInfo, options);
+      timer.done(result.translations.join(", "));
       return result;
     } catch (error) {
       const requestError = handleRequestError(this.type, error, options?.signal);
@@ -48,5 +33,23 @@ export abstract class BaseTranslateProvider<T = unknown> {
     }
   }
 
-  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): ProviderResult<T>;
+  protected abstract performTranslate(queryWordInfo: QueryInput, options?: RequestOptions): TranslationGenerator<T>;
+}
+
+export abstract class BaseNonStreamingTranslateProvider<T = unknown> extends BaseTranslateProvider<T> {
+  protected async *performTranslate(queryWordInfo: QueryInput, options?: RequestOptions): TranslationGenerator<T> {
+    // Non-streaming providers intentionally emit no intermediate chunks.
+    yield* [];
+    return await this.doTranslate(queryWordInfo, options);
+  }
+
+  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<QueryTypeResult<T>>;
+}
+
+export abstract class BaseStreamingTranslateProvider<T = unknown> extends BaseTranslateProvider<T> {
+  protected performTranslate(queryWordInfo: QueryInput, options?: RequestOptions): TranslationGenerator<T> {
+    return this.doTranslate(queryWordInfo, options);
+  }
+
+  protected abstract doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): TranslationGenerator<T>;
 }

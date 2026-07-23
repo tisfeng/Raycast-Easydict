@@ -10,9 +10,9 @@ import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 import { trimTextLength, unescapeHtml } from "@/utils/text";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
-export class GoogleTranslateProvider extends BaseTranslateProvider {
+export class GoogleTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Google;
 
   /**

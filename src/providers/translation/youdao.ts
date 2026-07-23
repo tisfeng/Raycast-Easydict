@@ -11,7 +11,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 interface TranslateParams {
   keyid: string;
@@ -62,7 +62,7 @@ function isValidYoudaoWebTranslateLanguage(queryTextInfo: QueryInput): boolean {
   return validLanguages.includes(targetLanguage);
 }
 
-export class YoudaoTranslateProvider extends BaseTranslateProvider {
+export class YoudaoTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Youdao;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

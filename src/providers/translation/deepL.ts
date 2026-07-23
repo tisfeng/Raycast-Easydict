@@ -11,7 +11,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 export interface DeepLTranslateResult {
   translations: DeepLTranslationItem[];
@@ -27,7 +27,7 @@ export interface DeepLTranslationItem {
  *
  * https://www.deepl.com/zh/docs-api/translating-text
  */
-export class DeepLTranslateProvider extends BaseTranslateProvider<DeepLTranslateResult> {
+export class DeepLTranslateProvider extends BaseNonStreamingTranslateProvider<DeepLTranslateResult> {
   type = TranslationType.DeepL;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

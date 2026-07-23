@@ -9,7 +9,7 @@ import { TranslationType } from "@/types/api";
 import type { QueryInput, RequestOptions } from "@/types/query";
 import { logTrace, logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 const execCommandTimeout = 10000; // 10s
 
@@ -26,7 +26,7 @@ function getShortcutsScript(shortcutName: string, input: string): string {
   `;
 }
 
-export class AppleTranslateProvider extends BaseTranslateProvider {
+export class AppleTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Apple;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {

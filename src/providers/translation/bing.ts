@@ -14,7 +14,7 @@ import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logWarn } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 export interface BingTranslateResult {
   detectedLanguage: BingDetectedLanguage;
@@ -46,7 +46,7 @@ interface BingTransliteration {
 /**
  * Request Microsoft Bing Web Translator.
  */
-export class BingTranslateProvider extends BaseTranslateProvider {
+export class BingTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Bing;
 
   protected async doTranslate(queryWordInfo: QueryInput, options: RequestOptions = {}): Promise<QueryTypeResult> {

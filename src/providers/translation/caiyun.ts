@@ -7,7 +7,7 @@ import type { QueryInput, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
-import { BaseTranslateProvider } from "./base";
+import { BaseNonStreamingTranslateProvider } from "./base";
 
 export interface CaiyunTranslateResult {
   rc: string;
@@ -20,7 +20,7 @@ export interface CaiyunTranslateResult {
  *
  * 彩云小译  https://open.caiyunapp.com/%E4%BA%94%E5%88%86%E9%92%9F%E5%AD%A6%E4%BC%9A%E5%BD%A9%E4%BA%91%E5%B0%8F%E8%AF%91_API
  */
-export class CaiyunTranslateProvider extends BaseTranslateProvider {
+export class CaiyunTranslateProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.Caiyun;
 
   protected async doTranslate(queryWordInfo: QueryInput, { signal }: RequestOptions = {}) {
