@@ -16,20 +16,6 @@ import type {
 } from "./types";
 
 /**
- * Check if Youdao dictionary has entries.
- */
-function hasYoudaoDictionaryEntries(formatResult: YoudaoDictionaryFormatResult) {
-  return (
-    (formatResult.explanations ||
-      formatResult.forms ||
-      formatResult.webPhrases ||
-      formatResult.webTranslation ||
-      formatResult.baike ||
-      formatResult.wikipedia) !== undefined
-  );
-}
-
-/**
  * Format YoudaoWebDictionaryModel to YoudaoDictionaryFormatResult.
  *
  * Todo: support more dictionary, currently only support English <--> Chinese.
@@ -160,13 +146,7 @@ export function formatYoudaoWebDictionaryModel(model: YoudaoWebDictionaryModel):
     modernChineseDict: newChineseDataList,
   };
 
-  return {
-    ...formatResult,
-    queryWordInfo: {
-      ...queryWordInfo,
-      hasDictionaryEntries: hasYoudaoDictionaryEntries(formatResult),
-    },
-  };
+  return formatResult;
 }
 
 /**

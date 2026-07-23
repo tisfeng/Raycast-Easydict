@@ -28,6 +28,18 @@ interface DictionaryItemOptions {
   accessoryItem?: ListAccessoryItem;
 }
 
+export function hasYoudaoDictionaryDetails(result: YoudaoDictionaryFormatResult): boolean {
+  return Boolean(
+    result.modernChineseDict?.some((dictionary) => dictionary.sense?.length) ||
+    result.explanations?.length ||
+    result.forms?.some((form) => form.wf?.name && form.wf.value) ||
+    (result.webTranslation?.key && result.webTranslation.value.length) ||
+    result.webPhrases?.some((phrase) => phrase.key && phrase.value.length) ||
+    result.baike?.summary ||
+    result.wikipedia?.summary,
+  );
+}
+
 function buildDictionaryItem(
   displayType: YoudaoDictionaryListItemType,
   queryWordInfo: QueryWordInfo,
@@ -63,6 +75,8 @@ function buildSummarySection(
 }
 
 export function formatYoudaoDisplaySections(youdaoResult: YoudaoDictionaryFormatResult): DisplaySection[] | undefined {
+  if (!hasYoudaoDictionaryDetails(youdaoResult)) return;
+
   const displaySections: Array<DisplaySection> = [];
 
   const queryWordInfo = youdaoResult.queryWordInfo;

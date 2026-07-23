@@ -10,7 +10,7 @@ import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";
 
 import { ensureYoudaoCookie } from "./cookie";
-import { formatYoudaoDisplaySections } from "./format";
+import { formatYoudaoDisplaySections, hasYoudaoDictionaryDetails } from "./format";
 import { formatYoudaoWebDictionaryModel } from "./formatData";
 import type { YoudaoDictionaryFormatResult, YoudaoWebDictionaryModel } from "./types";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
@@ -52,8 +52,9 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
     const youdaoWebModel = await timedFetch<YoudaoWebDictionaryModel>(dictUrl, { signal });
     const youdaoFormatResult = formatYoudaoWebDictionaryModel(youdaoWebModel);
     const youdaoQueryWordInfo = youdaoFormatResult.queryWordInfo;
+    const hasDictionaryEntries = hasYoudaoDictionaryDetails(youdaoFormatResult);
 
-    if (!youdaoQueryWordInfo.hasDictionaryEntries) {
+    if (!hasDictionaryEntries) {
       return {
         type: DictionaryType.Youdao,
         queryWordInfo,
@@ -62,17 +63,18 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider<YoudaoDicti
     }
 
     // * Note: Youdao web dict from-to language may be incorrect, eg: 鶗鴂，so we need to update it.
-    const result =
-      queryWordInfo.fromLanguage === autoDetectLanguageItem.youdaoLangCode
-        ? youdaoFormatResult
-        : {
-            ...youdaoFormatResult,
-            queryWordInfo: {
-              ...youdaoQueryWordInfo,
-              fromLanguage: queryWordInfo.fromLanguage,
-              toLanguage: queryWordInfo.toLanguage,
-            },
-          };
+    const shouldKeepDetectedLanguage = queryWordInfo.fromLanguage === autoDetectLanguageItem.youdaoLangCode;
+    const result = {
+      ...youdaoFormatResult,
+      queryWordInfo: {
+        ...youdaoQueryWordInfo,
+        ...(!shouldKeepDetectedLanguage && {
+          fromLanguage: queryWordInfo.fromLanguage,
+          toLanguage: queryWordInfo.toLanguage,
+        }),
+        hasDictionaryEntries,
+      },
+    };
 
     const displaySections = formatYoudaoDisplaySections(result);
 
