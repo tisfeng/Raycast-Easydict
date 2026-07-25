@@ -31,6 +31,12 @@ export interface QueryWordInfo extends QueryInput {
 
 export type QueryType = TranslationType | DictionaryType;
 
+export interface RuntimeServiceMetadata {
+  serviceId: string;
+  serviceLabel: string;
+  serviceOrder: number;
+}
+
 interface ProviderResult<T, TType extends QueryType> {
   type: TType;
   queryWordInfo: QueryWordInfo;
@@ -45,12 +51,12 @@ export interface DictionaryResult<T = unknown> extends ProviderResult<T, Diction
   displaySections?: DisplaySection[];
 }
 
-export interface TranslationQueryResult<T = unknown> extends TranslationResult<T> {
+export interface TranslationQueryResult<T = unknown> extends TranslationResult<T>, RuntimeServiceMetadata {
   displaySections: DisplaySection[];
   hideDisplay: boolean;
 }
 
-export interface DictionaryQueryResult<T = unknown> extends DictionaryResult<T> {
+export interface DictionaryQueryResult<T = unknown> extends DictionaryResult<T>, RuntimeServiceMetadata {
   displaySections: DisplaySection[];
 }
 

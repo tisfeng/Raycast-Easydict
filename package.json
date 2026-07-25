@@ -28,6 +28,13 @@
       ]
     },
     {
+      "name": "manage-ai-providers",
+      "title": "Manage AI Providers",
+      "subtitle": "Easydict",
+      "description": "Add, edit, migrate, and organize Raycast AI and OpenAI-compatible translation providers.",
+      "mode": "view"
+    },
+    {
       "name": "ocr",
       "title": "OCR Translate",
       "icon": "ocr.png",
@@ -660,17 +667,17 @@
       "title": "Translation Services",
       "type": "checkbox",
       "name": "enableOpenAITranslate",
-      "label": "OpenAI Translate",
+      "label": "Legacy OpenAI Translate",
       "required": false,
-      "description": "Turn on/off OpenAI Translate. App Key is required.",
+      "description": "Used until this configuration is imported from Manage AI Providers. Retained temporarily for migration.",
       "default": false
     },
     {
       "type": "checkbox",
       "name": "enableGeminiTranslate",
-      "label": "Gemini Translate",
+      "label": "Legacy Gemini Translate",
       "required": false,
-      "description": "Turn on/off Gemini Translate. App Key is required.",
+      "description": "Used until this configuration is imported from Manage AI Providers. Retained temporarily for migration.",
       "default": false
     },
     {
@@ -755,60 +762,60 @@
       "placeholder": "youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun"
     },
     {
-      "title": "OpenAI API Key",
+      "title": "Legacy OpenAI API Key",
       "name": "openAIAPIKey",
       "type": "password",
       "required": false,
-      "description": "Your OpenAI API Key"
+      "description": "Used only by the legacy OpenAI provider and retained temporarily for migration."
     },
     {
-      "title": "OpenAI Endpoint",
+      "title": "Legacy OpenAI Endpoint",
       "name": "openAIAPIURL",
       "type": "textfield",
       "required": false,
-      "description": "Custom OpenAI API URL",
+      "description": "Used only by the legacy OpenAI provider and retained temporarily for migration.",
       "default": "https://api.openai.com/v1",
       "placeholder": "https://api.openai.com/v1"
     },
     {
-      "title": "OpenAI Model",
+      "title": "Legacy OpenAI Model",
       "name": "openAIModel",
       "type": "textfield",
       "required": false,
-      "description": "OpenAI Model",
-      "default": "gpt-4o-mini"
+      "description": "Used only by the legacy OpenAI provider and retained temporarily for migration.",
+      "default": "gpt-5.4-mini"
     },
     {
-      "title": "Force max_completion_tokens",
+      "title": "Legacy OpenAI Token Parameter",
       "name": "forceMaxCompletionTokens",
       "type": "checkbox",
-      "label": "Always use max_completion_tokens",
+      "label": "Always Use max_completion_tokens",
       "required": false,
-      "description": "Force using max_completion_tokens instead of max_tokens. Useful for reasoning models (e.g., o1, o3, gpt-5) or providers that require it. May break compatibility with some OpenAI-compatible APIs.",
+      "description": "Used only by the legacy OpenAI provider and retained temporarily for migration.",
       "default": false
     },
     {
-      "title": "Gemini API Key",
+      "title": "Legacy Gemini API Key",
       "name": "geminiAPIKey",
       "type": "password",
       "required": false,
-      "description": "Your Gemini API Key"
+      "description": "Used only by the legacy Gemini provider and retained temporarily for migration."
     },
     {
-      "title": "Gemini Endpoint",
+      "title": "Legacy Gemini Endpoint",
       "name": "geminiAPIURL",
       "type": "textfield",
       "required": false,
-      "description": "Custom Gemini API URL",
+      "description": "Used only by the legacy Gemini provider and retained temporarily for migration.",
       "default": "https://generativelanguage.googleapis.com"
     },
     {
-      "title": "Gemini Model",
+      "title": "Legacy Gemini Model",
       "name": "geminiModel",
       "type": "textfield",
       "required": false,
-      "description": "Gemini Model",
-      "default": "gemini-2.5-flash"
+      "description": "Used only by the legacy Gemini provider and retained temporarily for migration.",
+      "default": "gemini-3.5-flash"
     },
     {
       "title": "DeepL Auth Key",

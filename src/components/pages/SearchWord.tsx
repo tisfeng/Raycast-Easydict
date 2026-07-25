@@ -10,8 +10,20 @@ import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
-import { useDebouncedQuery, useFavoriteWords, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
+import {
+  useAIProviderProfiles,
+  useDebouncedQuery,
+  useFavoriteWords,
+  useInstalledEudic,
+  useQueryEngine,
+  useReleasePrompt,
+} from "@/hooks";
 import { buildFavoriteWord } from "@/types/favorite";
+import {
+  resolveTranslationServices,
+  translationServices,
+  translationServicesBeforeAIProfilesLoad,
+} from "@/providers/translation";
 import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -28,6 +40,13 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
   const { isInstalledEudic } = useInstalledEudic();
   const { has, toggle } = useFavoriteWords();
+  const aiProviderProfiles = useAIProviderProfiles();
+  const resolvedTranslationServices = useMemo(() => {
+    if (aiProviderProfiles.profiles) {
+      return resolveTranslationServices(aiProviderProfiles.profiles);
+    }
+    return aiProviderProfiles.state.kind === "loading" ? translationServicesBeforeAIProfilesLoad : translationServices;
+  }, [aiProviderProfiles.profiles, aiProviderProfiles.state.kind]);
 
   const {
     displaySections,
@@ -40,7 +59,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     queryTextWithTextInfo,
     clearQueryResult,
     setAutoSelectedTargetLanguageItem,
-  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2);
+  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2, resolvedTranslationServices);
   const displaySectionIds = useMemo(
     () => getDisplaySectionIds(displaySections, queryGeneration),
     [displaySections, queryGeneration],
@@ -93,6 +112,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     useState<LanguageItem>(autoSelectedTargetLanguageItem);
 
   const setupCalled = useRef(false);
+  const shownProfileLoadErrorRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (!setupCalled.current) {
       setupCalled.current = true;
@@ -189,9 +209,33 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     updateInputTextAndQueryText(text, true);
   }
 
+  const profileLoadError =
+    aiProviderProfiles.state.kind === "invalid"
+      ? aiProviderProfiles.state.message
+      : aiProviderProfiles.state.kind === "unsupported"
+        ? `Unsupported AI provider configuration version: ${String(aiProviderProfiles.state.version)}`
+        : aiProviderProfiles.state.kind === "error"
+          ? aiProviderProfiles.state.error.message
+          : undefined;
+
+  useEffect(() => {
+    if (!profileLoadError) {
+      shownProfileLoadErrorRef.current = undefined;
+      return;
+    }
+    if (shownProfileLoadErrorRef.current === profileLoadError) return;
+
+    shownProfileLoadErrorRef.current = profileLoadError;
+    void showToast({
+      style: Toast.Style.Failure,
+      title: "Failed to Load AI Provider Configuration",
+      message: profileLoadError,
+    });
+  }, [profileLoadError]);
+
   return (
     <List
-      isLoading={isLoading}
+      isLoading={isLoading || aiProviderProfiles.isLoading}
       isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
@@ -234,7 +278,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
           </List.Section>
         );
       })}
-      <List.EmptyView icon={Icon.BlankDocument} title="Type a word to look up or translate" />
+      <List.EmptyView
+        icon={profileLoadError ? Icon.Warning : Icon.BlankDocument}
+        title={profileLoadError ? "AI Provider Configuration Error" : "Type a word to look up or translate"}
+        description={profileLoadError}
+      />
     </List>
   );
 }

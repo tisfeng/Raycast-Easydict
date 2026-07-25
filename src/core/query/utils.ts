@@ -20,21 +20,21 @@ import { logTrace } from "@/utils/logger";
  * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
  */
 export function sortedQueryResults(queryResults: QueryResult[]) {
-  const sortedQueryResults: Array<QueryResult | undefined> = [];
-  const unclassifiedResults: QueryResult[] = [];
-
-  for (const queryResult of queryResults) {
-    const typeString = queryResult.type.toString().toLowerCase();
-    const index = getSortOrder().indexOf(typeString);
-    if (index === -1) {
-      unclassifiedResults.push(queryResult);
-    } else {
-      sortedQueryResults[index] = queryResult;
-    }
-  }
-
-  const combinedResults = [...sortedQueryResults, ...unclassifiedResults];
-  return combinedResults.filter((queryResult): queryResult is QueryResult => queryResult !== undefined);
+  const typeOrder = getSortOrder();
+  return queryResults
+    .map((result, index) => ({ result, index }))
+    .sort((left, right) => {
+      const leftTypeOrder = typeOrder.indexOf(left.result.type.toString().toLowerCase());
+      const rightTypeOrder = typeOrder.indexOf(right.result.type.toString().toLowerCase());
+      const normalizedLeftOrder = leftTypeOrder === -1 ? Number.MAX_SAFE_INTEGER : leftTypeOrder;
+      const normalizedRightOrder = rightTypeOrder === -1 ? Number.MAX_SAFE_INTEGER : rightTypeOrder;
+      return (
+        normalizedLeftOrder - normalizedRightOrder ||
+        left.result.serviceOrder - right.result.serviceOrder ||
+        left.index - right.index
+      );
+    })
+    .map(({ result }) => result);
 }
 
 /**
@@ -159,10 +159,10 @@ export function getFromToLanguageTitle(from: string, to: string, onlyEmoji = fal
 }
 
 export function getTranslationShowMoreDetailsMarkdown(displayItem: ListDisplayItem): string {
-  const { queryType, copyText } = displayItem;
+  const { queryType, serviceLabel, copyText } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
 
-  const type = queryType.toString();
+  const type = serviceLabel ?? queryType.toString();
   const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
   const fromToTitle = `${type}  (${fromToLang})`;
 
@@ -197,8 +197,8 @@ ${explanation}
 /**
  * Get translation markdown.
  */
-export function getTranslationMarkdown(queryResult: TranslationResult) {
-  const { type, translations, queryWordInfo: wordInfo } = queryResult;
+export function getTranslationMarkdown(queryResult: TranslationResult, label = queryResult.type.toString()) {
+  const { translations, queryWordInfo: wordInfo } = queryResult;
   const oneLineTranslation = translations.join("\n");
   if (oneLineTranslation.trim().length === 0) {
     return "";
@@ -208,7 +208,7 @@ export function getTranslationMarkdown(queryResult: TranslationResult) {
   const fromTo = getFromToLanguageTitle(wordInfo.fromLanguage, wordInfo.toLanguage, true);
 
   const markdown = `
-## ${type}   (${fromTo})
+## ${label}   (${fromTo})
 ----  
 ${text}
 `;

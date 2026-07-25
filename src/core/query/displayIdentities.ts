@@ -10,8 +10,10 @@ export function getDisplaySectionIds(displaySections: DisplaySection[], queryGen
   const occurrenceBySection = new Map<string, number>();
 
   return displaySections.map((section) => {
-    const queryType = section.items[0]?.queryType ?? section.type;
-    const sectionIdentity = `${queryType}:${section.type}`;
+    const providerIdentity = section.serviceId
+      ? `service:${section.serviceId}`
+      : `query-type:${section.items[0]?.queryType ?? section.type}`;
+    const sectionIdentity = `${providerIdentity}:${section.type}`;
     const occurrence = occurrenceBySection.get(sectionIdentity) ?? 0;
     occurrenceBySection.set(sectionIdentity, occurrence + 1);
     return `query:${queryGeneration}:section:${sectionIdentity}:${occurrence}`;

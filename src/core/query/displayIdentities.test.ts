@@ -10,19 +10,29 @@ import { getDisplaySectionIds, getListItemId } from "./displayIdentities";
 
 describe("display identities", () => {
   it("keeps a provider section stable when an earlier provider result arrives", () => {
-    const google = createSection(TranslationType.Google, TranslationType.Google);
-    const linguee = createSection(DictionaryType.Linguee, LingueeListItemType.Translation);
+    const google = createSection("static:google", TranslationType.Google, TranslationType.Google);
+    const linguee = createSection("static:linguee", DictionaryType.Linguee, LingueeListItemType.Translation);
 
     expect(getDisplaySectionIds([google], 4)).toEqual([
-      `query:4:section:${TranslationType.Google}:${TranslationType.Google}:0`,
+      `query:4:section:service:static:google:${TranslationType.Google}:0`,
     ]);
     expect(getDisplaySectionIds([linguee, google], 4)[1]).toBe(
-      `query:4:section:${TranslationType.Google}:${TranslationType.Google}:0`,
+      `query:4:section:service:static:google:${TranslationType.Google}:0`,
     );
   });
 
+  it("distinguishes configured services that share the same provider type", () => {
+    const firstProfile = createSection("profile:first", TranslationType.OpenAI, TranslationType.OpenAI);
+    const secondProfile = createSection("profile:second", TranslationType.OpenAI, TranslationType.OpenAI);
+
+    expect(getDisplaySectionIds([firstProfile, secondProfile], 4)).toEqual([
+      `query:4:section:service:profile:first:${TranslationType.OpenAI}:0`,
+      `query:4:section:service:profile:second:${TranslationType.OpenAI}:0`,
+    ]);
+  });
+
   it("does not reuse section or item IDs across query generations", () => {
-    const sections = [createSection(TranslationType.Google, TranslationType.Google)];
+    const sections = [createSection("static:google", TranslationType.Google, TranslationType.Google)];
     const firstSectionId = getDisplaySectionIds(sections, 4)[0];
     const nextSectionId = getDisplaySectionIds(sections, 5)[0];
 
@@ -38,7 +48,11 @@ describe("display identities", () => {
   });
 });
 
-function createSection(queryType: ListDisplayItem["queryType"], type: DisplaySection["type"]): DisplaySection {
+function createSection(
+  serviceId: string,
+  queryType: ListDisplayItem["queryType"],
+  type: DisplaySection["type"],
+): DisplaySection {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
   const item = {
     queryType,
@@ -48,5 +62,5 @@ function createSection(queryType: ListDisplayItem["queryType"], type: DisplaySec
     copyText: "Mutable Result Text",
   } as ListDisplayItem;
 
-  return { type, items: [item] };
+  return { serviceId, type, items: [item] };
 }
