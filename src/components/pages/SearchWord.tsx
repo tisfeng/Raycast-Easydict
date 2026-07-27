@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ListActionPanel } from "@/components/ui/ActionPanel";
 import { getListItemIcon } from "@/components/ui/Icons";
@@ -9,10 +9,13 @@ import { getWordAccessories } from "@/components/ui/WordAccessories";
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
+import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { useDebouncedQuery, useFavoriteWords, useInstalledEudic, useQueryEngine, useReleasePrompt } from "@/hooks";
 import { buildFavoriteWord } from "@/types/favorite";
 import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
+
+import { useFirstItemAnchor } from "./useFirstItemAnchor";
 
 interface SearchWordProps {
   initialQueryText?: string;
@@ -28,6 +31,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
   const {
     displaySections,
+    queryGeneration,
     isLoading,
     isShowDetail,
     currentFromLanguageItem,
@@ -37,6 +41,18 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     clearQueryResult,
     setAutoSelectedTargetLanguageItem,
   } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2);
+  const displaySectionIds = useMemo(
+    () => getDisplaySectionIds(displaySections, queryGeneration),
+    [displaySections, queryGeneration],
+  );
+  const itemIds = useMemo(
+    () =>
+      displaySections.flatMap((section, sectionIndex) =>
+        section.items.map((_, itemIndex) => getListItemId(displaySectionIds[sectionIndex], itemIndex)),
+      ),
+    [displaySectionIds, displaySections],
+  );
+  const selectedItemId = useFirstItemAnchor(itemIds, isLoading);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
@@ -180,16 +196,19 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}
       onSearchTextChange={onInputChange}
+      selectedItemId={selectedItemId}
       actions={null}
     >
       {displaySections.map((resultItem, sectionIndex) => {
-        const sectionKey = `${resultItem.type}${sectionIndex}`;
+        const sectionId = displaySectionIds[sectionIndex];
         return (
-          <List.Section key={sectionKey} title={resultItem.sectionTitle}>
-            {resultItem.items?.map((item) => {
+          <List.Section key={sectionId} title={resultItem.sectionTitle}>
+            {resultItem.items?.map((item, itemIndex) => {
+              const itemId = getListItemId(sectionId, itemIndex);
               return (
                 <List.Item
-                  key={item.key}
+                  key={itemId}
+                  id={itemId}
                   icon={{
                     value: getListItemIcon(item),
                     tooltip: item.tooltip || "",

@@ -380,6 +380,7 @@ export function useQueryEngine(initialFromLanguage: LanguageItem, initialTargetL
 
   return {
     displaySections,
+    queryGeneration: state.activeGeneration,
     isLoading: state.isLoading,
     isShowDetail: state.isShowDetail,
     currentFromLanguageItem: state.currentFromLanguageItem,
