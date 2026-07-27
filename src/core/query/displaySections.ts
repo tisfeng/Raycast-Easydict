@@ -29,7 +29,7 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
   for (const queryResult of queryResults) {
     if ("hideDisplay" in queryResult && queryResult.hideDisplay) continue;
 
-    const { serviceId, serviceLabel } = queryResult;
+    const { serviceId, serviceLabel, serviceIcon } = queryResult;
     const isTrans = "translations" in queryResult;
     let isFirstDictSection = true;
 
@@ -59,7 +59,7 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
         serviceId,
         sectionTitle,
         items: section.items.map((item, idx) => {
-          const identifiedItem = { ...item, serviceId, serviceLabel };
+          const identifiedItem = { ...item, serviceId, serviceLabel, serviceIcon };
           const displayItem = idx === 0 ? { ...identifiedItem, detailsMarkdown } : identifiedItem;
           const showMoreDetailsMarkdown = isTrans
             ? getTranslationShowMoreDetailsMarkdown(displayItem)

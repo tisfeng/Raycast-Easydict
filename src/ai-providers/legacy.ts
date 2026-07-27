@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { normalizeOpenAICompatibleEndpoint } from "./endpoint";
 import { inferTokenLimitMode } from "./tokenLimit";
 import type { AIProviderProfile, OpenAICompatibleProfile, StoredAIProviderStateV1 } from "./types";
 
@@ -44,10 +45,12 @@ export function importLegacyAIProviders(
       enabled: legacy.openAI.enabled,
       order: state.profiles.length + imported.length,
       icon: { kind: "preset", name: "openai" },
-      endpoint: normalizeOpenAIEndpoint(legacy.openAI.endpoint),
+      wordResultMode: "translation",
+      endpoint: normalizeOpenAICompatibleEndpoint(legacy.openAI.endpoint),
       website: "https://openai.com",
       model: legacy.openAI.model,
       apiKey: legacy.openAI.apiKey,
+      jsonOutputMode: "prompt",
       tokenLimitMode: legacy.openAI.forceMaxCompletionTokens
         ? "max-completion-tokens"
         : inferTokenLimitMode(legacy.openAI.endpoint, legacy.openAI.model),
@@ -61,10 +64,12 @@ export function importLegacyAIProviders(
       enabled: legacy.gemini.enabled,
       order: state.profiles.length + imported.length,
       icon: { kind: "preset", name: "gemini" },
+      wordResultMode: "translation",
       endpoint: normalizeGeminiEndpoint(legacy.gemini.endpoint),
       website: "https://gemini.google.com",
       model: legacy.gemini.model,
       apiKey: legacy.gemini.apiKey,
+      jsonOutputMode: "prompt",
       tokenLimitMode: inferTokenLimitMode(legacy.gemini.endpoint, legacy.gemini.model),
     });
   }
@@ -96,13 +101,6 @@ export function hasLegacyAIProvidersToImport(
 export function hasImportedLegacyAIProvider(profiles: AIProviderProfile[], provider: LegacyAIProviderName): boolean {
   const profileId = provider === "openai" ? LEGACY_OPENAI_PROFILE_ID : LEGACY_GEMINI_PROFILE_ID;
   return profiles.some((profile) => profile.id === profileId);
-}
-
-export function normalizeOpenAIEndpoint(endpoint: string): string {
-  return endpoint
-    .trim()
-    .replace(/\/chat\/completions\/?$/, "")
-    .replace(/\/+$/, "");
 }
 
 export function normalizeGeminiEndpoint(endpoint: string): string {

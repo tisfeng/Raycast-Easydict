@@ -1,5 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { normalizeOpenAICompatibleEndpoint } from "@/ai-providers/endpoint";
+import { getTokenLimitParams } from "@/ai-providers/tokenLimit";
 import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { TranslationType } from "@/types/api";
 
@@ -18,10 +20,7 @@ export class ConfiguredOpenAICompatibleTranslateProvider extends BaseOpenAICompa
   }
 
   protected getEndpoint() {
-    return this.profile.endpoint
-      .trim()
-      .replace(/\/chat\/completions\/?$/, "")
-      .replace(/\/+$/, "");
+    return normalizeOpenAICompatibleEndpoint(this.profile.endpoint);
   }
 
   protected getModel() {
@@ -33,9 +32,6 @@ export class ConfiguredOpenAICompatibleTranslateProvider extends BaseOpenAICompa
   }
 
   protected getTokenLimitParams() {
-    if (this.profile.tokenLimitMode === "max-completion-tokens") {
-      return { max_completion_tokens: DEFAULT_MAX_TOKENS };
-    }
-    return { max_tokens: DEFAULT_MAX_TOKENS };
+    return getTokenLimitParams(this.profile.tokenLimitMode, DEFAULT_MAX_TOKENS);
   }
 }

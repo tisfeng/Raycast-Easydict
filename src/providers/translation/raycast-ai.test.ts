@@ -33,6 +33,7 @@ const profile: RaycastAIProfile = {
   order: 0,
   model: "test-model",
   icon: { kind: "preset", name: "raycast" },
+  wordResultMode: "translation",
 };
 
 describe("Raycast AI streaming provider", () => {

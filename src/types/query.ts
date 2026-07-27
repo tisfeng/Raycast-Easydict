@@ -1,5 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import type { ProviderIconConfig } from "@/ai-providers/types";
+
 import type { DictionaryType, TranslationType } from "./api";
 import type { DisplaySection } from "./display";
 
@@ -31,10 +33,19 @@ export interface QueryWordInfo extends QueryInput {
 
 export type QueryType = TranslationType | DictionaryType;
 
+export interface RuntimeServiceConfig {
+  id: string;
+  label: string;
+  order: number;
+  revision: string;
+  icon?: ProviderIconConfig;
+}
+
 export interface RuntimeServiceMetadata {
   serviceId: string;
   serviceLabel: string;
   serviceOrder: number;
+  serviceIcon?: ProviderIconConfig;
 }
 
 interface ProviderResult<T, TType extends QueryType> {

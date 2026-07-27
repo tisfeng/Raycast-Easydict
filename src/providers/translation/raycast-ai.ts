@@ -2,6 +2,7 @@
 
 import { AI, environment } from "@raycast/api";
 
+import { getRaycastAIModel } from "@/ai-providers/runtime";
 import type { RaycastAIProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
@@ -114,8 +115,4 @@ async function* streamRaycastAIAnswer(
   } finally {
     signal?.removeEventListener("abort", handleAbort);
   }
-}
-
-export function getRaycastAIModel(value: string): AI.Model | undefined {
-  return Object.values(AI.Model).find((model) => model === value);
 }

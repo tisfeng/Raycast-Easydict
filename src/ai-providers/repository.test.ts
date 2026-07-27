@@ -39,10 +39,12 @@ describe("AI provider repository", () => {
           enabled: true,
           order: 0,
           icon: { kind: "preset", name: "mimo" },
+          wordResultMode: "dictionary",
           endpoint: "https://example.com/v1",
           model: "example-model",
           apiKey: "test-placeholder",
           tokenLimitMode: "max-tokens",
+          jsonOutputMode: "json-object",
         },
       ],
     };

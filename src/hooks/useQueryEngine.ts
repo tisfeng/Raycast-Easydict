@@ -20,7 +20,14 @@ import type { TranslationServiceConfig } from "@/providers/translation";
 import { translationServices } from "@/providers/translation";
 import { TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { DictionaryQueryResult, QueryInput, TranslationQueryResult, TranslationResult } from "@/types/query";
+import type {
+  DictionaryQueryResult,
+  QueryInput,
+  RuntimeServiceConfig,
+  RuntimeServiceMetadata,
+  TranslationQueryResult,
+  TranslationResult,
+} from "@/types/query";
 import { RequestError, showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
@@ -30,6 +37,25 @@ interface QuerySession {
   generation: number;
   signal: AbortSignal;
 }
+
+function createRuntimeServiceMetadata(service: RuntimeServiceConfig): RuntimeServiceMetadata {
+  return {
+    serviceId: service.id,
+    serviceLabel: service.label,
+    serviceOrder: service.order,
+    serviceIcon: service.icon,
+  };
+}
+
+export interface QueryServiceSnapshot {
+  translationServices: TranslationServiceConfig[];
+  dictionaryServices: DictionaryServiceConfig[];
+}
+
+const defaultQueryServiceSnapshot: QueryServiceSnapshot = {
+  translationServices,
+  dictionaryServices: dictionaryProviderServices,
+};
 
 // Initial State
 
@@ -107,7 +133,7 @@ function createStreamDebouncer(
 export function useQueryEngine(
   initialFromLanguage: LanguageItem,
   initialTargetLanguage: LanguageItem,
-  translationServiceSnapshot: TranslationServiceConfig[] = translationServices,
+  serviceSnapshot: QueryServiceSnapshot = defaultQueryServiceSnapshot,
 ) {
   const [state, dispatch] = useReducer(
     queryReducer,
@@ -121,10 +147,13 @@ export function useQueryEngine(
   const generationRef = useRef(0);
   const isEffectMountedRef = useRef(false);
   const currentQueryWordInfoRef = useRef<QueryInput | undefined>(undefined);
-  const translationServiceSnapshotRef = useRef(translationServiceSnapshot);
-  translationServiceSnapshotRef.current = translationServiceSnapshot;
-  const snapshotRevision = translationServiceSnapshot.map((service) => service.revision).join("|");
-  const previousTranslationServiceSnapshotRef = useRef(translationServiceSnapshot);
+  const serviceSnapshotRef = useRef(serviceSnapshot);
+  serviceSnapshotRef.current = serviceSnapshot;
+  const snapshotRevision = [
+    ...serviceSnapshot.translationServices.map((service) => `translation:${service.revision}`),
+    ...serviceSnapshot.dictionaryServices.map((service) => `dictionary:${service.revision}`),
+  ].join("|");
+  const previousServiceSnapshotRef = useRef(serviceSnapshot);
 
   const beginQuerySession = useCallback((): QuerySession => {
     generationRef.current += 1;
@@ -169,9 +198,6 @@ export function useQueryEngine(
       const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 
       const displayItem: ListDisplayItem = {
-        serviceId: service.id,
-        serviceLabel: service.label,
-        serviceIcon: service.icon,
         queryType: type,
         key: isStreamingProvider ? service.id : `${service.id}:${oneLineTranslation}`,
         title: oneLineTranslation,
@@ -182,9 +208,7 @@ export function useQueryEngine(
 
       return {
         ...queryResult,
-        serviceId: service.id,
-        serviceLabel: service.label,
-        serviceOrder: service.order,
+        ...createRuntimeServiceMetadata(service),
         displaySections,
         hideDisplay: computeHideDisplay(type),
       };
@@ -237,12 +261,10 @@ export function useQueryEngine(
 
   const runDictionaryQuery = useCallback(
     async (config: DictionaryServiceConfig, queryWordInfo: QueryInput, session: QuerySession) => {
-      const enabled = config.isEnabled?.(queryWordInfo) ?? myPreferences[config.preference];
-      if (!enabled) return;
+      if (!config.enabled(queryWordInfo)) return;
 
-      const serviceId = `static:${config.type}`;
-      dispatch({ type: "START_QUERY", serviceId, generation: session.generation });
-      const instance = new config.provider();
+      dispatch({ type: "START_QUERY", serviceId: config.id, generation: session.generation });
+      const instance = config.createProvider();
 
       try {
         const result = await instance.request(queryWordInfo, { signal: session.signal });
@@ -250,9 +272,7 @@ export function useQueryEngine(
         if (displaySections?.length) {
           const queryResult: DictionaryQueryResult = {
             ...result,
-            serviceId,
-            serviceLabel: config.type,
-            serviceOrder: dictionaryProviderServices.indexOf(config),
+            ...createRuntimeServiceMetadata(config),
             displaySections,
           };
           dispatch({ type: "SET_RESULT", queryResult, generation: session.generation });
@@ -265,7 +285,8 @@ export function useQueryEngine(
             session.generation === generationRef.current &&
             !session.signal.aborted &&
             isCurrentQueryRef.current &&
-            !hasPlayedAudioRef.current;
+            !hasPlayedAudioRef.current &&
+            config.canTriggerAutomaticAudio;
 
           if (shouldAutoPlay) {
             hasPlayedAudioRef.current = true;
@@ -278,9 +299,11 @@ export function useQueryEngine(
           }
         }
       } catch (error) {
-        showErrorToast(error);
+        showErrorToast(
+          error instanceof RequestError ? new RequestError(config.label, error.message, error.code) : error,
+        );
       } finally {
-        dispatch({ type: "FINISH_QUERY", serviceId, generation: session.generation });
+        dispatch({ type: "FINISH_QUERY", serviceId: config.id, generation: session.generation });
       }
     },
     [],
@@ -288,11 +311,11 @@ export function useQueryEngine(
 
   const runAllProviders = useCallback(
     (queryWordInfo: QueryInput, session: QuerySession) => {
-      for (const config of dictionaryProviderServices) {
+      for (const config of serviceSnapshotRef.current.dictionaryServices) {
         runDictionaryQuery(config, queryWordInfo, session);
       }
 
-      for (const config of translationServiceSnapshotRef.current) {
+      for (const config of serviceSnapshotRef.current.translationServices) {
         runTranslationQuery(config, queryWordInfo, session);
       }
 
@@ -386,22 +409,31 @@ export function useQueryEngine(
   );
 
   useEffect(() => {
-    const previousSnapshot = previousTranslationServiceSnapshotRef.current;
-    previousTranslationServiceSnapshotRef.current = translationServiceSnapshot;
-    if (previousSnapshot === translationServiceSnapshot) return;
+    const previousSnapshot = previousServiceSnapshotRef.current;
+    previousServiceSnapshotRef.current = serviceSnapshot;
+    if (previousSnapshot === serviceSnapshot) return;
     const queryWordInfo = currentQueryWordInfoRef.current;
     const signal = abortControllerRef.current?.signal;
     if (!queryWordInfo || !signal || signal.aborted) return;
 
-    const previousServiceIds = new Set(previousSnapshot.map((service) => service.id));
-    const addedServices = translationServiceSnapshot.filter((service) => !previousServiceIds.has(service.id));
-    if (addedServices.length === 0) return;
+    const previousTranslationServiceIds = new Set(previousSnapshot.translationServices.map((service) => service.id));
+    const addedTranslationServices = serviceSnapshot.translationServices.filter(
+      (service) => !previousTranslationServiceIds.has(service.id),
+    );
+    const previousDictionaryServiceIds = new Set(previousSnapshot.dictionaryServices.map((service) => service.id));
+    const addedDictionaryServices = serviceSnapshot.dictionaryServices.filter(
+      (service) => !previousDictionaryServiceIds.has(service.id),
+    );
+    if (addedTranslationServices.length === 0 && addedDictionaryServices.length === 0) return;
 
     const session = { generation: generationRef.current, signal };
-    for (const service of addedServices) {
+    for (const service of addedDictionaryServices) {
+      runDictionaryQuery(service, queryWordInfo, session);
+    }
+    for (const service of addedTranslationServices) {
       runTranslationQuery(service, queryWordInfo, session);
     }
-  }, [runTranslationQuery, snapshotRevision, translationServiceSnapshot]);
+  }, [runDictionaryQuery, runTranslationQuery, serviceSnapshot, snapshotRevision]);
 
   const clearQueryResult = useCallback(() => {
     currentQueryWordInfoRef.current = undefined;

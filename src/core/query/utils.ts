@@ -46,6 +46,7 @@ function getSortOrder(): string[] {
   const defaultOrderList = [
     DictionaryType.Youdao,
     DictionaryType.Linguee,
+    DictionaryType.AI,
 
     TranslationType.OpenAI,
     TranslationType.Gemini,
@@ -180,10 +181,10 @@ export function getTranslationShowMoreDetailsMarkdown(displayItem: ListDisplayIt
 }
 
 export function getDictionaryShowMoreDetailsMarkdown(displayItem: ListDisplayItem): string {
-  const { queryType, title, detailsMarkdown } = displayItem;
+  const { queryType, serviceLabel, title, detailsMarkdown } = displayItem;
   const { word, fromLanguage, toLanguage } = displayItem.queryWordInfo;
   const fromToLang = getFromToLanguageTitle(fromLanguage, toLanguage);
-  const fromToTitle = `${queryType}  (${fromToLang})`;
+  const fromToTitle = `${serviceLabel ?? queryType}  (${fromToLang})`;
   const explanation = detailsMarkdown || title;
 
   return `

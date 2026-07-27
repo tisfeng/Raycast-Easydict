@@ -120,10 +120,14 @@ beforeEach(() => {
   testDoubles.playQueryWordAudio.mockReset().mockResolvedValue(undefined);
   testDoubles.showErrorToast.mockReset();
   testDoubles.dictionaryServices.splice(0, testDoubles.dictionaryServices.length, {
+    id: `static:${DictionaryType.Linguee}`,
+    label: DictionaryType.Linguee,
+    order: 0,
+    revision: `static:${DictionaryType.Linguee}`,
     type: DictionaryType.Linguee,
-    preference: "enableLingueeDictionary",
-    provider: DeferredDictionaryProvider,
-    isEnabled: () => true,
+    enabled: () => true,
+    createProvider: () => new DeferredDictionaryProvider(),
+    canTriggerAutomaticAudio: true,
   });
 });
 
@@ -139,12 +143,16 @@ describe("useQueryEngine query generations", () => {
       order: 0,
       revision: "test:1",
       type: TranslationType.OpenAI,
+      icon: { kind: "preset", name: "gemini" },
       enabled: () => true,
       createProvider: () => new RecordingTranslationProvider(),
     };
     const { result, rerender } = renderHook(
       ({ services }: { services: TranslationServiceConfig[] }) =>
-        useQueryEngine(englishLanguageItem, chineseLanguageItem, services),
+        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+          translationServices: services,
+          dictionaryServices: testDoubles.dictionaryServices,
+        }),
       { initialProps: { services: [] as TranslationServiceConfig[] } },
     );
 
@@ -157,8 +165,51 @@ describe("useQueryEngine query generations", () => {
     rerender({ services: [dynamicService] });
     await waitFor(() => expect(translationRequests).toHaveLength(1));
     expect(translationRequests[0].word).toBe("incremental");
+    await waitFor(() =>
+      expect(
+        result.current.displaySections
+          .flatMap((section) => section.items)
+          .find((item) => item.serviceId === dynamicService.id)?.serviceIcon,
+      ).toEqual({ kind: "preset", name: "gemini" }),
+    );
     expect(dictionaryRequests).toHaveLength(1);
     await resolveDictionaryRequest(0);
+  });
+
+  it("adds a late dictionary service once without letting it claim automatic audio", async () => {
+    const dynamicDictionaryService: DictionaryServiceConfig = {
+      id: "profile:test:dictionary",
+      label: "Test AI Dictionary",
+      order: 0,
+      revision: "dictionary:test:1",
+      type: DictionaryType.AI,
+      enabled: () => true,
+      createProvider: () => new DeferredDictionaryProvider(),
+      canTriggerAutomaticAudio: false,
+    };
+    const { result, rerender } = renderHook(
+      ({ dictionaryServices }: { dictionaryServices: DictionaryServiceConfig[] }) =>
+        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+          translationServices: [],
+          dictionaryServices,
+        }),
+      { initialProps: { dictionaryServices: testDoubles.dictionaryServices } },
+    );
+
+    act(() => {
+      result.current.queryTextWithTextInfo(createQueryInput("incremental"));
+    });
+    expect(dictionaryRequests).toHaveLength(1);
+
+    rerender({ dictionaryServices: [...testDoubles.dictionaryServices, dynamicDictionaryService] });
+    await waitFor(() => expect(dictionaryRequests).toHaveLength(2));
+
+    await resolveDictionaryRequest(1);
+    expect(testDoubles.playQueryWordAudio).not.toHaveBeenCalled();
+
+    await resolveDictionaryRequest(0);
+    await waitFor(() => expect(testDoubles.playQueryWordAudio).toHaveBeenCalledTimes(1));
+    expect(dictionaryRequests).toHaveLength(2);
   });
 
   it("keeps the initial query active through the development Strict Mode effect replay", async () => {

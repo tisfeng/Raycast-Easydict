@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { hasImportedLegacyAIProvider } from "@/ai-providers/legacy";
-import { getAIProviderProfileValidationError } from "@/ai-providers/profile";
-import type { AIProviderProfile, ProviderIconConfig } from "@/ai-providers/types";
+import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
+import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
@@ -10,7 +10,7 @@ import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
 import type { BooleanPreferenceKey } from "@/types/preferences";
-import type { QueryInput } from "@/types/query";
+import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
 import { AppleTranslateProvider } from "./apple";
 import { BaiduTranslateProvider } from "./baidu";
@@ -22,18 +22,13 @@ import { DeepLXTranslateProvider } from "./deepLX";
 import { GoogleTranslateProvider } from "./google";
 import { GeminiTranslateProvider, OpenAITranslateProvider } from "./openai-compatible";
 import { ConfiguredOpenAICompatibleTranslateProvider } from "./openai-compatible/configured";
-import { getRaycastAIModel, RaycastAITranslateProvider } from "./raycast-ai";
+import { RaycastAITranslateProvider } from "./raycast-ai";
 import { TencentTranslateProvider } from "./tencent";
 import { VolcanoTranslateProvider } from "./volcano";
 import { YoudaoTranslateProvider } from "./youdao";
 
-export interface TranslationServiceConfig {
-  id: string;
-  label: string;
-  order: number;
-  revision: string;
+export interface TranslationServiceConfig extends RuntimeServiceConfig {
   type: TranslationType;
-  icon?: ProviderIconConfig;
   enabled: (queryWordInfo: QueryInput) => boolean;
   createProvider: () => BaseTranslateProvider;
   getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
@@ -140,18 +135,14 @@ export const translationServicesBeforeAIProfilesLoad = translationServices.filte
 
 export function resolveTranslationServices(profiles: AIProviderProfile[]): TranslationServiceConfig[] {
   const dynamicServices = profiles.map((profile): TranslationServiceConfig => {
-    const icon =
-      profile.icon.kind === "favicon" && !profile.icon.website && profile.adapter === "openai-compatible"
-        ? { kind: "favicon" as const, website: profile.website ?? profile.endpoint }
-        : profile.icon;
     const common = {
       id: `profile:${profile.id}`,
       label: profile.name,
       order: profile.order,
       revision: JSON.stringify(profile),
       type: TranslationType.OpenAI,
-      icon,
-      enabled: () => profile.enabled && isAIProviderProfileRunnable(profile),
+      icon: resolveAIProviderIcon(profile),
+      enabled: (queryWordInfo: QueryInput) => getAIProviderQueryMode(profile, queryWordInfo) === "translation",
     };
 
     return {
@@ -175,12 +166,4 @@ export function createAITranslationProvider(profile: AIProviderProfile): BaseTra
   return profile.adapter === "raycast-ai"
     ? new RaycastAITranslateProvider(profile)
     : new ConfiguredOpenAICompatibleTranslateProvider(profile);
-}
-
-export function isAIProviderProfileRunnable(profile: AIProviderProfile): boolean {
-  if (getAIProviderProfileValidationError(profile)) return false;
-  if (profile.adapter === "raycast-ai") {
-    return getRaycastAIModel(profile.model) !== undefined;
-  }
-  return true;
 }

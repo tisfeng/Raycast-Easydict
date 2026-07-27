@@ -6,10 +6,12 @@ import { createTimer } from "@/utils/logger";
 
 import {
   type AIProviderProfile,
+  type JSONOutputMode,
   PROVIDER_ICON_NAMES,
   type ProviderIconConfig,
   type StoredAIProviderStateV1,
   type TokenLimitMode,
+  type WordResultMode,
 } from "./types";
 
 export const AI_PROVIDER_STORAGE_KEY = "ai-provider-profiles";
@@ -86,7 +88,8 @@ function isAIProviderProfile(value: unknown): value is AIProviderProfile {
     typeof value.enabled !== "boolean" ||
     typeof value.order !== "number" ||
     !Number.isFinite(value.order) ||
-    !isProviderIconConfig(value.icon)
+    !isProviderIconConfig(value.icon) ||
+    !isWordResultMode(value.wordResultMode)
   ) {
     return false;
   }
@@ -101,7 +104,8 @@ function isAIProviderProfile(value: unknown): value is AIProviderProfile {
     typeof value.model === "string" &&
     typeof value.apiKey === "string" &&
     (value.website === undefined || typeof value.website === "string") &&
-    isTokenLimitMode(value.tokenLimitMode)
+    isTokenLimitMode(value.tokenLimitMode) &&
+    isJSONOutputMode(value.jsonOutputMode)
   );
 }
 
@@ -123,6 +127,14 @@ function isProviderIconConfig(value: unknown): value is ProviderIconConfig {
 
 function isTokenLimitMode(value: unknown): value is TokenLimitMode {
   return value === "max-tokens" || value === "max-completion-tokens";
+}
+
+function isJSONOutputMode(value: unknown): value is JSONOutputMode {
+  return value === "prompt" || value === "json-object";
+}
+
+function isWordResultMode(value: unknown): value is WordResultMode {
+  return value === "translation" || value === "dictionary";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

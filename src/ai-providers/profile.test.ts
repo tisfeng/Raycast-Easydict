@@ -14,10 +14,12 @@ const profile: OpenAICompatibleProfile = {
   enabled: true,
   order: 0,
   icon: { kind: "initials" },
+  wordResultMode: "translation",
   endpoint: "https://example.com/v1",
   model: "example-model",
   apiKey: "test-key",
   tokenLimitMode: "max-tokens",
+  jsonOutputMode: "prompt",
 };
 
 describe("AI provider profiles", () => {

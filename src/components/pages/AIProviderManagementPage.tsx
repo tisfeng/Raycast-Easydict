@@ -30,18 +30,22 @@ import {
 import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/ai-providers/presets";
 import { getAIProviderProfileValidationError, normalizeAIProviderProfile } from "@/ai-providers/profile";
 import { createEmptyAIProviderState } from "@/ai-providers/repository";
+import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
 import type {
   AIProviderProfile,
+  JSONOutputMode,
   OpenAICompatibleProfile,
   ProviderIconConfig,
   RaycastAIProfile,
   TokenLimitMode,
+  WordResultMode,
 } from "@/ai-providers/types";
 import { getProviderIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
 import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
+import { createAIDictionaryProvider } from "@/providers/dictionary/ai";
 import { ProviderConfig } from "@/providers/shared/config";
-import { createAITranslationProvider, isAIProviderProfileRunnable } from "@/providers/translation";
+import { createAITranslationProvider } from "@/providers/translation";
 import { normalizeError } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
@@ -286,6 +290,10 @@ function AIProviderForm({
   const [tokenLimitMode, setTokenLimitMode] = useState<TokenLimitMode>(
     profile.adapter === "openai-compatible" ? profile.tokenLimitMode : "max-tokens",
   );
+  const [jsonOutputMode, setJSONOutputMode] = useState<JSONOutputMode>(
+    profile.adapter === "openai-compatible" ? profile.jsonOutputMode : "prompt",
+  );
+  const [wordResultMode, setWordResultMode] = useState<WordResultMode>(profile.wordResultMode);
   const [iconSelection, setIconSelection] = useState<IconSelection>(
     profile.icon.kind === "preset" ? profile.icon.name : profile.icon.kind,
   );
@@ -322,7 +330,7 @@ function AIProviderForm({
 
     return normalizeAIProviderProfile(
       profile.adapter === "raycast-ai"
-        ? { ...profile, name, model, icon }
+        ? { ...profile, name, model, icon, wordResultMode }
         : {
             ...profile,
             name,
@@ -331,7 +339,9 @@ function AIProviderForm({
             model,
             apiKey,
             tokenLimitMode,
+            jsonOutputMode,
             icon,
+            wordResultMode,
           },
     );
   }
@@ -371,16 +381,25 @@ function AIProviderForm({
     });
 
     try {
-      const iterator = createAITranslationProvider(draft).request(
-        { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS" },
-        { signal: abortController.signal },
-      );
-      let translation = "";
-      while (true) {
-        const next = await iterator.next();
-        if (next.done) {
-          translation = next.value.translations[0]?.trim() ?? "";
-          break;
+      let translation: string;
+      if (draft.wordResultMode === "dictionary") {
+        const result = await createAIDictionaryProvider(draft).request(
+          { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
+          { signal: abortController.signal },
+        );
+        translation = result.result?.translation.trim() ?? "";
+      } else {
+        const iterator = createAITranslationProvider(draft).request(
+          { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS" },
+          { signal: abortController.signal },
+        );
+        translation = "";
+        while (true) {
+          const next = await iterator.next();
+          if (next.done) {
+            translation = next.value.translations[0]?.trim() ?? "";
+            break;
+          }
         }
       }
       if (!translation) throw new Error("The provider returned an empty translation.");
@@ -566,6 +585,26 @@ function AIProviderForm({
         </Form.Dropdown>
       )}
       <Form.Dropdown
+        id="wordResultMode"
+        title="Word & Term Results"
+        value={wordResultMode}
+        onChange={(value) => setWordResultMode(value as WordResultMode)}
+      >
+        <Form.Dropdown.Item title="Plain Translation" value="translation" />
+        <Form.Dropdown.Item title="AI-Generated Dictionary Entry" value="dictionary" />
+      </Form.Dropdown>
+      {profile.adapter === "openai-compatible" && wordResultMode === "dictionary" && (
+        <Form.Dropdown
+          id="jsonOutputMode"
+          title="JSON Output"
+          value={jsonOutputMode}
+          onChange={(value) => setJSONOutputMode(value as JSONOutputMode)}
+        >
+          <Form.Dropdown.Item title="Prompt-Based JSON (Compatible)" value="prompt" />
+          <Form.Dropdown.Item title="Native JSON Object (If Supported)" value="json-object" />
+        </Form.Dropdown>
+      )}
+      <Form.Dropdown
         id="icon"
         title="Icon"
         value={iconSelection}
@@ -600,6 +639,8 @@ function createOpenAIProfile(presetName: OpenAICompatiblePresetName, order: numb
     enabled: true,
     order,
     apiKey: "",
+    wordResultMode: "translation",
+    jsonOutputMode: "prompt",
     ...preset,
   };
 }
@@ -635,6 +676,7 @@ function createRaycastAIProfile(order: number): RaycastAIProfile {
     order,
     model: getDefaultRaycastAIModel(),
     icon: { kind: "preset", name: "raycast" },
+    wordResultMode: "translation",
   };
 }
 

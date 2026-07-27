@@ -30,14 +30,18 @@ describe("legacy AI provider import", () => {
       {
         id: "legacy-openai",
         enabled: true,
+        wordResultMode: "translation",
         endpoint: "https://api.openai.com/v1",
         tokenLimitMode: "max-tokens",
+        jsonOutputMode: "prompt",
       },
       {
         id: "legacy-gemini",
         enabled: false,
+        wordResultMode: "translation",
         endpoint: "https://generativelanguage.googleapis.com/v1beta/openai",
         tokenLimitMode: "max-tokens",
+        jsonOutputMode: "prompt",
       },
     ]);
     expect(importLegacyAIProviders(converted, legacy)).toBe(converted);

@@ -2,6 +2,7 @@
 
 import { streamText } from "@xsai/stream-text";
 
+import type { TokenLimitParams } from "@/ai-providers/tokenLimit";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
 import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/types/query";
@@ -9,10 +10,6 @@ import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
 import { createTranslationPromptSpec, renderTranslationChatMessages } from "../ai-prompt";
-
-type MaxTokensParams = { max_tokens: number };
-type MaxCompletionTokensParams = { max_completion_tokens: number };
-export type TokenLimitParams = MaxTokensParams | MaxCompletionTokensParams;
 
 export interface OpenAICompatibleTranslateResult {
   translatedText: string;

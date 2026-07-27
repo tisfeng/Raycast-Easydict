@@ -18,12 +18,13 @@ import {
   useQueryEngine,
   useReleasePrompt,
 } from "@/hooks";
-import { buildFavoriteWord } from "@/types/favorite";
+import { dictionaryProviderServices, resolveDictionaryServices } from "@/providers/dictionary";
 import {
   resolveTranslationServices,
   translationServices,
   translationServicesBeforeAIProfilesLoad,
 } from "@/providers/translation";
+import { buildFavoriteWord } from "@/types/favorite";
 import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 
@@ -41,11 +42,18 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const { isInstalledEudic } = useInstalledEudic();
   const { has, toggle } = useFavoriteWords();
   const aiProviderProfiles = useAIProviderProfiles();
-  const resolvedTranslationServices = useMemo(() => {
+  const resolvedServiceSnapshot = useMemo(() => {
     if (aiProviderProfiles.profiles) {
-      return resolveTranslationServices(aiProviderProfiles.profiles);
+      return {
+        translationServices: resolveTranslationServices(aiProviderProfiles.profiles),
+        dictionaryServices: resolveDictionaryServices(aiProviderProfiles.profiles),
+      };
     }
-    return aiProviderProfiles.state.kind === "loading" ? translationServicesBeforeAIProfilesLoad : translationServices;
+    return {
+      translationServices:
+        aiProviderProfiles.state.kind === "loading" ? translationServicesBeforeAIProfilesLoad : translationServices,
+      dictionaryServices: dictionaryProviderServices,
+    };
   }, [aiProviderProfiles.profiles, aiProviderProfiles.state.kind]);
 
   const {
@@ -59,7 +67,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     queryTextWithTextInfo,
     clearQueryResult,
     setAutoSelectedTargetLanguageItem,
-  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2, resolvedTranslationServices);
+  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2, resolvedServiceSnapshot);
   const displaySectionIds = useMemo(
     () => getDisplaySectionIds(displaySections, queryGeneration),
     [displaySections, queryGeneration],
@@ -71,7 +79,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       ),
     [displaySectionIds, displaySections],
   );
-  const selectedItemId = useFirstItemAnchor(itemIds, isLoading);
+  const listIsLoading = isLoading || aiProviderProfiles.isLoading;
+  const selectedItemId = useFirstItemAnchor(itemIds, listIsLoading);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
@@ -235,7 +244,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
   return (
     <List
-      isLoading={isLoading || aiProviderProfiles.isLoading}
+      isLoading={listIsLoading}
       isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
       searchText={inputText}

@@ -36,6 +36,7 @@ describe("AI provider model catalogs", () => {
       order: 0,
       model: "openai-gpt-5-mini",
       icon: { kind: "preset", name: "raycast" },
+      wordResultMode: "translation",
     };
 
     const catalog = resolveAIProviderModelCatalog(profile);
@@ -89,6 +90,8 @@ function createOpenAICompatibleProfile(endpoint: string): OpenAICompatibleProfil
     model: "model-a",
     apiKey: "test-key",
     tokenLimitMode: "max-tokens",
+    jsonOutputMode: "prompt",
     icon: { kind: "initials" },
+    wordResultMode: "translation",
   };
 }

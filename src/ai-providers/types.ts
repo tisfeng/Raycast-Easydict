@@ -21,12 +21,15 @@ export type ProviderIconConfig =
   | { kind: "favicon"; website?: string }
   | { kind: "initials" };
 
+export type WordResultMode = "translation" | "dictionary";
+
 interface AIProviderProfileBase {
   id: string;
   name: string;
   enabled: boolean;
   order: number;
   icon: ProviderIconConfig;
+  wordResultMode: WordResultMode;
 }
 
 export interface RaycastAIProfile extends AIProviderProfileBase {
@@ -35,6 +38,7 @@ export interface RaycastAIProfile extends AIProviderProfileBase {
 }
 
 export type TokenLimitMode = "max-tokens" | "max-completion-tokens";
+export type JSONOutputMode = "prompt" | "json-object";
 
 export interface OpenAICompatibleProfile extends AIProviderProfileBase {
   adapter: "openai-compatible";
@@ -43,6 +47,7 @@ export interface OpenAICompatibleProfile extends AIProviderProfileBase {
   model: string;
   apiKey: string;
   tokenLimitMode: TokenLimitMode;
+  jsonOutputMode: JSONOutputMode;
 }
 
 export type AIProviderProfile = RaycastAIProfile | OpenAICompatibleProfile;
