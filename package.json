@@ -58,7 +58,7 @@
   ],
   "dependencies": {
     "@deeplx/core": "^0.2.2",
-    "@raycast/api": "^1.104.19",
+    "@raycast/api": "^1.104.23",
     "@raycast/utils": "^2.2.6",
     "@xsai/shared-chat": "^0.5.0-beta.6",
     "@xsai/stream-text": "^0.5.0-beta.6",
@@ -71,14 +71,14 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
-    "@raycast/eslint-config": "^2.1.1",
+    "@raycast/eslint-config": "^2.2.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "22.13.10",
     "@types/react": "19.2.14",
     "@types/react-dom": "^19.2.3",
     "automd": "^0.4.3",
-    "eslint": "^9.39.2",
-    "eslint-plugin-import-x": "^4.16.1",
+    "eslint": "^10.8.0",
+    "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
     "jsdom": "^29.1.1",
@@ -877,7 +877,10 @@
   ],
   "allowScripts": {
     "simple-git-hooks@2.13.1": true,
-    "esbuild@0.27.7": true
+    "esbuild@0.27.7": true,
+    "@parcel/watcher@2.5.6": true,
+    "fsevents@2.3.3": true,
+    "unrs-resolver@1.12.2": true
   },
   "packageManager": "npm@11.17.0"
 }
