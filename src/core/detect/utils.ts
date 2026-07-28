@@ -24,8 +24,8 @@ export function checkIfPreferredLanguagesContainEnglish(): boolean {
  * check if preferred languages contains Chinese language
  */
 export function checkIfPreferredLanguagesContainChinese(): boolean {
-  const lanuguageIdPrefix = "zh";
-  return config.preferredLanguages.find((item) => item.youdaoLangCode.startsWith(lanuguageIdPrefix)) !== undefined;
+  const languageIdPrefix = "zh";
+  return config.preferredLanguages.find((item) => item.youdaoLangCode.startsWith(languageIdPrefix)) !== undefined;
 }
 
 /**

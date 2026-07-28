@@ -1,0 +1,44 @@
+name: Check Metadata Images
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "metadata/**"
+  push:
+    branches: [main]
+    paths:
+      - "metadata/**"
+
+permissions:
+  contents: read
+
+jobs:
+  check-images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          python-version: "3.11"
+
+      - name: Download Raycast Image Checker
+        run: curl -fsSL -o check_raycast_images.py https://raw.githubusercontent.com/raycast/extensions/0474f3e8927b3837868bdcefb4f8577042276415/scripts/check_raycast_images.py
+
+      - name: Check Images
+        run: |
+          shopt -s nullglob globstar
+          IMAGES=(metadata/**/*.png metadata/**/*.jpg metadata/**/*.jpeg metadata/**/*.webp metadata/**/*.gif metadata/**/*.bmp)
+
+          if [ ${#IMAGES[@]} -gt 0 ]; then
+            echo "Found ${#IMAGES[@]} images to check."
+            uv run --with numpy --with pillow check_raycast_images.py "${IMAGES[@]}"
+          else
+            echo "No images to check."
+          fi
