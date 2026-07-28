@@ -35,13 +35,10 @@ jobs:
       - name: Lint with Raycast
         run: npm run lint
 
-      - name: Type check
-        run: npx tsc --noEmit
-
       - name: Test
         run: npm test
 
-      - name: Build with Raycast
+      - name: Build and type-check with Raycast
         run: npm run build
 
   spelling:
