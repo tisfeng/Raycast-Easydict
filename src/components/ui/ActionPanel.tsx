@@ -1,9 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { Image } from "@raycast/api";
-import { Action, ActionPanel, Detail, Icon, Keyboard, open, openCommandPreferences } from "@raycast/api";
+import { Action, ActionPanel, Color, Detail, Icon, Keyboard, open, openCommandPreferences } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 
+import FavoriteWordsPage from "@/components/pages/FavoriteWordsPage";
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
@@ -21,6 +22,8 @@ interface ActionListPanelProps {
   displayItem: ListDisplayItem;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
   onHideReleasePrompt: () => void;
   onLanguageUpdate: (language: LanguageItem) => void;
 }
@@ -39,6 +42,7 @@ const shortcuts = {
     macOS: { modifiers: ["cmd", "shift"], key: "r" },
     Windows: { modifiers: ["ctrl", "shift"], key: "r" },
   },
+  toggleFavorite: Keyboard.Shortcut.Common.Pin,
   openOnline: Keyboard.Shortcut.Common.Open,
 } satisfies Record<string, Keyboard.Shortcut>;
 
@@ -94,11 +98,15 @@ function PrimaryActions({
   displayItem,
   isInstalledEudic,
   isShowingReleasePrompt,
+  isFavorite,
+  onToggleFavorite,
   onHideReleasePrompt,
 }: {
   displayItem: ListDisplayItem;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
   onHideReleasePrompt: () => void;
 }) {
   const { queryWordInfo, queryType, copyText } = displayItem;
@@ -114,6 +122,13 @@ function PrimaryActions({
       {isShowingReleasePrompt && <ReleaseNotesAction title="✨ New Version Released" onPush={onHideReleasePrompt} />}
 
       {showEudic && <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />}
+
+      <Action
+        icon={isFavorite ? { source: Icon.Star, tintColor: Color.Yellow } : Icon.Star}
+        title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+        shortcut={shortcuts.toggleFavorite}
+        onAction={onToggleFavorite}
+      />
 
       <Action.CopyToClipboard
         title="Copy Text"
@@ -227,6 +242,7 @@ function TargetLanguageSection({
 function SettingsActions({ isShowingReleasePrompt }: { isShowingReleasePrompt: boolean }) {
   return (
     <ActionPanel.Section>
+      <Action.Push icon={Icon.Star} title="Favorite Words" target={<FavoriteWordsPage />} />
       {!isShowingReleasePrompt && <ReleaseNotesAction />}
       <Action.OpenInBrowser
         icon={Icon.Document}
@@ -240,7 +256,15 @@ function SettingsActions({ isShowingReleasePrompt }: { isShowingReleasePrompt: b
 }
 
 export function ListActionPanel(props: ActionListPanelProps) {
-  const { displayItem, isShowingReleasePrompt, onHideReleasePrompt, isInstalledEudic, onLanguageUpdate } = props;
+  const {
+    displayItem,
+    isShowingReleasePrompt,
+    onHideReleasePrompt,
+    isInstalledEudic,
+    isFavorite,
+    onToggleFavorite,
+    onLanguageUpdate,
+  } = props;
   const { queryWordInfo, queryType, copyText } = displayItem;
   const { fromLanguage, toLanguage } = queryWordInfo;
 
@@ -250,6 +274,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
         displayItem={displayItem}
         isInstalledEudic={isInstalledEudic}
         isShowingReleasePrompt={isShowingReleasePrompt}
+        isFavorite={isFavorite}
+        onToggleFavorite={onToggleFavorite}
         onHideReleasePrompt={onHideReleasePrompt}
       />
       <OtherWebQuerySection queryType={queryType} queryWordInfo={queryWordInfo} />
