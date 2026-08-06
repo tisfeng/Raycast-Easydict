@@ -1,0 +1,212 @@
+/* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
+
+import {
+  Action,
+  ActionPanel,
+  closeMainWindow,
+  confirmAlert,
+  Icon,
+  Keyboard,
+  launchCommand,
+  LaunchType,
+  List,
+} from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
+import { useEffect, useState } from "react";
+
+import { myPreferences } from "@/consts";
+import { playQueryWordAudio, playTTS } from "@/core/audio";
+import { getLanguageItem } from "@/core/language/utils";
+import { useFavoriteWords } from "@/hooks";
+import type { DisplaySection } from "@/types/display";
+import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
+import type { QueryWordInfo } from "@/types/query";
+import { exportAsCSV, exportAsJSON, exportAsText } from "@/utils/exportFavorites";
+import { logError } from "@/utils/logger";
+
+/**
+ * Render a favorite's saved display snapshot as offline markdown: each section
+ * title followed by its items' details, preserving the original layout without
+ * any network re-query.
+ */
+function aggregateMarkdown(favorite: FavoriteWord): string {
+  const sectionTitle = (section: DisplaySection): string | undefined =>
+    section.sectionTitle ?? (typeof section.type === "string" ? section.type : undefined);
+
+  return (
+    favorite.displaySections
+      .flatMap((section) => {
+        const title = sectionTitle(section);
+        const head = title ? [`## ${title}`, ""] : [];
+        return [...head, ...section.items.map((item) => item.detailsMarkdown ?? item.copyText ?? item.title), ""];
+      })
+      .join("\n")
+      .trim() || favorite.word
+  );
+}
+
+/**
+ * Reconstruct a minimal QueryWordInfo from saved fields so audio helpers work
+ * offline (playQueryWordAudio only needs word / fromLanguage / isWord / speechUrl).
+ */
+function audioInfo(favorite: FavoriteWord): QueryWordInfo {
+  return {
+    word: favorite.word,
+    fromLanguage: favorite.fromLanguage,
+    toLanguage: favorite.toLanguage,
+    isWord: favorite.isWord,
+    speechUrl: favorite.displaySections[0]?.items[0]?.queryWordInfo.speechUrl,
+  };
+}
+
+/**
+ * Browse and manage favorite words saved from the dictionary view. Renders the
+ * full saved snapshot offline in the detail pane; "Open in Easydict" re-queries
+ * for the live result.
+ */
+export default function FavoriteWordsPage() {
+  const { favorites, isLoading, remove, clear } = useFavoriteWords();
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!selectedId && favorites.length) setSelectedId(favoriteKeyOf(favorites[0]));
+  }, [favorites, selectedId]);
+
+  return (
+    <List
+      isLoading={isLoading}
+      isShowingDetail
+      navigationTitle="Favorite Words"
+      searchBarPlaceholder="Search favorite words..."
+      selectedItemId={selectedId}
+      onSelectionChange={(id) => setSelectedId(id ?? undefined)}
+    >
+      {favorites.length === 0 ? (
+        <List.EmptyView
+          icon={Icon.Star}
+          title="No Favorite Words"
+          description="Star a word from the dictionary view to save it here."
+        />
+      ) : (
+        <List.Section title={`Favorites · ${favorites.length}`}>
+          {favorites.map((favorite) => (
+            <FavoriteItem
+              key={favoriteKeyOf(favorite)}
+              favorite={favorite}
+              allFavorites={favorites}
+              onRemove={() => remove(favorite)}
+              onClear={clear}
+            />
+          ))}
+        </List.Section>
+      )}
+    </List>
+  );
+}
+
+function FavoriteItem({
+  favorite,
+  allFavorites,
+  onRemove,
+  onClear,
+}: {
+  favorite: FavoriteWord;
+  allFavorites: readonly FavoriteWord[];
+  onRemove: () => void;
+  onClear: () => void;
+}) {
+  const fromLanguageItem = getLanguageItem(favorite.fromLanguage);
+  const toLanguageItem = getLanguageItem(favorite.toLanguage);
+  const translation = favorite.translations?.[0];
+  // Respect the same "flags are not languages" preference as TargetLanguageSection.
+  const langIcon = (emoji: string) => (myPreferences.flagsAreNotLanguages ? Icon.Globe : { source: emoji });
+
+  const openInEasydict = async () => {
+    try {
+      await launchCommand({
+        name: "easydict",
+        type: LaunchType.UserInitiated,
+        arguments: { queryText: favorite.word },
+      });
+      await closeMainWindow();
+    } catch (error) {
+      logError("FavoriteWordsPage", `launch easydict error: ${error}`);
+      showFailureToast(String(error), { title: "Failed to open in Easydict" });
+    }
+  };
+
+  return (
+    <List.Item
+      id={favoriteKeyOf(favorite)}
+      title={favorite.word}
+      subtitle={translation}
+      accessories={[
+        { icon: langIcon(fromLanguageItem.emoji) },
+        { icon: Icon.ArrowRight },
+        { icon: langIcon(toLanguageItem.emoji) },
+      ]}
+      detail={<List.Item.Detail markdown={aggregateMarkdown(favorite)} />}
+      actions={
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
+            <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
+          </ActionPanel.Section>
+
+          <ActionPanel.Section title="Copy All">
+            <Action.CopyToClipboard
+              title="Copy All as Text"
+              icon={Icon.Clipboard}
+              content={exportAsText(allFavorites)}
+            />
+            <Action.CopyToClipboard title="Copy All as CSV" icon={Icon.Clipboard} content={exportAsCSV(allFavorites)} />
+            <Action.CopyToClipboard
+              title="Copy All as JSON"
+              icon={Icon.Clipboard}
+              content={exportAsJSON(allFavorites)}
+            />
+          </ActionPanel.Section>
+
+          <ActionPanel.Section title="Read Text Audio">
+            <Action
+              title="Read Word"
+              icon={Icon.Play}
+              shortcut={Keyboard.Shortcut.Common.Refresh}
+              onAction={() => playQueryWordAudio(audioInfo(favorite))}
+            />
+            <Action
+              title="Read Translation"
+              icon={Icon.Play}
+              onAction={() => translation && playTTS(translation, favorite.toLanguage, { truncate: true })}
+            />
+          </ActionPanel.Section>
+
+          <ActionPanel.Section title="Manage">
+            <Action
+              icon={Icon.Trash}
+              title="Remove from Favorites"
+              style={Action.Style.Destructive}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={onRemove}
+            />
+            <Action
+              icon={Icon.Trash}
+              title="Clear All Favorites"
+              style={Action.Style.Destructive}
+              onAction={async () => {
+                if (
+                  await confirmAlert({
+                    title: "Clear All Favorites?",
+                    message: "This removes every saved word and cannot be undone.",
+                  })
+                ) {
+                  onClear();
+                }
+              }}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      }
+    />
+  );
+}

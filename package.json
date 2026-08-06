@@ -34,6 +34,13 @@
       "subtitle": "Query text from image",
       "description": "Screenshot OCR, and query text from image.",
       "mode": "no-view"
+    },
+    {
+      "name": "favorites",
+      "title": "Favorite Words",
+      "subtitle": "Easydict",
+      "description": "Browse and manage words you saved from Easydict.",
+      "mode": "view"
     }
   ],
   "categories": [
