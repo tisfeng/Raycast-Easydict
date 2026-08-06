@@ -21,14 +21,8 @@ import { useFavoriteWords } from "@/hooks";
 import type { DisplaySection } from "@/types/display";
 import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
+import { copyAllText } from "@/utils/copyFavorites";
 import { logError } from "@/utils/logger";
-
-/**
- * Render all favorites as tab-separated `word \t translation` lines for clipboard copy.
- */
-function copyAllText(favorites: readonly FavoriteWord[]): string {
-  return favorites.map((f) => `${f.word}\t${f.translations?.join(", ") ?? ""}`).join("\n");
-}
 
 /**
  * Render a favorite's saved display snapshot as offline markdown: each section
