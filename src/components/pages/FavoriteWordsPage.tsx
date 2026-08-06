@@ -21,8 +21,14 @@ import { useFavoriteWords } from "@/hooks";
 import type { DisplaySection } from "@/types/display";
 import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
-import { exportAsCSV, exportAsJSON, exportAsText } from "@/utils/exportFavorites";
 import { logError } from "@/utils/logger";
+
+/**
+ * Render all favorites as tab-separated `word \t translation` lines for clipboard copy.
+ */
+function copyAllText(favorites: readonly FavoriteWord[]): string {
+  return favorites.map((f) => `${f.word}\t${f.translations?.join(", ") ?? ""}`).join("\n");
+}
 
 /**
  * Render a favorite's saved display snapshot as offline markdown: each section
@@ -153,17 +159,11 @@ function FavoriteItem({
             <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
           </ActionPanel.Section>
 
-          <ActionPanel.Section title="Copy All">
+          <ActionPanel.Section>
             <Action.CopyToClipboard
-              title="Copy All as Text"
+              title="Copy All to Clipboard"
               icon={Icon.Clipboard}
-              content={exportAsText(allFavorites)}
-            />
-            <Action.CopyToClipboard title="Copy All as CSV" icon={Icon.Clipboard} content={exportAsCSV(allFavorites)} />
-            <Action.CopyToClipboard
-              title="Copy All as JSON"
-              icon={Icon.Clipboard}
-              content={exportAsJSON(allFavorites)}
+              content={copyAllText(allFavorites)}
             />
           </ActionPanel.Section>
 
