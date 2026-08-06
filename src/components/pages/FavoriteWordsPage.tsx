@@ -73,6 +73,8 @@ function audioInfo(favorite: FavoriteWord): QueryWordInfo {
 export default function FavoriteWordsPage() {
   const { favorites, isLoading, remove, clear } = useFavoriteWords();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  // Compute once per render; passed to every item instead of recomputing in the map.
+  const copyAllTextContent = copyAllText(favorites);
 
   useEffect(() => {
     if (!selectedId && favorites.length) setSelectedId(favoriteKeyOf(favorites[0]));
@@ -99,7 +101,7 @@ export default function FavoriteWordsPage() {
             <FavoriteItem
               key={favoriteKeyOf(favorite)}
               favorite={favorite}
-              copyAllContent={copyAllText(favorites)}
+              copyAllContent={copyAllTextContent}
               onRemove={() => remove(favorite)}
               onClear={clear}
             />
@@ -129,12 +131,12 @@ function FavoriteItem({
 
   const openInEasydict = async () => {
     try {
+      await closeMainWindow();
       await launchCommand({
         name: "easydict",
         type: LaunchType.UserInitiated,
         arguments: { queryText: favorite.word },
       });
-      await closeMainWindow();
     } catch (error) {
       logError("FavoriteWordsPage", `launch easydict error: ${error}`);
       showFailureToast(String(error), { title: "Failed to open in Easydict" });
