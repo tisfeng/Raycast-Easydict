@@ -99,7 +99,7 @@ export default function FavoriteWordsPage() {
             <FavoriteItem
               key={favoriteKeyOf(favorite)}
               favorite={favorite}
-              allFavorites={favorites}
+              copyAllContent={copyAllText(favorites)}
               onRemove={() => remove(favorite)}
               onClear={clear}
             />
@@ -112,12 +112,12 @@ export default function FavoriteWordsPage() {
 
 function FavoriteItem({
   favorite,
-  allFavorites,
+  copyAllContent,
   onRemove,
   onClear,
 }: {
   favorite: FavoriteWord;
-  allFavorites: readonly FavoriteWord[];
+  copyAllContent: string;
   onRemove: () => void;
   onClear: () => void;
 }) {
@@ -157,14 +157,7 @@ function FavoriteItem({
           <ActionPanel.Section>
             <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
             <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
-          </ActionPanel.Section>
-
-          <ActionPanel.Section>
-            <Action.CopyToClipboard
-              title="Copy All to Clipboard"
-              icon={Icon.Clipboard}
-              content={copyAllText(allFavorites)}
-            />
+            <Action.CopyToClipboard title="Copy All to Clipboard" icon={Icon.Clipboard} content={copyAllContent} />
           </ActionPanel.Section>
 
           <ActionPanel.Section title="Read Text Audio">
