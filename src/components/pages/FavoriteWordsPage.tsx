@@ -18,7 +18,6 @@ import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
 import { useFavoriteWords } from "@/hooks";
-import type { DisplaySection } from "@/types/display";
 import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
 import { copyAllText } from "@/utils/copyFavorites";
