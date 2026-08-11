@@ -16,8 +16,6 @@ import { useFavoriteWords } from "./useFavoriteWords";
  */
 const ctx = vi.hoisted(() => {
   const map = new Map<string, unknown>();
-  const subscribers = new Map<string, Set<() => void>>();
-  const notify = (key: string) => subscribers.get(key)?.forEach((cb) => cb());
   // populated after `react` has been imported, before any hook is rendered
   let reactHooks: typeof ReactTypes | null = null;
   const setReactHooks = (h: typeof ReactTypes) => {
@@ -27,41 +25,34 @@ const ctx = vi.hoisted(() => {
     if (!reactHooks) throw new Error("react hooks not initialized");
     return reactHooks;
   };
-  return { map, subscribers, notify, setReactHooks, getReactHooks };
+  return { map, setReactHooks, getReactHooks };
 });
 ctx.setReactHooks(React);
 
 /**
  * In-memory, per-key stand-in for @raycast/utils useLocalStorage.
  * Mirrors the real API the hook relies on: setValue takes a plain value
- * (not an updater), and each render reads the latest stored value.
+ * (not an updater) and updates only the calling hook instance.
  */
 vi.mock("@raycast/utils", () => ({
   useLocalStorage: function useLocalStorage<T>(key: string, initialValue?: T) {
-    const { useState, useEffect, useCallback } = ctx.getReactHooks();
+    const { useState, useCallback } = ctx.getReactHooks();
     const [value, setValueState] = useState<T | undefined>(ctx.map.has(key) ? (ctx.map.get(key) as T) : initialValue);
-
-    useEffect(() => {
-      const set = ctx.subscribers.get(key) ?? new Set();
-      set.add(onChange);
-      ctx.subscribers.set(key, set);
-      return () => {
-        set.delete(onChange);
-      };
-      function onChange() {
-        setValueState(ctx.map.has(key) ? (ctx.map.get(key) as T) : initialValue);
-      }
-    }, [key]);
 
     const setValue = useCallback(
       (next: T) => {
         ctx.map.set(key, next);
-        ctx.notify(key);
+        setValueState(next);
       },
       [key],
     );
 
-    return { value, setValue, removeValue: () => ctx.notify(key), isLoading: false };
+    const removeValue = useCallback(() => {
+      ctx.map.delete(key);
+      setValueState(undefined);
+    }, [key]);
+
+    return { value, setValue, removeValue, isLoading: false };
   },
 }));
 
@@ -69,7 +60,6 @@ const FAVORITE_WORDS_KEY = "favorite-words";
 
 function resetStore() {
   ctx.map.clear();
-  ctx.subscribers.clear();
 }
 
 function peekStore<T>(key: string): T | undefined {
@@ -140,12 +130,5 @@ describe("useFavoriteWords", () => {
     act(() => result.current.clear());
     expect(result.current.favorites).toEqual([]);
     expect(peekStore(FAVORITE_WORDS_KEY)).toEqual([]);
-  });
-
-  it("reflects values written by another instance (same-window sync)", () => {
-    const a = renderHook(() => useFavoriteWords());
-    const b = renderHook(() => useFavoriteWords());
-    act(() => a.result.current.toggle(makeFavorite({ word: "shared" })));
-    expect(b.result.current.favorites.map((f) => f.word)).toEqual(["shared"]);
   });
 });
