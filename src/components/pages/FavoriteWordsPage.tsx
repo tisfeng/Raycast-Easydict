@@ -30,16 +30,13 @@ import { logError } from "@/utils/logger";
  * any network re-query.
  */
 function aggregateMarkdown(favorite: FavoriteWord): string {
-  const sectionTitle = (section: DisplaySection): string | undefined =>
-    section.sectionTitle ?? (typeof section.type === "string" ? section.type : undefined);
-
   return (
     favorite.displaySections
-      .flatMap((section) => {
-        const title = sectionTitle(section);
-        const head = title ? [`## ${title}`, ""] : [];
-        return [...head, ...section.items.map((item) => item.detailsMarkdown ?? item.copyText ?? item.title), ""];
-      })
+      .flatMap((section) =>
+        section.items.map(
+          (item) => item.showMoreDetailsMarkdown ?? item.detailsMarkdown ?? item.copyText ?? item.title,
+        ),
+      )
       .join("\n")
       .trim() || favorite.word
   );
