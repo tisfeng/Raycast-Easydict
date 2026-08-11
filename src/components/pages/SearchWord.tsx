@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getSelectedText, Icon, List } from "@raycast/api";
+import { getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 
 import { ListActionPanel } from "@/components/ui/ActionPanel";
@@ -52,8 +52,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     if (isLoading && !isFavorite) {
       showToast({
         style: Toast.Style.Failure,
-        title: "Wait for Results to Finish",
-        message: "You can add this word to favorites once all results have loaded.",
+        title: "Error adding favorite",
+        message: "Add this word to favorites after all results load.",
       });
       return;
     }
