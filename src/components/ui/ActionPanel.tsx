@@ -122,17 +122,17 @@ function PrimaryActions({
 
       {showEudic && <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />}
 
+      <Action.CopyToClipboard
+        title="Copy Text"
+        content={copyText}
+        onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
+      />
+
       <Action
         icon={isFavorite ? { source: Icon.Star, tintColor: Color.Yellow } : Icon.Star}
         title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
         shortcut={shortcuts.toggleFavorite}
         onAction={onToggleFavorite}
-      />
-
-      <Action.CopyToClipboard
-        title="Copy Text"
-        content={copyText}
-        onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
       />
 
       {!showEudic && isInstalledEudic && (
