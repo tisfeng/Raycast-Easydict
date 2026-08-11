@@ -47,7 +47,17 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   // Snapshot only complete results: toggling mid-load would store an incomplete
   // (translation-less, partial dictionary) snapshot that can't be refreshed offline.
   const onToggleFavorite = () => {
-    if (!queryWordInfo || isLoading) return;
+    if (!queryWordInfo) return;
+
+    if (isLoading && !isFavorite) {
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Wait for Results to Finish",
+        message: "You can add this word to favorites once all results have loaded.",
+      });
+      return;
+    }
+
     toggle(buildFavoriteWord(queryWordInfo, displaySections));
   };
 
