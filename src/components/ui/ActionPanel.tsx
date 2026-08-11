@@ -4,7 +4,6 @@ import type { Image } from "@raycast/api";
 import { Action, ActionPanel, Color, Detail, Icon, Keyboard, open, openCommandPreferences } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 
-import FavoriteWordsPage from "@/components/pages/FavoriteWordsPage";
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
@@ -242,7 +241,6 @@ function TargetLanguageSection({
 function SettingsActions({ isShowingReleasePrompt }: { isShowingReleasePrompt: boolean }) {
   return (
     <ActionPanel.Section>
-      <Action.Push icon={Icon.Star} title="Favorite Words" target={<FavoriteWordsPage />} />
       {!isShowingReleasePrompt && <ReleaseNotesAction />}
       <Action.OpenInBrowser
         icon={Icon.Document}
