@@ -29,6 +29,7 @@ export const RELEASE_MARKDOWN = `
 ### ✨ New Features
 
 - Added favorite words: save translation results and browse/manage them in the favorites list.
+  - Thanks for @[TTsWorld](https://github.com/TTsWorld)
 
 ### 🔧 Maintenance
 
@@ -68,6 +69,7 @@ export const RELEASE_MARKDOWN = `
 ### ✨ 新特性
 
 - 新增收藏单词功能，支持保存翻译结果并在收藏列表中查看和管理。
+  - 感谢 @[TTsWorld](https://github.com/TTsWorld)
 
 ### 🔧 维护
 

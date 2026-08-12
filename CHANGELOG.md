@@ -5,6 +5,7 @@
 ### ✨ New Features
 
 - Added favorite words: save translation results and browse/manage them in the favorites list.
+  - Thanks for @[TTsWorld](https://github.com/TTsWorld)
 
 ### 🔧 Maintenance
 
