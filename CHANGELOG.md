@@ -1,5 +1,15 @@
 # `Easydict` Changelog
 
+## [v3.1.0] - {PR_MERGE_DATE}
+
+### ✨ New Features
+
+- Added favorite words: save translation results and browse/manage them in the favorites list.
+
+### 🔧 Maintenance
+
+- Updated dependencies.
+
 ## [v3.0.0] - 2026-08-11
 
 ### ⚠️ Behavioral Changes
