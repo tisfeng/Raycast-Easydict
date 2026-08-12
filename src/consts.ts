@@ -26,6 +26,45 @@ export function getReleaseTagUrl(version: string): string {
 export const RELEASE_MARKDOWN = `
 ## [v${EASYDICT_VERSION}]
 
+### ✨ New Features
+
+- Added favorite words: save translation results and browse/manage them in the favorites list.
+
+### 🔧 Maintenance
+
+- Updated dependencies.
+
+---
+
+<details>
+<summary>Recent Updates [v3.0.0]</summary>
+
+### ⚠️ Behavioral Changes
+
+- Removed built-in proxy detection; enable Raycast system proxy if needed.
+- **Play Text** renamed to **Read Text** with updated shortcuts (\`Cmd+R\` / \`Cmd+Shift+R\`).
+
+### ✨ New Features
+
+- Windows platform support with native TTS and cross-platform audio.
+- DeepL Traditional Chinese, hide language emoji option, independent Tencent/Volcano detection toggles.
+
+### 💎 Improvements
+
+- Full architecture and audio system refactor; streamlined project structure and dependencies.
+- Optimized OpenAI translation prompts, Youdao dictionary formatting, and Linguee HTML parsing.
+- Improved documentation, auto-generated docs, and build tooling.
+
+### 🐞 Bug Fixes
+
+- Fixed background resume text flash, Bing recursion/race conditions, audio playback conflicts, DeepLX failures, Georgian language support, and Apple Translate single-quote escaping.
+
+</details>
+
+---
+
+## [v${EASYDICT_VERSION}]
+
 ### ✨ 新特性
 
 - 新增收藏单词功能，支持保存翻译结果并在收藏列表中查看和管理。
@@ -36,7 +75,8 @@ export const RELEASE_MARKDOWN = `
 
 ---
 
-## 最近更新 [v3.0.0]
+<details>
+<summary>最近更新 [v3.0.0]</summary>
 
 ### ⚠️ 行为变更
 
@@ -58,37 +98,7 @@ export const RELEASE_MARKDOWN = `
 
 - 修复后台恢复时搜索文本闪现、必应翻译递归/竞态、音频播放冲突、DeepLX 翻译失败、格鲁吉亚语支持、Apple Translate 单引号转义等问题。
 
----
-
-### ✨ New Features
-
-- Added favorite words: save translation results and browse/manage them in the favorites list.
-
-### 🔧 Maintenance
-
-- Updated dependencies.
+</details>
 
 ---
-
-## Recent Updates [v3.0.0]
-
-### ⚠️ Behavioral Changes
-
-- Removed built-in proxy detection; enable Raycast system proxy if needed.
-- **Play Text** renamed to **Read Text** with updated shortcuts (\`Cmd+R\` / \`Cmd+Shift+R\`).
-
-### ✨ New Features
-
-- Windows platform support with native TTS and cross-platform audio.
-- DeepL Traditional Chinese, hide language emoji option, independent Tencent/Volcano detection toggles.
-
-### 💎 Improvements
-
-- Full architecture and audio system refactor; streamlined project structure and dependencies.
-- Optimized OpenAI translation prompts, Youdao dictionary formatting, and Linguee HTML parsing.
-- Improved documentation, auto-generated docs, and build tooling.
-
-### 🐞 Bug Fixes
-
-- Fixed background resume text flash, Bing recursion/race conditions, audio playback conflicts, DeepLX failures, Georgian language support, and Apple Translate single-quote escaping.
 `;
