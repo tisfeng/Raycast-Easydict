@@ -18,12 +18,12 @@ import {
   useQueryEngine,
   useReleasePrompt,
 } from "@/hooks";
-import { dictionaryProviderServices, resolveDictionaryServices } from "@/providers/dictionary";
 import {
-  resolveTranslationServices,
-  translationServices,
-  translationServicesBeforeAIProfilesLoad,
-} from "@/providers/translation";
+  builtinDictionaryProviderServices,
+  builtinTranslationServices,
+  builtinTranslationServicesBeforeAIProfilesLoad,
+  resolveProviderServices,
+} from "@/providers/registry";
 import { buildFavoriteWord } from "@/types/favorite";
 import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
@@ -44,21 +44,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const aiProviderProfiles = useAIProviderProfiles();
   const resolvedServiceSnapshot = useMemo(() => {
     if (aiProviderProfiles.profiles) {
-      return {
-        translationServices: resolveTranslationServices(
-          aiProviderProfiles.profiles,
-          aiProviderProfiles.storedState?.providerOrder,
-        ),
-        dictionaryServices: resolveDictionaryServices(
-          aiProviderProfiles.profiles,
-          aiProviderProfiles.storedState?.providerOrder,
-        ),
-      };
+      return resolveProviderServices(aiProviderProfiles.profiles, aiProviderProfiles.storedState?.providerOrder);
     }
     return {
       translationServices:
-        aiProviderProfiles.state.kind === "loading" ? translationServicesBeforeAIProfilesLoad : translationServices,
-      dictionaryServices: dictionaryProviderServices,
+        aiProviderProfiles.state.kind === "loading"
+          ? builtinTranslationServicesBeforeAIProfilesLoad
+          : builtinTranslationServices,
+      dictionaryServices: builtinDictionaryProviderServices,
     };
   }, [aiProviderProfiles.profiles, aiProviderProfiles.state.kind]);
 

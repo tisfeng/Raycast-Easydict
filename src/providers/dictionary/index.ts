@@ -7,6 +7,7 @@ import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import {
   assignGlobalServiceOrder,
   getAIProviderKey,
+  getBuiltinProviderCandidates,
   getBuiltinProviderKey,
   getProviderOrder,
 } from "@/core/query/providerOrder";
@@ -71,9 +72,15 @@ const staticDictionaryServicesWithOrder: DictionaryServiceConfig[] = staticDicti
   getWebUrl: service.getWebUrl,
 }));
 
+const categoryProviderOrder = getProviderOrder(
+  [],
+  undefined,
+  myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [],
+  getBuiltinProviderCandidates(staticDictionaryServicesWithOrder),
+);
 export const dictionaryProviderServices = assignGlobalServiceOrder(
   staticDictionaryServicesWithOrder,
-  getProviderOrder([], undefined, myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : []),
+  categoryProviderOrder,
 );
 
 export function resolveDictionaryServices(
@@ -96,10 +103,15 @@ export function resolveDictionaryServices(
       }),
     );
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
-  return assignGlobalServiceOrder(
-    [...dictionaryProviderServices, ...dynamicServices],
-    getProviderOrder(profiles, providerOrder, servicesOrder),
-  );
+  const resolvedProviderOrder =
+    providerOrder ??
+    getProviderOrder(
+      profiles,
+      undefined,
+      servicesOrder,
+      getBuiltinProviderCandidates(staticDictionaryServicesWithOrder),
+    );
+  return assignGlobalServiceOrder([...dictionaryProviderServices, ...dynamicServices], resolvedProviderOrder);
 }
 
 export const dictionaryServices: DictionaryWebServiceConfig[] = [

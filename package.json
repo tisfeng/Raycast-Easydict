@@ -28,7 +28,7 @@
       ]
     },
     {
-      "name": "manage-ai-providers",
+      "name": "manage-providers",
       "title": "Manage Providers",
       "subtitle": "Easydict",
       "description": "Order built-in providers and configure AI providers.",

@@ -132,7 +132,15 @@ describe("provider ordering", () => {
 
   it("keeps an imported legacy provider in the same position as its built-in row", () => {
     const openAIKey = getBuiltinProviderKey("translation", TranslationType.OpenAI);
-    const beforeImport = getProviderOrder([], undefined, []);
+    const builtinCandidates = [
+      {
+        providerKey: getBuiltinProviderKey("dictionary", DictionaryType.Youdao),
+        type: DictionaryType.Youdao,
+        serviceOrder: 0,
+      },
+      { providerKey: openAIKey, type: TranslationType.OpenAI, serviceOrder: 11 },
+    ];
+    const beforeImport = getProviderOrder([], undefined, [], builtinCandidates);
     const afterImport = getProviderOrder(
       [
         {
@@ -152,6 +160,7 @@ describe("provider ordering", () => {
       ],
       undefined,
       [],
+      builtinCandidates,
     );
 
     expect(afterImport.indexOf(openAIKey)).toBe(beforeImport.indexOf(openAIKey));

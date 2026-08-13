@@ -74,6 +74,11 @@ vi.mock("@/providers/translation", () => ({
   translationServices: [],
 }));
 
+vi.mock("@/providers/registry", () => ({
+  builtinDictionaryProviderServices: testDoubles.dictionaryServices,
+  builtinTranslationServices: [],
+}));
+
 vi.mock("@/utils/errors", () => ({
   handleRequestError: (_type: string, error: unknown) => (error instanceof Error ? error : new Error(String(error))),
   showErrorToast: testDoubles.showErrorToast,

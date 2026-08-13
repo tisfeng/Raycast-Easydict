@@ -8,6 +8,7 @@ import { getLangCode } from "@/core/language/utils";
 import {
   assignGlobalServiceOrder,
   getAIProviderKey,
+  getBuiltinProviderCandidates,
   getBuiltinProviderKey,
   getProviderOrder,
 } from "@/core/query/providerOrder";
@@ -142,10 +143,13 @@ const staticTranslationServicesWithOrder: TranslationServiceConfig[] = staticTra
   }),
 );
 
-export const translationServices = assignGlobalServiceOrder(
-  staticTranslationServicesWithOrder,
-  getProviderOrder([], undefined, myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : []),
+const categoryProviderOrder = getProviderOrder(
+  [],
+  undefined,
+  myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [],
+  getBuiltinProviderCandidates(staticTranslationServicesWithOrder),
 );
+export const translationServices = assignGlobalServiceOrder(staticTranslationServicesWithOrder, categoryProviderOrder);
 
 export const translationServicesBeforeAIProfilesLoad = translationServices.filter(
   (service) => service.type !== TranslationType.OpenAI && service.type !== TranslationType.Gemini,
@@ -184,5 +188,13 @@ export function resolveTranslationServices(
   });
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
   const resolved = [...legacyServices, ...dynamicServices];
-  return assignGlobalServiceOrder(resolved, getProviderOrder(profiles, providerOrder, servicesOrder));
+  const resolvedProviderOrder =
+    providerOrder ??
+    getProviderOrder(
+      profiles,
+      undefined,
+      servicesOrder,
+      getBuiltinProviderCandidates(staticTranslationServicesWithOrder),
+    );
+  return assignGlobalServiceOrder(resolved, resolvedProviderOrder);
 }

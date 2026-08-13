@@ -9,12 +9,13 @@ import {
   Color,
   confirmAlert,
   Icon,
-  type Keyboard,
+  Keyboard,
   List,
   openExtensionPreferences,
   showToast,
   Toast,
 } from "@raycast/api";
+import { useState } from "react";
 
 import {
   hasLegacyAIProvidersToImport,
@@ -28,37 +29,24 @@ import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
 import type { AIProviderProfile, OpenAICompatibleProfile, RaycastAIProfile } from "@/ai-providers/types";
 import { getProviderIcon, getQueryTypeIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
-import {
-  getAIProviderKey,
-  getAvailableProviderKeys,
-  getProviderOrder,
-  reconcileProviderOrder,
-  syncAIProviderOrders,
-} from "@/core/query/providerOrder";
+import { getAIProviderKey, reconcileProviderOrder, syncAIProviderOrders } from "@/core/query/providerOrder";
 import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
-import { dictionaryProviderServices } from "@/providers/dictionary";
+import {
+  type BuiltinProviderService,
+  builtinProviderServices,
+  getCombinedAvailableProviderKeys,
+  getCombinedProviderOrder,
+} from "@/providers/registry";
 import { ProviderConfig } from "@/providers/shared/config";
-import { translationServices } from "@/providers/translation";
 
 import { AIProviderForm } from "./AIProviderForm";
 
-type ProfilesController = ReturnType<typeof useAIProviderProfiles>;
+type AIProvidersController = ReturnType<typeof useAIProviderProfiles>;
 
-type BuiltinService = (typeof dictionaryProviderServices)[number] | (typeof translationServices)[number];
+type ProviderRow = { kind: "builtin"; service: BuiltinProviderService } | { kind: "ai"; profile: AIProviderProfile };
 
-type ProviderRow = { kind: "builtin"; service: BuiltinService } | { kind: "ai"; profile: AIProviderProfile };
-
-const MOVE_UP_SHORTCUT = {
-  macOS: { modifiers: ["cmd", "shift"], key: "arrowUp" },
-  Windows: { modifiers: ["ctrl", "shift"], key: "arrowUp" },
-} satisfies Keyboard.Shortcut;
-
-const MOVE_DOWN_SHORTCUT = {
-  macOS: { modifiers: ["cmd", "shift"], key: "arrowDown" },
-  Windows: { modifiers: ["ctrl", "shift"], key: "arrowDown" },
-} satisfies Keyboard.Shortcut;
-
-export default function AIProviderManagementPage({ controller }: { controller: ProfilesController }) {
+export default function ProviderManagementPage({ controller }: { controller: AIProvidersController }) {
+  const [selectedProviderKey, setSelectedProviderKey] = useState<string>();
   const profiles = controller.profiles ?? [];
   const legacyConfiguration = getLegacyAIProviderConfiguration();
   const hasLegacySettingsToImport = controller.storedState
@@ -69,12 +57,9 @@ export default function AIProviderManagementPage({ controller }: { controller: P
     controller.storedState?.migration?.legacyPreferencesImported === true && hasLegacySettingsToImport;
 
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
-  const providerOrder = getProviderOrder(profiles, controller.storedState?.providerOrder, servicesOrder);
+  const providerOrder = getCombinedProviderOrder(profiles, controller.storedState?.providerOrder, servicesOrder);
   const importedProviderKeys = new Set(profiles.map(getAIProviderKey));
-  const builtinServices = [
-    ...(dictionaryProviderServices as BuiltinService[]),
-    ...(translationServices as BuiltinService[]),
-  ]
+  const builtinServices = builtinProviderServices
     .filter((service) => !importedProviderKeys.has(service.providerKey))
     .map((service) => ({ kind: "builtin" as const, service }));
   const rows: ProviderRow[] = [
@@ -89,13 +74,13 @@ export default function AIProviderManagementPage({ controller }: { controller: P
     const storedState = controller.storedState;
     if (!storedState) return;
     const savedOrder = requestedProviderOrder ?? storedState.providerOrder;
-    const fallbackOrder = getProviderOrder(nextProfiles, undefined, servicesOrder);
-    const previousFallbackOrder = getProviderOrder(storedState.profiles, undefined, servicesOrder);
-    const previousKeys = new Set(getAvailableProviderKeys(storedState.profiles));
+    const fallbackOrder = getCombinedProviderOrder(nextProfiles, undefined, servicesOrder);
+    const previousFallbackOrder = getCombinedProviderOrder(storedState.profiles, undefined, servicesOrder);
+    const previousKeys = new Set(getCombinedAvailableProviderKeys(storedState.profiles));
     const appendNewKeys = fallbackOrder.filter((key) => !previousKeys.has(key));
     const nextProviderOrder = reconcileProviderOrder(
       savedOrder,
-      getAvailableProviderKeys(nextProfiles),
+      getCombinedAvailableProviderKeys(nextProfiles),
       savedOrder ? fallbackOrder : [...previousFallbackOrder, ...appendNewKeys],
     );
     const normalizedProfiles = syncAIProviderOrders(nextProfiles, nextProviderOrder);
@@ -190,7 +175,9 @@ export default function AIProviderManagementPage({ controller }: { controller: P
     if (currentIndex < 0 || nextIndex < 0 || nextIndex >= providerOrder.length) return;
     const nextOrder = [...providerOrder];
     [nextOrder[currentIndex], nextOrder[nextIndex]] = [nextOrder[nextIndex], nextOrder[currentIndex]];
+    setSelectedProviderKey(providerKey);
     await saveProfiles(profiles, nextOrder);
+    setSelectedProviderKey(providerKey);
   }
 
   function moveActions(providerKey: string) {
@@ -201,7 +188,7 @@ export default function AIProviderManagementPage({ controller }: { controller: P
           <Action
             title="Move up"
             icon={Icon.ArrowUp}
-            shortcut={MOVE_UP_SHORTCUT}
+            shortcut={Keyboard.Shortcut.Common.MoveUp}
             onAction={() => moveProvider(providerKey, -1)}
           />
         )}
@@ -209,7 +196,7 @@ export default function AIProviderManagementPage({ controller }: { controller: P
           <Action
             title="Move Down"
             icon={Icon.ArrowDown}
-            shortcut={MOVE_DOWN_SHORTCUT}
+            shortcut={Keyboard.Shortcut.Common.MoveDown}
             onAction={() => moveProvider(providerKey, 1)}
           />
         )}
@@ -237,7 +224,12 @@ export default function AIProviderManagementPage({ controller }: { controller: P
   }
 
   return (
-    <List isLoading={controller.isLoading} searchBarPlaceholder="Search providers...">
+    <List
+      isLoading={controller.isLoading}
+      searchBarPlaceholder="Search providers..."
+      selectedItemId={selectedProviderKey}
+      onSelectionChange={(id) => setSelectedProviderKey(id ?? undefined)}
+    >
       {profiles.length === 0 && (
         <List.Item
           key="provider-actions"
@@ -330,7 +322,10 @@ export default function AIProviderManagementPage({ controller }: { controller: P
                       message: "This removes the saved provider and its API key.",
                       primaryAction: { title: "Delete", style: Alert.ActionStyle.Destructive },
                     });
-                    if (confirmed) await saveProfiles(profiles.filter((candidate) => candidate.id !== profile.id));
+                    if (confirmed) {
+                      setSelectedProviderKey(undefined);
+                      await saveProfiles(profiles.filter((candidate) => candidate.id !== profile.id));
+                    }
                   }}
                 />
                 {addProviderSection()}
@@ -357,7 +352,7 @@ function getBuiltinPreferenceStatusTag(enabled: boolean | undefined) {
   return enabled ? { value: "Enabled", color: Color.Green } : { value: "Disabled", color: Color.SecondaryText };
 }
 
-function getConfigurationErrorMessage(controller: ProfilesController): string {
+function getConfigurationErrorMessage(controller: AIProvidersController): string {
   switch (controller.state.kind) {
     case "invalid":
       return controller.state.message;

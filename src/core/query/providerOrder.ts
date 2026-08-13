@@ -11,25 +11,15 @@ export interface ProviderOrderCandidate {
   profileOrder?: number;
 }
 
-const staticTranslationCandidates: ProviderOrderCandidate[] = [
-  createBuiltinCandidate("translation", TranslationType.Bing, 0),
-  createBuiltinCandidate("translation", TranslationType.Baidu, 1),
-  createBuiltinCandidate("translation", TranslationType.Tencent, 2),
-  createBuiltinCandidate("translation", TranslationType.Volcano, 3),
-  createBuiltinCandidate("translation", TranslationType.Caiyun, 4),
-  createBuiltinCandidate("translation", TranslationType.Gemini, 5),
-  createBuiltinCandidate("translation", TranslationType.Google, 6),
-  createBuiltinCandidate("translation", TranslationType.DeepL, 7),
-  createBuiltinCandidate("translation", TranslationType.DeepLX, 8),
-  createBuiltinCandidate("translation", TranslationType.Apple, 9),
-  createBuiltinCandidate("translation", TranslationType.Youdao, 10),
-  createBuiltinCandidate("translation", TranslationType.OpenAI, 11),
-];
+export interface ProviderOrderService {
+  providerKey: string;
+  type: string;
+  order: number;
+}
 
-const staticDictionaryCandidates: ProviderOrderCandidate[] = [
-  createBuiltinCandidate("dictionary", DictionaryType.Youdao, 0),
-  createBuiltinCandidate("dictionary", DictionaryType.Linguee, 1),
-];
+export function getBuiltinProviderCandidates(services: ProviderOrderService[]): ProviderOrderCandidate[] {
+  return services.map(({ providerKey, type, order }) => ({ providerKey, type, serviceOrder: order }));
+}
 
 const defaultTypeOrder = [
   DictionaryType.Youdao,
@@ -49,14 +39,6 @@ const defaultTypeOrder = [
   TranslationType.Caiyun,
 ];
 
-function createBuiltinCandidate(
-  category: BuiltinProviderCategory,
-  type: DictionaryType | TranslationType,
-  serviceOrder: number,
-): ProviderOrderCandidate {
-  return { providerKey: getBuiltinProviderKey(category, type), type, serviceOrder };
-}
-
 export function getBuiltinProviderKey(category: BuiltinProviderCategory, type: string): string {
   return `builtin:${category}:${type}`;
 }
@@ -71,8 +53,11 @@ export function getAIProviderKey(profile: AIProviderProfile): string {
   return `ai:${profile.id}`;
 }
 
-export function getProviderOrderCandidates(profiles: AIProviderProfile[]): ProviderOrderCandidate[] {
-  const candidates = [...staticDictionaryCandidates, ...staticTranslationCandidates];
+export function getProviderOrderCandidates(
+  profiles: AIProviderProfile[],
+  builtinCandidates: ProviderOrderCandidate[] = [],
+): ProviderOrderCandidate[] {
+  const candidates = [...builtinCandidates];
   const staticKeys = new Set(candidates.map((candidate) => candidate.providerKey));
 
   for (const profile of profiles) {
@@ -89,8 +74,11 @@ export function getProviderOrderCandidates(profiles: AIProviderProfile[]): Provi
   return candidates;
 }
 
-export function getAvailableProviderKeys(profiles: AIProviderProfile[]): string[] {
-  return getProviderOrderCandidates(profiles).map((candidate) => candidate.providerKey);
+export function getAvailableProviderKeys(
+  profiles: AIProviderProfile[],
+  builtinCandidates: ProviderOrderCandidate[] = [],
+): string[] {
+  return getProviderOrderCandidates(profiles, builtinCandidates).map((candidate) => candidate.providerKey);
 }
 
 export function getLegacyServiceTypeOrder(servicesOrder: string[]): string[] {
@@ -187,8 +175,9 @@ export function getProviderOrder(
   profiles: AIProviderProfile[],
   savedOrder: string[] | undefined,
   servicesOrder: string[] = [],
+  builtinCandidates: ProviderOrderCandidate[] = [],
 ): string[] {
-  const candidates = getProviderOrderCandidates(profiles);
+  const candidates = getProviderOrderCandidates(profiles, builtinCandidates);
   const fallbackOrder = getInitialProviderOrder(candidates, servicesOrder);
   return reconcileProviderOrder(
     savedOrder,

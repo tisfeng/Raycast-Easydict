@@ -15,9 +15,8 @@ import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
-import { dictionaryProviderServices } from "@/providers/dictionary";
+import { builtinDictionaryProviderServices, builtinTranslationServices } from "@/providers/registry";
 import type { TranslationServiceConfig } from "@/providers/translation";
-import { translationServices } from "@/providers/translation";
 import { TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
 import type {
@@ -53,8 +52,8 @@ export interface QueryServiceSnapshot {
 }
 
 const defaultQueryServiceSnapshot: QueryServiceSnapshot = {
-  translationServices,
-  dictionaryServices: dictionaryProviderServices,
+  translationServices: builtinTranslationServices,
+  dictionaryServices: builtinDictionaryProviderServices,
 };
 
 // Initial State
