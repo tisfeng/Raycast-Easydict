@@ -129,6 +129,18 @@ describe("queryReducer", () => {
     expect(state.queryRecordList).toEqual(["profile:second"]);
   });
 
+  it("sorts results by global service order across semantic provider types", () => {
+    const google = createTranslationResult(TranslationType.Google, "static:google");
+    google.serviceOrder = 0;
+    const ai = createTranslationResult(TranslationType.OpenAI, "profile:ai");
+    ai.serviceOrder = 1;
+
+    let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: ai, generation: 0 });
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: google, generation: 0 });
+
+    expect(state.queryResults.map((result) => result.serviceId)).toEqual(["static:google", "profile:ai"]);
+  });
+
   it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {
     const deepLResult = createTranslationResult(TranslationType.DeepL);
     deepLResult.translations = ["Coupled Translation"];

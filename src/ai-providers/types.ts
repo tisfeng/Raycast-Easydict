@@ -55,6 +55,7 @@ export type AIProviderProfile = RaycastAIProfile | OpenAICompatibleProfile;
 export interface StoredAIProviderStateV1 {
   version: 1;
   profiles: AIProviderProfile[];
+  providerOrder?: string[];
   migration?: {
     legacyPreferencesImported: boolean;
   };

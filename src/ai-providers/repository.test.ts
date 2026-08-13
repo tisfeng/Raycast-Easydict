@@ -31,6 +31,7 @@ describe("AI provider repository", () => {
   it("round-trips a valid versioned state", async () => {
     const state: StoredAIProviderStateV1 = {
       version: 1,
+      providerOrder: ["builtin:dictionary:Youdao Dictionary", "ai:profile-1"],
       profiles: [
         {
           id: "profile-1",
@@ -51,6 +52,33 @@ describe("AI provider repository", () => {
 
     await saveAIProviderState(state);
     expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
+  });
+
+  it("rejects duplicate or empty saved provider keys", async () => {
+    const profile = {
+      id: "profile-1",
+      adapter: "openai-compatible" as const,
+      name: "Example",
+      enabled: true,
+      order: 0,
+      icon: { kind: "preset" as const, name: "mimo" as const },
+      wordResultMode: "translation" as const,
+      endpoint: "https://example.com/v1",
+      model: "example-model",
+      apiKey: "test-placeholder",
+      tokenLimitMode: "max-tokens" as const,
+      jsonOutputMode: "prompt" as const,
+    };
+
+    await expect(
+      saveAIProviderState({ version: 1, profiles: [profile], providerOrder: ["ai:profile-1", "ai:profile-1"] }),
+    ).rejects.toThrow("invalid");
+    await expect(saveAIProviderState({ version: 1, profiles: [profile], providerOrder: [] })).rejects.toThrow(
+      "invalid",
+    );
+    await expect(saveAIProviderState({ version: 1, profiles: [profile], providerOrder: [""] })).rejects.toThrow(
+      "invalid",
+    );
   });
 
   it("preserves malformed and unsupported raw values for recovery", async () => {

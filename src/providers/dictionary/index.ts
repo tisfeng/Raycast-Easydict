@@ -4,6 +4,12 @@ import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/ru
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
+import {
+  assignGlobalServiceOrder,
+  getAIProviderKey,
+  getBuiltinProviderKey,
+  getProviderOrder,
+} from "@/core/query/providerOrder";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
@@ -22,6 +28,8 @@ interface DictionaryWebServiceConfig {
 }
 
 export interface DictionaryServiceConfig extends DictionaryWebServiceConfig, RuntimeServiceConfig {
+  /** Built-in provider's Extension Settings checkbox; dynamic AI providers omit this metadata. */
+  enabledInPreferences?: boolean;
   enabled: (queryWordInfo: QueryInput) => boolean;
   createProvider: () => BaseDictionaryProvider;
   canTriggerAutomaticAudio: boolean;
@@ -50,9 +58,11 @@ const staticDictionaryServices: Array<
   },
 ];
 
-export const dictionaryProviderServices: DictionaryServiceConfig[] = staticDictionaryServices.map((service, order) => ({
+const staticDictionaryServicesWithOrder: DictionaryServiceConfig[] = staticDictionaryServices.map((service, order) => ({
   id: `static:${service.type}`,
   label: service.type,
+  providerKey: getBuiltinProviderKey("dictionary", service.type),
+  enabledInPreferences: myPreferences[service.preference],
   order,
   type: service.type,
   enabled: service.isEnabled ?? (() => myPreferences[service.preference]),
@@ -61,13 +71,22 @@ export const dictionaryProviderServices: DictionaryServiceConfig[] = staticDicti
   getWebUrl: service.getWebUrl,
 }));
 
-export function resolveDictionaryServices(profiles: AIProviderProfile[]): DictionaryServiceConfig[] {
+export const dictionaryProviderServices = assignGlobalServiceOrder(
+  staticDictionaryServicesWithOrder,
+  getProviderOrder([], undefined, myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : []),
+);
+
+export function resolveDictionaryServices(
+  profiles: AIProviderProfile[],
+  providerOrder?: string[],
+): DictionaryServiceConfig[] {
   const dynamicServices = profiles
     .filter((profile) => profile.wordResultMode === "dictionary")
     .map(
       (profile): DictionaryServiceConfig => ({
         id: `profile:${profile.id}:dictionary`,
         label: profile.name,
+        providerKey: getAIProviderKey(profile),
         order: profile.order,
         type: DictionaryType.AI,
         icon: resolveAIProviderIcon(profile),
@@ -76,7 +95,11 @@ export function resolveDictionaryServices(profiles: AIProviderProfile[]): Dictio
         canTriggerAutomaticAudio: false,
       }),
     );
-  return [...dictionaryProviderServices, ...dynamicServices];
+  const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
+  return assignGlobalServiceOrder(
+    [...dictionaryProviderServices, ...dynamicServices],
+    getProviderOrder(profiles, providerOrder, servicesOrder),
+  );
 }
 
 export const dictionaryServices: DictionaryWebServiceConfig[] = [

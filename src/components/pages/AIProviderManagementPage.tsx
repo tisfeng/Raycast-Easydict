@@ -2,7 +2,19 @@
 
 import { randomUUID } from "node:crypto";
 
-import { Action, ActionPanel, Alert, Color, confirmAlert, Icon, List, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Alert,
+  Color,
+  confirmAlert,
+  Icon,
+  type Keyboard,
+  List,
+  openExtensionPreferences,
+  showToast,
+  Toast,
+} from "@raycast/api";
 
 import {
   hasLegacyAIProvidersToImport,
@@ -14,14 +26,37 @@ import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/ai
 import { createEmptyAIProviderState } from "@/ai-providers/repository";
 import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
 import type { AIProviderProfile, OpenAICompatibleProfile, RaycastAIProfile } from "@/ai-providers/types";
-import { getProviderIcon } from "@/components/ui/Icons";
+import { getProviderIcon, getQueryTypeIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
+import {
+  getAIProviderKey,
+  getAvailableProviderKeys,
+  getProviderOrder,
+  reconcileProviderOrder,
+  syncAIProviderOrders,
+} from "@/core/query/providerOrder";
 import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
+import { dictionaryProviderServices } from "@/providers/dictionary";
 import { ProviderConfig } from "@/providers/shared/config";
+import { translationServices } from "@/providers/translation";
 
 import { AIProviderForm } from "./AIProviderForm";
 
 type ProfilesController = ReturnType<typeof useAIProviderProfiles>;
+
+type BuiltinService = (typeof dictionaryProviderServices)[number] | (typeof translationServices)[number];
+
+type ProviderRow = { kind: "builtin"; service: BuiltinService } | { kind: "ai"; profile: AIProviderProfile };
+
+const MOVE_UP_SHORTCUT = {
+  macOS: { modifiers: ["cmd", "shift"], key: "arrowUp" },
+  Windows: { modifiers: ["ctrl", "shift"], key: "arrowUp" },
+} satisfies Keyboard.Shortcut;
+
+const MOVE_DOWN_SHORTCUT = {
+  macOS: { modifiers: ["cmd", "shift"], key: "arrowDown" },
+  Windows: { modifiers: ["ctrl", "shift"], key: "arrowDown" },
+} satisfies Keyboard.Shortcut;
 
 export default function AIProviderManagementPage({ controller }: { controller: ProfilesController }) {
   const profiles = controller.profiles ?? [];
@@ -33,13 +68,41 @@ export default function AIProviderManagementPage({ controller }: { controller: P
   const canReimportLegacy =
     controller.storedState?.migration?.legacyPreferencesImported === true && hasLegacySettingsToImport;
 
-  async function saveProfiles(nextProfiles: AIProviderProfile[]) {
+  const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
+  const providerOrder = getProviderOrder(profiles, controller.storedState?.providerOrder, servicesOrder);
+  const importedProviderKeys = new Set(profiles.map(getAIProviderKey));
+  const builtinServices = [
+    ...(dictionaryProviderServices as BuiltinService[]),
+    ...(translationServices as BuiltinService[]),
+  ]
+    .filter((service) => !importedProviderKeys.has(service.providerKey))
+    .map((service) => ({ kind: "builtin" as const, service }));
+  const rows: ProviderRow[] = [
+    ...builtinServices,
+    ...profiles.map((profile) => ({ kind: "ai" as const, profile })),
+  ].sort((left, right) => {
+    const leftKey = left.kind === "builtin" ? left.service.providerKey : getAIProviderKey(left.profile);
+    const rightKey = right.kind === "builtin" ? right.service.providerKey : getAIProviderKey(right.profile);
+    return providerOrder.indexOf(leftKey) - providerOrder.indexOf(rightKey);
+  });
+  async function saveProfiles(nextProfiles: AIProviderProfile[], requestedProviderOrder?: string[]) {
     const storedState = controller.storedState;
     if (!storedState) return;
-    const normalizedProfiles = nextProfiles.map((profile, order) => ({ ...profile, order }));
+    const savedOrder = requestedProviderOrder ?? storedState.providerOrder;
+    const fallbackOrder = getProviderOrder(nextProfiles, undefined, servicesOrder);
+    const previousFallbackOrder = getProviderOrder(storedState.profiles, undefined, servicesOrder);
+    const previousKeys = new Set(getAvailableProviderKeys(storedState.profiles));
+    const appendNewKeys = fallbackOrder.filter((key) => !previousKeys.has(key));
+    const nextProviderOrder = reconcileProviderOrder(
+      savedOrder,
+      getAvailableProviderKeys(nextProfiles),
+      savedOrder ? fallbackOrder : [...previousFallbackOrder, ...appendNewKeys],
+    );
+    const normalizedProfiles = syncAIProviderOrders(nextProfiles, nextProviderOrder);
     await controller.update({
       ...storedState,
       profiles: normalizedProfiles,
+      providerOrder: nextProviderOrder,
     });
     if (normalizedProfiles.filter((profile) => profile.adapter === "raycast-ai" && profile.enabled).length > 1) {
       await showToast({
@@ -72,7 +135,8 @@ export default function AIProviderManagementPage({ controller }: { controller: P
       icon={Icon.Download}
       onAction={async () => {
         if (!controller.storedState) return;
-        await controller.update(importLegacyAIProviders(controller.storedState, legacyConfiguration));
+        const imported = importLegacyAIProviders(controller.storedState, legacyConfiguration);
+        await saveProfiles(imported.profiles, imported.providerOrder);
         await showToast({ style: Toast.Style.Success, title: "Legacy AI providers imported" });
       }}
     />
@@ -83,7 +147,8 @@ export default function AIProviderManagementPage({ controller }: { controller: P
       icon={Icon.Download}
       onAction={async () => {
         if (!controller.storedState) return;
-        await controller.update(importLegacyAIProviders(controller.storedState, legacyConfiguration));
+        const imported = importLegacyAIProviders(controller.storedState, legacyConfiguration);
+        await saveProfiles(imported.profiles, imported.providerOrder);
         await showToast({ style: Toast.Style.Success, title: "Missing legacy AI providers restored" });
       }}
     />
@@ -119,18 +184,106 @@ export default function AIProviderManagementPage({ controller }: { controller: P
     );
   }
 
+  async function moveProvider(providerKey: string, offset: -1 | 1) {
+    const currentIndex = providerOrder.indexOf(providerKey);
+    const nextIndex = currentIndex + offset;
+    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= providerOrder.length) return;
+    const nextOrder = [...providerOrder];
+    [nextOrder[currentIndex], nextOrder[nextIndex]] = [nextOrder[nextIndex], nextOrder[currentIndex]];
+    await saveProfiles(profiles, nextOrder);
+  }
+
+  function moveActions(providerKey: string) {
+    const index = providerOrder.indexOf(providerKey);
+    return (
+      <>
+        {index > 0 && (
+          <Action
+            title="Move up"
+            icon={Icon.ArrowUp}
+            shortcut={MOVE_UP_SHORTCUT}
+            onAction={() => moveProvider(providerKey, -1)}
+          />
+        )}
+        {index < providerOrder.length - 1 && (
+          <Action
+            title="Move Down"
+            icon={Icon.ArrowDown}
+            shortcut={MOVE_DOWN_SHORTCUT}
+            onAction={() => moveProvider(providerKey, 1)}
+          />
+        )}
+      </>
+    );
+  }
+
+  function legacySettingsSection() {
+    if (!legacyImportAction && !legacyReimportAction) return null;
+    return (
+      <ActionPanel.Section title="Legacy Settings">
+        {legacyImportAction}
+        {legacyReimportAction}
+      </ActionPanel.Section>
+    );
+  }
+
+  function addProviderSection() {
+    return (
+      <ActionPanel.Section title="Add Provider">
+        {addAction("Add OpenAI-Compatible Provider", createOpenAIProfile("custom", profiles.length), Icon.Plus, true)}
+        {addAction("Add Raycast AI Provider", createRaycastAIProfile(profiles.length), Icon.RaycastLogoNeg)}
+      </ActionPanel.Section>
+    );
+  }
+
   return (
-    <List isLoading={controller.isLoading} searchBarPlaceholder="Search AI providers...">
-      {profiles.map((profile, index) => {
+    <List isLoading={controller.isLoading} searchBarPlaceholder="Search providers...">
+      {profiles.length === 0 && (
+        <List.Item
+          key="provider-actions"
+          id="provider-actions"
+          icon={Icon.Plus}
+          title={legacyImportAction || legacyReimportAction ? "Add or Import Providers" : "Add Providers"}
+          subtitle="Create an AI provider or restore legacy settings"
+          actions={
+            <ActionPanel>
+              {addProviderSection()}
+              {legacySettingsSection()}
+            </ActionPanel>
+          }
+        />
+      )}
+      {rows.map((row) => {
+        if (row.kind === "builtin") {
+          const { service } = row;
+          return (
+            <List.Item
+              key={service.providerKey}
+              id={service.providerKey}
+              icon={getQueryTypeIcon(service.type)}
+              title={service.label}
+              accessories={[{ tag: "Built-in" }, { tag: getBuiltinPreferenceStatusTag(service.enabledInPreferences) }]}
+              actions={
+                <ActionPanel>
+                  <Action title="Open Extension Settings" icon={Icon.Gear} onAction={openExtensionPreferences} />
+                  {moveActions(service.providerKey)}
+                </ActionPanel>
+              }
+            />
+          );
+        }
+
+        const { profile } = row;
         const runnable = isAIProviderProfileRunnable(profile);
-        const statusTag = getStatusTag(profile, runnable);
+        const providerKey = getAIProviderKey(profile);
         return (
           <List.Item
-            key={profile.id}
+            key={providerKey}
+            id={providerKey}
             icon={getProviderIcon(profile.icon, profile.name)}
             title={profile.name}
             subtitle={`${profile.adapter === "raycast-ai" ? "Raycast AI" : "OpenAI-Compatible"} · ${profile.model}`}
-            accessories={[{ tag: statusTag }]}
+            accessories={getAIProviderAccessories(profile, runnable)}
             actions={
               <ActionPanel>
                 <Action.Push
@@ -166,20 +319,7 @@ export default function AIProviderManagementPage({ controller }: { controller: P
                     ])
                   }
                 />
-                {index > 0 && (
-                  <Action
-                    title="Move up"
-                    icon={Icon.ArrowUp}
-                    onAction={() => saveProfiles(moveProfile(profiles, index, index - 1))}
-                  />
-                )}
-                {index < profiles.length - 1 && (
-                  <Action
-                    title="Move Down"
-                    icon={Icon.ArrowDown}
-                    onAction={() => saveProfiles(moveProfile(profiles, index, index + 1))}
-                  />
-                )}
+                {moveActions(providerKey)}
                 <Action
                   title="Delete Provider"
                   icon={Icon.Trash}
@@ -187,49 +327,34 @@ export default function AIProviderManagementPage({ controller }: { controller: P
                   onAction={async () => {
                     const confirmed = await confirmAlert({
                       title: `Delete ${profile.name}?`,
-                      message: "This removes the saved profile and its API key.",
+                      message: "This removes the saved provider and its API key.",
                       primaryAction: { title: "Delete", style: Alert.ActionStyle.Destructive },
                     });
                     if (confirmed) await saveProfiles(profiles.filter((candidate) => candidate.id !== profile.id));
                   }}
                 />
-                <ActionPanel.Section title="Add Provider">
-                  {addAction(
-                    "Add OpenAI-Compatible Provider",
-                    createOpenAIProfile("custom", profiles.length),
-                    Icon.Plus,
-                    true,
-                  )}
-                  {addAction("Add Raycast AI Provider", createRaycastAIProfile(profiles.length), Icon.RaycastLogoNeg)}
-                </ActionPanel.Section>
-                {(legacyImportAction || legacyReimportAction) && (
-                  <ActionPanel.Section title="Legacy Settings">
-                    {legacyImportAction}
-                    {legacyReimportAction}
-                  </ActionPanel.Section>
-                )}
+                {addProviderSection()}
+                {legacySettingsSection()}
               </ActionPanel>
             }
           />
         );
       })}
-      <List.EmptyView
-        icon={Icon.Stars}
-        title="No Dynamic AI Providers"
-        description="Add a Raycast AI or OpenAI-compatible provider."
-        actions={
-          <ActionPanel>
-            {legacyImportAction}
-            {addAction("Add Raycast AI Provider", createRaycastAIProfile(0), Icon.RaycastLogoNeg)}
-            {addAction("Add OpenAI-Compatible Provider", createOpenAIProfile("custom", 0), Icon.Plus, true)}
-            {legacyReimportAction && (
-              <ActionPanel.Section title="Legacy Settings">{legacyReimportAction}</ActionPanel.Section>
-            )}
-          </ActionPanel>
-        }
-      />
     </List>
   );
+}
+
+function getAIProviderStatusTag(profile: AIProviderProfile, runnable: boolean) {
+  if (!runnable) return { value: "Invalid", color: Color.Red };
+  return profile.enabled ? { value: "Enabled", color: Color.Green } : { value: "Disabled", color: Color.SecondaryText };
+}
+
+function getAIProviderAccessories(profile: AIProviderProfile, runnable: boolean) {
+  return [{ tag: "AI Provider" }, { tag: getAIProviderStatusTag(profile, runnable) }];
+}
+
+function getBuiltinPreferenceStatusTag(enabled: boolean | undefined) {
+  return enabled ? { value: "Enabled", color: Color.Green } : { value: "Disabled", color: Color.SecondaryText };
 }
 
 function getConfigurationErrorMessage(controller: ProfilesController): string {
@@ -243,11 +368,6 @@ function getConfigurationErrorMessage(controller: ProfilesController): string {
     default:
       return "The provider configuration could not be loaded.";
   }
-}
-
-function getStatusTag(profile: AIProviderProfile, runnable: boolean) {
-  if (!runnable) return { value: "Invalid", color: Color.Red };
-  return profile.enabled ? { value: "Enabled", color: Color.Green } : "Disabled";
 }
 
 function createOpenAIProfile(presetName: OpenAICompatiblePresetName, order: number): OpenAICompatibleProfile {
@@ -275,13 +395,6 @@ function createRaycastAIProfile(order: number): RaycastAIProfile {
     icon: { kind: "preset", name: "raycast" },
     wordResultMode: "translation",
   };
-}
-
-function moveProfile(profiles: AIProviderProfile[], from: number, to: number): AIProviderProfile[] {
-  const next = [...profiles];
-  const [profile] = next.splice(from, 1);
-  next.splice(to, 0, profile);
-  return next;
 }
 
 function getLegacyAIProviderConfiguration(): LegacyAIProviderConfiguration {

@@ -134,6 +134,8 @@ beforeEach(() => {
   testDoubles.dictionaryServices.splice(0, testDoubles.dictionaryServices.length, {
     id: `static:${DictionaryType.Linguee}`,
     label: DictionaryType.Linguee,
+    providerKey: `builtin:dictionary:${DictionaryType.Linguee}`,
+    enabledInPreferences: true,
     order: 0,
     type: DictionaryType.Linguee,
     enabled: () => true,
@@ -151,6 +153,7 @@ describe("useQueryEngine query generations", () => {
     const dynamicService: TranslationServiceConfig = {
       id: "profile:test",
       label: "Test AI",
+      providerKey: "ai:test",
       order: 0,
       type: TranslationType.OpenAI,
       icon: { kind: "preset", name: "gemini" },
@@ -190,6 +193,7 @@ describe("useQueryEngine query generations", () => {
     const dynamicDictionaryService: DictionaryServiceConfig = {
       id: "profile:test:dictionary",
       label: "Test AI Dictionary",
+      providerKey: "ai:test",
       order: 0,
       type: DictionaryType.AI,
       enabled: () => true,
@@ -343,6 +347,7 @@ describe("useQueryEngine query generations", () => {
     const whitespaceService: TranslationServiceConfig = {
       id: "profile:whitespace",
       label: "Whitespace AI",
+      providerKey: "ai:whitespace",
       order: 0,
       type: TranslationType.OpenAI,
       icon: { kind: "preset", name: "gemini" },

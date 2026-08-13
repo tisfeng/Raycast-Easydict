@@ -4,8 +4,8 @@ import { normalizeOpenAICompatibleEndpoint } from "./endpoint";
 import { inferTokenLimitMode } from "./tokenLimit";
 import type { AIProviderProfile, OpenAICompatibleProfile, StoredAIProviderStateV1 } from "./types";
 
-const LEGACY_OPENAI_PROFILE_ID = "legacy-openai";
-const LEGACY_GEMINI_PROFILE_ID = "legacy-gemini";
+export const LEGACY_OPENAI_PROFILE_ID = "legacy-openai";
+export const LEGACY_GEMINI_PROFILE_ID = "legacy-gemini";
 type LegacyAIProviderName = "openai" | "gemini";
 
 /**

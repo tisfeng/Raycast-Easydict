@@ -70,12 +70,22 @@ export async function saveAIProviderState(state: StoredAIProviderStateV1): Promi
 
 export function isStoredAIProviderStateV1(value: unknown): value is StoredAIProviderStateV1 {
   if (!isRecord(value) || value.version !== 1 || !Array.isArray(value.profiles)) return false;
+  if (value.providerOrder !== undefined && !isProviderOrder(value.providerOrder)) return false;
   if (value.migration !== undefined) {
     if (!isRecord(value.migration) || typeof value.migration.legacyPreferencesImported !== "boolean") return false;
   }
   if (!value.profiles.every(isAIProviderProfile)) return false;
   const profileIds = value.profiles.map((profile) => profile.id);
   return new Set(profileIds).size === profileIds.length;
+}
+
+function isProviderOrder(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((key) => typeof key === "string" && key.trim().length > 0) &&
+    new Set(value).size === value.length
+  );
 }
 
 function isAIProviderProfile(value: unknown): value is AIProviderProfile {

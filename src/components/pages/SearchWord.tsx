@@ -45,8 +45,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const resolvedServiceSnapshot = useMemo(() => {
     if (aiProviderProfiles.profiles) {
       return {
-        translationServices: resolveTranslationServices(aiProviderProfiles.profiles),
-        dictionaryServices: resolveDictionaryServices(aiProviderProfiles.profiles),
+        translationServices: resolveTranslationServices(
+          aiProviderProfiles.profiles,
+          aiProviderProfiles.storedState?.providerOrder,
+        ),
+        dictionaryServices: resolveDictionaryServices(
+          aiProviderProfiles.profiles,
+          aiProviderProfiles.storedState?.providerOrder,
+        ),
       };
     }
     return {

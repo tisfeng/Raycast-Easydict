@@ -29,9 +29,9 @@
     },
     {
       "name": "manage-ai-providers",
-      "title": "Manage AI Providers",
+      "title": "Manage Providers",
       "subtitle": "Easydict",
-      "description": "Add, edit, migrate, and organize Raycast AI and OpenAI-compatible translation providers.",
+      "description": "Order built-in providers and configure AI providers.",
       "mode": "view"
     },
     {
@@ -669,7 +669,7 @@
       "name": "enableOpenAITranslate",
       "label": "Legacy OpenAI Translate",
       "required": false,
-      "description": "Used until this configuration is imported from Manage AI Providers. Retained temporarily for migration.",
+      "description": "Used until this configuration is imported from Manage Providers. Retained temporarily for migration.",
       "default": false
     },
     {
@@ -677,7 +677,7 @@
       "name": "enableGeminiTranslate",
       "label": "Legacy Gemini Translate",
       "required": false,
-      "description": "Used until this configuration is imported from Manage AI Providers. Retained temporarily for migration.",
+      "description": "Used until this configuration is imported from Manage Providers. Retained temporarily for migration.",
       "default": false
     },
     {
@@ -753,11 +753,11 @@
       "default": false
     },
     {
-      "title": "Service List Order",
+      "title": "Legacy Service List Order",
       "name": "servicesOrder",
       "type": "textfield",
       "required": false,
-      "description": "Separate by comma, default is Youao Dictionary, Linguee Dictionary, OpenAI, Gemini, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun",
+      "description": "Separate by comma. Only initializes Manage Providers until a saved provider order exists.",
       "default": "",
       "placeholder": "youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun"
     },

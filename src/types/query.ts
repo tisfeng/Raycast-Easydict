@@ -36,6 +36,7 @@ export type QueryType = TranslationType | DictionaryType;
 export interface RuntimeServiceConfig {
   id: string;
   label: string;
+  providerKey: string;
   order: number;
   icon?: ProviderIconConfig;
 }

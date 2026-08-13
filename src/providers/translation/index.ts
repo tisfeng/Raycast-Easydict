@@ -5,6 +5,12 @@ import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/ru
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
+import {
+  assignGlobalServiceOrder,
+  getAIProviderKey,
+  getBuiltinProviderKey,
+  getProviderOrder,
+} from "@/core/query/providerOrder";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { checkIsWord } from "@/providers/shared/utils";
@@ -28,6 +34,8 @@ import { YoudaoTranslateProvider } from "./youdao";
 
 export interface TranslationServiceConfig extends RuntimeServiceConfig {
   type: TranslationType;
+  /** Built-in provider's Extension Settings checkbox; dynamic AI providers omit this metadata. */
+  enabledInPreferences?: boolean;
   enabled: (queryWordInfo: QueryInput) => boolean;
   createProvider: () => BaseTranslateProvider;
   getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
@@ -35,7 +43,10 @@ export interface TranslationServiceConfig extends RuntimeServiceConfig {
 
 /** Static registry — provider classes, instantiated by the engine. */
 const staticTranslationServices: Array<
-  Omit<TranslationServiceConfig, "id" | "label" | "order" | "enabled" | "createProvider"> & {
+  Omit<
+    TranslationServiceConfig,
+    "id" | "label" | "providerKey" | "enabledInPreferences" | "order" | "enabled" | "createProvider"
+  > & {
     preference: BooleanPreferenceKey;
     provider: new () => BaseTranslateProvider;
     isEnabled?: (queryWordInfo: QueryInput) => boolean;
@@ -117,25 +128,38 @@ const staticTranslationServices: Array<
   },
 ];
 
-export const translationServices: TranslationServiceConfig[] = staticTranslationServices.map((service, order) => ({
-  id: `static:${service.type}`,
-  label: service.type,
-  order,
-  type: service.type,
-  enabled: service.isEnabled ?? (() => myPreferences[service.preference]),
-  createProvider: () => new service.provider(),
-  getWebUrl: service.getWebUrl,
-}));
+const staticTranslationServicesWithOrder: TranslationServiceConfig[] = staticTranslationServices.map(
+  (service, order) => ({
+    id: `static:${service.type}`,
+    label: service.type,
+    providerKey: getBuiltinProviderKey("translation", service.type),
+    enabledInPreferences: myPreferences[service.preference],
+    order,
+    type: service.type,
+    enabled: service.isEnabled ?? (() => myPreferences[service.preference]),
+    createProvider: () => new service.provider(),
+    getWebUrl: service.getWebUrl,
+  }),
+);
+
+export const translationServices = assignGlobalServiceOrder(
+  staticTranslationServicesWithOrder,
+  getProviderOrder([], undefined, myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : []),
+);
 
 export const translationServicesBeforeAIProfilesLoad = translationServices.filter(
   (service) => service.type !== TranslationType.OpenAI && service.type !== TranslationType.Gemini,
 );
 
-export function resolveTranslationServices(profiles: AIProviderProfile[]): TranslationServiceConfig[] {
+export function resolveTranslationServices(
+  profiles: AIProviderProfile[],
+  providerOrder?: string[],
+): TranslationServiceConfig[] {
   const dynamicServices = profiles.map((profile): TranslationServiceConfig => {
     const common = {
       id: `profile:${profile.id}`,
       label: profile.name,
+      providerKey: getAIProviderKey(profile),
       order: profile.order,
       type: TranslationType.OpenAI,
       icon: resolveAIProviderIcon(profile),
@@ -158,5 +182,7 @@ export function resolveTranslationServices(profiles: AIProviderProfile[]): Trans
     }
     return true;
   });
-  return [...legacyServices, ...dynamicServices];
+  const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
+  const resolved = [...legacyServices, ...dynamicServices];
+  return assignGlobalServiceOrder(resolved, getProviderOrder(profiles, providerOrder, servicesOrder));
 }

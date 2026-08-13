@@ -9,7 +9,6 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
-import { DictionaryType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
 import type { QueryResult, TranslationResult } from "@/types/query";
 import { logTrace } from "@/utils/logger";
@@ -20,78 +19,12 @@ import { logTrace } from "@/utils/logger";
  * * NOTE: this function will be called many times, because request results are async, so we need to sort every time.
  */
 export function sortedQueryResults(queryResults: QueryResult[]) {
-  const typeOrder = getSortOrder();
   return queryResults
     .map((result, index) => ({ result, index }))
     .sort((left, right) => {
-      const leftTypeOrder = typeOrder.indexOf(left.result.type.toString().toLowerCase());
-      const rightTypeOrder = typeOrder.indexOf(right.result.type.toString().toLowerCase());
-      const normalizedLeftOrder = leftTypeOrder === -1 ? Number.MAX_SAFE_INTEGER : leftTypeOrder;
-      const normalizedRightOrder = rightTypeOrder === -1 ? Number.MAX_SAFE_INTEGER : rightTypeOrder;
-      return (
-        normalizedLeftOrder - normalizedRightOrder ||
-        left.result.serviceOrder - right.result.serviceOrder ||
-        left.index - right.index
-      );
+      return left.result.serviceOrder - right.result.serviceOrder || left.index - right.index;
     })
     .map(({ result }) => result);
-}
-
-/**
- * Get services sort order. If user set the order manually, prioritize the order.
- *
- * @return [linguee dictionary, youdao dictionary, deepl...], all lowercase.
- */
-function getSortOrder(): string[] {
-  const defaultOrderList = [
-    DictionaryType.Youdao,
-    DictionaryType.Linguee,
-    DictionaryType.AI,
-
-    TranslationType.OpenAI,
-    TranslationType.Gemini,
-    TranslationType.DeepL,
-    TranslationType.DeepLX,
-    TranslationType.Google,
-    TranslationType.Bing,
-    TranslationType.Apple,
-    TranslationType.Baidu,
-    TranslationType.Tencent,
-    TranslationType.Volcano,
-    TranslationType.Youdao,
-    TranslationType.Caiyun,
-  ];
-
-  const userOrder: string[] = [];
-  const defaultOrders = defaultOrderList.map((type) => type.toString().toLowerCase());
-
-  // User-provided sort order may be incomplete or misspelled.
-  const manualOrder = config.servicesOrder;
-
-  const formatManualOrder = manualOrder.map((order) => order.trim().toLowerCase());
-
-  // eg: [Youdao dictionary, DeepL, Tencent, linguee dictionary, Baidu, Google, Apple, Youdao]
-  for (const order of formatManualOrder) {
-    // 1. handle dictionary type.
-    const dictionaryName = order;
-    if (dictionaryName.endsWith("dictionary")) {
-      if (defaultOrders.includes(dictionaryName)) {
-        userOrder.push(dictionaryName);
-        defaultOrders.splice(defaultOrders.indexOf(dictionaryName), 1);
-      }
-    } else {
-      // 2. handle translation type.
-      const translationName = `${order} translate`;
-      // if the type name is in the default order, add it to user order, and remove it from defaultOrders.
-      if (defaultOrders.includes(translationName)) {
-        userOrder.push(translationName);
-        defaultOrders.splice(defaultOrders.indexOf(translationName), 1);
-      }
-    }
-  }
-
-  const finalOrder = [...userOrder, ...defaultOrders].map((title) => title.toLowerCase());
-  return finalOrder;
 }
 
 /**
