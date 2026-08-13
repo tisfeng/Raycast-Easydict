@@ -46,7 +46,7 @@ export abstract class BaseOpenAICompatibleTranslateProvider extends BaseStreamin
 
     const streamResult = streamText({
       baseURL: url,
-      apiKey,
+      ...(apiKey ? { apiKey } : {}),
       model: modelName,
       messages,
       abortSignal: signal,

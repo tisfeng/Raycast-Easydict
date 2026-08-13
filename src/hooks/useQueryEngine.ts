@@ -184,12 +184,12 @@ export function useQueryEngine(
     (queryResult: TranslationResult, service: TranslationServiceConfig): TranslationQueryResult | null => {
       const { type, translations, queryWordInfo } = queryResult;
 
-      if (translations.length === 0) {
+      const oneLineTranslation = translations.join(", ");
+      if (!oneLineTranslation.trim()) {
         logWarn("UseQueryEngine", `${service.label} result is empty.`);
         return null;
       }
 
-      const oneLineTranslation = translations.join(", ");
       const copyText = translations.join("\n");
       const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
 

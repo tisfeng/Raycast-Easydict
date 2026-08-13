@@ -68,6 +68,15 @@ describe("AI dictionary provider adapters", () => {
     expect(result.result).toEqual(createResponse());
     expect(result.displaySections?.[0].items[0].title).toBe("跑");
   });
+
+  it("omits the API key for a keyless OpenAI-compatible dictionary completion", async () => {
+    const response = JSON.stringify(createResponse());
+    testDoubles.streamText.mockReturnValue({ textStream: createTextStream([response]) });
+
+    await new OpenAICompatibleDictionaryProvider(createOpenAIProfile("")).request(createQuery());
+
+    expect(testDoubles.streamText).toHaveBeenCalledWith(expect.not.objectContaining({ apiKey: expect.anything() }));
+  });
 });
 
 function createQuery() {
@@ -99,7 +108,7 @@ function createRaycastProfile(): RaycastAIProfile {
   };
 }
 
-function createOpenAIProfile(): OpenAICompatibleProfile {
+function createOpenAIProfile(apiKey = "test-key"): OpenAICompatibleProfile {
   return {
     id: "openai",
     adapter: "openai-compatible",
@@ -110,7 +119,7 @@ function createOpenAIProfile(): OpenAICompatibleProfile {
     wordResultMode: "dictionary",
     endpoint: "https://example.com/v1/chat/completions",
     model: "test-model",
-    apiKey: "test-key",
+    apiKey,
     tokenLimitMode: "max-tokens",
     jsonOutputMode: "json-object",
   };

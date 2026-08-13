@@ -42,9 +42,10 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     const messages = renderAIDictionaryChatMessages(
       createAIDictionaryPromptSpec(queryWordInfo, fromLanguage, toLanguage),
     );
+    const apiKey = this.profile.apiKey.trim();
     const streamResult = streamText({
       baseURL: normalizeOpenAICompatibleEndpoint(this.profile.endpoint),
-      apiKey: this.profile.apiKey.trim(),
+      ...(apiKey ? { apiKey } : {}),
       model,
       messages,
       abortSignal: signal,

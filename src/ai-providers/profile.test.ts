@@ -39,10 +39,10 @@ describe("AI provider profiles", () => {
     expect(getOpenAICompatibleProfileValidationError(invalid)).toBe("Enter a valid HTTP or HTTPS API base URL.");
   });
 
-  it("rejects an empty API key", () => {
-    const invalid = { ...profile, apiKey: "\t\n" };
+  it("accepts a valid keyless OpenAI-compatible profile", () => {
+    const keyless = { ...profile, apiKey: "\t\n" };
 
-    expect(getOpenAICompatibleProfileValidationError(invalid)).toBe("Enter an API key.");
+    expect(getOpenAICompatibleProfileValidationError(keyless)).toBeUndefined();
   });
 
   it("normalizes surrounding whitespace before saving and running a profile", () => {

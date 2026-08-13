@@ -42,6 +42,5 @@ export function getOpenAICompatibleProfileValidationError(profile: OpenAICompati
     return "Enter a valid HTTP or HTTPS API base URL.";
   }
 
-  if (!profile.apiKey.trim()) return "Enter an API key.";
   return undefined;
 }

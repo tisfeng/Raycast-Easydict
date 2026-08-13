@@ -46,8 +46,10 @@ newProvider: {
 defaults. The preset uses the shared OpenAI-compatible adapter at runtime; do
 not add provider-specific request code for a standard-compatible endpoint.
 `tokenLimitMode` selects the corresponding token parameter. The profile form
-and validation still require a user API key before an OpenAI-compatible profile
-can be saved and run.
+validates the name, endpoint, and model; whether model discovery or inference
+requires an API key depends on the provider. OpenCode Zen and OpenCode Go can
+load their model catalogs anonymously, but their inference requests still
+require the provider API key.
 
 The runtime normalizes the endpoint with
 `normalizeOpenAICompatibleEndpoint`, including a pasted trailing
@@ -86,9 +88,9 @@ specific to the normalized models URL. Add regression coverage in
 `modelDiscovery.test.ts` and `modelCatalog.test.ts` for the public-auth
 exception, URL normalization, and the resulting model options as applicable.
 
-An anonymous model catalog does not mean that profile saving or inference is
-anonymous. Current profile validation still requires an API key, and the
-provider may require one for chat completions. If the models response is not
+An anonymous model catalog does not mean that inference is anonymous. The
+provider may still require an API key for chat completions, as OpenCode Zen and
+OpenCode Go do. If the models response is not
 `{ data: [{ id }] }`, evaluate a provider-specific adapter or normalizer
 boundary instead of placing an ad hoc provider hack in shared discovery code.
 

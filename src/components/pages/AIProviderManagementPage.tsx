@@ -43,7 +43,7 @@ export default function AIProviderManagementPage({ controller }: { controller: P
     });
     if (normalizedProfiles.filter((profile) => profile.adapter === "raycast-ai" && profile.enabled).length > 1) {
       await showToast({
-        style: Toast.Style.Animated,
+        style: Toast.Style.Failure,
         title: "Multiple Raycast AI providers enabled",
         message: "Extension AI requests are rate-limited; rapid queries may fail.",
       });
@@ -133,7 +133,6 @@ export default function AIProviderManagementPage({ controller }: { controller: P
             accessories={[{ tag: statusTag }]}
             actions={
               <ActionPanel>
-                {legacyImportAction}
                 <Action.Push
                   title="Edit Provider"
                   icon={Icon.Pencil}
@@ -203,8 +202,11 @@ export default function AIProviderManagementPage({ controller }: { controller: P
                   )}
                   {addAction("Add Raycast AI Provider", createRaycastAIProfile(profiles.length), Icon.RaycastLogoNeg)}
                 </ActionPanel.Section>
-                {legacyReimportAction && (
-                  <ActionPanel.Section title="Legacy Settings">{legacyReimportAction}</ActionPanel.Section>
+                {(legacyImportAction || legacyReimportAction) && (
+                  <ActionPanel.Section title="Legacy Settings">
+                    {legacyImportAction}
+                    {legacyReimportAction}
+                  </ActionPanel.Section>
                 )}
               </ActionPanel>
             }

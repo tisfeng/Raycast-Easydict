@@ -113,6 +113,18 @@ class RecordingTranslationProvider extends BaseNonStreamingTranslateProvider {
   }
 }
 
+class WhitespaceTranslationProvider extends BaseNonStreamingTranslateProvider {
+  type = TranslationType.OpenAI;
+
+  protected async doTranslate(queryWordInfo: QueryInput): Promise<TranslationResult> {
+    return {
+      type: this.type,
+      queryWordInfo,
+      translations: [" \t\n"],
+    };
+  }
+}
+
 beforeEach(() => {
   dictionaryRequests.length = 0;
   translationRequests.length = 0;
@@ -325,6 +337,31 @@ describe("useQueryEngine query generations", () => {
     await resolveDictionaryRequest(0);
     expect(result.current.displaySections).toEqual([]);
     expect(result.current.isLoading).toBe(false);
+  });
+
+  it("does not create a result when a translation output contains only whitespace", async () => {
+    const whitespaceService: TranslationServiceConfig = {
+      id: "profile:whitespace",
+      label: "Whitespace AI",
+      order: 0,
+      type: TranslationType.OpenAI,
+      icon: { kind: "preset", name: "gemini" },
+      enabled: () => true,
+      createProvider: () => new WhitespaceTranslationProvider(),
+    };
+    const { result } = renderHook(() =>
+      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        translationServices: [whitespaceService],
+        dictionaryServices: [],
+      }),
+    );
+
+    act(() => {
+      result.current.queryTextWithTextInfo(createQueryInput("whitespace"));
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.displaySections).toEqual([]);
   });
 
   it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
