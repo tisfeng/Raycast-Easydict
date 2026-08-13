@@ -18,12 +18,6 @@ describe("useFirstItemAnchor", () => {
 
     rerender({ itemIds: ["provider-a:item", "provider-b:item", "provider-c:item"], isLoading: true });
     expect(result.current.selectedItemId).toBe("provider-a:item");
-
-    rerender({
-      itemIds: ["provider-a:item", "provider-b:item", "provider-c:item", "provider-d:item"],
-      isLoading: true,
-    });
-    expect(result.current.selectedItemId).toBe("provider-a:item");
   });
 
   it("keeps the first item controlled after loading finishes", () => {

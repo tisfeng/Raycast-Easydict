@@ -45,7 +45,7 @@ describe("OpenAI-compatible model discovery", () => {
     );
   });
 
-  it("uses the shared typed client and narrows the untrusted response", async () => {
+  it("requests models with the endpoint, authorization, and signal and sorts usable IDs", async () => {
     const signal = new AbortController().signal;
     timedFetch.mockResolvedValue({
       data: [{ id: "model-b" }, { id: "" }, { id: 42 }, { id: "model-a" }, { id: "model-b" }],
@@ -59,6 +59,13 @@ describe("OpenAI-compatible model discovery", () => {
       headers: { Authorization: "Bearer test-key" },
       signal,
     });
+  });
+
+  it("isolates cached models by credential without exposing endpoint or API key", async () => {
+    timedFetch.mockResolvedValue({ data: [{ id: "model-b" }, { id: "model-a" }] });
+
+    await fetchOpenAICompatibleModelIds("https://api.example.com/v1", "test-key");
+
     expect(getCachedOpenAICompatibleModelIds("https://api.example.com/v1", "test-key")).toEqual(["model-a", "model-b"]);
     expect(getCachedOpenAICompatibleModelIds("https://api.example.com/v1", "other-key")).toEqual([]);
     const cacheKey = [...cacheStorage.keys()][0];

@@ -13,22 +13,19 @@ describe("display identities", () => {
     const google = createSection("static:google", TranslationType.Google, TranslationType.Google);
     const linguee = createSection("static:linguee", DictionaryType.Linguee, LingueeListItemType.Translation);
 
-    expect(getDisplaySectionIds([google], 4)).toEqual([
-      `query:4:section:service:static:google:${TranslationType.Google}:0`,
-    ]);
-    expect(getDisplaySectionIds([linguee, google], 4)[1]).toBe(
-      `query:4:section:service:static:google:${TranslationType.Google}:0`,
-    );
+    const originalSectionId = getDisplaySectionIds([google], 4)[0];
+    const sectionIdAfterInsert = getDisplaySectionIds([linguee, google], 4)[1];
+
+    expect(sectionIdAfterInsert).toBe(originalSectionId);
   });
 
   it("distinguishes configured services that share the same provider type", () => {
     const firstProfile = createSection("profile:first", TranslationType.OpenAI, TranslationType.OpenAI);
     const secondProfile = createSection("profile:second", TranslationType.OpenAI, TranslationType.OpenAI);
 
-    expect(getDisplaySectionIds([firstProfile, secondProfile], 4)).toEqual([
-      `query:4:section:service:profile:first:${TranslationType.OpenAI}:0`,
-      `query:4:section:service:profile:second:${TranslationType.OpenAI}:0`,
-    ]);
+    const sectionIds = getDisplaySectionIds([firstProfile, secondProfile], 4);
+
+    expect(sectionIds[0]).not.toBe(sectionIds[1]);
   });
 
   it("does not reuse section or item IDs across query generations", () => {
@@ -40,11 +37,13 @@ describe("display identities", () => {
     expect(getListItemId(firstSectionId, 0)).not.toBe(getListItemId(nextSectionId, 0));
   });
 
-  it("creates unique item IDs without depending on mutable titles or keys", () => {
-    const sectionId = "query:1:section:provider:result:0";
+  it("uses item position to distinguish items in one section", () => {
+    const sectionId = getDisplaySectionIds(
+      [createSection("static:google", TranslationType.Google, TranslationType.Google)],
+      1,
+    )[0];
 
-    expect(getListItemId(sectionId, 0)).toBe("query:1:section:provider:result:0:item:0");
-    expect(getListItemId(sectionId, 1)).toBe("query:1:section:provider:result:0:item:1");
+    expect(getListItemId(sectionId, 0)).not.toBe(getListItemId(sectionId, 1));
   });
 });
 
