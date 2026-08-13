@@ -36,6 +36,16 @@ Do not manually edit content inside `<!-- automd -->` blocks. Regenerate it with
 npm run docs:gen
 ```
 
+### Unit Tests
+
+Add a unit test only when it protects at least one of these: observable behavior or an external contract, a real regression, an important boundary or invariant, or high-risk business logic.
+
+- Do not add tests mechanically for coverage, code changes, or implementation details.
+- Prefer observable behavior and real dependencies; avoid over-mocking.
+- Name tests with the scenario and expected outcome stated directly. Add comments only for non-obvious setup or failure behavior.
+- For a bug regression, verify the test fails before the fix and passes after it.
+- Do not duplicate existing coverage, and do not add a test when you cannot explain which real failure it prevents.
+
 ## Architecture
 
 ### Providers (`src/providers/`)
