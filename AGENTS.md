@@ -30,6 +30,8 @@ npm run build
 
 `npm run build` performs Raycast's build and type checking. Use `npm run fix-lint` only when automatic fixes are intended. For documentation-only changes, run relevant checks and report any skipped commands.
 
+Update README.md in the same change when adding a user-facing feature or introducing a breaking change.
+
 Do not manually edit content inside `<!-- automd -->` blocks. Regenerate it with:
 
 ```bash
@@ -102,6 +104,15 @@ OpenAI-compatible translation providers share `src/providers/translation/openai-
 ## Commits and Releases
 
 Use conventional commit and PR titles: `type(scope): summary`. Valid types are `feat`, `fix`, `docs`, `chore`, `refactor`, and `test`. Keep commits atomic and leave the repository buildable.
+
+### Changelog
+
+- Base entries on the final net diff against the PR or branch target (normally `origin/main`), not commit history or development sequence.
+- Include only user-observable features, behavior or compatibility changes, and fixes for problems that exist in the base. Exclude internal refactors, tests, documentation, implementation details, and regressions introduced and fixed within the same unreleased branch.
+- Fold presets, follow-up fixes, and supporting implementation into the parent feature unless independently user-visible; do not elevate intermediate work.
+- Describe migrations, deprecations, and fallbacks precisely, including their conditions and reversibility where relevant.
+- Do not duplicate changes already recorded in a released section.
+- When adding a changelog entry in a PR, use a versioned heading in the form `## [vX.Y.Z] - {PR_MERGE_DATE}`; do not use an `Unreleased` section or fill in the actual merge date ahead of merge.
 
 When explicitly preparing a release:
 

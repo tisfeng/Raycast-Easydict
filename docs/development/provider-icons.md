@@ -116,15 +116,14 @@ Add the new preset name and asset in:
 1. `src/ai-providers/types.ts` — `PROVIDER_ICON_NAMES`.
 2. `src/components/ui/Icons.tsx` — `providerIconAssets`.
 3. `src/ai-providers/presets.ts` — the provider preset.
-4. `src/components/pages/AIProviderManagementPage.tsx` — the explicit icon
+4. `src/components/pages/AIProviderForm.tsx` — the explicit icon
    dropdown item.
 
-Then run the normal verification sequence:
+Then run the project CI verification sequence:
 
 ```bash
+npm run lint
 npm test
-npx tsc --noEmit
-npm run fix-lint
 npm run build
 ```
 

@@ -30,7 +30,9 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 ## Raycast Easydict（易词典）
 
-`Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询，支持 OpenAI, 🍎**苹果系统翻译**，[DeepL](https://www.deepl.com/translator)，[谷歌](https://translate.google.com)，[Bing](https://www.bing.com/translator), [百度](https://fanyi.baidu.com/)，[腾讯](https://fanyi.qq.com/)，[火山](https://www.volcengine.com/product/machine-translation)，[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)。
+`Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询。
+
+翻译支持 🍎**苹果系统翻译**、[DeepL](https://www.deepl.com/translator)、[谷歌](https://translate.google.com)、[Bing](https://www.bing.com/translator)、[百度](https://fanyi.baidu.com/)、[腾讯](https://fanyi.qq.com/)、[火山](https://www.volcengine.com/product/machine-translation)、[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)，并支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置。
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
@@ -54,8 +56,13 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持系统代理。
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
-- [x] 支持 OpenAI、Gemini、DeepL、Google、Bing、百度、腾讯、火山、有道和彩云翻译。
+- [x] 支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置，以及 DeepL、Google、Bing、百度、腾讯、火山、有道和彩云等翻译服务。
 - [x] 支持 48+ 种语言。
+- [x] 支持将完整查询结果保存为收藏单词，离线浏览和管理。
+
+### 收藏单词
+
+查询结果完成后，在 Search Word 的操作面板中使用 **Add to Favorites** 保存完整结果快照，以便离线浏览。**Favorite Words** 命令支持搜索、复制、朗读、移除或清空收藏；**Open in Easydict** 会对选中的单词重新发起实时查询。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 
@@ -127,6 +134,12 @@ npm install && npm run dev
 实际上，你不需要做任何额外设置它就能工作得很好。以下是进阶文档，面向那些希望更好地使用 `Easydict` 或想了解该扩展工作原理的用户。
 
 ![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
+
+### AI 提供商
+
+使用 **Manage AI Providers** 创建、排序以及启用或停用 AI 配置。配置可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
+
+可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。现有的 OpenAI 和 Gemini 设置可以从旧版配置导入。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
 
 ### 偏好语言
 
