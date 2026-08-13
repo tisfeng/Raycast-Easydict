@@ -4,7 +4,11 @@ import { createHash } from "node:crypto";
 
 import { AI } from "@raycast/api";
 
-import { fetchOpenAICompatibleModelIds, getCachedOpenAICompatibleModelIds } from "./modelDiscovery";
+import {
+  fetchOpenAICompatibleModelIds,
+  getCachedOpenAICompatibleModelIds,
+  isPublicOpenAICompatibleModelsEndpoint,
+} from "./modelDiscovery";
 import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
 
 export interface AIModelOption {
@@ -45,6 +49,7 @@ function resolveRaycastAIModelCatalog(): ResolvedAIModelCatalog {
 function resolveOpenAICompatibleModelCatalog(profile: OpenAICompatibleProfile): ResolvedAIModelCatalog {
   const endpoint = profile.endpoint.trim();
   const apiKey = profile.apiKey.trim();
+  const isPublicModelsEndpoint = isPublicOpenAICompatibleModelsEndpoint(endpoint);
   const normalize = getOpenAICompatibleModelIdNormalizer(endpoint);
   const toOptions = (modelIds: string[]) =>
     [...new Set(modelIds.map(normalize).filter(Boolean))]
@@ -53,7 +58,10 @@ function resolveOpenAICompatibleModelCatalog(profile: OpenAICompatibleProfile): 
 
   return {
     allowsCustomModel: true,
-    loadKey: endpoint && apiKey ? getRemoteCatalogLoadKey(endpoint, apiKey) : undefined,
+    loadKey:
+      endpoint && (apiKey || isPublicModelsEndpoint)
+        ? getRemoteCatalogLoadKey(endpoint, isPublicModelsEndpoint ? "" : apiKey)
+        : undefined,
     getCachedOptions: () => (endpoint ? toOptions(getCachedOpenAICompatibleModelIds(endpoint, apiKey)) : []),
     loadOptions: async (signal) => toOptions(await fetchOpenAICompatibleModelIds(endpoint, apiKey, signal)),
   };

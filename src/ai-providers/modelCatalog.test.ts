@@ -5,10 +5,16 @@ import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
 
 const fetchOpenAICompatibleModelIds = vi.hoisted(() => vi.fn());
 const getCachedOpenAICompatibleModelIds = vi.hoisted(() => vi.fn());
+const isPublicOpenAICompatibleModelsEndpoint = vi.hoisted(() =>
+  vi.fn(
+    (endpoint: string) => endpoint === "https://opencode.ai/zen/v1" || endpoint === "https://opencode.ai/zen/go/v1",
+  ),
+);
 
 vi.mock("./modelDiscovery", () => ({
   fetchOpenAICompatibleModelIds,
   getCachedOpenAICompatibleModelIds,
+  isPublicOpenAICompatibleModelsEndpoint,
 }));
 vi.mock("@raycast/api", () => ({
   AI: {
@@ -77,9 +83,29 @@ describe("AI provider model catalogs", () => {
       { title: "gemini-3.6-flash", value: "gemini-3.6-flash" },
     ]);
   });
+
+  it("loads OpenCode public models without a key and keeps its load key stable when a key is entered", async () => {
+    const endpoint = "https://opencode.ai/zen/v1";
+    fetchOpenAICompatibleModelIds.mockResolvedValue(["deepseek-v4-flash"]);
+
+    const withoutKey = resolveAIProviderModelCatalog(createOpenAICompatibleProfile(endpoint, ""));
+    const withKey = resolveAIProviderModelCatalog(createOpenAICompatibleProfile(endpoint, "entered-key"));
+
+    expect(withoutKey.loadKey).toBeTruthy();
+    expect(withKey.loadKey).toBe(withoutKey.loadKey);
+    await expect(withoutKey.loadOptions()).resolves.toEqual([
+      { title: "deepseek-v4-flash", value: "deepseek-v4-flash" },
+    ]);
+  });
+
+  it("does not automatically load a generic endpoint when its key is empty", () => {
+    const catalog = resolveAIProviderModelCatalog(createOpenAICompatibleProfile("https://api.example.com/v1", ""));
+
+    expect(catalog.loadKey).toBeUndefined();
+  });
 });
 
-function createOpenAICompatibleProfile(endpoint: string): OpenAICompatibleProfile {
+function createOpenAICompatibleProfile(endpoint: string, apiKey = "test-key"): OpenAICompatibleProfile {
   return {
     id: "openai-compatible",
     adapter: "openai-compatible",
@@ -88,7 +114,7 @@ function createOpenAICompatibleProfile(endpoint: string): OpenAICompatibleProfil
     order: 0,
     endpoint,
     model: "model-a",
-    apiKey: "test-key",
+    apiKey,
     tokenLimitMode: "max-tokens",
     jsonOutputMode: "prompt",
     icon: { kind: "initials" },

@@ -10,6 +10,10 @@ import { logSummary, logTrace, logWarn } from "@/utils/logger";
 
 const modelCache = new Cache({ namespace: "ai-provider-models" });
 const LOG_LABEL = "AI Models";
+const PUBLIC_OPENAI_COMPATIBLE_MODELS_ENDPOINTS = new Set([
+  "https://opencode.ai/zen/v1/models",
+  "https://opencode.ai/zen/go/v1/models",
+]);
 
 export async function fetchOpenAICompatibleModelIds(
   endpoint: string,
@@ -25,11 +29,12 @@ export async function fetchOpenAICompatibleModelIds(
   }
   const safeModelsURL = getSafeURLForLog(modelsURL);
   logTrace(LOG_LABEL, `request models: ${safeModelsURL}`);
+  const isPublicModelsEndpoint = isPublicOpenAICompatibleModelsEndpoint(endpoint);
 
   let value: unknown;
   try {
     value = await timedFetch<unknown>(modelsURL.toString(), {
-      headers: { Authorization: `Bearer ${apiKey}` },
+      ...(!isPublicModelsEndpoint && apiKey ? { headers: { Authorization: `Bearer ${apiKey}` } } : {}),
       signal,
     });
   } catch (error) {
@@ -100,11 +105,20 @@ export function getModelsURL(endpoint: string): URL {
   return url;
 }
 
+export function isPublicOpenAICompatibleModelsEndpoint(endpoint: string): boolean {
+  try {
+    return PUBLIC_OPENAI_COMPATIBLE_MODELS_ENDPOINTS.has(getModelsURL(endpoint).toString());
+  } catch {
+    return false;
+  }
+}
+
 function getModelsCacheKey(endpoint: string, apiKey: string): string {
   const normalizedURL = getModelsURL(endpoint);
   normalizedURL.username = "";
   normalizedURL.password = "";
-  return createHash("sha256").update(`${normalizedURL.toString()}\n${apiKey}`).digest("hex");
+  const cacheCredential = isPublicOpenAICompatibleModelsEndpoint(endpoint) ? "" : apiKey;
+  return createHash("sha256").update(`${normalizedURL.toString()}\n${cacheCredential}`).digest("hex");
 }
 
 function getSafeURLForLog(url: URL): string {

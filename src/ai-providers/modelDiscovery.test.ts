@@ -61,6 +61,24 @@ describe("OpenAI-compatible model discovery", () => {
     });
   });
 
+  it.each([
+    ["https://opencode.ai/zen/v1", "https://opencode.ai/zen/v1/models", ""],
+    ["https://opencode.ai/zen/v1", "https://opencode.ai/zen/v1/models", "entered-key"],
+    ["https://opencode.ai/zen/v1/chat/completions", "https://opencode.ai/zen/v1/models", ""],
+    ["https://opencode.ai/zen/v1/chat/completions", "https://opencode.ai/zen/v1/models", "entered-key"],
+    ["https://opencode.ai/zen/go/v1", "https://opencode.ai/zen/go/v1/models", ""],
+    ["https://opencode.ai/zen/go/v1", "https://opencode.ai/zen/go/v1/models", "entered-key"],
+    ["https://opencode.ai/zen/go/v1/chat/completions", "https://opencode.ai/zen/go/v1/models", ""],
+    ["https://opencode.ai/zen/go/v1/chat/completions", "https://opencode.ai/zen/go/v1/models", "entered-key"],
+  ] as const)("uses an anonymous request for the public %s directory", async (endpoint, modelsURL, apiKey) => {
+    timedFetch.mockResolvedValue({ data: [{ id: "deepseek-v4-flash" }] });
+    const signal = new AbortController().signal;
+
+    await fetchOpenAICompatibleModelIds(endpoint, apiKey, signal);
+
+    expect(timedFetch).toHaveBeenCalledWith(modelsURL, { signal });
+  });
+
   it("isolates cached models by credential without exposing endpoint or API key", async () => {
     timedFetch.mockResolvedValue({ data: [{ id: "model-b" }, { id: "model-a" }] });
 
@@ -72,5 +90,14 @@ describe("OpenAI-compatible model discovery", () => {
     expect(cacheKey).not.toContain("api.example.com");
     expect(cacheKey).not.toContain("test-key");
     expect(JSON.stringify([logSummary.mock.calls, logTrace.mock.calls, logWarn.mock.calls])).not.toContain("test-key");
+  });
+
+  it("shares public model cache entries regardless of the entered API key", async () => {
+    timedFetch.mockResolvedValue({ data: [{ id: "deepseek-v4-flash" }] });
+
+    await fetchOpenAICompatibleModelIds("https://opencode.ai/zen/v1", "entered-key");
+
+    expect(getCachedOpenAICompatibleModelIds("https://opencode.ai/zen/v1", "")).toEqual(["deepseek-v4-flash"]);
+    expect(getCachedOpenAICompatibleModelIds("https://opencode.ai/zen/v1", "other-key")).toEqual(["deepseek-v4-flash"]);
   });
 });

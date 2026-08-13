@@ -91,6 +91,22 @@ export const OPENAI_COMPATIBLE_PRESETS = {
     icon: { kind: "preset", name: "mimo" },
     tokenLimitMode: "max-tokens",
   },
+  opencodeZen: {
+    name: "OpenCode Zen",
+    endpoint: "https://opencode.ai/zen/v1",
+    website: "https://opencode.ai",
+    model: "deepseek-v4-flash",
+    icon: { kind: "favicon", website: "https://opencode.ai" },
+    tokenLimitMode: "max-tokens",
+  },
+  opencodeGo: {
+    name: "OpenCode Go",
+    endpoint: "https://opencode.ai/zen/go/v1",
+    website: "https://opencode.ai",
+    model: "deepseek-v4-flash",
+    icon: { kind: "favicon", website: "https://opencode.ai" },
+    tokenLimitMode: "max-tokens",
+  },
 } as const satisfies Record<string, OpenAICompatiblePreset>;
 
 export type OpenAICompatiblePresetName = keyof typeof OPENAI_COMPATIBLE_PRESETS;
