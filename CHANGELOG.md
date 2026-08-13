@@ -1,5 +1,28 @@
 # `Easydict` Changelog
 
+## [v3.2.0] - {PR_MERGE_DATE}
+
+### ⚠️ Behavioral Changes
+
+#### Reversible Legacy AI Migration
+
+- OpenAI and Gemini preference-based providers are now labeled legacy.
+- Manage AI Providers can import each configured legacy provider as a profile.
+- Migration is reversible per provider: while its imported profile is absent, the legacy provider remains available under its existing preference/configuration; once imported, it is not duplicated; deleting that profile restores the legacy provider, and the command can re-import it when offered.
+
+### ✨ New Features
+
+#### Configurable AI Provider Profiles
+
+- Manage AI Providers supports Raycast AI and OpenAI-compatible profiles.
+- Create, edit, test, enable or disable, duplicate, and reorder profiles; discover models automatically or enter model names manually.
+- Built-in presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
+
+#### AI-Generated Dictionary Entries
+
+- For each profile, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
+- Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
+
 ## [v3.1.0] - 2026-08-12
 
 ### ✨ New Features
