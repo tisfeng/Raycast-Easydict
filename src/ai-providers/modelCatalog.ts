@@ -54,7 +54,7 @@ function resolveOpenAICompatibleModelCatalog(profile: OpenAICompatibleProfile): 
   return {
     allowsCustomModel: true,
     loadKey: endpoint && apiKey ? getRemoteCatalogLoadKey(endpoint, apiKey) : undefined,
-    getCachedOptions: () => (endpoint ? toOptions(getCachedOpenAICompatibleModelIds(endpoint)) : []),
+    getCachedOptions: () => (endpoint ? toOptions(getCachedOpenAICompatibleModelIds(endpoint, apiKey)) : []),
     loadOptions: async (signal) => toOptions(await fetchOpenAICompatibleModelIds(endpoint, apiKey, signal)),
   };
 }

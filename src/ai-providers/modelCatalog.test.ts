@@ -55,6 +55,8 @@ describe("AI provider model catalogs", () => {
 
     const catalog = resolveAIProviderModelCatalog(profile);
 
+    catalog.getCachedOptions();
+    expect(getCachedOpenAICompatibleModelIds).toHaveBeenCalledWith("https://api.example.com/v1", "test-key");
     await expect(catalog.loadOptions()).resolves.toEqual([
       { title: "model-a", value: "model-a" },
       { title: "vendor/model-b", value: "vendor/model-b" },

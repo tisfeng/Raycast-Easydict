@@ -59,8 +59,11 @@ describe("OpenAI-compatible model discovery", () => {
       headers: { Authorization: "Bearer test-key" },
       signal,
     });
-    expect(getCachedOpenAICompatibleModelIds("https://api.example.com/v1")).toEqual(["model-a", "model-b"]);
-    expect([...cacheStorage.keys()][0]).not.toContain("api.example.com");
+    expect(getCachedOpenAICompatibleModelIds("https://api.example.com/v1", "test-key")).toEqual(["model-a", "model-b"]);
+    expect(getCachedOpenAICompatibleModelIds("https://api.example.com/v1", "other-key")).toEqual([]);
+    const cacheKey = [...cacheStorage.keys()][0];
+    expect(cacheKey).not.toContain("api.example.com");
+    expect(cacheKey).not.toContain("test-key");
     expect(JSON.stringify([logSummary.mock.calls, logTrace.mock.calls, logWarn.mock.calls])).not.toContain("test-key");
   });
 });

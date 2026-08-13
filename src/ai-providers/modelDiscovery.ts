@@ -63,15 +63,15 @@ export async function fetchOpenAICompatibleModelIds(
     throw new Error("The models endpoint returned no usable model IDs.");
   }
   const uniqueModelIds = [...new Set(modelIds)].sort((left, right) => left.localeCompare(right));
-  modelCache.set(getModelsCacheKey(endpoint), JSON.stringify(uniqueModelIds));
+  modelCache.set(getModelsCacheKey(endpoint, apiKey), JSON.stringify(uniqueModelIds));
   logSummary(LOG_LABEL, `loaded ${uniqueModelIds.length} models: ${safeModelsURL}`);
   return uniqueModelIds;
 }
 
-export function getCachedOpenAICompatibleModelIds(endpoint: string): string[] {
+export function getCachedOpenAICompatibleModelIds(endpoint: string, apiKey: string): string[] {
   let cached: unknown;
   try {
-    const value = modelCache.get(getModelsCacheKey(endpoint));
+    const value = modelCache.get(getModelsCacheKey(endpoint, apiKey));
     if (!value) {
       logTrace(LOG_LABEL, `cache miss: ${getSafeModelsURLForLog(endpoint)}`);
       return [];
@@ -100,11 +100,11 @@ export function getModelsURL(endpoint: string): URL {
   return url;
 }
 
-function getModelsCacheKey(endpoint: string): string {
+function getModelsCacheKey(endpoint: string, apiKey: string): string {
   const normalizedURL = getModelsURL(endpoint);
   normalizedURL.username = "";
   normalizedURL.password = "";
-  return createHash("sha256").update(normalizedURL.toString()).digest("hex");
+  return createHash("sha256").update(`${normalizedURL.toString()}\n${apiKey}`).digest("hex");
 }
 
 function getSafeURLForLog(url: URL): string {
