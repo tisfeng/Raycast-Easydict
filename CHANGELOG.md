@@ -7,20 +7,23 @@
 #### Reversible Legacy AI Migration
 
 - OpenAI and Gemini preference-based providers are now labeled legacy.
-- Manage AI Providers can import each configured legacy provider as a profile.
-- Migration is reversible per provider: while its imported profile is absent, the legacy provider remains available under its existing preference/configuration; once imported, it is not duplicated; deleting that profile restores the legacy provider, and the command can re-import it when offered.
+- Manage Providers can import each configured legacy provider as a saved provider.
+- Migration is reversible per provider: while its saved provider is absent, the legacy provider remains available under its existing preference/configuration; once the saved provider exists, it is not duplicated; deleting it restores the legacy provider, and the command can re-import it when offered.
+- Manage Providers stores one order for built-in and AI providers; the Legacy Service List Order preference only initializes that order until it is saved.
 
 ### ✨ New Features
 
-#### Configurable AI Provider Profiles
+#### Configurable AI Providers
 
-- Manage AI Providers supports Raycast AI and OpenAI-compatible profiles.
-- Create, edit, test, enable or disable, duplicate, and reorder profiles; discover models automatically or enter model names manually.
+- Manage Providers supports Raycast AI and OpenAI-compatible providers alongside built-in dictionary and translation providers.
+- All providers share one order; AI providers can be created, edited, tested, enabled or disabled, and duplicated, while built-in providers remain configured in Extension Settings.
+- AI providers discover models automatically when available or accept a manual model name.
+- The list identifies Built-in and AI Provider rows, shows enabled/disabled status (and Invalid for AI providers), and supports Cmd+Shift+Up/Down on macOS or Ctrl+Shift+Up/Down on Windows to reorder providers.
 - Built-in presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
 
 #### AI-Generated Dictionary Entries
 
-- For each profile, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
+- For each provider, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
 - Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
 
 ## [v3.1.0] - 2026-08-12

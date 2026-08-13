@@ -56,17 +56,29 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持系统代理。
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
-- [x] 支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置，以及 DeepL、Google、Bing、百度、腾讯、火山、有道和彩云等翻译服务。
+- [x] 🆕 支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置，以及 DeepL、Google、Bing、百度、腾讯、火山、有道和彩云等翻译服务。
 - [x] 支持 48+ 种语言。
-- [x] 支持将完整查询结果保存为收藏单词，离线浏览和管理。
-
-### 收藏单词
-
-查询结果完成后，在 Search Word 的操作面板中使用 **Add to Favorites** 保存完整结果快照，以便离线浏览。**Favorite Words** 命令支持搜索、复制、朗读、移除或清空收藏；**Open in Easydict** 会对选中的单词重新发起实时查询。
+- [x] 🆕 支持将完整查询结果保存为收藏单词，离线浏览和管理。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 
 ## 截图展示
+
+<!--
+### 管理提供商
+
+<p align="center">
+  <img src="MANAGE_PROVIDERS_SCREENSHOT_URL" width="49%" />
+</p>
+-->
+
+<!--
+### 收藏单词
+
+<p align="center">
+  <img src="FAVORITE_WORDS_SCREENSHOT_URL" width="49%" />
+</p>
+-->
 
 ### Arguments
 
@@ -135,9 +147,9 @@ npm install && npm run dev
 
 ![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
 
-### AI 提供商
+### 管理提供商
 
-使用 **Manage AI Providers** 创建、排序以及启用或停用 AI 配置。配置可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
+使用 **Manage Providers** 统一调整内置提供商和 AI 提供商的顺序。列表会标明 Built-in 或 AI Provider 类型，并显示 Enabled/Disabled 状态（AI 提供商还可能显示 Invalid）；可在 macOS 上用 `Cmd+Shift+Up/Down`、Windows 上用 `Ctrl+Shift+Up/Down` 调整顺序。在此编辑、测试、启用、停用、复制或删除 AI 提供商；内置提供商在 Extension Settings 中配置。AI 提供商可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
 
 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。现有的 OpenAI 和 Gemini 设置可以从旧版配置导入。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
 

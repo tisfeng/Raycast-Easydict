@@ -32,7 +32,7 @@ _Originally developed by [tisfeng](https://github.com/tisfeng), currently mainta
 
 `Easydict` is a simple and easy-to-use dictionary app for looking up words and translating text. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
 
-For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/), plus configurable Raycast AI and OpenAI-compatible profiles.
+For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/), plus configurable Raycast AI and OpenAI-compatible providers.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
@@ -75,17 +75,29 @@ npm install && npm run dev
 - [x] Supports system proxies.
 - [x] Supports Linguee and Youdao Dictionary.
 - [x] Supports macOS System Translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
-- [x] Supports configurable Raycast AI and OpenAI-compatible profiles alongside DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun translation.
+- [x] 🆕 Supports configurable Raycast AI and OpenAI-compatible providers alongside DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun translation.
 - [x] Supports 48+ languages.
-- [x] Supports saving completed results as Favorite Words for offline browsing and management.
-
-### Favorite Words
-
-After results finish, use **Add to Favorites** in Search Word to save a full result snapshot for offline browsing. The **Favorite Words** command lets you search, copy, read, remove, or clear saved words. **Open in Easydict** runs a live query for the selected word.
+- [x] 🆕 Supports saving completed results as Favorite Words for offline browsing and management.
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
 ## Screenshots
+
+<!--
+### Manage Providers
+
+<p align="center">
+  <img src="MANAGE_PROVIDERS_SCREENSHOT_URL" width="49%" />
+</p>
+-->
+
+<!--
+### Favorite Words
+
+<p align="center">
+  <img src="FAVORITE_WORDS_SCREENSHOT_URL" width="49%" />
+</p>
+-->
 
 ### Arguments
 
@@ -132,9 +144,9 @@ After results finish, use **Add to Favorites** in Search Word to save a full res
 
 Easydict works well out of the box. The following options help you customize its behavior.
 
-### AI Providers
+### Manage Providers
 
-Use **Manage AI Providers** to create, reorder, and enable or disable profiles. Profiles can use Raycast AI or custom OpenAI-compatible endpoints. Presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
+Use **Manage Providers** to reorder built-in and AI providers. The list labels each row as Built-in or AI Provider and shows Enabled/Disabled status (AI providers can also be Invalid); reorder with `Cmd+Shift+Up/Down` on macOS or `Ctrl+Shift+Up/Down` on Windows. Edit, test, enable, disable, duplicate, or delete AI providers there; configure built-in providers in Extension Settings. AI providers can use Raycast AI or custom OpenAI-compatible endpoints. Presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
 
 Choose **Plain Translation** or **AI-Generated Dictionary Entry**. Models are discovered automatically when available; you can also enter a model name manually. Existing OpenAI and Gemini settings can be imported from the legacy configuration. Some models may fail to return valid structured dictionary output and require a retry, and dictionary generation may take longer.
 

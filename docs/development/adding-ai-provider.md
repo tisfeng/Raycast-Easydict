@@ -1,6 +1,6 @@
 # Adding an AI Provider Preset
 
-This guide covers adding a built-in OpenAI-compatible provider preset. A user who only needs a different OpenAI-compatible endpoint can use the existing **Custom** profile and does not need a code change. A provider that does not implement the OpenAI-compatible adapter is a larger architecture change and is outside this guide.
+This guide covers adding a built-in OpenAI-compatible provider preset. A user who only needs a different OpenAI-compatible endpoint can use the existing **Custom** provider and does not need a code change. A provider that does not implement the OpenAI-compatible adapter is a larger architecture change and is outside this guide.
 
 ## 1. Research the provider API
 
@@ -29,7 +29,9 @@ newProvider: {
 },
 ```
 
-`name`, `endpoint`, `website`, `model`, `icon`, and `tokenLimitMode` are form defaults. The preset uses the shared OpenAI-compatible adapter at runtime; do not add provider-specific request code for a standard-compatible endpoint. `tokenLimitMode` selects the corresponding token parameter. The profile form validates the name, endpoint, and model; whether model discovery or inference requires an API key depends on the provider. OpenCode Zen and OpenCode Go can load their model catalogs anonymously, but their inference requests still require the provider API key.
+`name`, `endpoint`, `website`, `model`, `icon`, and `tokenLimitMode` are form defaults. The preset uses the shared OpenAI-compatible adapter at runtime; do not add provider-specific request code for a standard-compatible endpoint. `tokenLimitMode` selects the corresponding token parameter. The provider form validates the name, endpoint, and model; whether model discovery or inference requires an API key depends on the provider. OpenCode Zen and OpenCode Go can load their model catalogs anonymously, but their inference requests still require the provider API key.
+
+Providers created from a preset receive a stable saved-order key and appear alongside built-in services once added. Do not derive that key from a display label or reorder the built-in registry casually, because saved orders and legacy migrations depend on stable keys.
 
 The runtime normalizes the endpoint with `normalizeOpenAICompatibleEndpoint`, including a pasted trailing `/chat/completions` path, before making requests.
 
@@ -43,11 +45,11 @@ For a bundled brand icon, follow the [provider icon guide](provider-icons.md). I
 4. Add the same choice to the icon dropdown in `src/components/pages/AIProviderForm.tsx`.
 5. Point the preset's `icon` field at the registered preset icon.
 
-`ProviderIconConfig` also supports `{ kind: "favicon", website?: string }` and `{ kind: "initials" }` when a bundled brand asset is not appropriate. The form also supports a remote icon URL for profiles, but a bundled icon or favicon is preferable for a built-in preset.
+`ProviderIconConfig` also supports `{ kind: "favicon", website?: string }` and `{ kind: "initials" }` when a bundled brand asset is not appropriate. The form also supports a remote icon URL for providers, but a bundled icon or favicon is preferable for a built-in preset.
 
 ## 4. Handle model discovery deliberately
 
-For an OpenAI-compatible profile, model discovery derives a normalized `<base>/models` URL. It removes a trailing `/chat/completions` when necessary, then requests the models endpoint with `Authorization: Bearer <key>` for the usual provider case.
+For an OpenAI-compatible provider, model discovery derives a normalized `<base>/models` URL. It removes a trailing `/chat/completions` when necessary, then requests the models endpoint with `Authorization: Bearer <key>` for the usual provider case.
 
 Only add an endpoint to `PUBLIC_OPENAI_COMPATIBLE_MODELS_ENDPOINTS` in `src/ai-providers/modelDiscovery.ts` after confirming that its models catalog is intentionally public and supports anonymous requests. Keep the allow-list specific to the normalized models URL. Add regression coverage in `modelDiscovery.test.ts` and `modelCatalog.test.ts` for the public-auth exception, URL normalization, and the resulting model options as applicable.
 

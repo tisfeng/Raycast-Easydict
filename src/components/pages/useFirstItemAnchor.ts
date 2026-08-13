@@ -9,10 +9,12 @@ interface SelectionState {
 }
 
 /**
- * Keep Raycast's list selection controlled while results stream in. Providers
- * can insert a higher-priority result at any time, so loading always selects
- * the current first item. Once loading finishes, users can move the selection,
- * while stale selections are replaced by the first item in the current list.
+ * Soft-anchor Raycast's native selection while asynchronous providers insert
+ * higher-priority results. When the current first item ID changes, re-anchor
+ * to that item; repeated renders with the same selectedItemId do not override
+ * native selection, so user navigation usually remains intact. Once loading
+ * completes, preserve a valid selection and fall back to the current first
+ * item when the selection is invalid.
  */
 export function useFirstItemAnchor(itemIds: string[], isLoading: boolean) {
   const itemIdsRevision = itemIds.join("\0");
