@@ -5,7 +5,7 @@ import { getTokenLimitParams } from "@/ai-providers/tokenLimit";
 import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { TranslationType } from "@/types/api";
 
-import { BaseOpenAICompatibleTranslateProvider } from "./base";
+import { BaseOpenAICompatibleTranslateProvider } from "../openai-compatible/base";
 
 const DEFAULT_MAX_TOKENS = 2000;
 export class ConfiguredOpenAICompatibleTranslateProvider extends BaseOpenAICompatibleTranslateProvider {

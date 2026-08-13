@@ -12,6 +12,7 @@ import { TranslationType } from "@/types/api";
 import type { BooleanPreferenceKey } from "@/types/preferences";
 import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
+import { createAITranslationProvider } from "./ai";
 import { AppleTranslateProvider } from "./apple";
 import { BaiduTranslateProvider } from "./baidu";
 import type { BaseTranslateProvider } from "./base";
@@ -21,8 +22,6 @@ import { DeepLTranslateProvider } from "./deepL";
 import { DeepLXTranslateProvider } from "./deepLX";
 import { GoogleTranslateProvider } from "./google";
 import { GeminiTranslateProvider, OpenAITranslateProvider } from "./openai-compatible";
-import { ConfiguredOpenAICompatibleTranslateProvider } from "./openai-compatible/configured";
-import { RaycastAITranslateProvider } from "./raycast-ai";
 import { TencentTranslateProvider } from "./tencent";
 import { VolcanoTranslateProvider } from "./volcano";
 import { YoudaoTranslateProvider } from "./youdao";
@@ -151,6 +150,8 @@ export function resolveTranslationServices(profiles: AIProviderProfile[]): Trans
     };
   });
   const legacyServices = translationServices.filter((service) => {
+    // Keep the static legacy provider as a reversible fallback: this extension
+    // cannot write the imported profile back into Raycast preferences.
     if (service.type === TranslationType.OpenAI) {
       return !hasImportedLegacyAIProvider(profiles, "openai");
     }
@@ -160,10 +161,4 @@ export function resolveTranslationServices(profiles: AIProviderProfile[]): Trans
     return true;
   });
   return [...legacyServices, ...dynamicServices];
-}
-
-export function createAITranslationProvider(profile: AIProviderProfile): BaseTranslateProvider {
-  return profile.adapter === "raycast-ai"
-    ? new RaycastAITranslateProvider(profile)
-    : new ConfiguredOpenAICompatibleTranslateProvider(profile);
 }

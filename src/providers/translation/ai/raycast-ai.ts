@@ -11,7 +11,7 @@ import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from 
 import { CancelledError, RequestError } from "@/utils/errors";
 import { logTrace } from "@/utils/logger";
 
-import { createTranslationPromptSpec, renderTranslationTextPrompt } from "./ai-prompt";
+import { createTranslationPromptSpec, renderTranslationTextPrompt } from "./prompt";
 
 export class RaycastAITranslateProvider extends BaseStreamingTranslateProvider<{ translatedText: string }> {
   type = TranslationType.OpenAI;

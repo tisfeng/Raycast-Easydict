@@ -9,7 +9,7 @@ import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from 
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
-import { createTranslationPromptSpec, renderTranslationChatMessages } from "../ai-prompt";
+import { createTranslationPromptSpec, renderTranslationChatMessages } from "../ai/prompt";
 
 export interface OpenAICompatibleTranslateResult {
   translatedText: string;
