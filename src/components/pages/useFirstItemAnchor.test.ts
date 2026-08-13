@@ -1,76 +1,82 @@
 // @vitest-environment jsdom
 
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { useFirstItemAnchor } from "./useFirstItemAnchor";
 
-// These tests cover the props and lifecycle state sent to List. Raycast's
-// native list reconciliation still requires verification inside the app.
 describe("useFirstItemAnchor", () => {
-  it("follows the first result while providers insert results in priority order", () => {
+  it("follows the first result as providers insert higher-priority items while loading", () => {
     const { result, rerender } = renderHook(({ itemIds, isLoading }) => useFirstItemAnchor(itemIds, isLoading), {
-      initialProps: {
-        itemIds: ["provider-c:item"],
-        isLoading: true,
-      },
+      initialProps: { itemIds: ["provider-c:item"], isLoading: true },
     });
 
-    expect(result.current).toBe("provider-c:item");
+    expect(result.current.selectedItemId).toBe("provider-c:item");
 
-    rerender({
-      itemIds: ["provider-b:item", "provider-c:item"],
-      isLoading: true,
-    });
-    expect(result.current).toBe("provider-b:item");
+    rerender({ itemIds: ["provider-b:item", "provider-c:item"], isLoading: true });
+    expect(result.current.selectedItemId).toBe("provider-b:item");
+
+    rerender({ itemIds: ["provider-a:item", "provider-b:item", "provider-c:item"], isLoading: true });
+    expect(result.current.selectedItemId).toBe("provider-a:item");
 
     rerender({
-      itemIds: ["provider-a:item", "provider-b:item", "provider-c:item"],
+      itemIds: ["provider-a:item", "provider-b:item", "provider-c:item", "provider-d:item"],
       isLoading: true,
     });
-    expect(result.current).toBe("provider-a:item");
+    expect(result.current.selectedItemId).toBe("provider-a:item");
   });
 
-  it("drops the old selection when a query clears and anchors the next query's first result", () => {
+  it("keeps the first item controlled after loading finishes", () => {
     const { result, rerender } = renderHook(({ itemIds, isLoading }) => useFirstItemAnchor(itemIds, isLoading), {
-      initialProps: {
-        itemIds: ["old-query:first", "old-query:second"],
-        isLoading: true,
-      },
+      initialProps: { itemIds: ["provider-a:item", "provider-b:item"], isLoading: true },
     });
 
-    expect(result.current).toBe("old-query:first");
+    rerender({ itemIds: ["provider-a:item", "provider-b:item"], isLoading: false });
+    expect(result.current.selectedItemId).toBe("provider-a:item");
+  });
+
+  it("keeps the final first result when results and loading completion arrive together", () => {
+    const { result, rerender } = renderHook(({ itemIds, isLoading }) => useFirstItemAnchor(itemIds, isLoading), {
+      initialProps: { itemIds: ["provider-c:item"], isLoading: true },
+    });
+
+    rerender({ itemIds: ["provider-a:item", "provider-c:item"], isLoading: false });
+    expect(result.current.selectedItemId).toBe("provider-a:item");
+  });
+
+  it("allows the user to move the controlled selection after loading", () => {
+    const { result } = renderHook(() => useFirstItemAnchor(["provider-a:item", "provider-b:item"], false));
+
+    expect(result.current.selectedItemId).toBe("provider-a:item");
+
+    act(() => result.current.onSelectionChange("provider-b:item"));
+    expect(result.current.selectedItemId).toBe("provider-b:item");
+  });
+
+  it("returns to the new generation's first item after a query is cleared", () => {
+    const { result, rerender } = renderHook(({ itemIds, isLoading }) => useFirstItemAnchor(itemIds, isLoading), {
+      initialProps: { itemIds: ["query:old:first", "query:old:second"], isLoading: false },
+    });
+
+    act(() => result.current.onSelectionChange("query:old:second"));
+    expect(result.current.selectedItemId).toBe("query:old:second");
 
     rerender({ itemIds: [], isLoading: false });
-    expect(result.current).toBeUndefined();
+    expect(result.current.selectedItemId).toBeUndefined();
 
-    rerender({ itemIds: [], isLoading: true });
-    expect(result.current).toBeUndefined();
-
-    rerender({ itemIds: ["new-query:first"], isLoading: true });
-    expect(result.current).toBe("new-query:first");
-
-    rerender({
-      itemIds: ["new-query:preferred", "new-query:first"],
-      isLoading: true,
-    });
-    expect(result.current).toBe("new-query:preferred");
+    rerender({ itemIds: ["query:new:first"], isLoading: true });
+    expect(result.current.selectedItemId).toBe("query:new:first");
   });
 
-  it("releases controlled selection after the result order settles", () => {
+  it("returns to the first item when the selected item disappears", () => {
     const { result, rerender } = renderHook(({ itemIds, isLoading }) => useFirstItemAnchor(itemIds, isLoading), {
-      initialProps: {
-        itemIds: ["provider-a:item", "provider-b:item"],
-        isLoading: true,
-      },
+      initialProps: { itemIds: ["provider-a:item", "provider-b:item"], isLoading: false },
     });
 
-    expect(result.current).toBe("provider-a:item");
+    act(() => result.current.onSelectionChange("provider-b:item"));
+    expect(result.current.selectedItemId).toBe("provider-b:item");
 
-    rerender({
-      itemIds: ["provider-a:item", "provider-b:item"],
-      isLoading: false,
-    });
-    expect(result.current).toBeUndefined();
+    rerender({ itemIds: ["provider-a:item", "provider-c:item"], isLoading: false });
+    expect(result.current.selectedItemId).toBe("provider-a:item");
   });
 });

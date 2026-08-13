@@ -1,23 +1,74 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+interface SelectionState {
+  itemIdsRevision: string;
+  selectedItemId?: string;
+  wasLoading: boolean;
+}
 
 /**
- * Anchor Raycast's native selection to the first result while the list is
- * changing. Once the current result order settles, release controlled
- * selection so the user can navigate the list normally.
+ * Keep Raycast's list selection controlled while results stream in. Providers
+ * can insert a higher-priority result at any time, so loading always selects
+ * the current first item. Once loading finishes, users can move the selection,
+ * while stale selections are replaced by the first item in the current list.
  */
 export function useFirstItemAnchor(itemIds: string[], isLoading: boolean) {
-  const revision = itemIds.join("\0");
-  const [releasedRevision, setReleasedRevision] = useState<string>();
+  const itemIdsRevision = itemIds.join("\0");
   const firstItemId = itemIds[0];
-  const shouldAnchorFirstItem = Boolean(firstItemId) && (isLoading || releasedRevision !== revision);
+  const [selectionState, setSelectionState] = useState<SelectionState>(() => ({
+    itemIdsRevision,
+    selectedItemId: firstItemId,
+    wasLoading: isLoading,
+  }));
+
+  const selectionIsValid =
+    selectionState.selectedItemId !== undefined && itemIds.includes(selectionState.selectedItemId);
+  const selectedItemId =
+    firstItemId === undefined
+      ? undefined
+      : isLoading || selectionState.wasLoading || !selectionIsValid
+        ? firstItemId
+        : selectionState.selectedItemId;
 
   useEffect(() => {
-    if (!isLoading) {
-      setReleasedRevision(revision);
-    }
-  }, [isLoading, revision]);
+    setSelectionState((previous) => {
+      if (
+        previous.itemIdsRevision === itemIdsRevision &&
+        previous.selectedItemId === selectedItemId &&
+        previous.wasLoading === isLoading
+      ) {
+        return previous;
+      }
+      return {
+        itemIdsRevision,
+        selectedItemId,
+        wasLoading: isLoading,
+      };
+    });
+  }, [isLoading, itemIdsRevision, selectedItemId]);
 
-  return shouldAnchorFirstItem ? firstItemId : undefined;
+  const onSelectionChange = useCallback(
+    (id: string | null) => {
+      const nextSelectedItemId = isLoading || id === null || !itemIds.includes(id) ? firstItemId : id;
+      setSelectionState((previous) => {
+        if (
+          previous.itemIdsRevision === itemIdsRevision &&
+          previous.selectedItemId === nextSelectedItemId &&
+          previous.wasLoading === isLoading
+        ) {
+          return previous;
+        }
+        return {
+          itemIdsRevision,
+          selectedItemId: nextSelectedItemId,
+          wasLoading: isLoading,
+        };
+      });
+    },
+    [firstItemId, isLoading, itemIds, itemIdsRevision],
+  );
+
+  return { selectedItemId, onSelectionChange };
 }

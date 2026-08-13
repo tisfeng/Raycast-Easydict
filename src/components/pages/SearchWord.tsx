@@ -80,7 +80,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     [displaySectionIds, displaySections],
   );
   const listIsLoading = isLoading || aiProviderProfiles.isLoading;
-  const selectedItemId = useFirstItemAnchor(itemIds, listIsLoading);
+  const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, listIsLoading);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
@@ -250,6 +250,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       searchText={inputText}
       onSearchTextChange={onInputChange}
       selectedItemId={selectedItemId}
+      onSelectionChange={onSelectionChange}
       actions={null}
     >
       {displaySections.map((resultItem, sectionIndex) => {
