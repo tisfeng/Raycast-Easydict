@@ -35,7 +35,7 @@ export interface TranslationServiceConfig extends RuntimeServiceConfig {
 
 /** Static registry — provider classes, instantiated by the engine. */
 const staticTranslationServices: Array<
-  Omit<TranslationServiceConfig, "id" | "label" | "order" | "revision" | "enabled" | "createProvider"> & {
+  Omit<TranslationServiceConfig, "id" | "label" | "order" | "enabled" | "createProvider"> & {
     preference: BooleanPreferenceKey;
     provider: new () => BaseTranslateProvider;
     isEnabled?: (queryWordInfo: QueryInput) => boolean;
@@ -121,7 +121,6 @@ export const translationServices: TranslationServiceConfig[] = staticTranslation
   id: `static:${service.type}`,
   label: service.type,
   order,
-  revision: `static:${service.type}`,
   type: service.type,
   enabled: service.isEnabled ?? (() => myPreferences[service.preference]),
   createProvider: () => new service.provider(),
@@ -138,7 +137,6 @@ export function resolveTranslationServices(profiles: AIProviderProfile[]): Trans
       id: `profile:${profile.id}`,
       label: profile.name,
       order: profile.order,
-      revision: JSON.stringify(profile),
       type: TranslationType.OpenAI,
       icon: resolveAIProviderIcon(profile),
       enabled: (queryWordInfo: QueryInput) => getAIProviderQueryMode(profile, queryWordInfo) === "translation",

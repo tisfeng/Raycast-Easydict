@@ -37,7 +37,6 @@ export interface RuntimeServiceConfig {
   id: string;
   label: string;
   order: number;
-  revision: string;
   icon?: ProviderIconConfig;
 }
 

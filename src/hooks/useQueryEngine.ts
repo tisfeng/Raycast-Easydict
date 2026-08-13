@@ -149,10 +149,6 @@ export function useQueryEngine(
   const currentQueryWordInfoRef = useRef<QueryInput | undefined>(undefined);
   const serviceSnapshotRef = useRef(serviceSnapshot);
   serviceSnapshotRef.current = serviceSnapshot;
-  const snapshotRevision = [
-    ...serviceSnapshot.translationServices.map((service) => `translation:${service.revision}`),
-    ...serviceSnapshot.dictionaryServices.map((service) => `dictionary:${service.revision}`),
-  ].join("|");
   const previousServiceSnapshotRef = useRef(serviceSnapshot);
 
   const beginQuerySession = useCallback((): QuerySession => {
@@ -409,6 +405,8 @@ export function useQueryEngine(
   );
 
   useEffect(() => {
+    // Only newly added service IDs join an active query. Existing IDs keep
+    // their in-flight request; profile edits apply on the next query.
     const previousSnapshot = previousServiceSnapshotRef.current;
     previousServiceSnapshotRef.current = serviceSnapshot;
     if (previousSnapshot === serviceSnapshot) return;
@@ -433,7 +431,7 @@ export function useQueryEngine(
     for (const service of addedTranslationServices) {
       runTranslationQuery(service, queryWordInfo, session);
     }
-  }, [runDictionaryQuery, runTranslationQuery, serviceSnapshot, snapshotRevision]);
+  }, [runDictionaryQuery, runTranslationQuery, serviceSnapshot]);
 
   const clearQueryResult = useCallback(() => {
     currentQueryWordInfoRef.current = undefined;
