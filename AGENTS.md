@@ -32,6 +32,8 @@ npm run build
 
 Update README.md in the same change when adding a user-facing feature or introducing a breaking change.
 
+Do not hard-wrap Markdown prose or individual list items; keep each paragraph or list item on one physical line. Preserve intentional line breaks in code blocks, tables, and other structural Markdown.
+
 Do not manually edit content inside `<!-- automd -->` blocks. Regenerate it with:
 
 ```bash

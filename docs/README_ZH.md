@@ -212,8 +212,7 @@ npm install && npm run dev
 
 <p>
 
-大小写不敏感，使用逗号分隔开。例如：`youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`。
-也可仅指定部分排序，如：`youdao dictionary, apple, tencent`，此时程序实际排序是：`youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`。
+大小写不敏感，使用逗号分隔开。例如：`youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`。也可仅指定部分排序，如：`youdao dictionary, apple, tencent`，此时程序实际排序是：`youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`。
 
 > 注意：以上排序是总体排序，若某项翻译服务未开启，排序会自动忽略。
 

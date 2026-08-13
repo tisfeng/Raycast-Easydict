@@ -212,8 +212,7 @@ By default, the extension will automatically select the preferred language as th
 
 <p>
 
-Name case are insensitive, use comma to separate. Example: `youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`.
-You can also specify a part of the sort, for example: `youdao dictionary, apple, tencent`，the actual sort is: `youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`.
+Name case are insensitive, use comma to separate. Example: `youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`. You can also specify a part of the sort, for example: `youdao dictionary, apple, tencent`，the actual sort is: `youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`.
 
 > Note: This sort is the overall sort, if a translation service is not enabled, the sort will be automatically ignored.
 
