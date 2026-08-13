@@ -293,7 +293,7 @@ export function AIProviderForm({
           <Form.PasswordField id="apiKey" title="API Key" value={apiKey} onChange={setAPIKey} />
           <Form.Description
             title="Model Discovery"
-            text="Enter a valid API key to load available models. You can also type a model name manually."
+            text="Models load automatically when available; some providers require an API key. You can also enter a model name manually."
           />
         </>
       )}
@@ -344,6 +344,12 @@ export function AIProviderForm({
         <Form.Dropdown.Item title="Plain Translation" value="translation" />
         <Form.Dropdown.Item title="AI-Generated Dictionary Entry" value="dictionary" />
       </Form.Dropdown>
+      {wordResultMode === "dictionary" && (
+        <Form.Description
+          title="Compatibility"
+          text="Some models may return invalid structured output, causing errors or retries. Dictionary generation may also take longer."
+        />
+      )}
       {profile.adapter === "openai-compatible" && wordResultMode === "dictionary" && (
         <Form.Dropdown
           id="jsonOutputMode"
