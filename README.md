@@ -83,21 +83,20 @@ npm install && npm run dev
 
 ## Screenshots
 
-<!--
+
 ### Manage Providers
 
 <p align="center">
-  <img src="MANAGE_PROVIDERS_SCREENSHOT_URL" width="49%" />
+  <img src="https://github.com/user-attachments/assets/bace6248-bf41-4561-88c8-b6ba7e2b7ee2" width="49%" />
+  <img src="https://github.com/user-attachments/assets/bb908545-5a5c-45f7-8712-4e3943dfa243" width="49%" />
 </p>
--->
 
-<!--
+
 ### Favorite Words
 
 <p align="center">
-  <img src="FAVORITE_WORDS_SCREENSHOT_URL" width="49%" />
+  <img src="https://github.com/user-attachments/assets/be9efa47-1a19-443e-ab49-b0813a830f26" width="49%" />
 </p>
--->
 
 ### Arguments
 
