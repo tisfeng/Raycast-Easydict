@@ -13,9 +13,9 @@
 
 ### ✨ New Features
 
-#### Configurable AI Providers
+#### Custom LLM Integration
 
-- Manage Providers supports Raycast AI and OpenAI-compatible providers alongside built-in dictionary and translation providers.
+- Use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
 - All providers share one order; AI providers can be created, edited, tested, enabled or disabled, and duplicated, while built-in providers remain configured in Extension Settings.
 - AI providers discover models automatically when available or accept a manual model name.
 - The list identifies Built-in and AI Provider rows, shows enabled/disabled status (and Invalid for AI providers), and supports Cmd+Shift+Up/Down on macOS or Ctrl+Shift+Up/Down on Windows to reorder providers.

@@ -32,7 +32,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 `Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询。
 
-翻译支持 🍎**苹果系统翻译**、[DeepL](https://www.deepl.com/translator)、[谷歌](https://translate.google.com)、[Bing](https://www.bing.com/translator)、[百度](https://fanyi.baidu.com/)、[腾讯](https://fanyi.qq.com/)、[火山](https://www.volcengine.com/product/machine-translation)、[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)，并支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置。
+翻译支持 🍎**苹果系统翻译**、[DeepL](https://www.deepl.com/translator)、[谷歌](https://translate.google.com)、[Bing](https://www.bing.com/translator)、[百度](https://fanyi.baidu.com/)、[腾讯](https://fanyi.qq.com/)、[火山](https://www.volcengine.com/product/machine-translation)、[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)，还支持使用 Raycast AI 或自定义 OpenAI 兼容端点的 LLM 进行翻译与查词。
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
@@ -42,6 +42,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 ## 功能
 
 - [x] 🆕 支持 Windows 版 Raycast（已适配绝大多数功能）。
+- [x] 🆕 支持接入 Raycast AI 或任意 OpenAI 兼容端点中的 LLM 进行翻译与查词。
 - [x] 开箱即用，便捷查找单词或翻译文本。
 - [x] 自动识别输入语言，并自动查询偏好目标语言。
 - [x] 提供丰富的单词查询信息，包括基本翻译、发音、考试词频、多种词性和释义、形式和时态、网络翻译和网络短语。
@@ -56,9 +57,8 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持系统代理。
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
-- [x] 🆕 支持可配置的 Raycast AI 和 OpenAI 兼容 AI 配置，以及 DeepL、Google、Bing、百度、腾讯、火山、有道和彩云等翻译服务。
-- [x] 支持 48+ 种语言。
 - [x] 🆕 支持将完整查询结果保存为收藏单词，离线浏览和管理。
+- [x] 支持 48+ 种语言。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 

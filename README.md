@@ -32,7 +32,7 @@ _Originally developed by [tisfeng](https://github.com/tisfeng), currently mainta
 
 `Easydict` is a simple and easy-to-use dictionary app for looking up words and translating text. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
 
-For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/), plus configurable Raycast AI and OpenAI-compatible providers.
+For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/). You can also use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
@@ -61,6 +61,7 @@ npm install && npm run dev
 ## Features
 
 - [x] 🆕 Support Raycast for Windows (most features are adapted).
+- [x] 🆕 Supports using LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
 - [x] Works out of the box for easily looking up words or translating text.
 - [x] Automatically detects input languages and queries your preferred target language.
 - [x] Provides rich query information, including basic translations, pronunciations, exam coverage, parts of speech, tenses, and web phrases.
@@ -75,7 +76,6 @@ npm install && npm run dev
 - [x] Supports system proxies.
 - [x] Supports Linguee and Youdao Dictionary.
 - [x] Supports macOS System Translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
-- [x] 🆕 Supports configurable Raycast AI and OpenAI-compatible providers alongside DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun translation.
 - [x] Supports 48+ languages.
 - [x] 🆕 Supports saving completed results as Favorite Words for offline browsing and management.
 

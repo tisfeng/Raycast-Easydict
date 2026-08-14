@@ -37,9 +37,9 @@ export const RELEASE_MARKDOWN = `
 
 ### ✨ New Features
 
-#### Configurable AI Providers
+#### Custom LLM Integration
 
-- Manage Providers supports Raycast AI and OpenAI-compatible providers alongside built-in dictionary and translation providers.
+- Use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
 - All providers share one order; AI providers can be created, edited, tested, enabled or disabled, and duplicated, while built-in providers remain configured in Extension Settings.
 - AI providers discover models automatically when available or accept a manual model name.
 - The list identifies Built-in and AI Provider rows, shows enabled/disabled status (and Invalid for AI providers), and supports Cmd+Shift+Up/Down on macOS or Ctrl+Shift+Up/Down on Windows to reorder providers.
@@ -81,9 +81,9 @@ export const RELEASE_MARKDOWN = `
 
 ### ✨ 新特性
 
-#### 可配置的 AI Provider
+#### 自定义 LLM 接入
 
-- Manage Providers 支持 Raycast AI 和 OpenAI 兼容 AI 配置，以及内置词典和翻译提供商。
+- 支持使用 Raycast AI 或自定义 OpenAI 兼容端点的 LLM 进行翻译与查词。
 - 所有提供商共用统一顺序；AI 提供商支持创建、编辑、测试、启用或停用、复制，内置提供商仍在 Extension Settings 中配置。
 - AI 提供商可在支持时自动发现模型，也可手动输入模型名称。
 - 列表会标明 Built-in 或 AI Provider 类型，并显示 Enabled/Disabled 状态（AI 提供商还可能显示 Invalid）；可在 macOS 上使用 Cmd+Shift+Up/Down、Windows 上使用 Ctrl+Shift+Up/Down 调整提供商顺序。
