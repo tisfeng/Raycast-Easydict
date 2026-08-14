@@ -218,20 +218,6 @@ npm install && npm run dev
 
 </details>
 
-### 手动排序查询结果
-
-<details> <summary> 你可以按照自己的偏好对查询结果显示进行排序，默认是 Youao Dictionary, Linguee dictionary, OpenAI, Gemini, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun。 </summary>
-
-<p>
-
-大小写不敏感，使用逗号分隔开。例如：`youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`。也可仅指定部分排序，如：`youdao dictionary, apple, tencent`，此时程序实际排序是：`youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`。
-
-> 注意：以上排序是总体排序，若某项翻译服务未开启，排序会自动忽略。
-
-</p>
-
-</details>
-
 ### 苹果 🍎 系统翻译
 
 `Easydict` 支持 macOS 系统翻译，需搭配快捷指令食用，详情请看 [如何在 Easydict 中使用 macOS 苹果系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)

@@ -218,20 +218,6 @@ By default, the extension will automatically select the preferred language as th
 
 </details>
 
-### Sort Query Results Manually
-
-<details> <summary> You can sort query results by your preference, default is Youao Dictionary, Linguee Dictionary, OpenAI, Gemini, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao, Caiyun. </summary>
-
-<p>
-
-Name case are insensitive, use comma to separate. Example: `youdao dictionary, linguee dictionary, openai, gemini, deepl, google, bing, apple, baidu, tencent, volcano, youdao, caiyun`. You can also specify a part of the sort, for example: `youdao dictionary, apple, tencent`，the actual sort is: `youdao dictionary, apple, tencent, linguee dictionary, openai, gemini, deepl, google, bing, baidu, volcano, youdao, caiyun`.
-
-> Note: This sort is the overall sort, if a translation service is not enabled, the sort will be automatically ignored.
-
-</p>
-
-</details>
-
 ### 🍎 Apple Translate
 
 `Easydict` support MacOS system translate, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)
