@@ -64,21 +64,19 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 ## 截图展示
 
-<!--
-### 管理提供商
+### 管理 Provider
 
 <p align="center">
-  <img src="MANAGE_PROVIDERS_SCREENSHOT_URL" width="49%" />
+  <img src="https://github.com/user-attachments/assets/bace6248-bf41-4561-88c8-b6ba7e2b7ee2" width="49%" />
+  <img src="https://github.com/user-attachments/assets/bb908545-5a5c-45f7-8712-4e3943dfa243" width="49%" />
 </p>
--->
 
-<!--
+
 ### 收藏单词
 
 <p align="center">
-  <img src="FAVORITE_WORDS_SCREENSHOT_URL" width="49%" />
+  <img src="https://github.com/user-attachments/assets/be9efa47-1a19-443e-ab49-b0813a830f26" width="49%" />
 </p>
--->
 
 ### Arguments
 
@@ -147,9 +145,9 @@ npm install && npm run dev
 
 ![setting](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/setting-1660917402.png)
 
-### 管理提供商
+### 管理 Provider
 
-使用 **Manage Providers** 统一调整内置提供商和 AI 提供商的顺序。列表会标明 Built-in 或 AI Provider 类型，并显示 Enabled/Disabled 状态（AI 提供商还可能显示 Invalid）；可在 macOS 上用 `Cmd+Shift+Up/Down`、Windows 上用 `Ctrl+Shift+Up/Down` 调整顺序。在此编辑、测试、启用、停用、复制或删除 AI 提供商；内置提供商在 Extension Settings 中配置。AI 提供商可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
+使用 **Manage Providers** 统一调整内置 Provider 和 AI Provider 的顺序。列表会标明 Built-in 或 AI Provider 类型，并显示 Enabled/Disabled 状态（AI Provider 还可能显示 Invalid）；可在 macOS 上用 `Cmd+Shift+Up/Down`、Windows 上用 `Ctrl+Shift+Up/Down` 调整顺序。在此编辑、测试、启用、停用、复制或删除 AI Provider；内置 Provider 在 Extension Settings 中配置。AI Provider可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
 
 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。现有的 OpenAI 和 Gemini 设置可以从旧版配置导入。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
 
