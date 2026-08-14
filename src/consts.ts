@@ -28,22 +28,15 @@ export const RELEASE_MARKDOWN = `
 
 ### ⚠️ Behavioral Changes
 
-#### Reversible Legacy AI Migration
+#### Custom AI Providers
 
-- OpenAI and Gemini preference-based providers are now labeled legacy.
-- Manage Providers can import each configured legacy provider as a saved provider.
-- Migration is reversible per provider: while its saved provider is absent, the legacy provider remains available under its existing preference/configuration; once the saved provider exists, it is not duplicated; deleting it restores the legacy provider, and the command can re-import it when offered.
-- Manage Providers stores one order for built-in and AI providers; the Legacy Service List Order preference only initializes that order until it is saved.
+- Connect LLMs through Raycast AI or any OpenAI-compatible endpoint for translation and word lookup.
+- **No action is required after updating.** Existing OpenAI and Gemini preferences continue to work and are treated as legacy until imported.
+- **Migration is optional and explicit.** Open **Manage Providers** and choose **Import Legacy AI Settings** to import the configured OpenAI and Gemini settings; merely opening the page does not migrate anything.
+- **Migration remains reversible.** After import, the imported provider replaces its legacy counterpart to avoid duplicate requests. Deleting it restores the legacy provider from the existing preferences, and it can be imported again later.
+- **Provider ordering is now managed in Manage Providers.** Built-in and AI providers share one order and can be moved together with the **Move Up**/**Move Down** actions or Cmd+Shift+Up/Down on macOS and Ctrl+Shift+Up/Down on Windows. The **Legacy Service List Order** preference only initializes this order until it is saved.
 
 ### ✨ New Features
-
-#### Custom LLM Integration
-
-- Use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
-- All providers share one order; AI providers can be created, edited, tested, enabled or disabled, and duplicated, while built-in providers remain configured in Extension Settings.
-- AI providers discover models automatically when available or accept a manual model name.
-- The list identifies Built-in and AI Provider rows, shows enabled/disabled status (and Invalid for AI providers), and supports Cmd+Shift+Up/Down on macOS or Ctrl+Shift+Up/Down on Windows to reorder providers.
-- Built-in presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
 
 #### AI-Generated Dictionary Entries
 
@@ -72,22 +65,15 @@ export const RELEASE_MARKDOWN = `
 
 ### ⚠️ 行为变更
 
-#### 可逆的旧版 AI 配置迁移
+#### 🆕 自定义 AI Provider
 
-- OpenAI 和 Gemini 偏好设置提供商现标记为旧版。
-- 可通过 Manage Providers 将各个已配置的旧版提供商导入为独立的 AI Provider。
-- 迁移按提供商独立且可逆：对应导入的 AI Provider 不存在时，旧版服务按原偏好设置/配置继续可用；导入后不会重复注册；删除对应 AI Provider 后旧版服务恢复，命令提供时可重新导入。
-- Manage Providers 为内置提供商和 AI 提供商保存统一顺序；Legacy Service List Order 偏好设置仅在顺序保存前用于初始化。
+- 现在可通过 Raycast AI 或任意 OpenAI 兼容端点接入 LLM，用于翻译和查词。
+- **更新后无需操作。** 原有 OpenAI 和 Gemini 偏好设置继续生效，并在导入前作为旧版提供商使用。
+- **迁移可选且必须主动执行。** 进入 **Manage Providers**，选择 **Import Legacy AI Settings** 导入已配置的 OpenAI/Gemini 设置；仅打开页面不会迁移。
+- **迁移仍可撤销。** 导入后，导入的提供商会替代对应的旧版服务以避免重复请求。删除后，只要原偏好设置仍保留就会恢复旧版服务，也可以稍后再次导入。
+- **Provider 排序现在统一由 Manage Providers 管理。** 内置和 AI Provider 共用同一顺序，可通过 **Move Up**/**Move Down** 一起调整；**Legacy Service List Order** 仅在新顺序保存前负责初始化。
 
 ### ✨ 新特性
-
-#### 自定义 LLM 接入
-
-- 支持使用 Raycast AI 或自定义 OpenAI 兼容端点的 LLM 进行翻译与查词。
-- 所有提供商共用统一顺序；AI 提供商支持创建、编辑、测试、启用或停用、复制，内置提供商仍在 Extension Settings 中配置。
-- AI 提供商可在支持时自动发现模型，也可手动输入模型名称。
-- 列表会标明 Built-in 或 AI Provider 类型，并显示 Enabled/Disabled 状态（AI 提供商还可能显示 Invalid）；可在 macOS 上使用 Cmd+Shift+Up/Down、Windows 上使用 Ctrl+Shift+Up/Down 调整提供商顺序。
-- 内置预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、小米 MiMo、OpenCode Zen 和 OpenCode Go。
 
 #### AI 词典结果
 

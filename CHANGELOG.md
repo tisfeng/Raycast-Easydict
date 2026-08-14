@@ -4,22 +4,15 @@
 
 ### ⚠️ Behavioral Changes
 
-#### Reversible Legacy AI Migration
+#### 🆕 Custom AI Providers
 
-- OpenAI and Gemini preference-based providers are now labeled legacy.
-- Manage Providers can import each configured legacy provider as a saved provider.
-- Migration is reversible per provider: while its saved provider is absent, the legacy provider remains available under its existing preference/configuration; once the saved provider exists, it is not duplicated; deleting it restores the legacy provider, and the command can re-import it when offered.
-- Manage Providers stores one order for built-in and AI providers; the Legacy Service List Order preference only initializes that order until it is saved.
+- Connect LLMs through Raycast AI or any OpenAI-compatible endpoint for translation and word lookup.
+- **No action is required after updating.** Existing OpenAI and Gemini preferences continue to work and are treated as legacy until imported.
+- **Migration is optional and explicit.** Open **Manage Providers** and choose **Import Legacy AI Settings** to import the configured OpenAI and Gemini settings; merely opening the page does not migrate anything.
+- **Migration remains reversible.** After import, the imported provider replaces its legacy counterpart to avoid duplicate requests. Deleting it restores the legacy provider from the existing preferences, and it can be imported again later.
+- **Provider ordering is now managed in Manage Providers.** Built-in and AI providers share one order and can be moved together with the **Move Up**/**Move Down** actions. The **Legacy Service List Order** preference only initializes this order until it is saved.
 
 ### ✨ New Features
-
-#### Custom LLM Integration
-
-- Use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
-- All providers share one order; AI providers can be created, edited, tested, enabled or disabled, and duplicated, while built-in providers remain configured in Extension Settings.
-- AI providers discover models automatically when available or accept a manual model name.
-- The list identifies Built-in and AI Provider rows, shows enabled/disabled status (and Invalid for AI providers), and supports Cmd+Shift+Up/Down on macOS or Ctrl+Shift+Up/Down on Windows to reorder providers.
-- Built-in presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
 
 #### AI-Generated Dictionary Entries
 
