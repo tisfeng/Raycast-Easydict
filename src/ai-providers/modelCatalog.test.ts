@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { resolveAIProviderModelCatalog } from "./modelCatalog";
+import { getDefaultRaycastAIModel, resolveAIProviderModelCatalog } from "./modelCatalog";
 import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
 
 const fetchOpenAICompatibleModelIds = vi.hoisted(() => vi.fn());
@@ -19,7 +19,7 @@ vi.mock("./modelDiscovery", () => ({
 vi.mock("@raycast/api", () => ({
   AI: {
     Model: {
-      OpenAI_GPT_5_mini: "openai-gpt-5-mini",
+      "OpenAI_GPT-5_mini": "openai-gpt-5-mini",
       Duplicate: "openai-gpt-5-mini",
       Anthropic_Claude: "anthropic-claude",
     },
@@ -33,6 +33,10 @@ beforeEach(() => {
 });
 
 describe("AI provider model catalogs", () => {
+  it("selects a default Raycast model from the available catalog entries", () => {
+    expect(getDefaultRaycastAIModel()).toBe("openai-gpt-5-mini");
+  });
+
   it("exposes Raycast models through the same catalog capability without custom values", async () => {
     const profile: AIProviderProfile = {
       id: "raycast",
@@ -49,7 +53,7 @@ describe("AI provider model catalogs", () => {
 
     expect(catalog.allowsCustomModel).toBe(false);
     await expect(catalog.loadOptions()).resolves.toEqual([
-      { title: "OpenAI GPT 5 mini", value: "openai-gpt-5-mini" },
+      { title: "OpenAI GPT-5 mini", value: "openai-gpt-5-mini" },
       { title: "Anthropic Claude", value: "anthropic-claude" },
     ]);
     expect(fetchOpenAICompatibleModelIds).not.toHaveBeenCalled();
