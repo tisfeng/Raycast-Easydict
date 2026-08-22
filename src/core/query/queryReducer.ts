@@ -56,6 +56,13 @@ export interface QueryState {
    * Actions from older generations are ignored.
    */
   activeGeneration: number;
+
+  /**
+   * Generation whose visible results mounted the native List. It changes only
+   * when a query first produces a visible item, so the List mounts with content
+   * without remounting the search field while the user types.
+   */
+  listEpoch: number;
 }
 
 /**
@@ -138,6 +145,7 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
       return {
         ...state,
         queryResults: results,
+        listEpoch: hasVisibleListItems(results) ? action.generation : state.listEpoch,
         isShowDetail: checkIfShowTranslationDetail(results),
       };
     }
@@ -191,4 +199,12 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
     default:
       return state;
   }
+}
+
+function hasVisibleListItems(results: QueryResult[]): boolean {
+  return results.some(
+    (result) =>
+      (!("hideDisplay" in result) || !result.hideDisplay) &&
+      result.displaySections.some((section) => section.items.length > 0),
+  );
 }

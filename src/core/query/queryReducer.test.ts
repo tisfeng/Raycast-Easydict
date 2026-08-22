@@ -29,6 +29,7 @@ vi.mock("@/core/config", () => ({
 
 const initialState: QueryState = {
   activeGeneration: 0,
+  listEpoch: 0,
   queryResults: [],
   queryRecordList: [],
   isLoading: false,
@@ -180,6 +181,7 @@ describe("queryReducer", () => {
     expect(state.isLoading).toBe(true);
     expect(state.isShowDetail).toBe(false);
     expect(state.activeGeneration).toBe(1);
+    expect(state.listEpoch).toBe(0);
   });
 
   it("CLEAR_ALL empties results and pending providers and resets detail/loading", () => {
@@ -196,6 +198,53 @@ describe("queryReducer", () => {
     expect(state.isLoading).toBe(false);
     expect(state.isShowDetail).toBe(false);
     expect(state.activeGeneration).toBe(2);
+    expect(state.listEpoch).toBe(0);
+  });
+
+  it("changes the native list epoch only when a query first produces a visible item", () => {
+    let state = queryReducer(initialState, { type: "RESET_FOR_NEW_QUERY", generation: 1 });
+    expect(state.activeGeneration).toBe(1);
+    expect(state.listEpoch).toBe(0);
+
+    const hiddenResult = createTranslationResult(TranslationType.DeepL);
+    hiddenResult.hideDisplay = true;
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: hiddenResult, generation: 1 });
+    expect(state.listEpoch).toBe(0);
+
+    const emptyResult = createTranslationResult(TranslationType.OpenAI);
+    emptyResult.displaySections = [{ type: TranslationType.OpenAI, items: [] }];
+    state = queryReducer(state, { type: "SET_RESULT", queryResult: emptyResult, generation: 1 });
+    expect(state.listEpoch).toBe(0);
+
+    state = queryReducer(state, {
+      type: "SET_RESULT",
+      queryResult: createTranslationResult(TranslationType.Google),
+      generation: 1,
+    });
+    expect(state.listEpoch).toBe(1);
+
+    state = queryReducer(state, {
+      type: "SET_RESULT",
+      queryResult: createTranslationResult(TranslationType.Bing),
+      generation: 1,
+    });
+    expect(state.listEpoch).toBe(1);
+
+    state = queryReducer(state, { type: "CLEAR_ALL", generation: 2 });
+    state = queryReducer(state, { type: "CLEAR_ALL", generation: 3 });
+    expect(state.activeGeneration).toBe(3);
+    expect(state.listEpoch).toBe(1);
+
+    state = queryReducer(state, { type: "RESET_FOR_NEW_QUERY", generation: 4 });
+    expect(state.activeGeneration).toBe(4);
+    expect(state.listEpoch).toBe(1);
+
+    state = queryReducer(state, {
+      type: "SET_RESULT",
+      queryResult: createTranslationResult(TranslationType.Google),
+      generation: 4,
+    });
+    expect(state.listEpoch).toBe(4);
   });
 
   describe("stale generation behaviors", () => {
@@ -208,6 +257,7 @@ describe("queryReducer", () => {
       });
       expect(newState).toBe(state); // returns same state
       expect(newState.queryResults).toEqual([]);
+      expect(newState.listEpoch).toBe(0);
     });
 
     it("stale FINISH_QUERY cannot remove the active generation's pending provider or stop loading", () => {

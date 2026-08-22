@@ -154,6 +154,37 @@ afterEach(() => {
 });
 
 describe("useQueryEngine query generations", () => {
+  it("changes the list epoch only when each query first produces visible results", async () => {
+    const { result } = renderHook(() =>
+      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        translationServices: [],
+        dictionaryServices: testDoubles.dictionaryServices,
+      }),
+    );
+
+    expect(result.current.listEpoch).toBe(0);
+
+    act(() => result.current.queryTextWithTextInfo(createQueryInput("first")));
+    expect(dictionaryRequests).toHaveLength(1);
+    expect(result.current.listEpoch).toBe(0);
+
+    await resolveDictionaryRequest(0);
+    expect(result.current.listEpoch).toBe(1);
+
+    act(() => {
+      result.current.clearQueryResult();
+      result.current.clearQueryResult();
+    });
+    expect(result.current.listEpoch).toBe(1);
+
+    act(() => result.current.queryTextWithTextInfo(createQueryInput("second")));
+    expect(dictionaryRequests).toHaveLength(2);
+    expect(result.current.listEpoch).toBe(1);
+
+    await resolveDictionaryRequest(1);
+    expect(result.current.listEpoch).toBe(4);
+  });
+
   it("adds providers that load later without restarting dictionary requests", async () => {
     const dynamicService: TranslationServiceConfig = {
       id: "profile:test",

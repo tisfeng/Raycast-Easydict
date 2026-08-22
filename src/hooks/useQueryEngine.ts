@@ -67,6 +67,7 @@ function createInitialState({
 }): QueryState {
   return {
     activeGeneration: 0,
+    listEpoch: 0,
     queryResults: [],
     queryRecordList: [],
     isLoading: false,
@@ -455,6 +456,7 @@ export function useQueryEngine(
   return {
     displaySections,
     queryGeneration: state.activeGeneration,
+    listEpoch: state.listEpoch,
     isLoading: state.isLoading,
     isShowDetail: state.isShowDetail,
     currentFromLanguageItem: state.currentFromLanguageItem,

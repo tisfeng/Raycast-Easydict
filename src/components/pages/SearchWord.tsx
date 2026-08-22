@@ -58,6 +58,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const {
     displaySections,
     queryGeneration,
+    listEpoch,
     isLoading,
     isShowDetail,
     currentFromLanguageItem,
@@ -243,6 +244,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
   return (
     <List
+      key={listEpoch}
       isLoading={listIsLoading}
       isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
