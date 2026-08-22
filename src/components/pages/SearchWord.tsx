@@ -92,7 +92,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const onToggleFavorite = () => {
     if (!queryWordInfo) return;
 
-    if (isLoading && !isFavorite) {
+    if (listIsLoading && !isFavorite) {
       showToast({
         style: Toast.Style.Failure,
         title: "Error adding favorite",

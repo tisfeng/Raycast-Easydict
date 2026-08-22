@@ -26,7 +26,12 @@ import { getDefaultRaycastAIModel } from "@/ai-providers/modelCatalog";
 import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/ai-providers/presets";
 import { createEmptyAIProviderState } from "@/ai-providers/repository";
 import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
-import type { AIProviderProfile, OpenAICompatibleProfile, RaycastAIProfile } from "@/ai-providers/types";
+import type {
+  AIProviderProfile,
+  OpenAICompatibleProfile,
+  RaycastAIProfile,
+  StoredAIProviderStateV1,
+} from "@/ai-providers/types";
 import { getProviderIcon, getQueryTypeIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
 import { getAIProviderKey, reconcileProviderOrder, syncAIProviderOrders } from "@/core/query/providerOrder";
@@ -42,6 +47,7 @@ import { ProviderConfig } from "@/providers/shared/config";
 import { AIProviderForm } from "./AIProviderForm";
 
 type AIProvidersController = ReturnType<typeof useAIProviderProfiles>;
+type SaveProfilesOptions = Pick<StoredAIProviderStateV1, "providerOrder" | "migration">;
 
 type ProviderRow = { kind: "builtin"; service: BuiltinProviderService } | { kind: "ai"; profile: AIProviderProfile };
 
@@ -70,10 +76,10 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
     const rightKey = right.kind === "builtin" ? right.service.providerKey : getAIProviderKey(right.profile);
     return providerOrder.indexOf(leftKey) - providerOrder.indexOf(rightKey);
   });
-  async function saveProfiles(nextProfiles: AIProviderProfile[], requestedProviderOrder?: string[]) {
+  async function saveProfiles(nextProfiles: AIProviderProfile[], options: SaveProfilesOptions = {}) {
     const storedState = controller.storedState;
     if (!storedState) return;
-    const savedOrder = requestedProviderOrder ?? storedState.providerOrder;
+    const savedOrder = options.providerOrder ?? storedState.providerOrder;
     const fallbackOrder = getCombinedProviderOrder(nextProfiles, undefined, servicesOrder);
     const previousFallbackOrder = getCombinedProviderOrder(storedState.profiles, undefined, servicesOrder);
     const previousKeys = new Set(getCombinedAvailableProviderKeys(storedState.profiles));
@@ -88,6 +94,7 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
       ...storedState,
       profiles: normalizedProfiles,
       providerOrder: nextProviderOrder,
+      migration: options.migration ?? storedState.migration,
     });
     if (normalizedProfiles.filter((profile) => profile.adapter === "raycast-ai" && profile.enabled).length > 1) {
       await showToast({
@@ -121,7 +128,10 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
       onAction={async () => {
         if (!controller.storedState) return;
         const imported = importLegacyAIProviders(controller.storedState, legacyConfiguration);
-        await saveProfiles(imported.profiles, imported.providerOrder);
+        await saveProfiles(imported.profiles, {
+          providerOrder: imported.providerOrder,
+          migration: imported.migration,
+        });
         await showToast({ style: Toast.Style.Success, title: "Legacy AI providers imported" });
       }}
     />
@@ -133,7 +143,10 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
       onAction={async () => {
         if (!controller.storedState) return;
         const imported = importLegacyAIProviders(controller.storedState, legacyConfiguration);
-        await saveProfiles(imported.profiles, imported.providerOrder);
+        await saveProfiles(imported.profiles, {
+          providerOrder: imported.providerOrder,
+          migration: imported.migration,
+        });
         await showToast({ style: Toast.Style.Success, title: "Missing legacy AI providers restored" });
       }}
     />
@@ -176,7 +189,7 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
     const nextOrder = [...providerOrder];
     [nextOrder[currentIndex], nextOrder[nextIndex]] = [nextOrder[nextIndex], nextOrder[currentIndex]];
     setSelectedProviderKey(providerKey);
-    await saveProfiles(profiles, nextOrder);
+    await saveProfiles(profiles, { providerOrder: nextOrder });
     setSelectedProviderKey(providerKey);
   }
 
