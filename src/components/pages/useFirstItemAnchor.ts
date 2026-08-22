@@ -2,74 +2,68 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+type SelectionMode = "automatic" | "manual";
+
 interface SelectionState {
-  itemIdsRevision: string;
+  queryGeneration: number;
+  mode: SelectionMode;
   selectedItemId?: string;
-  wasLoading: boolean;
 }
 
 /**
- * Soft-anchor Raycast's native selection while asynchronous providers insert
- * higher-priority results. When the current first item ID changes, re-anchor
- * to that item; repeated renders with the same selectedItemId do not override
- * native selection, so user navigation usually remains intact. Once loading
- * completes, preserve a valid selection and fall back to the current first
- * item when the selection is invalid.
+ * Follows the first result until the user chooses an item. A user selection is
+ * kept while that item remains in the current query, even when new results are
+ * inserted before it. A new query or a selection that disappears returns to
+ * following the current first item.
  */
-export function useFirstItemAnchor(itemIds: string[], isLoading: boolean) {
-  const itemIdsRevision = itemIds.join("\0");
+export function useFirstItemAnchor(itemIds: string[], queryGeneration: number) {
   const firstItemId = itemIds[0];
   const [selectionState, setSelectionState] = useState<SelectionState>(() => ({
-    itemIdsRevision,
+    queryGeneration,
+    mode: "automatic",
     selectedItemId: firstItemId,
-    wasLoading: isLoading,
   }));
 
-  const selectionIsValid =
-    selectionState.selectedItemId !== undefined && itemIds.includes(selectionState.selectedItemId);
-  const selectedItemId =
-    firstItemId === undefined
-      ? undefined
-      : isLoading || selectionState.wasLoading || !selectionIsValid
-        ? firstItemId
-        : selectionState.selectedItemId;
+  const isManualSelectionValid =
+    selectionState.queryGeneration === queryGeneration &&
+    selectionState.mode === "manual" &&
+    selectionState.selectedItemId !== undefined &&
+    itemIds.includes(selectionState.selectedItemId);
+  const mode: SelectionMode = isManualSelectionValid ? "manual" : "automatic";
+  const selectedItemId = isManualSelectionValid ? selectionState.selectedItemId : firstItemId;
 
   useEffect(() => {
     setSelectionState((previous) => {
       if (
-        previous.itemIdsRevision === itemIdsRevision &&
-        previous.selectedItemId === selectedItemId &&
-        previous.wasLoading === isLoading
+        previous.queryGeneration === queryGeneration &&
+        previous.mode === mode &&
+        previous.selectedItemId === selectedItemId
       ) {
         return previous;
       }
+
       return {
-        itemIdsRevision,
+        queryGeneration,
+        mode,
         selectedItemId,
-        wasLoading: isLoading,
       };
     });
-  }, [isLoading, itemIdsRevision, selectedItemId]);
+  }, [mode, queryGeneration, selectedItemId]);
 
   const onSelectionChange = useCallback(
     (id: string | null) => {
-      const nextSelectedItemId = isLoading || id === null || !itemIds.includes(id) ? firstItemId : id;
-      setSelectionState((previous) => {
-        if (
-          previous.itemIdsRevision === itemIdsRevision &&
-          previous.selectedItemId === nextSelectedItemId &&
-          previous.wasLoading === isLoading
-        ) {
-          return previous;
-        }
-        return {
-          itemIdsRevision,
-          selectedItemId: nextSelectedItemId,
-          wasLoading: isLoading,
-        };
+      if (id !== null && id === selectedItemId) {
+        return;
+      }
+
+      const isValidSelection = id !== null && itemIds.includes(id);
+      setSelectionState({
+        queryGeneration,
+        mode: isValidSelection ? "manual" : "automatic",
+        selectedItemId: isValidSelection ? id : firstItemId,
       });
     },
-    [firstItemId, isLoading, itemIds, itemIdsRevision],
+    [firstItemId, itemIds, queryGeneration, selectedItemId],
   );
 
   return { selectedItemId, onSelectionChange };

@@ -79,7 +79,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     [displaySectionIds, displaySections],
   );
   const listIsLoading = isLoading || aiProviderProfiles.isLoading;
-  const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, listIsLoading);
+  const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, queryGeneration);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
