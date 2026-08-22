@@ -34,8 +34,7 @@ export const builtinTranslationServicesBeforeAIProfilesLoad = builtinTranslation
 export const builtinProviderServices = [...builtinDictionaryProviderServices, ...builtinTranslationServices];
 
 export type BuiltinProviderService =
-  | (typeof builtinDictionaryProviderServices)[number]
-  | (typeof builtinTranslationServices)[number];
+  (typeof builtinDictionaryProviderServices)[number] | (typeof builtinTranslationServices)[number];
 
 export interface ProviderServiceSnapshot {
   translationServices: TranslationServiceConfig[];

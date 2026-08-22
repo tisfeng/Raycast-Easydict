@@ -20,8 +20,7 @@ import { normalizeError } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 
 type IconSelection =
-  | Exclude<ProviderIconConfig["kind"], "preset">
-  | Extract<ProviderIconConfig, { kind: "preset" }>["name"];
+  Exclude<ProviderIconConfig["kind"], "preset"> | Extract<ProviderIconConfig, { kind: "preset" }>["name"];
 
 export function AIProviderForm({
   profile,

@@ -89,19 +89,17 @@ export function resolveDictionaryServices(
 ): DictionaryServiceConfig[] {
   const dynamicServices = profiles
     .filter((profile) => profile.wordResultMode === "dictionary")
-    .map(
-      (profile): DictionaryServiceConfig => ({
-        id: `profile:${profile.id}:dictionary`,
-        label: profile.name,
-        providerKey: getAIProviderKey(profile),
-        order: profile.order,
-        type: DictionaryType.AI,
-        icon: resolveAIProviderIcon(profile),
-        enabled: (queryWordInfo) => getAIProviderQueryMode(profile, queryWordInfo) === "dictionary",
-        createProvider: () => createAIDictionaryProvider(profile),
-        canTriggerAutomaticAudio: false,
-      }),
-    );
+    .map((profile): DictionaryServiceConfig => ({
+      id: `profile:${profile.id}:dictionary`,
+      label: profile.name,
+      providerKey: getAIProviderKey(profile),
+      order: profile.order,
+      type: DictionaryType.AI,
+      icon: resolveAIProviderIcon(profile),
+      enabled: (queryWordInfo) => getAIProviderQueryMode(profile, queryWordInfo) === "dictionary",
+      createProvider: () => createAIDictionaryProvider(profile),
+      canTriggerAutomaticAudio: false,
+    }));
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
   const resolvedProviderOrder =
     providerOrder ??
