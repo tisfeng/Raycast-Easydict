@@ -5,10 +5,12 @@ import { Action, ActionPanel, Color, Detail, Icon, Keyboard, open, openCommandPr
 import { showFailureToast } from "@raycast/utils";
 
 import ReleaseNotesPage from "@/components/pages/ReleaseNotePage";
+import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
+import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { dictionaryServices } from "@/providers/dictionary";
 import { translationServices } from "@/providers/translation";
 import type { ListDisplayItem } from "@/types/display";
@@ -111,6 +113,7 @@ function PrimaryActions({
   const { queryWordInfo, queryType, copyText } = displayItem;
   const { word } = queryWordInfo;
   const showEudic = isInstalledEudic && myPreferences.showOpenInEudicFirst;
+  const strokeOrderCharacters = getStrokeOrderCharacters(displayItem);
 
   const currentWebQueryAction = queryWebItemTypes.includes(queryType) ? (
     <WebQueryAction webQueryItem={getWebQueryItem({ queryType, wordInfo: queryWordInfo })} enableShortcutKey />
@@ -127,6 +130,14 @@ function PrimaryActions({
         content={copyText}
         onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
       />
+
+      {strokeOrderCharacters.length > 0 && (
+        <Action.Push
+          title="Show Stroke Order"
+          icon={Icon.Brush}
+          target={<StrokeOrderPage characters={strokeOrderCharacters} />}
+        />
+      )}
 
       <Action
         icon={isFavorite ? { source: Icon.Star, tintColor: Color.Yellow } : Icon.Star}
