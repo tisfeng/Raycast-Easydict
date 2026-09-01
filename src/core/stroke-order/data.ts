@@ -20,9 +20,7 @@ interface HanziWriterCharacterData {
 }
 
 type CachedCharacterData =
-  | { status: "available"; data: HanziWriterCharacterData }
-  | { status: "unavailable" }
-  | { status: "miss" };
+  { status: "available"; data: HanziWriterCharacterData } | { status: "unavailable" } | { status: "miss" };
 
 export type StrokeOrderEntry =
   | { character: string; status: "available"; strokes: string[] }
