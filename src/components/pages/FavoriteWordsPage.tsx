@@ -14,9 +14,11 @@ import {
 import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
+import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
+import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { useFavoriteWords } from "@/hooks";
 import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
@@ -116,6 +118,12 @@ function FavoriteItem({
   const fromLanguageItem = getLanguageItem(favorite.fromLanguage);
   const toLanguageItem = getLanguageItem(favorite.toLanguage);
   const translation = favorite.translations?.[0];
+  const strokeOrderCharacters = getStrokeOrderCharacters({
+    fromLanguage: favorite.fromLanguage,
+    toLanguage: favorite.toLanguage,
+    sourceText: favorite.word,
+    translatedText: favorite.translations?.join("\n") ?? "",
+  });
   // Respect the same "flags are not languages" preference as TargetLanguageSection.
   const langIcon = (emoji: string) => (myPreferences.flagsAreNotLanguages ? Icon.Globe : { source: emoji });
 
@@ -150,6 +158,13 @@ function FavoriteItem({
             <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
             <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
             <Action.CopyToClipboard title="Copy All to Clipboard" icon={Icon.Clipboard} content={copyAllContent} />
+            {strokeOrderCharacters.length > 0 && (
+              <Action.Push
+                title="Show Stroke Order"
+                icon={Icon.Brush}
+                target={<StrokeOrderPage characters={strokeOrderCharacters} />}
+              />
+            )}
           </ActionPanel.Section>
 
           <ActionPanel.Section title="Read Text Audio">
