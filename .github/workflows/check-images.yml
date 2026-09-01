@@ -24,12 +24,13 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           python-version: "3.11"
 
       - name: Download Raycast Image Checker
-        run: curl -fsSL -o check_raycast_images.py https://raw.githubusercontent.com/raycast/extensions/0474f3e8927b3837868bdcefb4f8577042276415/scripts/check_raycast_images.py
+        run: curl -fsSL -o check_raycast_images.py
+          https://raw.githubusercontent.com/raycast/extensions/0474f3e8927b3837868bdcefb4f8577042276415/scripts/check_raycast_images.py
 
       - name: Check Images
         run: |
