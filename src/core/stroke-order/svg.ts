@@ -19,12 +19,6 @@ const colors = {
   grid: "#E5E7EB",
 };
 
-export interface StrokeOrderDiagram {
-  dataUri: string;
-  height: number;
-  width: number;
-}
-
 function escapeXmlAttribute(value: string): string {
   return value.replace(/[&"'<>]/g, (character) => {
     switch (character) {
@@ -79,7 +73,7 @@ function renderCell(step: number, strokes: readonly string[], x: number, y: numb
 /**
  * Create a static fan diagram: each tile adds one highlighted stroke.
  */
-export function createStrokeOrderSvg(character: string, strokes: readonly string[]): string {
+function renderStrokeOrderSvg(character: string, strokes: readonly string[]): { svg: string; width: number } {
   if (strokes.length === 0) throw new Error("Stroke order data must contain at least one stroke.");
   if (strokes.length > MAX_STROKE_COUNT) {
     throw new Error(`Stroke order data exceeds the ${MAX_STROKE_COUNT}-stroke safety limit.`);
@@ -108,21 +102,21 @@ export function createStrokeOrderSvg(character: string, strokes: readonly string
     })
     .join("");
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stroke order for ${escapeXmlAttribute(character)}" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stroke order for ${escapeXmlAttribute(character)}" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   ${cells}
 </svg>`;
+
+  return { svg, width };
 }
 
-export function createStrokeOrderDiagram(character: string, strokes: readonly string[]): StrokeOrderDiagram {
-  const columns = Math.min(MAX_COLUMNS, strokes.length);
-  const rows = Math.ceil(strokes.length / columns);
-  const width = OUTER_MARGIN * 2 + columns * CELL_SIZE + (columns - 1) * CELL_GAP;
-  const height = OUTER_MARGIN * 2 + rows * CELL_SIZE + (rows - 1) * CELL_GAP;
-  const svg = createStrokeOrderSvg(character, strokes);
+export function createStrokeOrderDiagram(
+  character: string,
+  strokes: readonly string[],
+): { dataUri: string; width: number } {
+  const { svg, width } = renderStrokeOrderSvg(character, strokes);
 
   return {
     dataUri: `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`,
-    height,
     width,
   };
 }

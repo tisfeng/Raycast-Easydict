@@ -1,62 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { TranslationType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
-
-import { extractUniqueHanzi, getStrokeOrderCharacters, getStrokeOrderCharactersForTranslation } from "./characters";
-
-function makeDisplayItem({
-  copyText,
-  fromLanguage,
-  toLanguage,
-  word,
-}: {
-  copyText: string;
-  fromLanguage: string;
-  toLanguage: string;
-  word: string;
-}): ListDisplayItem {
-  return {
-    copyText,
-    key: "test",
-    queryType: TranslationType.Google,
-    queryWordInfo: { fromLanguage, toLanguage, word },
-    title: copyText,
-  };
-}
-
-describe("extractUniqueHanzi", () => {
-  it("preserves order and removes duplicates and punctuation", () => {
-    expect(extractUniqueHanzi("你好，你好！学习。", 10)).toEqual(["你", "好", "学", "习"]);
-  });
-
-  it("applies the requested limit", () => {
-    expect(extractUniqueHanzi("一二三四", 2)).toEqual(["一", "二"]);
-    expect(extractUniqueHanzi("一二三四", 0)).toEqual([]);
-  });
-});
+import { getStrokeOrderCharacters } from "./characters";
 
 describe("getStrokeOrderCharacters", () => {
   it("uses the translated text when translating to Chinese", () => {
-    const item = makeDisplayItem({ copyText: "你好", fromLanguage: "en", toLanguage: "zh-CHS", word: "hello" });
-    expect(getStrokeOrderCharacters(item)).toEqual(["你", "好"]);
+    expect(
+      getStrokeOrderCharacters({
+        fromLanguage: "en",
+        toLanguage: "zh-CHS",
+        sourceText: "hello",
+        translatedText: "你好",
+      }),
+    ).toEqual(["你", "好"]);
   });
 
   it("uses the original query when translating from Chinese", () => {
-    const item = makeDisplayItem({ copyText: "study", fromLanguage: "zh-CHT", toLanguage: "en", word: "學習" });
-    expect(getStrokeOrderCharacters(item)).toEqual(["學", "習"]);
-  });
-
-  it("does not treat Japanese Kanji as a Chinese translation", () => {
-    const item = makeDisplayItem({ copyText: "study", fromLanguage: "ja", toLanguage: "en", word: "勉強" });
-    expect(getStrokeOrderCharacters(item)).toEqual([]);
-  });
-});
-
-describe("getStrokeOrderCharactersForTranslation", () => {
-  it("supports saved Chinese source text", () => {
     expect(
-      getStrokeOrderCharactersForTranslation({
+      getStrokeOrderCharacters({
         fromLanguage: "zh-CHT",
         toLanguage: "en",
         sourceText: "學習",
@@ -65,14 +25,36 @@ describe("getStrokeOrderCharactersForTranslation", () => {
     ).toEqual(["學", "習"]);
   });
 
-  it("supports saved Chinese translations", () => {
+  it("does not treat Japanese Kanji as a Chinese translation", () => {
     expect(
-      getStrokeOrderCharactersForTranslation({
-        fromLanguage: "en",
-        toLanguage: "zh-CHS",
-        sourceText: "hello",
-        translatedText: "你好",
+      getStrokeOrderCharacters({
+        fromLanguage: "ja",
+        toLanguage: "en",
+        sourceText: "勉強",
+        translatedText: "study",
       }),
-    ).toEqual(["你", "好"]);
+    ).toEqual([]);
+  });
+
+  it("preserves order and removes duplicates and punctuation", () => {
+    expect(
+      getStrokeOrderCharacters({
+        fromLanguage: "zh-CHS",
+        toLanguage: "en",
+        sourceText: "你好，你好！学习。",
+        translatedText: "study",
+      }),
+    ).toEqual(["你", "好", "学", "习"]);
+  });
+
+  it("limits the result to eight characters", () => {
+    expect(
+      getStrokeOrderCharacters({
+        fromLanguage: "zh-CHS",
+        toLanguage: "en",
+        sourceText: "一二三四五六七八九十",
+        translatedText: "numbers",
+      }),
+    ).toEqual(["一", "二", "三", "四", "五", "六", "七", "八"]);
   });
 });

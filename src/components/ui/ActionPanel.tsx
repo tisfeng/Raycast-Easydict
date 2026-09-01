@@ -111,9 +111,14 @@ function PrimaryActions({
   onHideReleasePrompt: () => void;
 }) {
   const { queryWordInfo, queryType, copyText } = displayItem;
-  const { word } = queryWordInfo;
+  const { fromLanguage, toLanguage, word } = queryWordInfo;
   const showEudic = isInstalledEudic && myPreferences.showOpenInEudicFirst;
-  const strokeOrderCharacters = getStrokeOrderCharacters(displayItem);
+  const strokeOrderCharacters = getStrokeOrderCharacters({
+    fromLanguage,
+    toLanguage,
+    sourceText: word,
+    translatedText: copyText,
+  });
 
   const currentWebQueryAction = queryWebItemTypes.includes(queryType) ? (
     <WebQueryAction webQueryItem={getWebQueryItem({ queryType, wordInfo: queryWordInfo })} enableShortcutKey />

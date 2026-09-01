@@ -18,7 +18,7 @@ import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
-import { getStrokeOrderCharactersForTranslation } from "@/core/stroke-order";
+import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { useFavoriteWords } from "@/hooks";
 import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
@@ -118,7 +118,7 @@ function FavoriteItem({
   const fromLanguageItem = getLanguageItem(favorite.fromLanguage);
   const toLanguageItem = getLanguageItem(favorite.toLanguage);
   const translation = favorite.translations?.[0];
-  const strokeOrderCharacters = getStrokeOrderCharactersForTranslation({
+  const strokeOrderCharacters = getStrokeOrderCharacters({
     fromLanguage: favorite.fromLanguage,
     toLanguage: favorite.toLanguage,
     sourceText: favorite.word,
