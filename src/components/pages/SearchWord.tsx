@@ -90,7 +90,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const isFavorite = !!queryWordInfo && has(queryWordInfo);
   // Snapshot only complete results: toggling mid-load would store an incomplete
   // (translation-less, partial dictionary) snapshot that can't be refreshed offline.
-  const onToggleFavorite = () => {
+  const onToggleFavorite = async () => {
     if (!queryWordInfo) return;
 
     if (listIsLoading && !isFavorite) {
@@ -102,7 +102,14 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       return;
     }
 
-    toggle(buildFavoriteWord(queryWordInfo, displaySections));
+    await toggle(buildFavoriteWord(queryWordInfo, displaySections));
+    if (!isFavorite) {
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Added to Favorites",
+        message: queryWordInfo.word,
+      });
+    }
   };
 
   /**
