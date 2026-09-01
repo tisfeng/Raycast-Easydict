@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
 
-import { extractUniqueHanzi, getStrokeOrderCharacters } from "./characters";
+import { extractUniqueHanzi, getStrokeOrderCharacters, getStrokeOrderCharactersForTranslation } from "./characters";
 
 function makeDisplayItem({
   copyText,
@@ -50,5 +50,29 @@ describe("getStrokeOrderCharacters", () => {
   it("does not treat Japanese Kanji as a Chinese translation", () => {
     const item = makeDisplayItem({ copyText: "study", fromLanguage: "ja", toLanguage: "en", word: "勉強" });
     expect(getStrokeOrderCharacters(item)).toEqual([]);
+  });
+});
+
+describe("getStrokeOrderCharactersForTranslation", () => {
+  it("supports saved Chinese source text", () => {
+    expect(
+      getStrokeOrderCharactersForTranslation({
+        fromLanguage: "zh-CHT",
+        toLanguage: "en",
+        sourceText: "學習",
+        translatedText: "study",
+      }),
+    ).toEqual(["學", "習"]);
+  });
+
+  it("supports saved Chinese translations", () => {
+    expect(
+      getStrokeOrderCharactersForTranslation({
+        fromLanguage: "en",
+        toLanguage: "zh-CHS",
+        sourceText: "hello",
+        translatedText: "你好",
+      }),
+    ).toEqual(["你", "好"]);
   });
 });
