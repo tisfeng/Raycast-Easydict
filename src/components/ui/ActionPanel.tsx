@@ -131,14 +131,6 @@ function PrimaryActions({
         onCopy={() => logTrace("ActionPanel", `copy: ${copyText}`)}
       />
 
-      {strokeOrderCharacters.length > 0 && (
-        <Action.Push
-          title="Show Stroke Order"
-          icon={Icon.Brush}
-          target={<StrokeOrderPage characters={strokeOrderCharacters} />}
-        />
-      )}
-
       <Action
         icon={isFavorite ? { source: Icon.Star, tintColor: Color.Yellow } : Icon.Star}
         title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
@@ -170,6 +162,13 @@ function PrimaryActions({
           />
         }
       />
+      {strokeOrderCharacters.length > 0 && (
+        <Action.Push
+          title="Show Stroke Order"
+          icon={Icon.Brush}
+          target={<StrokeOrderPage characters={strokeOrderCharacters} />}
+        />
+      )}
       {currentWebQueryAction}
     </ActionPanel.Section>
   );

@@ -27,7 +27,7 @@ function getDetailMarkdown(entry: StrokeOrderEntry): string {
 
   const diagram = createStrokeOrderDiagram(entry.character, entry.strokes);
   const displayWidth = Math.min(diagram.width, 720);
-  return `# ${entry.character}\n\n<img src="${diagram.dataUri}" alt="Stroke order for ${entry.character}" width="${displayWidth}" />\n\nThe red stroke is added at each step.`;
+  return `<img src="${diagram.dataUri}" alt="Stroke order for ${entry.character}" width="${displayWidth}" />\n\n<sup>The red stroke is added at each step.</sup>\n\n<sup>Convention: PRC · Source: [${strokeOrderDataSourceTitle}](${strokeOrderDataSourceUrl})</sup>`;
 }
 
 function getSubtitle(entry: StrokeOrderEntry): string {
@@ -61,24 +61,7 @@ export default function StrokeOrderPage({ characters }: StrokeOrderPageProps) {
           icon={Icon.Brush}
           title={entry.character}
           subtitle={getSubtitle(entry)}
-          detail={
-            <List.Item.Detail
-              markdown={getDetailMarkdown(entry)}
-              metadata={
-                <List.Item.Detail.Metadata>
-                  <List.Item.Detail.Metadata.Label title="Character" text={entry.character} />
-                  {entry.status === "available" && (
-                    <List.Item.Detail.Metadata.Label title="Stroke Count" text={String(entry.strokes.length)} />
-                  )}
-                  <List.Item.Detail.Metadata.Link
-                    title="Source"
-                    target={strokeOrderDataSourceUrl}
-                    text={strokeOrderDataSourceTitle}
-                  />
-                </List.Item.Detail.Metadata>
-              }
-            />
-          }
+          detail={<List.Item.Detail markdown={getDetailMarkdown(entry)} />}
           actions={
             <ActionPanel>
               <Action.CopyToClipboard title="Copy Character" content={entry.character} />
