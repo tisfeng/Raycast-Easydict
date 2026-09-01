@@ -72,10 +72,10 @@
   ],
   "dependencies": {
     "@deeplx/core": "^0.2.2",
-    "@raycast/api": "^2.0.5",
+    "@raycast/api": "^2.1.3",
     "@raycast/utils": "^2.3.0",
-    "@xsai/shared-chat": "^0.5.0-beta.8",
-    "@xsai/stream-text": "^0.5.0-beta.8",
+    "@xsai/shared-chat": "^0.5.0",
+    "@xsai/stream-text": "^0.5.0",
     "franc": "^6.2.0",
     "native-say": "^0.0.2",
     "node-html-parser": "^9.0.1",
