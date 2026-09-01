@@ -11,12 +11,18 @@ import { MAX_RENDERED_STROKE_PATH_LENGTH, MAX_STROKE_COUNT } from "./svg";
 const HANZI_WRITER_DATA_VERSION = "2.0.1";
 const HANZI_WRITER_DATA_BASE_URL = `https://cdn.jsdelivr.net/npm/hanzi-writer-data@${HANZI_WRITER_DATA_VERSION}`;
 const dataCache = new Cache({ namespace: "stroke-order-v1", capacity: 5_000_000 });
+const UNAVAILABLE_CACHE_VALUE = "unavailable";
 const MAX_STROKE_PATH_LENGTH = 100_000;
 const MAX_TOTAL_STROKE_PATH_LENGTH = 1_000_000;
 
 interface HanziWriterCharacterData {
   strokes: string[];
 }
+
+type CachedCharacterData =
+  | { status: "available"; data: HanziWriterCharacterData }
+  | { status: "unavailable" }
+  | { status: "miss" };
 
 export type StrokeOrderEntry =
   | { character: string; status: "available"; strokes: string[] }
@@ -42,20 +48,21 @@ function cacheKey(character: string): string {
   return `v${HANZI_WRITER_DATA_VERSION}:${character.codePointAt(0)?.toString(16) ?? character}`;
 }
 
-function getCachedData(character: string): HanziWriterCharacterData | undefined {
+function getCachedData(character: string): CachedCharacterData {
   const key = cacheKey(character);
   const cached = dataCache.get(key);
-  if (!cached) return undefined;
+  if (!cached) return { status: "miss" };
+  if (cached === UNAVAILABLE_CACHE_VALUE) return { status: "unavailable" };
 
   try {
     const value: unknown = JSON.parse(cached);
-    if (isHanziWriterCharacterData(value)) return value;
+    if (isHanziWriterCharacterData(value)) return { status: "available", data: value };
   } catch {
     // Invalid cache entries are removed and downloaded again below.
   }
 
   dataCache.remove(key);
-  return undefined;
+  return { status: "miss" };
 }
 
 async function loadCharacterData(
@@ -63,11 +70,15 @@ async function loadCharacterData(
   signal?: AbortSignal,
 ): Promise<HanziWriterCharacterData | undefined> {
   const cached = getCachedData(character);
-  if (cached) return cached;
+  if (cached.status === "available") return cached.data;
+  if (cached.status === "unavailable") return undefined;
 
   const url = `${HANZI_WRITER_DATA_BASE_URL}/${encodeURIComponent(character)}.json`;
   const response = await timedFetch.raw<unknown>(url, { ignoreResponseError: true, signal });
-  if (response.status === 404) return undefined;
+  if (response.status === 404) {
+    dataCache.set(cacheKey(character), UNAVAILABLE_CACHE_VALUE);
+    return undefined;
+  }
   if (!response.ok) throw new Error(`Stroke data request failed with HTTP ${response.status}.`);
 
   const value = response._data;

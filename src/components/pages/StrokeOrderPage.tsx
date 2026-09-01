@@ -65,7 +65,9 @@ export default function StrokeOrderPage({ characters }: StrokeOrderPageProps) {
           actions={
             <ActionPanel>
               <Action.CopyToClipboard title="Copy Character" content={entry.character} />
-              <Action title="Reload Stroke Data" icon={Icon.ArrowClockwise} onAction={revalidate} />
+              {entry.status === "error" && (
+                <Action title="Retry Loading Stroke Data" icon={Icon.ArrowClockwise} onAction={revalidate} />
+              )}
               <Action.OpenInBrowser title="Open Data Source" url={strokeOrderDataSourceUrl} />
             </ActionPanel>
           }
