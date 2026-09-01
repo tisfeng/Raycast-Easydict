@@ -78,6 +78,7 @@ npm install && npm run dev
 - [x] Supports macOS System Translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
 - [x] Supports 48+ languages.
 - [x] 🆕 Supports saving completed results as Favorite Words for offline browsing and management.
+- [x] 🆕 Supports viewing stroke-order diagrams for Chinese characters from live and saved translation results.
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 

@@ -58,6 +58,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持 Linguee 和有道词典查询。
 - [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
 - [x] 🆕 支持将完整查询结果保存为收藏单词，离线浏览和管理。
+- [x] 🆕 支持从实时查询和收藏结果中查看汉字笔顺图。
 - [x] 支持 48+ 种语言。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
