@@ -20,7 +20,7 @@ import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { useFavoriteWords } from "@/hooks";
-import { favoriteKeyOf, type FavoriteWord } from "@/types/favorite";
+import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
 import { copyAllText } from "@/utils/copyFavorites";
 import { logError } from "@/utils/logger";
@@ -117,12 +117,13 @@ function FavoriteItem({
 }) {
   const fromLanguageItem = getLanguageItem(favorite.fromLanguage);
   const toLanguageItem = getLanguageItem(favorite.toLanguage);
-  const translation = favorite.translations?.[0];
+  const translations = resolveFavoriteTranslations(favorite);
+  const translation = translations?.[0];
   const strokeOrderCharacters = getStrokeOrderCharacters({
     fromLanguage: favorite.fromLanguage,
     toLanguage: favorite.toLanguage,
     sourceText: favorite.word,
-    translatedText: favorite.translations?.join("\n") ?? "",
+    translatedText: translations?.join("\n") ?? "",
   });
   // Respect the same "flags are not languages" preference as TargetLanguageSection.
   const langIcon = (emoji: string) => (myPreferences.flagsAreNotLanguages ? Icon.Globe : { source: emoji });
