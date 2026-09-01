@@ -19,6 +19,10 @@
 - For each provider, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
 - Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
 
+#### Chinese Stroke Order
+
+- Use **Show Stroke Order** from live or saved translation results to view stroke-order diagrams for Chinese characters.
+
 ## [v3.1.0] - 2026-08-12
 
 ### ✨ New Features

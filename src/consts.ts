@@ -43,6 +43,10 @@ export const RELEASE_MARKDOWN = `
 - For each provider, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
 - Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
 
+#### Chinese Stroke Order
+
+- Use **Show Stroke Order** from live or saved translation results to view stroke-order diagrams for Chinese characters.
+
 ---
 
 <details>
@@ -79,6 +83,10 @@ export const RELEASE_MARKDOWN = `
 
 - 每个配置都可在 Word & Term Results 中选择 Plain Translation 或 AI-Generated Dictionary Entry。
 - 词典模式仅用于单词和术语，其他输入仍使用普通翻译；部分模型的结构化输出兼容性有限，生成词典结果可能耗时更长。
+
+#### 汉字笔顺
+
+- 可在实时查询或已收藏的翻译结果中选择 **Show Stroke Order**，查看汉字笔顺图。
 
 ---
 
