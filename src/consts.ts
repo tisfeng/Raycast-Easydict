@@ -46,6 +46,7 @@ export const RELEASE_MARKDOWN = `
 #### Chinese Stroke Order
 
 - Use **Show Stroke Order** from live or saved translation results to view stroke-order diagrams for Chinese characters.
+  - Thanks to [@MagEk1511](https://github.com/MagEk1511)
 
 ---
 
@@ -55,7 +56,7 @@ export const RELEASE_MARKDOWN = `
 ### ✨ New Features
 
 - Added Favorite Words to save translation results and browse/manage them offline.
-  - Thanks for @[TTsWorld](https://github.com/TTsWorld)
+  - Thanks to [@TTsWorld](https://github.com/TTsWorld)
 
 ### 🔧 Maintenance
 
@@ -87,6 +88,7 @@ export const RELEASE_MARKDOWN = `
 #### 汉字笔顺
 
 - 可在实时查询或已收藏的翻译结果中选择 **Show Stroke Order**，查看汉字笔顺图。
+  - 感谢 [@MagEk1511](https://github.com/MagEk1511)
 
 ---
 
@@ -96,7 +98,7 @@ export const RELEASE_MARKDOWN = `
 ### ✨ 新特性
 
 - 新增收藏单词，支持保存翻译结果并离线浏览和管理。
-  - 感谢 @[TTsWorld](https://github.com/TTsWorld)
+  - 感谢 [@TTsWorld](https://github.com/TTsWorld)
 
 ### 🔧 维护
 
