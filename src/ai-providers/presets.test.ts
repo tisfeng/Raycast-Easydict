@@ -16,6 +16,15 @@ describe("OpenAI-compatible presets", () => {
       model: "deepseek-v4-flash",
       icon: { kind: "favicon" },
       tokenLimitMode: "max-tokens",
+      jsonOutputMode: "prompt",
     });
+  });
+
+  it("enables native JSON only for presets with documented support", () => {
+    expect(
+      Object.entries(presets)
+        .filter(([, preset]) => preset.jsonOutputMode === "json-object")
+        .map(([name]) => name),
+    ).toEqual(["openai", "deepseek", "siliconflow", "zhipu", "kimi", "mimo"]);
   });
 });

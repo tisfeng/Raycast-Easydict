@@ -18,7 +18,7 @@ import { DictionaryType } from "@/types/api";
 import type { BooleanPreferenceKey } from "@/types/preferences";
 import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
-import { createAIDictionaryProvider } from "./ai";
+import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./ai";
 import type { BaseDictionaryProvider } from "./base";
 import { LingueeDictionaryProvider } from "./linguee";
 import { YoudaoDictionaryProvider } from "./youdao";
@@ -86,6 +86,7 @@ export const dictionaryProviderServices = assignGlobalServiceOrder(
 export function resolveDictionaryServices(
   profiles: AIProviderProfile[],
   providerOrder?: string[],
+  onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
 ): DictionaryServiceConfig[] {
   const dynamicServices = profiles
     .filter((profile) => profile.wordResultMode === "dictionary")
@@ -97,7 +98,7 @@ export function resolveDictionaryServices(
       type: DictionaryType.AI,
       icon: resolveAIProviderIcon(profile),
       enabled: (queryWordInfo) => getAIProviderQueryMode(profile, queryWordInfo) === "dictionary",
-      createProvider: () => createAIDictionaryProvider(profile),
+      createProvider: () => createAIDictionaryProvider(profile, onNativeJSONUnsupported),
       canTriggerAutomaticAudio: false,
     }));
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];

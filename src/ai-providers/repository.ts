@@ -16,6 +16,7 @@ import {
 
 export const AI_PROVIDER_STORAGE_KEY = "ai-provider-profiles";
 const LOG_LABEL = "AI Providers";
+let profileUpdateQueue = Promise.resolve();
 
 export type AIProviderLoadResult =
   | { kind: "missing"; state: StoredAIProviderStateV1 }
@@ -66,6 +67,28 @@ export async function saveAIProviderState(state: StoredAIProviderStateV1): Promi
     throw new Error("Refusing to save an invalid AI provider configuration.");
   }
   await LocalStorage.setItem(AI_PROVIDER_STORAGE_KEY, JSON.stringify(state));
+}
+
+export function fallbackAIProviderToPromptJSON(profileId: string): Promise<boolean> {
+  const update = profileUpdateQueue.then(async () => {
+    const result = await loadAIProviderState();
+    if (result.kind !== "ready") return false;
+
+    const profileIndex = result.state.profiles.findIndex((profile) => profile.id === profileId);
+    const profile = result.state.profiles[profileIndex];
+    if (!profile || profile.adapter !== "openai-compatible") return false;
+    if (profile.jsonOutputMode === "prompt") return true;
+
+    const profiles = [...result.state.profiles];
+    profiles[profileIndex] = { ...profile, jsonOutputMode: "prompt" };
+    await saveAIProviderState({ ...result.state, profiles });
+    return true;
+  });
+  profileUpdateQueue = update.then(
+    () => undefined,
+    () => undefined,
+  );
+  return update;
 }
 
 export function isStoredAIProviderStateV1(value: unknown): value is StoredAIProviderStateV1 {

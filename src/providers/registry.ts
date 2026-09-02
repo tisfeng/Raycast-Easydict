@@ -11,6 +11,7 @@ import {
 import { TranslationType } from "@/types/api";
 
 import { dictionaryProviderServices, type DictionaryServiceConfig, resolveDictionaryServices } from "./dictionary";
+import type { NativeJSONUnsupportedHandler } from "./dictionary/ai";
 import { resolveTranslationServices, type TranslationServiceConfig, translationServices } from "./translation";
 
 const builtinServices = [...dictionaryProviderServices, ...translationServices];
@@ -56,11 +57,11 @@ export function getCombinedAvailableProviderKeys(profiles: AIProviderProfile[]):
 export function resolveProviderServices(
   profiles: AIProviderProfile[],
   savedOrder?: string[],
-  servicesOrder: string[] = getLegacyServicesOrder(),
+  onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
 ): ProviderServiceSnapshot {
-  const providerOrder = getCombinedProviderOrder(profiles, savedOrder, servicesOrder);
+  const providerOrder = getCombinedProviderOrder(profiles, savedOrder);
   return {
     translationServices: resolveTranslationServices(profiles, providerOrder),
-    dictionaryServices: resolveDictionaryServices(profiles, providerOrder),
+    dictionaryServices: resolveDictionaryServices(profiles, providerOrder, onNativeJSONUnsupported),
   };
 }

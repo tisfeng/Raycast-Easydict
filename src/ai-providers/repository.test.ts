@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AI_PROVIDER_STORAGE_KEY, loadAIProviderState, saveAIProviderState } from "./repository";
+import {
+  AI_PROVIDER_STORAGE_KEY,
+  fallbackAIProviderToPromptJSON,
+  loadAIProviderState,
+  saveAIProviderState,
+} from "./repository";
 import type { StoredAIProviderStateV1 } from "./types";
 
 const storage = vi.hoisted(() => new Map<string, string>());
@@ -52,6 +57,37 @@ describe("AI provider repository", () => {
 
     await saveAIProviderState(state);
     expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
+  });
+
+  it("updates only the requested provider JSON output mode", async () => {
+    const state: StoredAIProviderStateV1 = {
+      version: 1,
+      profiles: [
+        {
+          id: "profile-1",
+          adapter: "openai-compatible",
+          name: "Example",
+          enabled: true,
+          order: 0,
+          icon: { kind: "initials" },
+          wordResultMode: "dictionary",
+          endpoint: "https://example.com/v1",
+          model: "example-model",
+          apiKey: "test-placeholder",
+          tokenLimitMode: "max-tokens",
+          jsonOutputMode: "json-object",
+        },
+      ],
+    };
+    await saveAIProviderState(state);
+
+    expect(await fallbackAIProviderToPromptJSON("profile-1")).toBe(true);
+    expect(await fallbackAIProviderToPromptJSON("profile-1")).toBe(true);
+    expect(await fallbackAIProviderToPromptJSON("missing")).toBe(false);
+    expect(await loadAIProviderState()).toEqual({
+      kind: "ready",
+      state: { ...state, profiles: [{ ...state.profiles[0], jsonOutputMode: "prompt" }] },
+    });
   });
 
   it("rejects duplicate or empty saved provider keys", async () => {

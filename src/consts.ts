@@ -41,7 +41,7 @@ export const RELEASE_MARKDOWN = `
 #### AI-Generated Dictionary Entries
 
 - For each provider, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
-- Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
+- Dictionary mode applies to words and terms; other input remains plain translation. New or connection-related provider changes offer Test & Save by default, with Save Without Testing still available. JSON output defaults follow provider presets. Some models may fail to return valid structured dictionary output and require a retry, and dictionary generation may take longer.
 
 #### Chinese Stroke Order
 
@@ -83,7 +83,7 @@ export const RELEASE_MARKDOWN = `
 #### AI 词典结果
 
 - 每个配置都可在 Word & Term Results 中选择 Plain Translation 或 AI-Generated Dictionary Entry。
-- 词典模式仅用于单词和术语，其他输入仍使用普通翻译；部分模型的结构化输出兼容性有限，生成词典结果可能耗时更长。
+- 词典模式仅用于单词和术语，其他输入仍使用普通翻译。新建 Provider 或修改连接相关配置后会默认提供 Test & Save，同时仍可选择 Save Without Testing。JSON 输出模式会根据预设选择默认值。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典结果也可能耗时更长。
 
 #### 汉字笔顺
 

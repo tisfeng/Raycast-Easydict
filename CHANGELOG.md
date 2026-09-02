@@ -17,7 +17,7 @@
 #### AI-Generated Dictionary Entries
 
 - For each provider, choose Plain Translation or AI-Generated Dictionary Entry in Word & Term Results.
-- Dictionary mode applies to words and terms; other input remains plain translation. Some models may have structured-output compatibility issues, and dictionary generation may take longer.
+- Dictionary mode applies to words and terms; other input remains plain translation. New or connection-related provider changes offer Test & Save by default, with Save Without Testing still available. JSON output defaults follow provider presets. Explicitly unsupported native JSON switches the provider to prompt-based output and shows a notice; malformed output is retried once without changing the setting. Dictionary generation may take longer.
 
 #### Chinese Stroke Order
 

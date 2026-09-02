@@ -113,6 +113,7 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
         target={
           <AIProviderForm
             profile={profile}
+            isNewProvider
             showPresetSelector={showPresetSelector}
             onSave={(saved) => saveProfiles([...profiles, saved])}
           />
@@ -387,7 +388,6 @@ function createOpenAIProfile(presetName: OpenAICompatiblePresetName, order: numb
     order,
     apiKey: "",
     wordResultMode: "translation",
-    jsonOutputMode: "prompt",
     ...preset,
   };
 }
