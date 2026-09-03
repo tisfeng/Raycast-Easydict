@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
-import type { AIProviderProfile } from "@/ai-providers/types";
+import type { AIProviderProfile, StoredAIProviderStateV1 } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
 import {
@@ -87,13 +87,14 @@ export function resolveDictionaryServices(
   profiles: AIProviderProfile[],
   providerOrder?: string[],
   onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
+  assignments?: StoredAIProviderStateV1["legacyProviderAssignments"],
 ): DictionaryServiceConfig[] {
   const dynamicServices = profiles
     .filter((profile) => profile.wordResultMode === "dictionary")
     .map((profile): DictionaryServiceConfig => ({
       id: `profile:${profile.id}:dictionary`,
       label: profile.name,
-      providerKey: getAIProviderKey(profile),
+      providerKey: getAIProviderKey(profile, assignments),
       order: profile.order,
       type: DictionaryType.AI,
       icon: resolveAIProviderIcon(profile),
@@ -109,6 +110,7 @@ export function resolveDictionaryServices(
       undefined,
       servicesOrder,
       getBuiltinProviderCandidates(staticDictionaryServicesWithOrder),
+      assignments,
     );
   return assignGlobalServiceOrder([...dictionaryProviderServices, ...dynamicServices], resolvedProviderOrder);
 }

@@ -67,12 +67,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     [aiProviderProfiles.revalidate],
   );
   const resolvedServiceSnapshot = useMemo(() => {
-    if (aiProviderProfiles.profiles) {
-      return resolveProviderServices(
-        aiProviderProfiles.profiles,
-        aiProviderProfiles.storedState?.providerOrder,
-        handleNativeJSONUnsupported,
-      );
+    if (aiProviderProfiles.storedState) {
+      return resolveProviderServices(aiProviderProfiles.storedState, handleNativeJSONUnsupported);
     }
     return {
       translationServices:

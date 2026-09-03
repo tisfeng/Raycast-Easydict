@@ -11,6 +11,7 @@ import { getAIProviderTestFingerprint } from "@/ai-providers/testFingerprint";
 import type {
   AIProviderProfile,
   JSONOutputMode,
+  LegacyAIProviderName,
   ProviderIconConfig,
   TokenLimitMode,
   WordResultMode,
@@ -23,16 +24,25 @@ import { logTrace, logWarn } from "@/utils/logger";
 type IconSelection =
   Exclude<ProviderIconConfig["kind"], "preset"> | Extract<ProviderIconConfig, { kind: "preset" }>["name"];
 
+export interface LegacyReplacementOption {
+  value: LegacyAIProviderName;
+  title: string;
+}
+
 export function AIProviderForm({
   profile,
   onSave,
   isNewProvider = false,
   showPresetSelector = false,
+  legacyReplacement,
+  legacyReplacementOptions = [],
 }: {
   profile: AIProviderProfile;
-  onSave: (profile: AIProviderProfile) => Promise<void>;
+  onSave: (profile: AIProviderProfile, legacyReplacement?: LegacyAIProviderName) => Promise<void>;
   isNewProvider?: boolean;
   showPresetSelector?: boolean;
+  legacyReplacement?: LegacyAIProviderName;
+  legacyReplacementOptions?: LegacyReplacementOption[];
 }) {
   const { pop } = useNavigation();
   const [name, setName] = useState(profile.name);
@@ -52,6 +62,9 @@ export function AIProviderForm({
   );
   const [iconURL, setIconURL] = useState(profile.icon.kind === "remote" ? profile.icon.url : "");
   const [presetName, setPresetName] = useState<OpenAICompatiblePresetName>("custom");
+  const [selectedLegacyReplacement, setSelectedLegacyReplacement] = useState<LegacyAIProviderName | "">(
+    legacyReplacement ?? "",
+  );
   const [modelSearchText, setModelSearchText] = useState("");
   const modelCatalog = useMemo(
     () =>
@@ -113,7 +126,7 @@ export function AIProviderForm({
       return;
     }
 
-    await onSave(saved);
+    await onSave(saved, selectedLegacyReplacement || undefined);
     pop();
   }
 
@@ -311,6 +324,19 @@ export function AIProviderForm({
         </Form.Dropdown>
       )}
       <Form.TextField id="name" title="Name" value={name} onChange={setName} />
+      {(legacyReplacement !== undefined || legacyReplacementOptions.length > 0) && (
+        <Form.Dropdown
+          id="legacyReplacement"
+          title="Replace Legacy Provider"
+          value={selectedLegacyReplacement}
+          onChange={(value) => setSelectedLegacyReplacement(value as LegacyAIProviderName | "")}
+        >
+          <Form.Dropdown.Item title="None" value="" />
+          {legacyReplacementOptions.map((option) => (
+            <Form.Dropdown.Item key={option.value} title={option.title} value={option.value} />
+          ))}
+        </Form.Dropdown>
+      )}
       {profile.adapter === "openai-compatible" && (
         <>
           <Form.TextField id="endpoint" title="API Base URL" value={endpoint} onChange={setEndpoint} />

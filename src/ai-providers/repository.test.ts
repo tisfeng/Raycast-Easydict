@@ -37,6 +37,7 @@ describe("AI provider repository", () => {
     const state: StoredAIProviderStateV1 = {
       version: 1,
       providerOrder: ["builtin:dictionary:Youdao Dictionary", "ai:profile-1"],
+      legacyProviderAssignments: { gemini: { kind: "retired" } },
       profiles: [
         {
           id: "profile-1",
@@ -115,6 +116,30 @@ describe("AI provider repository", () => {
     await expect(saveAIProviderState({ version: 1, profiles: [profile], providerOrder: [""] })).rejects.toThrow(
       "invalid",
     );
+  });
+
+  it("rejects assigning one profile to multiple legacy providers", async () => {
+    await expect(
+      saveAIProviderState({
+        version: 1,
+        profiles: [],
+        legacyProviderAssignments: {
+          openai: { kind: "profile", profileId: "profile-1" },
+          gemini: { kind: "profile", profileId: "profile-1" },
+        },
+      }),
+    ).rejects.toThrow("invalid");
+  });
+
+  it("accepts a missing assigned profile so runtime can keep the legacy provider retired", async () => {
+    const state: StoredAIProviderStateV1 = {
+      version: 1,
+      profiles: [],
+      legacyProviderAssignments: { openai: { kind: "profile", profileId: "missing-profile" } },
+    };
+
+    await saveAIProviderState(state);
+    expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
   });
 
   it("preserves malformed and unsupported raw values for recovery", async () => {
