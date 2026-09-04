@@ -4,7 +4,11 @@ import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { type AIModelOption, resolveAIProviderModelCatalog } from "@/ai-providers/modelCatalog";
-import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/ai-providers/presets";
+import {
+  getOpenAICompatiblePresetSelection,
+  OPENAI_COMPATIBLE_PRESETS,
+  type OpenAICompatiblePresetName,
+} from "@/ai-providers/presets";
 import { getAIProviderProfileValidationError, normalizeAIProviderProfile } from "@/ai-providers/profile";
 import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
 import { getAIProviderTestFingerprint } from "@/ai-providers/testFingerprint";
@@ -84,12 +88,13 @@ export function AIProviderForm({
   );
 
   function selectPreset(nextPresetName: OpenAICompatiblePresetName) {
-    const preset = OPENAI_COMPATIBLE_PRESETS[nextPresetName];
+    const preset = getOpenAICompatiblePresetSelection(nextPresetName);
     setPresetName(nextPresetName);
     setName(preset.name);
     setEndpoint(preset.endpoint);
-    setWebsite("website" in preset ? preset.website : "");
+    setWebsite(preset.website);
     setModel(preset.model);
+    setAPIKey(preset.apiKey);
     setTokenLimitMode(preset.tokenLimitMode);
     setJSONOutputMode(preset.jsonOutputMode);
     setIconSelection(preset.icon.kind === "preset" ? preset.icon.name : preset.icon.kind);

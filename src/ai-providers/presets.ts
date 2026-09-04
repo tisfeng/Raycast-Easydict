@@ -123,3 +123,12 @@ export const OPENAI_COMPATIBLE_PRESETS = {
 } as const satisfies Record<string, OpenAICompatiblePreset>;
 
 export type OpenAICompatiblePresetName = keyof typeof OPENAI_COMPATIBLE_PRESETS;
+
+export function getOpenAICompatiblePresetSelection(presetName: OpenAICompatiblePresetName) {
+  const preset = OPENAI_COMPATIBLE_PRESETS[presetName];
+  return {
+    ...preset,
+    website: "website" in preset ? preset.website : "",
+    apiKey: "" as const,
+  };
+}

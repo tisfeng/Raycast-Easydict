@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePreset } from "./presets";
+import { getOpenAICompatiblePresetSelection, OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePreset } from "./presets";
 
 const presets = OPENAI_COMPATIBLE_PRESETS as Record<string, OpenAICompatiblePreset>;
 
@@ -26,5 +26,13 @@ describe("OpenAI-compatible presets", () => {
         .filter(([, preset]) => preset.jsonOutputMode === "json-object")
         .map(([name]) => name),
     ).toEqual(["openai", "deepseek", "siliconflow", "zhipu", "kimi", "mimo"]);
+  });
+
+  it("never carries credentials into a newly selected preset", () => {
+    expect(
+      Object.keys(OPENAI_COMPATIBLE_PRESETS).map(
+        (name) => getOpenAICompatiblePresetSelection(name as keyof typeof OPENAI_COMPATIBLE_PRESETS).apiKey,
+      ),
+    ).toEqual(Object.keys(OPENAI_COMPATIBLE_PRESETS).map(() => ""));
   });
 });
