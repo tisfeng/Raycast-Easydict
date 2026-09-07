@@ -62,3 +62,11 @@ export interface StoredAIProviderStateV1 {
   providerOrder?: string[];
   legacyProviderAssignments?: Partial<Record<LegacyAIProviderName, LegacyAIProviderAssignment>>;
 }
+
+export interface StoredAIProviderState {
+  version: 2;
+  profiles: AIProviderProfile[];
+  providerOrder?: string[];
+  /** Completed legacy imports, including providers the user has since deleted. */
+  migratedLegacyProviders: LegacyAIProviderName[];
+}
