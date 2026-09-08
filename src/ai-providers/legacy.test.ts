@@ -130,6 +130,43 @@ describe("one-time legacy AI provider migration", () => {
     expect(migrateLegacyAIProviderState(second, legacy, builtins)).toBe(second);
   });
 
+  it.each([
+    { servicesOrder: [], expected: ["OpenAI", "Gemini", "Google", "Bing"] },
+    { servicesOrder: ["google", "gemini", "openai"], expected: ["Google", "Gemini", "OpenAI", "Bing"] },
+    { servicesOrder: ["gemini", "google", "openai"], expected: ["Gemini", "Google", "OpenAI", "Bing"] },
+    { servicesOrder: ["google", "bing", "openai", "gemini"], expected: ["Google", "Bing", "OpenAI", "Gemini"] },
+  ])("restores delayed Gemini's position for service order $servicesOrder", ({ servicesOrder, expected }) => {
+    const first = migrateLegacyAIProviderState(
+      { version: 1, profiles: [] },
+      { ...legacy, gemini: { ...legacy.gemini, apiKey: "" } },
+      builtins,
+      servicesOrder,
+    );
+    const second = migrateLegacyAIProviderState(first, legacy, builtins, servicesOrder);
+    const names = new Map([
+      [googleKey, "Google"],
+      [bingKey, "Bing"],
+      ...second.profiles.map((profile) => [getAIProviderKey(profile), profile.name] as const),
+    ]);
+    expect(second.providerOrder?.map((key) => names.get(key))).toEqual(expected);
+  });
+
+  it("preserves saved relative order when restoring a missing legacy slot", () => {
+    const first = migrateLegacyAIProviderState(
+      { version: 1, profiles: [] },
+      { ...legacy, gemini: { ...legacy.gemini, apiKey: "" } },
+      builtins,
+    );
+    const savedOrder = [bingKey, getAIProviderKey(first.profiles[0]), googleKey];
+    const second = migrateLegacyAIProviderState({ ...first, providerOrder: savedOrder }, legacy, builtins);
+    expect(second.providerOrder).toEqual([
+      bingKey,
+      getAIProviderKey(first.profiles[0]),
+      getAIProviderKey(second.profiles[1]),
+      googleKey,
+    ]);
+  });
+
   it("does not reimport deleted providers even when the old preferences change", () => {
     const migrated = migrateLegacyAIProviderState({ version: 1, profiles: [] }, legacy, builtins);
     const deleted = { ...migrated, profiles: [] };

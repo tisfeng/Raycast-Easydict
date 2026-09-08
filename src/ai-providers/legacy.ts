@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 
 import {
   getAIProviderKey,
-  getAvailableProviderKeys,
   getBuiltinProviderKey,
   getProviderOrder,
   type ProviderOrderCandidate,
@@ -121,23 +120,27 @@ export function migrateLegacyAIProviderState(
 
   if (state.version === 2 && profiles.length === state.profiles.length) return state;
 
-  const previousOrder = getProviderOrder(
-    state.profiles.filter((profile) => !assignedProfileIds.has(profile.id)),
-    state.providerOrder,
-    servicesOrder,
-    [...builtinCandidates, ...legacyCandidates],
-  );
+  const previousProfiles = state.profiles.filter((profile) => !assignedProfileIds.has(profile.id));
+  const fallbackOrder = getProviderOrder(previousProfiles, undefined, servicesOrder, [
+    ...builtinCandidates,
+    ...legacyCandidates,
+  ]);
+  const savedOrder = [...(state.providerOrder ?? fallbackOrder)];
+  // Earlier migrations drop slots without credentials. Restore newly imported slots
+  // before their next surviving fallback neighbor without reordering saved providers.
+  for (const [index, key] of fallbackOrder.entries()) {
+    if (!legacyProfileKeys.has(key) || savedOrder.includes(key)) continue;
+    const nextKey = fallbackOrder.slice(index + 1).find((candidate) => savedOrder.includes(candidate));
+    savedOrder.splice(nextKey === undefined ? savedOrder.length : savedOrder.indexOf(nextKey), 0, key);
+  }
+  const previousOrder = reconcileProviderOrder(savedOrder, fallbackOrder, fallbackOrder);
   const legacyKeys = new Set(legacyCandidates.map((candidate) => candidate.providerKey));
   const migratedOrder = previousOrder.flatMap((key) => {
     if (!legacyKeys.has(key)) return [key];
     const profileKey = legacyProfileKeys.get(key);
     return profileKey ? [profileKey] : [];
   });
-  const providerOrder = reconcileProviderOrder(
-    migratedOrder,
-    getAvailableProviderKeys(profiles, builtinCandidates),
-    getProviderOrder(profiles, undefined, servicesOrder, builtinCandidates),
-  );
+  const providerOrder = getProviderOrder(profiles, migratedOrder, servicesOrder, builtinCandidates);
   return {
     version: 2,
     profiles: syncAIProviderOrders(profiles, providerOrder),
