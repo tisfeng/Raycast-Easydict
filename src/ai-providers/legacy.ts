@@ -81,11 +81,10 @@ export function migrateLegacyAIProviderState(
   builtinCandidates: ProviderOrderCandidate[],
   servicesOrder: string[] = [],
 ): StoredAIProviderState {
-  const assignments = state.version === 1 ? state.legacyProviderAssignments : undefined;
+  const assignments = { ...state.legacyProviderAssignments };
   const migrated = new Set<LegacyAIProviderName>(state.version === 2 ? state.migratedLegacyProviders : []);
   const profiles = [...state.profiles];
   const legacyProfileKeys = new Map<string, string>();
-  const assignedProfileIds = new Set<string>();
   const legacyCandidates = LEGACY_AI_PROVIDER_NAMES.map((provider) => ({
     providerKey: getBuiltinProviderKey(
       "translation",
@@ -96,13 +95,12 @@ export function migrateLegacyAIProviderState(
   }));
 
   for (const [index, provider] of LEGACY_AI_PROVIDER_NAMES.entries()) {
-    const assignment = assignments?.[provider];
+    const assignment = assignments[provider];
     if (assignment) {
       migrated.add(provider);
       if (assignment.kind === "profile") {
         const profile = profiles.find((candidate) => candidate.id === assignment.profileId);
         if (profile) {
-          assignedProfileIds.add(profile.id);
           legacyProfileKeys.set(legacyCandidates[index].providerKey, getAIProviderKey(profile));
         }
       }
@@ -114,18 +112,22 @@ export function migrateLegacyAIProviderState(
       );
       profiles.push(profile);
       legacyProfileKeys.set(legacyCandidates[index].providerKey, getAIProviderKey(profile));
+      assignments[provider] = { kind: "profile", profileId: profile.id };
       migrated.add(provider);
     }
   }
 
   if (state.version === 2 && profiles.length === state.profiles.length) return state;
 
-  const previousProfiles = state.profiles.filter((profile) => !assignedProfileIds.has(profile.id));
+  const legacyKeyByProfileKey = new Map(
+    [...legacyProfileKeys].map(([legacyKey, profileKey]) => [profileKey, legacyKey] as const),
+  );
+  const previousProfiles = state.profiles.filter((profile) => !legacyKeyByProfileKey.has(getAIProviderKey(profile)));
   const fallbackOrder = getProviderOrder(previousProfiles, undefined, servicesOrder, [
     ...builtinCandidates,
     ...legacyCandidates,
   ]);
-  const savedOrder = [...(state.providerOrder ?? fallbackOrder)];
+  const savedOrder = (state.providerOrder ?? fallbackOrder).map((key) => legacyKeyByProfileKey.get(key) ?? key);
   // Earlier migrations drop slots without credentials. Restore newly imported slots
   // before their next surviving fallback neighbor without reordering saved providers.
   for (const [index, key] of fallbackOrder.entries()) {
@@ -141,11 +143,15 @@ export function migrateLegacyAIProviderState(
     return profileKey ? [profileKey] : [];
   });
   const providerOrder = getProviderOrder(profiles, migratedOrder, servicesOrder, builtinCandidates);
+  const migratedLegacyProviders = LEGACY_AI_PROVIDER_NAMES.filter((provider) => migrated.has(provider));
   return {
     version: 2,
     profiles: syncAIProviderOrders(profiles, providerOrder),
     ...(providerOrder.length > 0 ? { providerOrder } : {}),
-    migratedLegacyProviders: LEGACY_AI_PROVIDER_NAMES.filter((provider) => migrated.has(provider)),
+    migratedLegacyProviders,
+    ...(migratedLegacyProviders.length < LEGACY_AI_PROVIDER_NAMES.length && Object.keys(assignments).length > 0
+      ? { legacyProviderAssignments: assignments }
+      : {}),
   };
 }
 

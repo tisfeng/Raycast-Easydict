@@ -1,6 +1,8 @@
 import { LocalStorage } from "@raycast/api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getAIProviderKey } from "@/core/query/providerOrder";
+
 import { loadAIProviderConfiguration } from "./configuration";
 import { AI_PROVIDER_STORAGE_KEY, saveAIProviderState } from "./repository";
 
@@ -39,9 +41,44 @@ vi.mock("@/utils/logger", () => ({ createTimer: () => ({ done: vi.fn(), fail: vi
 beforeEach(() => {
   storage.clear();
   vi.clearAllMocks();
+  legacy.openai.apiKey = "placeholder";
+  legacy.gemini.apiKey = "";
 });
 
 describe("AI provider configuration loading", () => {
+  it.each(["translation", "dictionary"] as const)(
+    "restores delayed OpenAI before reloaded Gemini in %s mode",
+    async (wordResultMode) => {
+      legacy.openai.apiKey = "";
+      legacy.gemini.apiKey = "gemini-placeholder";
+      const first = await loadAIProviderConfiguration();
+      if (first.kind !== "ready") throw new Error("Expected migrated Gemini configuration");
+      const gemini = first.state.profiles[0];
+      await saveAIProviderState({
+        ...first.state,
+        profiles: [{ ...gemini, name: "My Provider", icon: { kind: "initials" }, wordResultMode }],
+      });
+
+      legacy.openai.apiKey = "placeholder";
+      const second = await loadAIProviderConfiguration();
+      if (second.kind !== "ready") throw new Error("Expected migrated OpenAI configuration");
+      expect(second.state.profiles).toHaveLength(2);
+      expect(second.state.profiles[0]).toMatchObject({
+        id: gemini.id,
+        name: "My Provider",
+        icon: { kind: "initials" },
+        wordResultMode,
+      });
+      expect(second.state.providerOrder).toEqual([
+        "builtin:translation:Google Translate",
+        getAIProviderKey(second.state.profiles[1]),
+        getAIProviderKey(gemini),
+      ]);
+      expect(JSON.parse(storage.get(AI_PROVIDER_STORAGE_KEY)!)).toEqual(second.state);
+      expect(await loadAIProviderConfiguration()).toEqual(second);
+    },
+  );
+
   it("persists one migration before exposing profiles and does not import again after deletion", async () => {
     const first = await loadAIProviderConfiguration();
     expect(first.kind).toBe("ready");

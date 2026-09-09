@@ -124,32 +124,148 @@ describe("one-time legacy AI provider migration", () => {
     const first = migrateLegacyAIProviderState(initial, { ...missing, openai: legacy.openai }, builtins);
     expect(first.profiles).toHaveLength(1);
     expect(first.migratedLegacyProviders).toEqual(["openai"]);
+    expect(first.legacyProviderAssignments).toEqual({ openai: { kind: "profile", profileId: first.profiles[0].id } });
     const second = migrateLegacyAIProviderState(first, legacy, builtins);
     expect(second.profiles).toHaveLength(2);
     expect(second.profiles[0]).toEqual(first.profiles[0]);
+    expect(second).not.toHaveProperty("legacyProviderAssignments");
     expect(migrateLegacyAIProviderState(second, legacy, builtins)).toBe(second);
   });
 
   it.each([
-    { servicesOrder: [], expected: ["OpenAI", "Gemini", "Google", "Bing"] },
-    { servicesOrder: ["google", "gemini", "openai"], expected: ["Google", "Gemini", "OpenAI", "Bing"] },
-    { servicesOrder: ["gemini", "google", "openai"], expected: ["Gemini", "Google", "OpenAI", "Bing"] },
-    { servicesOrder: ["google", "bing", "openai", "gemini"], expected: ["Google", "Bing", "OpenAI", "Gemini"] },
-  ])("restores delayed Gemini's position for service order $servicesOrder", ({ servicesOrder, expected }) => {
+    {
+      firstProvider: "openai" as const,
+      expected: ["OpenAI", "Gemini", "Google", "Bing"],
+    },
+    {
+      firstProvider: "gemini" as const,
+      expected: ["OpenAI", "Gemini", "Google", "Bing"],
+    },
+  ])("restores the delayed slot after $firstProvider was imported and edited", ({ firstProvider, expected }) => {
+    const delayedProvider = firstProvider === "openai" ? "gemini" : "openai";
     const first = migrateLegacyAIProviderState(
       { version: 1, profiles: [] },
-      { ...legacy, gemini: { ...legacy.gemini, apiKey: "" } },
+      { ...legacy, [delayedProvider]: { ...legacy[delayedProvider], apiKey: "" } },
       builtins,
-      servicesOrder,
     );
-    const second = migrateLegacyAIProviderState(first, legacy, builtins, servicesOrder);
+    const editedProfile = {
+      ...first.profiles[0],
+      name: "Edited Import",
+      icon: { kind: "initials" as const },
+      wordResultMode: "dictionary" as const,
+      ...(first.profiles[0].adapter === "openai-compatible"
+        ? { endpoint: "https://example.com/v1", model: "edited-model" }
+        : {}),
+    };
+    const second = migrateLegacyAIProviderState({ ...first, profiles: [editedProfile] }, legacy, builtins);
     const names = new Map([
       [googleKey, "Google"],
       [bingKey, "Bing"],
-      ...second.profiles.map((profile) => [getAIProviderKey(profile), profile.name] as const),
+      ...second.profiles.map(
+        (profile) =>
+          [
+            getAIProviderKey(profile),
+            profile.id === editedProfile.id ? (firstProvider === "openai" ? "OpenAI" : "Gemini") : profile.name,
+          ] as const,
+      ),
     ]);
     expect(second.providerOrder?.map((key) => names.get(key))).toEqual(expected);
+    expect(second.profiles.find((profile) => profile.id === editedProfile.id)).toMatchObject({
+      id: editedProfile.id,
+      name: "Edited Import",
+      icon: { kind: "initials" },
+      wordResultMode: "dictionary",
+      endpoint: "https://example.com/v1",
+      model: "edited-model",
+    });
   });
+
+  it("uses the temporary source mapping with a custom saved order", () => {
+    const first = migrateLegacyAIProviderState(
+      { version: 1, profiles: [] },
+      { ...legacy, openai: { ...legacy.openai, apiKey: "" } },
+      builtins,
+      ["google", "openai", "gemini", "bing"],
+    );
+    const geminiProfileKey = getAIProviderKey(first.profiles[0]);
+    const second = migrateLegacyAIProviderState(
+      { ...first, providerOrder: [bingKey, geminiProfileKey, googleKey] },
+      legacy,
+      builtins,
+      ["google", "openai", "gemini", "bing"],
+    );
+    expect(second.providerOrder).toEqual([bingKey, getAIProviderKey(second.profiles[1]), geminiProfileKey, googleKey]);
+  });
+
+  it("does not recreate a mapped import deleted before the other source becomes available", () => {
+    const first = migrateLegacyAIProviderState(
+      { version: 1, profiles: [] },
+      { ...legacy, openai: { ...legacy.openai, apiKey: "" } },
+      builtins,
+    );
+    const second = migrateLegacyAIProviderState({ ...first, profiles: [] }, legacy, builtins);
+    expect(second.profiles).toHaveLength(1);
+    expect(second.profiles[0].name).toBe("OpenAI");
+    expect(second.migratedLegacyProviders).toEqual(["openai", "gemini"]);
+    expect(second).not.toHaveProperty("legacyProviderAssignments");
+  });
+
+  it.each([
+    { delayedProvider: "gemini" as const, servicesOrder: [], expected: ["OpenAI", "Gemini", "Google", "Bing"] },
+    {
+      delayedProvider: "gemini" as const,
+      servicesOrder: ["openai", "gemini"],
+      expected: ["OpenAI", "Gemini", "Google", "Bing"],
+    },
+    {
+      delayedProvider: "gemini" as const,
+      servicesOrder: ["gemini", "openai"],
+      expected: ["Gemini", "OpenAI", "Google", "Bing"],
+    },
+    {
+      delayedProvider: "gemini" as const,
+      servicesOrder: ["google", "gemini", "openai"],
+      expected: ["Google", "Gemini", "OpenAI", "Bing"],
+    },
+    {
+      delayedProvider: "gemini" as const,
+      servicesOrder: ["gemini", "google", "openai"],
+      expected: ["Gemini", "Google", "OpenAI", "Bing"],
+    },
+    {
+      delayedProvider: "gemini" as const,
+      servicesOrder: ["google", "bing", "openai", "gemini"],
+      expected: ["Google", "Bing", "OpenAI", "Gemini"],
+    },
+    { delayedProvider: "openai" as const, servicesOrder: [], expected: ["OpenAI", "Gemini", "Google", "Bing"] },
+    {
+      delayedProvider: "openai" as const,
+      servicesOrder: ["openai", "gemini"],
+      expected: ["OpenAI", "Gemini", "Google", "Bing"],
+    },
+    {
+      delayedProvider: "openai" as const,
+      servicesOrder: ["gemini", "openai"],
+      expected: ["Gemini", "OpenAI", "Google", "Bing"],
+    },
+  ])(
+    "restores delayed $delayedProvider's position for service order $servicesOrder",
+    ({ delayedProvider, servicesOrder, expected }) => {
+      const first = migrateLegacyAIProviderState(
+        { version: 1, profiles: [] },
+        { ...legacy, [delayedProvider]: { ...legacy[delayedProvider], apiKey: "" } },
+        builtins,
+        servicesOrder,
+      );
+      const second = migrateLegacyAIProviderState(first, legacy, builtins, servicesOrder);
+      const names = new Map([
+        [googleKey, "Google"],
+        [bingKey, "Bing"],
+        ...second.profiles.map((profile) => [getAIProviderKey(profile), profile.name] as const),
+      ]);
+      expect(second.providerOrder?.map((key) => names.get(key))).toEqual(expected);
+    },
+  );
 
   it("preserves saved relative order when restoring a missing legacy slot", () => {
     const first = migrateLegacyAIProviderState(

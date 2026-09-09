@@ -96,11 +96,16 @@ export function fallbackAIProviderToPromptJSON(profileId: string): Promise<boole
 export function isStoredAIProviderState(value: unknown): value is StoredAIProviderState {
   if (!isRecord(value) || value.version !== 2 || !isProviderStateBody(value)) return false;
   const migrated = value.migratedLegacyProviders;
-  return (
-    Array.isArray(migrated) &&
-    migrated.every((provider) => provider === "openai" || provider === "gemini") &&
-    new Set(migrated).size === migrated.length
-  );
+  if (
+    !Array.isArray(migrated) ||
+    !migrated.every((provider) => provider === "openai" || provider === "gemini") ||
+    new Set(migrated).size !== migrated.length
+  ) {
+    return false;
+  }
+  if (value.legacyProviderAssignments === undefined) return true;
+  if (!isLegacyProviderAssignments(value.legacyProviderAssignments)) return false;
+  return Object.keys(value.legacyProviderAssignments).every((provider) => migrated.includes(provider));
 }
 
 export function isStoredAIProviderStateV1(value: unknown): value is StoredAIProviderStateV1 {
@@ -118,7 +123,9 @@ function isProviderStateBody(value: Record<string, unknown>): boolean {
   return new Set(profileIds).size === profileIds.length;
 }
 
-function isLegacyProviderAssignments(value: unknown): boolean {
+function isLegacyProviderAssignments(
+  value: unknown,
+): value is NonNullable<StoredAIProviderState["legacyProviderAssignments"]> {
   if (!isRecord(value)) return false;
   const allowedProviders = new Set(["openai", "gemini"]);
   const assignedProfileIds = new Set<string>();

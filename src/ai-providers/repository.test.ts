@@ -146,6 +146,41 @@ describe("AI provider repository", () => {
     ).toBe(false);
   });
 
+  it("validates temporary v2 legacy assignments", async () => {
+    const valid = JSON.stringify({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: ["openai"],
+      legacyProviderAssignments: { openai: { kind: "profile", profileId: "deleted" } },
+    });
+    storage.set(AI_PROVIDER_STORAGE_KEY, valid);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "ready" });
+
+    for (const legacyProviderAssignments of [
+      { unknown: { kind: "retired" } },
+      { openai: { kind: "profile", profileId: "" } },
+      { openai: { kind: "profile", profileId: "same" }, gemini: { kind: "profile", profileId: "same" } },
+    ]) {
+      const raw = JSON.stringify({
+        version: 2,
+        profiles: [],
+        migratedLegacyProviders: ["openai"],
+        legacyProviderAssignments,
+      });
+      storage.set(AI_PROVIDER_STORAGE_KEY, raw);
+      expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: raw });
+    }
+
+    const pendingSourceMapping = JSON.stringify({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: [],
+      legacyProviderAssignments: { openai: { kind: "retired" } },
+    });
+    storage.set(AI_PROVIDER_STORAGE_KEY, pendingSourceMapping);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: pendingSourceMapping });
+  });
+
   it("rejects malformed migration records without overwriting stored data", async () => {
     const raw = JSON.stringify({ version: 2, profiles: [], migratedLegacyProviders: ["openai", "unknown"] });
     storage.set(AI_PROVIDER_STORAGE_KEY, raw);
