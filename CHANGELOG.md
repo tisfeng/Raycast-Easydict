@@ -1,6 +1,6 @@
 # `Easydict` Changelog
 
-## [v3.2.0] - 2016-09-09
+## [v3.2.0] - 2026-09-09
 
 ### ⚠️ Behavioral Changes
 
