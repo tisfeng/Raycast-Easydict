@@ -3,24 +3,25 @@
 import { usePromise } from "@raycast/utils";
 import { useCallback } from "react";
 
-import { type AIProviderLoadResult, loadAIProviderState, saveAIProviderState } from "@/ai-providers/repository";
-import type { StoredAIProviderStateV1 } from "@/ai-providers/types";
+import { type AIProviderConfigurationLoadResult, loadAIProviderConfiguration } from "@/ai-providers/configuration";
+import { updateAIProviderState } from "@/ai-providers/repository";
+import type { StoredAIProviderState } from "@/ai-providers/types";
 
 export function useAIProviderProfiles() {
-  const { data, isLoading, mutate, revalidate } = usePromise(loadAIProviderState, []);
-  const state: { kind: "loading" } | AIProviderLoadResult = isLoading
+  const { data, isLoading, mutate, revalidate } = usePromise(loadAIProviderConfiguration, []);
+  const state: { kind: "loading" } | AIProviderConfigurationLoadResult = isLoading
     ? { kind: "loading" }
     : (data ?? { kind: "error", error: new Error("Failed to load AI provider profiles.") });
 
   const update = useCallback(
-    async (nextState: StoredAIProviderStateV1) => {
-      const nextResult: AIProviderLoadResult = { kind: "ready", state: nextState };
-      await mutate(
-        saveAIProviderState(nextState).then(() => nextResult),
-        {
-          optimisticUpdate: () => nextResult,
-        },
-      );
+    async (createNextState: (state: StoredAIProviderState) => StoredAIProviderState) => {
+      const nextState = await updateAIProviderState(createNextState);
+      const nextResult: AIProviderConfigurationLoadResult = { kind: "ready", state: nextState };
+      await mutate(Promise.resolve(nextResult), {
+        optimisticUpdate: () => nextResult,
+        shouldRevalidateAfter: false,
+      });
+      return nextState;
     },
     [mutate],
   );

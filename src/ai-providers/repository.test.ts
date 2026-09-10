@@ -1,12 +1,15 @@
+import { LocalStorage } from "@raycast/api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   AI_PROVIDER_STORAGE_KEY,
   fallbackAIProviderToPromptJSON,
+  isStoredAIProviderStateV1,
   loadAIProviderState,
   saveAIProviderState,
+  updateAIProviderState,
 } from "./repository";
-import type { StoredAIProviderStateV1 } from "./types";
+import type { StoredAIProviderState } from "./types";
 
 const storage = vi.hoisted(() => new Map<string, string>());
 
@@ -30,14 +33,15 @@ beforeEach(() => {
 describe("AI provider repository", () => {
   it("distinguishes missing storage from a ready empty state", async () => {
     const result = await loadAIProviderState();
-    expect(result).toEqual({ kind: "missing", state: { version: 1, profiles: [] } });
+    expect(result).toEqual({ kind: "missing", state: { version: 2, migratedLegacyProviders: [], profiles: [] } });
   });
 
   it("round-trips a valid versioned state", async () => {
-    const state: StoredAIProviderStateV1 = {
-      version: 1,
+    const state: StoredAIProviderState = {
+      version: 2,
+      migratedLegacyProviders: [],
       providerOrder: ["builtin:dictionary:Youdao Dictionary", "ai:profile-1"],
-      legacyProviderAssignments: { gemini: { kind: "retired" } },
+
       profiles: [
         {
           id: "profile-1",
@@ -61,8 +65,9 @@ describe("AI provider repository", () => {
   });
 
   it("updates only the requested provider JSON output mode", async () => {
-    const state: StoredAIProviderStateV1 = {
-      version: 1,
+    const state: StoredAIProviderState = {
+      version: 2,
+      migratedLegacyProviders: [],
       profiles: [
         {
           id: "profile-1",
@@ -91,6 +96,61 @@ describe("AI provider repository", () => {
     });
   });
 
+  it("preserves a concurrent provider update when JSON fallback waits for the same state queue", async () => {
+    const profile = {
+      id: "profile-1",
+      adapter: "openai-compatible" as const,
+      name: "Example",
+      enabled: true,
+      order: 0,
+      icon: { kind: "initials" as const },
+      wordResultMode: "dictionary" as const,
+      endpoint: "https://example.com/v1",
+      model: "example-model",
+      apiKey: "test-placeholder",
+      tokenLimitMode: "max-tokens" as const,
+      jsonOutputMode: "json-object" as const,
+    };
+    storage.set(
+      AI_PROVIDER_STORAGE_KEY,
+      JSON.stringify({ version: 2, migratedLegacyProviders: [], profiles: [profile] }),
+    );
+
+    let releaseSave: () => void = () => undefined;
+    const saveStarted = new Promise<void>((resolveStarted) => {
+      vi.mocked(LocalStorage.setItem).mockImplementationOnce(async (key, value) => {
+        resolveStarted();
+        await new Promise<void>((resolveSave) => {
+          releaseSave = resolveSave;
+        });
+        if (typeof value !== "string") throw new Error("Expected serialized provider state.");
+        storage.set(key, value);
+      });
+    });
+
+    const addedProfile = { ...profile, id: "profile-2", name: "Added", order: 1 };
+    const managementUpdate = updateAIProviderState((state) => ({
+      ...state,
+      profiles: [...state.profiles, addedProfile],
+    }));
+    await saveStarted;
+    const fallbackUpdate = fallbackAIProviderToPromptJSON(profile.id);
+    releaseSave();
+
+    await expect(Promise.all([managementUpdate, fallbackUpdate])).resolves.toEqual([
+      { version: 2, migratedLegacyProviders: [], profiles: [profile, addedProfile] },
+      true,
+    ]);
+    await expect(loadAIProviderState()).resolves.toEqual({
+      kind: "ready",
+      state: {
+        version: 2,
+        migratedLegacyProviders: [],
+        profiles: [{ ...profile, jsonOutputMode: "prompt" }, addedProfile],
+      },
+    });
+  });
+
   it("rejects duplicate or empty saved provider keys", async () => {
     const profile = {
       id: "profile-1",
@@ -108,38 +168,84 @@ describe("AI provider repository", () => {
     };
 
     await expect(
-      saveAIProviderState({ version: 1, profiles: [profile], providerOrder: ["ai:profile-1", "ai:profile-1"] }),
+      saveAIProviderState({
+        version: 2,
+        migratedLegacyProviders: [],
+        profiles: [profile],
+        providerOrder: ["ai:profile-1", "ai:profile-1"],
+      }),
     ).rejects.toThrow("invalid");
-    await expect(saveAIProviderState({ version: 1, profiles: [profile], providerOrder: [] })).rejects.toThrow(
-      "invalid",
-    );
-    await expect(saveAIProviderState({ version: 1, profiles: [profile], providerOrder: [""] })).rejects.toThrow(
-      "invalid",
-    );
+    await expect(
+      saveAIProviderState({ version: 2, migratedLegacyProviders: [], profiles: [profile], providerOrder: [] }),
+    ).rejects.toThrow("invalid");
+    await expect(
+      saveAIProviderState({ version: 2, migratedLegacyProviders: [], profiles: [profile], providerOrder: [""] }),
+    ).rejects.toThrow("invalid");
   });
 
-  it("rejects assigning one profile to multiple legacy providers", async () => {
-    await expect(
-      saveAIProviderState({
+  it("validates old assignments before migration, accepting deleted profiles but rejecting duplicate assignments", () => {
+    expect(
+      isStoredAIProviderStateV1({
+        version: 1,
+        profiles: [],
+        legacyProviderAssignments: { openai: { kind: "profile", profileId: "missing" } },
+      }),
+    ).toBe(true);
+    expect(
+      isStoredAIProviderStateV1({
         version: 1,
         profiles: [],
         legacyProviderAssignments: {
-          openai: { kind: "profile", profileId: "profile-1" },
-          gemini: { kind: "profile", profileId: "profile-1" },
+          openai: { kind: "profile", profileId: "same" },
+          gemini: { kind: "profile", profileId: "same" },
         },
       }),
-    ).rejects.toThrow("invalid");
+    ).toBe(false);
   });
 
-  it("accepts a missing assigned profile so runtime can keep the legacy provider retired", async () => {
-    const state: StoredAIProviderStateV1 = {
-      version: 1,
+  it("validates temporary v2 legacy assignments", async () => {
+    const valid = JSON.stringify({
+      version: 2,
       profiles: [],
-      legacyProviderAssignments: { openai: { kind: "profile", profileId: "missing-profile" } },
-    };
+      migratedLegacyProviders: ["openai"],
+      legacyProviderAssignments: { openai: { kind: "profile", profileId: "deleted" } },
+    });
+    storage.set(AI_PROVIDER_STORAGE_KEY, valid);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "ready" });
 
-    await saveAIProviderState(state);
-    expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
+    for (const legacyProviderAssignments of [
+      { unknown: { kind: "retired" } },
+      { openai: { kind: "profile", profileId: "" } },
+      { openai: { kind: "profile", profileId: "same" }, gemini: { kind: "profile", profileId: "same" } },
+    ]) {
+      const raw = JSON.stringify({
+        version: 2,
+        profiles: [],
+        migratedLegacyProviders: ["openai"],
+        legacyProviderAssignments,
+      });
+      storage.set(AI_PROVIDER_STORAGE_KEY, raw);
+      expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: raw });
+    }
+
+    const pendingSourceMapping = JSON.stringify({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: [],
+      legacyProviderAssignments: { openai: { kind: "retired" } },
+    });
+    storage.set(AI_PROVIDER_STORAGE_KEY, pendingSourceMapping);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: pendingSourceMapping });
+  });
+
+  it("rejects malformed migration records without overwriting stored data", async () => {
+    const raw = JSON.stringify({ version: 2, profiles: [], migratedLegacyProviders: ["openai", "unknown"] });
+    storage.set(AI_PROVIDER_STORAGE_KEY, raw);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: raw });
+    expect(storage.get(AI_PROVIDER_STORAGE_KEY)).toBe(raw);
+    await expect(
+      saveAIProviderState({ version: 2, profiles: [], migratedLegacyProviders: ["openai", "openai"] }),
+    ).rejects.toThrow("invalid");
   });
 
   it("preserves malformed and unsupported raw values for recovery", async () => {
@@ -147,11 +253,14 @@ describe("AI provider repository", () => {
     const invalidJSON = await loadAIProviderState();
     expect(invalidJSON).toMatchObject({ kind: "invalid", rawValue: "{broken" });
 
-    storage.set(AI_PROVIDER_STORAGE_KEY, JSON.stringify({ version: 2, profiles: [] }));
+    storage.set(AI_PROVIDER_STORAGE_KEY, JSON.stringify({ version: 99, profiles: [] }));
     const unsupported = await loadAIProviderState();
-    expect(unsupported).toMatchObject({ kind: "unsupported", version: 2 });
+    expect(unsupported).toMatchObject({ kind: "unsupported", version: 99 });
 
-    storage.set(AI_PROVIDER_STORAGE_KEY, JSON.stringify({ version: 1, profiles: [{ id: "incomplete" }] }));
+    storage.set(
+      AI_PROVIDER_STORAGE_KEY,
+      JSON.stringify({ version: 2, migratedLegacyProviders: [], profiles: [{ id: "incomplete" }] }),
+    );
     const invalidShape = await loadAIProviderState();
     expect(invalidShape).toMatchObject({ kind: "invalid" });
   });
