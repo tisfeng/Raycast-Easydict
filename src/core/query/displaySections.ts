@@ -56,6 +56,7 @@ export function computeDisplaySections(state: QueryState): DisplaySection[] {
           serviceId,
           serviceLabel,
           serviceIcon,
+          fromCache: queryResult.fromCache,
           detailsMarkdown: isTrans ? (idx === 0 ? translationPreview : item.detailsMarkdown) : resultItemBody(item),
         })),
       });

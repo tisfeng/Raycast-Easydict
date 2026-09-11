@@ -604,6 +604,50 @@
       "default": false
     },
     {
+      "title": "Query Cache",
+      "name": "queryCacheMode",
+      "type": "dropdown",
+      "required": true,
+      "default": "off",
+      "description": "Store completed dictionary and machine translation results locally. Cached words expire after up to 7 days; translations expire after 24 hours.",
+      "data": [
+        {
+          "title": "Off",
+          "value": "off"
+        },
+        {
+          "title": "Words Only",
+          "value": "words"
+        },
+        {
+          "title": "All Text",
+          "value": "all"
+        }
+      ]
+    },
+    {
+      "title": "AI Query Cache",
+      "name": "aiQueryCacheMode",
+      "type": "dropdown",
+      "required": true,
+      "default": "off",
+      "description": "Reuse completed AI translations and dictionary entries. Off by default because regenerating the same input can produce a different result.",
+      "data": [
+        {
+          "title": "Off",
+          "value": "off"
+        },
+        {
+          "title": "Words Only",
+          "value": "words"
+        },
+        {
+          "title": "All Text",
+          "value": "all"
+        }
+      ]
+    },
+    {
       "title": "Language Detection",
       "name": "enableBaiduLanguageDetect",
       "type": "checkbox",
