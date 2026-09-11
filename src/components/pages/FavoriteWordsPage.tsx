@@ -108,8 +108,7 @@ function FavoriteItem({
     sourceText: favorite.word,
     translatedText: translations?.join("\n") ?? "",
   });
-  // Respect the same "flags are not languages" preference as TargetLanguageSection.
-  const langIcon = (emoji: string) => (myPreferences.flagsAreNotLanguages ? Icon.Globe : { source: emoji });
+  const languageDirection = `${fromLanguageItem.googleLangCode.toUpperCase()} → ${toLanguageItem.googleLangCode.toUpperCase()}`;
 
   const openInEasydict = async () => {
     try {
@@ -130,11 +129,15 @@ function FavoriteItem({
       id={favoriteKeyOf(favorite)}
       title={favorite.word}
       subtitle={translation}
-      accessories={[
-        { icon: langIcon(fromLanguageItem.emoji) },
-        { icon: Icon.ArrowRight },
-        { icon: langIcon(toLanguageItem.emoji) },
-      ]}
+      accessories={
+        myPreferences.flagsAreNotLanguages
+          ? [{ text: languageDirection }]
+          : [
+              { icon: { source: fromLanguageItem.emoji } },
+              { icon: Icon.ArrowRight },
+              { icon: { source: toLanguageItem.emoji } },
+            ]
+      }
       detail={<List.Item.Detail markdown={savedResultMarkdown(favorite, favorite.displaySections)} />}
       actions={
         <ActionPanel>
