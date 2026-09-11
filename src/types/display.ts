@@ -30,6 +30,7 @@ interface ListDisplayItemBase {
   tooltip?: string;
   detailsMarkdown?: string;
   accessoryItem?: ListAccessoryItem;
+  fromCache?: boolean;
 }
 
 export type ListDisplayItem = ListDisplayItemBase &
