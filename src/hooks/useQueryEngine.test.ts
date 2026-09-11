@@ -13,6 +13,7 @@ import type { TranslationServiceConfig } from "@/providers/translation";
 import { BaseNonStreamingTranslateProvider } from "@/providers/translation/base";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/types/api";
 import type { ListDisplayItem } from "@/types/display";
+import { buildFavoriteWord } from "@/types/favorite";
 import type { DictionaryResult, QueryInput, RequestOptions, TranslationResult } from "@/types/query";
 
 import { useQueryEngine } from "./useQueryEngine";
@@ -39,6 +40,8 @@ const testDoubles = vi.hoisted(() => ({
 vi.mock("@raycast/api", () => ({
   environment: { isDevelopment: false },
 }));
+
+vi.mock("@/utils/appearance", () => ({ isDarkAppearance: () => false }));
 
 vi.mock("@/consts", () => ({
   myPreferences: {
@@ -154,6 +157,18 @@ afterEach(() => {
 });
 
 describe("useQueryEngine query generations", () => {
+  it("saves completed results without an unused standalone detail snapshot", async () => {
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const query = createQueryInput("word");
+    act(() => result.current.queryTextWithTextInfo(query));
+    await resolveDictionaryRequest(0);
+
+    const favorite = buildFavoriteWord(query, result.current.displaySections);
+    expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**word**");
+    expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
+    expect(JSON.stringify(favorite)).not.toContain("data:image/svg+xml");
+  });
+
   it("changes the list epoch only when each query first produces visible results", async () => {
     const { result } = renderHook(() =>
       useQueryEngine(englishLanguageItem, chineseLanguageItem, {

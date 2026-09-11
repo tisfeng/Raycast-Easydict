@@ -10,6 +10,7 @@ import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from 
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
+import { standaloneResultMarkdown } from "@/core/query/resultMarkdown";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { dictionaryServices } from "@/providers/dictionary";
 import { translationServices } from "@/providers/translation";
@@ -18,6 +19,11 @@ import type { QueryType, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 
 import { getQueryTypeIcon } from "./Icons";
+
+// Action.Push mounts this component when navigating, so the full page is not built for every list row.
+function ResultDetails({ item, actions }: { item: ListDisplayItem; actions: Detail.Props["actions"] }) {
+  return <Detail markdown={standaloneResultMarkdown(item)} actions={actions} />;
+}
 
 interface ActionListPanelProps {
   displayItem: ListDisplayItem;
@@ -152,8 +158,8 @@ function PrimaryActions({
         icon={Icon.Eye}
         shortcut={shortcuts.showDetail}
         target={
-          <Detail
-            markdown={displayItem.showMoreDetailsMarkdown ?? displayItem.detailsMarkdown ?? displayItem.copyText}
+          <ResultDetails
+            item={displayItem}
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard

@@ -29,7 +29,6 @@ interface ListDisplayItemBase {
   copyText: string;
   tooltip?: string;
   detailsMarkdown?: string;
-  showMoreDetailsMarkdown?: string;
   accessoryItem?: ListAccessoryItem;
 }
 
