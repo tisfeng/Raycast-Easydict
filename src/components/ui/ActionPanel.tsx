@@ -247,7 +247,7 @@ function AudioActions({
         title="Read Result Text"
         icon={Icon.Play}
         shortcut={shortcuts.readResultText}
-        onAction={() => playTTS(copyText, toLanguage, { truncate: true })}
+        onAction={() => playTTS(copyText, toLanguage)}
       />
     </ActionPanel.Section>
   );

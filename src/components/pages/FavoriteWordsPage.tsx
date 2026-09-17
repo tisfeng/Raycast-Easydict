@@ -164,7 +164,7 @@ function FavoriteItem({
             <Action
               title="Read Translation"
               icon={Icon.Play}
-              onAction={() => translation && playTTS(translation, favorite.toLanguage, { truncate: true })}
+              onAction={() => translation && playTTS(translation, favorite.toLanguage)}
             />
           </ActionPanel.Section>
 
