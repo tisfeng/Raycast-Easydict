@@ -12,14 +12,12 @@ import {
   List,
 } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLangCode, lookupLanguageItem } from "@/core/language/utils";
-import { savedResultMarkdown } from "@/core/results/resultMarkdown";
-import type { QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { logError } from "@/shared/logger";
 
@@ -27,20 +25,7 @@ import { copyAllText } from "./copyFavorites";
 import { FavoriteStorageRecovery } from "./FavoriteStorageRecovery";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "./model";
 import { useFavoriteWords } from "./useFavoriteWords";
-
-/**
- * Reconstruct a minimal QueryWordInfo from saved fields so audio helpers work
- * offline (playQueryWordAudio only needs word / fromLanguage / isWord / speechUrl).
- */
-function audioInfo(favorite: FavoriteWord): QueryWordInfo {
-  return {
-    word: favorite.word,
-    fromLanguage: favorite.fromLanguage,
-    toLanguage: favorite.toLanguage,
-    isWord: favorite.isWord,
-    speechUrl: favorite.displaySections[0]?.items[0]?.queryWordInfo.speechUrl,
-  };
-}
+import { favoriteMarkdown } from "./view";
 
 /**
  * Browse and manage favorite words saved from the dictionary view. Renders the
@@ -48,17 +33,23 @@ function audioInfo(favorite: FavoriteWord): QueryWordInfo {
  * for the live result.
  */
 export default function FavoriteWordsPage() {
-  const { favorites, state, isLoading, revalidate, remove, clear, restore } = useFavoriteWords();
+  const { favorites, state, isLoading, revalidate, remove, clear, restore, restoreLegacy } = useFavoriteWords();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-  // Compute once per render; passed to every item instead of recomputing in the map.
-  const copyAllTextContent = copyAllText(favorites);
+  const copyAllTextContent = useMemo(() => copyAllText(favorites), [favorites]);
 
   useEffect(() => {
-    if (!selectedId && favorites.length) setSelectedId(favoriteKeyOf(favorites[0]));
+    if (!selectedId && favorites.length) setSelectedId(favoriteKeyOf(favorites[0].query));
   }, [favorites, selectedId]);
 
   if (state && state.kind !== "ready") {
-    return <FavoriteStorageRecovery state={state} onReload={revalidate} onRestore={restore} />;
+    return (
+      <FavoriteStorageRecovery
+        state={state}
+        onReload={revalidate}
+        onRestore={restore}
+        onRestoreLegacy={restoreLegacy}
+      />
+    );
   }
 
   const changeFavorites = async (change: () => Promise<void>) => {
@@ -88,10 +79,11 @@ export default function FavoriteWordsPage() {
         <List.Section title={`Favorites · ${favorites.length}`}>
           {favorites.map((favorite) => (
             <FavoriteItem
-              key={favoriteKeyOf(favorite)}
+              key={favoriteKeyOf(favorite.query)}
               favorite={favorite}
+              isSelected={selectedId === favoriteKeyOf(favorite.query)}
               copyAllContent={copyAllTextContent}
-              onRemove={() => changeFavorites(() => remove(favorite))}
+              onRemove={() => changeFavorites(() => remove(favorite.query))}
               onClear={() => changeFavorites(clear)}
             />
           ))}
@@ -103,27 +95,30 @@ export default function FavoriteWordsPage() {
 
 function FavoriteItem({
   favorite,
+  isSelected,
   copyAllContent,
   onRemove,
   onClear,
 }: {
   favorite: FavoriteWord;
+  isSelected: boolean;
   copyAllContent: string;
   onRemove: () => void;
   onClear: () => void;
 }) {
-  const fromLanguageItem = lookupLanguageItem(favorite.fromLanguage);
-  const toLanguageItem = lookupLanguageItem(favorite.toLanguage);
+  const markdown = useMemo(() => (isSelected ? favoriteMarkdown(favorite) : undefined), [favorite, isSelected]);
+  const fromLanguageItem = lookupLanguageItem(favorite.query.fromLanguage);
+  const toLanguageItem = lookupLanguageItem(favorite.query.toLanguage);
   const translations = resolveFavoriteTranslations(favorite);
   const translation = translations?.[0];
   const strokeOrderCharacters = getStrokeOrderCharacters({
-    fromLanguage: favorite.fromLanguage,
-    toLanguage: favorite.toLanguage,
-    sourceText: favorite.word,
+    fromLanguage: favorite.query.fromLanguage,
+    toLanguage: favorite.query.toLanguage,
+    sourceText: favorite.query.word,
     translatedText: translations?.join("\n") ?? "",
   });
-  const fromCode = getLangCode(favorite.fromLanguage, "googleLangCode") ?? favorite.fromLanguage;
-  const toCode = getLangCode(favorite.toLanguage, "googleLangCode") ?? favorite.toLanguage;
+  const fromCode = getLangCode(favorite.query.fromLanguage, "googleLangCode") ?? favorite.query.fromLanguage;
+  const toCode = getLangCode(favorite.query.toLanguage, "googleLangCode") ?? favorite.query.toLanguage;
   const languageDirection = `${fromCode.toUpperCase()} → ${toCode.toUpperCase()}`;
 
   const openInEasydict = async () => {
@@ -132,7 +127,7 @@ function FavoriteItem({
       await launchCommand({
         name: "easydict",
         type: LaunchType.UserInitiated,
-        arguments: { queryText: favorite.word },
+        arguments: { queryText: favorite.query.word },
       });
     } catch (error) {
       logError("FavoriteWordsPage", `launch easydict error: ${error}`);
@@ -142,8 +137,8 @@ function FavoriteItem({
 
   return (
     <List.Item
-      id={favoriteKeyOf(favorite)}
-      title={favorite.word}
+      id={favoriteKeyOf(favorite.query)}
+      title={favorite.query.word}
       subtitle={translation}
       accessories={
         myPreferences.flagsAreNotLanguages
@@ -154,12 +149,12 @@ function FavoriteItem({
               { icon: { source: toLanguageItem?.emoji ?? "🌐" } },
             ]
       }
-      detail={<List.Item.Detail markdown={savedResultMarkdown(favorite, favorite.displaySections)} />}
+      detail={<List.Item.Detail markdown={markdown} />}
       actions={
         <ActionPanel>
           <ActionPanel.Section>
             <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
-            <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
+            <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.query.word} />
             <Action.CopyToClipboard title="Copy All to Clipboard" icon={Icon.Clipboard} content={copyAllContent} />
             {strokeOrderCharacters.length > 0 && (
               <Action.Push
@@ -175,12 +170,12 @@ function FavoriteItem({
               title="Read Word"
               icon={Icon.Play}
               shortcut={Keyboard.Shortcut.Common.Refresh}
-              onAction={() => playQueryWordAudio(audioInfo(favorite))}
+              onAction={() => playQueryWordAudio(favorite.query)}
             />
             <Action
               title="Read Translation"
               icon={Icon.Play}
-              onAction={() => translation && playTTS(translation, favorite.toLanguage)}
+              onAction={() => translation && playTTS(translation, favorite.query.toLanguage)}
             />
           </ActionPanel.Section>
 

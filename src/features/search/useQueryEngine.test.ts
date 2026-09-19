@@ -4,7 +4,6 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type PropsWithChildren, StrictMode, useEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { myPreferences } from "@/consts";
 import { renderSelectedRow } from "@/core/content/render";
 import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
@@ -12,11 +11,11 @@ import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts
 import type { LanguageCode } from "@/core/language/types";
 import { cacheQueryResult, clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
-import { projectQueryResults } from "@/core/query/displaySections";
 import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
-import { buildFavoriteWord } from "@/features/favorites/model";
+import { buildFavoriteWord, resolveFavoriteTranslations } from "@/features/favorites/model";
+import { favoriteMarkdown } from "@/features/favorites/view";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import type { TranslationServiceConfig } from "@/providers/translation";
@@ -399,12 +398,9 @@ describe("useQueryEngine query generations", () => {
         type: TranslationType.DeepL,
         content: { kind: "translation", query, paragraphs: ["translated"] },
       });
-      const favorite = buildFavoriteWord(
-        query,
-        projectQueryResults(result.current.queryResults, myPreferences).displaySections,
-      );
-      expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**translated**");
-      expect(favorite.translations).toEqual(["translated"]);
+      const favorite = buildFavoriteWord(query, result.current.composedContent.services);
+      expect(favoriteMarkdown(favorite)).toContain("**translated**");
+      expect(resolveFavoriteTranslations(favorite)).toEqual(["translated"]);
       expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
       expect(JSON.stringify(favorite)).not.toContain("data:image/svg+xml");
 
@@ -413,10 +409,7 @@ describe("useQueryEngine query generations", () => {
       expect(dictionaryRequests).toHaveLength(1);
       expect(deferredTranslationRequests).toHaveLength(1);
       expect(result.current.viewSections[0].items[0].service.fromCache).toBe(true);
-      expect(
-        buildFavoriteWord(query, projectQueryResults(result.current.queryResults, myPreferences).displaySections)
-          .displaySections,
-      ).toEqual(favorite.displaySections);
+      expect(buildFavoriteWord(query, result.current.composedContent.services).services).toEqual(favorite.services);
     },
   );
 

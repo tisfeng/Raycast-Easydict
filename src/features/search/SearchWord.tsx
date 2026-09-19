@@ -9,7 +9,6 @@ import { config } from "@/core/config";
 import { renderSelectedRow } from "@/core/content/render";
 import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
-import { projectQueryResults } from "@/core/query/displaySections";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
 import { buildFavoriteWord } from "@/features/favorites/model";
@@ -61,7 +60,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
   const {
     viewSections,
-    queryResults,
+    composedContent,
     queryGeneration,
     listEpoch,
     isLoading,
@@ -119,7 +118,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     }
 
     try {
-      await toggle(buildFavoriteWord(queryWordInfo, projectQueryResults(queryResults, myPreferences).displaySections));
+      await toggle(buildFavoriteWord(queryWordInfo, composedContent.services));
       if (!isFavorite) {
         await showToast({
           style: Toast.Style.Success,

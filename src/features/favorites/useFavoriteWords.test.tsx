@@ -3,6 +3,8 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { QueryInput } from "@/core/results/types";
+
 import type { FavoriteWord } from "./model";
 import { useFavoriteWords } from "./useFavoriteWords";
 
@@ -21,18 +23,14 @@ vi.mock("@raycast/api", () => ({
   environment: { launchType: "userInitiated", commandMode: "view" },
 }));
 
-const FAVORITE_WORDS_KEY = "favorite-words";
-
-function makeFavorite(overrides: Partial<FavoriteWord> = {}): FavoriteWord {
-  return {
-    word: "serendipity",
-    fromLanguage: "en",
-    toLanguage: "zh-CHS",
-    displaySections: [],
-    createdAt: 1,
-    ...overrides,
-  };
-}
+const KEY = "favorite-content-v1";
+const query = { word: "serendipity", fromLanguage: "en", toLanguage: "zh-CHS" };
+const makeFavorite = (overrides: Partial<QueryInput> = {}): FavoriteWord => ({
+  query: { ...query, ...overrides },
+  services: [],
+  createdAt: 1,
+});
+const envelope = (favorites: FavoriteWord[]) => JSON.stringify({ version: 1, favorites });
 
 beforeEach(() => {
   storage.clear();
@@ -41,94 +39,81 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("useFavoriteWords", () => {
-  it("loads an empty favorites list from storage", async () => {
+  it("exposes loading until the empty stored collection is read", async () => {
     const { result } = renderHook(() => useFavoriteWords());
     expect(result.current.favorites).toEqual([]);
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.state?.kind).toBe("ready");
     expect(result.current.favorites).toEqual([]);
   });
 
-  it("prepends favorites using the latest list and restores them after remount", async () => {
+  it("updates a captured toggle callback from persisted data and restores the list after remount", async () => {
     const { result, unmount } = await renderLoadedFavorites();
     const toggle = result.current.toggle;
     const alpha = makeFavorite({ word: "alpha" });
     const beta = makeFavorite({ word: "beta" });
-
     await act(() => toggle(alpha));
     await act(() => toggle(beta));
-
     expect(result.current.favorites).toEqual([beta, alpha]);
-    expect(JSON.parse(storage.get(FAVORITE_WORDS_KEY)!)).toEqual([beta, alpha]);
+    expect(storage.get(KEY)).toBe(envelope([beta, alpha]));
     unmount();
     const restored = await renderLoadedFavorites();
     expect(restored.result.current.favorites).toEqual([beta, alpha]);
   });
 
-  it("toggle removes when the key already exists (dedup by word + direction)", async () => {
+  it("checks and removes only the requested word and language direction", async () => {
     const { result } = await renderLoadedFavorites();
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha" })));
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha" })));
+    const forward = makeFavorite({ word: "alpha" });
+    const reverse = makeFavorite({ word: "alpha", fromLanguage: "zh-CHS", toLanguage: "en" });
+    await act(() => result.current.toggle(forward));
+    await act(() => result.current.toggle(reverse));
+    expect(result.current.has(forward.query)).toBe(true);
+    expect(result.current.has(reverse.query)).toBe(true);
+    expect(result.current.has({ ...forward.query, word: "beta" })).toBe(false);
+    await act(() => result.current.remove(forward.query));
+    expect(result.current.has(forward.query)).toBe(false);
+    expect(result.current.favorites).toEqual([reverse]);
+    await act(() => result.current.toggle(reverse));
     expect(result.current.favorites).toEqual([]);
   });
 
-  it("treats the same word in a different direction as a separate favorite", async () => {
+  it("reloads the new authoritative collection when an older page modifies favorites", async () => {
+    const old = JSON.stringify([{ ...query, createdAt: 1, displaySections: [] }]);
+    storage.set("favorite-words", old);
     const { result } = await renderLoadedFavorites();
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha", fromLanguage: "en", toLanguage: "zh-CHS" })));
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha", fromLanguage: "zh-CHS", toLanguage: "en" })));
-    expect(result.current.favorites).toHaveLength(2);
+    const toggle = result.current.toggle;
+    const remote = makeFavorite({ word: "remote" });
+    const local = makeFavorite({ word: "local" });
+    storage.set(KEY, envelope([remote]));
+    await act(() => toggle(local));
+    expect(result.current.favorites).toEqual([local, remote]);
+    expect(storage.get("favorite-words")).toBe(old);
   });
 
-  it("has returns true only for a matching key", async () => {
+  it("exposes invalid storage and refuses to replace it when adding a word", async () => {
+    const original = JSON.stringify({ version: 1, favorites: [makeFavorite(), { query: "broken" }] });
+    storage.set(KEY, original);
     const { result } = await renderLoadedFavorites();
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha" })));
-    expect(result.current.has({ word: "alpha", fromLanguage: "en", toLanguage: "zh-CHS" })).toBe(true);
-    expect(result.current.has({ word: "alpha", fromLanguage: "zh-CHS", toLanguage: "en" })).toBe(false);
-    expect(result.current.has({ word: "beta", fromLanguage: "en", toLanguage: "zh-CHS" })).toBe(false);
-  });
-
-  it("remove drops only the matching key", async () => {
-    const { result } = await renderLoadedFavorites();
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha" })));
-    await act(() => result.current.toggle(makeFavorite({ word: "beta" })));
-    await act(async () => result.current.remove({ word: "alpha", fromLanguage: "en", toLanguage: "zh-CHS" }));
-    expect(result.current.favorites.map((f) => f.word)).toEqual(["beta"]);
-  });
-
-  it("refuses to overwrite malformed stored favorites when adding a new word", async () => {
-    const original = JSON.stringify([
-      makeFavorite({ displaySections: [] }),
-      { word: "broken", displaySections: "invalid" },
-    ]);
-    storage.set(FAVORITE_WORDS_KEY, original);
-    const { result } = await renderLoadedFavorites();
-
+    expect(result.current.state?.kind).toBe("invalid");
     await act(async () => {
       await expect(result.current.toggle(makeFavorite())).rejects.toThrow();
     });
-    expect(storage.get(FAVORITE_WORDS_KEY)).toBe(original);
+    expect(storage.get(KEY)).toBe(original);
+    expect(result.current.favorites).toEqual([]);
   });
 
   it("retains the last persisted list when a write fails", async () => {
     const saved = makeFavorite();
-    storage.set(FAVORITE_WORDS_KEY, JSON.stringify([saved]));
+    storage.set(KEY, envelope([saved]));
     const { result } = await renderLoadedFavorites();
     failures.write = true;
-
     await act(async () => {
       await expect(result.current.clear()).rejects.toThrow("storage write failed");
     });
     expect(result.current.favorites).toEqual([saved]);
     expect(result.current.state?.kind).toBe("ready");
-    expect(storage.get(FAVORITE_WORDS_KEY)).toBe(JSON.stringify([saved]));
-  });
-
-  it("clear empties the store", async () => {
-    const { result } = await renderLoadedFavorites();
-    await act(() => result.current.toggle(makeFavorite({ word: "alpha" })));
-    await act(async () => result.current.clear());
-    expect(result.current.favorites).toEqual([]);
-    expect(storage.get(FAVORITE_WORDS_KEY)).toBe("[]");
+    expect(storage.get(KEY)).toBe(envelope([saved]));
   });
 });
 

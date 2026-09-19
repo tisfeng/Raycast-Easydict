@@ -2,16 +2,19 @@
 
 import { usePromise } from "@raycast/utils";
 
+import type { QueryInput } from "@/core/results/types";
+
 import { favoriteKeyOf, type FavoriteWord } from "./model";
 import {
   clearFavoriteWords,
   readFavoriteWords,
   removeFavoriteWord,
   restoreFavoriteWords,
+  restoreLegacyFavoriteWords,
   toggleFavoriteWord,
 } from "./repository";
 
-type FavoriteIdentity = Pick<FavoriteWord, "word" | "fromLanguage" | "toLanguage">;
+type FavoriteIdentity = Pick<QueryInput, "word" | "fromLanguage" | "toLanguage">;
 
 export function useFavoriteWords() {
   const { data: state, isLoading, revalidate } = usePromise(readFavoriteWords);
@@ -30,10 +33,12 @@ export function useFavoriteWords() {
     state,
     isLoading,
     revalidate,
-    has: (identity: FavoriteIdentity) => favorites.some((item) => favoriteKeyOf(item) === favoriteKeyOf(identity)),
+    has: (identity: FavoriteIdentity) =>
+      favorites.some((item) => favoriteKeyOf(item.query) === favoriteKeyOf(identity)),
     remove: (identity: FavoriteIdentity) => update(removeFavoriteWord(identity)),
     toggle: (entry: FavoriteWord) => update(toggleFavoriteWord(entry)),
     clear: () => update(clearFavoriteWords()),
     restore: (path: string) => update(restoreFavoriteWords(path)),
+    restoreLegacy: () => update(restoreLegacyFavoriteWords()),
   };
 }
