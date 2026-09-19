@@ -1,7 +1,7 @@
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { DictionaryType, TranslationType } from "@/types/api";
 
-export type BuiltinProviderCategory = "dictionary" | "translation";
+import { builtinProviderCatalog, defaultTypeOrder } from "./catalog";
 
 export interface ProviderOrderCandidate {
   providerKey: string;
@@ -18,28 +18,6 @@ export interface ProviderOrderService {
 
 export function getBuiltinProviderCandidates(services: ProviderOrderService[]): ProviderOrderCandidate[] {
   return services.map(({ providerKey, type, order }) => ({ providerKey, type, serviceOrder: order }));
-}
-
-const defaultTypeOrder = [
-  DictionaryType.Youdao,
-  DictionaryType.Linguee,
-  DictionaryType.AI,
-  TranslationType.OpenAI,
-  TranslationType.Gemini,
-  TranslationType.DeepL,
-  TranslationType.DeepLX,
-  TranslationType.Google,
-  TranslationType.Bing,
-  TranslationType.Apple,
-  TranslationType.Baidu,
-  TranslationType.Tencent,
-  TranslationType.Volcano,
-  TranslationType.Youdao,
-  TranslationType.Caiyun,
-];
-
-export function getBuiltinProviderKey(category: BuiltinProviderCategory, type: string): string {
-  return `builtin:${category}:${type}`;
 }
 
 export function getAIProviderKey(profile: AIProviderProfile): string {
@@ -215,4 +193,18 @@ export function syncAIProviderOrders(profiles: AIProviderProfile[], providerOrde
     ...profile,
     order: orderByKey.get(getAIProviderKey(profile)) ?? profile.order,
   }));
+}
+
+const builtinCandidates = getBuiltinProviderCandidates(builtinProviderCatalog);
+
+export function getCombinedProviderOrder(
+  profiles: AIProviderProfile[],
+  savedOrder?: string[],
+  servicesOrder: string[] = [],
+): string[] {
+  return getProviderOrder(profiles, savedOrder, servicesOrder, builtinCandidates);
+}
+
+export function getCombinedAvailableProviderKeys(profiles: AIProviderProfile[]): string[] {
+  return getAvailableProviderKeys(profiles, builtinCandidates);
 }

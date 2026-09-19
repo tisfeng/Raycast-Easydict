@@ -3,12 +3,10 @@
 import { parse } from "node-html-parser";
 import type { default as HtmlNode } from "node-html-parser/dist/nodes/html";
 
-import { getLanguageEnglishName, getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
-import { checkIsWord } from "@/providers/shared/utils";
-import type { QueryInput, QueryWordInfo } from "@/types/query";
+import { getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
+import type { QueryWordInfo } from "@/types/query";
 import { logWarn } from "@/utils/logger";
 
-import { getValidLingueeLanguagePair } from "./languages";
 import type {
   LingueeExample,
   LingueeParseResult,
@@ -204,15 +202,4 @@ export function parseLingueeHTML(html: string): LingueeParseResult {
     queryWordInfo,
     result: hasEntries ? { wordItems, examples, relatedWords, wikipedias } : undefined,
   };
-}
-
-export function getLingueeWebDictionaryURL(queryWordInfo: QueryInput): string | undefined {
-  const { fromLanguage, toLanguage } = queryWordInfo;
-  const validLanguagePair = getValidLingueeLanguagePair(fromLanguage, toLanguage);
-  const isWord = checkIsWord(queryWordInfo);
-
-  if (!validLanguagePair || !isWord) return undefined;
-
-  const sourceLanguage = getLanguageEnglishName(fromLanguage).toLowerCase();
-  return `https://www.linguee.com/${validLanguagePair}/search?source=${sourceLanguage}&query=${encodeURIComponent(queryWordInfo.word)}`;
 }

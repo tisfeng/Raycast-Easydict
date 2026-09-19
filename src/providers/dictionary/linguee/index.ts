@@ -8,8 +8,9 @@ import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 
 import { formatLingueeDisplaySections } from "./format";
-import { getLingueeWebDictionaryURL, parseLingueeHTML } from "./parse";
+import { parseLingueeHTML } from "./parse";
 import type { LingueeDictionaryResult } from "./types";
+import { getLingueeWebDictionaryURL } from "./url";
 
 /**
  * Linguee dictionary provider.

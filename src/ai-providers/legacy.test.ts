@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { getAIProviderKey, getBuiltinProviderKey } from "@/core/query/providerOrder";
+import { getBuiltinProviderKey } from "@/providers/catalog";
+import { getAIProviderKey } from "@/providers/order";
 import { TranslationType } from "@/types/api";
 
 import { createProfileFromLegacySettings, migrateLegacyAIProviderState } from "./legacy";

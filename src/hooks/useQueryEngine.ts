@@ -22,7 +22,6 @@ import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
-import { builtinDictionaryProviderServices, builtinTranslationServices } from "@/providers/registry";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { TranslationType } from "@/types/api";
 import type { DisplaySection, ListDisplayItem } from "@/types/display";
@@ -69,11 +68,6 @@ export interface QueryServiceSnapshot {
   translationServices: TranslationServiceConfig[];
   dictionaryServices: DictionaryServiceConfig[];
 }
-
-const defaultQueryServiceSnapshot: QueryServiceSnapshot = {
-  translationServices: builtinTranslationServices,
-  dictionaryServices: builtinDictionaryProviderServices,
-};
 
 // Initial State
 
@@ -153,7 +147,7 @@ function createStreamDebouncer(
 export function useQueryEngine(
   initialFromLanguage: LanguageItem,
   initialTargetLanguage: LanguageItem,
-  serviceSnapshot: QueryServiceSnapshot = defaultQueryServiceSnapshot,
+  serviceSnapshot: QueryServiceSnapshot,
 ) {
   const [state, dispatch] = useReducer(
     queryReducer,

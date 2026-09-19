@@ -24,8 +24,7 @@ import type { LanguageItem } from "@/core/language/types";
 import { clearQueryCache } from "@/core/query/cache";
 import { standaloneResultMarkdown } from "@/core/query/resultMarkdown";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
-import { dictionaryServices } from "@/providers/dictionary";
-import { translationServices } from "@/providers/translation";
+import { webQueryServices } from "@/providers/web";
 import type { ListDisplayItem } from "@/types/display";
 import type { QueryType, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
@@ -67,8 +66,7 @@ const shortcuts = {
   openOnline: Keyboard.Shortcut.Common.Open,
 } satisfies Record<string, Keyboard.Shortcut>;
 
-const allServices = [...translationServices, ...dictionaryServices];
-const queryWebItemTypes = allServices.filter((s) => s.getWebUrl).map((s) => s.type);
+const queryWebItemTypes = webQueryServices.map((service) => service.type);
 
 function openInEudic(queryText: string) {
   const url = `eudic://dict/${queryText}`;
@@ -85,7 +83,7 @@ function getWebQueryItem({
   queryType: QueryType;
   wordInfo: QueryWordInfo;
 }): WebQueryItem | undefined {
-  const service = allServices.find((s) => s.type === queryType);
+  const service = webQueryServices.find((s) => s.type === queryType);
   const webUrl = service?.getWebUrl?.(wordInfo);
   if (!webUrl) return undefined;
   return { type: queryType, webUrl, icon: getQueryTypeIcon(queryType), title: `Open in ${queryType}` };
