@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DetectedLangModel } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
+import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
 import {
   DictionaryType,
   LanguageDetectType,
@@ -683,7 +684,7 @@ describe("useQueryEngine query generations", () => {
     expect(getDisplayedWord(result.current.displaySections)).toBe("current");
   });
 
-  it("does not let an older FINISH_QUERY stop the current loading state", async () => {
+  it("does not let an older request stop the current loading state", async () => {
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
@@ -914,5 +915,119 @@ describe("query completion", () => {
     });
     expect(testDoubles.showFailureToast).toHaveBeenCalledTimes(1);
     expect(result.current.isLoading).toBe(false);
+  });
+});
+
+describe("QueryRunner snapshots", () => {
+  function createRunner(services: QueryServiceSnapshot = dictionarySnapshot) {
+    return new QueryRunner(englishLanguageItem, chineseLanguageItem, services, {
+      onError: testDoubles.showFailureToast,
+      onAudio: (word, signal) => testDoubles.playQueryWordAudio(word, { signal }),
+    });
+  }
+
+  it("keeps getSnapshot stable between updates and accepts the final result with settled loading", async () => {
+    const service: TranslationServiceConfig = {
+      id: "profile:final",
+      label: "Final",
+      providerKey: "ai:final",
+      order: 0,
+      type: TranslationType.OpenAI,
+      enabled: () => true,
+      createProvider: () => new DeferredTranslationProvider(),
+    };
+    const runner = createRunner({ translationServices: [service], dictionaryServices: [] });
+    expect(runner.getSnapshot()).toBe(runner.getSnapshot());
+    const publications: { texts: string[]; loading: boolean }[] = [];
+    runner.subscribe(() =>
+      publications.push({
+        texts: runner
+          .getSnapshot()
+          .queryResults.flatMap((result) => ("translations" in result ? result.translations : [])),
+        loading: runner.getSnapshot().isLoading,
+      }),
+    );
+    runner.queryTextWithTextInfo(createQueryInput("final"));
+    await waitFor(() => expect(deferredTranslationRequests).toHaveLength(1));
+    await resolveTranslationRequest(0, "final");
+    expect(publications.filter((value) => value.texts.includes("final"))).toEqual([
+      { texts: ["final"], loading: false },
+    ]);
+    expect(runner.getSnapshot()).toBe(runner.getSnapshot());
+    runner.dispose();
+  });
+
+  it("settles when every service is disabled", () => {
+    const runner = createRunner({
+      translationServices: [],
+      dictionaryServices: dictionaryServices.map((service) => ({ ...service, enabled: () => false })),
+    });
+    runner.queryTextWithTextInfo(createQueryInput("disabled"));
+    expect(runner.getSnapshot()).toMatchObject({ queryResults: [], isLoading: false });
+    expect(dictionaryRequests).toHaveLength(0);
+    runner.dispose();
+  });
+
+  it("orders independent services with the same type and preserves arrival order for equal ranks", async () => {
+    const services = [0, 1, 2].map((index) => ({
+      ...dictionaryServices[0],
+      id: `dictionary:${index}`,
+      order: index === 2 ? -1 : 0,
+    }));
+    const runner = createRunner({ translationServices: [], dictionaryServices: services });
+    runner.queryTextWithTextInfo(createQueryInput("ordered"));
+    await resolveDictionaryRequest(1);
+    await resolveDictionaryRequest(0);
+    expect(runner.getSnapshot().isLoading).toBe(true);
+    await resolveDictionaryRequest(2);
+    expect(runner.getSnapshot().queryResults.map((result) => result.serviceId)).toEqual([
+      "dictionary:2",
+      "dictionary:1",
+      "dictionary:0",
+    ]);
+    runner.regenerateService("dictionary:1");
+    expect(runner.getSnapshot().queryResults).toHaveLength(3);
+    await resolveDictionaryRequest(3);
+    expect(runner.getSnapshot().queryResults.map((result) => result.serviceId)).toEqual([
+      "dictionary:2",
+      "dictionary:0",
+      "dictionary:1",
+    ]);
+    expect(runner.getSnapshot().isLoading).toBe(false);
+    runner.dispose();
+  });
+
+  it("allows a current regeneration to refill a cleared cache while its older request remains ineligible", async () => {
+    testDoubles.queryCacheMode = "words";
+    const runner = createRunner();
+    const query = createQueryInput("refresh");
+    runner.queryTextWithTextInfo(query);
+    clearQueryCache();
+    runner.regenerateService(dictionaryServices[0].id);
+    await resolveDictionaryRequest(1);
+    expect(getCachedQueryResult(dictionaryServices[0], query)).toMatchObject({ queryWordInfo: query });
+    const cached = getCachedQueryResult(dictionaryServices[0], query);
+    await resolveDictionaryRequest(0);
+    expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual(cached);
+    runner.dispose();
+  });
+
+  it("does not cancel a query when subscribers detach, but disposal suppresses late results and audio", async () => {
+    testDoubles.queryCacheMode = "words";
+    const runner = createRunner();
+    const listener = vi.fn();
+    const unsubscribe = runner.subscribe(listener);
+    const query = createQueryInput("detached");
+    runner.queryTextWithTextInfo(query);
+    unsubscribe();
+    expect(dictionaryRequests[0].signal?.aborted).toBe(false);
+    const lastSnapshot = runner.getSnapshot();
+    runner.dispose();
+    expect(dictionaryRequests[0].signal?.aborted).toBe(true);
+    await resolveDictionaryRequest(0);
+    expect(runner.getSnapshot()).toBe(lastSnapshot);
+    expect(testDoubles.playQueryWordAudio).not.toHaveBeenCalled();
+    expect(testDoubles.showFailureToast).not.toHaveBeenCalled();
+    expect(getCachedQueryResult(dictionaryServices[0], query)).toBeUndefined();
   });
 });
