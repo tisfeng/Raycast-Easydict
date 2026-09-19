@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLanguageEnglishName } from "@/core/language/utils";
+import type { QueryInput } from "@/core/results/types";
 import { checkIsWord } from "@/providers/shared/utils";
-import type { QueryInput } from "@/types/query";
 
 import { getValidLingueeLanguagePair } from "./languages";
 

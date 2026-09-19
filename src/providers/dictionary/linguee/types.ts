@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { QueryWordInfo } from "@/types/query";
+import type { LingueeListItemType } from "@/core/results/kinds";
+import type { QueryWordInfo } from "@/core/results/types";
 
 export interface LingueeParseResult {
   queryWordInfo: QueryWordInfo;
@@ -55,20 +56,4 @@ export interface LingueeWikipedia {
   explanation: string;
   source: string;
   sourceUrl: string;
-}
-
-export enum LingueeListItemType {
-  AlmostAlwaysUsed = "Almost Always Used", // also featured, eg. true
-  OftenUsed = "Often Used", // also featured, eg. good
-  Common = "Common", // also featured
-  LessCommon = "Less Common", // unfeatured
-
-  SpecialForms = "Forms", // special forms, like often used, but we currently don't handle it. eg. good  English-French
-
-  Unfeatured = "Unfeatured",
-  Example = "Example",
-  RelatedWord = "Related word", // eg. 优雅, 美丽
-  Wikipedia = "Wikipedia", // eg. sql
-
-  Translation = "Translation", // just used for linguee section title item
 }

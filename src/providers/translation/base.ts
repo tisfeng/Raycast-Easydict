@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/types/query";
+import type { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 

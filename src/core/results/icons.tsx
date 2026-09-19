@@ -4,12 +4,8 @@ import type { Image } from "@raycast/api";
 import { Color, Icon } from "@raycast/api";
 import { getAvatarIcon, getFavicon } from "@raycast/utils";
 
-import type { ProviderIconConfig, ProviderIconName } from "@/ai-providers/types";
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
-import { DictionaryType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
-import type { QueryType } from "@/types/query";
+import { DictionaryType, LingueeListItemType, YoudaoDictionaryListItemType } from "./kinds";
+import type { ListDisplayItem, ProviderIconConfig, ProviderIconName, QueryType } from "./types";
 
 /**
  * Play sound icons with different tint colors.

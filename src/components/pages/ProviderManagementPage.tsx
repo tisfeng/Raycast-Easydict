@@ -30,8 +30,8 @@ import type {
   OpenAICompatibleProfile,
   RaycastAIProfile,
 } from "@/ai-providers/types";
-import { getProviderIcon, getQueryTypeIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
+import { getProviderIcon, getQueryTypeIcon } from "@/core/results/icons";
 import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
 import { type BuiltinProvider, builtinProviderCatalog, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
 import {

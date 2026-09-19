@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { myPreferences } from "@/consts";
-import { TranslationType } from "@/types/api";
-import type { QueryType } from "@/types/query";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryType } from "@/core/results/types";
 
 /** Apply hide rules to a query result, returning the updated hideDisplay flag. */
 export function computeHideDisplay(type: QueryType): boolean {

@@ -2,9 +2,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
+import { DictionaryType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import type { DisplaySection, ListDisplayItem } from "@/core/results/types";
 
 import { getDisplaySectionIds, getListItemId } from "./displayIdentities";
 

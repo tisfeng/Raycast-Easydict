@@ -13,13 +13,8 @@ import {
 import { getAIProviderProfileValidationError, normalizeAIProviderProfile } from "@/ai-providers/profile";
 import { isAIProviderProfileRunnable } from "@/ai-providers/runtime";
 import { getAIProviderTestFingerprint } from "@/ai-providers/testFingerprint";
-import type {
-  AIProviderProfile,
-  JSONOutputMode,
-  ProviderIconConfig,
-  TokenLimitMode,
-  WordResultMode,
-} from "@/ai-providers/types";
+import type { AIProviderProfile, JSONOutputMode, TokenLimitMode, WordResultMode } from "@/ai-providers/types";
+import type { ProviderIconConfig } from "@/core/results/types";
 import { createAIDictionaryProvider } from "@/providers/dictionary/ai";
 import { createAITranslationProvider } from "@/providers/translation/ai";
 import { normalizeError } from "@/utils/errors";

@@ -2,9 +2,9 @@
 
 import { myPreferences } from "@/consts";
 import { autoDetectLanguageItem } from "@/core/language/consts";
+import { DictionaryType } from "@/core/results/kinds";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
-import { DictionaryType } from "@/types/api";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";

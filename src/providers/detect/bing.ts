@@ -2,8 +2,8 @@
 
 import { autoDetectLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { bingMap, getYoudaoLangCode } from "@/core/language/utils";
+import { LanguageDetectType } from "@/core/results/kinds";
 import { requestBing } from "@/providers/shared/bing-request";
-import { LanguageDetectType } from "@/types/api";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";

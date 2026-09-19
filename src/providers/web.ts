@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLangCode, getLanguageOfTwoExceptChinese } from "@/core/language/utils";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { QueryInput } from "@/types/query";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import type { QueryInput } from "@/core/results/types";
 
 import { getLingueeWebDictionaryURL } from "./dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "./dictionary/youdao/utils";

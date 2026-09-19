@@ -2,14 +2,13 @@
 
 import { LocalStorage } from "@raycast/api";
 
+import { PROVIDER_ICON_NAMES, type ProviderIconConfig } from "@/core/results/types";
 import { createTimer } from "@/utils/logger";
 
 import {
   type AIProviderProfile,
   type JSONOutputMode,
   type LegacyAIProviderAssignment,
-  PROVIDER_ICON_NAMES,
-  type ProviderIconConfig,
   type StoredAIProviderState,
   type StoredAIProviderStateV1,
   type TokenLimitMode,

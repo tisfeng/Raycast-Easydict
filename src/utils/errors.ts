@@ -4,7 +4,7 @@ import { showFailureToast } from "@raycast/utils";
 import { APICallError, RemoteAPIError } from "@xsai/shared";
 import { FetchError } from "ofetch";
 
-import type { RequestType } from "@/types/api";
+import type { RequestType } from "@/core/results/kinds";
 import { logError, logTrace } from "@/utils/logger";
 
 /**

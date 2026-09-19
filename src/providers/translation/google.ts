@@ -4,8 +4,8 @@ import { batchTranslate } from "google-translate-api-x";
 
 import { networkTimeout } from "@/consts";
 import { getLangCode } from "@/core/language/utils";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions } from "@/types/query";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 

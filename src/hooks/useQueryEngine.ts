@@ -21,18 +21,19 @@ import { computeHideDisplay } from "@/core/query/hideRules";
 import type { QueryAction, QueryState } from "@/core/query/queryReducer";
 import { queryReducer } from "@/core/query/queryReducer";
 import { getAutoSelectedTargetLanguageItem } from "@/core/query/utils";
-import type { DictionaryServiceConfig } from "@/providers/dictionary";
-import type { TranslationServiceConfig } from "@/providers/translation";
-import { TranslationType } from "@/types/api";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
+import { TranslationType } from "@/core/results/kinds";
 import type {
   DictionaryQueryResult,
+  DisplaySection,
+  ListDisplayItem,
   QueryInput,
   RuntimeServiceConfig,
   RuntimeServiceMetadata,
   TranslationQueryResult,
   TranslationResult,
-} from "@/types/query";
+} from "@/core/results/types";
+import type { DictionaryServiceConfig } from "@/providers/dictionary";
+import type { TranslationServiceConfig } from "@/providers/translation";
 import { RequestError, showErrorToast } from "@/utils/errors";
 import { logTrace, logWarn } from "@/utils/logger";
 

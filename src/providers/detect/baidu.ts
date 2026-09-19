@@ -4,7 +4,7 @@ import querystring from "node:querystring";
 
 import { myPreferences } from "@/consts";
 import { baiduMap, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
-import { LanguageDetectType } from "@/types/api";
+import { LanguageDetectType } from "@/core/results/kinds";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError } from "@/utils/logger";

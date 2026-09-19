@@ -9,7 +9,7 @@ import {
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
-import type { QueryResult } from "@/types/query";
+import type { QueryResult } from "@/core/results/types";
 import { logTrace } from "@/utils/logger";
 
 /**

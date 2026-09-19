@@ -6,12 +6,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fallbackAIProviderToPromptJSON } from "@/ai-providers/repository";
 import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { ListActionPanel } from "@/components/ui/ActionPanel";
-import { getListItemIcon } from "@/components/ui/Icons";
 import { getWordAccessories } from "@/components/ui/WordAccessories";
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
+import { getListItemIcon } from "@/core/results/icons";
+import type { QueryInput, QueryWordInfo } from "@/core/results/types";
 import { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
 import { useDebouncedQuery } from "@/hooks/useDebouncedQuery";
 import { useFavoriteWords } from "@/hooks/useFavoriteWords";
@@ -24,7 +25,6 @@ import {
   resolveProviderServices,
 } from "@/providers/registry";
 import { buildFavoriteWord } from "@/types/favorite";
-import type { QueryInput, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
 
 import { useFirstItemAnchor } from "./useFirstItemAnchor";

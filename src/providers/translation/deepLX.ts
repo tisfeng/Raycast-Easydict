@@ -4,8 +4,8 @@ import { getSharedCookies, type TargetLanguage, translate } from "@deeplx/core";
 import { Cache } from "@raycast/api";
 
 import { getLangCode } from "@/core/language/utils";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions } from "@/types/query";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { logTrace } from "@/utils/logger";
 
 import { BaseNonStreamingTranslateProvider } from "./base";

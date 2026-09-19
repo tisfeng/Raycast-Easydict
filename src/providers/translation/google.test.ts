@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { TranslationType } from "@/types/api";
+import { TranslationType } from "@/core/results/kinds";
 import { CancelledError } from "@/utils/errors";
 
 import { GoogleTranslateProvider } from "./google";

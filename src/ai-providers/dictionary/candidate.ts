@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { QueryInput } from "@/types/query";
+import type { QueryInput } from "@/core/results/types";
 
 const MAX_TERM_LENGTH = 64;
 const MAX_TERM_WORDS = 5;

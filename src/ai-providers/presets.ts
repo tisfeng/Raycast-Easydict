@@ -1,6 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { JSONOutputMode, ProviderIconConfig, TokenLimitMode } from "./types";
+import type { ProviderIconConfig } from "@/core/results/types";
+
+import type { JSONOutputMode, TokenLimitMode } from "./types";
 
 export interface OpenAICompatiblePreset {
   name: string;

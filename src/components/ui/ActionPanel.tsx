@@ -22,14 +22,12 @@ import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
 import { clearQueryCache } from "@/core/query/cache";
-import { standaloneResultMarkdown } from "@/core/query/resultMarkdown";
+import { getQueryTypeIcon } from "@/core/results/icons";
+import { standaloneResultMarkdown } from "@/core/results/resultMarkdown";
+import type { ListDisplayItem, QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { webQueryServices } from "@/providers/web";
-import type { ListDisplayItem } from "@/types/display";
-import type { QueryType, QueryWordInfo } from "@/types/query";
 import { logError, logTrace } from "@/utils/logger";
-
-import { getQueryTypeIcon } from "./Icons";
 
 // Action.Push mounts this component when navigating, so the full page is not built for every list row.
 function ResultDetails({ item, actions }: { item: ListDisplayItem; actions: Detail.Props["actions"] }) {

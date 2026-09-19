@@ -1,11 +1,14 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { AIDictionarySense, AIWordResult } from "@/ai-providers/dictionary/types";
-import { DictionaryType } from "@/types/api";
-import type { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
-import type { QueryInput, QueryWordInfo } from "@/types/query";
-
-import { AIDictionaryListItemType } from "./types";
+import { AIDictionaryListItemType, DictionaryType } from "@/core/results/kinds";
+import type {
+  DisplaySection,
+  ListAccessoryItem,
+  ListDisplayItem,
+  QueryInput,
+  QueryWordInfo,
+} from "@/core/results/types";
 
 /**
  * Derive the resolved `QueryWordInfo` for an AI dictionary result: it is a word

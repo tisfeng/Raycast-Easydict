@@ -10,8 +10,8 @@
  * replacing the previous hardcoded if-statements.
  */
 
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { DictionaryQueryResult, QueryResult, QueryType, TranslationQueryResult } from "@/types/query";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import type { DictionaryQueryResult, QueryResult, QueryType, TranslationQueryResult } from "@/core/results/types";
 
 /** A rule that fires when any of its trigger types arrives. */
 export interface ServiceCouplingRule {

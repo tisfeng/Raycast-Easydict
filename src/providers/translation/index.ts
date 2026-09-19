@@ -4,13 +4,13 @@ import { getAIProviderCacheIdentity } from "@/ai-providers/cacheIdentity";
 import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { builtinTranslationProviders, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { getAIProviderKey } from "@/providers/order";
 import { checkIsWord } from "@/providers/shared/utils";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
 import { createAITranslationProvider } from "./ai";
 import { AppleTranslateProvider } from "./apple";

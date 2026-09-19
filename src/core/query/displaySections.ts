@@ -1,10 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { DisplaySection } from "@/types/display";
-import type { TranslationQueryResult } from "@/types/query";
+import { resultItemBody, translationResultsMarkdown } from "@/core/results/resultMarkdown";
+import type { DisplaySection, TranslationQueryResult } from "@/core/results/types";
 
 import type { QueryState } from "./queryReducer";
-import { resultItemBody, translationResultsMarkdown } from "./resultMarkdown";
 import { getFromToLanguageTitle } from "./utils";
 
 export function computeDisplaySections(state: QueryState): DisplaySection[] {

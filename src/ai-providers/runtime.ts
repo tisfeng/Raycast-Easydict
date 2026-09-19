@@ -2,11 +2,11 @@
 
 import { AI } from "@raycast/api";
 
-import type { QueryInput } from "@/types/query";
+import type { ProviderIconConfig, QueryInput } from "@/core/results/types";
 
 import { isAIDictionaryCandidate } from "./dictionary/candidate";
 import { getAIProviderProfileValidationError } from "./profile";
-import type { AIProviderProfile, ProviderIconConfig } from "./types";
+import type { AIProviderProfile } from "./types";
 
 export type AIProviderQueryMode = "translation" | "dictionary";
 

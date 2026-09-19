@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { RaycastAIProfile } from "@/ai-providers/types";
-import { TranslationType } from "@/types/api";
+import { TranslationType } from "@/core/results/kinds";
 import { CancelledError } from "@/utils/errors";
 
 import { RaycastAITranslateProvider } from "./raycast-ai";

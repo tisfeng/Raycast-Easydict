@@ -1,10 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLangCode } from "@/core/language/utils";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions, TranslationResult } from "@/core/results/types";
 import { getBingHost, requestBingConfig } from "@/providers/shared/bing-config";
 import { requestBing } from "@/providers/shared/bing-request";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions, TranslationResult } from "@/types/query";
 import { RequestError } from "@/utils/errors";
 import { logWarn } from "@/utils/logger";
 

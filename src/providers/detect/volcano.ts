@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
+import { LanguageDetectType } from "@/core/results/kinds";
 import { hasVolcanoAppKey } from "@/providers/shared/config";
 import { genVolcanoSign } from "@/providers/shared/volcano-sign";
-import { LanguageDetectType } from "@/types/api";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 import { logError, logWarn } from "@/utils/logger";

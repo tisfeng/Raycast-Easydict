@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { LanguageDetectType } from "@/types/api";
+import type { LanguageDetectType } from "@/core/results/kinds";
 
 export interface DetectedLangModel<T = unknown> {
   type: LanguageDetectType;

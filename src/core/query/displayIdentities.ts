@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { DisplaySection } from "@/types/display";
+import type { DisplaySection } from "@/core/results/types";
 
 /**
  * Build section identities that remain stable while providers finish in a

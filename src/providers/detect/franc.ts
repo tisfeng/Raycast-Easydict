@@ -6,7 +6,7 @@ import type { DetectedLangModel } from "@/core/detect/types";
 import { isPreferredLanguage } from "@/core/detect/utils";
 import { languageItemList } from "@/core/language/consts";
 import { getLanguageItem, getLanguageItemFromFrancCode } from "@/core/language/utils";
-import { LanguageDetectType } from "@/types/api";
+import { LanguageDetectType } from "@/core/results/kinds";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
