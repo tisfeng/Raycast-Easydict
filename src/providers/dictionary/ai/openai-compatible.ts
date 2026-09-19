@@ -23,6 +23,7 @@ const MAX_DICTIONARY_TOKENS = 3000;
 
 export type NativeJSONUnsupportedHandler = (
   provider: Pick<OpenAICompatibleRuntimeConfig, "id" | "name">,
+  signal?: AbortSignal,
 ) => void | Promise<void>;
 
 export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
@@ -64,7 +65,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
       } catch (error) {
         if (signal?.aborted) throw error;
         if (!isUnsupportedJSONOutputError(error)) throw error;
-        await this.notifyNativeJSONUnsupported();
+        await this.notifyNativeJSONUnsupported(signal);
         logWarn(this.logLabel, "native JSON output is unsupported; falling back to prompt-based JSON");
         result = parseAIWordResult(await this.requestCompletion(messages, "prompt", headers, signal));
         return this.createResult(queryWordInfo, result);
@@ -87,6 +88,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     headers: Record<string, string> | undefined,
     signal?: AbortSignal,
   ): Promise<string> {
+    signal?.throwIfAborted();
     const streamResult = streamText({
       ...this.config.request,
       ...(headers ? { headers } : {}),
@@ -118,9 +120,9 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     };
   }
 
-  private async notifyNativeJSONUnsupported(): Promise<void> {
+  private async notifyNativeJSONUnsupported(signal?: AbortSignal): Promise<void> {
     try {
-      await this.onNativeJSONUnsupported?.({ id: this.config.id, name: this.config.name });
+      await this.onNativeJSONUnsupported?.({ id: this.config.id, name: this.config.name }, signal);
     } catch (error) {
       logWarn(this.logLabel, `unable to save prompt-based JSON fallback: ${normalizeError(error).message}`);
     }

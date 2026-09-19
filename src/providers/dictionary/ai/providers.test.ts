@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EASYDICT_VERSION } from "@/consts";
 import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { OpenAICompatibleProfile, RaycastAIProfile } from "@/providers/profiles/types";
+import { CancelledError } from "@/shared/errors";
 
 import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./index";
 
@@ -100,7 +101,7 @@ describe("AI dictionary provider adapters", () => {
     expect(retry).not.toHaveProperty("responseFormat");
     expect(first.headers?.["x-opencode-session"]).toEqual(expect.stringMatching(/\S/));
     expect(retry.headers).toEqual(first.headers);
-    expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ id: profile.id, name: profile.name });
+    expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ id: profile.id, name: profile.name }, undefined);
   });
 
   it("retries malformed native JSON without changing the configuration", async () => {
@@ -120,6 +121,30 @@ describe("AI dictionary provider adapters", () => {
     expect(first.headers?.["x-opencode-session"]).toEqual(expect.stringMatching(/\S/));
     expect(retry.headers).toEqual(first.headers);
     expect(onNativeJSONUnsupported).not.toHaveBeenCalled();
+  });
+
+  it("does not start a prompt retry when cancelled while saving the native JSON fallback", async () => {
+    let finishNotification!: () => void;
+    const notification = new Promise<void>((resolve) => {
+      finishNotification = resolve;
+    });
+    const onNativeJSONUnsupported = vi.fn(() => notification);
+    testDoubles.streamText
+      .mockReturnValueOnce({
+        textStream: createFailingTextStream(new Error("response_format json_object is not supported")),
+      })
+      .mockReturnValueOnce({ textStream: createTextStream([JSON.stringify(createResponse())]) });
+    const controller = new AbortController();
+    const profile = createOpenAIProfile();
+    const pending = createProvider(profile, onNativeJSONUnsupported).request(createQuery(), {
+      signal: controller.signal,
+    });
+    await vi.waitFor(() => expect(onNativeJSONUnsupported).toHaveBeenCalledOnce());
+    controller.abort();
+    finishNotification();
+    await expect(pending).rejects.toBeInstanceOf(CancelledError);
+    expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ id: profile.id, name: profile.name }, controller.signal);
+    expect(testDoubles.streamText).toHaveBeenCalledTimes(1);
   });
 
   it("adds fresh OpenCode Go headers to each dictionary query and preserves authentication", async () => {

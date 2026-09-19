@@ -12,7 +12,6 @@ import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
 import { buildFavoriteWord } from "@/features/favorites/model";
 import { useFavoriteWords } from "@/features/favorites/useFavoriteWords";
-import { fallbackAIProviderToPromptJSON } from "@/providers/profiles/repository";
 import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 import { useAIProviderProfiles } from "@/providers/profiles/useAIProviderProfiles";
 import {
@@ -23,6 +22,7 @@ import {
 import { logError, logTrace } from "@/shared/logger";
 
 import { ListActionPanel } from "./ActionPanel";
+import { handleNativeJSONFallback } from "./nativeJSONFallback";
 import { useDebouncedQuery } from "./useDebouncedQuery";
 import { useFirstItemAnchor } from "./useFirstItemAnchor";
 import { useInstalledEudic } from "./useInstalledEudic";
@@ -43,25 +43,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const { has, toggle } = useFavoriteWords();
   const aiProviderProfiles = useAIProviderProfiles();
   const handleNativeJSONUnsupported = useCallback(
-    async (fallbackProfile: Pick<OpenAICompatibleProfile, "id" | "name">) => {
-      try {
-        const saved = await fallbackAIProviderToPromptJSON(fallbackProfile.id);
-        if (saved) await aiProviderProfiles.revalidate();
-        await showToast({
-          style: Toast.Style.Success,
-          title: "Native JSON is unsupported",
-          message: saved
-            ? `${fallbackProfile.name} was switched to Prompt-Based JSON.`
-            : `${fallbackProfile.name} used Prompt-Based JSON for this request. Update the saved provider manually.`,
-        });
-      } catch {
-        await showToast({
-          style: Toast.Style.Failure,
-          title: "Native JSON is unsupported",
-          message: `${fallbackProfile.name} used Prompt-Based JSON for this request, but its saved setting could not be updated.`,
-        });
-      }
-    },
+    (fallbackProfile: Pick<OpenAICompatibleProfile, "id" | "name">, signal?: AbortSignal) =>
+      handleNativeJSONFallback(fallbackProfile, aiProviderProfiles.revalidate, signal),
     [aiProviderProfiles.revalidate],
   );
   const resolvedServiceSnapshot = useMemo(() => {
