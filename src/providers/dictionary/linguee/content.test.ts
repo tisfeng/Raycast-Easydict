@@ -1,22 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { LingueeListItemType } from "@/core/results/kinds";
+import { legacyDictionarySections } from "@/core/content/legacyDictionary";
+import type { ContentEquivalent } from "@/core/content/types";
+import { DictionaryType, LingueeListItemType } from "@/core/results/kinds";
 import { resultItemBody } from "@/core/results/resultMarkdown";
 import type { DisplaySection, QueryWordInfo } from "@/core/results/types";
 
-import { formatLingueeDisplaySections } from "./format";
-import type { LingueeDictionaryResult, LingueeWordExplanation, LingueeWordItem } from "./types";
+import { buildLingueeContent } from "./content";
+import type { LingueeDictionaryResult, LingueeWordItem } from "./types";
 
 vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const queryWordInfo: QueryWordInfo = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 
-describe("Linguee display formatter", () => {
+describe("Linguee content reading contract", () => {
   it("does not create a Translation section when the first translation is blank", () => {
-    const sections = formatLingueeDisplaySections(
-      queryWordInfo,
+    const sections = buildSections(
       createResult({
-        wordItems: [createWordItem({ translationItems: [createExplanation("   ")] })],
+        wordItems: [createWordItem({ entries: [createExplanation("   ")] })],
         examples: [createExample()],
       }),
     );
@@ -25,41 +26,33 @@ describe("Linguee display formatter", () => {
   });
 
   it("preserves headword punctuation, featured notes, and the last unfeatured entry's classification", () => {
-    const sections = formatLingueeDisplaySections(
-      queryWordInfo,
+    const sections = buildSections(
       createResult({
         wordItems: [
           createWordItem({
             pos: "adj",
             placeholder: "sth.",
-            translationItems: [
+            entries: [
               createExplanation("良好的", {
-                pos: "adj",
-                frequencyTag: { tagForms: "unused common note", displayType: LingueeListItemType.Common },
-                examples: [
-                  {
-                    example: { text: "a good book", pos: "" },
-                    translations: [
-                      { text: "一本好书", pos: "" },
-                      { text: "第二个译文", pos: "" },
-                    ],
-                  },
-                  { example: { text: "a good day", pos: "" }, translations: [{ text: "第二个例句", pos: "" }] },
-                ],
+                partOfSpeech: "adj",
+                inflectionNote: "unused common note",
+                firstExampleTranslation: "一本好书",
               }),
-              createExplanation("适宜", { featured: false, pos: "adj" }),
+              createExplanation("适宜", { prominent: false, partOfSpeech: "adj" }),
               createExplanation("优秀的", {
-                pos: "adj",
-                frequencyTag: { tagForms: "(often used)", displayType: LingueeListItemType.OftenUsed },
+                partOfSpeech: "adj",
+                inflectionNote: "(often used)",
+                frequency: "often",
               }),
               createExplanation("bon", {
-                pos: "adj",
-                frequencyTag: { tagForms: "(bonne f sl)", displayType: LingueeListItemType.SpecialForms },
+                partOfSpeech: "adj",
+                inflectionNote: "(bonne f sl)",
+                frequency: "special-forms",
               }),
               createExplanation("有益", {
-                featured: false,
-                pos: "v",
-                frequencyTag: { tagForms: "", displayType: LingueeListItemType.LessCommon },
+                prominent: false,
+                partOfSpeech: "v",
+                frequency: "less-common",
               }),
             ],
           }),
@@ -67,13 +60,13 @@ describe("Linguee display formatter", () => {
             word: "goods",
             pos: "n",
             placeholder: "(plural)",
-            translationItems: [
+            entries: [
               createExplanation("商品", {
-                featured: false,
-                pos: "adj",
-                frequencyTag: { tagForms: "", displayType: LingueeListItemType.LessCommon },
+                prominent: false,
+                partOfSpeech: "adj",
+                frequency: "less-common",
               }),
-              createExplanation("货物", { featured: false, pos: "n" }),
+              createExplanation("货物", { prominent: false, partOfSpeech: "n" }),
             ],
           }),
         ],
@@ -134,34 +127,27 @@ describe("Linguee display formatter", () => {
   });
 
   it("limits examples and related words to three while keeping every encyclopedia summary in the title", () => {
-    const sections = formatLingueeDisplaySections(
-      queryWordInfo,
+    const sections = buildSections(
       createResult({
         examples: [
           {
-            example: { text: "good news", pos: "n" },
-            translations: [
-              { text: "好消息", pos: "" },
-              { text: "佳音", pos: "" },
-            ],
+            sentence: "good news",
+            partOfSpeech: "n",
+            translation: "好消息;  佳音",
           },
           createExample(),
-          { example: { text: "do good", pos: "v" }, translations: [{ text: "行善", pos: "" }] },
-          { example: { text: "omitted example", pos: "" }, translations: [{ text: "不会显示", pos: "" }] },
+          { sentence: "do good", partOfSpeech: "v", translation: "行善" },
+          { sentence: "omitted example", translation: "不会显示" },
         ],
         relatedWords: [
-          createWordItem({
-            word: "goodness",
-            pos: "n",
-            translationItems: [createExplanation("善良"), createExplanation("美德")],
-          }),
-          createWordItem({ word: "goodwill", translationItems: [createExplanation("善意")] }),
-          createWordItem({ word: "good luck", translationItems: [createExplanation("好运")] }),
-          createWordItem({ word: "omitted word" }),
+          { expression: "goodness", partOfSpeech: "n", meaning: "善良;  美德" },
+          { expression: "goodwill", partOfSpeech: "", meaning: "善意" },
+          { expression: "good luck", partOfSpeech: "", meaning: "好运" },
+          { expression: "omitted word", partOfSpeech: "", meaning: "不会显示" },
         ],
         wikipedias: [
-          { title: "Good", explanation: "An ethical concept.", source: "Wikipedia", sourceUrl: "" },
-          { title: "Goods", explanation: "Items for sale.", source: "Wikipedia", sourceUrl: "" },
+          { subject: "Good", text: "An ethical concept." },
+          { subject: "Goods", text: "Items for sale." },
         ],
       }),
     );
@@ -242,6 +228,13 @@ describe("Linguee display formatter", () => {
   });
 });
 
+function buildSections(result: LingueeDictionaryResult) {
+  return legacyDictionarySections(
+    DictionaryType.Linguee,
+    buildLingueeContent(queryWordInfo, { queryWordInfo, result }),
+  );
+}
+
 function readingSections(sections: DisplaySection[]) {
   return sections.map((section) => ({
     heading: section.sectionTitle,
@@ -267,35 +260,26 @@ function createResult(overrides: Partial<LingueeDictionaryResult> = {}): Linguee
 
 function createExample() {
   return {
-    example: { text: "a good book", pos: "" },
-    translations: [{ text: "一本好书", pos: "" }],
+    sentence: "a good book",
+    translation: "一本好书",
   };
 }
 
 function createWordItem(overrides: Partial<LingueeWordItem> = {}): LingueeWordItem {
   return {
     word: "good",
-    title: "good",
-    featured: true,
     pos: "",
     placeholder: "",
-    audioUrl: "",
-    translationItems: [createExplanation("良好的")],
+    entries: [createExplanation("良好的")],
     ...overrides,
   };
 }
 
-function createExplanation(
-  translation: string,
-  overrides: Partial<LingueeWordExplanation> = {},
-): LingueeWordExplanation {
+function createExplanation(text: string, overrides: Partial<ContentEquivalent> = {}): ContentEquivalent {
   return {
-    featured: true,
-    translation,
-    pos: "",
-    audioUrl: "",
-    examples: [],
-    frequencyTag: { tagForms: "", displayType: LingueeListItemType.Common },
+    prominent: true,
+    text,
+    frequency: "common",
     ...overrides,
   };
 }
