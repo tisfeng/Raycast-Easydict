@@ -38,6 +38,21 @@ function view(...services: ComposedService[]) {
 }
 
 describe("content rendering", () => {
+  it("escapes short headwords in the shared SVG header and lets long headwords wrap as text", () => {
+    const [section] = view(translation("One", ["translation"], { ...query, word: "<b>x" }));
+    const markdown = renderStandaloneRow(section.items[0]);
+    const encoded = markdown.match(/base64,([^)]*)/);
+    expect(encoded).not.toBeNull();
+    const svg = Buffer.from(encoded![1], "base64").toString("utf8");
+    expect(svg).toContain("&lt;b&gt;x");
+    expect(svg).not.toContain("<b>");
+    const longWord = "W".repeat(30);
+    const [longSection] = view(translation("One", ["translation"], { ...query, word: longWord }));
+    const longMarkdown = renderStandaloneRow(longSection.items[0]);
+    expect(longMarkdown).toContain(`## ${longWord}`);
+    expect(longMarkdown).not.toContain("data:image");
+  });
+
   it("compares visible profiles with the selected service first and marks differing language directions", () => {
     const sections = view(
       translation("One", ["证词"]),
@@ -151,6 +166,7 @@ describe("content rendering", () => {
   it("keeps multiline source and translation paragraphs outside headings and comparison tables", () => {
     const sentence = { ...query, word: "First line\nSecond line", isWord: false };
     const sections = view(translation("One", ["第一段", "", "第二段"], sentence));
+    expect(sections[0].items[0]).toMatchObject({ title: "第一段, , 第二段", copyText: "第一段\n\n第二段" });
     const standalone = renderStandaloneRow(sections[0].items[0]);
     expect(standalone).toContain("> First line  \n> Second line");
     expect(standalone).toContain("第一段\n\n第二段");

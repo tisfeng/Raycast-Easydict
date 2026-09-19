@@ -4,8 +4,9 @@ import { plainText } from "@/core/content/markdown";
 import type { DictionarySection } from "@/core/content/types";
 import type { ViewRow } from "@/core/content/viewTypes";
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
-import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
+import type { QueryWordInfo } from "@/core/results/types";
 
+import type { DisplaySection, ListDisplayItem } from "./legacyDisplay";
 import type { FavoriteWord, SavedService } from "./model";
 
 export interface LegacySavedRow extends Pick<

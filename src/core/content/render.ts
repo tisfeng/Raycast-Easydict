@@ -1,11 +1,75 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { getLanguageEnglishName } from "@/core/language/utils";
+import { isDarkAppearance } from "@/core/results/appearance";
 import { DictionaryType } from "@/core/results/kinds";
-import { languageDirection, resultHeader, translationResultsMarkdown } from "@/core/results/resultMarkdown";
 import type { QueryWordInfo } from "@/core/results/types";
 
 import { escapeHtml, plainText } from "./markdown";
 import type { ViewRow, ViewSection, ViewService } from "./viewTypes";
+
+function languageDirection(info: QueryWordInfo): string {
+  return `${getLanguageEnglishName(info.fromLanguage)} → ${getLanguageEnglishName(info.toLanguage)}`;
+}
+
+function resultHeader(info: QueryWordInfo): string {
+  const source = plainText(info.word);
+  const word = info.isWord === true && !info.word.includes("\n");
+  const direction = languageDirection(info);
+  if (word) {
+    // One SVG establishes a shared baseline; Raycast ignores CSS float in markdown.
+    // Long headwords keep native wrapping instead of shrinking or clipping their text.
+    const estimatedWidth = Array.from(info.word).reduce(
+      (width, character) => width + (character.codePointAt(0)! > 127 || /[MW@%]/.test(character) ? 28 : 18),
+      0,
+    );
+    const directionWidth = Array.from(direction).reduce(
+      (width, character) => width + (character.codePointAt(0)! > 127 ? 16 : 10),
+      0,
+    );
+    const phonetic = info.phonetic ?? "";
+    const phoneticWidth = Array.from(phonetic).length * 12;
+    if (estimatedWidth + phoneticWidth + directionWidth + 48 <= 600) {
+      const dark = isDarkAppearance();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="44" viewBox="0 0 600 44"><text x="0" y="30" font-family="Georgia, Times New Roman, serif" font-size="32" font-weight="700" fill="${dark ? "#f2f2f2" : "#202020"}">${escapeHtml(info.word)}</text>${phonetic ? `<text x="${estimatedWidth + 26}" y="30" font-family="Arial, sans-serif" font-size="20" fill="${dark ? "#aaaaaa" : "#777777"}">${escapeHtml(phonetic)}</text>` : ""}<text x="600" y="30" text-anchor="end" font-family="Arial, sans-serif" font-size="16" fill="${dark ? "#aaaaaa" : "#666666"}">${escapeHtml(direction)}</text></svg>`;
+      return `![${plainText(`${info.word}${phonetic ? ` · ${phonetic}` : ""} · ${direction}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")})`;
+    }
+    return `## ${source}${phonetic ? ` · ${plainText(phonetic)}` : ""}\n\n${plainText(direction)}`;
+  }
+  return `${plainText(direction)}\n\n${source
+    .split("\n")
+    .map((line) => `> ${line}  `)
+    .join("\n")}`;
+}
+
+interface TranslationEntry {
+  label: string;
+  text: string;
+  info: QueryWordInfo;
+}
+
+function translationBody(info: QueryWordInfo, results: readonly TranslationEntry[]): string {
+  const entries = results
+    .filter((result) => result.text.trim())
+    .map((result) => ({
+      ...result,
+      label:
+        result.label +
+        (result.info.fromLanguage !== info.fromLanguage || result.info.toLanguage !== info.toLanguage
+          ? ` · ${languageDirection(result.info)}`
+          : ""),
+    }));
+  const compact =
+    info.isWord === true &&
+    entries.length > 1 &&
+    entries.every((entry) => entry.text.length <= 120 && !entry.text.includes("\n"));
+  return compact
+    ? table(
+        entries.map((entry) => [entry.label, entry.text]),
+        ["Service", "Translation"],
+      )
+    : entries.map((entry) => `**${plainText(entry.label)}**\n\n${entry.text}`).join("\n\n");
+}
 
 export function viewRowLabel(
   row: Pick<ViewRow, "kind" | "frequency" | "prominent" | "summarySource" | "service">,
@@ -100,7 +164,7 @@ function groupSections(sections: readonly ViewSection[]): ServiceSections[] {
   return [...groups.values()];
 }
 
-function translationEntry(group: ServiceSections) {
+function translationEntry(group: ServiceSections): TranslationEntry {
   return {
     label: group.service.serviceLabel,
     text: group.sections.flatMap((section) => section.items.map((row) => row.copyText)).join("\n\n"),
@@ -114,7 +178,7 @@ export function renderSelectedRow(row: ViewRow, sections: readonly ViewSection[]
   const groups = groupSections(sections).filter((group) => group.service.kind === "translation");
   const current = groups.findIndex((group) => group.service.serviceId === row.service.serviceId);
   if (current > 0) groups.unshift(...groups.splice(current, 1));
-  return translationResultsMarkdown(row.service.query, groups.map(translationEntry));
+  return translationBody(row.service.query, groups.map(translationEntry));
 }
 
 export function renderStandaloneRow(row: ViewRow): string {
@@ -151,9 +215,9 @@ export function renderSavedView(query: QueryWordInfo, sections: readonly ViewSec
     query.phonetic ??
     sections.flatMap((section) => section.items).find((row) => row.accessory?.phonetic)?.accessory?.phonetic;
   const content: string[] = [];
-  let pendingTranslations: ReturnType<typeof translationEntry>[] = [];
+  let pendingTranslations: TranslationEntry[] = [];
   const flushTranslations = () => {
-    if (pendingTranslations.length) content.push(translationResultsMarkdown(query, pendingTranslations));
+    if (pendingTranslations.length) content.push(translationBody(query, pendingTranslations));
     pendingTranslations = [];
   };
   for (const group of groupSections(sections)) {

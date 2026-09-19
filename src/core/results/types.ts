@@ -2,13 +2,7 @@
 
 import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 
-import type {
-  AIDictionaryListItemType,
-  DictionaryType,
-  LingueeListItemType,
-  TranslationType,
-  YoudaoDictionaryListItemType,
-} from "./kinds";
+import type { DictionaryType, TranslationType } from "./kinds";
 
 export const PROVIDER_ICON_NAMES = [
   "openai",
@@ -88,42 +82,3 @@ export interface DictionaryResult {
 export type ProviderResult = TranslationResult | DictionaryResult;
 
 export type QueryResult = ProviderResult & RuntimeServiceMetadata & { readonly fromCache?: boolean };
-
-export type DictionaryDisplayType = AIDictionaryListItemType | LingueeListItemType | YoudaoDictionaryListItemType;
-
-export interface DisplaySection {
-  serviceId?: string;
-  type: DictionaryDisplayType | TranslationType;
-  sectionTitle?: string;
-  items: ListDisplayItem[];
-}
-
-interface ListDisplayItemBase {
-  serviceId?: string;
-  serviceLabel?: string;
-  serviceIcon?: ProviderIconConfig;
-  queryType: QueryType;
-  queryWordInfo: QueryWordInfo;
-  key: string;
-  title: string;
-  subtitle?: string;
-  copyText: string;
-  tooltip?: string;
-  detailsMarkdown?: string;
-  accessoryItem?: ListAccessoryItem;
-  fromCache?: boolean;
-}
-
-export type ListDisplayItem = ListDisplayItemBase &
-  (
-    | { queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
-    | { queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }
-    | { queryType: DictionaryType.AI; displayType: AIDictionaryListItemType }
-    | { queryType: TranslationType; displayType?: never }
-  );
-
-export interface ListAccessoryItem {
-  phonetic?: string;
-  readonly examTypes?: readonly string[];
-  example?: string;
-}

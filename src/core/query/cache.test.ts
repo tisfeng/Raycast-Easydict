@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DetectionDecision } from "@/core/detect/types";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
-import type { QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
+import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 
 import {
   cacheLanguageDetection,
@@ -175,13 +175,6 @@ describe("query cache", () => {
         },
       },
     },
-    {
-      version: 2,
-      value: {
-        type: DictionaryType.AI,
-        content: { kind: "dictionary", query, sections: [{ kind: "examples", entries: [] }] },
-      },
-    },
   ])("discards old, future, or malformed content before replay (%j)", ({ version, value }) => {
     const service = createService("builtin:translation:Bing", "regular");
     cacheQueryResult(service, query, createTranslationResult());
@@ -190,6 +183,21 @@ describe("query cache", () => {
     storage.set(key, JSON.stringify({ version, expiresAt: Date.now() + 10000, value }));
     expect(getCachedQueryResult(service, query)).toBeUndefined();
     expect(storage.has(key)).toBe(false);
+  });
+
+  it("replays valid semantic sections independently of provider-specific layouts", () => {
+    testState.preferences.aiQueryCacheMode = "words";
+    const service = createService("ai:profile", "model-a");
+    const result: DictionaryResult = {
+      type: DictionaryType.AI,
+      content: {
+        kind: "dictionary",
+        query,
+        sections: [{ kind: "examples", entries: [{ sentence: "Cache the result", translation: "缓存结果" }] }],
+      },
+    };
+    cacheQueryResult(service, query, result);
+    expect(getCachedQueryResult(service, query)).toEqual(result);
   });
 
   it("stores content version 2 while retaining version 1 word evidence and seven-day dictionary expiry", () => {

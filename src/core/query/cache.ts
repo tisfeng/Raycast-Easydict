@@ -6,7 +6,6 @@ import { Cache } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
 import { decodeProviderContent } from "@/core/content/decode";
-import type { DictionarySection } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
 import { parseSourceLanguage } from "@/core/language/utils";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
@@ -269,14 +268,6 @@ function decodeDetectedLanguage(value: unknown): DetectionDecision {
   return { type, language, confirmed: true };
 }
 
-// The outgoing legacy view bridge only supports each provider's current section repertoire.
-// Remove this temporary layout constraint when the generic content renderer replaces it.
-const dictionarySections: Partial<Record<DictionaryType, readonly DictionarySection["kind"][]>> = {
-  [DictionaryType.AI]: ["translation", "definitions", "pairs"],
-  [DictionaryType.Youdao]: ["translation", "definitions", "pairs", "form-set", "summary", "chinese-entry"],
-  [DictionaryType.Linguee]: ["translation", "equivalents", "examples", "pairs", "summary"],
-};
-
 function decodeResult(value: unknown): ProviderResult {
   if (!isRecord(value)) throw new Error("Invalid cached result");
   const content = decodeProviderContent(value.content);
@@ -286,14 +277,6 @@ function decodeResult(value: unknown): ProviderResult {
     return { type, content };
   }
   const type = Object.values(DictionaryType).find((type) => type === value.type);
-  const supported = type && dictionarySections[type];
-  if (
-    !type ||
-    !supported ||
-    !content.sections.length ||
-    content.sections.some((section) => !supported.includes(section.kind))
-  ) {
-    throw new Error("Invalid cached dictionary");
-  }
+  if (!type || !content.sections.length) throw new Error("Invalid cached dictionary");
   return { type, content };
 }
