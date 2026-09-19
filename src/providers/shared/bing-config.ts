@@ -3,8 +3,8 @@
 import { Cache } from "@raycast/api";
 
 import { myPreferences, userAgent } from "@/consts";
-import { timedFetch } from "@/utils/http";
-import { logTrace, logWarn } from "@/utils/logger";
+import { timedFetch } from "@/shared/http";
+import { logTrace, logWarn } from "@/shared/logger";
 
 interface BingConfig {
   IG: string;

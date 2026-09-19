@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import type { QueryInput } from "@/core/results/types";
+import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 
 import { builtinProviderCatalog, getBuiltinProviderPreferenceStatus } from "./catalog";
 import { getCombinedAvailableProviderKeys, getCombinedProviderOrder } from "./order";

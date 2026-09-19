@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { StoredAIProviderState } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
+import type { StoredAIProviderState } from "@/providers/profiles/types";
 
 import { type DictionaryServiceConfig, resolveDictionaryServices } from "./dictionary";
 import type { NativeJSONUnsupportedHandler } from "./dictionary/ai";

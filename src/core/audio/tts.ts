@@ -6,8 +6,8 @@ import { getVoices, killRunningSay, say } from "native-say";
 
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
-import { showErrorToast } from "@/utils/errors";
-import { logError, logTrace, logWarn } from "@/utils/logger";
+import { showErrorToast } from "@/shared/errors";
+import { logError, logTrace, logWarn } from "@/shared/logger";
 
 let cachedVoices: Voice[] | null = null;
 

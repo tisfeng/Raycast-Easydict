@@ -4,8 +4,8 @@ import { userAgent } from "@/consts";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
-import { timedFetch } from "@/utils/http";
-import { logTrace } from "@/utils/logger";
+import { timedFetch } from "@/shared/http";
+import { logTrace } from "@/shared/logger";
 
 import { formatLingueeDisplaySections } from "./format";
 import { parseLingueeHTML } from "./parse";

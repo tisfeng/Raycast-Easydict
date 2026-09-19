@@ -3,8 +3,8 @@
 import { LocalStorage } from "@raycast/api";
 
 import { userAgent } from "@/consts";
-import { timedFetch } from "@/utils/http";
-import { logError, logTrace } from "@/utils/logger";
+import { timedFetch } from "@/shared/http";
+import { logError, logTrace } from "@/shared/logger";
 
 const youdaoTranslateURL = "https://fanyi.youdao.com";
 const youdaoCookieKey = "youdaoCookie";

@@ -2,8 +2,8 @@
 
 import type { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
-import { CancelledError, handleRequestError } from "@/utils/errors";
-import { createTimer } from "@/utils/logger";
+import { CancelledError, handleRequestError } from "@/shared/errors";
+import { createTimer } from "@/shared/logger";
 
 /**
  * Abstract base for dictionary providers.

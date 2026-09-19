@@ -2,8 +2,8 @@
 
 import { randomUUID } from "node:crypto";
 
-import { normalizeOpenAICompatibleEndpoint } from "@/ai-providers/endpoint";
 import { EASYDICT_VERSION } from "@/consts";
+import { normalizeOpenAICompatibleEndpoint } from "@/providers/profiles/endpoint";
 
 const OPENCODE_GO_ORIGIN = "https://opencode.ai";
 const OPENCODE_GO_PATH = "/zen/go/v1";

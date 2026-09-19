@@ -2,8 +2,8 @@
 
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { LanguageDetectType } from "@/core/results/kinds";
-import { CancelledError, handleRequestError } from "@/utils/errors";
-import { createTimer } from "@/utils/logger";
+import { CancelledError, handleRequestError } from "@/shared/errors";
+import { createTimer } from "@/shared/logger";
 
 /**
  * Abstract base for language detection providers.

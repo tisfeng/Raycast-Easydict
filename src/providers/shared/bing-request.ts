@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { userAgent } from "@/consts";
-import { timedFetch } from "@/utils/http";
+import { timedFetch } from "@/shared/http";
 
 import { ensureBingConfig, getBingHost, incrementBingConfigCount } from "./bing-config";
 

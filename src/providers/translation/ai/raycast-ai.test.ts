@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { RaycastAIProfile } from "@/ai-providers/types";
 import { TranslationType } from "@/core/results/kinds";
-import { CancelledError } from "@/utils/errors";
+import type { RaycastAIProfile } from "@/providers/profiles/types";
+import { CancelledError } from "@/shared/errors";
 
 import { RaycastAITranslateProvider } from "./raycast-ai";
 
@@ -19,7 +19,7 @@ vi.mock("@raycast/api", () => ({
   environment: { canAccess: testDoubles.canAccess },
 }));
 
-vi.mock("@/utils/logger", () => ({
+vi.mock("@/shared/logger", () => ({
   createTimer: () => ({ done: vi.fn(), fail: vi.fn() }),
   logError: vi.fn(),
   logTrace: vi.fn(),

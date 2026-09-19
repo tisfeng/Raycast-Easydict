@@ -24,18 +24,21 @@ Use these entry points when working on the corresponding area:
 
 | Area | Entry points and ownership |
 | --- | --- |
+| Feature UI and state | `src/features/search/` owns lookup UI and hooks; `features/favorites/` owns saved-word UI, models, persistence, and export; `features/provider-management/` owns profile forms and model discovery |
 | Provider catalog and ordering | `src/providers/catalog.ts` and `order.ts` own metadata and ordering; `registry.ts` assembles runtime factories; `web.ts` owns lightweight web actions |
 | Provider protocols | `src/providers/`: category base classes and registries; detection registry in `detect/registry.ts`; OpenAI-compatible streaming in `translation/ai/openai-compatible.ts` |
 | Result contracts and rendering | `src/core/results/types.ts` owns query, display, and icon descriptions; `kinds.ts` owns request and display discriminants; `resultMarkdown.ts` and `icons.tsx` are separate rendering entry points |
-| Query lifecycle | `src/hooks/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns raw query state, synchronous display projection, and cache |
-| AI configuration | `src/ai-providers/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
+| Query lifecycle | `src/features/search/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns raw query state, synchronous display projection, and cache |
+| AI configuration | `src/providers/profiles/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
 | Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/` owns language types and mappings |
+| Shared utilities | `src/shared/` owns HTTP, errors, logging, and cryptography; provider protocol helpers remain in `src/providers/shared/` |
 
 - Provider base methods own timing, cancellation, and final error normalization through `handleRequestError`. Translation `request()` is an async generator adapted from `doTranslate()`; detection delegates to `doDetect()`, and dictionary lookup to `doQuery()`. Catch in subclasses only for protocol recovery or typed error conversion.
 - Keep payload types, parsing, and dictionary `displaySections` provider-specific. Core query projection combines those sections and translations without retaining supplements in raw query state or provider caches. Share provider code in `src/providers/shared/` only when it has multiple consumers.
+- Keep profile configuration independent of UI hooks; `src/providers/profiles/useAIProviderProfiles.ts` is the explicit shared React entry point for search and management. Keep AI dictionary prompts, parsing, and payload types in `src/providers/dictionary/ai/`; shared translation/dictionary routing uses `providers/profiles/dictionaryCandidate.ts`.
 - Keep result contracts independent of provider payloads, profile configuration, and rendering. Preserve their discriminated unions and stored enum values when changing ownership.
 - Query changes must preserve latest-request ownership of streaming updates, final results, cache writes, and loading cleanup. Clearing cache must prevent requests started before the clear from repopulating it; favorites remain independent of query cache.
-- Static settings and credentials use Raycast Preferences. Dynamic AI profiles, including credentials, use Raycast's encrypted `LocalStorage` through `src/ai-providers/repository.ts`. Preserve saved profiles and favorites when changing formats or migration behavior.
+- Static settings and credentials use Raycast Preferences. Dynamic AI profiles, including credentials, use Raycast's encrypted `LocalStorage` through `src/providers/profiles/repository.ts`. Preserve saved profiles and favorites when changing formats or migration behavior.
 - Organize actions by purpose and frequency of use. Preserve existing primary/secondary actions, shortcuts, and root navigation behavior unless the task intentionally changes them; the first two actions receive Raycast's default shortcuts. Place new actions in the appropriate group rather than requiring every addition to go at the end.
 
 ## Code Conventions

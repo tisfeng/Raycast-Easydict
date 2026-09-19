@@ -7,8 +7,8 @@ import { isValidLangCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/core/results/kinds";
 import type { BaseDetectProvider, DetectOptions } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
-import { CancelledError } from "@/utils/errors";
-import { logError, logSummary, logTrace } from "@/utils/logger";
+import { CancelledError } from "@/shared/errors";
+import { logError, logSummary, logTrace } from "@/shared/logger";
 
 import type { DetectedLangModel } from "./types";
 import {

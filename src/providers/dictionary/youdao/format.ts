@@ -2,7 +2,7 @@
 
 import { DictionaryType, YoudaoDictionaryListItemType } from "@/core/results/kinds";
 import type { DisplaySection, ListAccessoryItem, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
-import { logTrace } from "@/utils/logger";
+import { logTrace } from "@/shared/logger";
 
 import type { BaikeSummary, Sense, YoudaoDictionaryData } from "./types";
 

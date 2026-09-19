@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import { BingDetectProvider } from "@/providers/detect/bing";
 import { BingTranslateProvider } from "@/providers/translation/bing";
-import { CancelledError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
+import { CancelledError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
 
 const storage = vi.hoisted(() => new Map<string, string>());
 
@@ -22,7 +22,7 @@ vi.mock("@raycast/api", () => ({
 }));
 
 vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
-vi.mock("@/utils/http", () => ({ timedFetch: { raw: vi.fn() } }));
+vi.mock("@/shared/http", () => ({ timedFetch: { raw: vi.fn() } }));
 
 const fetchRaw = vi.mocked(timedFetch.raw);
 const query = { word: "hello & goodbye\nworld", fromLanguage: "en", toLanguage: "zh-CHS" };

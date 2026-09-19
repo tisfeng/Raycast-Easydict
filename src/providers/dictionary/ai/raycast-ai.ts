@@ -2,19 +2,19 @@
 
 import { AI, environment } from "@raycast/api";
 
-import { parseAIWordResult } from "@/ai-providers/dictionary/parser";
-import { createAIDictionaryPromptSpec, renderAIDictionaryTextPrompt } from "@/ai-providers/dictionary/prompt";
-import type { AIWordResult } from "@/ai-providers/dictionary/types";
-import { getRaycastAIModel } from "@/ai-providers/runtime";
-import type { RaycastAIProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
-import { RequestError } from "@/utils/errors";
-import { logTrace } from "@/utils/logger";
+import { getRaycastAIModel } from "@/providers/profiles/runtime";
+import type { RaycastAIProfile } from "@/providers/profiles/types";
+import { RequestError } from "@/shared/errors";
+import { logTrace } from "@/shared/logger";
 
 import { BaseDictionaryProvider } from "../base";
 import { formatAIWordResult, resolveAIDictionaryWordInfo } from "./format";
+import { parseAIWordResult } from "./parser";
+import { createAIDictionaryPromptSpec, renderAIDictionaryTextPrompt } from "./prompt";
+import type { AIWordResult } from "./types";
 
 export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
   type = DictionaryType.AI;

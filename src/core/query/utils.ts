@@ -3,7 +3,7 @@
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import type { QueryResult } from "@/core/results/types";
-import { logTrace } from "@/utils/logger";
+import { logTrace } from "@/shared/logger";
 
 /**
  * Sort query results by designated order.

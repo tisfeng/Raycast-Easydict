@@ -6,7 +6,7 @@ import type { default as HtmlNode } from "node-html-parser/dist/nodes/html";
 import { getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
 import { LingueeListItemType } from "@/core/results/kinds";
 import type { QueryWordInfo } from "@/core/results/types";
-import { logWarn } from "@/utils/logger";
+import { logWarn } from "@/shared/logger";
 
 import type {
   LingueeExample,

@@ -5,9 +5,9 @@ import querystring from "node:querystring";
 import { myPreferences } from "@/consts";
 import { baiduMap, getYoudaoLangCode, isValidLangCode } from "@/core/language/utils";
 import { LanguageDetectType } from "@/core/results/kinds";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError } from "@/shared/logger";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";
