@@ -49,7 +49,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持划词自动查询（默认启用）。配合快捷键使用体验更佳。
 - [x] 支持 OCR 截图翻译。
 - [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上已安装）。
-- [x] 支持自动播放单词发音（使用 `Cmd + S` 手动播放）。
+- [x] 支持自动和手动播放单词发音。
 - [x] 支持有道文本合成语音（TTS）。
 - [x] 支持手动排序查询结果。
 - [x] 支持 [Arguments](https://developers.raycast.com/information/lifecycle/arguments)。
@@ -195,13 +195,19 @@ npm install && npm run dev
 <details> <summary> 查询单词后自动播放单词发音，默认开启。 </summary>
 
 <p>
-注意，当该选项开始时，仅当查询的内容被判定为 `is_Word` 且为英语时才会自动播放语音，例如 `good`, `look for` 等。其他查询内容，可通过快捷键 `Cmd + S` 播放语音。
+注意，当该选项开始时，仅当查询的内容被判定为 `is_Word` 且为英语时才会自动播放语音，例如 `good`, `look for` 等。其他查询内容，可通过 **Read Query Text** 手动播放语音。
 播放语音的内容：英语单词优先采用在线的有道词典发音，其他则使用有道翻译的 TTS 服务（若有有道 App Key）。长文本播放使用 say 命令。
 </p>
 
 </details>
 
-使用快捷键 `Cmd + S` 播放单词发音。
+查询结果页支持以下快捷键：
+
+| 操作 | macOS | Windows |
+| --- | --- | --- |
+| 朗读查询文本（Read Query Text） | `Cmd+R` | `Ctrl+R` |
+| 朗读结果文本（Read Result Text） | `Cmd+Shift+R` | `Ctrl+Shift+R` |
+| 重新查询所有服务（Requery All Services） | `Cmd+Option+R` | `Ctrl+Alt+R` |
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 

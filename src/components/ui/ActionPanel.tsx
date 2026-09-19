@@ -58,6 +58,10 @@ interface WebQueryItem {
 const shortcuts = {
   showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
   readQueryText: { macOS: { modifiers: ["cmd"], key: "r" }, Windows: { modifiers: ["ctrl"], key: "r" } },
+  requery: {
+    macOS: { modifiers: ["cmd", "opt"], key: "r" },
+    Windows: { modifiers: ["ctrl", "alt"], key: "r" },
+  },
   readResultText: {
     macOS: { modifiers: ["cmd", "shift"], key: "r" },
     Windows: { modifiers: ["ctrl", "shift"], key: "r" },
@@ -201,7 +205,7 @@ function PrimaryActions({
       <Action
         icon={Icon.ArrowClockwise}
         title="Requery All Services"
-        shortcut={Keyboard.Shortcut.Common.Refresh}
+        shortcut={shortcuts.requery}
         onAction={onRequery}
       />
     </ActionPanel.Section>
