@@ -873,3 +873,46 @@ function getDisplayedWord(sections: ReturnType<typeof useQueryEngine>["displaySe
 function StrictModeWrapper({ children }: PropsWithChildren) {
   return createElement(StrictMode, undefined, children);
 }
+
+describe("query completion", () => {
+  it("preserves the authoritative final completion when chunks differ", async () => {
+    testDoubles.aiQueryCacheMode = "words";
+    class FinalStreamingProvider extends BaseStreamingTranslateProvider {
+      type = TranslationType.OpenAI;
+      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationResult> {
+        yield { content: "draft" };
+        return { type: this.type, queryWordInfo, translations: ["final"] };
+      }
+    }
+    const service: TranslationServiceConfig = {
+      id: "profile:final-stream",
+      label: "Final Stream",
+      providerKey: "ai:final-stream",
+      order: 0,
+      type: TranslationType.OpenAI,
+      enabled: () => true,
+      createProvider: () => new FinalStreamingProvider(),
+    };
+    const snapshot = { dictionaryServices: [], translationServices: [service] };
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+    const query = createQueryInput("audit");
+    act(() => result.current.queryTextWithTextInfo(query));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(getCachedQueryResult(service, query)).toMatchObject({ translations: ["final"] });
+    expect(result.current.displaySections[0].items[0].title).toBe("final");
+  });
+
+  it("settles loading after current language detection rejects", async () => {
+    const detection = createDeferred<DetectedLangModel>();
+    testDoubles.detectLanguage.mockReturnValueOnce(detection.promise);
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    act(() => result.current.queryText("audit", "zh-CHS"));
+    expect(result.current.isLoading).toBe(true);
+    await act(async () => {
+      detection.reject(new Error("detection failure"));
+      await detection.promise.catch(() => undefined);
+    });
+    expect(testDoubles.showFailureToast).toHaveBeenCalledTimes(1);
+    expect(result.current.isLoading).toBe(false);
+  });
+});
