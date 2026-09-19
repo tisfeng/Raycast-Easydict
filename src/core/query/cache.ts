@@ -5,14 +5,16 @@ import { createHash } from "node:crypto";
 import { Cache } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
+import { decodeProviderContent } from "@/core/content/decode";
+import type { DictionarySection } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
 import { parseSourceLanguage } from "@/core/language/utils";
-import { decodeCachedResult } from "@/core/results/decode";
-import { LanguageDetectType } from "@/core/results/kinds";
-import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
+import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
+import type { ProviderResult, QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { logWarn } from "@/shared/logger";
 
 const CACHE_FORMAT_VERSION = 1;
+const RESULT_FORMAT_VERSION = 2;
 const DAY = 24 * 60 * 60 * 1_000;
 const MAX_ENTRY_BYTES = 1024 * 1024;
 
@@ -21,7 +23,6 @@ const aiResultCache = new Cache({ namespace: "query-results-ai", capacity: 3 * 1
 const detectionCache = new Cache({ namespace: "query-language-detection", capacity: 1024 * 1024 });
 
 type QueryCacheMode = "off" | "words" | "all";
-type CacheableResult = TranslationResult | DictionaryResult;
 
 interface CacheEntry<T> {
   version: number;
@@ -72,7 +73,7 @@ function hashKey(value: unknown): string {
 
 function resultCacheKey(service: RuntimeServiceConfig, query: QueryInput): string {
   return hashKey({
-    version: CACHE_FORMAT_VERSION,
+    version: RESULT_FORMAT_VERSION,
     kind: "result",
     service: service.providerKey,
     configuration: service.cacheIdentity ?? service.providerKey,
@@ -110,14 +111,19 @@ function wordEvidenceKey(text: string): string {
   return hashKey({ version: CACHE_FORMAT_VERSION, kind: "confirmed-word", text });
 }
 
-function readEntry<T>(cache: Cache, key: string, decode: (value: unknown) => T): T | undefined {
+function readEntry<T>(
+  cache: Cache,
+  key: string,
+  decode: (value: unknown) => T,
+  version = CACHE_FORMAT_VERSION,
+): T | undefined {
   try {
     const serialized = cache.get(key);
     if (!serialized) return undefined;
     const entry: unknown = JSON.parse(serialized);
     if (
       !isRecord(entry) ||
-      entry.version !== CACHE_FORMAT_VERSION ||
+      entry.version !== version ||
       typeof entry.expiresAt !== "number" ||
       !Number.isFinite(entry.expiresAt)
     ) {
@@ -144,9 +150,9 @@ function safelyRemove(cache: Cache, key: string) {
   }
 }
 
-function writeEntry<T>(cache: Cache, key: string, value: T, ttl: number) {
+function writeEntry<T>(cache: Cache, key: string, value: T, ttl: number, version = CACHE_FORMAT_VERSION) {
   try {
-    const entry: CacheEntry<T> = { version: CACHE_FORMAT_VERSION, expiresAt: Date.now() + ttl, value };
+    const entry: CacheEntry<T> = { version, expiresAt: Date.now() + ttl, value };
     const serialized = JSON.stringify(entry);
     if (Buffer.byteLength(serialized, "utf8") <= MAX_ENTRY_BYTES) cache.set(key, serialized);
   } catch (error) {
@@ -154,26 +160,32 @@ function writeEntry<T>(cache: Cache, key: string, value: T, ttl: number) {
   }
 }
 
-export function getCachedQueryResult(service: RuntimeServiceConfig, query: QueryInput): CacheableResult | undefined {
+export function getCachedQueryResult(service: RuntimeServiceConfig, query: QueryInput): ProviderResult | undefined {
   synchronizeDisabledCaches();
   if (!permitsInput(getResultCacheMode(service), query)) return undefined;
-  return readEntry(getResultCache(service), resultCacheKey(service, query), decodeCachedResult);
+  return readEntry(getResultCache(service), resultCacheKey(service, query), decodeResult, RESULT_FORMAT_VERSION);
 }
 
 export function cacheQueryResult(
   service: RuntimeServiceConfig,
   query: QueryInput,
-  result: CacheableResult,
+  result: ProviderResult,
   expectedGeneration = cacheGeneration,
 ): void {
   synchronizeDisabledCaches();
   if (expectedGeneration !== cacheGeneration) return;
   const mode = getResultCacheMode(service);
-  if (!permitsInput(mode, query, result.queryWordInfo.isWord)) return;
-  const ttl = !isAIService(service) && !("translations" in result) ? 7 * DAY : DAY;
+  if (!permitsInput(mode, query, result.content.query.isWord)) return;
+  const ttl = !isAIService(service) && result.content.kind === "dictionary" ? 7 * DAY : DAY;
   const cache = getResultCache(service);
-  if (result.queryWordInfo.isWord === true) writeEntry(cache, wordEvidenceKey(query.word), true, ttl);
-  writeEntry(cache, resultCacheKey(service, query), result, ttl);
+  if (result.content.query.isWord === true) writeEntry(cache, wordEvidenceKey(query.word), true, ttl);
+  writeEntry(
+    cache,
+    resultCacheKey(service, query),
+    { type: result.type, content: result.content },
+    ttl,
+    RESULT_FORMAT_VERSION,
+  );
 }
 
 export function getCachedLanguageDetection(text: string): DetectionDecision | undefined {
@@ -255,4 +267,33 @@ function decodeDetectedLanguage(value: unknown): DetectionDecision {
     throw new Error("Invalid cached detection");
   }
   return { type, language, confirmed: true };
+}
+
+// The outgoing legacy view bridge only supports each provider's current section repertoire.
+// Remove this temporary layout constraint when the generic content renderer replaces it.
+const dictionarySections: Partial<Record<DictionaryType, readonly DictionarySection["kind"][]>> = {
+  [DictionaryType.AI]: ["translation", "definitions", "pairs"],
+  [DictionaryType.Youdao]: ["translation", "definitions", "pairs", "form-set", "summary", "chinese-entry"],
+  [DictionaryType.Linguee]: ["translation", "equivalents", "examples", "pairs", "summary"],
+};
+
+function decodeResult(value: unknown): ProviderResult {
+  if (!isRecord(value)) throw new Error("Invalid cached result");
+  const content = decodeProviderContent(value.content);
+  if (content.kind === "translation") {
+    const type = Object.values(TranslationType).find((type) => type === value.type);
+    if (!type || !content.paragraphs.some((text) => text.trim())) throw new Error("Invalid cached translation");
+    return { type, content };
+  }
+  const type = Object.values(DictionaryType).find((type) => type === value.type);
+  const supported = type && dictionarySections[type];
+  if (
+    !type ||
+    !supported ||
+    !content.sections.length ||
+    content.sections.some((section) => !supported.includes(section.kind))
+  ) {
+    throw new Error("Invalid cached dictionary");
+  }
+  return { type, content };
 }

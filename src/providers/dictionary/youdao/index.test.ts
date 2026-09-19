@@ -16,7 +16,7 @@ beforeEach(() => vi.clearAllMocks());
 const query = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS" };
 
 describe("Youdao dictionary request", () => {
-  it("returns semantic content and display sections without retaining the vendor response", async () => {
+  it("returns semantic content without retaining the vendor response", async () => {
     vi.mocked(timedFetch).mockResolvedValueOnce({
       input: "good",
       le: "en",
@@ -30,8 +30,13 @@ describe("Youdao dictionary request", () => {
     expect(timedFetch).toHaveBeenCalledWith(expect.stringContaining("https://dict.youdao.com/jsonapi?"), { signal });
     expect(result).toMatchObject({
       type: DictionaryType.Youdao,
-      content: { kind: "dictionary", sections: [{ kind: "translation", text: "好的" }, { kind: "pairs" }] },
-      displaySections: [{ items: [{ title: "好的", copyText: "好的" }] }, { items: [{ copyText: "good 好的" }] }],
+      content: {
+        kind: "dictionary",
+        sections: [
+          { kind: "translation", text: "好的" },
+          { kind: "pairs", relation: "web-translation", entries: [{ expression: "good", meaning: "好的" }] },
+        ],
+      },
     });
     expect(result).not.toHaveProperty("result");
     expect(JSON.stringify(result)).not.toContain("vendor payload");

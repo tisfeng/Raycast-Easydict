@@ -39,16 +39,11 @@ interface ServiceRequest {
   running: boolean;
 }
 
-interface ServiceEntry {
-  request: ServiceRequest;
-  result?: QueryResult;
-}
-
 interface QuerySession {
   controller: AbortController;
   phase: { kind: "detecting" } | { kind: "ready"; input: QueryInput } | { kind: "failed" };
   cacheGeneration: number;
-  entries: Map<string, ServiceEntry>;
+  requests: Map<string, ServiceRequest>;
   audioPlayed: boolean;
 }
 
@@ -102,12 +97,9 @@ export class QueryRunner {
     const session = this.session;
     this.snapshot = {
       ...this.snapshot,
-      queryResults: [...(session?.entries.values() ?? [])]
-        .flatMap((entry) => (entry.result ? [entry.result] : []))
-        .sort((left, right) => left.serviceOrder - right.serviceOrder),
       isLoading:
         !!session &&
-        (session.phase.kind === "detecting" || [...session.entries.values()].some((entry) => entry.request.running)),
+        (session.phase.kind === "detecting" || [...session.requests.values()].some((request) => request.running)),
     };
     for (const listener of this.listeners) listener();
   }
@@ -116,7 +108,7 @@ export class QueryRunner {
     return (
       this.session === session &&
       !session.controller.signal.aborted &&
-      (!request || (request.running && session.entries.get(request.serviceId)?.request === request))
+      (!request || (request.running && session.requests.get(request.serviceId) === request))
     );
   }
 
@@ -126,24 +118,24 @@ export class QueryRunner {
       controller: new AbortController(),
       phase: { kind: "detecting" },
       cacheGeneration: getQueryCacheGeneration(),
-      entries: new Map(),
+      requests: new Map(),
       audioPlayed: false,
     };
     this.session = session;
-    this.snapshot = { ...this.snapshot, queryGeneration: this.snapshot.queryGeneration + 1 };
+    this.snapshot = { ...this.snapshot, queryResults: [], queryGeneration: this.snapshot.queryGeneration + 1 };
     this.publish();
     return session;
   }
 
   dispose = () => {
     this.session?.controller.abort();
-    for (const entry of this.session?.entries.values() ?? []) entry.request.controller.abort();
+    for (const request of this.session?.requests.values() ?? []) request.controller.abort();
   };
 
   clearQueryResult = () => {
     this.dispose();
     this.session = undefined;
-    this.snapshot = { ...this.snapshot, queryGeneration: this.snapshot.queryGeneration + 1 };
+    this.snapshot = { ...this.snapshot, queryResults: [], queryGeneration: this.snapshot.queryGeneration + 1 };
     this.publish();
   };
 
@@ -210,7 +202,7 @@ export class QueryRunner {
       void this.runDictionary(service, session, input, bypassCache);
     for (const service of this.services.translationServices)
       void this.runTranslation(service, session, input, bypassCache);
-    if (session.entries.size === 0) this.publish();
+    if (session.requests.size === 0) this.publish();
   }
 
   setServices = (services: QueryServiceSnapshot) => {
@@ -245,8 +237,8 @@ export class QueryRunner {
   };
 
   private beginRequest(serviceId: string, session: QuerySession) {
-    const previous = session.entries.get(serviceId);
-    previous?.request.controller.abort();
+    const previous = session.requests.get(serviceId);
+    previous?.controller.abort();
     const controller = new AbortController();
     const request = {
       serviceId,
@@ -254,17 +246,19 @@ export class QueryRunner {
       signal: AbortSignal.any([session.controller.signal, controller.signal]),
       running: true,
     };
-    session.entries.set(serviceId, { request, result: previous?.result });
+    session.requests.set(serviceId, request);
     this.publish();
     return request;
   }
 
-  private accept(session: QuerySession, result: QueryResult) {
-    const entry = session.entries.get(result.serviceId)!;
-    entry.result = result;
-    // Preserve arrival order when services have equal configured order, including regeneration.
-    session.entries.delete(result.serviceId);
-    session.entries.set(result.serviceId, entry);
+  private accept(session: QuerySession, request: ServiceRequest, result: QueryResult): boolean {
+    if (!this.isCurrent(session, request)) return false;
+    const results = this.snapshot.queryResults.filter((entry) => entry.serviceId !== result.serviceId);
+    // An updated service follows its equal-ranked peers, preserving arrival/regeneration order.
+    const index = results.findIndex((entry) => entry.serviceOrder > result.serviceOrder);
+    results.splice(index < 0 ? results.length : index, 0, result);
+    this.snapshot = { ...this.snapshot, queryResults: results };
+    return true;
   }
 
   private finish(session: QuerySession, service: RuntimeServiceConfig, request: ServiceRequest, error?: unknown) {
@@ -286,17 +280,21 @@ export class QueryRunner {
   ) {
     if (!service.enabled(input)) return;
     const request = this.beginRequest(service.id, session);
+    if (!this.isCurrent(session, request)) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let text = "";
     const accept = (result: TranslationResult, fromCache = false) => {
-      if (!result.translations.join(", ").trim()) return false;
-      this.accept(session, { ...result, ...serviceMetadata(service), ...(fromCache ? { fromCache } : {}) });
-      return true;
+      if (!result.content.paragraphs.join(", ").trim()) return false;
+      return this.accept(session, request, {
+        ...result,
+        ...serviceMetadata(service),
+        ...(fromCache ? { fromCache } : {}),
+      });
     };
     try {
       const cached = bypassCache ? undefined : getCachedQueryResult(service, input);
-      if (cached && "translations" in cached) {
-        accept(cached, true);
+      if (cached?.content.kind === "translation" && cached.type === service.type) {
+        accept({ type: service.type, content: cached.content }, true);
       } else {
         const iterator = service.createProvider().request(input, { signal: request.signal });
         while (true) {
@@ -314,10 +312,7 @@ export class QueryRunner {
           if (!timer)
             timer = setTimeout(() => {
               timer = undefined;
-              if (
-                this.isCurrent(session, request) &&
-                accept({ type: service.type, queryWordInfo: input, translations: [text] })
-              )
+              if (accept({ type: service.type, content: { kind: "translation", query: input, paragraphs: [text] } }))
                 this.publish();
             }, 80);
         }
@@ -339,20 +334,19 @@ export class QueryRunner {
   ) {
     if (!service.enabled(input)) return;
     const request = this.beginRequest(service.id, session);
+    if (!this.isCurrent(session, request)) return;
     try {
       const cached = bypassCache ? undefined : getCachedQueryResult(service, input);
-      const fromCache = cached !== undefined && !("translations" in cached);
-      const result = fromCache ? cached : await service.createProvider().request(input, { signal: request.signal });
+      const fromCache = cached?.content.kind === "dictionary" && cached.type === service.type;
+      const result =
+        cached?.content.kind === "dictionary" && cached.type === service.type
+          ? { type: service.type, content: cached.content }
+          : await service.createProvider().request(input, { signal: request.signal });
       if (!this.isCurrent(session, request)) return;
-      if (result.displaySections?.length) {
+      if (result.content.sections.length) {
         if (!fromCache) cacheQueryResult(service, input, result, cacheGeneration);
-        this.accept(session, {
-          ...result,
-          ...serviceMetadata(service),
-          displaySections: result.displaySections,
-          fromCache,
-        });
-        const word = result.queryWordInfo;
+        if (!this.accept(session, request, { ...result, ...serviceMetadata(service), fromCache })) return;
+        const word = result.content.query;
         if (
           myPreferences.enableAutomaticPlayWordAudio &&
           service.canTriggerAutomaticAudio &&

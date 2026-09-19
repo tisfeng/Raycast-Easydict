@@ -1,19 +1,17 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { chineseLanguageItem } from "@/core/language/consts";
-import {
-  lookupLanguageItem,
-  maxLineLengthOfChineseTextDisplay,
-  maxLineLengthOfEnglishTextDisplay,
-} from "@/core/language/utils";
-import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import { composeContent, type ComposedService } from "@/core/content/compose";
+import { legacyDictionarySections } from "@/core/content/legacyDictionary";
+import type { PrimarySupplement } from "@/core/content/types";
+import { lookupLanguageItem } from "@/core/language/utils";
+import { TranslationType } from "@/core/results/kinds";
 import { resultItemBody, translationResultsMarkdown } from "@/core/results/resultMarkdown";
 import type {
   DisplaySection,
   ListDisplayItem,
   QueryResult,
   QueryWordInfo,
-  TranslationQueryResult,
+  TranslationResult,
 } from "@/core/results/types";
 
 type DisplayPreferences = Pick<
@@ -21,44 +19,23 @@ type DisplayPreferences = Pick<
   "enableDeepLTranslate" | "enableYoudaoDictionary" | "enableYoudaoTranslate" | "flagsAreNotLanguages"
 >;
 
-/** Project current provider results without retaining cross-service supplements in query state or caches. */
+/** Temporary outgoing bridge for the UI and favorites consumers that still use display sections. */
 export function projectQueryResults(
   queryResults: readonly QueryResult[],
   preferences: DisplayPreferences,
 ): { displaySections: DisplaySection[]; isShowDetail: boolean; hasVisibleItems: boolean } {
-  const translations = queryResults.filter((result) => "translations" in result);
-  const visibleTranslations = translations.filter((result) => !isHiddenTranslation(result.type, preferences));
-  const deepLText = translations.find((result) => result.type === TranslationType.DeepL)?.translations.join(", ");
-  const youdaoText = translations.find((result) => result.type === TranslationType.Youdao)?.translations.join(", ");
-  const youdaoInfo = queryResults.find((result) => result.type === DictionaryType.Youdao)?.queryWordInfo;
-  const isShowDetail =
-    translations.length === queryResults.length &&
-    translations.some((result) => {
-      const limit =
-        result.queryWordInfo.toLanguage === chineseLanguageItem.youdaoLangCode
-          ? maxLineLengthOfChineseTextDisplay
-          : maxLineLengthOfEnglishTextDisplay;
-      return result.translations.join(", ").length > limit;
-    });
+  const { services, isShowDetail } = composeContent(queryResults, preferences);
+  const translations = services.filter(isTranslationService);
 
   let isPreviousSectionTranslationType = false;
   const displaySections: DisplaySection[] = [];
 
-  for (const queryResult of queryResults) {
-    if ("translations" in queryResult && isHiddenTranslation(queryResult.type, preferences)) continue;
-
-    const { serviceId, serviceLabel, serviceIcon } = queryResult;
-    const isTrans = "translations" in queryResult;
-    const sections = isTrans ? [translationSection(queryResult)] : queryResult.displaySections;
-    const translationPreview = isTrans ? buildDetailMarkdown(visibleTranslations, queryResult) : undefined;
-    const supplementalText =
-      queryResult.type === DictionaryType.Linguee
-        ? deepLText
-        : queryResult.type === DictionaryType.Youdao && sections.length >= 2
-          ? youdaoText
-          : undefined;
-    const supplementalInfo = queryResult.type === DictionaryType.Linguee ? youdaoInfo : undefined;
-    const fromTo = getFromToLanguageTitle(queryResult.queryWordInfo, isShowDetail, preferences.flagsAreNotLanguages);
+  for (const service of services) {
+    const { serviceId, serviceLabel, serviceIcon } = service;
+    const isTrans = isTranslationService(service);
+    const sections = isTrans ? [translationSection(service)] : legacyDictionarySections(service.type, service.content);
+    const translationPreview = isTrans ? buildDetailMarkdown(translations, service) : undefined;
+    const fromTo = getFromToLanguageTitle(service.content.query, isShowDetail, preferences.flagsAreNotLanguages);
 
     for (const [sectionIndex, section] of sections.entries()) {
       let sectionTitle: string | undefined = serviceLabel;
@@ -77,14 +54,14 @@ export function projectQueryResults(
         items: section.items.map((item, itemIndex) => {
           const displayedItem =
             !isTrans && sectionIndex === 0 && itemIndex === 0
-              ? supplementDictionaryItem(item, supplementalText, supplementalInfo)
+              ? supplementDictionaryItem(item, service.primarySupplement)
               : item;
           return {
             ...displayedItem,
             serviceId,
             serviceLabel,
             serviceIcon,
-            fromCache: queryResult.fromCache,
+            fromCache: service.fromCache,
             detailsMarkdown: isTrans ? translationPreview : resultItemBody(displayedItem),
           };
         }),
@@ -99,36 +76,30 @@ export function projectQueryResults(
   };
 }
 
-function isHiddenTranslation(type: TranslationType, preferences: DisplayPreferences): boolean {
-  return (
-    (type === TranslationType.DeepL && !preferences.enableDeepLTranslate) ||
-    (type === TranslationType.Youdao && preferences.enableYoudaoDictionary && !preferences.enableYoudaoTranslate)
-  );
+function isTranslationService(service: ComposedService): service is ComposedService & TranslationResult {
+  return service.content.kind === "translation";
 }
 
-function translationSection(result: TranslationQueryResult): DisplaySection {
-  const { type, serviceId, translations, queryWordInfo } = result;
-  const title = translations.join(", ");
+function translationSection(result: ComposedService & TranslationResult): DisplaySection {
+  const { type, serviceId, content } = result;
+  const title = content.paragraphs.join(", ");
   const isStreamingProvider = type === TranslationType.OpenAI || type === TranslationType.Gemini;
   return {
     type,
     items: [
       {
         queryType: type,
-        queryWordInfo,
+        queryWordInfo: content.query,
         key: isStreamingProvider ? serviceId : `${serviceId}:${title}`,
         title,
-        copyText: translations.join("\n"),
+        copyText: content.paragraphs.join("\n"),
       },
     ],
   };
 }
 
-function supplementDictionaryItem(
-  item: ListDisplayItem,
-  text: string | undefined,
-  info: QueryWordInfo | undefined,
-): ListDisplayItem {
+function supplementDictionaryItem(item: ListDisplayItem, supplement: PrimarySupplement | undefined): ListDisplayItem {
+  const text = supplement?.translation;
   if (text) {
     // Non-translation dictionary entries may use this body instead of deriving it from their title.
     const detailsMarkdown = item.subtitle
@@ -138,8 +109,15 @@ function supplementDictionaryItem(
       : text;
     item = { ...item, title: text, copyText: text, detailsMarkdown };
   }
-  if (info?.phonetic || info?.examTypes?.length) {
-    item = { ...item, accessoryItem: { ...item.accessoryItem, phonetic: info.phonetic, examTypes: info.examTypes } };
+  if (supplement?.phonetic || supplement?.examTypes?.length) {
+    item = {
+      ...item,
+      accessoryItem: {
+        ...item.accessoryItem,
+        phonetic: supplement.phonetic,
+        examTypes: supplement.examTypes ? [...supplement.examTypes] : undefined,
+      },
+    };
   }
   return item;
 }
@@ -156,7 +134,10 @@ function getFromToLanguageTitle(info: QueryWordInfo, onlyEmoji: boolean, flagsAr
 }
 
 /** Put the current service first in its translation comparison. */
-function buildDetailMarkdown(translations: TranslationQueryResult[], queryResult: TranslationQueryResult): string {
+function buildDetailMarkdown(
+  translations: (ComposedService & TranslationResult)[],
+  queryResult: ComposedService & TranslationResult,
+): string {
   const sorted = [...translations];
   const idx = sorted.findIndex((translation) => translation.serviceId === queryResult.serviceId);
   if (idx > 0) {
@@ -164,11 +145,11 @@ function buildDetailMarkdown(translations: TranslationQueryResult[], queryResult
     sorted.unshift(item);
   }
   return translationResultsMarkdown(
-    queryResult.queryWordInfo,
+    queryResult.content.query,
     sorted.map((result) => ({
       label: result.serviceLabel,
-      text: result.translations.join("\n"),
-      info: result.queryWordInfo,
+      text: result.content.paragraphs.join("\n"),
+      info: result.content.query,
     })),
   );
 }

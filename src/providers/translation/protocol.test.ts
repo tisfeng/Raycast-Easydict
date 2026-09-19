@@ -78,8 +78,6 @@ describe("translation response boundaries", () => {
         done: true,
         value: {
           type: instance.type,
-          queryWordInfo: query,
-          translations: paragraphs,
           content: { kind: "translation", query, paragraphs },
         },
       });
@@ -99,13 +97,15 @@ describe("translation response boundaries", () => {
 
   it("keeps missing Tencent TargetText as an empty result", async () => {
     mocks.fetch.mockResolvedValue({ Response: {} });
-    expect((await new TencentTranslateProvider().request(query).next()).value).toMatchObject({ translations: [""] });
+    expect((await new TencentTranslateProvider().request(query).next()).value).toMatchObject({
+      content: { paragraphs: [""] },
+    });
   });
 
   it("preserves provider error envelopes and Baidu's success precedence", async () => {
     mocks.fetch.mockResolvedValueOnce({ trans_result: [{ dst: "success" }], error_code: "ignored" });
     expect((await new BaiduTranslateProvider().request(query).next()).value).toMatchObject({
-      translations: ["success"],
+      content: { paragraphs: ["success"] },
     });
     mocks.fetch.mockResolvedValueOnce({ error_msg: "quota", error_code: "54004" });
     await expect(new BaiduTranslateProvider().request(query).next()).rejects.toMatchObject({

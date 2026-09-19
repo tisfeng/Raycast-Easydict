@@ -6,7 +6,7 @@ import {
   LingueeListItemType,
   YoudaoDictionaryListItemType,
 } from "@/core/results/kinds";
-import type { DictionaryResult, DisplaySection, ListDisplayItem } from "@/core/results/types";
+import type { DisplaySection, ListDisplayItem } from "@/core/results/types";
 
 import { plainText } from "./markdown";
 import type { ContentEquivalent, ContentExample, DictionaryContent, DictionarySection } from "./types";
@@ -281,11 +281,4 @@ export function legacyDictionarySections(type: DictionaryType, content: Dictiona
       }),
     };
   });
-}
-
-export function toLegacyDictionaryResult(
-  type: DictionaryType,
-  content: DictionaryContent,
-): DictionaryResult & { content: DictionaryContent } {
-  return { type, content, queryWordInfo: content.query, displaySections: legacyDictionarySections(type, content) };
 }

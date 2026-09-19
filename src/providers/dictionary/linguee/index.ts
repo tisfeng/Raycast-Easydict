@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { userAgent } from "@/consts";
-import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
+import type { DictionaryContent } from "@/core/content/types";
 import { DictionaryType } from "@/core/results/kinds";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { timedFetch } from "@/shared/http";
 import { logTrace } from "@/shared/logger";
@@ -24,12 +24,12 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider {
   protected override async doQuery(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): Promise<DictionaryResult> {
+  ): Promise<DictionaryContent> {
     const lingueeUrl = getLingueeWebDictionaryURL(queryWordInfo);
     logTrace(this.type, `url: ${lingueeUrl}`);
 
     if (!lingueeUrl) {
-      return toLegacyDictionaryResult(this.type, { kind: "dictionary", query: queryWordInfo, sections: [] });
+      return { kind: "dictionary", query: queryWordInfo, sections: [] };
     }
 
     const response = await timedFetch.raw(lingueeUrl, {
@@ -47,6 +47,6 @@ export class LingueeDictionaryProvider extends BaseDictionaryProvider {
     const html = data.toString(
       typeof contentType === "string" && contentType.includes("iso-8859-15") ? "latin1" : "utf-8",
     );
-    return toLegacyDictionaryResult(this.type, buildLingueeContent(queryWordInfo, parseLingueeHTML(html)));
+    return buildLingueeContent(queryWordInfo, parseLingueeHTML(html));
   }
 }

@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { myPreferences } from "@/consts";
-import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
+import type { DictionaryContent } from "@/core/content/types";
 import { DictionaryType } from "@/core/results/kinds";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { RequestError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
@@ -30,7 +30,7 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
   protected override async doQuery(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): Promise<DictionaryResult> {
+  ): Promise<DictionaryContent> {
     // * Note: "fanyi" only works when response dicts has only one item ["meta"]
     const dicts = [["web_trans", "ec", "ce", "newhh", "baike", "wikipedia_digest"]];
 
@@ -49,7 +49,6 @@ export class YoudaoDictionaryProvider extends BaseDictionaryProvider {
     const dictUrl = `https://dict.youdao.com/jsonapi?${queryString}`;
 
     const response = await timedFetch<unknown>(dictUrl, { signal });
-    const content = buildYoudaoContent(queryWordInfo, decodeYoudaoResponse(response));
-    return toLegacyDictionaryResult(this.type, content);
+    return buildYoudaoContent(queryWordInfo, decodeYoudaoResponse(response));
   }
 }

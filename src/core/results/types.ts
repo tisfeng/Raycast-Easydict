@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { DictionaryContent } from "@/core/content/types";
+import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 
 import type {
   AIDictionaryListItemType,
@@ -51,9 +51,9 @@ export interface QueryInput {
 }
 
 export interface QueryWordInfo extends QueryInput {
-  phonetic?: string; // [ɡʊd]
-  examTypes?: string[];
-  speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
+  readonly phonetic?: string; // [ɡʊd]
+  readonly examTypes?: readonly string[];
+  readonly speechUrl?: string; // word audio url. some language not have tts url, such as "ຂາດ"
 }
 
 export type QueryType = TranslationType | DictionaryType;
@@ -75,31 +75,19 @@ export interface RuntimeServiceMetadata {
   serviceIcon?: ProviderIconConfig;
 }
 
-interface ProviderResult<T, TType extends QueryType> {
-  type: TType;
-  queryWordInfo: QueryWordInfo;
-  result?: T;
+export interface TranslationResult {
+  readonly type: TranslationType;
+  readonly content: TranslationContent;
 }
 
-export interface TranslationResult<T = unknown> extends ProviderResult<T, TranslationType> {
-  translations: string[];
+export interface DictionaryResult {
+  readonly type: DictionaryType;
+  readonly content: DictionaryContent;
 }
 
-export interface DictionaryResult<T = unknown> extends ProviderResult<T, DictionaryType> {
-  content?: DictionaryContent;
-  displaySections?: DisplaySection[];
-}
+export type ProviderResult = TranslationResult | DictionaryResult;
 
-export interface TranslationQueryResult<T = unknown> extends TranslationResult<T>, RuntimeServiceMetadata {
-  fromCache?: boolean;
-}
-
-export interface DictionaryQueryResult<T = unknown> extends DictionaryResult<T>, RuntimeServiceMetadata {
-  displaySections: DisplaySection[];
-  fromCache?: boolean;
-}
-
-export type QueryResult<T = unknown> = TranslationQueryResult<T> | DictionaryQueryResult<T>;
+export type QueryResult = ProviderResult & RuntimeServiceMetadata & { readonly fromCache?: boolean };
 
 export type DictionaryDisplayType = AIDictionaryListItemType | LingueeListItemType | YoudaoDictionaryListItemType;
 
@@ -136,6 +124,6 @@ export type ListDisplayItem = ListDisplayItemBase &
 
 export interface ListAccessoryItem {
   phonetic?: string;
-  examTypes?: string[];
+  readonly examTypes?: readonly string[];
   example?: string;
 }

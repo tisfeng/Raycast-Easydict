@@ -61,7 +61,6 @@ describe("Raycast AI streaming provider", () => {
     const result = await completion;
     expect(result.done).toBe(true);
     expect(result.value).toMatchObject({
-      translations: ["最终译文"],
       content: { kind: "translation", paragraphs: ["最终译文"] },
     });
   });
@@ -79,7 +78,7 @@ describe("Raycast AI streaming provider", () => {
     stream.resolve("你好");
     await expect(completion).resolves.toMatchObject({
       done: true,
-      value: { translations: ["你好"] },
+      value: { content: { paragraphs: ["你好"] } },
     });
   });
 

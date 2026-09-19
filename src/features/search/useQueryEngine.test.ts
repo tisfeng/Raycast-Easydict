@@ -4,20 +4,15 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type PropsWithChildren, StrictMode, useEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { TranslationContent } from "@/core/content/types";
+import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import type { LanguageCode } from "@/core/language/types";
-import { clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
+import { cacheQueryResult, clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
+import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
-import {
-  DictionaryType,
-  LanguageDetectType,
-  LingueeListItemType,
-  TranslationType,
-  YoudaoDictionaryListItemType,
-} from "@/core/results/kinds";
-import type { DictionaryResult, ListDisplayItem, QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
+import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
 import { buildFavoriteWord } from "@/features/favorites/model";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
@@ -35,7 +30,7 @@ interface Deferred<T> {
 interface DictionaryRequest {
   queryWordInfo: QueryInput;
   signal?: AbortSignal;
-  deferred: Deferred<DictionaryResult>;
+  deferred: Deferred<DictionaryContent>;
 }
 
 interface TranslationRequest {
@@ -153,8 +148,8 @@ class DeferredDictionaryProvider extends BaseDictionaryProvider {
     super();
   }
 
-  protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryResult> {
-    const deferred = createDeferred<DictionaryResult>();
+  protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryContent> {
+    const deferred = createDeferred<DictionaryContent>();
     dictionaryRequests.push({ queryWordInfo, signal: options?.signal, deferred });
     return deferred.promise;
   }
@@ -212,7 +207,7 @@ afterEach(() => {
 });
 
 describe("useQueryEngine query generations", () => {
-  it("restores Linguee's own metadata when regenerated Youdao results no longer supply it", async () => {
+  it("removes Linguee's supplemental metadata when regenerated Youdao results no longer supply it", async () => {
     const youdaoService: DictionaryServiceConfig = {
       id: "static:youdao",
       label: DictionaryType.Youdao,
@@ -232,25 +227,22 @@ describe("useQueryEngine query generations", () => {
     const query = createQueryInput("metadata");
     act(() => result.current.queryTextWithTextInfo(query));
 
-    const linguee = createDictionaryResult(query);
-    const originalAccessory = { phonetic: "original", examTypes: ["original exam"], example: "preserved" };
-    linguee.displaySections![0].items[0].accessoryItem = originalAccessory;
+    const linguee = createDictionaryContent(query);
     await act(async () => {
       dictionaryRequests[0].deferred.resolve(linguee);
       dictionaryRequests[1].deferred.resolve(
-        createYoudaoResult(query, { phonetic: "supplement", examTypes: ["CET4"] }),
+        createYoudaoContent(query, { phonetic: "supplement", examTypes: ["CET4"] }),
       );
     });
     expect(result.current.displaySections[0].items[0].accessoryItem).toEqual({
       phonetic: "supplement",
       examTypes: ["CET4"],
-      example: "preserved",
     });
 
     act(() => result.current.regenerateService(youdaoService.id));
-    await act(async () => dictionaryRequests[2].deferred.resolve(createYoudaoResult(query)));
+    await act(async () => dictionaryRequests[2].deferred.resolve(createYoudaoContent(query)));
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.displaySections[0].items[0].accessoryItem).toEqual(originalAccessory);
+    expect(result.current.displaySections[0].items[0].accessoryItem).toBeUndefined();
   });
 
   it("reuses a completed cached dictionary result without calling its provider again", async () => {
@@ -336,7 +328,7 @@ describe("useQueryEngine query generations", () => {
     await resolveTranslationRequest(1, "middle");
     await resolveTranslationRequest(0, "oldest");
     expect(result.current.displaySections[0].items[0].title).toBe("latest");
-    expect(getCachedQueryResult(aiService, query)).toMatchObject({ translations: ["latest"] });
+    expect(getCachedQueryResult(aiService, query)).toMatchObject({ content: { paragraphs: ["latest"] } });
   });
 
   it("does not cache a provider result that completes after the cache was cleared", async () => {
@@ -394,11 +386,13 @@ describe("useQueryEngine query generations", () => {
         copyText: "translated",
         detailsMarkdown: "**translated**",
       });
-      expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual(createDictionaryResult(query));
+      expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual({
+        type: DictionaryType.Linguee,
+        content: createDictionaryContent(query),
+      });
       expect(getCachedQueryResult(deepLService, query)).toEqual({
         type: TranslationType.DeepL,
-        queryWordInfo: query,
-        translations: ["translated"],
+        content: { kind: "translation", query, paragraphs: ["translated"] },
       });
       const favorite = buildFavoriteWord(query, result.current.displaySections);
       expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**translated**");
@@ -446,8 +440,7 @@ describe("useQueryEngine query generations", () => {
     const query = createQueryInput("stream");
     act(() => result.current.queryTextWithTextInfo(query));
     await waitFor(() => expect(result.current.displaySections[0]?.items[0].title).toBe("part"));
-    const key = result.current.displaySections[0].items[0].key;
-    expect(key).toBe(service.id);
+    const itemId = getListItemId(getDisplaySectionIds(result.current.displaySections, result.current.listEpoch)[0], 0);
     expect(result.current.listEpoch).toBe(1);
     expect(result.current.isLoading).toBe(true);
 
@@ -457,16 +450,17 @@ describe("useQueryEngine query generations", () => {
     await act(async () => finish.resolve());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.displaySections[0].items[0]).toMatchObject({
-      key,
       title: "partial",
       copyText: "partial",
       detailsMarkdown: "**Streaming AI**\n\npartial",
     });
     expect(result.current.listEpoch).toBe(1);
+    expect(getListItemId(getDisplaySectionIds(result.current.displaySections, result.current.listEpoch)[0], 0)).toBe(
+      itemId,
+    );
     expect(getCachedQueryResult(service, query)).toEqual({
       type: TranslationType.OpenAI,
-      queryWordInfo: query,
-      translations: ["partial"],
+      content: { kind: "translation", query, paragraphs: ["partial"] },
     });
   });
 
@@ -747,7 +741,7 @@ describe("useQueryEngine query generations", () => {
     await resolveTranslationRequest(2, " \t\n");
     expect(result.current.isLoading).toBe(false);
     expect(result.current.displaySections).toEqual(acceptedSections);
-    expect(getCachedQueryResult(whitespaceService, query)).toMatchObject({ translations: ["accepted"] });
+    expect(getCachedQueryResult(whitespaceService, query)).toMatchObject({ content: { paragraphs: ["accepted"] } });
   });
 
   it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
@@ -796,53 +790,25 @@ function createQueryInput(word: string): QueryInput {
   return { word, fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 }
 
-function createDictionaryResult(queryWordInfo: QueryInput): DictionaryResult {
-  const item: ListDisplayItem = {
-    displayType: LingueeListItemType.Translation,
-    queryType: DictionaryType.Linguee,
-    queryWordInfo,
-    key: queryWordInfo.word,
-    title: queryWordInfo.word,
-    copyText: queryWordInfo.word,
-  };
-  return {
-    type: DictionaryType.Linguee,
-    queryWordInfo,
-    result: {},
-    displaySections: [{ type: LingueeListItemType.Translation, items: [item] }],
-  };
+function createDictionaryContent(query: QueryInput): DictionaryContent {
+  return { kind: "dictionary", query, sections: [{ kind: "translation", text: query.word }] };
 }
 
-function createYoudaoResult(
+function createYoudaoContent(
   query: QueryInput,
   metadata: { phonetic?: string; examTypes?: string[] } = {},
-): DictionaryResult {
-  const queryWordInfo = { ...query, ...metadata };
+): DictionaryContent {
   return {
-    type: DictionaryType.Youdao,
-    queryWordInfo,
-    displaySections: [
-      {
-        type: YoudaoDictionaryListItemType.Translation,
-        items: [
-          {
-            displayType: YoudaoDictionaryListItemType.Translation,
-            queryType: DictionaryType.Youdao,
-            queryWordInfo,
-            key: "youdao",
-            title: "Youdao entry",
-            copyText: "Youdao entry",
-          },
-        ],
-      },
-    ],
+    kind: "dictionary",
+    query: { ...query, ...metadata },
+    sections: [{ kind: "translation", text: "Youdao entry" }],
   };
 }
 
 async function resolveDictionaryRequest(index: number) {
   const request = dictionaryRequests[index];
   await act(async () => {
-    request.deferred.resolve(createDictionaryResult(request.queryWordInfo));
+    request.deferred.resolve(createDictionaryContent(request.queryWordInfo));
     await request.deferred.promise;
   });
 }
@@ -891,7 +857,7 @@ describe("query completion", () => {
     const query = createQueryInput("audit");
     act(() => result.current.queryTextWithTextInfo(query));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(getCachedQueryResult(service, query)).toMatchObject({ translations: ["final"] });
+    expect(getCachedQueryResult(service, query)).toMatchObject({ content: { paragraphs: ["final"] } });
     expect(result.current.displaySections[0].items[0].title).toBe("final");
   });
 
@@ -935,7 +901,7 @@ describe("QueryRunner snapshots", () => {
       publications.push({
         texts: runner
           .getSnapshot()
-          .queryResults.flatMap((result) => ("translations" in result ? result.translations : [])),
+          .queryResults.flatMap((result) => (result.content.kind === "translation" ? result.content.paragraphs : [])),
         loading: runner.getSnapshot().isLoading,
       }),
     );
@@ -946,6 +912,52 @@ describe("QueryRunner snapshots", () => {
       { texts: ["final"], loading: false },
     ]);
     expect(runner.getSnapshot()).toBe(runner.getSnapshot());
+    runner.dispose();
+  });
+
+  it("treats a cached result with another provider identity as a miss", async () => {
+    testDoubles.queryCacheMode = "words";
+    const query = createQueryInput("identity");
+    cacheQueryResult(dictionaryServices[0], query, {
+      type: DictionaryType.AI,
+      content: {
+        kind: "dictionary",
+        query,
+        sections: [{ kind: "definitions", entries: [{ kind: "plain", text: "wrong provider" }] }],
+      },
+    });
+    const runner = createRunner();
+    runner.queryTextWithTextInfo(query);
+    expect(dictionaryRequests).toHaveLength(1);
+    await resolveDictionaryRequest(0);
+    expect(runner.getSnapshot().queryResults[0].content).toEqual(createDictionaryContent(query));
+    runner.dispose();
+  });
+
+  it("does not accept a cached translation after a synchronous subscriber clears its request", () => {
+    testDoubles.aiQueryCacheMode = "words";
+    const service: TranslationServiceConfig = {
+      id: "profile:cached",
+      label: "Cached",
+      providerKey: "ai:cached",
+      order: 0,
+      type: TranslationType.OpenAI,
+      enabled: () => true,
+      createProvider: () => new RecordingTranslationProvider(),
+    };
+    const query = createQueryInput("cached");
+    cacheQueryResult(service, query, {
+      type: service.type,
+      content: { kind: "translation", query, paragraphs: ["stale"] },
+    });
+    const runner = createRunner({ dictionaryServices: [], translationServices: [service] });
+    let notifications = 0;
+    runner.subscribe(() => {
+      if (++notifications === 2) runner.clearQueryResult();
+    });
+    runner.queryTextWithTextInfo(query);
+    expect(runner.getSnapshot()).toMatchObject({ queryResults: [], isLoading: false });
+    expect(translationRequests).toHaveLength(0);
     runner.dispose();
   });
 
@@ -1004,8 +1016,9 @@ describe("QueryRunner snapshots", () => {
       "dictionary:1",
       "dictionary:0",
     ]);
+    const completedResults = runner.getSnapshot().queryResults;
     runner.regenerateService("dictionary:1");
-    expect(runner.getSnapshot().queryResults).toHaveLength(3);
+    expect(runner.getSnapshot().queryResults).toBe(completedResults);
     await resolveDictionaryRequest(3);
     expect(runner.getSnapshot().queryResults.map((result) => result.serviceId)).toEqual([
       "dictionary:2",
@@ -1024,7 +1037,7 @@ describe("QueryRunner snapshots", () => {
     clearQueryCache();
     runner.regenerateService(dictionaryServices[0].id);
     await resolveDictionaryRequest(1);
-    expect(getCachedQueryResult(dictionaryServices[0], query)).toMatchObject({ queryWordInfo: query });
+    expect(getCachedQueryResult(dictionaryServices[0], query)).toMatchObject({ content: { query } });
     const cached = getCachedQueryResult(dictionaryServices[0], query);
     await resolveDictionaryRequest(0);
     expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual(cached);

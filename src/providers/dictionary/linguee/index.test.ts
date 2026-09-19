@@ -20,8 +20,8 @@ describe("Linguee HTML boundary", () => {
     respondWithHTML("<html><div id='dictionary'></div></html>");
     const result = await new LingueeDictionaryProvider().request(query);
 
-    expect(result.queryWordInfo).toMatchObject(query);
-    expect(result.displaySections ?? []).toEqual([]);
+    expect(result.content.query).toMatchObject(query);
+    expect(result.content.sections).toEqual([]);
   });
 
   it("uses the request languages when an exact entry has unknown or missing script languages", async () => {
@@ -36,8 +36,8 @@ describe("Linguee HTML boundary", () => {
     `);
     const result = await new LingueeDictionaryProvider().request(query);
 
-    expect(result.queryWordInfo).toMatchObject({ ...query, word: "goods" });
-    expect(result.displaySections?.[0].items[0].title).toBe("货物");
+    expect(result.content.query).toMatchObject({ ...query, word: "goods" });
+    expect(result.content.sections[0]).toMatchObject({ kind: "translation", text: "货物" });
   });
 
   it("builds semantic content from exact entries, examples, related words, and Wikipedia without duplicates", async () => {
@@ -89,7 +89,6 @@ describe("Linguee HTML boundary", () => {
       },
     });
     expect(result).not.toHaveProperty("result");
-    expect(result.displaySections?.[1].items).toHaveLength(5);
   });
 
   it("keeps the requested word and direction when only an example is returned", async () => {
@@ -104,12 +103,9 @@ describe("Linguee HTML boundary", () => {
     `);
     const result = await new LingueeDictionaryProvider().request(query);
 
-    expect(result.queryWordInfo).toMatchObject(query);
-    expect(result.displaySections).toMatchObject([
-      {
-        sectionTitle: "Examples:",
-        items: [{ title: "good news", subtitle: "—  好消息", copyText: "good news —  好消息" }],
-      },
+    expect(result.content.query).toMatchObject(query);
+    expect(result.content.sections).toMatchObject([
+      { kind: "examples", entries: [{ sentence: "good news", translation: "好消息" }] },
     ]);
   });
 
@@ -121,11 +117,13 @@ describe("Linguee HTML boundary", () => {
     });
     const provider = new LingueeDictionaryProvider();
     const result = await provider.request(query);
-    expect(result.displaySections?.[0].items[0].title).toBe("Café A café.");
+    expect(result.content.sections).toMatchObject([
+      { kind: "summary", source: "wikipedia", entries: [{ subject: "Café", text: "A café." }] },
+    ]);
 
     const skipped = await provider.request({ ...query, isWord: false });
-    expect(skipped.queryWordInfo.isWord).toBe(false);
-    expect(skipped.displaySections).toEqual([]);
+    expect(skipped.content.query.isWord).toBe(false);
+    expect(skipped.content.sections).toEqual([]);
     expect(fetchRaw).toHaveBeenCalledTimes(1);
   });
 });

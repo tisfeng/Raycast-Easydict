@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeCachedResult, decodeDisplaySections } from "./decode";
+import { decodeDisplaySections } from "./decode";
 import { DictionaryType, LingueeListItemType, TranslationType } from "./kinds";
 
 const info = { word: "hello", fromLanguage: "en", toLanguage: "zh-CHS" };
@@ -77,24 +77,7 @@ describe("persisted result decoding", () => {
     expect(() => decodeDisplaySections([{ ...sections[0], items: [{ ...item, ...override }] }])).toThrow();
   });
 
-  it("rejects mismatched result, section, and item discriminants", () => {
-    expect(() => decodeCachedResult({ type: "unknown", queryWordInfo: info, translations: ["hello"] })).toThrow();
-    expect(() =>
-      decodeCachedResult({ type: DictionaryType.AI, queryWordInfo: info, displaySections: sections }),
-    ).toThrow();
+  it("rejects mismatched section and item discriminants", () => {
     expect(() => decodeDisplaySections([{ type: "Definition", items: [item] }])).toThrow();
-    expect(() =>
-      decodeCachedResult({ type: DictionaryType.AI, queryWordInfo: info, translations: ["hello"] }),
-    ).toThrow();
-  });
-
-  it("keeps opaque provider payloads opaque while decoding all replay fields", () => {
-    const source = {
-      type: TranslationType.Bing,
-      queryWordInfo: info,
-      translations: ["你好"],
-      result: { arbitrary: [null, 17] },
-    };
-    expect(decodeCachedResult(JSON.parse(JSON.stringify(source)))).toEqual(source);
   });
 });

@@ -1,12 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  DictionaryType,
-  LingueeListItemType,
-  TranslationType,
-  YoudaoDictionaryListItemType,
-} from "@/core/results/kinds";
-import type { DictionaryQueryResult, TranslationQueryResult } from "@/core/results/types";
+import type { DictionarySection } from "@/core/content/types";
+import { DictionaryType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import type { DictionaryResult, QueryResult, QueryWordInfo, TranslationResult } from "@/core/results/types";
 
 import { projectQueryResults } from "./displaySections";
 
@@ -16,234 +12,180 @@ const preferences = {
   enableDeepLTranslate: false,
   enableYoudaoDictionary: true,
   enableYoudaoTranslate: false,
-  flagsAreNotLanguages: false,
+  flagsAreNotLanguages: true,
 };
-const queryWordInfo = { word: "word", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
+const query = { word: "word", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 
-function translation(type: TranslationType, text = "translated"): TranslationQueryResult {
+function translation(type: TranslationType, paragraphs = ["translated"]): QueryResult & TranslationResult {
   return {
     type,
     serviceId: `static:${type}`,
     serviceLabel: type,
     serviceOrder: 0,
-    queryWordInfo,
-    translations: [text],
+    content: { kind: "translation", query, paragraphs },
   };
 }
 
-function linguee(displayType = LingueeListItemType.Translation): DictionaryQueryResult {
+function dictionary(
+  type: DictionaryType,
+  sections: readonly DictionarySection[],
+  info: QueryWordInfo = query,
+): QueryResult & DictionaryResult {
   return {
-    type: DictionaryType.Linguee,
-    serviceId: "static:linguee",
-    serviceLabel: "Linguee",
+    type,
+    serviceId: `static:${type}`,
+    serviceLabel: type,
     serviceOrder: 1,
     serviceIcon: { kind: "initials" },
     fromCache: true,
-    queryWordInfo,
-    displaySections: [0, 1].map((index) => ({
-      type: displayType,
-      sectionTitle: `section ${index}`,
-      items: [0, 1].map((itemIndex) => ({
-        queryType: DictionaryType.Linguee,
-        displayType,
-        queryWordInfo,
-        key: `${index}:${itemIndex}`,
-        title: `original ${index}:${itemIndex}`,
-        copyText: `original ${index}:${itemIndex}`,
-        subtitle: "existing subtitle",
-        accessoryItem: { phonetic: "own phonetic", examTypes: ["own exam"], example: "preserved" },
-      })),
-    })),
+    content: { kind: "dictionary", query: info, sections },
   };
-}
-
-function youdao(sectionCount: number): DictionaryQueryResult {
-  return {
-    type: DictionaryType.Youdao,
-    serviceId: "static:youdao",
-    serviceLabel: "Youdao",
-    serviceOrder: 2,
-    queryWordInfo: { ...queryWordInfo, phonetic: "supplement", examTypes: ["CET4"] },
-    displaySections: Array.from({ length: sectionCount }, (_, index) => ({
-      type: YoudaoDictionaryListItemType.Translation,
-      items: [
-        {
-          queryType: DictionaryType.Youdao,
-          displayType: YoudaoDictionaryListItemType.Translation,
-          queryWordInfo,
-          key: `youdao:${index}`,
-          title: `Youdao ${index}`,
-          copyText: `Youdao ${index}`,
-        },
-      ],
-    })),
-  };
-}
-
-function freeze<T>(value: T): T {
-  if (value && typeof value === "object") {
-    Object.values(value).forEach(freeze);
-    Object.freeze(value);
-  }
-  return value;
 }
 
 describe("projectQueryResults", () => {
-  it.each(["source first", "dictionary first"])(
-    "supplements only Linguee's first item without changing provider data (%s)",
-    (order) => {
-      const dictionary = linguee();
-      const source = translation(TranslationType.DeepL);
-      const metadata = youdao(1);
-      const results = freeze(
-        order === "source first" ? [source, metadata, dictionary] : [dictionary, metadata, source],
-      );
-      const original = structuredClone(results);
-
-      const projected = projectQueryResults(results, preferences);
-      const sections = projected.displaySections.filter((section) => section.serviceId === dictionary.serviceId);
-      expect(sections[0].items[0]).toMatchObject({
-        title: "translated",
-        copyText: "translated",
-        detailsMarkdown: "**translated**",
-        accessoryItem: { phonetic: "supplement", examTypes: ["CET4"], example: "preserved" },
-        serviceId: dictionary.serviceId,
-        serviceLabel: "Linguee",
-        serviceIcon: { kind: "initials" },
-        fromCache: true,
-      });
-      expect(sections[0].items[1].title).toBe("original 0:1");
-      expect(sections[1].items[0].title).toBe("original 1:0");
-      expect(sections[1].sectionTitle).toBe("section 1");
-      expect(projected.displaySections.some((section) => section.type === TranslationType.DeepL)).toBe(false);
-      expect(projected.hasVisibleItems).toBe(true);
-      expect(projected.isShowDetail).toBe(false);
-      expect(results).toEqual(original);
-    },
-  );
-
-  it.each([1, 2])(
-    "requires at least two actual Youdao dictionary sections before replacing its title (%s sections)",
-    (count) => {
-      const projected = projectQueryResults([translation(TranslationType.Youdao), youdao(count)], preferences);
-      expect(projected.displaySections).toHaveLength(count);
-      expect(projected.displaySections[0].items[0]).toMatchObject({
-        title: count >= 2 ? "translated" : "Youdao 0",
-        copyText: count >= 2 ? "translated" : "Youdao 0",
-        detailsMarkdown: count >= 2 ? "**translated**" : "**Youdao 0**",
-      });
-      if (count >= 2) expect(projected.displaySections[1].items[0].title).toBe("Youdao 1");
-    },
-  );
-
-  it("does not move supplements past an empty first dictionary section", () => {
-    const dictionary = linguee();
-    dictionary.displaySections[0].items = [];
-    const projected = projectQueryResults([translation(TranslationType.DeepL), youdao(1), dictionary], preferences);
-    const sections = projected.displaySections.filter((section) => section.serviceId === dictionary.serviceId);
-    expect(sections[0].items).toEqual([]);
-    expect(sections[1].items[0]).toMatchObject({ title: "original 1:0", accessoryItem: { phonetic: "own phonetic" } });
-  });
-
-  it.each([
-    [undefined, "translated"],
-    ["existing subtitle", "translated existing subtitle"],
-    ["translated subtitle", "translated subtitle"],
-  ])("preserves fallback dictionary bodies when the first entry has subtitle %s", (subtitle, expected) => {
-    const dictionary = linguee(LingueeListItemType.Common);
-    dictionary.displaySections[0].items[0].subtitle = subtitle;
-    const projected = projectQueryResults([translation(TranslationType.DeepL), dictionary], preferences);
-    expect(projected.displaySections[0].items[0]).toMatchObject({
+  it("applies the composed supplement only to the first dictionary row and retains service metadata", () => {
+    const linguee = dictionary(DictionaryType.Linguee, [
+      { kind: "translation", text: "original", lemma: "word" },
+      {
+        kind: "equivalents",
+        headword: { word: "word", partOfSpeech: "noun" },
+        entries: [
+          { text: "term", prominent: true, frequency: "common" },
+          { text: "expression", prominent: true, frequency: "common" },
+        ],
+      },
+    ]);
+    const youdao = dictionary(DictionaryType.Youdao, [{ kind: "translation", text: "词" }], {
+      ...query,
+      phonetic: "[word]",
+      examTypes: ["CET4"],
+    });
+    const projected = projectQueryResults([translation(TranslationType.DeepL), linguee, youdao], preferences);
+    const sections = projected.displaySections.filter((section) => section.serviceId === linguee.serviceId);
+    expect(sections[0].items[0]).toMatchObject({
       title: "translated",
+      subtitle: "word",
       copyText: "translated",
-      detailsMarkdown: expected,
+      detailsMarkdown: "**translated**",
+      accessoryItem: { phonetic: "[word]", examTypes: ["CET4"] },
+      serviceId: linguee.serviceId,
+      serviceLabel: DictionaryType.Linguee,
+      serviceIcon: { kind: "initials" },
+      fromCache: true,
     });
-  });
-
-  it.each([
-    { phonetic: "only phonetic", examTypes: undefined },
-    { phonetic: undefined, examTypes: ["only exams"] },
-  ])("replaces both supplemented metadata fields while retaining unrelated accessories (%j)", (metadata) => {
-    const source = youdao(1);
-    source.queryWordInfo = { ...queryWordInfo, ...metadata };
-    const projected = projectQueryResults([linguee(), source], preferences);
-    expect(projected.displaySections[0].items[0].accessoryItem).toEqual({ ...metadata, example: "preserved" });
-  });
-
-  it.each([
-    ["zh-CHS", 45, false],
-    ["zh-CHS", 46, true],
-    ["en", 90, false],
-    ["en", 91, true],
-    ["fr", 91, true],
-  ])(
-    "uses the existing detail threshold for %s at length %i, including hidden translations",
-    (toLanguage, length, expected) => {
-      const source = translation(TranslationType.DeepL, "x".repeat(length));
-      source.queryWordInfo = { ...queryWordInfo, toLanguage };
-      const projected = projectQueryResults([source], preferences);
-      expect(projected).toEqual({ displaySections: [], hasVisibleItems: false, isShowDetail: expected });
-    },
-  );
-
-  it("keeps empty dictionary sections, suppresses translation detail, and reports no visible items", () => {
-    const dictionary = linguee();
-    dictionary.displaySections.forEach((section) => {
-      section.items = [];
-    });
-    const projected = projectQueryResults(
-      [translation(TranslationType.DeepL, "x".repeat(100)), dictionary],
-      preferences,
-    );
-    expect(projected.displaySections).toHaveLength(2);
-    expect(projected.hasVisibleItems).toBe(false);
+    expect(sections[1].items.map(({ title, copyText }) => ({ title, copyText }))).toEqual([
+      { title: "term", copyText: "term        " },
+      { title: "expression", copyText: "expression        " },
+    ]);
+    expect(sections[1].sectionTitle).toBe("word.noun");
+    expect(projected.displaySections.some((section) => section.type === TranslationType.DeepL)).toBe(false);
+    expect(projected.hasVisibleItems).toBe(true);
     expect(projected.isShowDetail).toBe(false);
   });
 
-  it("hides only the configured translations and excludes them from visible comparisons", () => {
-    const sources = [
-      translation(TranslationType.DeepL),
-      translation(TranslationType.Youdao),
-      translation(TranslationType.Google, "visible"),
-    ];
-    const projected = projectQueryResults(sources, preferences);
-    expect(projected.displaySections).toHaveLength(1);
-    expect(projected.displaySections[0].items[0].detailsMarkdown).toBe("**Google Translate**\n\nvisible");
+  it("does not move supplements past an empty first dictionary section", () => {
+    const linguee = dictionary(DictionaryType.Linguee, [
+      { kind: "equivalents", headword: { word: "word" }, entries: [] },
+      { kind: "examples", entries: [{ sentence: "original sentence", translation: "原句" }] },
+    ]);
+    const { displaySections } = projectQueryResults([translation(TranslationType.DeepL), linguee], preferences);
+    expect(displaySections[0].items).toEqual([]);
+    expect(displaySections[1].items[0]).toMatchObject({
+      title: "original sentence",
+      subtitle: "—  原句",
+      copyText: "original sentence —  原句",
+      detailsMarkdown: "- **original sentence**  \n  —  原句",
+    });
+  });
+
+  it.each([
+    ["translated", "translated n.       例句"],
+    ["n", "n.       例句"],
+  ])("preserves the first non-translation row's fallback body when supplemented with %s", (text, expected) => {
+    const linguee = dictionary(DictionaryType.Linguee, [
+      {
+        kind: "equivalents",
+        headword: { word: "word" },
+        entries: [
+          { text: "term", partOfSpeech: "n", prominent: true, frequency: "common", firstExampleTranslation: "例句" },
+          { text: "another term", prominent: true, frequency: "common" },
+        ],
+      },
+    ]);
+    const { displaySections } = projectQueryResults([translation(TranslationType.DeepL, [text]), linguee], preferences);
+    expect(displaySections[0].items[0]).toMatchObject({
+      displayType: LingueeListItemType.Common,
+      title: text,
+      subtitle: "n.       例句",
+      copyText: text,
+      detailsMarkdown: expected,
+    });
+    expect(displaySections[0].items[1]).toMatchObject({
+      title: "another term",
+      copyText: "another term        ",
+      detailsMarkdown: "another term        ",
+    });
+  });
+
+  it("uses the supplemental translation alone when the first dictionary row has an empty subtitle", () => {
+    const linguee = dictionary(DictionaryType.Linguee, [
+      { kind: "summary", source: "wikipedia", entries: [{ subject: "word", text: "original article" }] },
+    ]);
     expect(
-      projectQueryResults(sources, { ...preferences, enableYoudaoDictionary: false }).displaySections,
-    ).toHaveLength(2);
-    expect(projectQueryResults(sources, { ...preferences, enableYoudaoTranslate: true }).displaySections).toHaveLength(
-      2,
-    );
-    expect(projectQueryResults(sources, { ...preferences, enableDeepLTranslate: true }).displaySections).toHaveLength(
-      2,
-    );
+      projectQueryResults([translation(TranslationType.DeepL), linguee], preferences).displaySections[0].items[0],
+    ).toMatchObject({ title: "translated", subtitle: "", copyText: "translated", detailsMarkdown: "translated" });
   });
 
   it("keeps profile identities distinct and puts the current profile first in its comparison", () => {
-    const first = { ...translation(TranslationType.OpenAI, "first"), serviceId: "profile:one", serviceLabel: "One" };
-    const second = { ...translation(TranslationType.OpenAI, "second"), serviceId: "profile:two", serviceLabel: "Two" };
-    const projected = projectQueryResults([first, second], { ...preferences, flagsAreNotLanguages: true });
-    expect(projected.displaySections.map((section) => section.items[0].key)).toEqual(["profile:one", "profile:two"]);
+    const first = { ...translation(TranslationType.OpenAI, ["first"]), serviceId: "profile:one", serviceLabel: "One" };
+    const second = {
+      ...translation(TranslationType.OpenAI, ["second"]),
+      serviceId: "profile:two",
+      serviceLabel: "Two",
+    };
+    const projected = projectQueryResults([first, second], preferences);
+    expect(projected.displaySections.map((section) => section.serviceId)).toEqual(["profile:one", "profile:two"]);
     expect(projected.displaySections.map((section) => section.sectionTitle)).toEqual([
       "One   (English --> Chinese-Simplified)",
       "Two",
     ]);
     const preview = projected.displaySections[1].items[0].detailsMarkdown!;
+    expect(preview).toContain("first");
+    expect(preview).toContain("second");
     expect(preview.indexOf("Two")).toBeLessThan(preview.indexOf("One"));
-    expect(
-      projectQueryResults([{ ...first, translations: ["first chunk"] }], preferences).displaySections[0].items[0].key,
-    ).toBe("profile:one");
   });
 
-  it("keeps ordinary translation titles, copy text, and serialized keys aligned", () => {
-    const source = translation(TranslationType.Google);
-    source.translations = ["first", "second"];
-    const { displaySections } = projectQueryResults([source], preferences);
+  it("keeps translation paragraph titles and copy text while excluding hidden comparison sources", () => {
+    const source = translation(TranslationType.Google, ["first", "", "second"]);
+    const { displaySections } = projectQueryResults([translation(TranslationType.DeepL), source], preferences);
+    expect(displaySections).toHaveLength(1);
     expect(displaySections[0].items[0]).toMatchObject({
-      title: "first, second",
-      copyText: "first\nsecond",
-      key: `${source.serviceId}:first, second`,
+      title: "first, , second",
+      copyText: "first\n\nsecond",
+      detailsMarkdown: "**Google Translate**\n\nfirst\n\nsecond",
+    });
+  });
+
+  it.each([false, true])(
+    "resets translation direction headings only when the dictionary has a section (%s)",
+    (hasSection) => {
+      const empty = dictionary(DictionaryType.Linguee, hasSection ? [{ kind: "examples", entries: [] }] : []);
+      const { displaySections } = projectQueryResults(
+        [translation(TranslationType.Google), empty, translation(TranslationType.Bing)],
+        preferences,
+      );
+      expect(displaySections.at(-1)?.sectionTitle).toBe(
+        hasSection ? "Bing Translate   (English --> Chinese-Simplified)" : "Bing Translate",
+      );
+    },
+  );
+
+  it("keeps empty dictionary sections without reporting visible items", () => {
+    const empty = dictionary(DictionaryType.Linguee, [{ kind: "examples", entries: [] }]);
+    expect(projectQueryResults([empty], preferences)).toMatchObject({
+      displaySections: [{ items: [] }],
+      isShowDetail: false,
+      hasVisibleItems: false,
     });
     expect(projectQueryResults([], preferences)).toEqual({
       displaySections: [],
