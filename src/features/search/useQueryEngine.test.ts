@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderSelectedRow } from "@/core/content/render";
 import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
-import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
+import { englishLanguageItem } from "@/core/language/consts";
 import type { LanguageCode } from "@/core/language/types";
 import { cacheQueryResult, clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
@@ -221,7 +221,7 @@ describe("useQueryEngine query generations", () => {
       canTriggerAutomaticAudio: false,
     };
     const { result } = renderHook(() =>
-      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+      useQueryEngine(englishLanguageItem, {
         dictionaryServices: [...dictionaryServices, youdaoService],
         translationServices: [],
       }),
@@ -249,7 +249,7 @@ describe("useQueryEngine query generations", () => {
 
   it("reuses a completed cached dictionary result without calling its provider again", async () => {
     testDoubles.queryCacheMode = "words";
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
     const query = createQueryInput("cached");
 
     act(() => result.current.queryTextWithTextInfo(query));
@@ -274,7 +274,7 @@ describe("useQueryEngine query generations", () => {
       createProvider: () => new RecordingTranslationProvider(),
     };
     const { result } = renderHook(() =>
-      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+      useQueryEngine(englishLanguageItem, {
         translationServices: [aiService],
         dictionaryServices: [],
       }),
@@ -305,7 +305,7 @@ describe("useQueryEngine query generations", () => {
       createProvider: () => new DeferredTranslationProvider(),
     };
     const { result } = renderHook(() =>
-      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+      useQueryEngine(englishLanguageItem, {
         translationServices: [aiService],
         dictionaryServices: [],
       }),
@@ -335,7 +335,7 @@ describe("useQueryEngine query generations", () => {
 
   it("does not cache a provider result that completes after the cache was cleared", async () => {
     testDoubles.queryCacheMode = "words";
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
     const query = createQueryInput("pending");
 
     act(() => result.current.queryTextWithTextInfo(query));
@@ -360,7 +360,7 @@ describe("useQueryEngine query generations", () => {
         createProvider: () => new DeferredTranslationProvider(TranslationType.DeepL),
       };
       const snapshot = { dictionaryServices, translationServices: [deepLService] };
-      const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+      const { result } = renderHook(() => useQueryEngine(englishLanguageItem, snapshot));
       const query = createQueryInput("word");
       act(() => result.current.queryTextWithTextInfo(query));
       expect(result.current.listEpoch).toBe(0);
@@ -438,7 +438,7 @@ describe("useQueryEngine query generations", () => {
       createProvider: () => new StreamingTranslationProvider(),
     };
     const snapshot = { dictionaryServices: [], translationServices: [service] };
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, snapshot));
     const query = createQueryInput("stream");
     act(() => result.current.queryTextWithTextInfo(query));
     await waitFor(() => expect(result.current.viewSections[0]?.items[0].title).toBe("part"));
@@ -481,7 +481,7 @@ describe("useQueryEngine query generations", () => {
     };
     const { result, rerender } = renderHook(
       ({ services }: { services: TranslationServiceConfig[] }) =>
-        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        useQueryEngine(englishLanguageItem, {
           translationServices: services,
           dictionaryServices: dictionaryServices,
         }),
@@ -521,7 +521,7 @@ describe("useQueryEngine query generations", () => {
     };
     const { result, rerender } = renderHook(
       ({ dictionaryServices }: { dictionaryServices: DictionaryServiceConfig[] }) =>
-        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        useQueryEngine(englishLanguageItem, {
           translationServices: [],
           dictionaryServices,
         }),
@@ -565,7 +565,7 @@ describe("useQueryEngine query generations", () => {
     };
     const { result, rerender } = renderHook(
       ({ service }: { service: DictionaryServiceConfig }) =>
-        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        useQueryEngine(englishLanguageItem, {
           translationServices: [],
           dictionaryServices: [service],
         }),
@@ -597,7 +597,7 @@ describe("useQueryEngine query generations", () => {
 
     renderHook(
       () => {
-        const engine = useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot);
+        const engine = useQueryEngine(englishLanguageItem, dictionarySnapshot);
         const setupCalled = useRef(false);
         useEffect(() => {
           if (!setupCalled.current) {
@@ -629,7 +629,7 @@ describe("useQueryEngine query generations", () => {
     const oldDetection = createDeferred<DetectionDecision>();
     const currentDetection = createDeferred<DetectionDecision>();
     testDoubles.detectLanguage.mockReturnValueOnce(oldDetection.promise).mockReturnValueOnce(currentDetection.promise);
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryText("old", "zh-CHS");
@@ -660,7 +660,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("keeps the current provider result when an older provider resolves last", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -676,7 +676,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("does not let an older request stop the current loading state", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -692,7 +692,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("keeps results cleared when an old provider resolves after clear", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -722,7 +722,7 @@ describe("useQueryEngine query generations", () => {
       createProvider: () => new DeferredTranslationProvider(),
     };
     const { result } = renderHook(() =>
-      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+      useQueryEngine(englishLanguageItem, {
         translationServices: [whitespaceService],
         dictionaryServices: [],
       }),
@@ -749,7 +749,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("first"));
@@ -857,7 +857,7 @@ describe("query completion", () => {
       createProvider: () => new FinalStreamingProvider(),
     };
     const snapshot = { dictionaryServices: [], translationServices: [service] };
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, snapshot));
     const query = createQueryInput("audit");
     act(() => result.current.queryTextWithTextInfo(query));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -868,7 +868,7 @@ describe("query completion", () => {
   it("settles loading after current language detection rejects", async () => {
     const detection = createDeferred<DetectionDecision>();
     testDoubles.detectLanguage.mockReturnValueOnce(detection.promise);
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, dictionarySnapshot));
     act(() => result.current.queryText("audit", "zh-CHS"));
     expect(result.current.isLoading).toBe(true);
     await act(async () => {
@@ -882,7 +882,7 @@ describe("query completion", () => {
 
 describe("QueryRunner snapshots", () => {
   function createRunner(services: QueryServiceSnapshot = dictionarySnapshot) {
-    return new QueryRunner(englishLanguageItem, chineseLanguageItem, services, {
+    return new QueryRunner(englishLanguageItem, services, {
       onError: testDoubles.showFailureToast,
       onAudio: (word, signal) => testDoubles.playQueryWordAudio(word, { signal }),
     });
@@ -973,13 +973,23 @@ describe("QueryRunner snapshots", () => {
     runner.dispose();
   });
 
-  it("selects another preferred language when detection matches the Filipino target alias", async () => {
+  it("uses automatic target fallback, then preserves a manual target through regeneration", async () => {
     testDoubles.detectLanguage.mockResolvedValue({ type: LanguageDetectType.Bing, language: "tl", confirmed: true });
     const runner = createRunner();
     runner.queryText("kumusta", "fil");
     await waitFor(() => expect(dictionaryRequests).toHaveLength(1));
     expect(dictionaryRequests[0].queryWordInfo).toMatchObject({ fromLanguage: "tl", toLanguage: "en" });
     await resolveDictionaryRequest(0);
+
+    const manualQuery = { word: "kumusta", fromLanguage: "tl", toLanguage: "zh-CHS" };
+    runner.queryTextWithTextInfo(manualQuery);
+    expect(dictionaryRequests[1].queryWordInfo).toEqual(manualQuery);
+    await resolveDictionaryRequest(1);
+
+    runner.regenerateService(dictionaryServices[0].id);
+    expect(dictionaryRequests[2].queryWordInfo).toEqual(manualQuery);
+    await resolveDictionaryRequest(2);
+    expect(testDoubles.detectLanguage).toHaveBeenCalledTimes(1);
     runner.dispose();
   });
 

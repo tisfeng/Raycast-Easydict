@@ -52,7 +52,6 @@ export interface QuerySnapshot {
   queryGeneration: number;
   isLoading: boolean;
   currentFromLanguageItem: LanguageItem;
-  autoSelectedTargetLanguageItem: LanguageItem;
 }
 
 interface QueryEffects {
@@ -72,7 +71,6 @@ export class QueryRunner {
 
   constructor(
     initialFromLanguage: LanguageItem,
-    initialTargetLanguage: LanguageItem,
     private services: QueryServiceSnapshot,
     private effects: QueryEffects,
   ) {
@@ -81,7 +79,6 @@ export class QueryRunner {
       queryGeneration: 0,
       isLoading: false,
       currentFromLanguageItem: initialFromLanguage,
-      autoSelectedTargetLanguageItem: initialTargetLanguage,
     };
   }
 
@@ -139,11 +136,6 @@ export class QueryRunner {
     this.publish();
   };
 
-  setAutoSelectedTargetLanguageItem = (item: LanguageItem) => {
-    this.snapshot = { ...this.snapshot, autoSelectedTargetLanguageItem: item };
-    this.publish();
-  };
-
   queryTextWithTextInfo = (input: QueryInput, options?: QueryOptions) => {
     const session = this.begin();
     try {
@@ -182,7 +174,6 @@ export class QueryRunner {
       this.snapshot = {
         ...this.snapshot,
         currentFromLanguageItem: getLanguageItem(fromLanguage),
-        autoSelectedTargetLanguageItem: target,
       };
       this.runAll(session, input, bypassCache);
     } catch (error) {

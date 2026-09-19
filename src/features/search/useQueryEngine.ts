@@ -38,14 +38,10 @@ function createViewReader(runner: QueryRunner) {
   };
 }
 
-export function useQueryEngine(
-  initialFromLanguage: LanguageItem,
-  initialTargetLanguage: LanguageItem,
-  serviceSnapshot: QueryServiceSnapshot,
-) {
+export function useQueryEngine(initialFromLanguage: LanguageItem, serviceSnapshot: QueryServiceSnapshot) {
   const [runner] = useState(
     () =>
-      new QueryRunner(initialFromLanguage, initialTargetLanguage, serviceSnapshot, {
+      new QueryRunner(initialFromLanguage, serviceSnapshot, {
         onError: showErrorToast,
         onAudio(word, signal) {
           void playQueryWordAudio(word, { signal }).catch((error) => {
@@ -74,6 +70,5 @@ export function useQueryEngine(
     queryTextWithTextInfo: runner.queryTextWithTextInfo,
     regenerateService: runner.regenerateService,
     clearQueryResult: runner.clearQueryResult,
-    setAutoSelectedTargetLanguageItem: runner.setAutoSelectedTargetLanguageItem,
   };
 }

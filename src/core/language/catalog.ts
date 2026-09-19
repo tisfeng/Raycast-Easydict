@@ -15,7 +15,6 @@ export const languageCatalog = {
       bingLangCode: "auto-detect",
       francLangCode: "und",
       baiduLangCode: "auto",
-      aliyunLangCode: "auto",
     },
   },
   "zh-CHS": {
@@ -37,7 +36,6 @@ export const languageCatalog = {
       tencentLangCode: "zh",
       baiduLangCode: "zh",
       caiyunLangCode: "zh",
-      aliyunLangCode: "zh",
     },
   },
   en: {
@@ -59,7 +57,6 @@ export const languageCatalog = {
       tencentLangCode: "en",
       baiduLangCode: "en",
       caiyunLangCode: "en",
-      aliyunLangCode: "en",
     },
   },
   "zh-CHT": {
@@ -79,7 +76,6 @@ export const languageCatalog = {
       francLangCode: "cmn",
       tencentLangCode: "zh-TW",
       baiduLangCode: "cht",
-      aliyunLangCode: "zh-tw",
     },
   },
   ja: {
@@ -100,7 +96,6 @@ export const languageCatalog = {
       tencentLangCode: "ja",
       baiduLangCode: "jp",
       caiyunLangCode: "ja",
-      aliyunLangCode: "ja",
     },
   },
   ko: {
@@ -120,7 +115,6 @@ export const languageCatalog = {
       tencentDetectCode: "kr",
       tencentLangCode: "ko",
       baiduLangCode: "kor",
-      aliyunLangCode: "ko",
     },
   },
   fr: {
@@ -140,7 +134,6 @@ export const languageCatalog = {
       tencentDetectCode: "fr",
       tencentLangCode: "fr",
       baiduLangCode: "fra",
-      aliyunLangCode: "fr",
     },
   },
   es: {
@@ -160,7 +153,6 @@ export const languageCatalog = {
       tencentDetectCode: "es",
       tencentLangCode: "es",
       baiduLangCode: "spa",
-      aliyunLangCode: "es",
     },
   },
   pt: {
@@ -181,7 +173,6 @@ export const languageCatalog = {
       tencentDetectCode: "pt",
       tencentLangCode: "pt",
       baiduLangCode: "pt",
-      aliyunLangCode: "pt",
     },
   },
   it: {
@@ -201,7 +192,6 @@ export const languageCatalog = {
       tencentDetectCode: "it",
       tencentLangCode: "it",
       baiduLangCode: "it",
-      aliyunLangCode: "it",
     },
   },
   de: {
@@ -221,7 +211,6 @@ export const languageCatalog = {
       tencentDetectCode: "de",
       tencentLangCode: "de",
       baiduLangCode: "de",
-      aliyunLangCode: "de",
     },
   },
   ru: {
@@ -241,7 +230,6 @@ export const languageCatalog = {
       tencentDetectCode: "ru",
       tencentLangCode: "ru",
       baiduLangCode: "ru",
-      aliyunLangCode: "ru",
     },
   },
   ar: {
@@ -260,7 +248,6 @@ export const languageCatalog = {
       francLangCode: "arb",
       tencentLangCode: "ar",
       baiduLangCode: "ara",
-      aliyunLangCode: "ar",
     },
   },
   sv: {
@@ -277,7 +264,6 @@ export const languageCatalog = {
       deepLSourceId: "SV",
       francLangCode: "swe",
       baiduLangCode: "swe",
-      aliyunLangCode: "sv",
     },
   },
   ro: {
@@ -294,7 +280,6 @@ export const languageCatalog = {
       deepLSourceId: "RO",
       francLangCode: "ron",
       baiduLangCode: "rom",
-      aliyunLangCode: "ro",
     },
   },
   th: {
@@ -313,7 +298,6 @@ export const languageCatalog = {
       tencentDetectCode: "th",
       tencentLangCode: "th",
       baiduLangCode: "th",
-      aliyunLangCode: "th",
     },
   },
   sk: {
@@ -330,7 +314,6 @@ export const languageCatalog = {
       deepLSourceId: "SK",
       francLangCode: "slk",
       baiduLangCode: "slo",
-      aliyunLangCode: "sk",
     },
   },
   nl: {
@@ -348,7 +331,6 @@ export const languageCatalog = {
       deepLSourceId: "NL",
       francLangCode: "nld",
       baiduLangCode: "nl",
-      aliyunLangCode: "nl",
     },
   },
   hu: {
@@ -365,7 +347,6 @@ export const languageCatalog = {
       deepLSourceId: "HU",
       francLangCode: "hun",
       baiduLangCode: "hu",
-      aliyunLangCode: "hu",
     },
   },
   el: {
@@ -382,7 +363,6 @@ export const languageCatalog = {
       deepLSourceId: "EL",
       francLangCode: "ell",
       baiduLangCode: "el",
-      aliyunLangCode: "el",
     },
   },
   da: {
@@ -399,7 +379,6 @@ export const languageCatalog = {
       deepLSourceId: "DA",
       francLangCode: "dan",
       baiduLangCode: "dan",
-      aliyunLangCode: "da",
     },
   },
   fi: {
@@ -416,7 +395,6 @@ export const languageCatalog = {
       deepLSourceId: "FI",
       francLangCode: "fin",
       baiduLangCode: "fin",
-      aliyunLangCode: "fi",
     },
   },
   pl: {
@@ -434,7 +412,6 @@ export const languageCatalog = {
       deepLSourceId: "PL",
       francLangCode: "pol",
       baiduLangCode: "pl",
-      aliyunLangCode: "pl",
     },
   },
   cs: {
@@ -451,7 +428,6 @@ export const languageCatalog = {
       deepLSourceId: "CS",
       francLangCode: "ces",
       baiduLangCode: "cs",
-      aliyunLangCode: "cs",
     },
   },
   tr: {
@@ -471,7 +447,6 @@ export const languageCatalog = {
       tencentDetectCode: "tr",
       tencentLangCode: "tr",
       baiduLangCode: "tr",
-      aliyunLangCode: "tr",
     },
   },
   lt: {
@@ -488,7 +463,6 @@ export const languageCatalog = {
       deepLSourceId: "LT",
       francLangCode: "lit",
       baiduLangCode: "lit",
-      aliyunLangCode: "lt",
     },
   },
   lv: {
@@ -505,7 +479,6 @@ export const languageCatalog = {
       deepLSourceId: "LV",
       francLangCode: "lav",
       baiduLangCode: "lav",
-      aliyunLangCode: "lv",
     },
   },
   uk: {
@@ -523,7 +496,6 @@ export const languageCatalog = {
       deepLSourceId: "UK",
       francLangCode: "ukr",
       baiduLangCode: "ukr",
-      aliyunLangCode: "uk",
     },
   },
   bg: {
@@ -540,7 +512,6 @@ export const languageCatalog = {
       deepLSourceId: "BG",
       francLangCode: "bul",
       baiduLangCode: "bul",
-      aliyunLangCode: "bg",
     },
   },
   id: {
@@ -560,7 +531,6 @@ export const languageCatalog = {
       tencentDetectCode: "id",
       tencentLangCode: "id",
       baiduLangCode: "id",
-      aliyunLangCode: "id",
     },
   },
   ms: {
@@ -578,7 +548,6 @@ export const languageCatalog = {
       tencentDetectCode: "ms",
       tencentLangCode: "ms",
       baiduLangCode: "msa",
-      aliyunLangCode: "ms",
     },
   },
   sl: {
@@ -595,7 +564,6 @@ export const languageCatalog = {
       deepLSourceId: "SL",
       francLangCode: "slv",
       baiduLangCode: "slv",
-      aliyunLangCode: "sl",
     },
   },
   et: {
@@ -612,7 +580,6 @@ export const languageCatalog = {
       deepLSourceId: "ET",
       francLangCode: "est",
       baiduLangCode: "est",
-      aliyunLangCode: "et",
     },
   },
   vi: {
@@ -631,7 +598,6 @@ export const languageCatalog = {
       tencentDetectCode: "vi",
       tencentLangCode: "vi",
       baiduLangCode: "vie",
-      aliyunLangCode: "vi",
     },
   },
   fa: {
@@ -647,7 +613,6 @@ export const languageCatalog = {
       bingLangCode: "fa",
       francLangCode: "fas",
       baiduLangCode: "per",
-      aliyunLangCode: "fa",
     },
   },
   hi: {
@@ -664,7 +629,6 @@ export const languageCatalog = {
       francLangCode: "hin",
       tencentLangCode: "hi",
       baiduLangCode: "hin",
-      aliyunLangCode: "hi",
     },
   },
   te: {
@@ -680,7 +644,6 @@ export const languageCatalog = {
       bingLangCode: "te",
       francLangCode: "tel",
       baiduLangCode: "tel",
-      aliyunLangCode: "te",
     },
   },
   ta: {
@@ -696,7 +659,6 @@ export const languageCatalog = {
       bingLangCode: "ta",
       francLangCode: "tam",
       baiduLangCode: "tam",
-      aliyunLangCode: "ta",
     },
   },
   ur: {
@@ -712,7 +674,6 @@ export const languageCatalog = {
       bingLangCode: "ur",
       francLangCode: "urd",
       baiduLangCode: "urd",
-      aliyunLangCode: "ur",
     },
   },
   tl: {
@@ -728,7 +689,6 @@ export const languageCatalog = {
       bingLangCode: "fil",
       francLangCode: "tgl",
       baiduLangCode: "fil",
-      aliyunLangCode: "tl",
     },
   },
   km: {
@@ -744,7 +704,6 @@ export const languageCatalog = {
       bingLangCode: "km",
       francLangCode: "khm",
       baiduLangCode: "khm",
-      aliyunLangCode: "km",
     },
   },
   lo: {
@@ -760,7 +719,6 @@ export const languageCatalog = {
       bingLangCode: "lo",
       francLangCode: "lao",
       baiduLangCode: "lo",
-      aliyunLangCode: "lo",
     },
   },
   bn: {
@@ -776,7 +734,6 @@ export const languageCatalog = {
       bingLangCode: "bn",
       francLangCode: "ben",
       baiduLangCode: "ben",
-      aliyunLangCode: "bn",
     },
   },
   my: {
@@ -792,7 +749,6 @@ export const languageCatalog = {
       bingLangCode: "my",
       francLangCode: "mya",
       baiduLangCode: "bur",
-      aliyunLangCode: "my",
     },
   },
   no: {
@@ -809,7 +765,6 @@ export const languageCatalog = {
       deepLSourceId: "nb",
       francLangCode: "nor",
       baiduLangCode: "nor",
-      aliyunLangCode: "no",
     },
   },
   ka: {
@@ -852,7 +807,6 @@ export const languageCatalog = {
       bingLangCode: "hr",
       francLangCode: "hrv",
       baiduLangCode: "hrv",
-      aliyunLangCode: "hbs",
     },
   },
   mn: {
@@ -868,7 +822,6 @@ export const languageCatalog = {
       bingLangCode: "mn-Cyrl",
       francLangCode: "mon",
       baiduLangCode: "mon",
-      aliyunLangCode: "mn",
     },
   },
   he: {
@@ -884,7 +837,6 @@ export const languageCatalog = {
       bingLangCode: "he",
       francLangCode: "heb",
       baiduLangCode: "heb",
-      aliyunLangCode: "he",
     },
   },
 } as const satisfies Record<string, LanguageDefinition>;

@@ -18,11 +18,6 @@ vi.mock("@raycast/api", () => ({
     set() {}
     remove() {}
   },
-  LocalStorage: {
-    getItem: vi.fn().mockResolvedValue("test-cookie"),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-  },
   environment: { extensionName: "easydict", isDevelopment: false, canAccess: () => true },
   getPreferenceValues: () => ({
     servicesOrder: "",

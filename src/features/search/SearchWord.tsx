@@ -66,13 +66,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     isLoading,
     isShowDetail,
     currentFromLanguageItem,
-    autoSelectedTargetLanguageItem,
     queryText,
     queryTextWithTextInfo,
     regenerateService,
     clearQueryResult,
-    setAutoSelectedTargetLanguageItem,
-  } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2, resolvedServiceSnapshot);
+  } = useQueryEngine(config.preferredLanguage1, resolvedServiceSnapshot);
   const displaySectionIds = useMemo(
     () => getDisplaySectionIds(viewSections, queryGeneration),
     [viewSections, queryGeneration],
@@ -141,10 +139,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const [searchText, setSearchText] = useState<string>("");
 
   /**
-   * the user selected translation language, used for display, can be changed manually. default userSelectedTargetLanguage is the autoSelectedTargetLanguage.
+   * The user's target language starts with their second preferred language and can be changed manually.
    */
-  const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] =
-    useState<LanguageItem>(autoSelectedTargetLanguageItem);
+  const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] = useState<LanguageItem>(
+    config.preferredLanguage2,
+  );
 
   const setupCalled = useRef(false);
   const shownProfileLoadErrorRef = useRef<string | undefined>(undefined);
@@ -196,7 +195,6 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       return;
     }
 
-    setAutoSelectedTargetLanguageItem(selectedLanguageItem);
     setUserSelectedTargetLanguageItem(selectedLanguageItem);
 
     const queryWordInfo: QueryInput = {
