@@ -37,31 +37,6 @@ vi.mock("@/utils/logger", () => ({
   logTrace: vi.fn(),
 }));
 
-class CancelledRemoteDetectProvider extends BaseDetectProvider {
-  type = LanguageDetectType.Bing;
-
-  isEnabled() {
-    return true;
-  }
-
-  protected async doDetect(): Promise<DetectedLangModel> {
-    throw new CancelledError();
-  }
-}
-
-class CancelledLocalDetectProvider extends BaseDetectProvider {
-  type = LanguageDetectType.Franc;
-  isLocal = true;
-
-  isEnabled() {
-    return true;
-  }
-
-  protected async doDetect(): Promise<DetectedLangModel> {
-    throw new CancelledError();
-  }
-}
-
 class FirstConsensusDetectProvider extends BaseDetectProvider {
   type = LanguageDetectType.Baidu;
 
@@ -123,19 +98,12 @@ beforeEach(() => {
   testDoubles.loserAborted.mockReset();
   testDoubles.logError.mockReset();
   testDoubles.timerFail.mockReset();
-  testDoubles.detectServices.splice(
-    0,
-    testDoubles.detectServices.length,
-    { type: LanguageDetectType.Bing, provider: CancelledRemoteDetectProvider },
-    { type: LanguageDetectType.Franc, provider: CancelledLocalDetectProvider },
-  );
+  testDoubles.detectServices.length = 0;
 });
 
 describe("detectLanguage cancellation", () => {
   it("cancels unfinished remote detectors after a confirmed result wins", async () => {
-    testDoubles.detectServices.splice(
-      0,
-      testDoubles.detectServices.length,
+    testDoubles.detectServices.push(
       { type: LanguageDetectType.Baidu, provider: FirstConsensusDetectProvider },
       { type: LanguageDetectType.Tencent, provider: WinningConsensusDetectProvider },
       { type: LanguageDetectType.Bing, provider: LosingDetectProvider },
@@ -150,12 +118,15 @@ describe("detectLanguage cancellation", () => {
   });
 
   it("stops detection when the query signal is already cancelled", async () => {
+    const provider = vi.fn(FirstConsensusDetectProvider);
+    testDoubles.detectServices.push({ type: LanguageDetectType.Baidu, provider });
     const controller = new AbortController();
     controller.abort();
 
     const result = detectLanguage("testimony", controller.signal);
 
     await expect(result).rejects.toBeInstanceOf(CancelledError);
+    expect(provider).not.toHaveBeenCalled();
     expect(testDoubles.logError).not.toHaveBeenCalled();
   });
 });

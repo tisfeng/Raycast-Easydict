@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
 import { AIDictionaryListItemType } from "@/providers/dictionary/ai/types";
-import { formatLingueeDisplaySections } from "@/providers/dictionary/linguee/format";
-import type { LingueeDictionaryResult } from "@/providers/dictionary/linguee/types";
 import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
 import { DictionaryType, TranslationType } from "@/types/api";
@@ -113,15 +111,9 @@ describe("resolveFavoriteTranslations", () => {
   });
 
   it("continues past a Linguee placeholder to another provider's real translation", () => {
-    const result: LingueeDictionaryResult = {
-      wordItems: [],
-      examples: [{ example: { text: "a good book", pos: "" }, translations: [{ text: "一本好书", pos: "" }] }],
-      relatedWords: [],
-      wikipedias: [],
-    };
     const favorite = makeFavorite({
       displaySections: [
-        ...formatLingueeDisplaySections(queryWordInfo, result),
+        dictionaryTranslationSection("linguee", "good"),
         dictionaryTranslationSection("youdao", "良好的"),
       ],
     });

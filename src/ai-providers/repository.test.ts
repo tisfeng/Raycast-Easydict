@@ -9,7 +9,7 @@ import {
   saveAIProviderState,
   updateAIProviderState,
 } from "./repository";
-import type { StoredAIProviderState } from "./types";
+import type { OpenAICompatibleProfile, StoredAIProviderState } from "./types";
 
 const storage = vi.hoisted(() => new Map<string, string>());
 
@@ -30,6 +30,24 @@ beforeEach(() => {
   storage.clear();
 });
 
+function createProfile(overrides: Partial<OpenAICompatibleProfile> = {}): OpenAICompatibleProfile {
+  return {
+    id: "profile-1",
+    adapter: "openai-compatible",
+    name: "Example",
+    enabled: true,
+    order: 0,
+    icon: { kind: "initials" },
+    wordResultMode: "dictionary",
+    endpoint: "https://example.com/v1",
+    model: "example-model",
+    apiKey: "test-placeholder",
+    tokenLimitMode: "max-tokens",
+    jsonOutputMode: "json-object",
+    ...overrides,
+  };
+}
+
 describe("AI provider repository", () => {
   it("distinguishes missing storage from a ready empty state", async () => {
     const result = await loadAIProviderState();
@@ -42,22 +60,7 @@ describe("AI provider repository", () => {
       migratedLegacyProviders: [],
       providerOrder: ["builtin:dictionary:Youdao Dictionary", "ai:profile-1"],
 
-      profiles: [
-        {
-          id: "profile-1",
-          adapter: "openai-compatible",
-          name: "Example",
-          enabled: true,
-          order: 0,
-          icon: { kind: "preset", name: "mimo" },
-          wordResultMode: "dictionary",
-          endpoint: "https://example.com/v1",
-          model: "example-model",
-          apiKey: "test-placeholder",
-          tokenLimitMode: "max-tokens",
-          jsonOutputMode: "json-object",
-        },
-      ],
+      profiles: [createProfile({ icon: { kind: "preset", name: "mimo" } })],
     };
 
     await saveAIProviderState(state);
@@ -68,22 +71,7 @@ describe("AI provider repository", () => {
     const state: StoredAIProviderState = {
       version: 2,
       migratedLegacyProviders: [],
-      profiles: [
-        {
-          id: "profile-1",
-          adapter: "openai-compatible",
-          name: "Example",
-          enabled: true,
-          order: 0,
-          icon: { kind: "initials" },
-          wordResultMode: "dictionary",
-          endpoint: "https://example.com/v1",
-          model: "example-model",
-          apiKey: "test-placeholder",
-          tokenLimitMode: "max-tokens",
-          jsonOutputMode: "json-object",
-        },
-      ],
+      profiles: [createProfile()],
     };
     await saveAIProviderState(state);
 
@@ -97,20 +85,7 @@ describe("AI provider repository", () => {
   });
 
   it("preserves a concurrent provider update when JSON fallback waits for the same state queue", async () => {
-    const profile = {
-      id: "profile-1",
-      adapter: "openai-compatible" as const,
-      name: "Example",
-      enabled: true,
-      order: 0,
-      icon: { kind: "initials" as const },
-      wordResultMode: "dictionary" as const,
-      endpoint: "https://example.com/v1",
-      model: "example-model",
-      apiKey: "test-placeholder",
-      tokenLimitMode: "max-tokens" as const,
-      jsonOutputMode: "json-object" as const,
-    };
+    const profile = createProfile();
     storage.set(
       AI_PROVIDER_STORAGE_KEY,
       JSON.stringify({ version: 2, migratedLegacyProviders: [], profiles: [profile] }),
@@ -128,7 +103,7 @@ describe("AI provider repository", () => {
       });
     });
 
-    const addedProfile = { ...profile, id: "profile-2", name: "Added", order: 1 };
+    const addedProfile = createProfile({ id: "profile-2", name: "Added", order: 1 });
     const managementUpdate = updateAIProviderState((state) => ({
       ...state,
       profiles: [...state.profiles, addedProfile],
@@ -152,20 +127,11 @@ describe("AI provider repository", () => {
   });
 
   it("rejects duplicate or empty saved provider keys", async () => {
-    const profile = {
-      id: "profile-1",
-      adapter: "openai-compatible" as const,
-      name: "Example",
-      enabled: true,
-      order: 0,
-      icon: { kind: "preset" as const, name: "mimo" as const },
-      wordResultMode: "translation" as const,
-      endpoint: "https://example.com/v1",
-      model: "example-model",
-      apiKey: "test-placeholder",
-      tokenLimitMode: "max-tokens" as const,
-      jsonOutputMode: "prompt" as const,
-    };
+    const profile = createProfile({
+      icon: { kind: "preset", name: "mimo" },
+      wordResultMode: "translation",
+      jsonOutputMode: "prompt",
+    });
 
     await expect(
       saveAIProviderState({
