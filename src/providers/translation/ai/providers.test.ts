@@ -3,10 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EASYDICT_VERSION } from "@/consts";
 import { TranslationType } from "@/core/results/kinds";
 import type { StreamChunk, TranslationResult } from "@/core/results/types";
+import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 import { CancelledError } from "@/shared/errors";
 
-import { ConfiguredOpenAICompatibleTranslateProvider } from "./openai-compatible";
+import { createAITranslationProvider } from "./index";
 
 const testDoubles = vi.hoisted(() => ({
   nativeFetch: vi.fn(),
@@ -32,7 +33,7 @@ describe("OpenAI-compatible translation provider", () => {
   it("omits the API key for a keyless completion", async () => {
     testDoubles.streamText.mockReturnValue({ textStream: createTextStream(["你好"]) });
 
-    await collect(new ConfiguredOpenAICompatibleTranslateProvider(createProfile("")).request(createQuery()));
+    await collect(createProvider(createProfile("")).request(createQuery()));
 
     expect(testDoubles.streamText).toHaveBeenCalledWith(expect.not.objectContaining({ apiKey: expect.anything() }));
     expect(testDoubles.streamText.mock.calls[0][0]).not.toHaveProperty("headers");
@@ -40,9 +41,7 @@ describe("OpenAI-compatible translation provider", () => {
 
   it("adds fresh OpenCode Go headers to each translation query and preserves authentication", async () => {
     testDoubles.streamText.mockImplementation(() => ({ textStream: createTextStream(["你好"]) }));
-    const provider = new ConfiguredOpenAICompatibleTranslateProvider(
-      createProfile("test-key", "https://opencode.ai/zen/go/v1/chat/completions/"),
-    );
+    const provider = createProvider(createProfile("test-key", "https://opencode.ai/zen/go/v1/chat/completions/"));
 
     await collect(provider.request(createQuery()));
     await collect(provider.request(createQuery()));
@@ -74,7 +73,7 @@ describe("OpenAI-compatible translation provider", () => {
       };
       const query = createQuery();
 
-      expect(await collect(new ConfiguredOpenAICompatibleTranslateProvider(profile).request(query))).toEqual({
+      expect(await collect(createProvider(profile).request(query))).toEqual({
         chunks: [
           { content: "你", role: "assistant" },
           { content: "好", role: "assistant" },
@@ -114,7 +113,7 @@ describe("OpenAI-compatible translation provider", () => {
       }),
     }));
     const controller = new AbortController();
-    const request = new ConfiguredOpenAICompatibleTranslateProvider(createProfile("")).request(createQuery(), {
+    const request = createProvider(createProfile("")).request(createQuery(), {
       signal: controller.signal,
     });
 
@@ -129,7 +128,7 @@ describe("OpenAI-compatible translation provider", () => {
     testDoubles.streamText.mockImplementation(() => {
       throw new Error("Completion failed");
     });
-    const request = new ConfiguredOpenAICompatibleTranslateProvider(createProfile("")).request(createQuery());
+    const request = createProvider(createProfile("")).request(createQuery());
 
     await expect(request.next()).rejects.toMatchObject({
       name: "RequestError",
@@ -172,4 +171,10 @@ async function collect<T>(iterator: AsyncGenerator<StreamChunk, TranslationResul
 
 async function* createTextStream(chunks: string[]) {
   yield* chunks;
+}
+
+function createProvider(profile: OpenAICompatibleProfile) {
+  const result = resolveAIProviderRuntimeConfig(profile);
+  if (result.kind === "issue") throw new Error(result.message);
+  return createAITranslationProvider(result.config);
 }

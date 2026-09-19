@@ -1,43 +1,88 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { getAIProviderQueryMode } from "./runtime";
-import type { OpenAICompatibleProfile } from "./types";
+import { resolveAIProviderRuntimeConfig } from "./runtime";
+import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
 
-vi.mock("@raycast/api", () => ({ AI: { Model: {} } }));
+vi.mock("@raycast/api", () => ({ AI: { Model: { Test_Model: "test-model" } } }));
 
-describe("AI provider query mode", () => {
+describe("AI provider runtime configuration", () => {
   it.each([
-    { wordResultMode: "translation", isWord: true, expected: "translation" },
-    { wordResultMode: "translation", isWord: false, expected: "translation" },
-    { wordResultMode: "dictionary", isWord: true, expected: "dictionary" },
-    { wordResultMode: "dictionary", isWord: false, expected: "translation" },
-  ] as const)(
-    "selects exactly one service for $wordResultMode with isWord=$isWord",
-    ({ wordResultMode, isWord, expected }) => {
-      const profile = createProfile(wordResultMode);
+    [{ name: "\t" }, "Enter a provider name."],
+    [{ model: " " }, "Enter a model."],
+    [{ endpoint: " \n " }, "Enter an API base URL."],
+    [{ endpoint: "ftp://example.com/v1" }, "Enter a valid HTTP or HTTPS API base URL."],
+    [{ endpoint: "not a URL" }, "Enter a valid HTTP or HTTPS API base URL."],
+  ])(
+    "reports an incomplete OpenAI-compatible configuration without changing the stored profile",
+    (changes, message) => {
+      const profile = { ...createProfile(), ...changes };
+      const original = structuredClone(profile);
 
-      expect(
-        getAIProviderQueryMode(profile, {
-          word: isWord ? "run" : "How are you?",
-          fromLanguage: "en",
-          toLanguage: "zh-CHS",
-          isWord,
-        }),
-      ).toBe(expected);
+      expect(resolveAIProviderRuntimeConfig(profile)).toEqual({ kind: "issue", message });
+      expect(profile).toEqual(original);
     },
   );
 
-  it("does not select a service for a disabled provider", () => {
-    expect(
-      getAIProviderQueryMode(
-        { ...createProfile("dictionary"), enabled: false },
-        { word: "run", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
-      ),
-    ).toBeUndefined();
+  it("resolves normalized request parameters while leaving the editable profile intact", () => {
+    const profile = {
+      ...createProfile(),
+      name: " Example ",
+      endpoint: " https://example.com/v1/chat/completions/ ",
+      model: " example-model ",
+      apiKey: " test-key ",
+    };
+    const original = structuredClone(profile);
+    const config = resolveConfig(profile);
+
+    expect(config).toMatchObject({
+      id: profile.id,
+      name: "Example",
+      adapter: "openai-compatible",
+      request: { baseURL: "https://example.com/v1", model: "example-model", apiKey: "test-key" },
+      endpoint: new URL("https://example.com/v1"),
+      tokenLimitMode: "max-tokens",
+      jsonOutputMode: "prompt",
+    });
+    expect(profile).toEqual(original);
+  });
+
+  it("accepts a keyless endpoint and omits authorization from its request parameters", () => {
+    const config = resolveConfig({ ...createProfile(), apiKey: "\t\n", endpoint: "http://localhost:8080/v1" });
+
+    expect(config).toMatchObject({ request: { baseURL: "http://localhost:8080/v1" } });
+    if (config.adapter !== "openai-compatible") throw new Error("Expected OpenAI-compatible config");
+    expect(config.request).not.toHaveProperty("apiKey");
+  });
+
+  it("compiles disabled profiles so they remain available for connection testing", () => {
+    expect(resolveAIProviderRuntimeConfig({ ...createProfile(), enabled: false })).toMatchObject({ kind: "ready" });
+  });
+
+  it("keeps unavailable Raycast models editable and resolves only an installed AI.Model", () => {
+    const profile: AIProviderProfile = { ...createProfile(), adapter: "raycast-ai", model: "unavailable" };
+    expect(resolveAIProviderRuntimeConfig(profile)).toEqual({
+      kind: "issue",
+      message: "Choose an available Raycast AI model.",
+    });
+    expect(profile.model).toBe("unavailable");
+    expect(resolveAIProviderRuntimeConfig({ ...profile, model: "test-model" })).toMatchObject({
+      kind: "ready",
+      config: { adapter: "raycast-ai", model: "test-model" },
+    });
+    expect(resolveAIProviderRuntimeConfig({ ...profile, model: " " })).toEqual({
+      kind: "issue",
+      message: "Choose a Raycast AI model.",
+    });
   });
 });
 
-function createProfile(wordResultMode: OpenAICompatibleProfile["wordResultMode"]): OpenAICompatibleProfile {
+function resolveConfig(profile: AIProviderProfile) {
+  const result = resolveAIProviderRuntimeConfig(profile);
+  if (result.kind === "issue") throw new Error(result.message);
+  return result.config;
+}
+
+function createProfile(): OpenAICompatibleProfile {
   return {
     id: "profile",
     adapter: "openai-compatible",
@@ -45,7 +90,7 @@ function createProfile(wordResultMode: OpenAICompatibleProfile["wordResultMode"]
     enabled: true,
     order: 0,
     icon: { kind: "initials" },
-    wordResultMode,
+    wordResultMode: "dictionary",
     endpoint: "https://example.com/v1",
     model: "model",
     apiKey: "key",

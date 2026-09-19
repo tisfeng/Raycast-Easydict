@@ -5,9 +5,9 @@ import { streamText } from "@xsai/stream-text";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
-import { normalizeOpenAICompatibleEndpoint } from "@/providers/profiles/endpoint";
+import type { OpenAICompatibleRuntimeConfig } from "@/providers/profiles/runtime";
 import { getTokenLimitParams } from "@/providers/profiles/tokenLimit";
-import type { JSONOutputMode, OpenAICompatibleProfile } from "@/providers/profiles/types";
+import type { JSONOutputMode } from "@/providers/profiles/types";
 import { getOpenAICompatibleRequestHeaders } from "@/providers/shared/openai-compatible-headers";
 import { normalizeError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
@@ -21,20 +21,22 @@ import type { AIWordResult } from "./types";
 
 const MAX_DICTIONARY_TOKENS = 3000;
 
-export type NativeJSONUnsupportedHandler = (fallbackProfile: OpenAICompatibleProfile) => void | Promise<void>;
+export type NativeJSONUnsupportedHandler = (
+  provider: Pick<OpenAICompatibleRuntimeConfig, "id" | "name">,
+) => void | Promise<void>;
 
 export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
   type = DictionaryType.AI;
 
   constructor(
-    private readonly profile: Readonly<OpenAICompatibleProfile>,
+    private readonly config: OpenAICompatibleRuntimeConfig,
     private readonly onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
   ) {
     super();
   }
 
   protected override get logLabel() {
-    return this.profile.name;
+    return this.config.name;
   }
 
   protected async doQuery(
@@ -43,15 +45,17 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
   ): Promise<DictionaryResult<AIWordResult>> {
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
-    const model = this.profile.model.trim();
-    const headers = getOpenAICompatibleRequestHeaders(this.profile.endpoint);
-    logTrace(this.logLabel, `dictionary (${model}): ${fromLanguage} -> ${toLanguage}: ${queryWordInfo.word}`);
+    const headers = getOpenAICompatibleRequestHeaders(this.config.endpoint);
+    logTrace(
+      this.logLabel,
+      `dictionary (${this.config.request.model}): ${fromLanguage} -> ${toLanguage}: ${queryWordInfo.word}`,
+    );
 
     const messages = renderAIDictionaryChatMessages(
       createAIDictionaryPromptSpec(queryWordInfo, fromLanguage, toLanguage),
     );
     let result: AIWordResult;
-    if (this.profile.jsonOutputMode !== "json-object") {
+    if (this.config.jsonOutputMode !== "json-object") {
       result = parseAIWordResult(await this.requestCompletion(messages, "prompt", headers, signal));
     } else {
       let completion: string;
@@ -83,16 +87,13 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     headers: Record<string, string> | undefined,
     signal?: AbortSignal,
   ): Promise<string> {
-    const apiKey = this.profile.apiKey.trim();
     const streamResult = streamText({
-      baseURL: normalizeOpenAICompatibleEndpoint(this.profile.endpoint),
-      ...(apiKey ? { apiKey } : {}),
+      ...this.config.request,
       ...(headers ? { headers } : {}),
-      model: this.profile.model.trim(),
       messages,
       abortSignal: signal,
       fetch: timedFetch.native,
-      ...getTokenLimitParams(this.profile.tokenLimitMode, MAX_DICTIONARY_TOKENS),
+      ...getTokenLimitParams(this.config.tokenLimitMode, MAX_DICTIONARY_TOKENS),
       ...(outputMode === "json-object" ? { responseFormat: { type: "json_object" as const } } : {}),
     });
 
@@ -119,7 +120,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
 
   private async notifyNativeJSONUnsupported(): Promise<void> {
     try {
-      await this.onNativeJSONUnsupported?.({ ...this.profile, jsonOutputMode: "prompt" });
+      await this.onNativeJSONUnsupported?.({ id: this.config.id, name: this.config.name });
     } catch (error) {
       logWarn(this.logLabel, `unable to save prompt-based JSON fallback: ${normalizeError(error).message}`);
     }

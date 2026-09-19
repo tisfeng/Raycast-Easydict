@@ -155,6 +155,48 @@ describe("combined provider registry", () => {
     expect(youdaoService.enabled({ ...wordQuery, fromLanguage: "de" })).toBe(false);
   });
 
+  it("keeps disabled profiles registered without enabling either service", () => {
+    const profile = { ...createProfile("disabled", "dictionary"), enabled: false };
+    const snapshot = resolveProviderServices({ version: 2, profiles: [profile], migratedLegacyProviders: [] });
+    const services = [...snapshot.translationServices, ...snapshot.dictionaryServices].filter((service) =>
+      service.id.startsWith("profile:"),
+    );
+    expect(services).toHaveLength(2);
+    expect(services.every((service) => !service.enabled(wordQuery))).toBe(true);
+  });
+
+  it("retains incomplete profile IDs while only ready configurations can execute", () => {
+    const profile = { ...createProfile("incomplete", "dictionary"), endpoint: "" };
+    const state = { version: 2 as const, profiles: [profile], migratedLegacyProviders: [] };
+    const before = resolveProviderServices(state);
+    const incompleteServices = [...before.translationServices, ...before.dictionaryServices].filter((service) =>
+      service.id.startsWith("profile:"),
+    );
+    expect(incompleteServices.map((service) => service.id)).toEqual([
+      "profile:incomplete",
+      "profile:incomplete:dictionary",
+    ]);
+    for (const service of incompleteServices) {
+      expect(service.enabled(wordQuery)).toBe(false);
+      expect(service.createProvider).toThrow("Enter an API base URL.");
+    }
+
+    const after = resolveProviderServices({
+      ...state,
+      profiles: [{ ...profile, endpoint: "https://example.com/v1" }],
+    });
+    const readyServices = [...after.translationServices, ...after.dictionaryServices].filter((service) =>
+      service.id.startsWith("profile:"),
+    );
+    expect(readyServices.map((service) => service.id)).toEqual(incompleteServices.map((service) => service.id));
+    expect(readyServices.filter((service) => service.enabled(wordQuery)).map((service) => service.id)).toEqual([
+      "profile:incomplete:dictionary",
+    ]);
+    expect(readyServices[1].createProvider()).toBeDefined();
+    expect(state.profiles).toEqual([profile]);
+    expect(profile.endpoint).toBe("");
+  });
+
   it("removes deleted profiles without restoring legacy AI preference services", () => {
     const profile = createProfile("removed", "dictionary");
     const state = { version: 2 as const, profiles: [profile], migratedLegacyProviders: [] };

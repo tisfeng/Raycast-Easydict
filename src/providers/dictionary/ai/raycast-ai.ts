@@ -5,8 +5,7 @@ import { AI, environment } from "@raycast/api";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
-import { getRaycastAIModel } from "@/providers/profiles/runtime";
-import type { RaycastAIProfile } from "@/providers/profiles/types";
+import type { RaycastAIRuntimeConfig } from "@/providers/profiles/runtime";
 import { RequestError } from "@/shared/errors";
 import { logTrace } from "@/shared/logger";
 
@@ -19,12 +18,12 @@ import type { AIWordResult } from "./types";
 export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
   type = DictionaryType.AI;
 
-  constructor(private readonly profile: Readonly<RaycastAIProfile>) {
+  constructor(private readonly config: RaycastAIRuntimeConfig) {
     super();
   }
 
   protected override get logLabel() {
-    return this.profile.name;
+    return this.config.name;
   }
 
   protected async doQuery(
@@ -34,10 +33,7 @@ export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordRe
     if (!environment.canAccess(AI)) {
       throw new RequestError(this.type, "Raycast AI is unavailable. Raycast Pro and AI access are required.");
     }
-    const model = getRaycastAIModel(this.profile.model);
-    if (!model) {
-      throw new RequestError(this.type, `The configured Raycast AI model is unavailable: ${this.profile.model}`);
-    }
+    const model = this.config.model;
 
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);

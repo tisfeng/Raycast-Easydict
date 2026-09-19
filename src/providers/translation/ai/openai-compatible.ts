@@ -5,9 +5,8 @@ import { streamText } from "@xsai/stream-text";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
-import { normalizeOpenAICompatibleEndpoint } from "@/providers/profiles/endpoint";
+import type { OpenAICompatibleRuntimeConfig } from "@/providers/profiles/runtime";
 import { getTokenLimitParams } from "@/providers/profiles/tokenLimit";
-import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 import { getOpenAICompatibleRequestHeaders } from "@/providers/shared/openai-compatible-headers";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
 import { timedFetch } from "@/shared/http";
@@ -24,29 +23,29 @@ const DEFAULT_MAX_TOKENS = 2000;
 export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTranslateProvider<OpenAICompatibleTranslateResult> {
   type = TranslationType.OpenAI;
 
-  constructor(private readonly profile: Readonly<OpenAICompatibleProfile>) {
+  constructor(private readonly config: OpenAICompatibleRuntimeConfig) {
     super();
   }
 
   protected override get logLabel() {
-    return this.profile.name;
+    return this.config.name;
   }
 
   protected async *doTranslate(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
   ): AsyncGenerator<StreamChunk, TranslationResult<OpenAICompatibleTranslateResult>, unknown> {
-    const url = normalizeOpenAICompatibleEndpoint(this.profile.endpoint);
-    const apiKey = this.profile.apiKey.trim();
-    const modelName = this.profile.model.trim();
-    const headers = getOpenAICompatibleRequestHeaders(url);
+    const headers = getOpenAICompatibleRequestHeaders(this.config.endpoint);
 
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
 
-    logTrace(this.logLabel, `translate (${modelName}): ${fromLanguage} -> ${toLanguage}: ${queryWordInfo.word}`);
+    logTrace(
+      this.logLabel,
+      `translate (${this.config.request.model}): ${fromLanguage} -> ${toLanguage}: ${queryWordInfo.word}`,
+    );
 
-    const tokenParams = getTokenLimitParams(this.profile.tokenLimitMode, DEFAULT_MAX_TOKENS);
+    const tokenParams = getTokenLimitParams(this.config.tokenLimitMode, DEFAULT_MAX_TOKENS);
     const messages = renderTranslationChatMessages(
       createTranslationPromptSpec(queryWordInfo, fromLanguage, toLanguage),
     );
@@ -54,10 +53,8 @@ export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTr
     const chunks: string[] = [];
 
     const streamResult = streamText({
-      baseURL: url,
-      ...(apiKey ? { apiKey } : {}),
+      ...this.config.request,
       ...(headers ? { headers } : {}),
-      model: modelName,
       messages,
       abortSignal: signal,
       fetch: timedFetch.native,

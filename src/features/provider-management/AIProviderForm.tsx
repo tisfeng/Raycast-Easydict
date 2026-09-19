@@ -11,8 +11,8 @@ import {
   OPENAI_COMPATIBLE_PRESETS,
   type OpenAICompatiblePresetName,
 } from "@/providers/profiles/presets";
-import { getAIProviderProfileValidationError, normalizeAIProviderProfile } from "@/providers/profiles/profile";
-import { isAIProviderProfileRunnable } from "@/providers/profiles/runtime";
+import { normalizeAIProviderProfile } from "@/providers/profiles/profile";
+import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { AIProviderProfile, JSONOutputMode, TokenLimitMode, WordResultMode } from "@/providers/profiles/types";
 import { createAITranslationProvider } from "@/providers/translation/ai";
 import { normalizeError } from "@/shared/errors";
@@ -118,7 +118,7 @@ export function AIProviderForm({
       const tested = await testProvider(saved);
       if (!tested) return;
       saved = tested;
-    } else if (!(await ensureProviderRunnable(saved))) {
+    } else if (!(await resolveRuntimeConfig(saved))) {
       return;
     }
 
@@ -131,7 +131,8 @@ export function AIProviderForm({
   }
 
   async function testProvider(draft = buildDraftProfile()): Promise<AIProviderProfile | undefined> {
-    if (!(await ensureProviderRunnable(draft))) return undefined;
+    const config = await resolveRuntimeConfig(draft);
+    if (!config) return undefined;
 
     testAbortController.current?.abort();
     const abortController = new AbortController();
@@ -145,8 +146,8 @@ export function AIProviderForm({
     try {
       let translation: string;
       if (draft.wordResultMode === "dictionary") {
-        const result = await createAIDictionaryProvider(draft, (fallbackProfile) => {
-          testedDraft = fallbackProfile;
+        const result = await createAIDictionaryProvider(config, () => {
+          if (draft.adapter === "openai-compatible") testedDraft = { ...draft, jsonOutputMode: "prompt" };
           setJSONOutputMode("prompt");
         }).request(
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
@@ -154,7 +155,7 @@ export function AIProviderForm({
         );
         translation = result.result?.translation.trim() ?? "";
       } else {
-        const iterator = createAITranslationProvider(draft).request(
+        const iterator = createAITranslationProvider(config).request(
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS" },
           { signal: abortController.signal },
         );
@@ -190,14 +191,15 @@ export function AIProviderForm({
     }
   }
 
-  async function ensureProviderRunnable(draft: AIProviderProfile): Promise<boolean> {
-    if (isAIProviderProfileRunnable(draft)) return true;
+  async function resolveRuntimeConfig(draft: AIProviderProfile) {
+    const result = resolveAIProviderRuntimeConfig(draft);
+    if (result.kind === "ready") return result.config;
     await showToast({
       style: Toast.Style.Failure,
       title: "Provider configuration is incomplete",
-      message: getAIProviderProfileValidationError(draft) ?? "Choose an available Raycast AI model.",
+      message: result.message,
     });
-    return false;
+    return undefined;
   }
 
   const loadModels = useCallback(async () => {
