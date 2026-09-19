@@ -6,10 +6,9 @@ import { logTrace } from "@/shared/logger";
 
 type SelectionMode = "automatic" | "manual";
 
-interface SelectionState {
+interface ManualSelection {
   queryGeneration: number;
-  mode: SelectionMode;
-  selectedItemId?: string;
+  selectedItemId: string;
 }
 
 interface CurrentSelectionSnapshot {
@@ -26,19 +25,12 @@ interface CurrentSelectionSnapshot {
  */
 export function useFirstItemAnchor(itemIds: string[], queryGeneration: number) {
   const firstItemId = itemIds[0];
-  const [selectionState, setSelectionState] = useState<SelectionState>(() => ({
-    queryGeneration,
-    mode: "automatic",
-    selectedItemId: firstItemId,
-  }));
+  const [manualSelection, setManualSelection] = useState<ManualSelection>();
 
   const isManualSelectionValid =
-    selectionState.queryGeneration === queryGeneration &&
-    selectionState.mode === "manual" &&
-    selectionState.selectedItemId !== undefined &&
-    itemIds.includes(selectionState.selectedItemId);
+    manualSelection?.queryGeneration === queryGeneration && itemIds.includes(manualSelection.selectedItemId);
   const mode: SelectionMode = isManualSelectionValid ? "manual" : "automatic";
-  const selectedItemId = isManualSelectionValid ? selectionState.selectedItemId : firstItemId;
+  const selectedItemId = isManualSelectionValid ? manualSelection.selectedItemId : firstItemId;
   const selectedItemIndex = selectedItemId === undefined ? -1 : itemIds.indexOf(selectedItemId);
   const currentSelectionRef = useRef<CurrentSelectionSnapshot>({
     queryGeneration,
@@ -52,22 +44,10 @@ export function useFirstItemAnchor(itemIds: string[], queryGeneration: number) {
   }, [itemIds, mode, queryGeneration, selectedItemId]);
 
   useEffect(() => {
-    setSelectionState((previous) => {
-      if (
-        previous.queryGeneration === queryGeneration &&
-        previous.mode === mode &&
-        previous.selectedItemId === selectedItemId
-      ) {
-        return previous;
-      }
-
-      return {
-        queryGeneration,
-        mode,
-        selectedItemId,
-      };
-    });
-  }, [mode, queryGeneration, selectedItemId]);
+    setManualSelection((previous) =>
+      previous?.queryGeneration === queryGeneration && itemIds.includes(previous.selectedItemId) ? previous : undefined,
+    );
+  }, [itemIds, queryGeneration]);
 
   useEffect(() => {
     logTrace(
@@ -118,17 +98,12 @@ export function useFirstItemAnchor(itemIds: string[], queryGeneration: number) {
 
       logEvent("pin-manual");
 
-      setSelectionState((previous) => {
-        if (
-          previous.queryGeneration === currentSelection.queryGeneration &&
-          previous.mode === "manual" &&
-          previous.selectedItemId === id
-        ) {
+      setManualSelection((previous) => {
+        if (previous?.queryGeneration === currentSelection.queryGeneration && previous.selectedItemId === id) {
           return previous;
         }
         return {
           queryGeneration: currentSelection.queryGeneration,
-          mode: "manual",
           selectedItemId: id,
         };
       });
