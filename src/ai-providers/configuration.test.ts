@@ -1,7 +1,7 @@
 import { LocalStorage } from "@raycast/api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getAIProviderKey } from "@/core/query/providerOrder";
+import { getAIProviderKey } from "@/providers/order";
 
 import { loadAIProviderConfiguration, resetAIProviderConfiguration } from "./configuration";
 import { AI_PROVIDER_STORAGE_KEY, saveAIProviderState } from "./repository";
@@ -30,11 +30,6 @@ vi.mock("@raycast/api", () => ({
   },
 }));
 vi.mock("@/consts", () => ({ myPreferences: { servicesOrder: "google,openai" } }));
-vi.mock("@/providers/registry", () => ({
-  builtinProviderServices: [
-    { providerKey: "builtin:translation:Google Translate", type: "Google Translate", order: 0 },
-  ],
-}));
 vi.mock("./legacyConfiguration", () => ({ getLegacyAIProviderConfiguration: () => legacy }));
 vi.mock("@/utils/logger", () => ({ createTimer: () => ({ done: vi.fn(), fail: vi.fn() }) }));
 
@@ -69,7 +64,11 @@ describe("AI provider configuration loading", () => {
         icon: { kind: "initials" },
         wordResultMode,
       });
-      expect(second.state.providerOrder).toEqual([
+      expect(
+        second.state.providerOrder?.filter(
+          (key) => key.startsWith("ai:") || key === "builtin:translation:Google Translate",
+        ),
+      ).toEqual([
         "builtin:translation:Google Translate",
         getAIProviderKey(second.state.profiles[1]),
         getAIProviderKey(gemini),

@@ -2,48 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { DictionaryType, TranslationType } from "@/types/api";
 
-import {
-  assignGlobalServiceOrder,
-  getAIProviderKey,
-  getBuiltinProviderKey,
-  getInitialProviderOrder,
-  moveProviderInOrder,
-  reconcileProviderOrder,
-} from "./providerOrder";
+import { getBuiltinProviderKey } from "./catalog";
+import { getAIProviderKey, getInitialProviderOrder, moveProviderInOrder, reconcileProviderOrder } from "./order";
 
 describe("provider ordering", () => {
-  it("uses one explicit order across dictionary and translation provider types", () => {
-    const dictionaryKey = getBuiltinProviderKey("dictionary", DictionaryType.Youdao);
-    const translationKey = getBuiltinProviderKey("translation", TranslationType.DeepL);
-    const services = [
-      { providerKey: translationKey, order: 0 },
-      { providerKey: dictionaryKey, order: 0 },
-    ];
-
-    const ordered = assignGlobalServiceOrder(services, [translationKey, dictionaryKey]);
-
-    expect(ordered.map((service) => service.order)).toEqual([0, 1]);
-  });
-
-  it("keeps dictionary and translation modes of one AI provider together", () => {
-    const profile = {
-      id: "shared-provider",
-      adapter: "openai-compatible" as const,
-      name: "Shared",
-      enabled: true,
-      order: 0,
-      icon: { kind: "initials" as const },
-      wordResultMode: "dictionary" as const,
-      endpoint: "https://example.com/v1",
-      model: "model",
-      apiKey: "",
-      tokenLimitMode: "max-tokens" as const,
-      jsonOutputMode: "prompt" as const,
-    };
-
-    expect(getAIProviderKey(profile)).toBe(getAIProviderKey({ ...profile, wordResultMode: "translation" }));
-  });
-
   it("derives missing saved order from legacy servicesOrder semantics", () => {
     const dictionaryKey = getBuiltinProviderKey("dictionary", DictionaryType.Youdao);
     const translationKey = getBuiltinProviderKey("translation", TranslationType.DeepL);

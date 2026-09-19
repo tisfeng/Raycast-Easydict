@@ -4,19 +4,12 @@ import { getAIProviderCacheIdentity } from "@/ai-providers/cacheIdentity";
 import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
-import { getLangCode } from "@/core/language/utils";
-import {
-  assignGlobalServiceOrder,
-  getAIProviderKey,
-  getBuiltinProviderCandidates,
-  getBuiltinProviderKey,
-  getProviderOrder,
-} from "@/core/query/providerOrder";
-import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/parse";
+import { builtinTranslationProviders, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
+import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
+import { getAIProviderKey } from "@/providers/order";
 import { checkIsWord } from "@/providers/shared/utils";
 import { TranslationType } from "@/types/api";
-import type { BooleanPreferenceKey } from "@/types/preferences";
 import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
 import { createAITranslationProvider } from "./ai";
@@ -32,18 +25,10 @@ import { TencentTranslateProvider } from "./tencent";
 import { VolcanoTranslateProvider } from "./volcano";
 import { YoudaoTranslateProvider } from "./youdao";
 
-const deepLEnabledByLinguee = myPreferences.enableLingueeDictionary && Boolean(myPreferences.deepLAuthKey);
-const youdaoEnabledByDictionary = myPreferences.enableYoudaoDictionary;
-
 export interface TranslationServiceConfig extends RuntimeServiceConfig {
   type: TranslationType;
-  /** Built-in provider's Extension Settings checkbox; dynamic AI providers omit this metadata. */
-  enabledInPreferences?: boolean;
-  /** Another enabled built-in setting that can conditionally run this provider. */
-  implicitlyEnabledBy?: string;
   enabled: (queryWordInfo: QueryInput) => boolean;
   createProvider: () => BaseTranslateProvider;
-  getWebUrl?: (queryWordInfo: QueryInput) => string | undefined;
 }
 
 function getBuiltinTranslationCacheIdentity(type: TranslationType): string {
@@ -73,114 +58,41 @@ function getBuiltinTranslationCacheIdentity(type: TranslationType): string {
   }
 }
 
-/** Static registry — provider classes, instantiated by the engine. */
-const staticTranslationServices: Array<
-  Omit<
-    TranslationServiceConfig,
-    "id" | "label" | "providerKey" | "enabledInPreferences" | "order" | "enabled" | "createProvider"
-  > & {
-    preference: BooleanPreferenceKey;
-    provider: new () => BaseTranslateProvider;
-    isEnabled?: (queryWordInfo: QueryInput) => boolean;
-  }
-> = [
-  { type: TranslationType.Bing, preference: "enableBingTranslate", provider: BingTranslateProvider },
-  {
-    type: TranslationType.Baidu,
-    preference: "enableBaiduTranslate",
-    provider: BaiduTranslateProvider,
-    getWebUrl: (q) => {
-      const text = encodeURIComponent(q.word);
-      const from = getLangCode(q.fromLanguage, "baiduLangCode");
-      const to = getLangCode(q.toLanguage, "baiduLangCode");
-      return from && to ? `https://fanyi.baidu.com/#${from}/${to}/${text}` : undefined;
-    },
-  },
-  { type: TranslationType.Tencent, preference: "enableTencentTranslate", provider: TencentTranslateProvider },
-  { type: TranslationType.Volcano, preference: "enableVolcanoTranslate", provider: VolcanoTranslateProvider },
-  { type: TranslationType.Caiyun, preference: "enableCaiyunTranslate", provider: CaiyunTranslateProvider },
-  {
-    type: TranslationType.Google,
-    preference: "enableGoogleTranslate",
-    provider: GoogleTranslateProvider,
-    getWebUrl: (q) => {
-      const text = encodeURIComponent(q.word);
-      const from = getLangCode(q.fromLanguage, "googleLangCode");
-      const to = getLangCode(q.toLanguage, "googleLangCode");
-      return from && to ? `https://translate.google.com/?sl=${from}&tl=${to}&text=${text}&op=translate` : undefined;
-    },
-  },
-  {
-    type: TranslationType.DeepL,
-    preference: "enableDeepLTranslate",
-    isEnabled: (q) => {
-      const explicitlyEnabled = myPreferences.enableDeepLTranslate;
-      const implicitlyEnabledByLinguee = deepLEnabledByLinguee && getLingueeWebDictionaryURL(q) !== undefined;
-      return explicitlyEnabled || implicitlyEnabledByLinguee;
-    },
-    implicitlyEnabledBy: deepLEnabledByLinguee ? "Linguee" : undefined,
-    provider: DeepLTranslateProvider,
-    getWebUrl: (q) => {
-      const text = encodeURIComponent(q.word);
-      const from = getLangCode(q.fromLanguage, "deepLSourceId")?.toLowerCase();
-      const to = getLangCode(q.toLanguage, "deepLSourceId")?.toLowerCase();
-      return from && to ? `https://www.deepl.com/translator#${from}/${to}/${text}` : undefined;
-    },
-  },
-  {
-    type: TranslationType.DeepLX,
-    preference: "enableDeepLXTranslate",
-    provider: DeepLXTranslateProvider,
-    getWebUrl: (q) => {
-      const text = encodeURIComponent(q.word);
-      const from = getLangCode(q.fromLanguage, "deepLSourceId")?.toLowerCase();
-      const to = getLangCode(q.toLanguage, "deepLSourceId")?.toLowerCase();
-      return from && to ? `https://www.deepl.com/translator#${from}/${to}/${text}` : undefined;
-    },
-  },
-  { type: TranslationType.Apple, preference: "enableAppleTranslate", provider: AppleTranslateProvider },
-  {
-    type: TranslationType.Youdao,
-    preference: "enableYoudaoTranslate",
-    isEnabled: (q) => {
-      const explicitlyEnabled = myPreferences.enableYoudaoTranslate;
-      const implicitlyEnabledByDictionary =
-        youdaoEnabledByDictionary && getYoudaoWebDictionaryURL(q) !== undefined && checkIsWord(q);
-      return explicitlyEnabled || implicitlyEnabledByDictionary;
-    },
-    implicitlyEnabledBy: youdaoEnabledByDictionary ? "Youdao Dictionary" : undefined,
-    provider: YoudaoTranslateProvider,
-  },
-];
+const builtinProviderClasses = {
+  [TranslationType.Bing]: BingTranslateProvider,
+  [TranslationType.Baidu]: BaiduTranslateProvider,
+  [TranslationType.Tencent]: TencentTranslateProvider,
+  [TranslationType.Volcano]: VolcanoTranslateProvider,
+  [TranslationType.Caiyun]: CaiyunTranslateProvider,
+  [TranslationType.Google]: GoogleTranslateProvider,
+  [TranslationType.DeepL]: DeepLTranslateProvider,
+  [TranslationType.DeepLX]: DeepLXTranslateProvider,
+  [TranslationType.Apple]: AppleTranslateProvider,
+  [TranslationType.Youdao]: YoudaoTranslateProvider,
+} satisfies Record<(typeof builtinTranslationProviders)[number]["type"], new () => BaseTranslateProvider>;
 
-const staticTranslationServicesWithOrder: TranslationServiceConfig[] = staticTranslationServices.map(
-  (service, order) => ({
-    id: `static:${service.type}`,
-    label: service.type,
-    providerKey: getBuiltinProviderKey("translation", service.type),
-    enabledInPreferences: myPreferences[service.preference],
-    implicitlyEnabledBy: service.implicitlyEnabledBy,
-    order,
-    type: service.type,
+const builtinServices: TranslationServiceConfig[] = builtinTranslationProviders.map((service) => {
+  const status = getBuiltinProviderPreferenceStatus(service, myPreferences);
+  return {
+    ...service,
     cacheIdentity: getBuiltinTranslationCacheIdentity(service.type),
-    enabled: service.isEnabled ?? (() => myPreferences[service.preference]),
-    createProvider: () => new service.provider(),
-    getWebUrl: service.getWebUrl,
-  }),
-);
+    enabled: (query) => {
+      if (status.enabledInPreferences) return true;
+      if (service.type === TranslationType.DeepL) {
+        return Boolean(status.implicitlyEnabledBy) && getLingueeWebDictionaryURL(query) !== undefined;
+      }
+      if (service.type === TranslationType.Youdao) {
+        return (
+          Boolean(status.implicitlyEnabledBy) && getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query)
+        );
+      }
+      return false;
+    },
+    createProvider: () => new builtinProviderClasses[service.type](),
+  };
+});
 
-const categoryProviderOrder = getProviderOrder(
-  [],
-  undefined,
-  myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [],
-  getBuiltinProviderCandidates(staticTranslationServicesWithOrder),
-);
-export const translationServices = assignGlobalServiceOrder(staticTranslationServicesWithOrder, categoryProviderOrder);
-
-export function resolveTranslationServices(
-  profiles: AIProviderProfile[],
-  providerOrder?: string[],
-): TranslationServiceConfig[] {
+export function resolveTranslationServices(profiles: AIProviderProfile[]): TranslationServiceConfig[] {
   const dynamicServices = profiles.map((profile): TranslationServiceConfig => {
     const common = {
       id: `profile:${profile.id}`,
@@ -198,15 +110,5 @@ export function resolveTranslationServices(
       createProvider: () => createAITranslationProvider(profile),
     };
   });
-  const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
-  const resolved = [...translationServices, ...dynamicServices];
-  const resolvedProviderOrder =
-    providerOrder ??
-    getProviderOrder(
-      profiles,
-      undefined,
-      servicesOrder,
-      getBuiltinProviderCandidates(staticTranslationServicesWithOrder),
-    );
-  return assignGlobalServiceOrder(resolved, resolvedProviderOrder);
+  return [...builtinServices, ...dynamicServices];
 }

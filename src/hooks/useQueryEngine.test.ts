@@ -40,9 +40,8 @@ interface TranslationRequest {
 const testDoubles = vi.hoisted(() => ({
   raycastCaches: new Map<string, Map<string, string>>(),
   detectLanguage: vi.fn(),
-  dictionaryServices: [] as DictionaryServiceConfig[],
   playQueryWordAudio: vi.fn(),
-  showErrorToast: vi.fn(),
+  showFailureToast: vi.fn(),
   queryCacheMode: "off",
   aiQueryCacheMode: "off",
 }));
@@ -126,22 +125,8 @@ vi.mock("@/core/audio", () => ({
   playQueryWordAudio: testDoubles.playQueryWordAudio,
 }));
 
-vi.mock("@/providers/dictionary", () => ({
-  dictionaryProviderServices: testDoubles.dictionaryServices,
-}));
-
-vi.mock("@/providers/translation", () => ({
-  translationServices: [],
-}));
-
-vi.mock("@/providers/registry", () => ({
-  builtinDictionaryProviderServices: testDoubles.dictionaryServices,
-  builtinTranslationServices: [],
-}));
-
-vi.mock("@/utils/errors", () => ({
-  handleRequestError: (_type: string, error: unknown) => (error instanceof Error ? error : new Error(String(error))),
-  showErrorToast: testDoubles.showErrorToast,
+vi.mock("@raycast/utils", () => ({
+  showFailureToast: testDoubles.showFailureToast,
 }));
 
 vi.mock("@/utils/logger", () => ({
@@ -152,6 +137,8 @@ vi.mock("@/utils/logger", () => ({
   logWarn: vi.fn(),
 }));
 
+const dictionaryServices: DictionaryServiceConfig[] = [];
+const dictionarySnapshot = { dictionaryServices, translationServices: [] };
 const dictionaryRequests: DictionaryRequest[] = [];
 const translationRequests: QueryInput[] = [];
 const deferredTranslationRequests: TranslationRequest[] = [];
@@ -207,15 +194,14 @@ beforeEach(() => {
   deferredTranslationRequests.length = 0;
   testDoubles.detectLanguage.mockReset();
   testDoubles.playQueryWordAudio.mockReset().mockResolvedValue(undefined);
-  testDoubles.showErrorToast.mockReset();
+  testDoubles.showFailureToast.mockReset();
   testDoubles.queryCacheMode = "off";
   testDoubles.aiQueryCacheMode = "off";
   clearQueryCache();
-  testDoubles.dictionaryServices.splice(0, testDoubles.dictionaryServices.length, {
+  dictionaryServices.splice(0, dictionaryServices.length, {
     id: `static:${DictionaryType.Linguee}`,
     label: DictionaryType.Linguee,
     providerKey: `builtin:dictionary:${DictionaryType.Linguee}`,
-    enabledInPreferences: true,
     order: 0,
     type: DictionaryType.Linguee,
     enabled: () => true,
@@ -231,7 +217,7 @@ afterEach(() => {
 describe("useQueryEngine query generations", () => {
   it("reuses a completed cached dictionary result without calling its provider again", async () => {
     testDoubles.queryCacheMode = "words";
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
     const query = createQueryInput("cached");
 
     act(() => result.current.queryTextWithTextInfo(query));
@@ -317,7 +303,7 @@ describe("useQueryEngine query generations", () => {
 
   it("does not cache a provider result that completes after the cache was cleared", async () => {
     testDoubles.queryCacheMode = "words";
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
     const query = createQueryInput("pending");
 
     act(() => result.current.queryTextWithTextInfo(query));
@@ -325,11 +311,11 @@ describe("useQueryEngine query generations", () => {
     await resolveDictionaryRequest(0);
 
     expect(result.current.displaySections).not.toEqual([]);
-    expect(getCachedQueryResult(testDoubles.dictionaryServices[0], query)).toBeUndefined();
+    expect(getCachedQueryResult(dictionaryServices[0], query)).toBeUndefined();
   });
 
   it("saves completed results without an unused standalone detail snapshot", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
     const query = createQueryInput("word");
     act(() => result.current.queryTextWithTextInfo(query));
     await resolveDictionaryRequest(0);
@@ -344,7 +330,7 @@ describe("useQueryEngine query generations", () => {
     const { result } = renderHook(() =>
       useQueryEngine(englishLanguageItem, chineseLanguageItem, {
         translationServices: [],
-        dictionaryServices: testDoubles.dictionaryServices,
+        dictionaryServices: dictionaryServices,
       }),
     );
 
@@ -386,7 +372,7 @@ describe("useQueryEngine query generations", () => {
       ({ services }: { services: TranslationServiceConfig[] }) =>
         useQueryEngine(englishLanguageItem, chineseLanguageItem, {
           translationServices: services,
-          dictionaryServices: testDoubles.dictionaryServices,
+          dictionaryServices: dictionaryServices,
         }),
       { initialProps: { services: [] as TranslationServiceConfig[] } },
     );
@@ -428,7 +414,7 @@ describe("useQueryEngine query generations", () => {
           translationServices: [],
           dictionaryServices,
         }),
-      { initialProps: { dictionaryServices: testDoubles.dictionaryServices } },
+      { initialProps: { dictionaryServices: dictionaryServices } },
     );
 
     act(() => {
@@ -436,7 +422,7 @@ describe("useQueryEngine query generations", () => {
     });
     expect(dictionaryRequests).toHaveLength(1);
 
-    rerender({ dictionaryServices: [...testDoubles.dictionaryServices, dynamicDictionaryService] });
+    rerender({ dictionaryServices: [...dictionaryServices, dynamicDictionaryService] });
     await waitFor(() => expect(dictionaryRequests).toHaveLength(2));
 
     await resolveDictionaryRequest(1);
@@ -447,13 +433,60 @@ describe("useQueryEngine query generations", () => {
     expect(dictionaryRequests).toHaveLength(2);
   });
 
+  it("uses a reloaded same-ID configuration for regeneration and the next query without restarting current requests", async () => {
+    const originalFactory = vi.fn(() => new DeferredDictionaryProvider());
+    const updatedFactory = vi.fn(() => new DeferredDictionaryProvider());
+    const originalService: DictionaryServiceConfig = {
+      id: "profile:reload:dictionary",
+      label: "AI Dictionary",
+      providerKey: "ai:reload",
+      order: 0,
+      type: DictionaryType.AI,
+      cacheIdentity: "native-json",
+      enabled: () => true,
+      createProvider: originalFactory,
+      canTriggerAutomaticAudio: false,
+    };
+    const updatedService: DictionaryServiceConfig = {
+      ...originalService,
+      cacheIdentity: "prompt-json",
+      createProvider: updatedFactory,
+    };
+    const { result, rerender } = renderHook(
+      ({ service }: { service: DictionaryServiceConfig }) =>
+        useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+          translationServices: [],
+          dictionaryServices: [service],
+        }),
+      { initialProps: { service: originalService } },
+    );
+
+    act(() => result.current.queryTextWithTextInfo(createQueryInput("first")));
+    expect(originalFactory).toHaveBeenCalledTimes(1);
+    rerender({ service: updatedService });
+    expect(updatedFactory).not.toHaveBeenCalled();
+    expect(dictionaryRequests[0].signal?.aborted).toBe(false);
+    await resolveDictionaryRequest(0);
+    expect(updatedFactory).not.toHaveBeenCalled();
+
+    act(() => result.current.regenerateService(originalService.id));
+    expect(updatedFactory).toHaveBeenCalledTimes(1);
+    await resolveDictionaryRequest(1);
+
+    act(() => result.current.queryTextWithTextInfo(createQueryInput("second")));
+    expect(updatedFactory).toHaveBeenCalledTimes(2);
+    expect(originalFactory).toHaveBeenCalledTimes(1);
+    await resolveDictionaryRequest(2);
+    expect(getDisplayedWord(result.current.displaySections)).toBe("second");
+  });
+
   it("keeps the initial query active through the development Strict Mode effect replay", async () => {
     const detection = createDeferred<DetectedLangModel>();
     testDoubles.detectLanguage.mockReturnValueOnce(detection.promise);
 
     renderHook(
       () => {
-        const engine = useQueryEngine(englishLanguageItem, chineseLanguageItem);
+        const engine = useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot);
         const setupCalled = useRef(false);
         useEffect(() => {
           if (!setupCalled.current) {
@@ -485,7 +518,7 @@ describe("useQueryEngine query generations", () => {
     const oldDetection = createDeferred<DetectedLangModel>();
     const currentDetection = createDeferred<DetectedLangModel>();
     testDoubles.detectLanguage.mockReturnValueOnce(oldDetection.promise).mockReturnValueOnce(currentDetection.promise);
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryText("old", "zh-CHS");
@@ -510,13 +543,13 @@ describe("useQueryEngine query generations", () => {
 
     expect(result.current.currentFromLanguageItem.youdaoLangCode).toBe("ja");
     expect(dictionaryRequests).toHaveLength(1);
-    expect(testDoubles.showErrorToast).not.toHaveBeenCalled();
+    expect(testDoubles.showFailureToast).not.toHaveBeenCalled();
 
     await resolveDictionaryRequest(0);
   });
 
   it("keeps the current provider result when an older provider resolves last", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -532,7 +565,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("does not let an older FINISH_QUERY stop the current loading state", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -548,7 +581,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("keeps results cleared when an old provider resolves after clear", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("old"));
@@ -592,7 +625,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem));
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
     act(() => {
       result.current.queryTextWithTextInfo(createQueryInput("first"));

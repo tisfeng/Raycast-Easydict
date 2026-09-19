@@ -32,25 +32,22 @@ import type {
 } from "@/ai-providers/types";
 import { getProviderIcon, getQueryTypeIcon } from "@/components/ui/Icons";
 import { myPreferences } from "@/consts";
+import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
+import { type BuiltinProvider, builtinProviderCatalog, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
 import {
   getAIProviderKey,
+  getCombinedAvailableProviderKeys,
+  getCombinedProviderOrder,
   moveProviderInOrder,
   reconcileProviderOrder,
   syncAIProviderOrders,
-} from "@/core/query/providerOrder";
-import type { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
-import {
-  type BuiltinProviderService,
-  builtinProviderServices,
-  getCombinedAvailableProviderKeys,
-  getCombinedProviderOrder,
-} from "@/providers/registry";
+} from "@/providers/order";
 
 import { AIProviderForm } from "./AIProviderForm";
 
 type AIProvidersController = ReturnType<typeof useAIProviderProfiles>;
 
-type ProviderRow = { kind: "builtin"; service: BuiltinProviderService } | { kind: "ai"; profile: AIProviderProfile };
+type ProviderRow = { kind: "builtin"; service: BuiltinProvider } | { kind: "ai"; profile: AIProviderProfile };
 
 export default function ProviderManagementPage({ controller }: { controller: AIProvidersController }) {
   const [selectedProviderKey, setSelectedProviderKey] = useState<string>();
@@ -59,7 +56,7 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
   const legacySources = LEGACY_AI_PROVIDER_NAMES.filter((provider) => legacyConfiguration[provider].apiKey);
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
   const providerOrder = getCombinedProviderOrder(profiles, controller.storedState?.providerOrder, servicesOrder);
-  const builtinServices: ProviderRow[] = builtinProviderServices.map((service) => ({ kind: "builtin", service }));
+  const builtinServices: ProviderRow[] = builtinProviderCatalog.map((service) => ({ kind: "builtin", service }));
   const rows: ProviderRow[] = [
     ...builtinServices,
     ...profiles.map((profile) => ({ kind: "ai" as const, profile })),
@@ -351,12 +348,12 @@ function getAIProviderAccessories(profile: AIProviderProfile, runnable: boolean)
   return [{ tag: "AI Provider" }, { tag: getAIProviderStatusTag(profile, runnable) }];
 }
 
-function getBuiltinPreferenceStatusTag(service: BuiltinProviderService) {
-  const indirectlyEnabledBy = "implicitlyEnabledBy" in service ? service.implicitlyEnabledBy : undefined;
-  if (!service.enabledInPreferences && indirectlyEnabledBy) {
-    return { value: `Enabled via ${indirectlyEnabledBy}`, color: Color.Green };
+function getBuiltinPreferenceStatusTag(service: BuiltinProvider) {
+  const { enabledInPreferences, implicitlyEnabledBy } = getBuiltinProviderPreferenceStatus(service, myPreferences);
+  if (!enabledInPreferences && implicitlyEnabledBy) {
+    return { value: `Enabled via ${implicitlyEnabledBy}`, color: Color.Green };
   }
-  return service.enabledInPreferences
+  return enabledInPreferences
     ? { value: "Enabled", color: Color.Green }
     : { value: "Disabled", color: Color.SecondaryText };
 }

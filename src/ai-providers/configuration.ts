@@ -1,8 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { myPreferences } from "@/consts";
-import { getBuiltinProviderCandidates } from "@/core/query/providerOrder";
-import { builtinProviderServices } from "@/providers/registry";
+import { builtinProviderCatalog } from "@/providers/catalog";
+import { getBuiltinProviderCandidates } from "@/providers/order";
 import { normalizeError } from "@/utils/errors";
 
 import { LEGACY_AI_PROVIDER_NAMES, migrateLegacyAIProviderState } from "./legacy";
@@ -43,7 +43,7 @@ async function loadAndMigrate(): Promise<AIProviderConfigurationLoadResult> {
     const state = migrateLegacyAIProviderState(
       result.state,
       getLegacyAIProviderConfiguration(),
-      getBuiltinProviderCandidates(builtinProviderServices),
+      getBuiltinProviderCandidates(builtinProviderCatalog),
       myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [],
     );
     if (state === result.state) return { kind: result.kind, state };

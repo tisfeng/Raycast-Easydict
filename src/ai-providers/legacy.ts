@@ -2,14 +2,14 @@
 
 import { randomUUID } from "node:crypto";
 
+import { getBuiltinProviderKey } from "@/providers/catalog";
 import {
   getAIProviderKey,
-  getBuiltinProviderKey,
   getProviderOrder,
   type ProviderOrderCandidate,
   reconcileProviderOrder,
   syncAIProviderOrders,
-} from "@/core/query/providerOrder";
+} from "@/providers/order";
 import { TranslationType } from "@/types/api";
 
 import { normalizeOpenAICompatibleEndpoint } from "./endpoint";
