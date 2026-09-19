@@ -20,7 +20,7 @@ import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
 import { savedResultMarkdown } from "@/core/query/resultMarkdown";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
-import { useFavoriteWords } from "@/hooks";
+import { useFavoriteWords } from "@/hooks/useFavoriteWords";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
 import { copyAllText } from "@/utils/copyFavorites";

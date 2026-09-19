@@ -12,14 +12,12 @@ import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
-import {
-  useAIProviderProfiles,
-  useDebouncedQuery,
-  useFavoriteWords,
-  useInstalledEudic,
-  useQueryEngine,
-  useReleasePrompt,
-} from "@/hooks";
+import { useAIProviderProfiles } from "@/hooks/useAIProviderProfiles";
+import { useDebouncedQuery } from "@/hooks/useDebouncedQuery";
+import { useFavoriteWords } from "@/hooks/useFavoriteWords";
+import { useInstalledEudic } from "@/hooks/useInstalledEudic";
+import { useQueryEngine } from "@/hooks/useQueryEngine";
+import { useReleasePrompt } from "@/hooks/useReleasePrompt";
 import {
   builtinDictionaryProviderServices,
   builtinTranslationServices,
