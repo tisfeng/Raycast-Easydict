@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { myPreferences } from "@/consts";
@@ -121,13 +122,17 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       return;
     }
 
-    await toggle(buildFavoriteWord(queryWordInfo, displaySections));
-    if (!isFavorite) {
-      await showToast({
-        style: Toast.Style.Success,
-        title: "Added to Favorites",
-        message: queryWordInfo.word,
-      });
+    try {
+      await toggle(buildFavoriteWord(queryWordInfo, displaySections));
+      if (!isFavorite) {
+        await showToast({
+          style: Toast.Style.Success,
+          title: "Added to Favorites",
+          message: queryWordInfo.word,
+        });
+      }
+    } catch (error) {
+      await showFailureToast(error, { title: "Failed to Update Favorites" });
     }
   };
 
