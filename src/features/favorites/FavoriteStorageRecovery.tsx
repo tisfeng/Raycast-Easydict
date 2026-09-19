@@ -18,7 +18,7 @@ import {
 import { showFailureToast } from "@raycast/utils";
 import { useState } from "react";
 
-import { decodeFavoriteStorage, exportFavoriteWords, type FavoriteStorageState } from "./repository";
+import { decodeFavoriteBackup, exportFavoriteWords, type FavoriteStorageState } from "./repository";
 
 type RecoveryState = Exclude<FavoriteStorageState, { kind: "ready" }>;
 
@@ -26,10 +26,12 @@ export function FavoriteStorageRecovery({
   state,
   onReload,
   onRestore,
+  onRestoreLegacy,
 }: {
   state: RecoveryState;
   onReload: () => Promise<unknown>;
   onRestore: (path: string) => Promise<string | undefined>;
+  onRestoreLegacy: () => Promise<string | undefined>;
 }) {
   const [backupPath, setBackupPath] = useState<string>();
   const exportRaw = async () => {
@@ -42,18 +44,45 @@ export function FavoriteStorageRecovery({
     }
   };
 
+  const restoreLegacy = async () => {
+    try {
+      if (
+        !(await confirmAlert({
+          title: "Restore Previous-Version Favorites?",
+          message:
+            "Replace the current favorites with the collection saved by the previous version. Your current data will be backed up first.",
+          primaryAction: { title: "Restore Previous Favorites" },
+        }))
+      )
+        return;
+      const path = await onRestoreLegacy();
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Favorites Restored",
+        message: path ? `Previous data saved to ${path}` : undefined,
+      });
+    } catch (error) {
+      await showFailureToast(error, { title: "Failed to Restore Favorites" });
+    }
+  };
+
   return (
     <Detail
       markdown={`# Favorites Could Not Be Loaded\n\n${state.message}\n\n${state.kind === "unsupported" ? "Use a compatible version of Easydict to open this data. You can export the original data below." : state.kind === "error" ? "Retry loading favorites after the storage error has been resolved. No saved data has been changed." : "You can retry loading or export the original data. To restore a valid backup, choose its JSON file; your current data will be backed up before replacement."}`}
       actions={
         <ActionPanel>
-          {"raw" in state && <Action title="Export Original Data" icon={Icon.Download} onAction={exportRaw} />}
+          {"source" in state && state.source.raw !== undefined && (
+            <Action title="Export Original Data" icon={Icon.Download} onAction={exportRaw} />
+          )}
           {state.kind === "invalid" && (
             <Action.Push
               title="Restore from Backup"
               icon={Icon.ArrowClockwise}
               target={<RestoreFavoriteBackup onRestore={onRestore} />}
             />
+          )}
+          {state.kind === "invalid" && state.source.key === "favorite-content-v1" && (
+            <Action title="Restore Previous-Version Favorites" icon={Icon.ArrowClockwise} onAction={restoreLegacy} />
           )}
           <Action
             title="Reload Favorites"
@@ -83,12 +112,10 @@ function RestoreFavoriteBackup({ onRestore }: { onRestore: (path: string) => Pro
     }
     setIsLoading(true);
     try {
-      const decoded = decodeFavoriteStorage(await readFile(path, "utf8"));
-      if (decoded.kind !== "ready")
-        throw new Error("The selected file is not a valid favorites backup for this version.");
+      const favorites = decodeFavoriteBackup(await readFile(path, "utf8"));
       if (
         !(await confirmAlert({
-          title: `Restore ${decoded.favorites.length} Favorites?`,
+          title: `Restore ${favorites.length} Favorites?`,
           message: "Your current saved data will be backed up locally before it is replaced.",
           primaryAction: { title: "Restore Backup" },
         }))

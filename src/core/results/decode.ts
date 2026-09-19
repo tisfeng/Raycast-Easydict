@@ -110,7 +110,7 @@ function decodeAccessory(value: unknown): ListAccessoryItem {
   };
 }
 
-function decodeIcon(value: unknown): ProviderIconConfig {
+export function decodeIcon(value: unknown): ProviderIconConfig {
   const source = record(value, "item.serviceIcon");
   switch (source.kind) {
     case "preset":

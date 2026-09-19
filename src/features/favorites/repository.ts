@@ -6,82 +6,85 @@ import { join } from "node:path";
 
 import { environment, LocalStorage } from "@raycast/api";
 
-import { decodeDisplaySections } from "@/core/results/decode";
+import type { QueryInput } from "@/core/results/types";
 import { normalizeError } from "@/shared/errors";
 
+import { decodeFavoriteSnapshot, decodeLegacyFavorites } from "./decode";
 import { favoriteKeyOf, type FavoriteWord } from "./model";
 
-const FAVORITE_WORDS_KEY = "favorite-words";
+const FAVORITE_CONTENT_KEY = "favorite-content-v1";
+const LEGACY_FAVORITES_KEY = "favorite-words";
 
 type StoredValue = string | number | boolean;
+interface FavoriteStorageSource {
+  readonly key: typeof FAVORITE_CONTENT_KEY | typeof LEGACY_FAVORITES_KEY;
+  readonly raw: StoredValue | undefined;
+}
+
 export type FavoriteStorageState =
-  | { kind: "ready"; favorites: FavoriteWord[]; raw: StoredValue | undefined }
-  | { kind: "invalid" | "unsupported"; message: string; raw: StoredValue }
+  | { kind: "ready"; favorites: FavoriteWord[]; source: FavoriteStorageSource }
+  | { kind: "invalid" | "unsupported"; message: string; source: FavoriteStorageSource }
   | { kind: "error"; message: string };
 
-/** The unversioned array is the current durable format; future envelopes stay read-only. */
-export function decodeFavoriteStorage(raw: StoredValue | undefined): FavoriteStorageState {
-  if (raw === undefined) return { kind: "ready", favorites: [], raw };
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function decodeContentEnvelope(value: unknown): FavoriteWord[] {
+  if (!isRecord(value) || value.version !== 1 || !Array.isArray(value.favorites)) {
+    throw new Error("Saved favorites must use a version 1 content envelope.");
+  }
+  return value.favorites.map(decodeFavoriteSnapshot);
+}
+
+function decodeFavoriteStorage(source: FavoriteStorageSource): FavoriteStorageState {
+  if (source.raw === undefined) return { kind: "ready", favorites: [], source };
   try {
-    if (typeof raw !== "string") throw new Error("Saved favorites must be a JSON array.");
-    const value: unknown = JSON.parse(raw);
-    if (typeof value === "object" && value !== null && !Array.isArray(value) && "version" in value) {
+    if (typeof source.raw !== "string") throw new Error("Saved favorites must be JSON text.");
+    const value: unknown = JSON.parse(source.raw);
+    if (
+      isRecord(value) &&
+      typeof value.version === "number" &&
+      Number.isInteger(value.version) &&
+      (source.key === LEGACY_FAVORITES_KEY || value.version !== 1)
+    ) {
       return {
         kind: "unsupported",
-        raw,
+        source,
         message: "This favorites format requires a compatible version of Easydict. Your data is unchanged.",
       };
     }
-    if (!Array.isArray(value)) throw new Error("Saved favorites must be a JSON array.");
-    return { kind: "ready", raw, favorites: value.map(decodeFavorite) };
+    const favorites = source.key === FAVORITE_CONTENT_KEY ? decodeContentEnvelope(value) : decodeLegacyFavorites(value);
+    return { kind: "ready", favorites, source };
   } catch (error) {
     return {
       kind: "invalid",
-      raw,
+      source,
       message: `${normalizeError(error).message} Your saved data is unchanged. Export it or restore a valid backup in Favorite Words.`,
     };
   }
 }
 
-function decodeFavorite(value: unknown): FavoriteWord {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error("Invalid favorite entry.");
-  if (
-    !("word" in value) ||
-    typeof value.word !== "string" ||
-    !("fromLanguage" in value) ||
-    typeof value.fromLanguage !== "string" ||
-    !("toLanguage" in value) ||
-    typeof value.toLanguage !== "string" ||
-    !("createdAt" in value) ||
-    typeof value.createdAt !== "number" ||
-    !Number.isFinite(value.createdAt) ||
-    !("displaySections" in value)
-  ) {
-    throw new Error("Invalid favorite identity or creation time.");
+/** Selected backups may contain either the previous array or the current content envelope. */
+export function decodeFavoriteBackup(raw: string): FavoriteWord[] {
+  try {
+    const value: unknown = JSON.parse(raw);
+    return Array.isArray(value) ? decodeLegacyFavorites(value) : decodeContentEnvelope(value);
+  } catch {
+    throw new Error("The selected file is not a valid favorites backup for this version.");
   }
-  const isWord = "isWord" in value ? value.isWord : undefined;
-  if (isWord !== undefined && typeof isWord !== "boolean") throw new Error("Invalid favorite word classification.");
-  const translations = "translations" in value ? value.translations : undefined;
-  if (
-    translations !== undefined &&
-    (!Array.isArray(translations) || !translations.every((text): text is string => typeof text === "string"))
-  ) {
-    throw new Error("Invalid favorite translation preview.");
-  }
-  return {
-    word: value.word,
-    fromLanguage: value.fromLanguage,
-    toLanguage: value.toLanguage,
-    isWord,
-    createdAt: value.createdAt,
-    translations,
-    displaySections: decodeDisplaySections(value.displaySections),
-  };
+}
+
+async function selectSource(): Promise<FavoriteStorageSource> {
+  const raw = await LocalStorage.getItem(FAVORITE_CONTENT_KEY);
+  return raw !== undefined
+    ? { key: FAVORITE_CONTENT_KEY, raw }
+    : { key: LEGACY_FAVORITES_KEY, raw: await LocalStorage.getItem(LEGACY_FAVORITES_KEY) };
 }
 
 export async function readFavoriteWords(): Promise<FavoriteStorageState> {
   try {
-    return decodeFavoriteStorage(await LocalStorage.getItem(FAVORITE_WORDS_KEY));
+    return decodeFavoriteStorage(await selectSource());
   } catch (error) {
     return { kind: "error", message: `Unable to read favorites: ${normalizeError(error).message}` };
   }
@@ -95,28 +98,30 @@ function enqueue<T>(operation: () => Promise<T>): Promise<T> {
   return pending;
 }
 
+function encodeFavorites(favorites: FavoriteWord[]): string {
+  return JSON.stringify({ version: 1, favorites });
+}
+
 async function mutateFavorites(update: (favorites: FavoriteWord[]) => FavoriteWord[]): Promise<void> {
   return enqueue(async () => {
     const state = await readFavoriteWords();
     if (state.kind !== "ready") throw new Error(state.message);
-    await LocalStorage.setItem(FAVORITE_WORDS_KEY, JSON.stringify(update(state.favorites)));
+    await LocalStorage.setItem(FAVORITE_CONTENT_KEY, encodeFavorites(update(state.favorites)));
   });
 }
 
 export function toggleFavoriteWord(entry: FavoriteWord): Promise<void> {
-  const key = favoriteKeyOf(entry);
+  const key = favoriteKeyOf(entry.query);
   return mutateFavorites((favorites) =>
-    favorites.some((item) => favoriteKeyOf(item) === key)
-      ? favorites.filter((item) => favoriteKeyOf(item) !== key)
+    favorites.some((item) => favoriteKeyOf(item.query) === key)
+      ? favorites.filter((item) => favoriteKeyOf(item.query) !== key)
       : [entry, ...favorites],
   );
 }
 
-export function removeFavoriteWord(
-  identity: Pick<FavoriteWord, "word" | "fromLanguage" | "toLanguage">,
-): Promise<void> {
+export function removeFavoriteWord(identity: Pick<QueryInput, "word" | "fromLanguage" | "toLanguage">): Promise<void> {
   const key = favoriteKeyOf(identity);
-  return mutateFavorites((favorites) => favorites.filter((item) => favoriteKeyOf(item) !== key));
+  return mutateFavorites((favorites) => favorites.filter((item) => favoriteKeyOf(item.query) !== key));
 }
 
 export function clearFavoriteWords(): Promise<void> {
@@ -138,24 +143,43 @@ async function writeBackup(raw: StoredValue): Promise<string> {
 export async function exportFavoriteWords(): Promise<string> {
   const state = await readFavoriteWords();
   if (state.kind === "error") throw new Error(state.message);
-  if (state.raw === undefined) throw new Error("There is no saved favorites data to export.");
-  return writeBackup(state.raw);
+  if (state.source.raw === undefined) throw new Error("There is no saved favorites data to export.");
+  return writeBackup(state.source.raw);
 }
 
-/** Restore only an explicitly selected valid backup, after preserving the current raw value. */
+async function preserveAndReplace(
+  source: FavoriteStorageSource,
+  favorites: FavoriteWord[],
+): Promise<string | undefined> {
+  const backupPath = source.raw === undefined ? undefined : await writeBackup(source.raw);
+  // File I/O can outlive another command's write, including its first creation of the new key.
+  const latest = await selectSource();
+  if (latest.key !== source.key || latest.raw !== source.raw) {
+    throw new Error("Favorites changed while preparing the backup. Reload and try restoring again.");
+  }
+  await LocalStorage.setItem(FAVORITE_CONTENT_KEY, encodeFavorites(favorites));
+  return backupPath;
+}
+
+/** Restore an explicitly selected valid backup without changing the previous-version key. */
 export async function restoreFavoriteWords(path: string): Promise<string | undefined> {
-  const raw = await readFile(path, "utf8");
-  const restored = decodeFavoriteStorage(raw);
-  if (restored.kind !== "ready") throw new Error("The selected file is not a valid favorites backup for this version.");
+  const favorites = decodeFavoriteBackup(await readFile(path, "utf8"));
   return enqueue(async () => {
     const current = await readFavoriteWords();
     if (current.kind === "error" || current.kind === "unsupported") throw new Error(current.message);
-    const backupPath = current.raw === undefined ? undefined : await writeBackup(current.raw);
-    // File I/O can outlive a change made by another command. Do not replace that newer value.
-    if ((await LocalStorage.getItem(FAVORITE_WORDS_KEY)) !== current.raw) {
-      throw new Error("Favorites changed while preparing the backup. Reload and try restoring again.");
-    }
-    await LocalStorage.setItem(FAVORITE_WORDS_KEY, raw);
-    return backupPath;
+    return preserveAndReplace(current.source, favorites);
+  });
+}
+
+/** Explicit recovery only; the previous-version collection is never used to replace a present new key automatically. */
+export function restoreLegacyFavoriteWords(): Promise<string | undefined> {
+  return enqueue(async () => {
+    const current = await readFavoriteWords();
+    if (current.kind === "error" || current.kind === "unsupported") throw new Error(current.message);
+    const raw = await LocalStorage.getItem(LEGACY_FAVORITES_KEY);
+    if (raw === undefined) throw new Error("There are no previous-version favorites to restore.");
+    const restored = decodeFavoriteStorage({ key: LEGACY_FAVORITES_KEY, raw });
+    if (restored.kind !== "ready") throw new Error("Previous-version favorites are not valid for recovery.");
+    return preserveAndReplace(current.source, restored.favorites);
   });
 }

@@ -1,43 +1,34 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { TranslationType } from "@/core/results/kinds";
 
 import { copyAllText } from "./copyFavorites";
-import type { FavoriteWord } from "./model";
+import { buildFavoriteWord } from "./model";
 
-function makeFavorite(overrides: Partial<FavoriteWord> = {}): FavoriteWord {
-  return {
-    word: "serendipity",
-    fromLanguage: "en",
-    toLanguage: "zh-CHS",
-    isWord: true,
-    translations: ["机缘巧合"],
-    displaySections: [],
-    createdAt: 1722864000000,
-    ...overrides,
-  };
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
+
+function favorite(word: string, paragraphs: string[]) {
+  const query = { word, fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
+  return buildFavoriteWord(query, [
+    {
+      type: TranslationType.Google,
+      serviceId: "google",
+      serviceLabel: "Google",
+      serviceOrder: 0,
+      content: { kind: "translation", query, paragraphs },
+    },
+  ]);
 }
 
 describe("copyAllText", () => {
-  it("joins word and translation with a tab", () => {
-    expect(copyAllText([makeFavorite()])).toBe("serendipity\t机缘巧合");
-  });
-
-  it("joins multiple translations with a comma", () => {
-    expect(copyAllText([makeFavorite({ translations: ["机缘巧合", "意外发现"] })])).toBe(
-      "serendipity\t机缘巧合, 意外发现",
-    );
-  });
-
-  it("leaves an empty translation column when translations are absent", () => {
-    expect(copyAllText([makeFavorite({ translations: undefined })])).toBe("serendipity\t");
-  });
-
-  it("separates entries with newlines", () => {
-    expect(copyAllText([makeFavorite(), makeFavorite({ word: "ephemeral", translations: ["短暂"] })])).toBe(
-      "serendipity\t机缘巧合\nephemeral\t短暂",
-    );
-  });
-
-  it("returns an empty string for no favorites", () => {
+  it("exports ordered words with tab-separated, comma-joined translations and empty missing columns", () => {
+    expect(
+      copyAllText([
+        favorite("serendipity", ["机缘巧合", "意外发现"]),
+        favorite("ephemeral", ["短暂"]),
+        favorite("unknown", []),
+      ]),
+    ).toBe("serendipity\t机缘巧合, 意外发现\nephemeral\t短暂\nunknown\t");
     expect(copyAllText([])).toBe("");
   });
 });

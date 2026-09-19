@@ -1,181 +1,128 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import {
-  AIDictionaryListItemType,
-  DictionaryType,
-  LingueeListItemType,
-  TranslationType,
-  YoudaoDictionaryListItemType,
-} from "@/core/results/kinds";
-import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
+import type { ComposedService } from "@/core/content/compose";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
 
-import { buildFavoriteWord, type FavoriteWord, resolveFavoriteTranslations } from "./model";
+import { decodeFavoriteSnapshot } from "./decode";
+import { buildFavoriteWord, favoriteKeyOf, resolveFavoriteTranslations } from "./model";
+import { favoriteMarkdown, getFavoriteView } from "./view";
 
-const queryWordInfo: QueryWordInfo = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
-function makeFavorite(overrides: Partial<FavoriteWord> = {}): FavoriteWord {
-  return {
-    word: "good",
-    fromLanguage: "en",
-    toLanguage: "zh-CHS",
-    displaySections: [],
-    createdAt: 1,
-    ...overrides,
-  };
-}
+const query = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
+const dictionary: ComposedService = {
+  type: DictionaryType.Youdao,
+  serviceId: "youdao",
+  serviceLabel: "Saved Youdao",
+  serviceOrder: 4,
+  serviceIcon: { kind: "initials" },
+  content: { kind: "dictionary", query, sections: [{ kind: "translation", text: "良好\n好的" }] },
+};
 
-function dictionaryTranslationSection(
-  provider: "youdao" | "linguee" | "ai",
-  title: string,
-  subtitle = "good",
-  wordInfo: QueryWordInfo = queryWordInfo,
-): DisplaySection {
-  const base = {
-    key: `${provider}:${title}`,
-    title,
-    subtitle,
-    // Linguee's copyText mixes the source word into the translation, mirroring
-    // its real formatter; the other providers keep copyText and title identical.
-    copyText: provider === "linguee" ? `${title} ${subtitle}` : title,
-    queryWordInfo: wordInfo,
-  };
-  const item: ListDisplayItem =
-    provider === "youdao"
-      ? { ...base, queryType: DictionaryType.Youdao, displayType: YoudaoDictionaryListItemType.Translation }
-      : provider === "linguee"
-        ? { ...base, queryType: DictionaryType.Linguee, displayType: LingueeListItemType.Translation }
-        : { ...base, queryType: DictionaryType.AI, displayType: AIDictionaryListItemType.Translation };
-  return { type: item.displayType, items: [item] };
-}
-
-function translationSection(text: string): DisplaySection {
-  return {
-    type: TranslationType.Bing,
-    items: [
-      {
-        queryType: TranslationType.Bing,
-        key: `bing:${text}`,
-        title: text,
-        copyText: text,
-        queryWordInfo,
-      } satisfies ListDisplayItem,
-    ],
-  };
-}
-
-describe("resolveFavoriteTranslations", () => {
-  it("prefers a persisted translations snapshot over derivation", () => {
-    const favorite = makeFavorite({
-      translations: ["好的"],
-      displaySections: [dictionaryTranslationSection("youdao", "良好的")],
+describe("favorite snapshots", () => {
+  it("saves composed content and metadata while omitting runtime state and fresh preview copies", () => {
+    const service = {
+      ...dictionary,
+      fromCache: true,
+      requestId: "runtime",
+      primarySupplement: { translation: "很好", phonetic: "gʊd", examTypes: ["CET4"] },
+    };
+    const favorite = buildFavoriteWord(query, [service]);
+    const wire = JSON.stringify(favorite);
+    expect(wire).not.toContain("fromCache");
+    expect(wire).not.toContain("requestId");
+    expect(wire).not.toContain("legacyPreview");
+    const restored = decodeFavoriteSnapshot(JSON.parse(wire));
+    expect(restored.services[0]).toMatchObject({
+      serviceId: "youdao",
+      serviceLabel: "Saved Youdao",
+      serviceOrder: 4,
+      serviceIcon: { kind: "initials" },
+      primarySupplement: { translation: "很好", phonetic: "gʊd", examTypes: ["CET4"] },
     });
-
-    expect(resolveFavoriteTranslations(favorite)).toEqual(["好的"]);
+    expect(resolveFavoriteTranslations(restored)).toEqual(["很好"]);
+    expect(favoriteMarkdown(restored)).toContain("Saved Youdao");
+    expect(getFavoriteView(restored)[0].items[0].accessory).toEqual({ phonetic: "gʊd", examTypes: ["CET4"] });
+    expect(dictionary.content).toMatchObject({ sections: [{ text: "良好\n好的" }] });
   });
 
-  it("derives the Youdao translation for a dictionary-only favorite", () => {
-    const favorite = makeFavorite({ displaySections: [dictionaryTranslationSection("youdao", "良好的")] });
-
-    expect(resolveFavoriteTranslations(favorite)).toEqual(["良好的"]);
+  it("prefers machine translation paragraphs over dictionary titles and preserves paragraph boundaries", () => {
+    const translation: ComposedService = {
+      type: TranslationType.Bing,
+      serviceId: "bing",
+      serviceLabel: "Bing",
+      serviceOrder: 5,
+      content: { kind: "translation", query, paragraphs: [" 很好 ", "", "不错\n优秀"] },
+    };
+    const favorite = buildFavoriteWord(query, [dictionary, translation]);
+    expect(resolveFavoriteTranslations(favorite)).toEqual(["很好", "不错", "优秀"]);
+    expect(getFavoriteView(favorite)[1].items[0].copyText).toBe(" 很好 \n\n不错\n优秀");
+    expect(favorite.services.map((service) => service.serviceId)).toEqual(["youdao", "bing"]);
   });
 
-  it("uses Linguee's title so the source word never leaks into the translation", () => {
-    const favorite = makeFavorite({ displaySections: [dictionaryTranslationSection("linguee", "良好的")] });
-
-    const translations = resolveFavoriteTranslations(favorite);
-    expect(translations).toEqual(["良好的"]);
-    expect(translations?.join("\n")).not.toContain("good");
-  });
-
-  it("prefers a real translation section when both kinds are present", () => {
-    const favorite = makeFavorite({
-      displaySections: [dictionaryTranslationSection("youdao", "良好的"), translationSection("很好，不错")],
-    });
-
-    expect(resolveFavoriteTranslations(favorite)).toEqual(["很好，不错"]);
-  });
-
-  it("returns undefined when no translation exists", () => {
-    expect(resolveFavoriteTranslations(makeFavorite())).toBeUndefined();
-  });
-
-  it("ignores a legacy Linguee word-placeholder Translation section", () => {
-    // Persisted fixture from the old formatter: no exact word entry was
-    // represented by a Translation item whose title was the query word.
-    const favorite = makeFavorite({ displaySections: [dictionaryTranslationSection("linguee", "good")] });
-
-    expect(favorite.displaySections[0]).toMatchObject({
-      type: LingueeListItemType.Translation,
-      items: [{ title: "good" }],
-    });
-    expect(resolveFavoriteTranslations(favorite)).toBeUndefined();
-  });
-
-  it("continues past a Linguee placeholder to another provider's real translation", () => {
-    const favorite = makeFavorite({
-      displaySections: [
-        dictionaryTranslationSection("linguee", "good"),
-        dictionaryTranslationSection("youdao", "良好的"),
-      ],
-    });
-
-    expect(resolveFavoriteTranslations(favorite)).toEqual(["良好的"]);
-  });
-
-  it("accepts a same-text translation from a non-Linguee provider", () => {
-    // Proper nouns like brand names can legitimately keep their form in the
-    // target language; only Linguee's placeholder title must be skipped.
-    const nikeInfo: QueryWordInfo = { word: "Nike", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
-    const favorite = makeFavorite({
-      word: "Nike",
-      displaySections: [dictionaryTranslationSection("ai", "Nike", "Nike", nikeInfo)],
-    });
-
-    expect(resolveFavoriteTranslations(favorite)).toEqual(["Nike"]);
-  });
-});
-
-describe("buildFavoriteWord", () => {
-  it("persists a fallback translation for dictionary-only results", () => {
-    const favorite = buildFavoriteWord(queryWordInfo, [dictionaryTranslationSection("youdao", "良好的")]);
-
-    expect(favorite.translations).toEqual(["良好的"]);
-  });
-});
-
-describe("stroke order integration", () => {
-  it("an en→zh legacy favorite still exposes stroke order from the fallback translation", () => {
-    const favorite = makeFavorite({ displaySections: [dictionaryTranslationSection("youdao", "良好")] });
-    const translations = resolveFavoriteTranslations(favorite);
-
+  it("derives dictionary previews from display titles without source-word copy suffixes", () => {
+    const linguee: ComposedService = {
+      type: DictionaryType.Linguee,
+      serviceId: "linguee",
+      serviceLabel: "Linguee",
+      serviceOrder: 0,
+      content: { kind: "dictionary", query, sections: [{ kind: "translation", text: "良好", lemma: "good" }] },
+    };
+    expect(resolveFavoriteTranslations(buildFavoriteWord(query, [dictionary]))).toEqual(["良好, 好的"]);
+    const favorite = buildFavoriteWord(query, [linguee]);
+    expect(resolveFavoriteTranslations(favorite)).toEqual(["良好"]);
+    expect(getFavoriteView(favorite)[0].items[0].copyText).toBe("良好 good");
     expect(
       getStrokeOrderCharacters({
-        fromLanguage: favorite.fromLanguage,
-        toLanguage: favorite.toLanguage,
-        sourceText: favorite.word,
-        translatedText: translations?.join("\n") ?? "",
+        ...query,
+        sourceText: query.word,
+        translatedText: resolveFavoriteTranslations(favorite)?.join("\n") ?? "",
       }),
     ).toEqual(["良", "好"]);
   });
 
-  it("a zh→en favorite keeps extracting hanzi from the source word, ignoring the fallback translation", () => {
-    const favorite = makeFavorite({
-      word: "学习",
-      fromLanguage: "zh-CHS",
-      toLanguage: "en",
-      displaySections: [dictionaryTranslationSection("ai", "study")],
-    });
-    const translations = resolveFavoriteTranslations(favorite);
-    expect(translations).toEqual(["study"]);
+  it("falls back to a dictionary when the first machine translation is empty", () => {
+    const translation: ComposedService = {
+      type: TranslationType.Bing,
+      serviceId: "first",
+      serviceLabel: "First",
+      serviceOrder: 0,
+      content: { kind: "translation", query, paragraphs: [] },
+    };
+    const later: ComposedService = {
+      ...translation,
+      serviceId: "later",
+      serviceLabel: "Later",
+      serviceOrder: 1,
+      content: { kind: "translation", query, paragraphs: ["later translation"] },
+    };
+    expect(resolveFavoriteTranslations(buildFavoriteWord(query, [translation, later, dictionary]))).toEqual([
+      "良好, 好的",
+    ]);
+  });
 
-    expect(
-      getStrokeOrderCharacters({
-        fromLanguage: favorite.fromLanguage,
-        toLanguage: favorite.toLanguage,
-        sourceText: favorite.word,
-        translatedText: translations?.join("\n") ?? "",
-      }),
-    ).toEqual(["学", "习"]);
+  it("does not turn a supplemented example-only dictionary into a translation preview", () => {
+    const service: ComposedService = {
+      type: DictionaryType.Linguee,
+      serviceId: "linguee",
+      serviceLabel: "Linguee",
+      serviceOrder: 0,
+      content: {
+        kind: "dictionary",
+        query,
+        sections: [{ kind: "examples", entries: [{ sentence: "good day", translation: "好日子" }] }],
+      },
+      primarySupplement: { translation: "良好" },
+    };
+    expect(getFavoriteView(buildFavoriteWord(query, [service]))[0].items[0].title).toBe("良好");
+    expect(resolveFavoriteTranslations(buildFavoriteWord(query, [service]))).toBeUndefined();
+  });
+
+  it("keeps direction in favorite identity and allows a favorite without body or preview", () => {
+    expect(favoriteKeyOf(query)).not.toBe(favoriteKeyOf({ ...query, toLanguage: "fr" }));
+    const favorite = decodeFavoriteSnapshot({ query, services: [], createdAt: 1, legacyPreview: [] });
+    expect(resolveFavoriteTranslations(favorite)).toBeUndefined();
+    expect(favoriteMarkdown(favorite)).toContain("good");
   });
 });

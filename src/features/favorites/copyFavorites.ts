@@ -8,5 +8,5 @@ import { type FavoriteWord, resolveFavoriteTranslations } from "./model";
  * favorites without translations yield an empty right-hand column.
  */
 export function copyAllText(favorites: readonly FavoriteWord[]): string {
-  return favorites.map((f) => `${f.word}\t${resolveFavoriteTranslations(f)?.join(", ") ?? ""}`).join("\n");
+  return favorites.map((f) => `${f.query.word}\t${resolveFavoriteTranslations(f)?.join(", ") ?? ""}`).join("\n");
 }
