@@ -69,7 +69,7 @@ npm install && npm run dev
 - [x] Automatically queries selected text (enabled by default).
 - [x] Supports screenshot OCR translation.
 - [x] Supports opening the [Eudic Dictionary](https://apps.apple.com/us/app/eudic-%E6%AC%A7%E8%B7%AF%E8%AF%8D%E5%85%B8/id434350458?l=zh&mt=12) for quick lookups (if installed on your Mac).
-- [x] Supports automatic audio playback of word pronunciations (use `Cmd + S` to play manually).
+- [x] Supports automatic and manual audio playback of word pronunciations.
 - [x] Supports Youdao Text-to-Speech (TTS).
 - [x] Supports manually sorting query results.
 - [x] Supports [Arguments](https://developers.raycast.com/information/lifecycle/arguments).
@@ -197,7 +197,7 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 <p>
 
-Note that when this option is started, the voice will be played only when the query is judged to be `is_Word` and in English, e.g. `good`, `look for`, etc. For other queries, the voice can be played with the shortcut `Cmd + S`.
+Note that when this option is started, the voice will be played only when the query is judged to be `is_Word` and in English, e.g. `good`, `look for`, etc. Use **Read Query Text** to play other queries manually.
 
 The content of playing voice: English words are pronounced by the online Youdao dictionary first, and other words are pronounced by the TTS service of Youdao translation. For long text playback, use the say command.
 
@@ -205,7 +205,13 @@ The content of playing voice: English words are pronounced by the online Youdao 
 
 </details>
 
-Use `Cmd + S` to play the pronunciation of words manually.
+Use these shortcuts from a query result:
+
+| Action | macOS | Windows |
+| --- | --- | --- |
+| Read Query Text | `Cmd+R` | `Ctrl+R` |
+| Read Result Text | `Cmd+Shift+R` | `Ctrl+Shift+R` |
+| Requery All Services | `Cmd+Option+R` | `Ctrl+Alt+R` |
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
