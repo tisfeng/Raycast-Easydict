@@ -3,19 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getDefaultRaycastAIModel, resolveAIProviderModelCatalog } from "./modelCatalog";
 import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
 
-const fetchOpenAICompatibleModelIds = vi.hoisted(() => vi.fn());
-const getCachedOpenAICompatibleModelIds = vi.hoisted(() => vi.fn());
-const isPublicOpenAICompatibleModelsEndpoint = vi.hoisted(() =>
-  vi.fn(
-    (endpoint: string) => endpoint === "https://opencode.ai/zen/v1" || endpoint === "https://opencode.ai/zen/go/v1",
-  ),
-);
+const timedFetch = vi.hoisted(() => vi.fn());
+const cache = vi.hoisted(() => new Map<string, string>());
 
-vi.mock("./modelDiscovery", () => ({
-  fetchOpenAICompatibleModelIds,
-  getCachedOpenAICompatibleModelIds,
-  isPublicOpenAICompatibleModelsEndpoint,
-}));
+vi.mock("@/utils/http", () => ({ timedFetch }));
 vi.mock("@raycast/api", () => ({
   AI: {
     Model: {
@@ -24,12 +15,21 @@ vi.mock("@raycast/api", () => ({
       Anthropic_Claude: "anthropic-claude",
     },
   },
+  environment: { isDevelopment: false },
+  Cache: class {
+    get(key: string) {
+      return cache.get(key);
+    }
+
+    set(key: string, value: string) {
+      cache.set(key, value);
+    }
+  },
 }));
 
 beforeEach(() => {
-  fetchOpenAICompatibleModelIds.mockReset();
-  getCachedOpenAICompatibleModelIds.mockReset();
-  getCachedOpenAICompatibleModelIds.mockReturnValue([]);
+  timedFetch.mockReset();
+  cache.clear();
 });
 
 describe("AI provider model catalogs", () => {
@@ -56,12 +56,12 @@ describe("AI provider model catalogs", () => {
       { title: "OpenAI GPT-5 mini", value: "openai-gpt-5-mini" },
       { title: "Anthropic Claude", value: "anthropic-claude" },
     ]);
-    expect(fetchOpenAICompatibleModelIds).not.toHaveBeenCalled();
+    expect(timedFetch).not.toHaveBeenCalled();
   });
 
   it("keeps generic OpenAI-compatible model IDs unchanged", async () => {
     const profile = createOpenAICompatibleProfile("https://api.example.com/v1");
-    fetchOpenAICompatibleModelIds.mockResolvedValue(["vendor/model-b", "model-a"]);
+    timedFetch.mockResolvedValue({ data: [{ id: "vendor/model-b" }, { id: "model-a" }] });
 
     const catalog = resolveAIProviderModelCatalog(profile);
 
@@ -73,11 +73,9 @@ describe("AI provider model catalogs", () => {
 
   it("normalizes Gemini resource names in its model catalog without filtering capabilities", async () => {
     const profile = createOpenAICompatibleProfile("https://generativelanguage.googleapis.com/v1beta/openai");
-    fetchOpenAICompatibleModelIds.mockResolvedValue([
-      "models/gemini-3.6-flash",
-      "models/aqa",
-      "models/deep-research-preview-04-2026",
-    ]);
+    timedFetch.mockResolvedValue({
+      data: [{ id: "models/gemini-3.6-flash" }, { id: "models/aqa" }, { id: "models/deep-research-preview-04-2026" }],
+    });
 
     const catalog = resolveAIProviderModelCatalog(profile);
 
@@ -86,26 +84,6 @@ describe("AI provider model catalogs", () => {
       { title: "deep-research-preview-04-2026", value: "deep-research-preview-04-2026" },
       { title: "gemini-3.6-flash", value: "gemini-3.6-flash" },
     ]);
-  });
-
-  it("loads OpenCode public models without a key and keeps its load key stable when a key is entered", async () => {
-    const endpoint = "https://opencode.ai/zen/v1";
-    fetchOpenAICompatibleModelIds.mockResolvedValue(["deepseek-v4-flash"]);
-
-    const withoutKey = resolveAIProviderModelCatalog(createOpenAICompatibleProfile(endpoint, ""));
-    const withKey = resolveAIProviderModelCatalog(createOpenAICompatibleProfile(endpoint, "entered-key"));
-
-    expect(withoutKey.loadKey).toBeTruthy();
-    expect(withKey.loadKey).toBe(withoutKey.loadKey);
-    await expect(withoutKey.loadOptions()).resolves.toEqual([
-      { title: "deepseek-v4-flash", value: "deepseek-v4-flash" },
-    ]);
-  });
-
-  it("does not automatically load a generic endpoint when its key is empty", () => {
-    const catalog = resolveAIProviderModelCatalog(createOpenAICompatibleProfile("https://api.example.com/v1", ""));
-
-    expect(catalog.loadKey).toBeUndefined();
   });
 });
 

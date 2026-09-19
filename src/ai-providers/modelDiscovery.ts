@@ -113,7 +113,7 @@ export function isPublicOpenAICompatibleModelsEndpoint(endpoint: string): boolea
   }
 }
 
-function getModelsCacheKey(endpoint: string, apiKey: string): string {
+export function getModelsCacheKey(endpoint: string, apiKey: string): string {
   const normalizedURL = getModelsURL(endpoint);
   normalizedURL.username = "";
   normalizedURL.password = "";
