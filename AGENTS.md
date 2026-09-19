@@ -27,12 +27,12 @@ Use these entry points when working on the corresponding area:
 | Provider catalog and ordering | `src/providers/catalog.ts` and `order.ts` own metadata and ordering; `registry.ts` assembles runtime factories; `web.ts` owns lightweight web actions |
 | Provider protocols | `src/providers/`: category base classes and registries; detection registry in `detect/registry.ts`; OpenAI-compatible streaming in `translation/ai/openai-compatible.ts` |
 | Result contracts and rendering | `src/core/results/types.ts` owns query, display, and icon descriptions; `kinds.ts` owns request and display discriminants; `resultMarkdown.ts` and `icons.tsx` are separate rendering entry points |
-| Query lifecycle | `src/hooks/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns query state, display aggregation, hide/coupling rules, and cache |
+| Query lifecycle | `src/hooks/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns raw query state, synchronous display projection, and cache |
 | AI configuration | `src/ai-providers/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
 | Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/` owns language types and mappings |
 
 - Provider base methods own timing, cancellation, and final error normalization through `handleRequestError`. Translation `request()` is an async generator adapted from `doTranslate()`; detection delegates to `doDetect()`, and dictionary lookup to `doQuery()`. Catch in subclasses only for protocol recovery or typed error conversion.
-- Keep payload types, parsing, and dictionary `displaySections` provider-specific. Core query code aggregates those sections. Share provider code in `src/providers/shared/` only when it has multiple consumers.
+- Keep payload types, parsing, and dictionary `displaySections` provider-specific. Core query projection combines those sections and translations without retaining supplements in raw query state or provider caches. Share provider code in `src/providers/shared/` only when it has multiple consumers.
 - Keep result contracts independent of provider payloads, profile configuration, and rendering. Preserve their discriminated unions and stored enum values when changing ownership.
 - Query changes must preserve latest-request ownership of streaming updates, final results, cache writes, and loading cleanup. Clearing cache must prevent requests started before the clear from repopulating it; favorites remain independent of query cache.
 - Static settings and credentials use Raycast Preferences. Dynamic AI profiles, including credentials, use Raycast's encrypted `LocalStorage` through `src/ai-providers/repository.ts`. Preserve saved profiles and favorites when changing formats or migration behavior.

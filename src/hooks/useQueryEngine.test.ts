@@ -7,18 +7,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DetectedLangModel } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
-import { DictionaryType, LanguageDetectType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import {
+  DictionaryType,
+  LanguageDetectType,
+  LingueeListItemType,
+  TranslationType,
+  YoudaoDictionaryListItemType,
+} from "@/core/results/kinds";
 import type {
   DictionaryResult,
   ListDisplayItem,
   QueryInput,
   RequestOptions,
+  StreamChunk,
   TranslationResult,
 } from "@/core/results/types";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import type { TranslationServiceConfig } from "@/providers/translation";
-import { BaseNonStreamingTranslateProvider } from "@/providers/translation/base";
+import { BaseNonStreamingTranslateProvider, BaseStreamingTranslateProvider } from "@/providers/translation/base";
 import { buildFavoriteWord } from "@/types/favorite";
 
 import { useQueryEngine } from "./useQueryEngine";
@@ -148,7 +155,9 @@ const translationRequests: QueryInput[] = [];
 const deferredTranslationRequests: TranslationRequest[] = [];
 
 class DeferredDictionaryProvider extends BaseDictionaryProvider {
-  type = DictionaryType.Linguee;
+  constructor(public type = DictionaryType.Linguee) {
+    super();
+  }
 
   protected doQuery(queryWordInfo: QueryInput, options?: RequestOptions): Promise<DictionaryResult> {
     const deferred = createDeferred<DictionaryResult>();
@@ -171,24 +180,14 @@ class RecordingTranslationProvider extends BaseNonStreamingTranslateProvider {
 }
 
 class DeferredTranslationProvider extends BaseNonStreamingTranslateProvider {
-  type = TranslationType.OpenAI;
+  constructor(public type = TranslationType.OpenAI) {
+    super();
+  }
 
   protected doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<TranslationResult> {
     const deferred = createDeferred<TranslationResult>();
     deferredTranslationRequests.push({ queryWordInfo, signal: options?.signal, deferred });
     return deferred.promise;
-  }
-}
-
-class WhitespaceTranslationProvider extends BaseNonStreamingTranslateProvider {
-  type = TranslationType.OpenAI;
-
-  protected async doTranslate(queryWordInfo: QueryInput): Promise<TranslationResult> {
-    return {
-      type: this.type,
-      queryWordInfo,
-      translations: [" \t\n"],
-    };
   }
 }
 
@@ -219,6 +218,47 @@ afterEach(() => {
 });
 
 describe("useQueryEngine query generations", () => {
+  it("restores Linguee's own metadata when regenerated Youdao results no longer supply it", async () => {
+    const youdaoService: DictionaryServiceConfig = {
+      id: "static:youdao",
+      label: DictionaryType.Youdao,
+      providerKey: "builtin:dictionary:Youdao",
+      order: 1,
+      type: DictionaryType.Youdao,
+      enabled: () => true,
+      createProvider: () => new DeferredDictionaryProvider(DictionaryType.Youdao),
+      canTriggerAutomaticAudio: false,
+    };
+    const { result } = renderHook(() =>
+      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
+        dictionaryServices: [...dictionaryServices, youdaoService],
+        translationServices: [],
+      }),
+    );
+    const query = createQueryInput("metadata");
+    act(() => result.current.queryTextWithTextInfo(query));
+
+    const linguee = createDictionaryResult(query);
+    const originalAccessory = { phonetic: "original", examTypes: ["original exam"], example: "preserved" };
+    linguee.displaySections![0].items[0].accessoryItem = originalAccessory;
+    await act(async () => {
+      dictionaryRequests[0].deferred.resolve(linguee);
+      dictionaryRequests[1].deferred.resolve(
+        createYoudaoResult(query, { phonetic: "supplement", examTypes: ["CET4"] }),
+      );
+    });
+    expect(result.current.displaySections[0].items[0].accessoryItem).toEqual({
+      phonetic: "supplement",
+      examTypes: ["CET4"],
+      example: "preserved",
+    });
+
+    act(() => result.current.regenerateService(youdaoService.id));
+    await act(async () => dictionaryRequests[2].deferred.resolve(createYoudaoResult(query)));
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.displaySections[0].items[0].accessoryItem).toEqual(originalAccessory);
+  });
+
   it("reuses a completed cached dictionary result without calling its provider again", async () => {
     testDoubles.queryCacheMode = "words";
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
@@ -318,47 +358,122 @@ describe("useQueryEngine query generations", () => {
     expect(getCachedQueryResult(dictionaryServices[0], query)).toBeUndefined();
   });
 
-  it("saves completed results without an unused standalone detail snapshot", async () => {
-    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
-    const query = createQueryInput("word");
+  it.each(["translation first", "dictionary first"])(
+    "projects hidden supplements in either completion order, caches raw results, and saves the final display (%s)",
+    async (order) => {
+      testDoubles.queryCacheMode = "words";
+      const deepLService: TranslationServiceConfig = {
+        id: "static:deepl",
+        label: TranslationType.DeepL,
+        providerKey: "builtin:translation:DeepL",
+        order: 1,
+        type: TranslationType.DeepL,
+        enabled: () => true,
+        createProvider: () => new DeferredTranslationProvider(TranslationType.DeepL),
+      };
+      const snapshot = { dictionaryServices, translationServices: [deepLService] };
+      const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+      const query = createQueryInput("word");
+      act(() => result.current.queryTextWithTextInfo(query));
+      expect(result.current.listEpoch).toBe(0);
+      await waitFor(() => expect(deferredTranslationRequests).toHaveLength(1));
+
+      if (order === "translation first") {
+        await resolveTranslationRequest(0, "translated", TranslationType.DeepL);
+        expect(result.current.displaySections).toEqual([]);
+        expect(result.current.listEpoch).toBe(0);
+        expect(result.current.isLoading).toBe(true);
+        await resolveDictionaryRequest(0);
+      } else {
+        await resolveDictionaryRequest(0);
+        expect(result.current.displaySections[0].items[0].title).toBe("word");
+        expect(result.current.listEpoch).toBe(1);
+        expect(result.current.isLoading).toBe(true);
+        await resolveTranslationRequest(0, "translated", TranslationType.DeepL);
+      }
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.listEpoch).toBe(1);
+      expect(result.current.displaySections).toHaveLength(1);
+      expect(result.current.displaySections[0].items[0]).toMatchObject({
+        title: "translated",
+        copyText: "translated",
+        detailsMarkdown: "**translated**",
+      });
+      expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual(createDictionaryResult(query));
+      expect(getCachedQueryResult(deepLService, query)).toEqual({
+        type: TranslationType.DeepL,
+        queryWordInfo: query,
+        translations: ["translated"],
+      });
+      const favorite = buildFavoriteWord(query, result.current.displaySections);
+      expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**translated**");
+      expect(favorite.translations).toEqual(["translated"]);
+      expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
+      expect(JSON.stringify(favorite)).not.toContain("data:image/svg+xml");
+
+      act(() => result.current.queryTextWithTextInfo(query));
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+      expect(dictionaryRequests).toHaveLength(1);
+      expect(deferredTranslationRequests).toHaveLength(1);
+      expect(result.current.displaySections[0].items[0].fromCache).toBe(true);
+      expect(buildFavoriteWord(query, result.current.displaySections).displaySections).toEqual(
+        favorite.displaySections,
+      );
+    },
+  );
+
+  it("projects streaming chunks and the matching final result without changing the list or item identity", async () => {
+    testDoubles.aiQueryCacheMode = "words";
+    const nextChunk = createDeferred<void>();
+    const finish = createDeferred<void>();
+    class StreamingTranslationProvider extends BaseStreamingTranslateProvider {
+      type = TranslationType.OpenAI;
+
+      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationResult> {
+        yield { content: "part" };
+        await nextChunk.promise;
+        yield { content: "ial" };
+        await finish.promise;
+        return { type: this.type, queryWordInfo, translations: ["partial"] };
+      }
+    }
+    const service: TranslationServiceConfig = {
+      id: "profile:stream",
+      label: "Streaming AI",
+      providerKey: "ai:stream",
+      order: 0,
+      type: TranslationType.OpenAI,
+      enabled: () => true,
+      createProvider: () => new StreamingTranslationProvider(),
+    };
+    const snapshot = { dictionaryServices: [], translationServices: [service] };
+    const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
+    const query = createQueryInput("stream");
     act(() => result.current.queryTextWithTextInfo(query));
-    await resolveDictionaryRequest(0);
-
-    const favorite = buildFavoriteWord(query, result.current.displaySections);
-    expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**word**");
-    expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
-    expect(JSON.stringify(favorite)).not.toContain("data:image/svg+xml");
-  });
-
-  it("changes the list epoch only when each query first produces visible results", async () => {
-    const { result } = renderHook(() =>
-      useQueryEngine(englishLanguageItem, chineseLanguageItem, {
-        translationServices: [],
-        dictionaryServices: dictionaryServices,
-      }),
-    );
-
-    expect(result.current.listEpoch).toBe(0);
-
-    act(() => result.current.queryTextWithTextInfo(createQueryInput("first")));
-    expect(dictionaryRequests).toHaveLength(1);
-    expect(result.current.listEpoch).toBe(0);
-
-    await resolveDictionaryRequest(0);
+    await waitFor(() => expect(result.current.displaySections[0]?.items[0].title).toBe("part"));
+    const key = result.current.displaySections[0].items[0].key;
+    expect(key).toBe(service.id);
     expect(result.current.listEpoch).toBe(1);
+    expect(result.current.isLoading).toBe(true);
 
-    act(() => {
-      result.current.clearQueryResult();
-      result.current.clearQueryResult();
+    await act(async () => nextChunk.resolve());
+    await waitFor(() => expect(result.current.displaySections[0].items[0].title).toBe("partial"));
+    expect(result.current.isLoading).toBe(true);
+    await act(async () => finish.resolve());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.displaySections[0].items[0]).toMatchObject({
+      key,
+      title: "partial",
+      copyText: "partial",
+      detailsMarkdown: "**Streaming AI**\n\npartial",
     });
     expect(result.current.listEpoch).toBe(1);
-
-    act(() => result.current.queryTextWithTextInfo(createQueryInput("second")));
-    expect(dictionaryRequests).toHaveLength(2);
-    expect(result.current.listEpoch).toBe(1);
-
-    await resolveDictionaryRequest(1);
-    expect(result.current.listEpoch).toBe(4);
+    expect(getCachedQueryResult(service, query)).toEqual({
+      type: TranslationType.OpenAI,
+      queryWordInfo: query,
+      translations: ["partial"],
+    });
   });
 
   it("adds providers that load later without restarting dictionary requests", async () => {
@@ -602,7 +717,8 @@ describe("useQueryEngine query generations", () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it("does not create a result when a translation output contains only whitespace", async () => {
+  it("rejects whitespace results without discarding an earlier accepted result", async () => {
+    testDoubles.aiQueryCacheMode = "words";
     const whitespaceService: TranslationServiceConfig = {
       id: "profile:whitespace",
       label: "Whitespace AI",
@@ -611,7 +727,7 @@ describe("useQueryEngine query generations", () => {
       type: TranslationType.OpenAI,
       icon: { kind: "preset", name: "gemini" },
       enabled: () => true,
-      createProvider: () => new WhitespaceTranslationProvider(),
+      createProvider: () => new DeferredTranslationProvider(),
     };
     const { result } = renderHook(() =>
       useQueryEngine(englishLanguageItem, chineseLanguageItem, {
@@ -620,12 +736,24 @@ describe("useQueryEngine query generations", () => {
       }),
     );
 
-    act(() => {
-      result.current.queryTextWithTextInfo(createQueryInput("whitespace"));
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const query = createQueryInput("whitespace");
+    act(() => result.current.queryTextWithTextInfo(query));
+    await waitFor(() => expect(deferredTranslationRequests).toHaveLength(1));
+    await resolveTranslationRequest(0, " \t\n");
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.displaySections).toEqual([]);
+
+    act(() => result.current.regenerateService(whitespaceService.id));
+    await waitFor(() => expect(deferredTranslationRequests).toHaveLength(2));
+    await resolveTranslationRequest(1, "accepted");
+    const acceptedSections = result.current.displaySections;
+
+    act(() => result.current.regenerateService(whitespaceService.id));
+    await waitFor(() => expect(deferredTranslationRequests).toHaveLength(3));
+    await resolveTranslationRequest(2, " \t\n");
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.displaySections).toEqual(acceptedSections);
+    expect(getCachedQueryResult(whitespaceService, query)).toMatchObject({ translations: ["accepted"] });
   });
 
   it("automatically plays each new word when consecutive lookups have the same provider count", async () => {
@@ -692,6 +820,32 @@ function createDictionaryResult(queryWordInfo: QueryInput): DictionaryResult {
   };
 }
 
+function createYoudaoResult(
+  query: QueryInput,
+  metadata: { phonetic?: string; examTypes?: string[] } = {},
+): DictionaryResult {
+  const queryWordInfo = { ...query, ...metadata };
+  return {
+    type: DictionaryType.Youdao,
+    queryWordInfo,
+    displaySections: [
+      {
+        type: YoudaoDictionaryListItemType.Translation,
+        items: [
+          {
+            displayType: YoudaoDictionaryListItemType.Translation,
+            queryType: DictionaryType.Youdao,
+            queryWordInfo,
+            key: "youdao",
+            title: "Youdao entry",
+            copyText: "Youdao entry",
+          },
+        ],
+      },
+    ],
+  };
+}
+
 async function resolveDictionaryRequest(index: number) {
   const request = dictionaryRequests[index];
   await act(async () => {
@@ -700,11 +854,11 @@ async function resolveDictionaryRequest(index: number) {
   });
 }
 
-async function resolveTranslationRequest(index: number, translation: string) {
+async function resolveTranslationRequest(index: number, translation: string, type = TranslationType.OpenAI) {
   const request = deferredTranslationRequests[index];
   await act(async () => {
     request.deferred.resolve({
-      type: TranslationType.OpenAI,
+      type,
       queryWordInfo: request.queryWordInfo,
       translations: [translation],
     });

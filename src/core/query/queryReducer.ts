@@ -1,20 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-/**
- * Query Reducer — centralized state management for the translation/dictionary query system.
- *
- * Architecture:
- * - QueryState: the single source of truth for all query-related UI state
- * - QueryAction: discriminated union of all possible state transitions
- * - queryReducer: pure function that computes next state from current state + action
- * - Cross-service coupling: declarative rules in couplingRules.ts
- */
-
+import { myPreferences } from "@/consts";
 import type { LanguageItem } from "@/core/language/types";
 import type { QueryResult } from "@/core/results/types";
 
-import { COUPLING_RULES } from "./couplingRules";
-import { checkIfShowTranslationDetail, sortedQueryResults } from "./utils";
+import { projectQueryResults } from "./displaySections";
+import { sortedQueryResults } from "./utils";
 
 export interface QueryState {
   /**
@@ -33,11 +24,6 @@ export interface QueryState {
   queryRecordList: string[];
 
   isLoading: boolean;
-
-  /**
-   * Whether to show detail view (right panel with full translation text).
-   */
-  isShowDetail: boolean;
 
   /**
    * Detected source language — updated after language detection completes.
@@ -74,7 +60,7 @@ export type QueryAction =
   | { type: "START_QUERY"; serviceId: string; generation: number }
   /** A query finished (success or error). Remove from pending list. */
   | { type: "FINISH_QUERY"; serviceId: string; generation: number }
-  /** API returned a result. Add/update in queryResults, trigger cross-service coupling. */
+  /** API returned a result. Add/update the service’s raw result in queryResults. */
   | { type: "SET_RESULT"; queryResult: QueryResult; generation: number }
   /** Language detection completed. Update source and target language display. */
   | {
@@ -135,18 +121,13 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
       // Sort by user preference order
       results = sortedQueryResults(results);
 
-      // Apply cross-service coupling
-      for (const rule of COUPLING_RULES) {
-        if (rule.triggers.includes(queryResult.type)) {
-          results = rule.apply(results);
-        }
-      }
-
       return {
         ...state,
         queryResults: results,
-        listEpoch: hasVisibleListItems(results) ? action.generation : state.listEpoch,
-        isShowDetail: checkIfShowTranslationDetail(results),
+        listEpoch:
+          state.listEpoch !== action.generation && projectQueryResults(results, myPreferences).hasVisibleItems
+            ? action.generation
+            : state.listEpoch,
       };
     }
 
@@ -172,7 +153,6 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
         queryResults: [],
         queryRecordList: [],
         isLoading: false,
-        isShowDetail: false,
       };
     }
 
@@ -185,7 +165,6 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
         queryResults: [],
         queryRecordList: [],
         isLoading: true,
-        isShowDetail: false,
       };
     }
 
@@ -199,12 +178,4 @@ export function queryReducer(state: QueryState, action: QueryAction): QueryState
     default:
       return state;
   }
-}
-
-function hasVisibleListItems(results: QueryResult[]): boolean {
-  return results.some(
-    (result) =>
-      (!("hideDisplay" in result) || !result.hideDisplay) &&
-      result.displaySections.some((section) => section.items.length > 0),
-  );
 }
