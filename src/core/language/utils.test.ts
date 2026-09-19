@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import manifest from "../../../package.json";
 import { languageItemList } from "./consts";
 import {
   getLangCode,
@@ -35,10 +36,23 @@ describe("language boundaries", () => {
     expect(getLanguageFromProviderCode("zh", "baiduLangCode")).toBe("zh-CHS");
   });
 
-  it("resolves the manifest Filipino alias without changing the persisted tl code", () => {
-    expect(parseSourceLanguage("fil")).toBe("tl");
-    expect(getLanguageItem("fil")).toBe(getLanguageItem("tl"));
-    expect(getLangCode("fil", "googleLangCode")).toBe(getLangCode("tl", "googleLangCode"));
-    expect(languageItemList.filter((item) => item.youdaoLangCode === "tl")).toHaveLength(1);
+  it.each([
+    { alias: "fil", canonical: "tl" },
+    { alias: "sr", canonical: "sr-Latn" },
+  ])("resolves the manifest $alias alias without changing the persisted $canonical code", ({ alias, canonical }) => {
+    expect(parseSourceLanguage(alias)).toBe(canonical);
+    expect(getLanguageItem(alias)).toBe(getLanguageItem(canonical));
+    expect(getLangCode(alias, "googleLangCode")).toBe(getLangCode(canonical, "googleLangCode"));
+    expect(languageItemList.filter((item) => item.youdaoLangCode === canonical)).toHaveLength(1);
   });
+
+  it.each(manifest.preferences.filter(({ name }) => name === "language1" || name === "language2"))(
+    "resolves every $name preference option to a supported language",
+    ({ data }) => {
+      expect(data).toBeDefined();
+      for (const { value } of data ?? []) {
+        expect(isLanguageCode(getLanguageItem(value).youdaoLangCode), value).toBe(true);
+      }
+    },
+  );
 });

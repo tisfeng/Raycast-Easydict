@@ -17,9 +17,10 @@ export function isLanguageCode(value: unknown): value is LanguageCode {
   return value !== "auto" && isSourceLanguage(value);
 }
 
-/** The manifest uses fil; existing query and storage codes use tl. */
+/** Normalize manifest aliases while preserving existing query and storage codes. */
 export function parseSourceLanguage(value: unknown): SourceLanguage | undefined {
   if (value === "fil") return "tl";
+  if (value === "sr") return "sr-Latn";
   return isSourceLanguage(value) ? value : undefined;
 }
 
