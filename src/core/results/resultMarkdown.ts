@@ -1,17 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { escapeHtml, plainText } from "@/core/content/markdown";
 import { getLanguageEnglishName } from "@/core/language/utils";
 
 import { isDarkAppearance } from "./appearance";
 import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "./types";
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-function plainText(text: string): string {
-  return escapeHtml(text).replace(/([\\`*_{}[\]()#+.!|>~-])/g, "\\$1");
-}
 
 export function languageDirection(info: QueryWordInfo): string {
   return `${getLanguageEnglishName(info.fromLanguage)} → ${getLanguageEnglishName(info.toLanguage)}`;

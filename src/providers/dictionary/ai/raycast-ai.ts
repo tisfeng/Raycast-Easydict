@@ -2,6 +2,7 @@
 
 import { AI, environment } from "@raycast/api";
 
+import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
@@ -10,12 +11,11 @@ import { RequestError } from "@/shared/errors";
 import { logTrace } from "@/shared/logger";
 
 import { BaseDictionaryProvider } from "../base";
-import { formatAIWordResult, resolveAIDictionaryWordInfo } from "./format";
+import { buildAIWordContent } from "./content";
 import { parseAIWordResult } from "./parser";
 import { createAIDictionaryPromptSpec, renderAIDictionaryTextPrompt } from "./prompt";
-import type { AIWordResult } from "./types";
 
-export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
+export class RaycastAIDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.AI;
 
   constructor(private readonly config: RaycastAIRuntimeConfig) {
@@ -26,10 +26,7 @@ export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordRe
     return this.config.name;
   }
 
-  protected async doQuery(
-    queryWordInfo: QueryInput,
-    { signal }: RequestOptions = {},
-  ): Promise<DictionaryResult<AIWordResult>> {
+  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryResult> {
     if (!environment.canAccess(AI)) {
       throw new RequestError(this.type, "Raycast AI is unavailable. Raycast Pro and AI access are required.");
     }
@@ -42,11 +39,6 @@ export class RaycastAIDictionaryProvider extends BaseDictionaryProvider<AIWordRe
     const prompt = renderAIDictionaryTextPrompt(createAIDictionaryPromptSpec(queryWordInfo, fromLanguage, toLanguage));
     const result = parseAIWordResult(await AI.ask(prompt, { model, creativity: "none", signal }));
 
-    return {
-      type: this.type,
-      queryWordInfo: resolveAIDictionaryWordInfo(queryWordInfo, result),
-      result,
-      displaySections: formatAIWordResult(queryWordInfo, result),
-    };
+    return toLegacyDictionaryResult(this.type, buildAIWordContent(queryWordInfo, result));
   }
 }

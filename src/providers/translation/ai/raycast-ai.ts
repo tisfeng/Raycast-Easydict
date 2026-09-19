@@ -2,9 +2,10 @@
 
 import { AI, environment } from "@raycast/api";
 
+import type { TranslationContent } from "@/core/content/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
-import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
+import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
 import type { RaycastAIRuntimeConfig } from "@/providers/profiles/runtime";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
 import { CancelledError, RequestError } from "@/shared/errors";
@@ -12,7 +13,7 @@ import { logTrace } from "@/shared/logger";
 
 import { createTranslationPromptSpec, renderTranslationTextPrompt } from "./prompt";
 
-export class RaycastAITranslateProvider extends BaseStreamingTranslateProvider<{ translatedText: string }> {
+export class RaycastAITranslateProvider extends BaseStreamingTranslateProvider {
   type = TranslationType.OpenAI;
 
   constructor(private readonly config: RaycastAIRuntimeConfig) {
@@ -26,7 +27,7 @@ export class RaycastAITranslateProvider extends BaseStreamingTranslateProvider<{
   protected async *doTranslate(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): AsyncGenerator<StreamChunk, TranslationResult<{ translatedText: string }>, unknown> {
+  ): AsyncGenerator<StreamChunk, TranslationContent, unknown> {
     if (!environment.canAccess(AI)) {
       throw new RequestError(this.type, "Raycast AI is unavailable. Raycast Pro and AI access are required.");
     }
@@ -45,10 +46,9 @@ export class RaycastAITranslateProvider extends BaseStreamingTranslateProvider<{
     const translatedText = yield* streamRaycastAIAnswer(answer, signal);
 
     return {
-      type: this.type,
-      queryWordInfo,
-      translations: [translatedText],
-      result: { translatedText },
+      kind: "translation",
+      query: queryWordInfo,
+      paragraphs: [translatedText],
     };
   }
 }
@@ -99,7 +99,7 @@ async function* streamRaycastAIAnswer(
   try {
     while (true) {
       while (emittedChunks < chunks.length) {
-        yield { content: chunks[emittedChunks], role: "assistant" };
+        yield { content: chunks[emittedChunks] };
         emittedChunks += 1;
       }
       if (failure !== undefined) throw failure;

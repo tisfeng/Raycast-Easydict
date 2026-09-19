@@ -153,7 +153,7 @@ export function AIProviderForm({
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
           { signal: abortController.signal },
         );
-        translation = result.result?.translation.trim() ?? "";
+        translation = result.content?.sections.find((section) => section.kind === "translation")?.text.trim() ?? "";
       } else {
         const iterator = createAITranslationProvider(config).request(
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS" },

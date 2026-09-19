@@ -31,6 +31,7 @@ describe("Google translation", () => {
       value: {
         type: TranslationType.Google,
         translations: ["第一行 &amp; <文本>。", "", "第二段。"],
+        content: { kind: "translation", query, paragraphs: ["第一行 &amp; <文本>。", "", "第二段。"] },
         queryWordInfo: query,
       },
     });

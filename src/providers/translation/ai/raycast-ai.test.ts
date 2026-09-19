@@ -39,7 +39,7 @@ const profile: RaycastAIProfile = {
 };
 
 describe("Raycast AI streaming provider", () => {
-  it("yields data events and returns the final completion", async () => {
+  it("yields data events and prefers the final completion when it differs from the chunks", async () => {
     const stream = createAIAnswer();
     testDoubles.ask.mockReturnValueOnce(stream.answer);
     const iterator = createProvider().request({
@@ -50,17 +50,20 @@ describe("Raycast AI streaming provider", () => {
 
     const first = iterator.next();
     stream.emit("你");
-    await expect(first).resolves.toEqual({ done: false, value: { content: "你", role: "assistant" } });
+    await expect(first).resolves.toEqual({ done: false, value: { content: "你" } });
 
     const second = iterator.next();
     stream.emit("好");
-    await expect(second).resolves.toEqual({ done: false, value: { content: "好", role: "assistant" } });
+    await expect(second).resolves.toEqual({ done: false, value: { content: "好" } });
 
     const completion = iterator.next();
-    stream.resolve("你好");
+    stream.resolve("最终译文");
     const result = await completion;
     expect(result.done).toBe(true);
-    expect(result.value).toMatchObject({ translations: ["你好"], result: { translatedText: "你好" } });
+    expect(result.value).toMatchObject({
+      translations: ["最终译文"],
+      content: { kind: "translation", paragraphs: ["最终译文"] },
+    });
   });
 
   it("uses the final completion when no data event is emitted", async () => {
