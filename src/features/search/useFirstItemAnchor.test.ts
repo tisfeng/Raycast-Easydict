@@ -69,7 +69,7 @@ describe("useFirstItemAnchor", () => {
     expect(result.current.selectedItemId).toBe("provider-c:item");
   });
 
-  it("falls back once when the selected item disappears", () => {
+  it("resumes automatic selection when the selected item disappears, even if it later returns", () => {
     const { result, rerender } = renderHook(
       ({ itemIds, queryGeneration }) => useFirstItemAnchor(itemIds, queryGeneration),
       { initialProps: { itemIds: ["provider-a:item", "provider-b:item"], queryGeneration: 1 } },
@@ -81,7 +81,13 @@ describe("useFirstItemAnchor", () => {
     rerender({ itemIds: ["provider-c:item", "provider-a:item"], queryGeneration: 1 });
     expect(result.current.selectedItemId).toBe("provider-c:item");
 
-    rerender({ itemIds: ["provider-d:item", "provider-c:item", "provider-a:item"], queryGeneration: 1 });
+    rerender({ itemIds: ["provider-c:item", "provider-a:item", "provider-b:item"], queryGeneration: 1 });
+    expect(result.current.selectedItemId).toBe("provider-c:item");
+
+    rerender({
+      itemIds: ["provider-d:item", "provider-c:item", "provider-a:item", "provider-b:item"],
+      queryGeneration: 1,
+    });
     expect(result.current.selectedItemId).toBe("provider-d:item");
   });
 
