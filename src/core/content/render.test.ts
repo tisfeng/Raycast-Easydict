@@ -38,19 +38,49 @@ function view(...services: ComposedService[]) {
 }
 
 describe("content rendering", () => {
+  it("keeps word and pronunciation together in an inline SVG with the direction outside the image", () => {
+    const info = { ...query, phonetic: "/ ˈtestɪmoʊni /" };
+    const sections = view(dictionary([{ kind: "translation", text: "证词" }], info));
+
+    for (const markdown of [renderStandaloneRow(sections[0].items[0]), renderSavedView(info, sections)]) {
+      const encoded = markdown.match(/base64,([A-Za-z0-9+/=]+)/);
+      expect(encoded).not.toBeNull();
+      const svg = Buffer.from(encoded![1], "base64").toString("utf8");
+      expect(svg).toContain("testimony<tspan");
+      expect(svg).toContain("/ ˈtestɪmoʊni /</tspan>");
+      expect(svg).not.toContain("English");
+      expect(markdown).toContain(")  \nEnglish → Chinese\\-Simplified");
+      expect(svg).toContain('font-family="Georgia, Times New Roman, serif"');
+      expect(markdown).toContain("**证词**");
+      expect(markdown).not.toContain("## testimony");
+    }
+  });
+
   it("escapes short headwords in the shared SVG header and lets long headwords wrap as text", () => {
     const [section] = view(translation("One", ["translation"], { ...query, word: "<b>x" }));
     const markdown = renderStandaloneRow(section.items[0]);
-    const encoded = markdown.match(/base64,([^)]*)/);
+    const encoded = markdown.match(/base64,([A-Za-z0-9+/=]+)/);
     expect(encoded).not.toBeNull();
     const svg = Buffer.from(encoded![1], "base64").toString("utf8");
     expect(svg).toContain("&lt;b&gt;x");
     expect(svg).not.toContain("<b>");
-    const longWord = "W".repeat(30);
+    const longWord = "W".repeat(18);
     const [longSection] = view(translation("One", ["translation"], { ...query, word: longWord }));
     const longMarkdown = renderStandaloneRow(longSection.items[0]);
     expect(longMarkdown).toContain(`## ${longWord}`);
     expect(longMarkdown).not.toContain("data:image");
+  });
+
+  it("lets a long pronunciation wrap as native text while preserving the SVG word", () => {
+    const phonetic = "a".repeat(80);
+    const [section] = view(translation("One", ["translation"], { ...query, word: "good", phonetic }));
+    const markdown = renderStandaloneRow(section.items[0]);
+    const encoded = markdown.match(/base64,([A-Za-z0-9+/=]+)/);
+    expect(encoded).not.toBeNull();
+    const svg = Buffer.from(encoded![1], "base64").toString("utf8");
+    expect(svg).toContain("good</text>");
+    expect(svg).not.toContain(phonetic);
+    expect(markdown).toContain(`)  \n${phonetic}  \nEnglish → Chinese\\-Simplified`);
   });
 
   it("compares visible profiles with the selected service first and marks differing language directions", () => {

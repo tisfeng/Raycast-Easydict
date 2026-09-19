@@ -12,27 +12,33 @@ function languageDirection(info: QueryWordInfo): string {
   return `${getLanguageEnglishName(info.fromLanguage)} → ${getLanguageEnglishName(info.toLanguage)}`;
 }
 
+/** Conservative canvas bounds; SVG lays out the text and pronunciation itself. */
+function estimateTextWidth(text: string, fontSize: number): number {
+  const widthAt32 = Array.from(text).reduce((width, character) => {
+    if (character.codePointAt(0)! > 127) return width + 48;
+    if (/[mwMW@%]/.test(character)) return width + 40;
+    if (/[il|.,'`:;!]/.test(character)) return width + 14;
+    return width + (/[A-Z0-9]/.test(character) ? 32 : 26);
+  }, 0);
+  return Math.ceil((widthAt32 * fontSize) / 32);
+}
+
 function resultHeader(info: QueryWordInfo): string {
   const source = plainText(info.word);
   const word = info.isWord === true && !info.word.includes("\n");
   const direction = languageDirection(info);
   if (word) {
-    // One SVG establishes a shared baseline; Raycast ignores CSS float in markdown.
-    // Long headwords keep native wrapping instead of shrinking or clipping their text.
-    const estimatedWidth = Array.from(info.word).reduce(
-      (width, character) => width + (character.codePointAt(0)! > 127 || /[MW@%]/.test(character) ? 28 : 18),
-      0,
-    );
-    const directionWidth = Array.from(direction).reduce(
-      (width, character) => width + (character.codePointAt(0)! > 127 ? 16 : 10),
-      0,
-    );
+    // The image contains only the word and pronunciation; the page lays out the direction separately.
+    const wordWidth = estimateTextWidth(info.word, 32);
     const phonetic = info.phonetic ?? "";
-    const phoneticWidth = Array.from(phonetic).length * 12;
-    if (estimatedWidth + phoneticWidth + directionWidth + 48 <= 600) {
+    if (wordWidth + 8 <= 600) {
+      const phoneticWidth = estimateTextWidth(phonetic, 20);
+      const inlinePhonetic = wordWidth + 16 + phoneticWidth + 8 <= 600 ? phonetic : "";
+      const width = wordWidth + (inlinePhonetic ? 16 + phoneticWidth : 0) + 8;
       const dark = isDarkAppearance();
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="44" viewBox="0 0 600 44"><text x="0" y="30" font-family="Georgia, Times New Roman, serif" font-size="32" font-weight="700" fill="${dark ? "#f2f2f2" : "#202020"}">${escapeHtml(info.word)}</text>${phonetic ? `<text x="${estimatedWidth + 26}" y="30" font-family="Arial, sans-serif" font-size="20" fill="${dark ? "#aaaaaa" : "#777777"}">${escapeHtml(phonetic)}</text>` : ""}<text x="600" y="30" text-anchor="end" font-family="Arial, sans-serif" font-size="16" fill="${dark ? "#aaaaaa" : "#666666"}">${escapeHtml(direction)}</text></svg>`;
-      return `![${plainText(`${info.word}${phonetic ? ` · ${phonetic}` : ""} · ${direction}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")})`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="44" viewBox="0 0 ${width} 44"><text x="0" y="30" font-family="Georgia, Times New Roman, serif" font-size="32" font-weight="700" fill="${dark ? "#f2f2f2" : "#202020"}">${escapeHtml(info.word)}${inlinePhonetic ? `<tspan dx="16" font-family="Arial, sans-serif" font-size="20" font-weight="400" fill="${dark ? "#aaaaaa" : "#777777"}">${escapeHtml(inlinePhonetic)}</tspan>` : ""}</text></svg>`;
+      const image = `![${plainText(`${info.word}${inlinePhonetic ? ` · ${inlinePhonetic}` : ""}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}?raycast-width=${Math.ceil((width * 34) / 44)}&raycast-height=34)`;
+      return [image, !inlinePhonetic && plainText(phonetic), plainText(direction)].filter(Boolean).join("  \n");
     }
     return `## ${source}${phonetic ? ` · ${plainText(phonetic)}` : ""}\n\n${plainText(direction)}`;
   }
