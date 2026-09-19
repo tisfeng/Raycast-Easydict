@@ -1,9 +1,8 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { type LegacyTranslationResult, toLegacyTranslationResult } from "@/core/content/legacyTranslation";
 import type { TranslationContent } from "@/core/content/types";
 import type { TranslationType } from "@/core/results/kinds";
-import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
+import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
 import { CancelledError, handleRequestError } from "@/shared/errors";
 import { createTimer } from "@/shared/logger";
 
@@ -27,12 +26,12 @@ export abstract class BaseTranslateProvider {
   public async *request(
     queryWordInfo: QueryInput,
     options?: RequestOptions,
-  ): AsyncGenerator<StreamChunk, LegacyTranslationResult, unknown> {
+  ): AsyncGenerator<StreamChunk, TranslationResult, unknown> {
     const timer = createTimer(this.logLabel);
     try {
       const result = yield* this.performTranslate(queryWordInfo, options);
       timer.done(result.paragraphs.join(", "));
-      return toLegacyTranslationResult(this.type, result);
+      return { type: this.type, content: result };
     } catch (error) {
       const requestError = handleRequestError(this.type, error, options?.signal, this.logLabel);
       if (!(requestError instanceof CancelledError)) {

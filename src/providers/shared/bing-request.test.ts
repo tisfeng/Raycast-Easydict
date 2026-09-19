@@ -94,9 +94,7 @@ describe("Bing request protocol", () => {
       done: true,
       value: {
         type: TranslationType.Bing,
-        queryWordInfo: query,
         content: { kind: "translation", query, paragraphs: ["你好", "", "世界"] },
-        translations: ["你好", "", "世界"],
       },
     });
   });
@@ -286,7 +284,7 @@ describe("Bing request protocol", () => {
 
     const result = await new BingTranslateProvider().request(query).next();
 
-    expect(result.value).toMatchObject({ translations: ["你好", "", "世界"] });
+    expect(result.value).toMatchObject({ content: { paragraphs: ["你好", "", "世界"] } });
     expect(redirectedRequests).toBe(2);
     expect(fetchRaw.mock.calls.filter(([, options]) => options?.method !== "POST")).toHaveLength(2);
   });

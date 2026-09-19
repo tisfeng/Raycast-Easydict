@@ -1,5 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { boolean, decodeQueryWordInfo, invalid, member, optional, record, strings, text } from "./decodeFields";
 import {
   AIDictionaryListItemType,
   DictionaryType,
@@ -8,49 +9,12 @@ import {
   YoudaoDictionaryListItemType,
 } from "./kinds";
 import {
-  type DictionaryResult,
   type DisplaySection,
   type ListAccessoryItem,
   type ListDisplayItem,
   PROVIDER_ICON_NAMES,
   type ProviderIconConfig,
-  type QueryWordInfo,
-  type TranslationResult,
 } from "./types";
-
-/** Decode the persisted result format independently of provider implementations and rendering. */
-export function decodeCachedResult(value: unknown): TranslationResult | DictionaryResult {
-  const source = record(value, "result");
-  const queryWordInfo = decodeQueryWordInfo(source.queryWordInfo);
-  if ("translations" in source) {
-    const type = member(source.type, Object.values(TranslationType), "result.type");
-    const translations = strings(source.translations, "result.translations");
-    if (!translations.some((text) => text.trim())) throw invalid("result.translations");
-    return { type, queryWordInfo, translations, result: source.result };
-  }
-  const type = member(source.type, Object.values(DictionaryType), "result.type");
-  const displaySections = decodeDisplaySections(source.displaySections);
-  if (
-    !displaySections.length ||
-    displaySections.some((section) => section.items.some((item) => item.queryType !== type))
-  ) {
-    throw invalid("result.displaySections");
-  }
-  return { type, queryWordInfo, displaySections, result: source.result };
-}
-
-function decodeQueryWordInfo(value: unknown): QueryWordInfo {
-  const source = record(value, "queryWordInfo");
-  return {
-    word: text(source.word, "queryWordInfo.word"),
-    fromLanguage: text(source.fromLanguage, "queryWordInfo.fromLanguage"),
-    toLanguage: text(source.toLanguage, "queryWordInfo.toLanguage"),
-    isWord: optional(source.isWord, boolean, "queryWordInfo.isWord"),
-    phonetic: optional(source.phonetic, text, "queryWordInfo.phonetic"),
-    examTypes: optional(source.examTypes, strings, "queryWordInfo.examTypes"),
-    speechUrl: optional(source.speechUrl, text, "queryWordInfo.speechUrl"),
-  };
-}
 
 export function decodeDisplaySections(value: unknown): DisplaySection[] {
   if (!Array.isArray(value)) throw invalid("displaySections");
@@ -160,42 +124,4 @@ function decodeIcon(value: unknown): ProviderIconConfig {
     default:
       throw invalid("item.serviceIcon.kind");
   }
-}
-
-function invalid(path: string): Error {
-  return new Error(`Invalid saved result field: ${path}`);
-}
-
-function record(value: unknown, path: string): Record<string, unknown> {
-  if (!isRecord(value)) throw invalid(path);
-  return value;
-}
-
-function text(value: unknown, path: string): string {
-  if (typeof value !== "string") throw invalid(path);
-  return value;
-}
-
-function boolean(value: unknown, path: string): boolean {
-  if (typeof value !== "boolean") throw invalid(path);
-  return value;
-}
-
-function strings(value: unknown, path: string): string[] {
-  if (!Array.isArray(value)) throw invalid(path);
-  return value.map((entry) => text(entry, path));
-}
-
-function member<T extends string>(value: unknown, values: readonly T[], path: string): T {
-  const found = values.find((candidate) => candidate === value);
-  if (found === undefined) throw invalid(path);
-  return found;
-}
-
-function optional<T>(value: unknown, decode: (value: unknown, path: string) => T, path: string): T | undefined {
-  return value === undefined ? undefined : decode(value, path);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

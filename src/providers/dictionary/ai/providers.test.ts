@@ -47,8 +47,8 @@ describe("AI dictionary provider adapters", () => {
       expect.stringContaining(JSON.stringify("run")),
       expect.objectContaining({ model: "test-model", creativity: "none" }),
     );
-    expect(result.content?.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
-    expect(result.displaySections).toHaveLength(2);
+    expect(result.content.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
+    expect(result.content.sections).toHaveLength(2);
   });
 
   it("collects and parses an OpenAI-compatible dictionary completion without exposing partial JSON", async () => {
@@ -69,8 +69,7 @@ describe("AI dictionary provider adapters", () => {
         responseFormat: { type: "json_object" },
       }),
     );
-    expect(result.content?.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
-    expect(result.displaySections?.[0].items[0].title).toBe("跑");
+    expect(result.content.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
   });
 
   it("omits the API key for a keyless OpenAI-compatible dictionary completion", async () => {

@@ -2,10 +2,10 @@
 
 import { AI, environment } from "@raycast/api";
 
-import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
+import type { DictionaryContent } from "@/core/content/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import type { RaycastAIRuntimeConfig } from "@/providers/profiles/runtime";
 import { RequestError } from "@/shared/errors";
 import { logTrace } from "@/shared/logger";
@@ -26,7 +26,7 @@ export class RaycastAIDictionaryProvider extends BaseDictionaryProvider {
     return this.config.name;
   }
 
-  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryResult> {
+  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryContent> {
     if (!environment.canAccess(AI)) {
       throw new RequestError(this.type, "Raycast AI is unavailable. Raycast Pro and AI access are required.");
     }
@@ -39,6 +39,6 @@ export class RaycastAIDictionaryProvider extends BaseDictionaryProvider {
     const prompt = renderAIDictionaryTextPrompt(createAIDictionaryPromptSpec(queryWordInfo, fromLanguage, toLanguage));
     const result = parseAIWordResult(await AI.ask(prompt, { model, creativity: "none", signal }));
 
-    return toLegacyDictionaryResult(this.type, buildAIWordContent(queryWordInfo, result));
+    return buildAIWordContent(queryWordInfo, result);
   }
 }

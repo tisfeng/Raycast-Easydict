@@ -2,10 +2,10 @@
 
 import { streamText } from "@xsai/stream-text";
 
-import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
+import type { DictionaryContent } from "@/core/content/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import type { OpenAICompatibleRuntimeConfig } from "@/providers/profiles/runtime";
 import { getTokenLimitParams } from "@/providers/profiles/tokenLimit";
 import type { JSONOutputMode } from "@/providers/profiles/types";
@@ -41,7 +41,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider {
     return this.config.name;
   }
 
-  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryResult> {
+  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryContent> {
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
     const headers = getOpenAICompatibleRequestHeaders(this.config.endpoint);
@@ -66,7 +66,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider {
         await this.notifyNativeJSONUnsupported(signal);
         logWarn(this.logLabel, "native JSON output is unsupported; falling back to prompt-based JSON");
         result = parseAIWordResult(await this.requestCompletion(messages, "prompt", headers, signal));
-        return this.createResult(queryWordInfo, result);
+        return buildAIWordContent(queryWordInfo, result);
       }
 
       try {
@@ -77,7 +77,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider {
       }
     }
 
-    return this.createResult(queryWordInfo, result);
+    return buildAIWordContent(queryWordInfo, result);
   }
 
   private async requestCompletion(
@@ -107,10 +107,6 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider {
     }
 
     return chunks.join("");
-  }
-
-  private createResult(queryWordInfo: QueryInput, result: AIWordResult): DictionaryResult {
-    return toLegacyDictionaryResult(this.type, buildAIWordContent(queryWordInfo, result));
   }
 
   private async notifyNativeJSONUnsupported(signal?: AbortSignal): Promise<void> {

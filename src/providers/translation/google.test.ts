@@ -30,9 +30,7 @@ describe("Google translation", () => {
       done: true,
       value: {
         type: TranslationType.Google,
-        translations: ["第一行 &amp; <文本>。", "", "第二段。"],
         content: { kind: "translation", query, paragraphs: ["第一行 &amp; <文本>。", "", "第二段。"] },
-        queryWordInfo: query,
       },
     });
     expect(fetch).toHaveBeenCalledOnce();
@@ -67,8 +65,7 @@ describe("Google translation", () => {
     expect(fetch).toHaveBeenCalledOnce();
     expect(requestedTexts(fetch.mock.calls[0][1])).toEqual(paragraphs);
     expect(result.value).toMatchObject({
-      translations: ["第一段。", "", "第二段。"],
-      queryWordInfo: query,
+      content: { paragraphs: ["第一段。", "", "第二段。"], query },
     });
   });
 
@@ -108,7 +105,9 @@ describe("Google translation", () => {
 
     expect(fetch).toHaveBeenCalledOnce();
     expect(requestedTexts(fetch.mock.calls[0][1])).toEqual(chunks);
-    expect(result.value).toMatchObject({ translations: [chunks.map((_, index) => `译文${index}`).join(" ")] });
+    expect(result.value).toMatchObject({
+      content: { paragraphs: [chunks.map((_, index) => `译文${index}`).join(" ")] },
+    });
   });
 
   it.each([

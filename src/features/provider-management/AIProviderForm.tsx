@@ -153,7 +153,7 @@ export function AIProviderForm({
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
           { signal: abortController.signal },
         );
-        translation = result.content?.sections.find((section) => section.kind === "translation")?.text.trim() ?? "";
+        translation = result.content.sections.find((section) => section.kind === "translation")?.text.trim() ?? "";
       } else {
         const iterator = createAITranslationProvider(config).request(
           { word: "Hello", fromLanguage: "en", toLanguage: "zh-CHS" },
@@ -163,7 +163,7 @@ export function AIProviderForm({
         while (true) {
           const next = await iterator.next();
           if (next.done) {
-            translation = next.value.translations[0]?.trim() ?? "";
+            translation = next.value.content.paragraphs[0]?.trim() ?? "";
             break;
           }
         }

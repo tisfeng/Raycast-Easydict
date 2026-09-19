@@ -147,42 +147,76 @@ describe("query cache", () => {
     const service = createService("builtin:translation:Bing", "regular");
     cacheQueryResult(service, query, createTranslationResult());
     const storage = testState.caches.get("query-results")!;
-    const key = [...storage.keys()].find((candidate) => storage.get(candidate)?.includes('"translations"'))!;
+    const key = [...storage.keys()].find((candidate) => storage.get(candidate)?.includes('"content"'))!;
     storage.set(key, "{not-json");
 
     expect(getCachedQueryResult(service, query)).toBeUndefined();
     expect(storage.has(key)).toBe(false);
   });
 
-  it("discards a cached dictionary with unsafe nested rendering fields before replay", () => {
-    const value = {
-      type: DictionaryType.AI,
-      queryWordInfo: query,
-      displaySections: [
-        {
-          type: "Definition",
-          items: [
+  it.each([
+    { version: 1, value: { type: TranslationType.Bing, queryWordInfo: query, translations: ["old"] } },
+    { version: 999, value: createTranslationResult() },
+    { version: 2, value: { type: "unknown", content: createTranslationResult().content } },
+    { version: 2, value: { type: DictionaryType.AI, content: createTranslationResult().content } },
+    {
+      version: 2,
+      value: {
+        type: DictionaryType.AI,
+        content: {
+          kind: "dictionary",
+          query,
+          sections: [
             {
-              queryType: DictionaryType.AI,
-              displayType: "Definition",
-              queryWordInfo: query,
-              key: "entry",
-              title: "hello",
-              copyText: "hello",
-              detailsMarkdown: 17,
+              kind: "definitions",
+              entries: [{ kind: "structured", meanings: ["hello"], examples: [{ sentence: 17 }] }],
             },
           ],
         },
-      ],
-    };
+      },
+    },
+    {
+      version: 2,
+      value: {
+        type: DictionaryType.AI,
+        content: { kind: "dictionary", query, sections: [{ kind: "examples", entries: [] }] },
+      },
+    },
+  ])("discards old, future, or malformed content before replay (%j)", ({ version, value }) => {
     const service = createService("builtin:translation:Bing", "regular");
     cacheQueryResult(service, query, createTranslationResult());
     const storage = testState.caches.get("query-results")!;
-    const key = [...storage.keys()].find((candidate) => storage.get(candidate)?.includes('"translations"'))!;
-    storage.set(key, JSON.stringify({ version: 1, expiresAt: Date.now() + 10000, value }));
-
+    const key = [...storage.keys()].find((candidate) => storage.get(candidate)?.includes('"content"'))!;
+    storage.set(key, JSON.stringify({ version, expiresAt: Date.now() + 10000, value }));
     expect(getCachedQueryResult(service, query)).toBeUndefined();
     expect(storage.has(key)).toBe(false);
+  });
+
+  it("stores content version 2 while retaining version 1 word evidence and seven-day dictionary expiry", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+    const service = createService("builtin:dictionary:Youdao", "regular");
+    const input = { word: "你好", fromLanguage: "zh-CHS", toLanguage: "en" };
+    const value = {
+      type: DictionaryType.Youdao,
+      content: {
+        kind: "dictionary" as const,
+        query: { ...input, isWord: true },
+        sections: [{ kind: "translation" as const, text: "hello" }],
+      },
+    };
+    cacheQueryResult(service, input, value);
+    const entries = [...testState.caches.get("query-results")!.values()].map((text) => JSON.parse(text));
+    expect(entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ version: 1, value: true }),
+        expect.objectContaining({ version: 2, value }),
+      ]),
+    );
+    vi.setSystemTime(new Date("2026-01-07T23:59:59Z"));
+    expect(getCachedQueryResult(service, input)).toEqual(value);
+    vi.setSystemTime(new Date("2026-01-08T00:00:00.001Z"));
+    expect(getCachedQueryResult(service, input)).toBeUndefined();
   });
 
   it.each([{ type: "unknown" }, { youdaoLangCode: "unknown" }, { youdaoLangCode: "auto" }, { confirmed: false }])(
@@ -266,7 +300,6 @@ function createService(providerKey: string, cacheIdentity: string): RuntimeServi
 function createTranslationResult(queryWordInfo: QueryInput = query): TranslationResult {
   return {
     type: TranslationType.Bing,
-    queryWordInfo,
-    translations: ["缓存"],
+    content: { kind: "translation", query: queryWordInfo, paragraphs: ["缓存"] },
   };
 }

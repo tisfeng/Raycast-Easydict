@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EASYDICT_VERSION } from "@/consts";
-import type { LegacyTranslationResult } from "@/core/content/legacyTranslation";
 import { TranslationType } from "@/core/results/kinds";
-import type { StreamChunk } from "@/core/results/types";
+import type { StreamChunk, TranslationResult } from "@/core/results/types";
 import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 import { CancelledError } from "@/shared/errors";
@@ -78,8 +77,6 @@ describe("OpenAI-compatible translation provider", () => {
         chunks: [{ content: "你" }, { content: "好" }],
         result: {
           type: TranslationType.OpenAI,
-          queryWordInfo: query,
-          translations: ["你好"],
           content: { kind: "translation", query, paragraphs: ["你好"] },
         },
       });
@@ -158,7 +155,7 @@ function createQuery() {
   return { word: "hello", fromLanguage: "en", toLanguage: "zh-CHS" };
 }
 
-async function collect(iterator: AsyncGenerator<StreamChunk, LegacyTranslationResult, unknown>) {
+async function collect(iterator: AsyncGenerator<StreamChunk, TranslationResult, unknown>) {
   const chunks: StreamChunk[] = [];
   while (true) {
     const next = await iterator.next();
