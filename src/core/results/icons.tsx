@@ -4,8 +4,10 @@ import type { Image } from "@raycast/api";
 import { Color, Icon } from "@raycast/api";
 import { getAvatarIcon, getFavicon } from "@raycast/utils";
 
-import { DictionaryType, LingueeListItemType, YoudaoDictionaryListItemType } from "./kinds";
-import type { ListDisplayItem, ProviderIconConfig, ProviderIconName, QueryType } from "./types";
+import type { ViewRow } from "@/core/content/viewTypes";
+
+import { DictionaryType } from "./kinds";
+import type { ProviderIconConfig, ProviderIconName, QueryType } from "./types";
 
 /**
  * Play sound icons with different tint colors.
@@ -28,17 +30,12 @@ export const raycastAIIcon: Image.ImageLike = {
 /**
  * Return the corresponding ImageLike based on the query and display types.
  */
-export function getListItemIcon(item: ListDisplayItem): Image.ImageLike {
-  if (item.serviceIcon) {
-    return getProviderIcon(item.serviceIcon, item.serviceLabel ?? item.queryType.toString());
-  }
-  if (item.queryType === DictionaryType.Linguee) {
-    return getLingueeListItemIcon(item.displayType);
-  }
-  if (item.queryType === DictionaryType.Youdao) {
-    return getYoudaoListItemIcon(item.displayType);
-  }
-  return getQueryTypeIcon(item.queryType);
+export function getListItemIcon(item: ViewRow): Image.ImageLike {
+  const service = item.service;
+  if (service.serviceIcon) return getProviderIcon(service.serviceIcon, service.serviceLabel);
+  if (service.type === DictionaryType.Linguee) return lingueeRowIcon(item);
+  if (service.type === DictionaryType.Youdao) return youdaoRowIcon(item);
+  return getQueryTypeIcon(service.type);
 }
 
 export function getProviderIcon(icon: ProviderIconConfig, name: string): Image.ImageLike {
@@ -69,94 +66,70 @@ const providerIconAssets: Record<Exclude<ProviderIconName, "raycast">, string> =
   mimo: "provider-icons/mimo.svg",
 };
 
-/**
- * Get ImageLike based on LingueeDisplayType.
- */
-function getLingueeListItemIcon(lingueeDisplayType: LingueeListItemType): Image.ImageLike {
-  let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (lingueeDisplayType) {
-    case LingueeListItemType.Translation: {
-      dotColor = Color.Red;
+function lingueeRowIcon(row: ViewRow): Image.ImageLike {
+  let color: Color.ColorLike = Color.PrimaryText;
+  switch (row.kind) {
+    case "translation":
+      color = Color.Red;
       break;
-    }
-    case LingueeListItemType.AlmostAlwaysUsed:
-    case LingueeListItemType.OftenUsed: {
-      dotColor = "#FF5151";
+    case "equivalent":
+      if (row.prominent === false) {
+        color = row.frequency === "less-common" ? Color.Yellow : "#CA8EC2";
+        break;
+      }
+      switch (row.frequency) {
+        case "almost-always":
+        case "often":
+          color = "#FF5151";
+          break;
+        case "special-forms":
+          color = "#00BB00";
+          break;
+        case "less-common":
+          color = Color.Yellow;
+          break;
+        default:
+          color = Color.Blue;
+      }
       break;
-    }
-    case LingueeListItemType.SpecialForms: {
-      dotColor = "#00BB00";
+    case "example":
+      color = "teal";
       break;
-    }
-    case LingueeListItemType.Common: {
-      dotColor = Color.Blue;
+    case "related":
+      color = "gray";
       break;
-    }
-    case LingueeListItemType.LessCommon: {
-      dotColor = Color.Yellow;
+    case "summary":
+      color = "#8080C0";
       break;
-    }
-    case LingueeListItemType.Unfeatured: {
-      dotColor = "#CA8EC2";
-      break;
-    }
-    case LingueeListItemType.Example: {
-      dotColor = "teal";
-      break;
-    }
-    case LingueeListItemType.RelatedWord: {
-      dotColor = "gray";
-      break;
-    }
-    case LingueeListItemType.Wikipedia: {
-      dotColor = "#8080C0";
-      break;
-    }
   }
-  return { source: Icon.Dot, tintColor: dotColor };
+  return { source: Icon.Dot, tintColor: color };
 }
 
-/**
- * Get ImageLike based on YoudaoDisplayType.
- */
-function getYoudaoListItemIcon(youdaoListType: YoudaoDictionaryListItemType): Image.ImageLike {
-  let dotColor: Color.ColorLike = Color.PrimaryText;
-  switch (youdaoListType) {
-    case YoudaoDictionaryListItemType.Translation: {
-      dotColor = Color.Red;
+function youdaoRowIcon(row: ViewRow): Image.ImageLike {
+  if (row.kind === "form-set" || row.kind === "form") return Icon.Receipt;
+  let color: Color.ColorLike = Color.PrimaryText;
+  switch (row.kind) {
+    case "translation":
+      color = Color.Red;
       break;
-    }
-    case YoudaoDictionaryListItemType.ModernChineseDict: {
-      dotColor = "#006000";
+    case "chinese-entry":
+      color = "#006000";
       break;
-    }
-    case YoudaoDictionaryListItemType.Explanation: {
-      dotColor = Color.Blue;
+    case "definition":
+      color = Color.Blue;
       break;
-    }
-    case YoudaoDictionaryListItemType.WebTranslation: {
-      dotColor = Color.Yellow;
+    case "web-translation":
+      color = Color.Yellow;
       break;
-    }
-    case YoudaoDictionaryListItemType.WebPhrase: {
-      dotColor = "teal";
+    case "phrase":
+      color = "teal";
       break;
-    }
-    case YoudaoDictionaryListItemType.Baike: {
-      dotColor = "#B15BFF";
+    case "summary":
+      if (row.summarySource === "encyclopedia") color = "#B15BFF";
+      else if (row.summarySource === "wikipedia") color = "#FF60AF";
       break;
-    }
-    case YoudaoDictionaryListItemType.Wikipedia: {
-      dotColor = "#FF60AF";
-      break;
-    }
   }
-
-  if (youdaoListType === YoudaoDictionaryListItemType.Forms) {
-    return Icon.Receipt;
-  }
-
-  return { source: Icon.Dot, tintColor: dotColor };
+  return { source: Icon.Dot, tintColor: color };
 }
 
 /**

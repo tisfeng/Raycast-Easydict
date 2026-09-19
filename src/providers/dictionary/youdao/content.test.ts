@@ -1,11 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { legacyDictionarySections } from "@/core/content/legacyDictionary";
-import { DictionaryType, YoudaoDictionaryListItemType } from "@/core/results/kinds";
+import { buildContentView } from "@/core/content/view";
+import { DictionaryType } from "@/core/results/kinds";
 import type { QueryWordInfo } from "@/core/results/types";
 
 import { buildYoudaoContent } from "./content";
 import { decodeYoudaoResponse } from "./decode";
+
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query: QueryWordInfo = { word: "行", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true };
 
@@ -37,10 +39,24 @@ const modernChineseResult = {
 };
 
 function renderYoudao(query: QueryWordInfo, response: unknown) {
-  return legacyDictionarySections(DictionaryType.Youdao, buildYoudaoContent(query, decodeYoudaoResponse(response)));
+  return buildContentView(
+    {
+      services: [
+        {
+          type: DictionaryType.Youdao,
+          serviceId: "youdao",
+          serviceLabel: "Youdao Dictionary",
+          serviceOrder: 0,
+          content: buildYoudaoContent(query, decodeYoudaoResponse(response)),
+        },
+      ],
+      isShowDetail: false,
+    },
+    true,
+  ).map((section) => ({ ...section, items: section.items.map((row) => ({ ...row, body: row.renderBody() })) }));
 }
 
-describe("Youdao display formatter", () => {
+describe("Youdao content reading contract", () => {
   it.each([
     {
       name: "a single form",
@@ -60,26 +76,20 @@ describe("Youdao display formatter", () => {
       { ec: { word: [{ wfs: forms }] } },
     );
 
-    expect(sections?.map((section) => section.type)).toEqual([
-      YoudaoDictionaryListItemType.Translation,
-      YoudaoDictionaryListItemType.Forms,
-    ]);
-    expect(sections?.[1]).toMatchObject({
-      sectionTitle: "Details",
-      items: [{ title: "", subtitle: body, copyText, detailsMarkdown: body }],
+    expect(sections.map((section) => section.kind)).toEqual(["translation", "form-set"]);
+    expect(sections[1]).toMatchObject({
+      title: "Details",
+      items: [{ title: "", subtitle: body, copyText, body }],
     });
   });
 
   it("keeps pronunciation rows, consecutive categories, recursive senses, and examples in list, copy, and Markdown", () => {
     const sections = renderYoudao(query, modernChineseResult);
 
-    expect(sections?.map((section) => section.type)).toEqual([
-      YoudaoDictionaryListItemType.Translation,
-      YoudaoDictionaryListItemType.ModernChineseDict,
-    ]);
-    expect(sections?.[0].items[0].accessoryItem).toMatchObject({ phonetic: "/ xíng /" });
-    expect(sections?.[1]).toMatchObject({
-      sectionTitle: "Details",
+    expect(sections.map((section) => section.kind)).toEqual(["translation", "chinese-entry"]);
+    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ xíng /" });
+    expect(sections[1]).toMatchObject({
+      title: "Details",
       items: [
         {
           title: "xíng",
@@ -87,14 +97,13 @@ describe("Youdao display formatter", () => {
             "动   1. 行走; 前进：步行/日行千里     1.1. 旅行：远行   1.2. 流动  2. 做：实行  名   1. 行为动   1. 可以",
           copyText:
             "xíng  动   1. 行走; 前进：步行/日行千里     1.1. 旅行：远行   1.2. 流动  2. 做：实行  名   1. 行为动   1. 可以",
-          detailsMarkdown:
-            "xíng\n\n动 \n\n1. 行走; 前进：`步行`/`日行千里`    \n1.1. 旅行：`远行`  \n1.2. 流动\n\n2. 做：`实行`  \n\n名 \n\n1. 行为\n\n动 \n\n1. 可以",
+          body: "xíng\n\n动 \n\n1. 行走; 前进：`步行`/`日行千里`    \n1.1. 旅行：`远行`  \n1.2. 流动\n\n2. 做：`实行`  \n\n名 \n\n1. 行为\n\n动 \n\n1. 可以",
         },
         {
           title: "háng",
           subtitle: "~  1. 行列：一行树    2. ~   2.1. 行业",
           copyText: "háng  ~  1. 行列：一行树    2. ~   2.1. 行业",
-          detailsMarkdown: "háng\n\n~\n\n1. 行列：`一行树`  \n\n2. ~  \n2.1. 行业",
+          body: "háng\n\n~\n\n1. 行列：`一行树`  \n\n2. ~  \n2.1. 行业",
         },
       ],
     });
@@ -103,7 +112,7 @@ describe("Youdao display formatter", () => {
   it("preserves an existing phonetic instead of replacing it with Chinese pinyin", () => {
     const sections = renderYoudao({ ...query, phonetic: "/ existing /" }, modernChineseResult);
 
-    expect(sections?.[0].items[0].accessoryItem).toMatchObject({ phonetic: "/ existing /" });
+    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ existing /" });
   });
 
   it.each([undefined, ""])(
@@ -117,9 +126,9 @@ describe("Youdao display formatter", () => {
         },
       );
 
-      expect(sections?.[0].items[0].accessoryItem).toMatchObject({ phonetic: "/ hàng /" });
-      expect(sections?.[0].items[0].queryWordInfo.phonetic).toBe(phonetic);
-      expect(sections?.[1].items).toHaveLength(2);
+      expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ hàng /" });
+      expect(sections[0].items[0].service.query.phonetic).toBe(phonetic);
+      expect(sections[1].items).toHaveLength(2);
     },
   );
 
@@ -137,10 +146,7 @@ describe("Youdao display formatter", () => {
       },
     );
 
-    expect(sections.map((section) => section.type)).toEqual([
-      YoudaoDictionaryListItemType.Translation,
-      YoudaoDictionaryListItemType.WebPhrase,
-    ]);
+    expect(sections.map((section) => section.kind)).toEqual(["translation", "pairs"]);
     expect(sections[0].items[0]).toMatchObject({ title: "", copyText: "" });
     expect(sections[1].items).toMatchObject([
       { title: key, subtitle: "", copyText: `${key} ` },
@@ -169,7 +175,7 @@ describe("Youdao display formatter", () => {
     {
       name: "a Baike summary starting with its subject",
       summary: { baike: { summarys: [{ key: "光", summary: "光是一种电磁辐射。" }] } },
-      type: YoudaoDictionaryListItemType.Baike,
+      source: "encyclopedia",
       subtitle: "光是一种电磁辐射。",
       copyText: "光 光是一种电磁辐射。",
       body: "光是一种电磁辐射。",
@@ -177,7 +183,7 @@ describe("Youdao display formatter", () => {
     {
       name: "a Wikipedia summary quoting its subject",
       summary: { wikipedia_digest: { summarys: [{ key: "光", summary: '物理学中的"光"是可见的电磁辐射。' }] } },
-      type: YoudaoDictionaryListItemType.Wikipedia,
+      source: "wikipedia",
       subtitle: '物理学中的"光"是可见的电磁辐射。',
       copyText: '光 物理学中的"光"是可见的电磁辐射。',
       body: '物理学中的"光"是可见的电磁辐射。',
@@ -185,17 +191,17 @@ describe("Youdao display formatter", () => {
     {
       name: "a Baike summary without its subject",
       summary: { baike: { summarys: [{ key: "光", summary: "可见的电磁辐射。" }] } },
-      type: YoudaoDictionaryListItemType.Baike,
+      source: "encyclopedia",
       subtitle: "可见的电磁辐射。",
       copyText: "光 可见的电磁辐射。",
       body: "光 可见的电磁辐射。",
     },
-  ])("avoids repeating the subject in the body of $name", ({ summary, type, subtitle, copyText, body }) => {
+  ])("avoids repeating the subject in the body of $name", ({ summary, source, subtitle, copyText, body }) => {
     const sections = renderYoudao({ ...query, word: "光" }, summary);
 
-    expect(sections?.[1]).toMatchObject({
-      type,
-      items: [{ title: "光", subtitle, copyText, detailsMarkdown: body }],
+    expect(sections[1]).toMatchObject({
+      kind: "summary",
+      items: [{ title: "光", subtitle, copyText, body, summarySource: source }],
     });
   });
 });

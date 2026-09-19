@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { legacyDictionarySections } from "@/core/content/legacyDictionary";
 import type { ContentEquivalent } from "@/core/content/types";
-import { DictionaryType, LingueeListItemType } from "@/core/results/kinds";
-import { resultItemBody } from "@/core/results/resultMarkdown";
-import type { DisplaySection, QueryWordInfo } from "@/core/results/types";
+import { buildContentView } from "@/core/content/view";
+import type { ViewSection } from "@/core/content/viewTypes";
+import { DictionaryType } from "@/core/results/kinds";
+import type { QueryWordInfo } from "@/core/results/types";
 
 import { buildLingueeContent } from "./content";
 import type { LingueeDictionaryResult, LingueeWordItem } from "./types";
@@ -22,7 +22,7 @@ describe("Linguee content reading contract", () => {
       }),
     );
 
-    expect(sections.some((section) => section.type === LingueeListItemType.Translation)).toBe(false);
+    expect(sections.some((section) => section.kind === "translation")).toBe(false);
   });
 
   it("preserves headword punctuation, featured notes, and the last unfeatured entry's classification", () => {
@@ -75,35 +75,35 @@ describe("Linguee content reading contract", () => {
 
     expect(readingSections(sections)).toEqual([
       {
-        heading: "Linguee Dictionary",
-        items: [{ type: "Translation", title: "良好的", subtitle: "good", copy: "良好的 good", body: "**良好的**" }],
+        heading: "Linguee Dictionary   (English --> Chinese-Simplified)",
+        items: [{ tooltip: "Translation", title: "良好的", subtitle: "good", copy: "良好的 good", body: "**良好的**" }],
       },
       {
         heading: "good sth.  adj",
         items: [
           {
-            type: "Common",
+            tooltip: "Common",
             title: "良好的",
             subtitle: "adj.       一本好书",
             copy: "良好的 adj.       一本好书",
             body: "良好的 adj.       一本好书",
           },
           {
-            type: "Often Used",
+            tooltip: "Often Used",
             title: "优秀的",
             subtitle: "adj.  (often used)       ",
             copy: "优秀的 adj.  (often used)       ",
             body: "优秀的 adj.  (often used)       ",
           },
           {
-            type: "Forms",
+            tooltip: "Forms",
             title: "bon",
             subtitle: "adj.  (bonne f sl)       ",
             copy: "bon adj.  (bonne f sl)       ",
             body: "<table>\n<tr><td>bon</td><td>adj.  (bonne f sl)       </td></tr>\n</table>",
           },
           {
-            type: "Less Common",
+            tooltip: "Less Common",
             title: "v.",
             subtitle: "适宜;  有益  (less common)",
             copy: "v. 适宜;  有益  (less common)",
@@ -115,7 +115,7 @@ describe("Linguee content reading contract", () => {
         heading: "goods (plural).n",
         items: [
           {
-            type: "Unfeatured",
+            tooltip: "Unfeatured",
             title: "n.",
             subtitle: "商品;  货物  ",
             copy: "n. 商品;  货物  ",
@@ -154,24 +154,24 @@ describe("Linguee content reading contract", () => {
 
     expect(readingSections(sections)).toEqual([
       {
-        heading: "Examples:",
+        heading: "Linguee Dictionary   (English --> Chinese-Simplified)",
         items: [
           {
-            type: "Example",
+            tooltip: "Example",
             title: "good news",
             subtitle: "n.  —  好消息;  佳音",
             copy: "good news n.  —  好消息;  佳音",
             body: "- **good news**  \n  n\\.  —  好消息;  佳音",
           },
           {
-            type: "Example",
+            tooltip: "Example",
             title: "a good book",
             subtitle: "—  一本好书",
             copy: "a good book —  一本好书",
             body: "- **a good book**  \n  —  一本好书",
           },
           {
-            type: "Example",
+            tooltip: "Example",
             title: "do good",
             subtitle: "v.  —  行善",
             copy: "do good v.  —  行善",
@@ -183,21 +183,21 @@ describe("Linguee content reading contract", () => {
         heading: "Related words:",
         items: [
           {
-            type: "Related word",
+            tooltip: "Related word",
             title: "goodness",
             subtitle: "n.  善良;  美德",
             copy: "goodness n.  善良;  美德",
             body: "<table>\n<tr><td>goodness</td><td>n.  善良;  美德</td></tr>\n</table>",
           },
           {
-            type: "Related word",
+            tooltip: "Related word",
             title: "goodwill",
             subtitle: "善意",
             copy: "goodwill 善意",
             body: "<table>\n<tr><td>goodwill</td><td>善意</td></tr>\n</table>",
           },
           {
-            type: "Related word",
+            tooltip: "Related word",
             title: "good luck",
             subtitle: "好运",
             copy: "good luck 好运",
@@ -209,14 +209,14 @@ describe("Linguee content reading contract", () => {
         heading: "Wikipedia",
         items: [
           {
-            type: "Wikipedia",
+            tooltip: "Wikipedia",
             title: "Good An ethical concept.",
             subtitle: "",
             copy: "Good An ethical concept. ",
             body: "Good An ethical concept. ",
           },
           {
-            type: "Wikipedia",
+            tooltip: "Wikipedia",
             title: "Goods Items for sale.",
             subtitle: "",
             copy: "Goods Items for sale. ",
@@ -229,21 +229,32 @@ describe("Linguee content reading contract", () => {
 });
 
 function buildSections(result: LingueeDictionaryResult) {
-  return legacyDictionarySections(
-    DictionaryType.Linguee,
-    buildLingueeContent(queryWordInfo, { queryWordInfo, result }),
+  return buildContentView(
+    {
+      services: [
+        {
+          type: DictionaryType.Linguee,
+          serviceId: "linguee",
+          serviceLabel: "Linguee Dictionary",
+          serviceOrder: 0,
+          content: buildLingueeContent(queryWordInfo, { queryWordInfo, result }),
+        },
+      ],
+      isShowDetail: false,
+    },
+    true,
   );
 }
 
-function readingSections(sections: DisplaySection[]) {
+function readingSections(sections: ViewSection[]) {
   return sections.map((section) => ({
-    heading: section.sectionTitle,
+    heading: section.title,
     items: section.items.map((item) => ({
-      type: item.displayType,
+      tooltip: item.tooltip,
       title: item.title,
       subtitle: item.subtitle,
       copy: item.copyText,
-      body: resultItemBody(item),
+      body: item.renderBody(),
     })),
   }));
 }

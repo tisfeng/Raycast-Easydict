@@ -3,17 +3,17 @@
 import type { List } from "@raycast/api";
 import { Color, Icon } from "@raycast/api";
 
+import type { ViewRow } from "@/core/content/viewTypes";
 import { playSoundIconGray } from "@/core/results/icons";
-import type { ListDisplayItem } from "@/core/results/types";
 
 /**
- * Get List.Item.Accessory[] based on the ListDisplayItem.
+ * Get List.Item.Accessory[] based on the ViewRow.
  */
-export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[] {
+export function getWordAccessories(item: ViewRow): List.Item.Accessory[] {
   let wordExamTypeAccessory: List.Item.Accessory[] = [];
   let pronunciationAccessory: List.Item.Accessory[] = [];
   let wordAccessories: List.Item.Accessory[] = [];
-  const accessoryItem = item.accessoryItem;
+  const accessoryItem = item.accessory;
   if (accessoryItem) {
     if (accessoryItem.examTypes) {
       wordExamTypeAccessory = [
@@ -44,7 +44,7 @@ export function getWordAccessories(item: ListDisplayItem): List.Item.Accessory[]
       wordAccessories = [...wordAccessories, ...pronunciationAccessory];
     }
   }
-  if (item.fromCache) {
+  if (item.service.fromCache) {
     wordAccessories.push({ icon: Icon.Clock, tooltip: "Loaded from query cache" });
   }
   return wordAccessories;
