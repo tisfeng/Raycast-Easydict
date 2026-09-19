@@ -1,12 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { createHash } from "node:crypto";
-
 import { AI } from "@raycast/api";
 
 import {
   fetchOpenAICompatibleModelIds,
   getCachedOpenAICompatibleModelIds,
+  getModelsCacheKey,
   isPublicOpenAICompatibleModelsEndpoint,
 } from "./modelDiscovery";
 import type { AIProviderProfile, OpenAICompatibleProfile } from "./types";
@@ -18,7 +17,8 @@ export interface AIModelOption {
 
 export interface ResolvedAIModelCatalog {
   allowsCustomModel: boolean;
-  loadKey?: string;
+  key: string;
+  canLoad: boolean;
   getCachedOptions(): AIModelOption[];
   loadOptions(signal?: AbortSignal): Promise<AIModelOption[]>;
 }
@@ -40,7 +40,8 @@ function resolveRaycastAIModelCatalog(): ResolvedAIModelCatalog {
   const options = getRaycastAIModelOptions();
   return {
     allowsCustomModel: false,
-    loadKey: "raycast-ai",
+    key: "raycast-ai",
+    canLoad: true,
     getCachedOptions: () => options,
     loadOptions: async () => options,
   };
@@ -50,6 +51,13 @@ function resolveOpenAICompatibleModelCatalog(profile: OpenAICompatibleProfile): 
   const endpoint = profile.endpoint.trim();
   const apiKey = profile.apiKey.trim();
   const isPublicModelsEndpoint = isPublicOpenAICompatibleModelsEndpoint(endpoint);
+  let key: string;
+  try {
+    key = getModelsCacheKey(endpoint, apiKey);
+  } catch {
+    // Invalid edits have no cache identity, but still need request error feedback.
+    key = `invalid:${endpoint}`;
+  }
   const normalize = getOpenAICompatibleModelIdNormalizer(endpoint);
   const toOptions = (modelIds: string[]) =>
     [...new Set(modelIds.map(normalize).filter(Boolean))]
@@ -58,10 +66,8 @@ function resolveOpenAICompatibleModelCatalog(profile: OpenAICompatibleProfile): 
 
   return {
     allowsCustomModel: true,
-    loadKey:
-      endpoint && (apiKey || isPublicModelsEndpoint)
-        ? getRemoteCatalogLoadKey(endpoint, isPublicModelsEndpoint ? "" : apiKey)
-        : undefined,
+    key,
+    canLoad: !!endpoint && (!!apiKey || isPublicModelsEndpoint),
     getCachedOptions: () => (endpoint ? toOptions(getCachedOpenAICompatibleModelIds(endpoint, apiKey)) : []),
     loadOptions: async (signal) => toOptions(await fetchOpenAICompatibleModelIds(endpoint, apiKey, signal)),
   };
@@ -89,8 +95,4 @@ function isOfficialGeminiOpenAIEndpoint(endpoint: string): boolean {
   } catch {
     return false;
   }
-}
-
-function getRemoteCatalogLoadKey(endpoint: string, apiKey: string): string {
-  return createHash("sha256").update(`${endpoint}\n${apiKey}`).digest("hex");
 }

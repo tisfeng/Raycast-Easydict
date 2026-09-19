@@ -67,8 +67,13 @@ export function AIProviderForm({
       ),
     [apiKey, endpoint, profile],
   );
-  const [availableModels, setAvailableModels] = useState<AIModelOption[]>(() => modelCatalog.getCachedOptions());
-  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [modelState, setModelState] = useState(() => ({
+    key: modelCatalog.key,
+    options: modelCatalog.getCachedOptions(),
+    isLoading: false,
+  }));
+  const availableModels = modelState.key === modelCatalog.key ? modelState.options : modelCatalog.getCachedOptions();
+  const isLoadingModels = modelState.key === modelCatalog.key && modelState.isLoading;
   const testAbortController = useRef<AbortController | null>(null);
   const modelAbortController = useRef<AbortController | null>(null);
   const loadedModelsKey = useRef<string | null>(null);
@@ -201,8 +206,8 @@ export function AIProviderForm({
 
   const loadModels = useCallback(async () => {
     logTrace("AI Models", `load requested for profile: ${profile.name}`);
-    const requestKey = modelCatalog.loadKey;
-    if (!requestKey) {
+    const requestKey = modelCatalog.key;
+    if (!modelCatalog.canLoad) {
       logTrace("AI Models", `load skipped for ${profile.name}: model catalog is not ready`);
       return;
     }
@@ -221,17 +226,18 @@ export function AIProviderForm({
     modelAbortController.current = abortController;
     loadingModelsKey.current = requestKey;
     const cachedModels = modelCatalog.getCachedOptions();
-    if (cachedModels.length > 0) {
-      setAvailableModels(cachedModels);
-    }
-    setIsLoadingModels(true);
+    setModelState((current) => ({
+      key: requestKey,
+      options: cachedModels.length > 0 ? cachedModels : current.key === requestKey ? current.options : [],
+      isLoading: true,
+    }));
     try {
       const models = await modelCatalog.loadOptions(abortController.signal);
       if (abortController.signal.aborted) {
         logTrace("AI Models", `discard fetched models for ${profile.name}: request cancelled`);
         return;
       }
-      setAvailableModels(models);
+      setModelState({ key: requestKey, options: models, isLoading: false });
       loadedModelsKey.current = requestKey;
     } catch (error) {
       if (abortController.signal.aborted) {
@@ -252,7 +258,7 @@ export function AIProviderForm({
       if (modelAbortController.current === abortController) {
         modelAbortController.current = null;
         loadingModelsKey.current = null;
-        setIsLoadingModels(false);
+        setModelState((current) => ({ ...current, isLoading: false }));
       }
     }
   }, [modelCatalog, profile.name]);
@@ -266,20 +272,20 @@ export function AIProviderForm({
   );
 
   useEffect(() => {
+    if (modelState.key === modelCatalog.key) return;
     modelAbortController.current?.abort();
     modelAbortController.current = null;
     loadedModelsKey.current = null;
     loadingModelsKey.current = null;
-    setAvailableModels(modelCatalog.getCachedOptions());
+    setModelState({ key: modelCatalog.key, options: modelCatalog.getCachedOptions(), isLoading: false });
     setModelSearchText("");
-    setIsLoadingModels(false);
-  }, [modelCatalog]);
+  }, [modelCatalog, modelState.key]);
 
   useEffect(() => {
-    if (!modelCatalog.loadKey) return;
+    if (!modelCatalog.canLoad) return;
     const timer = setTimeout(() => void loadModels(), 300);
     return () => clearTimeout(timer);
-  }, [loadModels, modelCatalog.loadKey]);
+  }, [loadModels, modelCatalog.canLoad]);
 
   const customModel = modelSearchText.trim();
   const modelOptions = mergeModelOptions(model, availableModels, modelCatalog.allowsCustomModel);
