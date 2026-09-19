@@ -28,7 +28,7 @@ Use these entry points when working on the corresponding area:
 | Provider catalog and ordering | `src/providers/catalog.ts` and `order.ts` own metadata and ordering; `registry.ts` assembles runtime factories; `web.ts` owns lightweight web actions |
 | Provider protocols | `src/providers/`: category base classes and registries; detection registry in `detect/registry.ts`; OpenAI-compatible streaming in `translation/ai/openai-compatible.ts` |
 | Result contracts and rendering | `src/core/results/types.ts` owns query, display, and icon descriptions; `kinds.ts` owns request and display discriminants; `resultMarkdown.ts` and `icons.tsx` are separate rendering entry points |
-| Query lifecycle | `src/features/search/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns raw query state, synchronous display projection, and cache |
+| Query lifecycle | `src/core/query/QueryRunner.ts` owns query sessions, requests, and raw results; `src/features/search/useQueryEngine.ts` subscribes and synchronously projects the UI; `src/core/detect/` orchestrates detection |
 | AI configuration | `src/providers/profiles/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
 | Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/` owns language types and mappings |
 | Shared utilities | `src/shared/` owns HTTP, errors, logging, and cryptography; provider protocol helpers remain in `src/providers/shared/` |
