@@ -5,7 +5,8 @@ import { createHash } from "node:crypto";
 import { Cache } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
-import type { DetectedLangModel } from "@/core/detect/types";
+import type { DetectionDecision } from "@/core/detect/types";
+import { parseSourceLanguage } from "@/core/language/utils";
 import { decodeCachedResult } from "@/core/results/decode";
 import { LanguageDetectType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
@@ -175,7 +176,7 @@ export function cacheQueryResult(
   writeEntry(cache, resultCacheKey(service, query), result, ttl);
 }
 
-export function getCachedLanguageDetection(text: string): DetectedLangModel | undefined {
+export function getCachedLanguageDetection(text: string): DetectionDecision | undefined {
   synchronizeDisabledCaches();
   if (!permitsDetection(text)) return undefined;
   return readEntry(detectionCache, detectionCacheKey(text), decodeDetectedLanguage);
@@ -183,12 +184,22 @@ export function getCachedLanguageDetection(text: string): DetectedLangModel | un
 
 export function cacheLanguageDetection(
   text: string,
-  result: DetectedLangModel,
+  result: DetectionDecision,
   expectedGeneration = cacheGeneration,
 ): void {
   synchronizeDisabledCaches();
   if (expectedGeneration !== cacheGeneration || !permitsDetection(text) || !result.confirmed) return;
-  writeEntry(detectionCache, detectionCacheKey(text), result, DAY);
+  writeEntry(
+    detectionCache,
+    detectionCacheKey(text),
+    {
+      type: result.type,
+      youdaoLangCode: result.language,
+      sourceLangCode: "",
+      confirmed: true,
+    },
+    DAY,
+  );
 }
 
 export function getQueryCacheGeneration(): number {
@@ -236,41 +247,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function decodeDetectedLanguage(value: unknown): DetectedLangModel {
+function decodeDetectedLanguage(value: unknown): DetectionDecision {
   if (!isRecord(value)) throw new Error("Invalid cached detection");
   const type = Object.values(LanguageDetectType).find((type) => type === value.type);
-  if (
-    !type ||
-    typeof value.youdaoLangCode !== "string" ||
-    typeof value.sourceLangCode !== "string" ||
-    value.confirmed !== true ||
-    (value.prior !== undefined && typeof value.prior !== "boolean")
-  ) {
+  const language = parseSourceLanguage(value.youdaoLangCode);
+  if (!type || language === undefined || language === "auto" || value.confirmed !== true) {
     throw new Error("Invalid cached detection");
   }
-  let detectedLanguageArray: [string, number][] | undefined;
-  if (value.detectedLanguageArray !== undefined) {
-    if (!Array.isArray(value.detectedLanguageArray)) throw new Error("Invalid cached detection candidates");
-    detectedLanguageArray = value.detectedLanguageArray.map((candidate) => {
-      if (
-        !Array.isArray(candidate) ||
-        candidate.length !== 2 ||
-        typeof candidate[0] !== "string" ||
-        typeof candidate[1] !== "number" ||
-        !Number.isFinite(candidate[1])
-      ) {
-        throw new Error("Invalid cached detection candidate");
-      }
-      return [candidate[0], candidate[1]];
-    });
-  }
-  return {
-    type,
-    youdaoLangCode: value.youdaoLangCode,
-    sourceLangCode: value.sourceLangCode,
-    confirmed: true,
-    prior: value.prior,
-    detectedLanguageArray,
-    result: value.result,
-  };
+  return { type, language, confirmed: true };
 }

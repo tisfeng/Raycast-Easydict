@@ -40,7 +40,7 @@ function getYoudaoLanguageId(language: string, rootElement: HtmlNode): string | 
   const textJavascript = rootElement.querySelector("script[type=text/javascript]");
   const sourceLang = textJavascript?.textContent?.split(`${language}:`)[1]?.split(",")[0];
   if (!sourceLang) return undefined;
-  return getLanguageItemFromDeepLSourceCode(sourceLang.replace(/'/g, "")).youdaoLangCode;
+  return getLanguageItemFromDeepLSourceCode(sourceLang.replace(/'/g, ""))?.youdaoLangCode;
 }
 
 function parseExamples(examples: HtmlNode[]): LingueeExample[] {

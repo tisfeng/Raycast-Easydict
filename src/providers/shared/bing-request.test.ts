@@ -87,10 +87,8 @@ describe("Bing request protocol", () => {
     ]);
     expect(detected).toEqual({
       type: LanguageDetectType.Bing,
-      sourceLangCode: "en",
-      youdaoLangCode: "en",
-      confirmed: false,
-      result: translation,
+      kind: "single",
+      language: "en",
     });
     expect(translated).toEqual({
       done: true,
