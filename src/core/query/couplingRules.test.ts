@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
-import type { DictionaryQueryResult, QueryWordInfo, TranslationQueryResult } from "@/types/query";
+import { DictionaryType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import type {
+  DictionaryQueryResult,
+  ListDisplayItem,
+  QueryWordInfo,
+  TranslationQueryResult,
+} from "@/core/results/types";
 
 import { applyMetadataToLinguee, applyTranslationToDisplay } from "./couplingRules";
 

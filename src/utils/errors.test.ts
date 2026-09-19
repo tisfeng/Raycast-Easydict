@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TranslationType } from "@/types/api";
+import { TranslationType } from "@/core/results/kinds";
 
 import { CancelledError, handleRequestError, RequestError } from "./errors";
 

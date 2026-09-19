@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLanguageItem } from "@/core/language/utils";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryWordInfo } from "@/types/query";
-import { isDarkAppearance } from "@/utils/appearance";
+
+import { isDarkAppearance } from "./appearance";
+import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "./types";
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

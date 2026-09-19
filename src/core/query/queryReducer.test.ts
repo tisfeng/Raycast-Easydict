@@ -1,10 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { languageItemList } from "@/core/language/consts";
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
-import type { DictionaryQueryResult, TranslationQueryResult } from "@/types/query";
+import { DictionaryType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import type { DictionaryQueryResult, ListDisplayItem, TranslationQueryResult } from "@/core/results/types";
 
 import type { QueryState } from "./queryReducer";
 import { queryReducer } from "./queryReducer";

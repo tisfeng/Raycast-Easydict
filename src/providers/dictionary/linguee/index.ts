@@ -1,9 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { userAgent } from "@/consts";
+import { DictionaryType } from "@/core/results/kinds";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
-import { DictionaryType } from "@/types/api";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 

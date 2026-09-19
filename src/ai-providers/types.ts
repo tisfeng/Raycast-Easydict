@@ -1,25 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-export const PROVIDER_ICON_NAMES = [
-  "openai",
-  "gemini",
-  "deepseek",
-  "openrouter",
-  "siliconflow",
-  "zhipu",
-  "kimi",
-  "minimax",
-  "mimo",
-  "raycast",
-] as const;
-
-export type ProviderIconName = (typeof PROVIDER_ICON_NAMES)[number];
-
-export type ProviderIconConfig =
-  | { kind: "preset"; name: ProviderIconName }
-  | { kind: "remote"; url: string }
-  | { kind: "favicon"; website?: string }
-  | { kind: "initials" };
+import type { ProviderIconConfig } from "@/core/results/types";
 
 export type WordResultMode = "translation" | "dictionary";
 

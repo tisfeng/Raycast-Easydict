@@ -6,7 +6,7 @@ import { Cache } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
 import type { DetectedLangModel } from "@/core/detect/types";
-import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/types/query";
+import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 import { logWarn } from "@/utils/logger";
 
 const CACHE_FORMAT_VERSION = 1;

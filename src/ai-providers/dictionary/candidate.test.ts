@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import type { QueryInput } from "@/types/query";
+import type { QueryInput } from "@/core/results/types";
 
 import { isAIDictionaryCandidate } from "./candidate";
 

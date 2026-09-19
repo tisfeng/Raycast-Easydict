@@ -18,11 +18,11 @@ import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
-import { savedResultMarkdown } from "@/core/query/resultMarkdown";
+import { savedResultMarkdown } from "@/core/results/resultMarkdown";
+import type { QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { useFavoriteWords } from "@/hooks/useFavoriteWords";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "@/types/favorite";
-import type { QueryWordInfo } from "@/types/query";
 import { copyAllText } from "@/utils/copyFavorites";
 import { logError } from "@/utils/logger";
 

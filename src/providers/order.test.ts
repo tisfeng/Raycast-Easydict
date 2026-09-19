@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DictionaryType, TranslationType } from "@/types/api";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
 
 import { getBuiltinProviderKey } from "./catalog";
 import { getAIProviderKey, getInitialProviderOrder, moveProviderInOrder, reconcileProviderOrder } from "./order";

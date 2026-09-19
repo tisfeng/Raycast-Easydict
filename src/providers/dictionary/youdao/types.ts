@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { QueryWordInfo } from "@/types/query";
+import type { QueryWordInfo } from "@/core/results/types";
 
 export interface YoudaoParseResult {
   queryWordInfo: QueryWordInfo;
@@ -16,17 +16,6 @@ export interface YoudaoDictionaryData {
   baike?: BaikeSummary;
   wikipedia?: BaikeSummary;
   modernChineseDict?: ModernChineseDataList[];
-}
-
-export enum YoudaoDictionaryListItemType {
-  Translation = "Translation",
-  Explanation = "Explanation",
-  ModernChineseDict = "Modern Chinese Dict",
-  Forms = "Forms and Tenses",
-  WebTranslation = "Web Translation",
-  WebPhrase = "Web Phrase",
-  Baike = "Baike",
-  Wikipedia = "Wikipedia",
 }
 
 export interface WordForms {

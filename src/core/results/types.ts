@@ -1,9 +1,33 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { ProviderIconConfig } from "@/ai-providers/types";
+import type {
+  AIDictionaryListItemType,
+  DictionaryType,
+  LingueeListItemType,
+  TranslationType,
+  YoudaoDictionaryListItemType,
+} from "./kinds";
 
-import type { DictionaryType, TranslationType } from "./api";
-import type { DisplaySection } from "./display";
+export const PROVIDER_ICON_NAMES = [
+  "openai",
+  "gemini",
+  "deepseek",
+  "openrouter",
+  "siliconflow",
+  "zhipu",
+  "kimi",
+  "minimax",
+  "mimo",
+  "raycast",
+] as const;
+
+export type ProviderIconName = (typeof PROVIDER_ICON_NAMES)[number];
+
+export type ProviderIconConfig =
+  | { kind: "preset"; name: ProviderIconName }
+  | { kind: "remote"; url: string }
+  | { kind: "favicon"; website?: string }
+  | { kind: "initials" };
 
 /**
  * Runtime execution options for a query.
@@ -76,3 +100,47 @@ export interface DictionaryQueryResult<T = unknown> extends DictionaryResult<T>,
 }
 
 export type QueryResult<T = unknown> = TranslationQueryResult<T> | DictionaryQueryResult<T>;
+
+export type DictionaryDisplayType = AIDictionaryListItemType | LingueeListItemType | YoudaoDictionaryListItemType;
+
+export interface DisplaySection {
+  serviceId?: string;
+  type: DictionaryDisplayType | TranslationType;
+  sectionTitle?: string;
+  items: ListDisplayItem[];
+}
+
+interface ListDisplayItemBase {
+  serviceId?: string;
+  serviceLabel?: string;
+  serviceIcon?: ProviderIconConfig;
+  queryType: QueryType;
+  queryWordInfo: QueryWordInfo;
+  key: string;
+  title: string;
+  subtitle?: string;
+  copyText: string;
+  tooltip?: string;
+  detailsMarkdown?: string;
+  accessoryItem?: ListAccessoryItem;
+  fromCache?: boolean;
+}
+
+export type ListDisplayItem = ListDisplayItemBase &
+  (
+    | { queryType: DictionaryType.Linguee; displayType: LingueeListItemType }
+    | { queryType: DictionaryType.Youdao; displayType: YoudaoDictionaryListItemType }
+    | { queryType: DictionaryType.AI; displayType: AIDictionaryListItemType }
+    | { queryType: TranslationType; displayType?: never }
+  );
+
+export interface ListAccessoryItem {
+  phonetic?: string;
+  examTypes?: string[];
+  example?: string;
+}
+
+export interface TranslationItem {
+  type: TranslationType;
+  text: string;
+}

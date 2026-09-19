@@ -4,12 +4,12 @@ import { getAIProviderCacheIdentity } from "@/ai-providers/cacheIdentity";
 import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
 import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
+import { DictionaryType } from "@/core/results/kinds";
+import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { builtinDictionaryProviders } from "@/providers/catalog";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { getAIProviderKey } from "@/providers/order";
 import { checkIsWord } from "@/providers/shared/utils";
-import { DictionaryType } from "@/types/api";
-import type { QueryInput, RuntimeServiceConfig } from "@/types/query";
 
 import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./ai";
 import type { BaseDictionaryProvider } from "./base";

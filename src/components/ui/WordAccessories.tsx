@@ -3,8 +3,8 @@
 import type { List } from "@raycast/api";
 import { Color, Icon } from "@raycast/api";
 
-import { playSoundIconGray } from "@/components/ui/Icons";
-import type { ListDisplayItem } from "@/types/display";
+import { playSoundIconGray } from "@/core/results/icons";
+import type { ListDisplayItem } from "@/core/results/types";
 
 /**
  * Get List.Item.Accessory[] based on the ListDisplayItem.

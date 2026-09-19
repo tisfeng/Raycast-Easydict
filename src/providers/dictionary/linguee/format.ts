@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DictionaryType } from "@/types/api";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryWordInfo } from "@/types/query";
+import { DictionaryType, LingueeListItemType } from "@/core/results/kinds";
+import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
 
 import type {
   LingueeDictionaryResult,
@@ -11,7 +10,6 @@ import type {
   LingueeWordExplanation,
   LingueeWordItem,
 } from "./types";
-import { LingueeListItemType } from "./types";
 
 const MAX_EXAMPLES = 3;
 const MAX_RELATED_WORDS = 3;

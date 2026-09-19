@@ -2,10 +2,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
-
+import { DictionaryType, TranslationType, YoudaoDictionaryListItemType } from "./kinds";
 import {
   resultHeader,
   resultItemBody,
@@ -13,8 +10,9 @@ import {
   standaloneResultMarkdown,
   translationResultsMarkdown,
 } from "./resultMarkdown";
+import type { ListDisplayItem } from "./types";
 
-vi.mock("@/utils/appearance", () => ({ isDarkAppearance: () => false }));
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 vi.mock("@/core/language/utils", () => ({
   getLanguageItem: (code: string) => ({

@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { DetectedLangModel } from "@/core/detect/types";
-import type { LanguageDetectType } from "@/types/api";
+import type { LanguageDetectType } from "@/core/results/kinds";
 import { CancelledError, handleRequestError } from "@/utils/errors";
 import { createTimer } from "@/utils/logger";
 

@@ -4,7 +4,8 @@ import { parse } from "node-html-parser";
 import type { default as HtmlNode } from "node-html-parser/dist/nodes/html";
 
 import { getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
-import type { QueryWordInfo } from "@/types/query";
+import { LingueeListItemType } from "@/core/results/kinds";
+import type { QueryWordInfo } from "@/core/results/types";
 import { logWarn } from "@/utils/logger";
 
 import type {
@@ -14,7 +15,6 @@ import type {
   LingueeWordExplanation,
   LingueeWordItem,
 } from "./types";
-import { LingueeListItemType } from "./types";
 
 const AUDIO_URL_BASE = "https://www.linguee.com/mp3";
 

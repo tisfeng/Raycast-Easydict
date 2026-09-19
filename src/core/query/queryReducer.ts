@@ -11,7 +11,7 @@
  */
 
 import type { LanguageItem } from "@/core/language/types";
-import type { QueryResult } from "@/types/query";
+import type { QueryResult } from "@/core/results/types";
 
 import { COUPLING_RULES } from "./couplingRules";
 import { checkIfShowTranslationDetail, sortedQueryResults } from "./utils";

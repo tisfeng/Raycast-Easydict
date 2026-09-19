@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import type { AIWordResult } from "@/ai-providers/dictionary/types";
+import { AIDictionaryListItemType } from "@/core/results/kinds";
 
 import { formatAIWordResult } from "./format";
-import { AIDictionaryListItemType } from "./types";
 
 const query = { word: "run", fromLanguage: "en", toLanguage: "zh-CHS" };
 

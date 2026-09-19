@@ -1,12 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DictionaryType } from "@/types/api";
-import type { DisplaySection, ListAccessoryItem, ListDisplayItem } from "@/types/display";
-import type { QueryWordInfo } from "@/types/query";
+import { DictionaryType, YoudaoDictionaryListItemType } from "@/core/results/kinds";
+import type { DisplaySection, ListAccessoryItem, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
 import { logTrace } from "@/utils/logger";
 
 import type { BaikeSummary, Sense, YoudaoDictionaryData } from "./types";
-import { YoudaoDictionaryListItemType } from "./types";
 
 function computeYoudaoDetailsMarkdown(title: string, subtitle?: string): string {
   if (!subtitle || subtitle.startsWith(title)) {

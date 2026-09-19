@@ -4,9 +4,9 @@ import { getPreferenceValues } from "@raycast/api";
 import { config } from "@/core/config";
 import { autoDetectLanguageItem, chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { isValidLangCode } from "@/core/language/utils";
+import { LanguageDetectType } from "@/core/results/kinds";
 import type { BaseDetectProvider, DetectOptions } from "@/providers/detect/base";
 import { detectServices } from "@/providers/detect/registry";
-import { LanguageDetectType } from "@/types/api";
 import { CancelledError } from "@/utils/errors";
 import { logError, logSummary, logTrace } from "@/utils/logger";
 

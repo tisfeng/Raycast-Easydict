@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 
+import { TranslationType } from "@/core/results/kinds";
 import { getBuiltinProviderKey } from "@/providers/catalog";
 import {
   getAIProviderKey,
@@ -10,7 +11,6 @@ import {
   reconcileProviderOrder,
   syncAIProviderOrders,
 } from "@/providers/order";
-import { TranslationType } from "@/types/api";
 
 import { normalizeOpenAICompatibleEndpoint } from "./endpoint";
 import { inferTokenLimitMode } from "./tokenLimit";

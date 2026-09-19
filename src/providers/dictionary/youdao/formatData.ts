@@ -1,7 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { chineseLanguageItem } from "@/core/language/consts";
-import type { QueryWordInfo } from "@/types/query";
+import type { QueryWordInfo } from "@/core/results/types";
 import { logTrace } from "@/utils/logger";
 
 import type {

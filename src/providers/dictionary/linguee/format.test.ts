@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { QueryWordInfo } from "@/types/query";
+import { LingueeListItemType } from "@/core/results/kinds";
+import type { QueryWordInfo } from "@/core/results/types";
 
 import { formatLingueeDisplaySections } from "./format";
 import type { LingueeDictionaryResult, LingueeWordItem } from "./types";
-import { LingueeListItemType } from "./types";
 
 const queryWordInfo: QueryWordInfo = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 

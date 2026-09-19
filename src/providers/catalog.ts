@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DictionaryType, TranslationType } from "@/types/api";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import type { BooleanPreferenceKey } from "@/types/preferences";
 
 export type BuiltinProviderCategory = "dictionary" | "translation";

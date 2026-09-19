@@ -6,10 +6,10 @@ import { normalizeOpenAICompatibleEndpoint } from "@/ai-providers/endpoint";
 import { getTokenLimitParams } from "@/ai-providers/tokenLimit";
 import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
 import { getOpenAICompatibleRequestHeaders } from "@/providers/shared/openai-compatible-headers";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/types/query";
 import { timedFetch } from "@/utils/http";
 import { logTrace } from "@/utils/logger";
 

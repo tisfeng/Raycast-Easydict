@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LanguageDetectType, TranslationType } from "@/types/api";
-import type { QueryInput, RuntimeServiceConfig, TranslationResult } from "@/types/query";
+import { LanguageDetectType, TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 
 import {
   cacheLanguageDetection,

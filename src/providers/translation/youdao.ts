@@ -4,8 +4,8 @@ import crypto from "node:crypto";
 
 import { userAgent } from "@/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
-import { TranslationType } from "@/types/api";
-import type { QueryInput, RequestOptions } from "@/types/query";
+import { TranslationType } from "@/core/results/kinds";
+import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { md5 } from "@/utils/crypto";
 import { RequestError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";

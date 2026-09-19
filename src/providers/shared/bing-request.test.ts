@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import { BingDetectProvider } from "@/providers/detect/bing";
 import { BingTranslateProvider } from "@/providers/translation/bing";
-import { LanguageDetectType, TranslationType } from "@/types/api";
 import { CancelledError } from "@/utils/errors";
 import { timedFetch } from "@/utils/http";
 

@@ -2,7 +2,7 @@
 
 import { chineseLanguageItem } from "@/core/language/consts";
 import { getLanguageOfTwoExceptChinese } from "@/core/language/utils";
-import type { QueryInput } from "@/types/query";
+import type { QueryInput } from "@/core/results/types";
 
 /**
  * Get youdao web dictionary URL.

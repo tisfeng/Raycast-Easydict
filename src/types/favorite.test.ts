@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  AIDictionaryListItemType,
+  DictionaryType,
+  LingueeListItemType,
+  TranslationType,
+  YoudaoDictionaryListItemType,
+} from "@/core/results/kinds";
+import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
-import { AIDictionaryListItemType } from "@/providers/dictionary/ai/types";
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
-import { YoudaoDictionaryListItemType } from "@/providers/dictionary/youdao/types";
-import { DictionaryType, TranslationType } from "@/types/api";
-import type { DisplaySection, ListDisplayItem } from "@/types/display";
-import type { QueryWordInfo } from "@/types/query";
 
 import { buildFavoriteWord, type FavoriteWord, resolveFavoriteTranslations } from "./favorite";
 

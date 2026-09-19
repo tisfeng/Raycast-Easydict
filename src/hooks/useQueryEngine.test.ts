@@ -7,15 +7,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DetectedLangModel } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import { clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
+import { DictionaryType, LanguageDetectType, LingueeListItemType, TranslationType } from "@/core/results/kinds";
+import type {
+  DictionaryResult,
+  ListDisplayItem,
+  QueryInput,
+  RequestOptions,
+  TranslationResult,
+} from "@/core/results/types";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
-import { LingueeListItemType } from "@/providers/dictionary/linguee/types";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { BaseNonStreamingTranslateProvider } from "@/providers/translation/base";
-import { DictionaryType, LanguageDetectType, TranslationType } from "@/types/api";
-import type { ListDisplayItem } from "@/types/display";
 import { buildFavoriteWord } from "@/types/favorite";
-import type { DictionaryResult, QueryInput, RequestOptions, TranslationResult } from "@/types/query";
 
 import { useQueryEngine } from "./useQueryEngine";
 
@@ -79,7 +83,7 @@ vi.mock("@raycast/api", () => ({
   },
 }));
 
-vi.mock("@/utils/appearance", () => ({ isDarkAppearance: () => false }));
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 vi.mock("@/consts", () => ({
   myPreferences: {

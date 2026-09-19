@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DetectedLangModel } from "@/core/detect/types";
+import { LanguageDetectType } from "@/core/results/kinds";
 import { BaseDetectProvider, type DetectOptions } from "@/providers/detect/base";
 import type { DetectServiceConfig } from "@/providers/detect/registry";
-import { LanguageDetectType } from "@/types/api";
 import { CancelledError } from "@/utils/errors";
 
 import { detectLanguage } from "./index";

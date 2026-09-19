@@ -1,8 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { DictionaryType, TranslationType } from "./api";
-import type { DisplaySection } from "./display";
-import type { QueryWordInfo } from "./query";
+import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import type { DisplaySection, QueryWordInfo } from "@/core/results/types";
 
 /**
  * A saved word entry persisted in Raycast `LocalStorage` under "favorite-words".

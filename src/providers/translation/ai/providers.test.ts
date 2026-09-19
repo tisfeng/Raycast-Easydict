@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { EASYDICT_VERSION } from "@/consts";
-import { TranslationType } from "@/types/api";
-import type { StreamChunk, TranslationResult } from "@/types/query";
+import { TranslationType } from "@/core/results/kinds";
+import type { StreamChunk, TranslationResult } from "@/core/results/types";
 import { CancelledError } from "@/utils/errors";
 
 import { ConfiguredOpenAICompatibleTranslateProvider } from "./openai-compatible";

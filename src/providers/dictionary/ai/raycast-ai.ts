@@ -8,8 +8,8 @@ import type { AIWordResult } from "@/ai-providers/dictionary/types";
 import { getRaycastAIModel } from "@/ai-providers/runtime";
 import type { RaycastAIProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
-import { DictionaryType } from "@/types/api";
-import type { DictionaryResult, QueryInput, RequestOptions } from "@/types/query";
+import { DictionaryType } from "@/core/results/kinds";
+import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
 import { RequestError } from "@/utils/errors";
 import { logTrace } from "@/utils/logger";
 
