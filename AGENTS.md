@@ -33,7 +33,7 @@ Use these entry points when working on the corresponding area:
 - Keep payload types, parsing, and dictionary `displaySections` provider-specific. Core query code aggregates those sections. Share provider code in `src/providers/shared/` only when it has multiple consumers.
 - Query changes must preserve latest-request ownership of streaming updates, final results, cache writes, and loading cleanup. Clearing cache must prevent requests started before the clear from repopulating it; favorites remain independent of query cache.
 - Static settings and credentials use Raycast Preferences. Dynamic AI profiles, including credentials, use Raycast's encrypted `LocalStorage` through `src/ai-providers/repository.ts`. Preserve saved profiles and favorites when changing formats or migration behavior.
-- Keep existing action order and root navigation behavior unless the task changes them. Append new actions after existing actions in the relevant section; the first two actions receive Raycast's default shortcuts.
+- Organize actions by purpose and frequency of use. Preserve existing primary/secondary actions, shortcuts, and root navigation behavior unless the task intentionally changes them; the first two actions receive Raycast's default shortcuts. Place new actions in the appropriate group rather than requiring every addition to go at the end.
 
 ## Code Conventions
 
