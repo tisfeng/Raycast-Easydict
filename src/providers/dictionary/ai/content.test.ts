@@ -1,54 +1,46 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { legacyDictionarySections } from "@/core/content/legacyDictionary";
-import { AIDictionaryListItemType, DictionaryType } from "@/core/results/kinds";
+import type { DictionaryContent } from "@/core/content/types";
+import { buildContentView } from "@/core/content/view";
+import { DictionaryType } from "@/core/results/kinds";
 
 import { buildAIWordContent } from "./content";
 import type { AIWordResult } from "./types";
+
+vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "run", fromLanguage: "en", toLanguage: "zh-CHS" };
 
 describe("AI dictionary content", () => {
   it("falls back to the translation from the same response when no entry exists", () => {
-    const sections = legacyDictionarySections(
-      DictionaryType.AI,
-      buildAIWordContent(query, { translation: "这是一句话。", entry: null }),
-    );
+    const sections = renderContent(buildAIWordContent(query, { translation: "这是一句话。", entry: null }));
 
     expect(sections).toHaveLength(1);
     expect(sections[0].items[0]).toMatchObject({
-      displayType: AIDictionaryListItemType.Translation,
+      kind: "translation",
       title: "这是一句话。",
-      queryWordInfo: { isWord: false },
+      service: { query: { isWord: false } },
     });
   });
 
   it("keeps the resolved headword, pronunciation, definitions, and separately copyable forms", () => {
-    const sections = legacyDictionarySections(
-      DictionaryType.AI,
-      buildAIWordContent({ ...query, word: "ran" }, createWordResult()),
-    );
+    const sections = renderContent(buildAIWordContent({ ...query, word: "ran" }, createWordResult()));
 
-    expect(sections.map((section) => section.type)).toEqual([
-      AIDictionaryListItemType.Translation,
-      AIDictionaryListItemType.Definition,
-      AIDictionaryListItemType.Forms,
-    ]);
+    expect(sections.map((section) => section.kind)).toEqual(["translation", "definitions", "pairs"]);
     expect(sections[0].items[0]).toMatchObject({
       subtitle: "run",
-      queryWordInfo: { isWord: true, phonetic: "rʌn" },
+      service: { query: { isWord: true, phonetic: "rʌn" } },
     });
     expect(sections[1].items[0]).toMatchObject({
       title: "[verb] 跑; 奔跑",
       subtitle: "move quickly on foot",
-      detailsMarkdown: expect.stringContaining("I run daily\\."),
     });
+    expect(sections[1].items[0].renderBody()).toContain("I run daily\\.");
     expect(sections[2].items[0]).toMatchObject({ title: "past tense", subtitle: "ran" });
   });
 
   it("renders structured fields as literal text while preserving their copy text", () => {
-    const sections = legacyDictionarySections(
-      DictionaryType.AI,
+    const sections = renderContent(
       buildAIWordContent(query, {
         translation: "运行",
         entry: {
@@ -62,8 +54,8 @@ describe("AI dictionary content", () => {
     expect(sections[1].items[0]).toMatchObject({
       title: "a*b",
       copyText: "a*b\n<value>\n[example]",
-      detailsMarkdown: "**a\\*b**\n\n&lt;value&gt;\n\n- **\\[example\\]**",
     });
+    expect(sections[1].items[0].renderBody()).toBe("**a\\*b**\n\n&lt;value&gt;\n\n- **\\[example\\]**");
   });
 });
 
@@ -84,4 +76,14 @@ function createWordResult(): AIWordResult {
       forms: [{ label: "past tense", value: "ran" }],
     },
   };
+}
+
+function renderContent(content: DictionaryContent) {
+  return buildContentView(
+    {
+      services: [{ type: DictionaryType.AI, serviceId: "ai", serviceLabel: "AI Dictionary", serviceOrder: 0, content }],
+      isShowDetail: false,
+    },
+    true,
+  );
 }

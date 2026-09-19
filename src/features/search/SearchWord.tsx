@@ -6,8 +6,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
+import { renderSelectedRow } from "@/core/content/render";
 import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
+import { projectQueryResults } from "@/core/query/displaySections";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
 import { buildFavoriteWord } from "@/features/favorites/model";
@@ -58,7 +60,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   }, [aiProviderProfiles.storedState, handleNativeJSONUnsupported]);
 
   const {
-    displaySections,
+    viewSections,
+    queryResults,
     queryGeneration,
     listEpoch,
     isLoading,
@@ -72,24 +75,34 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     setAutoSelectedTargetLanguageItem,
   } = useQueryEngine(config.preferredLanguage1, config.preferredLanguage2, resolvedServiceSnapshot);
   const displaySectionIds = useMemo(
-    () => getDisplaySectionIds(displaySections, queryGeneration),
-    [displaySections, queryGeneration],
+    () => getDisplaySectionIds(viewSections, queryGeneration),
+    [viewSections, queryGeneration],
   );
   const itemIds = useMemo(
     () =>
-      displaySections.flatMap((section, sectionIndex) =>
+      viewSections.flatMap((section, sectionIndex) =>
         section.items.map((_, itemIndex) => getListItemId(displaySectionIds[sectionIndex], itemIndex)),
       ),
-    [displaySectionIds, displaySections],
+    [displaySectionIds, viewSections],
   );
   const listIsLoading = isLoading || aiProviderProfiles.isLoading;
   const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, queryGeneration);
 
   const debouncedQuery = useDebouncedQuery(queryText);
 
-  // Favorites are per-query (one word), not per-item: queryWordInfo is identical
-  // across every section/item of a single lookup, so the first item is representative.
-  const queryWordInfo: QueryWordInfo | undefined = displaySections[0]?.items[0]?.queryWordInfo;
+  const selectedMarkdown = useMemo(() => {
+    if (!isShowDetail || !selectedItemId) return undefined;
+    for (const [sectionIndex, section] of viewSections.entries()) {
+      const itemIndex = section.items.findIndex(
+        (_, index) => getListItemId(displaySectionIds[sectionIndex], index) === selectedItemId,
+      );
+      if (itemIndex >= 0) return renderSelectedRow(section.items[itemIndex], viewSections);
+    }
+    return undefined;
+  }, [isShowDetail, selectedItemId, viewSections, displaySectionIds]);
+
+  // The first row supplies the favorite identity; each service retains its own language direction.
+  const queryWordInfo: QueryWordInfo | undefined = viewSections[0]?.items[0]?.service.query;
   const isFavorite = !!queryWordInfo && has(queryWordInfo);
   // Snapshot only complete results: toggling mid-load would store an incomplete
   // (translation-less, partial dictionary) snapshot that can't be refreshed offline.
@@ -106,7 +119,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     }
 
     try {
-      await toggle(buildFavoriteWord(queryWordInfo, displaySections));
+      await toggle(buildFavoriteWord(queryWordInfo, projectQueryResults(queryResults, myPreferences).displaySections));
       if (!isFavorite) {
         await showToast({
           style: Toast.Style.Success,
@@ -268,11 +281,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       onSelectionChange={onSelectionChange}
       actions={null}
     >
-      {displaySections.map((resultItem, sectionIndex) => {
+      {viewSections.map((resultItem, sectionIndex) => {
         const sectionId = displaySectionIds[sectionIndex];
         return (
-          <List.Section key={sectionId} title={resultItem.sectionTitle}>
-            {resultItem.items?.map((item, itemIndex) => {
+          <List.Section key={sectionId} title={resultItem.title}>
+            {resultItem.items.map((item, itemIndex) => {
               const itemId = getListItemId(sectionId, itemIndex);
               return (
                 <List.Item
@@ -285,7 +298,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                   title={item.title}
                   subtitle={item.subtitle}
                   accessories={getWordAccessories(item)}
-                  detail={<List.Item.Detail markdown={item.detailsMarkdown} />}
+                  detail={<List.Item.Detail markdown={itemId === selectedItemId ? selectedMarkdown : undefined} />}
                   actions={
                     <ListActionPanel
                       displayItem={item}
@@ -299,10 +312,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                         queryText(searchText, userSelectedTargetLanguageItem.youdaoLangCode, { bypassCache: true })
                       }
                       onRegenerate={
-                        item.serviceId?.startsWith("profile:")
-                          ? () => {
-                              if (item.serviceId) regenerateService(item.serviceId);
-                            }
+                        item.service.serviceId.startsWith("profile:")
+                          ? () => regenerateService(item.service.serviceId)
                           : undefined
                       }
                     />

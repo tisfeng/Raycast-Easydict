@@ -2,23 +2,35 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio } from "@/core/audio";
+import { composeContent } from "@/core/content/compose";
+import { buildContentView } from "@/core/content/view";
 import type { LanguageItem } from "@/core/language/types";
-import { projectQueryResults } from "@/core/query/displaySections";
 import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
+import type { QueryResult } from "@/core/results/types";
 import { showErrorToast } from "@/shared/errors";
 import { logWarn } from "@/shared/logger";
 
 export type { QueryServiceSnapshot } from "@/core/query/QueryRunner";
 
+function projectResults(results: readonly QueryResult[]) {
+  const composedContent = composeContent(results, myPreferences);
+  const viewSections = buildContentView(composedContent, myPreferences.flagsAreNotLanguages);
+  return {
+    composedContent,
+    viewSections,
+    isShowDetail: composedContent.isShowDetail,
+    hasVisibleItems: viewSections.some((section) => section.items.length > 0),
+  };
+}
+
 function createViewReader(runner: QueryRunner) {
   let snapshot = runner.getSnapshot();
-  let projection = projectQueryResults(snapshot.queryResults, myPreferences);
+  let projection = projectResults(snapshot.queryResults);
   let view = { ...snapshot, ...projection, listEpoch: 0 };
   return () => {
     const next = runner.getSnapshot();
     if (next !== snapshot) {
-      if (next.queryResults !== snapshot.queryResults)
-        projection = projectQueryResults(next.queryResults, myPreferences);
+      if (next.queryResults !== snapshot.queryResults) projection = projectResults(next.queryResults);
       snapshot = next;
       view = { ...next, ...projection, listEpoch: projection.hasVisibleItems ? next.queryGeneration : view.listEpoch };
     }

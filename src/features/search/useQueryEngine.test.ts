@@ -4,12 +4,15 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type PropsWithChildren, StrictMode, useEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { myPreferences } from "@/consts";
+import { renderSelectedRow } from "@/core/content/render";
 import type { DictionaryContent, TranslationContent } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import type { LanguageCode } from "@/core/language/types";
 import { cacheQueryResult, clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
+import { projectQueryResults } from "@/core/query/displaySections";
 import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
@@ -234,7 +237,7 @@ describe("useQueryEngine query generations", () => {
         createYoudaoContent(query, { phonetic: "supplement", examTypes: ["CET4"] }),
       );
     });
-    expect(result.current.displaySections[0].items[0].accessoryItem).toEqual({
+    expect(result.current.viewSections[0].items[0].accessory).toEqual({
       phonetic: "supplement",
       examTypes: ["CET4"],
     });
@@ -242,7 +245,7 @@ describe("useQueryEngine query generations", () => {
     act(() => result.current.regenerateService(youdaoService.id));
     await act(async () => dictionaryRequests[2].deferred.resolve(createYoudaoContent(query)));
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.displaySections[0].items[0].accessoryItem).toBeUndefined();
+    expect(result.current.viewSections[0].items[0].accessory).toBeUndefined();
   });
 
   it("reuses a completed cached dictionary result without calling its provider again", async () => {
@@ -257,7 +260,7 @@ describe("useQueryEngine query generations", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(dictionaryRequests).toHaveLength(1);
-    expect(result.current.displaySections[0].items[0].fromCache).toBe(true);
+    expect(result.current.viewSections[0].items[0].service.fromCache).toBe(true);
   });
 
   it("regenerates only the selected AI service even when its completed result is cached", async () => {
@@ -284,7 +287,7 @@ describe("useQueryEngine query generations", () => {
     expect(translationRequests).toHaveLength(1);
 
     act(() => result.current.queryTextWithTextInfo(query));
-    await waitFor(() => expect(result.current.displaySections[0].items[0].fromCache).toBe(true));
+    await waitFor(() => expect(result.current.viewSections[0].items[0].service.fromCache).toBe(true));
     expect(translationRequests).toHaveLength(1);
 
     act(() => result.current.regenerateService(aiService.id));
@@ -322,12 +325,12 @@ describe("useQueryEngine query generations", () => {
     expect(deferredTranslationRequests[2].signal?.aborted).toBe(false);
 
     await resolveTranslationRequest(2, "latest");
-    await waitFor(() => expect(result.current.displaySections[0].items[0].title).toBe("latest"));
+    await waitFor(() => expect(result.current.viewSections[0].items[0].title).toBe("latest"));
     expect(result.current.isLoading).toBe(false);
 
     await resolveTranslationRequest(1, "middle");
     await resolveTranslationRequest(0, "oldest");
-    expect(result.current.displaySections[0].items[0].title).toBe("latest");
+    expect(result.current.viewSections[0].items[0].title).toBe("latest");
     expect(getCachedQueryResult(aiService, query)).toMatchObject({ content: { paragraphs: ["latest"] } });
   });
 
@@ -340,7 +343,7 @@ describe("useQueryEngine query generations", () => {
     clearQueryCache();
     await resolveDictionaryRequest(0);
 
-    expect(result.current.displaySections).not.toEqual([]);
+    expect(result.current.viewSections).not.toEqual([]);
     expect(getCachedQueryResult(dictionaryServices[0], query)).toBeUndefined();
   });
 
@@ -366,13 +369,13 @@ describe("useQueryEngine query generations", () => {
 
       if (order === "translation first") {
         await resolveTranslationRequest(0, "translated");
-        expect(result.current.displaySections).toEqual([]);
+        expect(result.current.viewSections).toEqual([]);
         expect(result.current.listEpoch).toBe(0);
         expect(result.current.isLoading).toBe(true);
         await resolveDictionaryRequest(0);
       } else {
         await resolveDictionaryRequest(0);
-        expect(result.current.displaySections[0].items[0].title).toBe("word");
+        expect(result.current.viewSections[0].items[0].title).toBe("word");
         expect(result.current.listEpoch).toBe(1);
         expect(result.current.isLoading).toBe(true);
         await resolveTranslationRequest(0, "translated");
@@ -380,12 +383,14 @@ describe("useQueryEngine query generations", () => {
 
       expect(result.current.isLoading).toBe(false);
       expect(result.current.listEpoch).toBe(1);
-      expect(result.current.displaySections).toHaveLength(1);
-      expect(result.current.displaySections[0].items[0]).toMatchObject({
+      expect(result.current.viewSections).toHaveLength(1);
+      expect(result.current.viewSections[0].items[0]).toMatchObject({
         title: "translated",
         copyText: "translated",
-        detailsMarkdown: "**translated**",
       });
+      expect(renderSelectedRow(result.current.viewSections[0].items[0], result.current.viewSections)).toBe(
+        "**translated**",
+      );
       expect(getCachedQueryResult(dictionaryServices[0], query)).toEqual({
         type: DictionaryType.Linguee,
         content: createDictionaryContent(query),
@@ -394,7 +399,10 @@ describe("useQueryEngine query generations", () => {
         type: TranslationType.DeepL,
         content: { kind: "translation", query, paragraphs: ["translated"] },
       });
-      const favorite = buildFavoriteWord(query, result.current.displaySections);
+      const favorite = buildFavoriteWord(
+        query,
+        projectQueryResults(result.current.queryResults, myPreferences).displaySections,
+      );
       expect(favorite.displaySections[0].items[0].detailsMarkdown).toBe("**translated**");
       expect(favorite.translations).toEqual(["translated"]);
       expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
@@ -404,10 +412,11 @@ describe("useQueryEngine query generations", () => {
       await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(dictionaryRequests).toHaveLength(1);
       expect(deferredTranslationRequests).toHaveLength(1);
-      expect(result.current.displaySections[0].items[0].fromCache).toBe(true);
-      expect(buildFavoriteWord(query, result.current.displaySections).displaySections).toEqual(
-        favorite.displaySections,
-      );
+      expect(result.current.viewSections[0].items[0].service.fromCache).toBe(true);
+      expect(
+        buildFavoriteWord(query, projectQueryResults(result.current.queryResults, myPreferences).displaySections)
+          .displaySections,
+      ).toEqual(favorite.displaySections);
     },
   );
 
@@ -439,23 +448,25 @@ describe("useQueryEngine query generations", () => {
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, snapshot));
     const query = createQueryInput("stream");
     act(() => result.current.queryTextWithTextInfo(query));
-    await waitFor(() => expect(result.current.displaySections[0]?.items[0].title).toBe("part"));
-    const itemId = getListItemId(getDisplaySectionIds(result.current.displaySections, result.current.listEpoch)[0], 0);
+    await waitFor(() => expect(result.current.viewSections[0]?.items[0].title).toBe("part"));
+    const itemId = getListItemId(getDisplaySectionIds(result.current.viewSections, result.current.listEpoch)[0], 0);
     expect(result.current.listEpoch).toBe(1);
     expect(result.current.isLoading).toBe(true);
 
     await act(async () => nextChunk.resolve());
-    await waitFor(() => expect(result.current.displaySections[0].items[0].title).toBe("partial"));
+    await waitFor(() => expect(result.current.viewSections[0].items[0].title).toBe("partial"));
     expect(result.current.isLoading).toBe(true);
     await act(async () => finish.resolve());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(result.current.displaySections[0].items[0]).toMatchObject({
+    expect(result.current.viewSections[0].items[0]).toMatchObject({
       title: "partial",
       copyText: "partial",
-      detailsMarkdown: "**Streaming AI**\n\npartial",
     });
+    expect(renderSelectedRow(result.current.viewSections[0].items[0], result.current.viewSections)).toBe(
+      "**Streaming AI**\n\npartial",
+    );
     expect(result.current.listEpoch).toBe(1);
-    expect(getListItemId(getDisplaySectionIds(result.current.displaySections, result.current.listEpoch)[0], 0)).toBe(
+    expect(getListItemId(getDisplaySectionIds(result.current.viewSections, result.current.listEpoch)[0], 0)).toBe(
       itemId,
     );
     expect(getCachedQueryResult(service, query)).toEqual({
@@ -495,9 +506,9 @@ describe("useQueryEngine query generations", () => {
     expect(translationRequests[0].word).toBe("incremental");
     await waitFor(() =>
       expect(
-        result.current.displaySections
+        result.current.viewSections
           .flatMap((section) => section.items)
-          .find((item) => item.serviceId === dynamicService.id)?.serviceIcon,
+          .find((item) => item.service.serviceId === dynamicService.id)?.service.serviceIcon,
       ).toEqual({ kind: "preset", name: "gemini" }),
     );
     expect(dictionaryRequests).toHaveLength(1);
@@ -584,7 +595,7 @@ describe("useQueryEngine query generations", () => {
     expect(updatedFactory).toHaveBeenCalledTimes(2);
     expect(originalFactory).toHaveBeenCalledTimes(1);
     await resolveDictionaryRequest(2);
-    expect(getDisplayedWord(result.current.displaySections)).toBe("second");
+    expect(getDisplayedWord(result.current.viewSections)).toBe("second");
   });
 
   it("keeps the initial query active through the development Strict Mode effect replay", async () => {
@@ -665,10 +676,10 @@ describe("useQueryEngine query generations", () => {
 
     expect(dictionaryRequests[0].signal?.aborted).toBe(true);
     await resolveDictionaryRequest(1);
-    await waitFor(() => expect(getDisplayedWord(result.current.displaySections)).toBe("current"));
+    await waitFor(() => expect(getDisplayedWord(result.current.viewSections)).toBe("current"));
 
     await resolveDictionaryRequest(0);
-    expect(getDisplayedWord(result.current.displaySections)).toBe("current");
+    expect(getDisplayedWord(result.current.viewSections)).toBe("current");
   });
 
   it("does not let an older request stop the current loading state", async () => {
@@ -697,11 +708,11 @@ describe("useQueryEngine query generations", () => {
       result.current.clearQueryResult();
     });
 
-    expect(result.current.displaySections).toEqual([]);
+    expect(result.current.viewSections).toEqual([]);
     expect(result.current.isLoading).toBe(false);
 
     await resolveDictionaryRequest(0);
-    expect(result.current.displaySections).toEqual([]);
+    expect(result.current.viewSections).toEqual([]);
     expect(result.current.isLoading).toBe(false);
   });
 
@@ -729,18 +740,18 @@ describe("useQueryEngine query generations", () => {
     await waitFor(() => expect(deferredTranslationRequests).toHaveLength(1));
     await resolveTranslationRequest(0, " \t\n");
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.displaySections).toEqual([]);
+    expect(result.current.viewSections).toEqual([]);
 
     act(() => result.current.regenerateService(whitespaceService.id));
     await waitFor(() => expect(deferredTranslationRequests).toHaveLength(2));
     await resolveTranslationRequest(1, "accepted");
-    const acceptedSections = result.current.displaySections;
+    const acceptedSections = result.current.viewSections;
 
     act(() => result.current.regenerateService(whitespaceService.id));
     await waitFor(() => expect(deferredTranslationRequests).toHaveLength(3));
     await resolveTranslationRequest(2, " \t\n");
     expect(result.current.isLoading).toBe(false);
-    expect(result.current.displaySections).toEqual(acceptedSections);
+    expect(result.current.viewSections).toEqual(acceptedSections);
     expect(getCachedQueryResult(whitespaceService, query)).toMatchObject({ content: { paragraphs: ["accepted"] } });
   });
 
@@ -825,8 +836,8 @@ async function resolveTranslationRequest(index: number, translation: string) {
   });
 }
 
-function getDisplayedWord(sections: ReturnType<typeof useQueryEngine>["displaySections"]): string | undefined {
-  return sections[0]?.items[0]?.queryWordInfo.word;
+function getDisplayedWord(sections: ReturnType<typeof useQueryEngine>["viewSections"]): string | undefined {
+  return sections[0]?.items[0]?.service.query.word;
 }
 
 function StrictModeWrapper({ children }: PropsWithChildren) {
@@ -858,7 +869,7 @@ describe("query completion", () => {
     act(() => result.current.queryTextWithTextInfo(query));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(getCachedQueryResult(service, query)).toMatchObject({ content: { paragraphs: ["final"] } });
-    expect(result.current.displaySections[0].items[0].title).toBe("final");
+    expect(result.current.viewSections[0].items[0].title).toBe("final");
   });
 
   it("settles loading after current language detection rejects", async () => {

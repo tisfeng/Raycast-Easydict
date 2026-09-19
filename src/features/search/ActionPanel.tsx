@@ -18,12 +18,13 @@ import { showFailureToast } from "@raycast/utils";
 import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { EASYDICT_VERSION, FEEDBACK_URL, getReleaseTagUrl, myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
+import { renderStandaloneRow } from "@/core/content/render";
+import type { ViewRow } from "@/core/content/viewTypes";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
 import { clearQueryCache } from "@/core/query/cache";
 import { getQueryTypeIcon } from "@/core/results/icons";
-import { standaloneResultMarkdown } from "@/core/results/resultMarkdown";
-import type { ListDisplayItem, QueryType, QueryWordInfo } from "@/core/results/types";
+import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { webQueryServices } from "@/providers/web";
 import { logError, logTrace } from "@/shared/logger";
@@ -31,12 +32,12 @@ import { logError, logTrace } from "@/shared/logger";
 import ReleaseNotesPage from "./ReleaseNotePage";
 
 // Action.Push mounts this component when navigating, so the full page is not built for every list row.
-function ResultDetails({ item, actions }: { item: ListDisplayItem; actions: Detail.Props["actions"] }) {
-  return <Detail markdown={standaloneResultMarkdown(item)} actions={actions} />;
+function ResultDetails({ item, actions }: { item: ViewRow; actions: Detail.Props["actions"] }) {
+  return <Detail markdown={renderStandaloneRow(item)} actions={actions} />;
 }
 
 interface ActionListPanelProps {
-  displayItem: ListDisplayItem;
+  displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
   isFavorite: boolean;
@@ -126,7 +127,7 @@ function PrimaryActions({
   onRequery,
   onRegenerate,
 }: {
-  displayItem: ListDisplayItem;
+  displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
   isFavorite: boolean;
@@ -135,7 +136,8 @@ function PrimaryActions({
   onRequery: () => void;
   onRegenerate?: () => void;
 }) {
-  const { queryWordInfo, queryType, copyText } = displayItem;
+  const { copyText } = displayItem;
+  const { query: queryWordInfo, type: queryType } = displayItem.service;
   const { fromLanguage, toLanguage, word } = queryWordInfo;
   const showEudic = isInstalledEudic && myPreferences.showOpenInEudicFirst;
   const strokeOrderCharacters = getStrokeOrderCharacters({
@@ -320,7 +322,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
     onRequery,
     onRegenerate,
   } = props;
-  const { queryWordInfo, queryType, copyText } = displayItem;
+  const { copyText } = displayItem;
+  const { query: queryWordInfo, type: queryType } = displayItem.service;
   const { fromLanguage, toLanguage } = queryWordInfo;
 
   return (
