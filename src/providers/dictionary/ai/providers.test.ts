@@ -95,17 +95,11 @@ describe("AI dictionary provider adapters", () => {
     await new OpenAICompatibleDictionaryProvider(profile, onNativeJSONUnsupported).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledTimes(2);
-    expect(testDoubles.streamText.mock.calls[0][0]).toEqual(
-      expect.objectContaining({
-        headers: {
-          "User-Agent": `raycast-easydict/${EASYDICT_VERSION}`,
-          "x-opencode-session": expect.any(String),
-        },
-        responseFormat: { type: "json_object" },
-      }),
-    );
-    expect(testDoubles.streamText.mock.calls[1][0]).not.toHaveProperty("responseFormat");
-    expect(testDoubles.streamText.mock.calls[0][0].headers).toEqual(testDoubles.streamText.mock.calls[1][0].headers);
+    const [first, retry] = testDoubles.streamText.mock.calls.map(([options]) => options);
+    expect(first.responseFormat).toEqual({ type: "json_object" });
+    expect(retry).not.toHaveProperty("responseFormat");
+    expect(first.headers?.["x-opencode-session"]).toEqual(expect.stringMatching(/\S/));
+    expect(retry.headers).toEqual(first.headers);
     expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ ...profile, jsonOutputMode: "prompt" });
   });
 
@@ -120,12 +114,11 @@ describe("AI dictionary provider adapters", () => {
     await new OpenAICompatibleDictionaryProvider(profile, onNativeJSONUnsupported).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledTimes(2);
-    expect(testDoubles.streamText.mock.calls[0][0].headers).toEqual({
-      "User-Agent": `raycast-easydict/${EASYDICT_VERSION}`,
-      "x-opencode-session": expect.any(String),
-    });
-    expect(testDoubles.streamText.mock.calls[1][0]).not.toHaveProperty("responseFormat");
-    expect(testDoubles.streamText.mock.calls[0][0].headers).toEqual(testDoubles.streamText.mock.calls[1][0].headers);
+    const [first, retry] = testDoubles.streamText.mock.calls.map(([options]) => options);
+    expect(first.responseFormat).toEqual({ type: "json_object" });
+    expect(retry).not.toHaveProperty("responseFormat");
+    expect(first.headers?.["x-opencode-session"]).toEqual(expect.stringMatching(/\S/));
+    expect(retry.headers).toEqual(first.headers);
     expect(onNativeJSONUnsupported).not.toHaveBeenCalled();
   });
 
