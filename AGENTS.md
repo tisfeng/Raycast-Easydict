@@ -24,7 +24,7 @@ Use these entry points when working on the corresponding area:
 
 | Area | Entry points and ownership |
 | --- | --- |
-| Provider protocols | `src/providers/`: category base classes and registries; detection registry in `detect/registry.ts`; OpenAI-compatible streaming in `translation/openai-compatible/base.ts` |
+| Provider protocols | `src/providers/`: category base classes and registries; detection registry in `detect/registry.ts`; OpenAI-compatible streaming in `translation/ai/openai-compatible.ts` |
 | Query lifecycle | `src/hooks/useQueryEngine.ts` coordinates detection and requests; `src/core/detect/` orchestrates detection; `src/core/query/` owns query state, display aggregation, hide/coupling rules, and cache |
 | AI configuration | `src/ai-providers/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
 | Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/` owns language types and mappings |
