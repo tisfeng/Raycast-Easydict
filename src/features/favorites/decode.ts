@@ -2,7 +2,7 @@
 
 import { decodeProviderContent } from "@/core/content/decode";
 import type { PrimarySupplement } from "@/core/content/types";
-import { decodeDisplaySections, decodeIcon } from "@/core/results/decode";
+import { decodeIcon } from "@/core/results/decode";
 import {
   array,
   boolean,
@@ -17,6 +17,7 @@ import {
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
 
 import { convertLegacyFavorite, type LegacySavedContent, type LegacySavedRow } from "./legacy";
+import { decodeDisplaySections } from "./legacyDisplay";
 import type { FavoriteWord, SavedService } from "./model";
 
 export function decodeFavoriteSnapshot(value: unknown): FavoriteWord {

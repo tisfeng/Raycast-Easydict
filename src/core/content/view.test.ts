@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
-import * as resultMarkdown from "@/core/results/resultMarkdown";
 
 import type { ComposedContent, ComposedService } from "./compose";
 import * as markdown from "./markdown";
@@ -37,7 +36,7 @@ function compose(...services: ComposedService[]): ComposedContent {
 describe("content view", () => {
   it("does not build dictionary Markdown or comparisons until that detail is requested", () => {
     const plainText = vi.spyOn(markdown, "plainText");
-    const comparison = vi.spyOn(resultMarkdown, "translationResultsMarkdown");
+    const escapeHtml = vi.spyOn(markdown, "escapeHtml");
     const body = vi.fn(() => "complex **body**");
     try {
       const sections = buildContentView(
@@ -68,10 +67,10 @@ describe("content view", () => {
         true,
       );
       expect(plainText).not.toHaveBeenCalled();
-      expect(comparison).not.toHaveBeenCalled();
+      expect(escapeHtml).not.toHaveBeenCalled();
       expect(body).not.toHaveBeenCalled();
       expect(renderSelectedRow(sections[1].items[0], sections)).toContain("second");
-      expect(comparison).toHaveBeenCalledOnce();
+      expect(escapeHtml).toHaveBeenCalled();
       expect(body).not.toHaveBeenCalled();
       expect(sections[2].items[0].renderBody()).toBe("**a\\*b**\n\n&lt;value&gt;");
       expect(body).not.toHaveBeenCalled();
@@ -79,11 +78,14 @@ describe("content view", () => {
       expect(body).toHaveBeenCalledOnce();
     } finally {
       plainText.mockRestore();
-      comparison.mockRestore();
+      escapeHtml.mockRestore();
     }
   });
 
-  it("applies text only to the first row without changing content, later rows, or the body subtitle", () => {
+  it.each([
+    { text: "translated", body: "translated n.       例句" },
+    { text: "n", body: "n.       例句" },
+  ])("supplements only the first row and avoids repeating its subtitle prefix ($text)", ({ text, body }) => {
     const content = dictionary([
       {
         kind: "equivalents",
@@ -96,19 +98,29 @@ describe("content view", () => {
       { kind: "examples", entries: [{ sentence: "old example", translation: "旧例句" }] },
     ]);
     const original = structuredClone(content);
-    const sections = buildContentView(compose({ ...content, primarySupplement: { translation: "translated" } }), true);
+    const sections = buildContentView(compose({ ...content, primarySupplement: { translation: text } }), true);
     expect(sections[0].items[0]).toMatchObject({
-      title: "translated",
-      copyText: "translated",
+      title: text,
+      copyText: text,
       subtitle: "n.       例句",
     });
-    expect(sections[0].items[0].renderBody()).toBe("translated n.       例句");
+    expect(sections[0].items[0].renderBody()).toBe(body);
     expect(sections[0].items[1].title).toBe("second");
     expect(sections[1].items[0].title).toBe("old example");
     expect(sections[0].service).toBe(sections[1].service);
     expect(sections[0].items[1].service).toBe(sections[0].service);
     expect(sections[0].service.query).toBe(content.content.query);
     expect(content).toEqual(original);
+  });
+
+  it("uses the supplement as the full body when the first dictionary row has an empty subtitle", () => {
+    const source = dictionary([
+      { kind: "summary", source: "wikipedia", entries: [{ subject: "term", text: "original body" }] },
+    ]);
+    const row = buildContentView(compose({ ...source, primarySupplement: { translation: "replacement" } }), true)[0]
+      .items[0];
+    expect(row).toMatchObject({ title: "replacement", copyText: "replacement", subtitle: "" });
+    expect(row.renderBody()).toBe("replacement");
   });
 
   it("does not carry a supplement over an empty first section", () => {

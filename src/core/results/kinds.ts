@@ -32,36 +32,3 @@ export enum LanguageDetectType {
 }
 
 export type RequestType = TranslationType | DictionaryType | LanguageDetectType;
-
-export enum AIDictionaryListItemType {
-  Translation = "Translation",
-  Definition = "Definition",
-  Forms = "Forms",
-}
-
-export enum LingueeListItemType {
-  AlmostAlwaysUsed = "Almost Always Used", // also featured, eg. true
-  OftenUsed = "Often Used", // also featured, eg. good
-  Common = "Common", // also featured
-  LessCommon = "Less Common", // unfeatured
-
-  SpecialForms = "Forms", // special forms, like often used, but we currently don't handle it. eg. good  English-French
-
-  Unfeatured = "Unfeatured",
-  Example = "Example",
-  RelatedWord = "Related word", // eg. 优雅, 美丽
-  Wikipedia = "Wikipedia", // eg. sql
-
-  Translation = "Translation", // just used for linguee section title item
-}
-
-export enum YoudaoDictionaryListItemType {
-  Translation = "Translation",
-  Explanation = "Explanation",
-  ModernChineseDict = "Modern Chinese Dict",
-  Forms = "Forms and Tenses",
-  WebTranslation = "Web Translation",
-  WebPhrase = "Web Phrase",
-  Baike = "Baike",
-  Wikipedia = "Wikipedia",
-}
