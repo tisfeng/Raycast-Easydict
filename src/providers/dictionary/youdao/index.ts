@@ -1,23 +1,15 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { myPreferences } from "@/consts";
 import type { DictionaryContent } from "@/core/content/types";
 import { DictionaryType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
 import { RequestError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
-import { logError } from "@/shared/logger";
 
 import { buildYoudaoContent } from "./content";
-import { ensureYoudaoCookie } from "./cookie";
 import { decodeYoudaoResponse } from "./decode";
 import { getYoudaoWebDictionaryLanguageId } from "./utils";
-
-// * Cookie will be expired after 1 day, so we need to update it every time we start.
-if (myPreferences.enableYoudaoDictionary || myPreferences.enableYoudaoTranslate) {
-  ensureYoudaoCookie().catch((error) => logError("Youdao Dictionary", `ensure cookie error: ${error}`));
-}
 
 /**
  * Youdao web dictionary provider.
