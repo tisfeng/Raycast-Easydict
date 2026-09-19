@@ -9,9 +9,9 @@ import type { StoredAIProviderState } from "./types";
 
 export function useAIProviderProfiles() {
   const { data, isLoading, mutate, revalidate } = usePromise(loadAIProviderConfiguration, []);
-  const state: { kind: "loading" } | AIProviderConfigurationLoadResult = isLoading
-    ? { kind: "loading" }
-    : (data ?? { kind: "error", error: new Error("Failed to load AI provider profiles.") });
+  const state: { kind: "loading" } | AIProviderConfigurationLoadResult =
+    data ??
+    (isLoading ? { kind: "loading" } : { kind: "error", error: new Error("Failed to load AI provider profiles.") });
 
   const update = useCallback(
     async (createNextState: (state: StoredAIProviderState) => StoredAIProviderState) => {
