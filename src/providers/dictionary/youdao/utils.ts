@@ -37,8 +37,8 @@ export function getYoudaoWebDictionaryLanguageId(queryTextInfo: QueryInput): str
   }
 
   const { fromLanguage, toLanguage } = queryTextInfo;
-  let from = chineseLanguageItem.youdaoLangCode;
-  let to = chineseLanguageItem.youdaoLangCode;
+  let from: string = chineseLanguageItem.youdaoLangCode;
+  let to: string = chineseLanguageItem.youdaoLangCode;
   if (fromLanguage === from) {
     to = toLanguage;
   } else {

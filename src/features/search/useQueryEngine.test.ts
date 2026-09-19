@@ -4,8 +4,9 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type PropsWithChildren, StrictMode, useEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DetectedLangModel } from "@/core/detect/types";
+import type { DetectionDecision } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
+import type { LanguageCode } from "@/core/language/types";
 import { clearQueryCache, getCachedQueryResult } from "@/core/query/cache";
 import { QueryRunner, type QueryServiceSnapshot } from "@/core/query/QueryRunner";
 import {
@@ -122,12 +123,10 @@ vi.mock("@/consts", () => ({
   },
 }));
 
-vi.mock("@/core/config", () => ({
-  config: {
-    servicesOrder: [],
-    preferredLanguages: [],
-  },
-}));
+vi.mock("@/core/config", async () => {
+  const { englishLanguageItem, chineseLanguageItem } = await import("@/core/language/consts");
+  return { config: { servicesOrder: [], preferredLanguages: [englishLanguageItem, chineseLanguageItem] } };
+});
 
 vi.mock("@/core/detect", () => ({
   detectLanguage: testDoubles.detectLanguage,
@@ -601,7 +600,7 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("keeps the initial query active through the development Strict Mode effect replay", async () => {
-    const detection = createDeferred<DetectedLangModel>();
+    const detection = createDeferred<DetectionDecision>();
     testDoubles.detectLanguage.mockReturnValueOnce(detection.promise);
 
     renderHook(
@@ -635,8 +634,8 @@ describe("useQueryEngine query generations", () => {
   });
 
   it("ignores an older language detection that rejects after the current query", async () => {
-    const oldDetection = createDeferred<DetectedLangModel>();
-    const currentDetection = createDeferred<DetectedLangModel>();
+    const oldDetection = createDeferred<DetectionDecision>();
+    const currentDetection = createDeferred<DetectionDecision>();
     testDoubles.detectLanguage.mockReturnValueOnce(oldDetection.promise).mockReturnValueOnce(currentDetection.promise);
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
 
@@ -791,11 +790,10 @@ function createDeferred<T>(): Deferred<T> {
   return { promise, resolve: resolvePromise, reject: rejectPromise };
 }
 
-function createDetectedLanguage(youdaoLangCode: string): DetectedLangModel {
+function createDetectedLanguage(language: LanguageCode): DetectionDecision {
   return {
     type: LanguageDetectType.Bing,
-    youdaoLangCode,
-    sourceLangCode: youdaoLangCode,
+    language,
     confirmed: true,
   };
 }
@@ -904,7 +902,7 @@ describe("query completion", () => {
   });
 
   it("settles loading after current language detection rejects", async () => {
-    const detection = createDeferred<DetectedLangModel>();
+    const detection = createDeferred<DetectionDecision>();
     testDoubles.detectLanguage.mockReturnValueOnce(detection.promise);
     const { result } = renderHook(() => useQueryEngine(englishLanguageItem, chineseLanguageItem, dictionarySnapshot));
     act(() => result.current.queryText("audit", "zh-CHS"));
@@ -954,6 +952,33 @@ describe("QueryRunner snapshots", () => {
       { texts: ["final"], loading: false },
     ]);
     expect(runner.getSnapshot()).toBe(runner.getSnapshot());
+    runner.dispose();
+  });
+
+  it("normalizes the manifest Filipino alias before starting providers", async () => {
+    const runner = createRunner();
+    runner.queryTextWithTextInfo({ word: "hello", fromLanguage: "fil", toLanguage: "en" });
+    expect(dictionaryRequests[0].queryWordInfo).toMatchObject({ fromLanguage: "tl", toLanguage: "en" });
+    await resolveDictionaryRequest(0);
+    runner.dispose();
+  });
+
+  it("selects another preferred language when detection matches the Filipino target alias", async () => {
+    testDoubles.detectLanguage.mockResolvedValue({ type: LanguageDetectType.Bing, language: "tl", confirmed: true });
+    const runner = createRunner();
+    runner.queryText("kumusta", "fil");
+    await waitFor(() => expect(dictionaryRequests).toHaveLength(1));
+    expect(dictionaryRequests[0].queryWordInfo).toMatchObject({ fromLanguage: "tl", toLanguage: "en" });
+    await resolveDictionaryRequest(0);
+    runner.dispose();
+  });
+
+  it("rejects unknown query languages without sending requests or leaving loading active", () => {
+    const runner = createRunner();
+    runner.queryTextWithTextInfo({ word: "hello", fromLanguage: "unknown", toLanguage: "en" });
+    expect(dictionaryRequests).toHaveLength(0);
+    expect(runner.getSnapshot()).toMatchObject({ isLoading: false, queryResults: [] });
+    expect(testDoubles.showFailureToast).toHaveBeenCalledOnce();
     runner.dispose();
   });
 

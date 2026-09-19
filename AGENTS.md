@@ -30,7 +30,8 @@ Use these entry points when working on the corresponding area:
 | Result contracts and rendering | `src/core/results/types.ts` owns query, display, and icon descriptions; `kinds.ts` owns request and display discriminants; `resultMarkdown.ts` and `icons.tsx` are separate rendering entry points |
 | Query lifecycle | `src/core/query/QueryRunner.ts` owns query sessions, requests, and raw results; `src/features/search/useQueryEngine.ts` subscribes and synchronously projects the UI; `src/core/detect/` orchestrates detection |
 | AI configuration | `src/providers/profiles/`: profiles, persistence, legacy migration, runtime configuration, and cache identity |
-| Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/` owns language types and mappings |
+| Audio and language | `src/core/audio/` handles download, playback, and TTS; `src/core/language/catalog.ts` owns language literals and provider mappings; detectors emit observations and `src/core/detect/` decides language per query |
+| Favorites | `src/features/favorites/repository.ts` decodes persisted snapshots and serializes fresh-read mutations; invalid data stays unchanged and recovery backs it up before replacement |
 | Shared utilities | `src/shared/` owns HTTP, errors, logging, and cryptography; provider protocol helpers remain in `src/providers/shared/` |
 
 - Provider base methods own timing, cancellation, and final error normalization through `handleRequestError`. Translation `request()` is an async generator adapted from `doTranslate()`; detection delegates to `doDetect()`, and dictionary lookup to `doQuery()`. Catch in subclasses only for protocol recovery or typed error conversion.

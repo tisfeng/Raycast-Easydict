@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getLanguageItem } from "@/core/language/utils";
+import { getLanguageEnglishName } from "@/core/language/utils";
 
 import { isDarkAppearance } from "./appearance";
 import type { DisplaySection, ListDisplayItem, QueryWordInfo } from "./types";
@@ -14,7 +14,7 @@ function plainText(text: string): string {
 }
 
 export function languageDirection(info: QueryWordInfo): string {
-  return `${getLanguageItem(info.fromLanguage).langEnglishName} → ${getLanguageItem(info.toLanguage).langEnglishName}`;
+  return `${getLanguageEnglishName(info.fromLanguage)} → ${getLanguageEnglishName(info.toLanguage)}`;
 }
 
 export function resultHeader(info: QueryWordInfo): string {

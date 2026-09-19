@@ -2,7 +2,7 @@
 
 import { chineseLanguageItem } from "@/core/language/consts";
 import {
-  getLanguageItem,
+  lookupLanguageItem,
   maxLineLengthOfChineseTextDisplay,
   maxLineLengthOfEnglishTextDisplay,
 } from "@/core/language/utils";
@@ -145,12 +145,14 @@ function supplementDictionaryItem(
 }
 
 function getFromToLanguageTitle(info: QueryWordInfo, onlyEmoji: boolean, flagsAreNotLanguages: boolean): string {
-  const from = getLanguageItem(info.fromLanguage);
-  const to = getLanguageItem(info.toLanguage);
-  if (flagsAreNotLanguages) return `${from.langEnglishName} --> ${to.langEnglishName}`;
-  return onlyEmoji
-    ? `${from.emoji} --> ${to.emoji}`
-    : `${from.langEnglishName}${from.emoji} --> ${to.langEnglishName}${to.emoji}`;
+  const from = lookupLanguageItem(info.fromLanguage);
+  const to = lookupLanguageItem(info.toLanguage);
+  const fromName = from?.langEnglishName ?? info.fromLanguage;
+  const toName = to?.langEnglishName ?? info.toLanguage;
+  const fromEmoji = from?.emoji ?? "🌐";
+  const toEmoji = to?.emoji ?? "🌐";
+  if (flagsAreNotLanguages) return `${fromName} --> ${toName}`;
+  return onlyEmoji ? `${fromEmoji} --> ${toEmoji}` : `${fromName}${fromEmoji} --> ${toName}${toEmoji}`;
 }
 
 /** Put the current service first in its translation comparison. */

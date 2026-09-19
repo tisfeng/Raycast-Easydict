@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { DetectionDecision } from "@/core/detect/types";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 
@@ -99,12 +100,7 @@ describe("query cache", () => {
     (word) => {
       const service = createService("builtin:translation:Bing", "regular");
       const sentence = { word, fromLanguage: "en", toLanguage: "zh-CHS" };
-      const detection = {
-        type: LanguageDetectType.Bing,
-        youdaoLangCode: "en",
-        sourceLangCode: "en",
-        confirmed: true,
-      };
+      const detection: DetectionDecision = { type: LanguageDetectType.Bing, language: "en", confirmed: true };
 
       cacheQueryResult(service, sentence, createTranslationResult(sentence));
       cacheLanguageDetection(word, detection);
@@ -126,8 +122,7 @@ describe("query cache", () => {
       query.word,
       {
         type: LanguageDetectType.Bing,
-        youdaoLangCode: "en",
-        sourceLangCode: "en",
+        language: "en",
         confirmed: true,
       },
       requestCacheGeneration,
@@ -190,31 +185,68 @@ describe("query cache", () => {
     expect(storage.has(key)).toBe(false);
   });
 
-  it.each([{ type: "unknown" }, { prior: "yes" }, { detectedLanguageArray: [["en", "high"]] }])(
-    "discards malformed detection metadata (%j)",
+  it.each([{ type: "unknown" }, { youdaoLangCode: "unknown" }, { youdaoLangCode: "auto" }, { confirmed: false }])(
+    "discards cached detections that cannot produce a confirmed decision (%j)",
     (override) => {
-      const detection = { type: LanguageDetectType.Bing, youdaoLangCode: "en", sourceLangCode: "en", confirmed: true };
+      const detection: DetectionDecision = { type: LanguageDetectType.Bing, language: "en", confirmed: true };
       cacheLanguageDetection(query.word, detection);
       const storage = testState.caches.get("query-language-detection")!;
       const key = [...storage.keys()][0];
-      storage.set(
-        key,
-        JSON.stringify({ version: 1, expiresAt: Date.now() + 10000, value: { ...detection, ...override } }),
-      );
+      const value = {
+        type: LanguageDetectType.Bing,
+        youdaoLangCode: "en",
+        sourceLangCode: "en",
+        confirmed: true,
+        ...override,
+      };
+      storage.set(key, JSON.stringify({ version: 1, expiresAt: Date.now() + 10000, value }));
       expect(getCachedLanguageDetection(query.word)).toBeUndefined();
       expect(storage.has(key)).toBe(false);
     },
   );
 
-  it("caches only confirmed detection results and isolates detection settings", () => {
-    const detection = {
-      type: LanguageDetectType.Bing,
-      youdaoLangCode: "en",
-      sourceLangCode: "en",
+  it("decodes old confirmed cache entries without exposing provider observations", () => {
+    cacheLanguageDetection(query.word, { type: LanguageDetectType.Bing, language: "en", confirmed: true });
+    const storage = testState.caches.get("query-language-detection")!;
+    const key = [...storage.keys()][0];
+    storage.set(
+      key,
+      JSON.stringify({
+        version: 1,
+        expiresAt: Date.now() + 10000,
+        value: {
+          type: LanguageDetectType.Franc,
+          youdaoLangCode: "fil",
+          sourceLangCode: "tgl",
+          confirmed: true,
+          prior: true,
+          detectedLanguageArray: [["tgl", 1]],
+          result: { wire: "opaque" },
+        },
+      }),
+    );
+    expect(getCachedLanguageDetection(query.word)).toEqual({
+      type: LanguageDetectType.Franc,
+      language: "tl",
       confirmed: true,
-    };
+    });
+  });
+
+  it("caches only confirmed detection results and isolates detection settings", () => {
+    const detection: DetectionDecision = { type: LanguageDetectType.Bing, language: "en", confirmed: true };
     cacheLanguageDetection(query.word, detection);
     expect(getCachedLanguageDetection(query.word)).toEqual(detection);
+    const serialized = [...testState.caches.get("query-language-detection")!.values()][0];
+    expect(JSON.parse(serialized)).toMatchObject({
+      version: 1,
+      value: {
+        type: LanguageDetectType.Bing,
+        youdaoLangCode: "en",
+        sourceLangCode: "",
+        confirmed: true,
+      },
+    });
+    expect(JSON.parse(serialized).value).not.toHaveProperty("language");
 
     testState.preferences.enableDetectLanguageSpeedFirst = false;
     expect(getCachedLanguageDetection(query.word)).toBeUndefined();
@@ -222,6 +254,8 @@ describe("query cache", () => {
 
     cacheLanguageDetection("uncertain", { ...detection, confirmed: false });
     expect(getCachedLanguageDetection("uncertain")).toBeUndefined();
+    cacheLanguageDetection("unmapped", { type: LanguageDetectType.Bing, language: "auto", confirmed: false });
+    expect(getCachedLanguageDetection("unmapped")).toBeUndefined();
   });
 });
 

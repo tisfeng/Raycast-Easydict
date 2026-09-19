@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
-import { getLanguageItem } from "@/core/language/utils";
+import { getLangCode, lookupLanguageItem } from "@/core/language/utils";
 import { savedResultMarkdown } from "@/core/results/resultMarkdown";
 import type { QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
@@ -112,8 +112,8 @@ function FavoriteItem({
   onRemove: () => void;
   onClear: () => void;
 }) {
-  const fromLanguageItem = getLanguageItem(favorite.fromLanguage);
-  const toLanguageItem = getLanguageItem(favorite.toLanguage);
+  const fromLanguageItem = lookupLanguageItem(favorite.fromLanguage);
+  const toLanguageItem = lookupLanguageItem(favorite.toLanguage);
   const translations = resolveFavoriteTranslations(favorite);
   const translation = translations?.[0];
   const strokeOrderCharacters = getStrokeOrderCharacters({
@@ -122,7 +122,9 @@ function FavoriteItem({
     sourceText: favorite.word,
     translatedText: translations?.join("\n") ?? "",
   });
-  const languageDirection = `${fromLanguageItem.googleLangCode.toUpperCase()} → ${toLanguageItem.googleLangCode.toUpperCase()}`;
+  const fromCode = getLangCode(favorite.fromLanguage, "googleLangCode") ?? favorite.fromLanguage;
+  const toCode = getLangCode(favorite.toLanguage, "googleLangCode") ?? favorite.toLanguage;
+  const languageDirection = `${fromCode.toUpperCase()} → ${toCode.toUpperCase()}`;
 
   const openInEasydict = async () => {
     try {
@@ -147,9 +149,9 @@ function FavoriteItem({
         myPreferences.flagsAreNotLanguages
           ? [{ text: languageDirection }]
           : [
-              { icon: { source: fromLanguageItem.emoji } },
+              { icon: { source: fromLanguageItem?.emoji ?? "🌐" } },
               { icon: Icon.ArrowRight },
-              { icon: { source: toLanguageItem.emoji } },
+              { icon: { source: toLanguageItem?.emoji ?? "🌐" } },
             ]
       }
       detail={<List.Item.Detail markdown={savedResultMarkdown(favorite, favorite.displaySections)} />}

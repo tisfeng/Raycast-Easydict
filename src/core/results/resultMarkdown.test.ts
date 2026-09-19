@@ -14,12 +14,6 @@ import type { ListDisplayItem } from "./types";
 
 vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
-vi.mock("@/core/language/utils", () => ({
-  getLanguageItem: (code: string) => ({
-    langEnglishName: { en: "English", "zh-CHS": "Chinese-Simplified", fr: "French" }[code] ?? code,
-  }),
-}));
-
 const info = { word: "testimony", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 function dictionaryItem(
   overrides: Partial<Extract<ListDisplayItem, { queryType: DictionaryType.Youdao }>> = {},

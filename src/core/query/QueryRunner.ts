@@ -120,11 +120,11 @@ export class QueryRunner {
     );
   }
 
-  private begin(input?: QueryInput) {
+  private begin() {
     this.dispose();
     const session: QuerySession = {
       controller: new AbortController(),
-      phase: input ? { kind: "ready", input } : { kind: "detecting" },
+      phase: { kind: "detecting" },
       cacheGeneration: getQueryCacheGeneration(),
       entries: new Map(),
       audioPlayed: false,
@@ -153,7 +153,18 @@ export class QueryRunner {
   };
 
   queryTextWithTextInfo = (input: QueryInput, options?: QueryOptions) => {
-    this.runAll(this.begin(input), input, options?.bypassCache === true);
+    const session = this.begin();
+    try {
+      const query = {
+        ...input,
+        fromLanguage: getLanguageItem(input.fromLanguage).youdaoLangCode,
+        toLanguage: getLanguageItem(input.toLanguage).youdaoLangCode,
+      };
+      session.phase = { kind: "ready", input: query };
+      this.runAll(session, query, options?.bypassCache === true);
+    } catch (error) {
+      this.failQuery(session, error);
+    }
   };
 
   queryText = (text: string, toLanguage: string, options?: QueryOptions) => {
@@ -168,9 +179,12 @@ export class QueryRunner {
       const detection = cached ?? (await detectLanguage(text, session.controller.signal));
       if (!this.isCurrent(session)) return;
       if (!cached) cacheLanguageDetection(text, detection, session.cacheGeneration);
-      const fromLanguage = detection.youdaoLangCode;
+      const fromLanguage = detection.language;
+      const selectedTarget = getLanguageItem(toLanguage);
       const target =
-        fromLanguage === toLanguage ? getAutoSelectedTargetLanguageItem(fromLanguage) : getLanguageItem(toLanguage);
+        fromLanguage === selectedTarget.youdaoLangCode
+          ? getAutoSelectedTargetLanguageItem(fromLanguage)
+          : selectedTarget;
       const input = { word: text, fromLanguage, toLanguage: target.youdaoLangCode };
       session.phase = { kind: "ready", input };
       this.snapshot = {
@@ -180,11 +194,15 @@ export class QueryRunner {
       };
       this.runAll(session, input, bypassCache);
     } catch (error) {
-      if (!this.isCurrent(session)) return;
-      session.phase = { kind: "failed" };
-      this.publish();
-      this.effects.onError(error);
+      this.failQuery(session, error);
     }
+  }
+
+  private failQuery(session: QuerySession, error: unknown) {
+    if (!this.isCurrent(session)) return;
+    session.phase = { kind: "failed" };
+    this.publish();
+    this.effects.onError(error);
   }
 
   private runAll(session: QuerySession, input: QueryInput, bypassCache: boolean) {
