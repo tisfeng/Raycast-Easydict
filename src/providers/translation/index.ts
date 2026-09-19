@@ -1,8 +1,5 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getAIProviderCacheIdentity } from "@/ai-providers/cacheIdentity";
-import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/ai-providers/runtime";
-import type { AIProviderProfile } from "@/ai-providers/types";
 import { myPreferences } from "@/consts";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
@@ -10,6 +7,9 @@ import { builtinTranslationProviders, getBuiltinProviderPreferenceStatus } from 
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
 import { getAIProviderKey } from "@/providers/order";
+import { getAIProviderCacheIdentity } from "@/providers/profiles/cacheIdentity";
+import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/providers/profiles/runtime";
+import type { AIProviderProfile } from "@/providers/profiles/types";
 import { checkIsWord } from "@/providers/shared/utils";
 
 import { createAITranslationProvider } from "./ai";

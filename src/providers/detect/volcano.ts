@@ -4,9 +4,9 @@ import { getYoudaoLangCode, volcanoMap } from "@/core/language/utils";
 import { LanguageDetectType } from "@/core/results/kinds";
 import { hasVolcanoAppKey } from "@/providers/shared/config";
 import { genVolcanoSign } from "@/providers/shared/volcano-sign";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logWarn } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError, logWarn } from "@/shared/logger";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";

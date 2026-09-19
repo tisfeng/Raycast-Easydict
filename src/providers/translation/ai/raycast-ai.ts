@@ -2,14 +2,14 @@
 
 import { AI, environment } from "@raycast/api";
 
-import { getRaycastAIModel } from "@/ai-providers/runtime";
-import type { RaycastAIProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
+import { getRaycastAIModel } from "@/providers/profiles/runtime";
+import type { RaycastAIProfile } from "@/providers/profiles/types";
 import { BaseStreamingTranslateProvider } from "@/providers/translation/base";
-import { CancelledError, RequestError } from "@/utils/errors";
-import { logTrace } from "@/utils/logger";
+import { CancelledError, RequestError } from "@/shared/errors";
+import { logTrace } from "@/shared/logger";
 
 import { createTranslationPromptSpec, renderTranslationTextPrompt } from "./prompt";
 

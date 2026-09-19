@@ -7,10 +7,10 @@ import path from "path";
 import { x } from "tinyexec";
 
 import { EASYDICT_TMP_DIR } from "@/consts";
-import { md5 } from "@/utils/crypto";
-import { normalizeError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logTrace } from "@/utils/logger";
+import { md5 } from "@/shared/crypto";
+import { normalizeError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError, logTrace } from "@/shared/logger";
 
 const audioDirPath = path.join(EASYDICT_TMP_DIR, "audio");
 

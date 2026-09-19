@@ -2,7 +2,7 @@
 
 import { chineseLanguageItem } from "@/core/language/consts";
 import type { QueryWordInfo } from "@/core/results/types";
-import { logTrace } from "@/utils/logger";
+import { logTrace } from "@/shared/logger";
 
 import type {
   BaikeSummary,

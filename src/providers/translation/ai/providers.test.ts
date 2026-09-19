@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { OpenAICompatibleProfile } from "@/ai-providers/types";
 import { EASYDICT_VERSION } from "@/consts";
 import { TranslationType } from "@/core/results/kinds";
 import type { StreamChunk, TranslationResult } from "@/core/results/types";
-import { CancelledError } from "@/utils/errors";
+import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
+import { CancelledError } from "@/shared/errors";
 
 import { ConfiguredOpenAICompatibleTranslateProvider } from "./openai-compatible";
 
@@ -16,8 +16,8 @@ const testDoubles = vi.hoisted(() => ({
 
 vi.mock("@raycast/api", () => ({ getPreferenceValues: () => ({}) }));
 vi.mock("@xsai/stream-text", () => ({ streamText: testDoubles.streamText }));
-vi.mock("@/utils/http", () => ({ timedFetch: { native: testDoubles.nativeFetch } }));
-vi.mock("@/utils/logger", () => ({
+vi.mock("@/shared/http", () => ({ timedFetch: { native: testDoubles.nativeFetch } }));
+vi.mock("@/shared/logger", () => ({
   createTimer: () => ({ done: vi.fn(), fail: testDoubles.timerFail }),
   logError: vi.fn(),
   logTrace: vi.fn(),

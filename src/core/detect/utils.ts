@@ -2,7 +2,7 @@
 
 import { config } from "@/core/config";
 import { englishLanguageItem } from "@/core/language/consts";
-import { logTrace } from "@/utils/logger";
+import { logTrace } from "@/shared/logger";
 
 /**
  * check if the language is preferred language

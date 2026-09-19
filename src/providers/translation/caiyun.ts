@@ -4,8 +4,8 @@ import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { ProviderConfig } from "@/providers/shared/config";
-import { timedFetch } from "@/utils/http";
-import { logTrace } from "@/utils/logger";
+import { timedFetch } from "@/shared/http";
+import { logTrace } from "@/shared/logger";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
 

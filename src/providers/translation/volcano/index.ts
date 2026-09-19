@@ -4,9 +4,9 @@ import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { genVolcanoSign } from "@/providers/shared/volcano-sign";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logWarn } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError, logWarn } from "@/shared/logger";
 
 import { BaseNonStreamingTranslateProvider } from "../base";
 

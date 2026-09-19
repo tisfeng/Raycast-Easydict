@@ -4,7 +4,7 @@ import type { DetectedLangModel } from "@/core/detect/types";
 import { LanguageDetectType } from "@/core/results/kinds";
 import { BaseDetectProvider, type DetectOptions } from "@/providers/detect/base";
 import type { DetectServiceConfig } from "@/providers/detect/registry";
-import { CancelledError } from "@/utils/errors";
+import { CancelledError } from "@/shared/errors";
 
 import { detectLanguage } from "./index";
 
@@ -30,7 +30,7 @@ vi.mock("@/providers/detect/registry", () => ({
   detectServices: testDoubles.detectServices,
 }));
 
-vi.mock("@/utils/logger", () => ({
+vi.mock("@/shared/logger", () => ({
   createTimer: () => ({ done: vi.fn(), fail: testDoubles.timerFail }),
   logError: testDoubles.logError,
   logSummary: vi.fn(),

@@ -5,9 +5,9 @@ import { autoDetectLanguageItem } from "@/core/language/consts";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError } from "@/shared/logger";
 
 import { ensureYoudaoCookie } from "./cookie";
 import { formatYoudaoDisplaySections, hasYoudaoDictionaryDetails } from "./format";

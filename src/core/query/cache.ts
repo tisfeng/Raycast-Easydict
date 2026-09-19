@@ -7,7 +7,7 @@ import { Cache } from "@raycast/api";
 import { myPreferences } from "@/consts";
 import type { DetectedLangModel } from "@/core/detect/types";
 import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
-import { logWarn } from "@/utils/logger";
+import { logWarn } from "@/shared/logger";
 
 const CACHE_FORMAT_VERSION = 1;
 const DAY = 24 * 60 * 60 * 1_000;

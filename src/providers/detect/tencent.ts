@@ -4,9 +4,9 @@ import { getYoudaoLangCode, tencentDetectMap } from "@/core/language/utils";
 import { LanguageDetectType } from "@/core/results/kinds";
 import { hasTencentAppKey } from "@/providers/shared/config";
 import { type TencentError, tencentSign } from "@/providers/shared/tencent-sign";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logWarn } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError, logWarn } from "@/shared/logger";
 
 import type { DetectOptions } from "./base";
 import { BaseDetectProvider } from "./base";

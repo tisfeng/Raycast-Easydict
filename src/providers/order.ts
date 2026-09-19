@@ -1,5 +1,5 @@
-import type { AIProviderProfile } from "@/ai-providers/types";
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import type { AIProviderProfile } from "@/providers/profiles/types";
 
 import { builtinProviderCatalog, defaultTypeOrder } from "./catalog";
 

@@ -1,6 +1,5 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { AIDictionarySense, AIWordResult } from "@/ai-providers/dictionary/types";
 import { AIDictionaryListItemType, DictionaryType } from "@/core/results/kinds";
 import type {
   DisplaySection,
@@ -9,6 +8,8 @@ import type {
   QueryInput,
   QueryWordInfo,
 } from "@/core/results/types";
+
+import type { AIDictionarySense, AIWordResult } from "./types";
 
 /**
  * Derive the resolved `QueryWordInfo` for an AI dictionary result: it is a word

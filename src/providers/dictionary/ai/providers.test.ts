@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { OpenAICompatibleProfile, RaycastAIProfile } from "@/ai-providers/types";
 import { EASYDICT_VERSION } from "@/consts";
+import type { OpenAICompatibleProfile, RaycastAIProfile } from "@/providers/profiles/types";
 
 import { OpenAICompatibleDictionaryProvider } from "./openai-compatible";
 import { RaycastAIDictionaryProvider } from "./raycast-ai";
@@ -22,8 +22,8 @@ vi.mock("@raycast/api", () => ({
   getPreferenceValues: () => ({}),
 }));
 vi.mock("@xsai/stream-text", () => ({ streamText: testDoubles.streamText }));
-vi.mock("@/utils/http", () => ({ timedFetch: { native: testDoubles.nativeFetch } }));
-vi.mock("@/utils/logger", () => ({
+vi.mock("@/shared/http", () => ({ timedFetch: { native: testDoubles.nativeFetch } }));
+vi.mock("@/shared/logger", () => ({
   createTimer: () => ({ done: vi.fn(), fail: vi.fn() }),
   logError: vi.fn(),
   logTrace: vi.fn(),

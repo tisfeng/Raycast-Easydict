@@ -59,7 +59,7 @@ vi.mock("@raycast/api", () => ({
 }));
 
 vi.mock("@/consts", () => ({ myPreferences: testState.preferences }));
-vi.mock("@/utils/logger", () => ({ logWarn: vi.fn() }));
+vi.mock("@/shared/logger", () => ({ logWarn: vi.fn() }));
 
 const query = { word: "cache", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true } as const;
 

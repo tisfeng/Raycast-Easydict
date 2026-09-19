@@ -1,11 +1,11 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { AIWordResult } from "@/ai-providers/dictionary/types";
-import type { AIProviderProfile } from "@/ai-providers/types";
+import type { AIProviderProfile } from "@/providers/profiles/types";
 
 import type { BaseDictionaryProvider } from "../base";
 import { type NativeJSONUnsupportedHandler, OpenAICompatibleDictionaryProvider } from "./openai-compatible";
 import { RaycastAIDictionaryProvider } from "./raycast-ai";
+import type { AIWordResult } from "./types";
 
 export function createAIDictionaryProvider(
   profile: AIProviderProfile,

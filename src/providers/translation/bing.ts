@@ -5,8 +5,8 @@ import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions, TranslationResult } from "@/core/results/types";
 import { getBingHost, requestBingConfig } from "@/providers/shared/bing-config";
 import { requestBing } from "@/providers/shared/bing-request";
-import { RequestError } from "@/utils/errors";
-import { logWarn } from "@/utils/logger";
+import { RequestError } from "@/shared/errors";
+import { logWarn } from "@/shared/logger";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
 

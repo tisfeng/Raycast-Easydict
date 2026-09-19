@@ -2,22 +2,22 @@
 
 import { streamText } from "@xsai/stream-text";
 
-import { parseAIWordResult } from "@/ai-providers/dictionary/parser";
-import { createAIDictionaryPromptSpec, renderAIDictionaryChatMessages } from "@/ai-providers/dictionary/prompt";
-import type { AIWordResult } from "@/ai-providers/dictionary/types";
-import { normalizeOpenAICompatibleEndpoint } from "@/ai-providers/endpoint";
-import { getTokenLimitParams } from "@/ai-providers/tokenLimit";
-import type { JSONOutputMode, OpenAICompatibleProfile } from "@/ai-providers/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
+import { normalizeOpenAICompatibleEndpoint } from "@/providers/profiles/endpoint";
+import { getTokenLimitParams } from "@/providers/profiles/tokenLimit";
+import type { JSONOutputMode, OpenAICompatibleProfile } from "@/providers/profiles/types";
 import { getOpenAICompatibleRequestHeaders } from "@/providers/shared/openai-compatible-headers";
-import { normalizeError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logTrace, logWarn } from "@/utils/logger";
+import { normalizeError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logTrace, logWarn } from "@/shared/logger";
 
 import { BaseDictionaryProvider } from "../base";
 import { formatAIWordResult, resolveAIDictionaryWordInfo } from "./format";
+import { parseAIWordResult } from "./parser";
+import { createAIDictionaryPromptSpec, renderAIDictionaryChatMessages } from "./prompt";
+import type { AIWordResult } from "./types";
 
 const MAX_DICTIONARY_TOKENS = 3000;
 

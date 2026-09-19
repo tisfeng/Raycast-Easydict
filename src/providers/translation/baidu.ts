@@ -4,10 +4,10 @@ import { getLangCode } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { ProviderConfig } from "@/providers/shared/config";
-import { md5 } from "@/utils/crypto";
-import { RequestError } from "@/utils/errors";
-import { timedFetch } from "@/utils/http";
-import { logError, logWarn } from "@/utils/logger";
+import { md5 } from "@/shared/crypto";
+import { RequestError } from "@/shared/errors";
+import { timedFetch } from "@/shared/http";
+import { logError, logWarn } from "@/shared/logger";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
 
