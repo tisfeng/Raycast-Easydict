@@ -42,7 +42,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   const { has, toggle } = useFavoriteWords();
   const aiProviderProfiles = useAIProviderProfiles();
   const handleNativeJSONUnsupported = useCallback(
-    async (fallbackProfile: OpenAICompatibleProfile) => {
+    async (fallbackProfile: Pick<OpenAICompatibleProfile, "id" | "name">) => {
       try {
         const saved = await fallbackAIProviderToPromptJSON(fallbackProfile.id);
         if (saved) await aiProviderProfiles.revalidate();

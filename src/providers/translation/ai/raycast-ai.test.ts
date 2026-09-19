@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { TranslationType } from "@/core/results/kinds";
+import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { RaycastAIProfile } from "@/providers/profiles/types";
 import { CancelledError } from "@/shared/errors";
 
-import { RaycastAITranslateProvider } from "./raycast-ai";
+import { createAITranslationProvider } from "./index";
 
 const testDoubles = vi.hoisted(() => ({
   ask: vi.fn(),
@@ -17,6 +18,7 @@ vi.mock("@raycast/api", () => ({
     ask: testDoubles.ask,
   },
   environment: { canAccess: testDoubles.canAccess },
+  getPreferenceValues: () => ({}),
 }));
 
 vi.mock("@/shared/logger", () => ({
@@ -40,7 +42,7 @@ describe("Raycast AI streaming provider", () => {
   it("yields data events and returns the final completion", async () => {
     const stream = createAIAnswer();
     testDoubles.ask.mockReturnValueOnce(stream.answer);
-    const iterator = new RaycastAITranslateProvider(profile).request({
+    const iterator = createProvider().request({
       word: "hello",
       fromLanguage: "en",
       toLanguage: "zh-CHS",
@@ -64,7 +66,7 @@ describe("Raycast AI streaming provider", () => {
   it("uses the final completion when no data event is emitted", async () => {
     const stream = createAIAnswer();
     testDoubles.ask.mockReturnValueOnce(stream.answer);
-    const iterator = new RaycastAITranslateProvider(profile).request({
+    const iterator = createProvider().request({
       word: "hello",
       fromLanguage: "en",
       toLanguage: "zh-CHS",
@@ -82,7 +84,7 @@ describe("Raycast AI streaming provider", () => {
     const stream = createAIAnswer();
     testDoubles.ask.mockReturnValueOnce(stream.answer);
     const abortController = new AbortController();
-    const iterator = new RaycastAITranslateProvider(profile).request(
+    const iterator = createProvider().request(
       { word: "hello", fromLanguage: "en", toLanguage: "zh-CHS" },
       { signal: abortController.signal },
     );
@@ -98,7 +100,7 @@ describe("Raycast AI streaming provider", () => {
   it("normalizes an AI failure through the provider base class", async () => {
     const stream = createAIAnswer();
     testDoubles.ask.mockReturnValueOnce(stream.answer);
-    const iterator = new RaycastAITranslateProvider(profile).request({
+    const iterator = createProvider().request({
       word: "hello",
       fromLanguage: "en",
       toLanguage: "zh-CHS",
@@ -132,4 +134,10 @@ function createAIAnswer() {
     resolve: resolvePromise,
     reject: rejectPromise,
   };
+}
+
+function createProvider() {
+  const result = resolveAIProviderRuntimeConfig(profile);
+  if (result.kind === "issue") throw new Error(result.message);
+  return createAITranslationProvider(result.config);
 }

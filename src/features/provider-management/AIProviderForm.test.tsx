@@ -13,13 +13,17 @@ const testDoubles = vi.hoisted(() => ({
   fetch:
     vi.fn<(url: string, options: { signal?: AbortSignal; headers?: Record<string, string> }) => Promise<unknown>>(),
   showToast: vi.fn(),
+  streamText: vi.fn(),
 }));
 
+vi.mock("@xsai/stream-text", () => ({ streamText: testDoubles.streamText }));
 vi.mock("@/shared/http", () => ({ timedFetch: testDoubles.fetch }));
 vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
 vi.mock("@raycast/api", async () => {
   const { createElement } = await import("react");
   const group = ({ children }: { children?: ReactNode }) => createElement("div", null, children);
+  const action = ({ title, onAction, onSubmit }: { title: string; onAction?: () => void; onSubmit?: () => void }) =>
+    createElement("button", { onClick: onAction ?? onSubmit }, title);
   const input = ({
     id,
     title,
@@ -68,20 +72,24 @@ vi.mock("@raycast/api", async () => {
     );
   return {
     AI: { Model: {} },
-    Action: Object.assign(group, { SubmitForm: group }),
+    Action: Object.assign(action, { SubmitForm: action }),
     ActionPanel: group,
-    Form: Object.assign(group, {
-      TextField: input,
-      PasswordField: input,
-      Description: () => null,
-      Dropdown: Object.assign(dropdown, {
-        Item: ({ title, value }: { title: string; value: string }) => createElement("option", { value }, title),
-        Section: ({ title, children }: { title: string; children?: ReactNode }) =>
-          createElement("optgroup", { label: title }, children),
-      }),
-    }),
+    Form: Object.assign(
+      ({ children, actions }: { children?: ReactNode; actions?: ReactNode }) =>
+        createElement("div", null, actions, children),
+      {
+        TextField: input,
+        PasswordField: input,
+        Description: () => null,
+        Dropdown: Object.assign(dropdown, {
+          Item: ({ title, value }: { title: string; value: string }) => createElement("option", { value }, title),
+          Section: ({ title, children }: { title: string; children?: ReactNode }) =>
+            createElement("optgroup", { label: title }, children),
+        }),
+      },
+    ),
     Icon: { Bolt: "bolt", SaveDocument: "save" },
-    Toast: { Style: { Failure: "failure" } },
+    Toast: { Style: { Failure: "failure", Animated: "animated", Success: "success" } },
     Cache: class {
       get(key: string) {
         return testDoubles.cache.get(key);
@@ -101,7 +109,8 @@ beforeEach(() => {
   vi.useFakeTimers();
   testDoubles.cache.clear();
   testDoubles.fetch.mockReset();
-  testDoubles.showToast.mockReset();
+  testDoubles.showToast.mockReset().mockImplementation(async (options) => ({ ...options }));
+  testDoubles.streamText.mockReset();
 });
 
 afterEach(() => {
@@ -281,6 +290,91 @@ describe("AI provider form model discovery", () => {
     expect(testDoubles.showToast).not.toHaveBeenCalled();
   });
 });
+
+describe("AI provider form runtime configuration", () => {
+  it("tests a keyless draft with normalized request parameters and saves only profile data", async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const profile = { ...createProfile(" http://localhost:8080/v1/chat/completions/ ", "  "), model: " model " };
+    testDoubles.streamText.mockReturnValue({ textStream: textStream("你好") });
+    render(<AIProviderForm profile={profile} onSave={onSave} isNewProvider />);
+
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Test & Save Provider" })));
+
+    expect(testDoubles.streamText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        baseURL: "http://localhost:8080/v1",
+        model: "model",
+      }),
+    );
+    expect(testDoubles.streamText.mock.calls[0][0]).not.toHaveProperty("apiKey");
+    expect(onSave).toHaveBeenCalledWith({
+      ...profile,
+      endpoint: "http://localhost:8080/v1/chat/completions/",
+      website: undefined,
+      apiKey: "",
+      model: "model",
+    });
+  });
+
+  it("saves a tested dictionary fallback using the draft identity and preserves its editable fields", async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const profile: OpenAICompatibleProfile = {
+      ...createProfile("https://example.com/v1", "key"),
+      model: "model",
+      website: "https://example.com",
+      wordResultMode: "dictionary",
+      jsonOutputMode: "json-object",
+      icon: { kind: "remote", url: "https://example.com/icon.png" },
+    };
+    testDoubles.streamText
+      .mockImplementationOnce(() => {
+        throw new Error("response_format json_object is not supported");
+      })
+      .mockReturnValueOnce({ textStream: textStream(JSON.stringify({ translation: "你好", entry: null })) });
+    render(<AIProviderForm profile={profile} onSave={onSave} isNewProvider />);
+
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Test & Save Provider" })));
+
+    expect(testDoubles.streamText).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenCalledWith({ ...profile, jsonOutputMode: "prompt" });
+    expect(screen.getByLabelText("JSON Output")).toHaveProperty("value", "prompt");
+  });
+
+  it("keeps an unavailable Raycast model visible and reports the same configuration issue before testing", async () => {
+    const onSave = vi.fn();
+    render(
+      <AIProviderForm
+        profile={{
+          id: "raycast",
+          name: "Raycast",
+          adapter: "raycast-ai",
+          model: "unavailable",
+          enabled: true,
+          order: 0,
+          wordResultMode: "translation",
+          icon: { kind: "preset", name: "raycast" },
+        }}
+        onSave={onSave}
+      />,
+    );
+    expect(modelOptions()).toContain("unavailable");
+
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Test Provider" })));
+
+    expect(testDoubles.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Provider configuration is incomplete",
+        message: "Choose an available Raycast AI model.",
+      }),
+    );
+    expect(onSave).not.toHaveBeenCalled();
+    expect(testDoubles.streamText).not.toHaveBeenCalled();
+  });
+});
+
+async function* textStream(text: string) {
+  yield text;
+}
 
 function createProfile(endpoint: string, apiKey = "private-key"): OpenAICompatibleProfile {
   return {

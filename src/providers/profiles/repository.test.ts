@@ -67,6 +67,30 @@ describe("AI provider repository", () => {
     expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
   });
 
+  it("round-trips structurally valid incomplete and unavailable profiles for later editing", async () => {
+    const state: StoredAIProviderState = {
+      version: 2,
+      migratedLegacyProviders: [],
+      profiles: [
+        createProfile({ endpoint: "", model: "", apiKey: "" }),
+        {
+          id: "raycast",
+          adapter: "raycast-ai",
+          name: "Unavailable Model",
+          enabled: true,
+          order: 1,
+          icon: { kind: "initials" },
+          wordResultMode: "translation",
+          model: "unknown-future-model",
+        },
+      ],
+    };
+
+    await saveAIProviderState(state);
+
+    expect(await loadAIProviderState()).toEqual({ kind: "ready", state });
+  });
+
   it("updates only the requested provider JSON output mode", async () => {
     const state: StoredAIProviderState = {
       version: 2,

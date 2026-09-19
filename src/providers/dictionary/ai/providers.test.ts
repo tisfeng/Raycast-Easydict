@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EASYDICT_VERSION } from "@/consts";
+import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { OpenAICompatibleProfile, RaycastAIProfile } from "@/providers/profiles/types";
 
-import { OpenAICompatibleDictionaryProvider } from "./openai-compatible";
-import { RaycastAIDictionaryProvider } from "./raycast-ai";
+import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./index";
 
 const testDoubles = vi.hoisted(() => ({
   ask: vi.fn(),
@@ -40,7 +40,7 @@ describe("AI dictionary provider adapters", () => {
   it("parses a Raycast AI dictionary completion", async () => {
     testDoubles.ask.mockResolvedValue(JSON.stringify(createResponse()));
 
-    const result = await new RaycastAIDictionaryProvider(createRaycastProfile()).request(createQuery());
+    const result = await createProvider(createRaycastProfile()).request(createQuery());
 
     expect(testDoubles.ask).toHaveBeenCalledWith(
       expect.stringContaining(JSON.stringify("run")),
@@ -56,7 +56,7 @@ describe("AI dictionary provider adapters", () => {
       textStream: createTextStream([response.slice(0, 20), response.slice(20)]),
     });
 
-    const result = await new OpenAICompatibleDictionaryProvider(createOpenAIProfile()).request(createQuery());
+    const result = await createProvider(createOpenAIProfile()).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -76,7 +76,7 @@ describe("AI dictionary provider adapters", () => {
     const response = JSON.stringify(createResponse());
     testDoubles.streamText.mockReturnValue({ textStream: createTextStream([response]) });
 
-    await new OpenAICompatibleDictionaryProvider(createOpenAIProfile("")).request(createQuery());
+    await createProvider(createOpenAIProfile("")).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledWith(expect.not.objectContaining({ apiKey: expect.anything() }));
     expect(testDoubles.streamText.mock.calls[0][0]).not.toHaveProperty("headers");
@@ -92,7 +92,7 @@ describe("AI dictionary provider adapters", () => {
       .mockReturnValueOnce({ textStream: createTextStream([response]) });
 
     const profile = createOpenAIProfile("test-key", "https://opencode.ai/zen/go/v1");
-    await new OpenAICompatibleDictionaryProvider(profile, onNativeJSONUnsupported).request(createQuery());
+    await createProvider(profile, onNativeJSONUnsupported).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledTimes(2);
     const [first, retry] = testDoubles.streamText.mock.calls.map(([options]) => options);
@@ -100,7 +100,7 @@ describe("AI dictionary provider adapters", () => {
     expect(retry).not.toHaveProperty("responseFormat");
     expect(first.headers?.["x-opencode-session"]).toEqual(expect.stringMatching(/\S/));
     expect(retry.headers).toEqual(first.headers);
-    expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ ...profile, jsonOutputMode: "prompt" });
+    expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ id: profile.id, name: profile.name });
   });
 
   it("retries malformed native JSON without changing the configuration", async () => {
@@ -111,7 +111,7 @@ describe("AI dictionary provider adapters", () => {
       .mockReturnValueOnce({ textStream: createTextStream([response]) });
 
     const profile = createOpenAIProfile("test-key", "https://opencode.ai/zen/go/v1");
-    await new OpenAICompatibleDictionaryProvider(profile, onNativeJSONUnsupported).request(createQuery());
+    await createProvider(profile, onNativeJSONUnsupported).request(createQuery());
 
     expect(testDoubles.streamText).toHaveBeenCalledTimes(2);
     const [first, retry] = testDoubles.streamText.mock.calls.map(([options]) => options);
@@ -125,9 +125,7 @@ describe("AI dictionary provider adapters", () => {
   it("adds fresh OpenCode Go headers to each dictionary query and preserves authentication", async () => {
     const response = JSON.stringify(createResponse());
     testDoubles.streamText.mockImplementation(() => ({ textStream: createTextStream([response]) }));
-    const provider = new OpenAICompatibleDictionaryProvider(
-      createOpenAIProfile("test-key", "https://opencode.ai/zen/go/v1/chat/completions"),
-    );
+    const provider = createProvider(createOpenAIProfile("test-key", "https://opencode.ai/zen/go/v1/chat/completions"));
 
     await provider.request(createQuery());
     await provider.request(createQuery());
@@ -150,9 +148,7 @@ describe("AI dictionary provider adapters", () => {
       textStream: createFailingTextStream(new Error("401 Invalid API key")),
     });
 
-    await expect(new OpenAICompatibleDictionaryProvider(createOpenAIProfile()).request(createQuery())).rejects.toThrow(
-      "401 Invalid API key",
-    );
+    await expect(createProvider(createOpenAIProfile()).request(createQuery())).rejects.toThrow("401 Invalid API key");
     expect(testDoubles.streamText).toHaveBeenCalledTimes(1);
   });
 });
@@ -218,4 +214,13 @@ function createFailingTextStream(error: Error): AsyncIterable<string> {
       };
     },
   };
+}
+
+function createProvider(
+  profile: OpenAICompatibleProfile | RaycastAIProfile,
+  onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
+) {
+  const result = resolveAIProviderRuntimeConfig(profile);
+  if (result.kind === "issue") throw new Error(result.message);
+  return createAIDictionaryProvider(result.config, onNativeJSONUnsupported);
 }

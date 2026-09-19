@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getAIProviderProfileValidationError,
-  getOpenAICompatibleProfileValidationError,
-  normalizeAIProviderProfile,
-} from "./profile";
+import { normalizeAIProviderProfile } from "./profile";
 import type { OpenAICompatibleProfile } from "./types";
 
 const profile: OpenAICompatibleProfile = {
@@ -23,28 +19,6 @@ const profile: OpenAICompatibleProfile = {
 };
 
 describe("AI provider profiles", () => {
-  it("rejects an empty provider name", () => {
-    expect(getAIProviderProfileValidationError({ ...profile, name: "\t" })).toBe("Enter a provider name.");
-  });
-
-  it("rejects an empty endpoint", () => {
-    const invalid = { ...profile, endpoint: " \n " };
-
-    expect(getOpenAICompatibleProfileValidationError(invalid)).toBe("Enter an API base URL.");
-  });
-
-  it("rejects endpoint protocols other than HTTP and HTTPS", () => {
-    const invalid = { ...profile, endpoint: "ftp://example.com/v1" };
-
-    expect(getOpenAICompatibleProfileValidationError(invalid)).toBe("Enter a valid HTTP or HTTPS API base URL.");
-  });
-
-  it("accepts a valid keyless OpenAI-compatible profile", () => {
-    const keyless = { ...profile, apiKey: "\t\n" };
-
-    expect(getOpenAICompatibleProfileValidationError(keyless)).toBeUndefined();
-  });
-
   it("normalizes surrounding whitespace before saving and running a profile", () => {
     const normalized = normalizeAIProviderProfile({
       ...profile,
@@ -62,6 +36,5 @@ describe("AI provider profiles", () => {
       model: "example-model",
       apiKey: "test-key",
     });
-    expect(getAIProviderProfileValidationError(normalized)).toBeUndefined();
   });
 });

@@ -33,7 +33,7 @@ import { resetAIProviderConfiguration } from "@/providers/profiles/configuration
 import { createProfileFromLegacySettings, LEGACY_AI_PROVIDER_NAMES } from "@/providers/profiles/legacy";
 import { getLegacyAIProviderConfiguration } from "@/providers/profiles/legacyConfiguration";
 import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/providers/profiles/presets";
-import { isAIProviderProfileRunnable } from "@/providers/profiles/runtime";
+import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type {
   AIProviderProfile,
   LegacyAIProviderName,
@@ -262,7 +262,7 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
         }
 
         const { profile } = row;
-        const runnable = isAIProviderProfileRunnable(profile);
+        const runnable = resolveAIProviderRuntimeConfig(profile).kind === "ready";
         const providerKey = getAIProviderKey(profile);
         return (
           <List.Item

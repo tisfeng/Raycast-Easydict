@@ -6,13 +6,8 @@ import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { builtinTranslationProviders, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
-import { getAIProviderKey } from "@/providers/order";
-import { getAIProviderCacheIdentity } from "@/providers/profiles/cacheIdentity";
-import { getAIProviderQueryMode, resolveAIProviderIcon } from "@/providers/profiles/runtime";
-import type { AIProviderProfile } from "@/providers/profiles/types";
 import { checkIsWord } from "@/providers/shared/utils";
 
-import { createAITranslationProvider } from "./ai";
 import { AppleTranslateProvider } from "./apple";
 import { BaiduTranslateProvider } from "./baidu";
 import type { BaseTranslateProvider } from "./base";
@@ -71,7 +66,7 @@ const builtinProviderClasses = {
   [TranslationType.Youdao]: YoudaoTranslateProvider,
 } satisfies Record<(typeof builtinTranslationProviders)[number]["type"], new () => BaseTranslateProvider>;
 
-const builtinServices: TranslationServiceConfig[] = builtinTranslationProviders.map((service) => {
+export const builtinTranslationServices: TranslationServiceConfig[] = builtinTranslationProviders.map((service) => {
   const status = getBuiltinProviderPreferenceStatus(service, myPreferences);
   return {
     ...service,
@@ -91,24 +86,3 @@ const builtinServices: TranslationServiceConfig[] = builtinTranslationProviders.
     createProvider: () => new builtinProviderClasses[service.type](),
   };
 });
-
-export function resolveTranslationServices(profiles: AIProviderProfile[]): TranslationServiceConfig[] {
-  const dynamicServices = profiles.map((profile): TranslationServiceConfig => {
-    const common = {
-      id: `profile:${profile.id}`,
-      label: profile.name,
-      providerKey: getAIProviderKey(profile),
-      order: profile.order,
-      type: TranslationType.OpenAI,
-      icon: resolveAIProviderIcon(profile),
-      cacheIdentity: getAIProviderCacheIdentity(profile, 1),
-      enabled: (queryWordInfo: QueryInput) => getAIProviderQueryMode(profile, queryWordInfo) === "translation",
-    };
-
-    return {
-      ...common,
-      createProvider: () => createAITranslationProvider(profile),
-    };
-  });
-  return [...builtinServices, ...dynamicServices];
-}
