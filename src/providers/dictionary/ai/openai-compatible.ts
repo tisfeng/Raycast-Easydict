@@ -2,6 +2,7 @@
 
 import { streamText } from "@xsai/stream-text";
 
+import { toLegacyDictionaryResult } from "@/core/content/legacyDictionary";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RequestOptions } from "@/core/results/types";
@@ -14,7 +15,7 @@ import { timedFetch } from "@/shared/http";
 import { logTrace, logWarn } from "@/shared/logger";
 
 import { BaseDictionaryProvider } from "../base";
-import { formatAIWordResult, resolveAIDictionaryWordInfo } from "./format";
+import { buildAIWordContent } from "./content";
 import { parseAIWordResult } from "./parser";
 import { createAIDictionaryPromptSpec, renderAIDictionaryChatMessages } from "./prompt";
 import type { AIWordResult } from "./types";
@@ -26,7 +27,7 @@ export type NativeJSONUnsupportedHandler = (
   signal?: AbortSignal,
 ) => void | Promise<void>;
 
-export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<AIWordResult> {
+export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider {
   type = DictionaryType.AI;
 
   constructor(
@@ -40,10 +41,7 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     return this.config.name;
   }
 
-  protected async doQuery(
-    queryWordInfo: QueryInput,
-    { signal }: RequestOptions = {},
-  ): Promise<DictionaryResult<AIWordResult>> {
+  protected async doQuery(queryWordInfo: QueryInput, { signal }: RequestOptions = {}): Promise<DictionaryResult> {
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
     const toLanguage = getLanguageEnglishName(queryWordInfo.toLanguage);
     const headers = getOpenAICompatibleRequestHeaders(this.config.endpoint);
@@ -111,13 +109,8 @@ export class OpenAICompatibleDictionaryProvider extends BaseDictionaryProvider<A
     return chunks.join("");
   }
 
-  private createResult(queryWordInfo: QueryInput, result: AIWordResult): DictionaryResult<AIWordResult> {
-    return {
-      type: this.type,
-      queryWordInfo: resolveAIDictionaryWordInfo(queryWordInfo, result),
-      result,
-      displaySections: formatAIWordResult(queryWordInfo, result),
-    };
+  private createResult(queryWordInfo: QueryInput, result: AIWordResult): DictionaryResult {
+    return toLegacyDictionaryResult(this.type, buildAIWordContent(queryWordInfo, result));
   }
 
   private async notifyNativeJSONUnsupported(signal?: AbortSignal): Promise<void> {

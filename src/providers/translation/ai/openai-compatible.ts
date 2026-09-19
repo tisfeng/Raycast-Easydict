@@ -2,9 +2,10 @@
 
 import { streamText } from "@xsai/stream-text";
 
+import type { TranslationContent } from "@/core/content/types";
 import { getLanguageEnglishName } from "@/core/language/utils";
 import { TranslationType } from "@/core/results/kinds";
-import type { QueryInput, RequestOptions, StreamChunk, TranslationResult } from "@/core/results/types";
+import type { QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
 import type { OpenAICompatibleRuntimeConfig } from "@/providers/profiles/runtime";
 import { getTokenLimitParams } from "@/providers/profiles/tokenLimit";
 import { getOpenAICompatibleRequestHeaders } from "@/providers/shared/openai-compatible-headers";
@@ -14,13 +15,9 @@ import { logTrace } from "@/shared/logger";
 
 import { createTranslationPromptSpec, renderTranslationChatMessages } from "./prompt";
 
-interface OpenAICompatibleTranslateResult {
-  translatedText: string;
-}
-
 const DEFAULT_MAX_TOKENS = 2000;
 
-export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTranslateProvider<OpenAICompatibleTranslateResult> {
+export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTranslateProvider {
   type = TranslationType.OpenAI;
 
   constructor(private readonly config: OpenAICompatibleRuntimeConfig) {
@@ -34,7 +31,7 @@ export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTr
   protected async *doTranslate(
     queryWordInfo: QueryInput,
     { signal }: RequestOptions = {},
-  ): AsyncGenerator<StreamChunk, TranslationResult<OpenAICompatibleTranslateResult>, unknown> {
+  ): AsyncGenerator<StreamChunk, TranslationContent, unknown> {
     const headers = getOpenAICompatibleRequestHeaders(this.config.endpoint);
 
     const fromLanguage = getLanguageEnglishName(queryWordInfo.fromLanguage);
@@ -71,17 +68,16 @@ export class ConfiguredOpenAICompatibleTranslateProvider extends BaseStreamingTr
     for await (const chunk of textStream) {
       if (chunk) {
         chunks.push(chunk);
-        yield { content: chunk, role: "assistant" };
+        yield { content: chunk };
       }
     }
 
     const resultText = chunks.join("");
 
     return {
-      type: this.type,
-      queryWordInfo,
-      translations: [resultText],
-      result: { translatedText: resultText },
+      kind: "translation",
+      query: queryWordInfo,
+      paragraphs: [resultText],
     };
   }
 }

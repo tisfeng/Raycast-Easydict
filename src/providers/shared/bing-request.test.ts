@@ -95,7 +95,7 @@ describe("Bing request protocol", () => {
       value: {
         type: TranslationType.Bing,
         queryWordInfo: query,
-        result: translation,
+        content: { kind: "translation", query, paragraphs: ["你好", "", "世界"] },
         translations: ["你好", "", "世界"],
       },
     });
@@ -160,6 +160,118 @@ describe("Bing request protocol", () => {
 
     await expect(consumer.run()).rejects.toMatchObject({ name: "RequestError", message });
     expect(postCalls()).toHaveLength(1);
+  });
+
+  it.each(["{bad", { expirationInterval: "invalid" }, { count: "1" }, { token: "" }])(
+    "refetches malformed persisted configuration before sending a request (%j)",
+    async (override) => {
+      storage.set(
+        "BingConfig",
+        typeof override === "string"
+          ? override
+          : JSON.stringify({
+              IG: "old-ig",
+              IID: "old-iid",
+              key: String(Date.now()),
+              token: "old-token",
+              expirationInterval: "3600000",
+              count: 1,
+              ...override,
+            }),
+      );
+      fetchRaw.mockImplementation(async (url, options) =>
+        options?.method === "POST" ? response(String(url), [translation]) : configuration(String(url)),
+      );
+      await new BingTranslateProvider().request(query).next();
+      expect(fetchRaw.mock.calls.filter(([, options]) => options?.method !== "POST")).toHaveLength(1);
+      expect(new URL(String(postCalls()[0][0])).searchParams.get("IID")).toBe("translator.5023.2");
+    },
+  );
+
+  it("rejects a non-string first translated text without retrying", async () => {
+    fetchRaw.mockImplementation(async (url, options) =>
+      options?.method === "POST"
+        ? response(String(url), [{ translations: [{ text: 42 }] }])
+        : configuration(String(url)),
+    );
+    await expect(new BingTranslateProvider().request(query).next()).rejects.toMatchObject({
+      message: "Bing translate response is invalid",
+    });
+    expect(postCalls()).toHaveLength(1);
+  });
+
+  it("reuses valid persisted numeric token keys and string expiration intervals", async () => {
+    const tokenStart = Date.now();
+    storage.set(
+      "BingConfig",
+      JSON.stringify({
+        IG: "old-ig",
+        IID: "old-iid",
+        key: tokenStart,
+        token: "old-token",
+        expirationInterval: "3600000",
+        count: 7,
+      }),
+    );
+    fetchRaw.mockImplementation(async (url) => response(String(url), [translation]));
+
+    await new BingTranslateProvider().request(query).next();
+
+    expect(fetchRaw).toHaveBeenCalledOnce();
+    expect(new URL(String(postCalls()[0][0])).searchParams.get("IID")).toBe("old-iid.8");
+    expect(Object.fromEntries(new URLSearchParams(String(postCalls()[0][1]?.body)))).toMatchObject({
+      key: String(tokenStart),
+      token: "old-token",
+    });
+  });
+
+  it.each(["{bad", '["invalid","token",3600000]', "[1,42,3600000]"])(
+    "limits retries for malformed HTML configuration (%s) before making a translation request",
+    async (params) => {
+      fetchRaw.mockImplementation(async (url) =>
+        response(String(url), `IG:"test-ig"; var params_AbusePreventionHelper = ${params};`),
+      );
+
+      await expect(new BingTranslateProvider().request(query).next()).rejects.toMatchObject({
+        message: "Bing: failed to get config",
+      });
+
+      expect(fetchRaw).toHaveBeenCalledTimes(2);
+      expect(postCalls()).toHaveLength(0);
+    },
+  );
+
+  it("uses a still-valid token while refreshing it after half its lifetime", async () => {
+    storage.set(
+      "BingConfig",
+      JSON.stringify({
+        IG: "old-ig",
+        IID: "old-iid",
+        key: String(Date.now() - 2_000),
+        token: "old-token",
+        expirationInterval: 3_000,
+        count: 1,
+      }),
+    );
+    let finishRefresh!: (value: ReturnType<typeof configuration>) => void;
+    const refresh = new Promise<ReturnType<typeof configuration>>((resolve) => {
+      finishRefresh = resolve;
+    });
+    fetchRaw.mockImplementation(async (url, options) =>
+      options?.method === "POST" ? response(String(url), [translation]) : refresh,
+    );
+
+    await new BingTranslateProvider().request(query).next();
+    expect(new URL(String(postCalls()[0][0])).searchParams.get("IID")).toBe("old-iid.2");
+    expect(Object.fromEntries(new URLSearchParams(String(postCalls()[0][1]?.body)))).toMatchObject({
+      token: "old-token",
+    });
+
+    finishRefresh(configuration("https://www.bing.com/translator"));
+    await vi.waitFor(() => expect(storage.get("BingConfig")).toContain("test-token"));
+    await new BingTranslateProvider().request(query).next();
+    expect(new URL(String(postCalls()[1][0])).searchParams.get("IID")).toBe("translator.5023.2");
+    expect(fetchRaw.mock.calls.filter(([, options]) => options?.method !== "POST")).toHaveLength(1);
   });
 
   it("refreshes configuration and recovers from an empty translation after a host change", async () => {

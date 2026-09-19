@@ -47,7 +47,7 @@ describe("AI dictionary provider adapters", () => {
       expect.stringContaining(JSON.stringify("run")),
       expect.objectContaining({ model: "test-model", creativity: "none" }),
     );
-    expect(result.result).toEqual(createResponse());
+    expect(result.content?.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
     expect(result.displaySections).toHaveLength(2);
   });
 
@@ -69,7 +69,7 @@ describe("AI dictionary provider adapters", () => {
         responseFormat: { type: "json_object" },
       }),
     );
-    expect(result.result).toEqual(createResponse());
+    expect(result.content?.sections[0]).toEqual({ kind: "translation", text: "跑", lemma: "run" });
     expect(result.displaySections?.[0].items[0].title).toBe("跑");
   });
 

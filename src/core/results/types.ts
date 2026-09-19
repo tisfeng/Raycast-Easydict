@@ -1,5 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import type { DictionaryContent } from "@/core/content/types";
+
 import type {
   AIDictionaryListItemType,
   DictionaryType,
@@ -39,7 +41,6 @@ export interface RequestOptions {
 
 export interface StreamChunk {
   content: string;
-  role?: string;
 }
 
 export interface QueryInput {
@@ -85,6 +86,7 @@ export interface TranslationResult<T = unknown> extends ProviderResult<T, Transl
 }
 
 export interface DictionaryResult<T = unknown> extends ProviderResult<T, DictionaryType> {
+  content?: DictionaryContent;
   displaySections?: DisplaySection[];
 }
 
@@ -136,9 +138,4 @@ export interface ListAccessoryItem {
   phonetic?: string;
   examTypes?: string[];
   example?: string;
-}
-
-export interface TranslationItem {
-  type: TranslationType;
-  text: string;
 }

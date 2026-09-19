@@ -4,6 +4,7 @@ import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type PropsWithChildren, StrictMode, useEffect, useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { TranslationContent } from "@/core/content/types";
 import type { DetectionDecision } from "@/core/detect/types";
 import { chineseLanguageItem, englishLanguageItem } from "@/core/language/consts";
 import type { LanguageCode } from "@/core/language/types";
@@ -16,14 +17,7 @@ import {
   TranslationType,
   YoudaoDictionaryListItemType,
 } from "@/core/results/kinds";
-import type {
-  DictionaryResult,
-  ListDisplayItem,
-  QueryInput,
-  RequestOptions,
-  StreamChunk,
-  TranslationResult,
-} from "@/core/results/types";
+import type { DictionaryResult, ListDisplayItem, QueryInput, RequestOptions, StreamChunk } from "@/core/results/types";
 import { buildFavoriteWord } from "@/features/favorites/model";
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
@@ -47,7 +41,7 @@ interface DictionaryRequest {
 interface TranslationRequest {
   queryWordInfo: QueryInput;
   signal?: AbortSignal;
-  deferred: Deferred<TranslationResult>;
+  deferred: Deferred<TranslationContent>;
 }
 
 const testDoubles = vi.hoisted(() => ({
@@ -169,12 +163,12 @@ class DeferredDictionaryProvider extends BaseDictionaryProvider {
 class RecordingTranslationProvider extends BaseNonStreamingTranslateProvider {
   type = TranslationType.OpenAI;
 
-  protected async doTranslate(queryWordInfo: QueryInput): Promise<TranslationResult> {
+  protected async doTranslate(queryWordInfo: QueryInput): Promise<TranslationContent> {
     translationRequests.push(queryWordInfo);
     return {
-      type: this.type,
-      queryWordInfo,
-      translations: ["translated"],
+      kind: "translation",
+      query: queryWordInfo,
+      paragraphs: ["translated"],
     };
   }
 }
@@ -184,8 +178,8 @@ class DeferredTranslationProvider extends BaseNonStreamingTranslateProvider {
     super();
   }
 
-  protected doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<TranslationResult> {
-    const deferred = createDeferred<TranslationResult>();
+  protected doTranslate(queryWordInfo: QueryInput, options?: RequestOptions): Promise<TranslationContent> {
+    const deferred = createDeferred<TranslationContent>();
     deferredTranslationRequests.push({ queryWordInfo, signal: options?.signal, deferred });
     return deferred.promise;
   }
@@ -379,7 +373,7 @@ describe("useQueryEngine query generations", () => {
       await waitFor(() => expect(deferredTranslationRequests).toHaveLength(1));
 
       if (order === "translation first") {
-        await resolveTranslationRequest(0, "translated", TranslationType.DeepL);
+        await resolveTranslationRequest(0, "translated");
         expect(result.current.displaySections).toEqual([]);
         expect(result.current.listEpoch).toBe(0);
         expect(result.current.isLoading).toBe(true);
@@ -389,7 +383,7 @@ describe("useQueryEngine query generations", () => {
         expect(result.current.displaySections[0].items[0].title).toBe("word");
         expect(result.current.listEpoch).toBe(1);
         expect(result.current.isLoading).toBe(true);
-        await resolveTranslationRequest(0, "translated", TranslationType.DeepL);
+        await resolveTranslationRequest(0, "translated");
       }
 
       expect(result.current.isLoading).toBe(false);
@@ -430,12 +424,12 @@ describe("useQueryEngine query generations", () => {
     class StreamingTranslationProvider extends BaseStreamingTranslateProvider {
       type = TranslationType.OpenAI;
 
-      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationResult> {
+      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationContent> {
         yield { content: "part" };
         await nextChunk.promise;
         yield { content: "ial" };
         await finish.promise;
-        return { type: this.type, queryWordInfo, translations: ["partial"] };
+        return { kind: "translation", query: queryWordInfo, paragraphs: ["partial"] };
       }
     }
     const service: TranslationServiceConfig = {
@@ -853,13 +847,13 @@ async function resolveDictionaryRequest(index: number) {
   });
 }
 
-async function resolveTranslationRequest(index: number, translation: string, type = TranslationType.OpenAI) {
+async function resolveTranslationRequest(index: number, translation: string) {
   const request = deferredTranslationRequests[index];
   await act(async () => {
     request.deferred.resolve({
-      type,
-      queryWordInfo: request.queryWordInfo,
-      translations: [translation],
+      kind: "translation",
+      query: request.queryWordInfo,
+      paragraphs: [translation],
     });
     await request.deferred.promise;
   });
@@ -878,9 +872,9 @@ describe("query completion", () => {
     testDoubles.aiQueryCacheMode = "words";
     class FinalStreamingProvider extends BaseStreamingTranslateProvider {
       type = TranslationType.OpenAI;
-      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationResult> {
+      protected async *doTranslate(queryWordInfo: QueryInput): AsyncGenerator<StreamChunk, TranslationContent> {
         yield { content: "draft" };
-        return { type: this.type, queryWordInfo, translations: ["final"] };
+        return { kind: "translation", query: queryWordInfo, paragraphs: ["final"] };
       }
     }
     const service: TranslationServiceConfig = {
