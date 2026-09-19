@@ -135,13 +135,10 @@ function createStreamDebouncer(
         }, delay);
       }
     },
-    clear(flush = true) {
+    cancel() {
       if (updateTimer) {
         clearTimeout(updateTimer);
         updateTimer = undefined;
-      }
-      if (flush) {
-        flushUpdate();
       }
     },
   };
@@ -267,6 +264,7 @@ export function useQueryEngine(
           debouncer.push(value.content);
         }
 
+        debouncer.cancel();
         if (finalResult && isCurrentServiceRequest(config.id, request.requestId)) {
           const displayResult = createTranslationQueryResult(finalResult, config);
           if (displayResult) {
@@ -276,10 +274,8 @@ export function useQueryEngine(
             dispatch({ type: "SET_RESULT", queryResult: displayResult, generation: session.generation });
           }
         }
-
-        debouncer.clear();
       } catch (error) {
-        debouncer?.clear(false);
+        debouncer?.cancel();
         if (isCurrentServiceRequest(config.id, request.requestId)) {
           showErrorToast(
             error instanceof RequestError ? new RequestError(config.label, error.message, error.code) : error,
@@ -454,6 +450,7 @@ export function useQueryEngine(
             logTrace("UseQueryEngine", "language detection cancelled");
             return;
           }
+          dispatch({ type: "CHECK_PENDING_QUERIES", generation: session.generation });
           showErrorToast(error);
         });
     },
