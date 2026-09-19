@@ -7,7 +7,6 @@ import type { DictionaryQueryResult, ListDisplayItem, TranslationQueryResult } f
 import type { QueryState } from "./queryReducer";
 import { queryReducer } from "./queryReducer";
 
-// 1. Mock dependencies
 vi.mock("@raycast/api", () => ({
   environment: { isDevelopment: false },
 }));
@@ -31,21 +30,12 @@ const initialState: QueryState = {
   queryResults: [],
   queryRecordList: [],
   isLoading: false,
-  isShowDetail: false,
   currentFromLanguageItem: languageItemList[2], // English
   autoSelectedTargetLanguageItem: languageItemList[1], // Chinese
 };
 
 function createTranslationResult(type: TranslationType, serviceId = `static:${type}`): TranslationQueryResult {
   const queryWordInfo = { word: "test", fromLanguage: "en", toLanguage: "zh-CHS" };
-  const displayItem: ListDisplayItem = {
-    queryType: type,
-    queryWordInfo,
-    key: "test-1",
-    title: "test",
-    copyText: "test",
-  };
-
   return {
     serviceId,
     serviceLabel: type,
@@ -54,8 +44,6 @@ function createTranslationResult(type: TranslationType, serviceId = `static:${ty
     queryWordInfo,
     result: {},
     translations: ["test"],
-    displaySections: [{ type, items: [displayItem] }],
-    hideDisplay: false,
   };
 }
 
@@ -140,21 +128,16 @@ describe("queryReducer", () => {
     expect(state.queryResults.map((result) => result.serviceId)).toEqual(["static:google", "profile:ai"]);
   });
 
-  it("a DeepL + Linguee result pair applies the existing title/copy coupling", () => {
+  it("retains provider results without persisting cross-service display supplements", () => {
     const deepLResult = createTranslationResult(TranslationType.DeepL);
     deepLResult.translations = ["Coupled Translation"];
-
     const lingueeResult = createLingueeResult();
-    lingueeResult.displaySections![0].items[0].title = "Original Linguee Title";
-    lingueeResult.displaySections![0].items[0].copyText = "Original Linguee Title";
 
     let state = queryReducer(initialState, { type: "SET_RESULT", queryResult: deepLResult, generation: 0 });
     state = queryReducer(state, { type: "SET_RESULT", queryResult: lingueeResult, generation: 0 });
 
-    const updatedLinguee = state.queryResults.find((r) => r.type === DictionaryType.Linguee);
-    expect(updatedLinguee).toBeDefined();
-    expect(updatedLinguee?.displaySections![0].items[0].title).toBe("Coupled Translation");
-    expect(updatedLinguee?.displaySections![0].items[0].copyText).toBe("Coupled Translation");
+    expect(state.queryResults.find((result) => result.type === DictionaryType.Linguee)).toEqual(lingueeResult);
+    expect(lingueeResult.displaySections[0].items[0].title).toBe("test");
   });
 
   it("RESET_FOR_NEW_QUERY clears previous results and pending providers, and sets isLoading true", () => {
@@ -177,12 +160,11 @@ describe("queryReducer", () => {
     expect(state.queryResults).toEqual([]);
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(true);
-    expect(state.isShowDetail).toBe(false);
     expect(state.activeGeneration).toBe(1);
     expect(state.listEpoch).toBe(0);
   });
 
-  it("CLEAR_ALL empties results and pending providers and resets detail/loading", () => {
+  it("CLEAR_ALL empties results and pending providers and stops loading", () => {
     let state = queryReducer(initialState, {
       type: "SET_RESULT",
       queryResult: createTranslationResult(TranslationType.DeepL),
@@ -194,7 +176,6 @@ describe("queryReducer", () => {
     expect(state.queryResults).toEqual([]);
     expect(state.queryRecordList).toEqual([]);
     expect(state.isLoading).toBe(false);
-    expect(state.isShowDetail).toBe(false);
     expect(state.activeGeneration).toBe(2);
     expect(state.listEpoch).toBe(0);
   });
@@ -204,13 +185,12 @@ describe("queryReducer", () => {
     expect(state.activeGeneration).toBe(1);
     expect(state.listEpoch).toBe(0);
 
-    const hiddenResult = createTranslationResult(TranslationType.DeepL);
-    hiddenResult.hideDisplay = true;
+    const hiddenResult = createTranslationResult(TranslationType.Youdao);
     state = queryReducer(state, { type: "SET_RESULT", queryResult: hiddenResult, generation: 1 });
     expect(state.listEpoch).toBe(0);
 
-    const emptyResult = createTranslationResult(TranslationType.OpenAI);
-    emptyResult.displaySections = [{ type: TranslationType.OpenAI, items: [] }];
+    const emptyResult = createLingueeResult();
+    emptyResult.displaySections = [{ type: LingueeListItemType.Translation, items: [] }];
     state = queryReducer(state, { type: "SET_RESULT", queryResult: emptyResult, generation: 1 });
     expect(state.listEpoch).toBe(0);
 

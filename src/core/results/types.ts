@@ -89,8 +89,6 @@ export interface DictionaryResult<T = unknown> extends ProviderResult<T, Diction
 }
 
 export interface TranslationQueryResult<T = unknown> extends TranslationResult<T>, RuntimeServiceMetadata {
-  displaySections: DisplaySection[];
-  hideDisplay: boolean;
   fromCache?: boolean;
 }
 
