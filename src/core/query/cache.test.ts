@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LanguageDetectType, TranslationType } from "@/core/results/kinds";
+import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import type { QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 
 import {
@@ -158,6 +158,53 @@ describe("query cache", () => {
     expect(getCachedQueryResult(service, query)).toBeUndefined();
     expect(storage.has(key)).toBe(false);
   });
+
+  it("discards a cached dictionary with unsafe nested rendering fields before replay", () => {
+    const value = {
+      type: DictionaryType.AI,
+      queryWordInfo: query,
+      displaySections: [
+        {
+          type: "Definition",
+          items: [
+            {
+              queryType: DictionaryType.AI,
+              displayType: "Definition",
+              queryWordInfo: query,
+              key: "entry",
+              title: "hello",
+              copyText: "hello",
+              detailsMarkdown: 17,
+            },
+          ],
+        },
+      ],
+    };
+    const service = createService("builtin:translation:Bing", "regular");
+    cacheQueryResult(service, query, createTranslationResult());
+    const storage = testState.caches.get("query-results")!;
+    const key = [...storage.keys()].find((candidate) => storage.get(candidate)?.includes('"translations"'))!;
+    storage.set(key, JSON.stringify({ version: 1, expiresAt: Date.now() + 10000, value }));
+
+    expect(getCachedQueryResult(service, query)).toBeUndefined();
+    expect(storage.has(key)).toBe(false);
+  });
+
+  it.each([{ type: "unknown" }, { prior: "yes" }, { detectedLanguageArray: [["en", "high"]] }])(
+    "discards malformed detection metadata (%j)",
+    (override) => {
+      const detection = { type: LanguageDetectType.Bing, youdaoLangCode: "en", sourceLangCode: "en", confirmed: true };
+      cacheLanguageDetection(query.word, detection);
+      const storage = testState.caches.get("query-language-detection")!;
+      const key = [...storage.keys()][0];
+      storage.set(
+        key,
+        JSON.stringify({ version: 1, expiresAt: Date.now() + 10000, value: { ...detection, ...override } }),
+      );
+      expect(getCachedLanguageDetection(query.word)).toBeUndefined();
+      expect(storage.has(key)).toBe(false);
+    },
+  );
 
   it("caches only confirmed detection results and isolates detection settings", () => {
     const detection = {

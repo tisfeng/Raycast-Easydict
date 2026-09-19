@@ -6,6 +6,8 @@ import { Cache } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
 import type { DetectedLangModel } from "@/core/detect/types";
+import { decodeCachedResult } from "@/core/results/decode";
+import { LanguageDetectType } from "@/core/results/kinds";
 import type { DictionaryResult, QueryInput, RuntimeServiceConfig, TranslationResult } from "@/core/results/types";
 import { logWarn } from "@/shared/logger";
 
@@ -107,12 +109,17 @@ function wordEvidenceKey(text: string): string {
   return hashKey({ version: CACHE_FORMAT_VERSION, kind: "confirmed-word", text });
 }
 
-function readEntry<T>(cache: Cache, key: string, validate: (value: unknown) => value is T): T | undefined {
+function readEntry<T>(cache: Cache, key: string, decode: (value: unknown) => T): T | undefined {
   try {
     const serialized = cache.get(key);
     if (!serialized) return undefined;
     const entry: unknown = JSON.parse(serialized);
-    if (!isRecord(entry) || entry.version !== CACHE_FORMAT_VERSION || typeof entry.expiresAt !== "number") {
+    if (
+      !isRecord(entry) ||
+      entry.version !== CACHE_FORMAT_VERSION ||
+      typeof entry.expiresAt !== "number" ||
+      !Number.isFinite(entry.expiresAt)
+    ) {
       safelyRemove(cache, key);
       return undefined;
     }
@@ -120,11 +127,7 @@ function readEntry<T>(cache: Cache, key: string, validate: (value: unknown) => v
       safelyRemove(cache, key);
       return undefined;
     }
-    if (!validate(entry.value)) {
-      safelyRemove(cache, key);
-      return undefined;
-    }
-    return entry.value;
+    return decode(entry.value);
   } catch (error) {
     safelyRemove(cache, key);
     logWarn("QueryCache", `discarding invalid cache entry: ${String(error)}`);
@@ -153,7 +156,7 @@ function writeEntry<T>(cache: Cache, key: string, value: T, ttl: number) {
 export function getCachedQueryResult(service: RuntimeServiceConfig, query: QueryInput): CacheableResult | undefined {
   synchronizeDisabledCaches();
   if (!permitsInput(getResultCacheMode(service), query)) return undefined;
-  return readEntry(getResultCache(service), resultCacheKey(service, query), isCacheableResult);
+  return readEntry(getResultCache(service), resultCacheKey(service, query), decodeCachedResult);
 }
 
 export function cacheQueryResult(
@@ -175,7 +178,7 @@ export function cacheQueryResult(
 export function getCachedLanguageDetection(text: string): DetectedLangModel | undefined {
   synchronizeDisabledCaches();
   if (!permitsDetection(text)) return undefined;
-  return readEntry(detectionCache, detectionCacheKey(text), isDetectedLanguage);
+  return readEntry(detectionCache, detectionCacheKey(text), decodeDetectedLanguage);
 }
 
 export function cacheLanguageDetection(
@@ -211,14 +214,15 @@ function permitsDetection(text: string): boolean {
 function hasWordEvidence(text: string): boolean {
   const key = wordEvidenceKey(text);
   return (
-    (myPreferences.queryCacheMode === "words" && readEntry(resultCache, key, isTrue)) ||
-    (myPreferences.aiQueryCacheMode === "words" && readEntry(aiResultCache, key, isTrue)) ||
+    (myPreferences.queryCacheMode === "words" && readEntry(resultCache, key, decodeWordEvidence)) ||
+    (myPreferences.aiQueryCacheMode === "words" && readEntry(aiResultCache, key, decodeWordEvidence)) ||
     false
   );
 }
 
-function isTrue(value: unknown): value is true {
-  return value === true;
+function decodeWordEvidence(value: unknown): true {
+  if (value !== true) throw new Error("Invalid word evidence");
+  return true;
 }
 
 function isConservativeStandaloneWord(text: string): boolean {
@@ -229,58 +233,44 @@ function isConservativeStandaloneWord(text: string): boolean {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isQueryInput(value: unknown): value is QueryInput {
-  return (
-    isRecord(value) &&
-    typeof value.word === "string" &&
-    typeof value.fromLanguage === "string" &&
-    typeof value.toLanguage === "string"
-  );
-}
-
-function isCacheableResult(value: unknown): value is CacheableResult {
-  if (!isRecord(value) || typeof value.type !== "string" || !isQueryInput(value.queryWordInfo)) return false;
-  if ("translations" in value) {
-    return (
-      Array.isArray(value.translations) &&
-      value.translations.length > 0 &&
-      value.translations.every((v) => typeof v === "string") &&
-      value.translations.some((v) => v.trim().length > 0)
-    );
+function decodeDetectedLanguage(value: unknown): DetectedLangModel {
+  if (!isRecord(value)) throw new Error("Invalid cached detection");
+  const type = Object.values(LanguageDetectType).find((type) => type === value.type);
+  if (
+    !type ||
+    typeof value.youdaoLangCode !== "string" ||
+    typeof value.sourceLangCode !== "string" ||
+    value.confirmed !== true ||
+    (value.prior !== undefined && typeof value.prior !== "boolean")
+  ) {
+    throw new Error("Invalid cached detection");
   }
-  return (
-    Array.isArray(value.displaySections) &&
-    value.displaySections.length > 0 &&
-    value.displaySections.every(isDisplaySection)
-  );
-}
-
-function isDisplaySection(value: unknown): boolean {
-  return (
-    isRecord(value) &&
-    typeof value.type === "string" &&
-    Array.isArray(value.items) &&
-    value.items.every(
-      (item) =>
-        isRecord(item) &&
-        typeof item.queryType === "string" &&
-        isQueryInput(item.queryWordInfo) &&
-        typeof item.key === "string" &&
-        typeof item.title === "string" &&
-        typeof item.copyText === "string",
-    )
-  );
-}
-
-function isDetectedLanguage(value: unknown): value is DetectedLangModel {
-  return (
-    isRecord(value) &&
-    typeof value.type === "string" &&
-    typeof value.youdaoLangCode === "string" &&
-    typeof value.sourceLangCode === "string" &&
-    value.confirmed === true
-  );
+  let detectedLanguageArray: [string, number][] | undefined;
+  if (value.detectedLanguageArray !== undefined) {
+    if (!Array.isArray(value.detectedLanguageArray)) throw new Error("Invalid cached detection candidates");
+    detectedLanguageArray = value.detectedLanguageArray.map((candidate) => {
+      if (
+        !Array.isArray(candidate) ||
+        candidate.length !== 2 ||
+        typeof candidate[0] !== "string" ||
+        typeof candidate[1] !== "number" ||
+        !Number.isFinite(candidate[1])
+      ) {
+        throw new Error("Invalid cached detection candidate");
+      }
+      return [candidate[0], candidate[1]];
+    });
+  }
+  return {
+    type,
+    youdaoLangCode: value.youdaoLangCode,
+    sourceLangCode: value.sourceLangCode,
+    confirmed: true,
+    prior: value.prior,
+    detectedLanguageArray,
+    result: value.result,
+  };
 }

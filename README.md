@@ -153,6 +153,10 @@ Choose **Plain Translation** or **AI-Generated Dictionary Entry**. Models are di
 
 Legacy OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers. Migration preserves connection settings, enablement, and ordering; existing imported providers keep their edits. Manage the resulting providers only in **Manage Providers**: old Extension Settings are retained as import sources and no longer run separate providers. Deleting a provider does not import it again, and providers previously retired remain removed. **Add from Legacy OpenAI/Gemini Settings…** opens a prefilled form to create another copy, initially disabled. On another device, migration waits until that device has the legacy API key; it does not transfer provider profiles between devices. If configuration cannot be read or migrated, other built-in services remain available and Manage Providers offers a retry.
 
+### Favorite Data Recovery
+
+If saved favorites cannot be read, Favorite Words keeps the original data and blocks changes. Use **Export Original Data** to save a local JSON backup, or **Restore from Backup** to select a valid backup; the current data is backed up before replacement. Backups are stored locally in the extension support directory, and **Open Backup Folder** reveals them. A format from a newer version stays read-only: export it and use a compatible Easydict version.
+
 ### Preferred Languages
 
 The default preferred languages are simplified Chinese and English. You can change them according to your preferences.

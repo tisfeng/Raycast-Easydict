@@ -7,11 +7,13 @@ import type { FavoriteWord } from "./model";
 import { useFavoriteWords } from "./useFavoriteWords";
 
 const storage = vi.hoisted(() => new Map<string, string>());
+const failures = vi.hoisted(() => ({ write: false }));
 
 vi.mock("@raycast/api", () => ({
   LocalStorage: {
     getItem: async (key: string) => storage.get(key),
     setItem: async (key: string, value: string) => {
+      if (failures.write) throw new Error("storage write failed");
       storage.set(key, value);
     },
   },
@@ -34,6 +36,7 @@ function makeFavorite(overrides: Partial<FavoriteWord> = {}): FavoriteWord {
 
 beforeEach(() => {
   storage.clear();
+  failures.write = false;
 });
 afterEach(cleanup);
 
@@ -56,7 +59,7 @@ describe("useFavoriteWords", () => {
     await act(() => toggle(beta));
 
     expect(result.current.favorites).toEqual([beta, alpha]);
-    expect(storage.get(FAVORITE_WORDS_KEY)).toBe(JSON.stringify([beta, alpha]));
+    expect(JSON.parse(storage.get(FAVORITE_WORDS_KEY)!)).toEqual([beta, alpha]);
     unmount();
     const restored = await renderLoadedFavorites();
     expect(restored.result.current.favorites).toEqual([beta, alpha]);
@@ -90,6 +93,34 @@ describe("useFavoriteWords", () => {
     await act(() => result.current.toggle(makeFavorite({ word: "beta" })));
     await act(async () => result.current.remove({ word: "alpha", fromLanguage: "en", toLanguage: "zh-CHS" }));
     expect(result.current.favorites.map((f) => f.word)).toEqual(["beta"]);
+  });
+
+  it("refuses to overwrite malformed stored favorites when adding a new word", async () => {
+    const original = JSON.stringify([
+      makeFavorite({ displaySections: [] }),
+      { word: "broken", displaySections: "invalid" },
+    ]);
+    storage.set(FAVORITE_WORDS_KEY, original);
+    const { result } = await renderLoadedFavorites();
+
+    await act(async () => {
+      await expect(result.current.toggle(makeFavorite())).rejects.toThrow();
+    });
+    expect(storage.get(FAVORITE_WORDS_KEY)).toBe(original);
+  });
+
+  it("retains the last persisted list when a write fails", async () => {
+    const saved = makeFavorite();
+    storage.set(FAVORITE_WORDS_KEY, JSON.stringify([saved]));
+    const { result } = await renderLoadedFavorites();
+    failures.write = true;
+
+    await act(async () => {
+      await expect(result.current.clear()).rejects.toThrow("storage write failed");
+    });
+    expect(result.current.favorites).toEqual([saved]);
+    expect(result.current.state?.kind).toBe("ready");
+    expect(storage.get(FAVORITE_WORDS_KEY)).toBe(JSON.stringify([saved]));
   });
 
   it("clear empties the store", async () => {

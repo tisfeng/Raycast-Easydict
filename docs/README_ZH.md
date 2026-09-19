@@ -152,6 +152,10 @@ npm install && npm run dev
 
 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。已配置的旧版 OpenAI 和 Gemini 设置可以单独或一起导入；导入后的 AI Provider 会显式替代对应旧版位置。删除替代项不会让旧版 Provider 自动恢复，必须由用户手动 Restore。新建 Provider 或修改连接相关配置后会默认提供 Test & Save，同时仍可选择 Save Without Testing。JSON 输出模式会根据预设选择默认值。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
 
+### 收藏数据恢复
+
+如果收藏数据无法读取，「Favorite Words」会保留原始数据并阻止修改。可通过 **Export Original Data** 导出本地 JSON 备份，或通过 **Restore from Backup** 选择有效备份恢复；替换前会先备份当前数据。备份保存在扩展支持目录中，可通过 **Open Backup Folder** 打开所在文件夹。来自更新版本的数据格式保持只读：请先导出，并使用兼容的 Easydict 版本读取。
+
 ### 偏好语言
 
 默认偏好语言为简体中文和英文。您可以根据自己的喜好进行更改。

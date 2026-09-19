@@ -24,6 +24,7 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { logError } from "@/shared/logger";
 
 import { copyAllText } from "./copyFavorites";
+import { FavoriteStorageRecovery } from "./FavoriteStorageRecovery";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "./model";
 import { useFavoriteWords } from "./useFavoriteWords";
 
@@ -47,7 +48,7 @@ function audioInfo(favorite: FavoriteWord): QueryWordInfo {
  * for the live result.
  */
 export default function FavoriteWordsPage() {
-  const { favorites, isLoading, remove, clear } = useFavoriteWords();
+  const { favorites, state, isLoading, revalidate, remove, clear, restore } = useFavoriteWords();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   // Compute once per render; passed to every item instead of recomputing in the map.
   const copyAllTextContent = copyAllText(favorites);
@@ -55,6 +56,18 @@ export default function FavoriteWordsPage() {
   useEffect(() => {
     if (!selectedId && favorites.length) setSelectedId(favoriteKeyOf(favorites[0]));
   }, [favorites, selectedId]);
+
+  if (state && state.kind !== "ready") {
+    return <FavoriteStorageRecovery state={state} onReload={revalidate} onRestore={restore} />;
+  }
+
+  const changeFavorites = async (change: () => Promise<void>) => {
+    try {
+      await change();
+    } catch (error) {
+      await showFailureToast(error, { title: "Failed to Update Favorites" });
+    }
+  };
 
   return (
     <List
@@ -78,8 +91,8 @@ export default function FavoriteWordsPage() {
               key={favoriteKeyOf(favorite)}
               favorite={favorite}
               copyAllContent={copyAllTextContent}
-              onRemove={() => remove(favorite)}
-              onClear={clear}
+              onRemove={() => changeFavorites(() => remove(favorite))}
+              onClear={() => changeFavorites(clear)}
             />
           ))}
         </List.Section>
