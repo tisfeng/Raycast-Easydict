@@ -23,6 +23,7 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { useFavoriteWords } from "@/hooks";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "@/types/favorite";
 import type { QueryWordInfo } from "@/types/query";
+import { addFavoritesToAnkiWithToast } from "@/utils/ankiToast";
 import { copyAllText } from "@/utils/copyFavorites";
 import { logError } from "@/utils/logger";
 
@@ -77,6 +78,7 @@ export default function FavoriteWordsPage() {
               key={favoriteKeyOf(favorite)}
               favorite={favorite}
               copyAllContent={copyAllTextContent}
+              onAddAllToAnki={() => addFavoritesToAnkiWithToast(favorites)}
               onRemove={() => remove(favorite)}
               onClear={clear}
             />
@@ -90,11 +92,13 @@ export default function FavoriteWordsPage() {
 function FavoriteItem({
   favorite,
   copyAllContent,
+  onAddAllToAnki,
   onRemove,
   onClear,
 }: {
   favorite: FavoriteWord;
   copyAllContent: string;
+  onAddAllToAnki: () => void;
   onRemove: () => void;
   onClear: () => void;
 }) {
@@ -145,6 +149,16 @@ function FavoriteItem({
             <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
             <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.word} />
             <Action.CopyToClipboard title="Copy All to Clipboard" icon={Icon.Clipboard} content={copyAllContent} />
+            <Action
+              icon={Icon.PlusCircle}
+              title="Add to Anki"
+              shortcut={{
+                macOS: { modifiers: ["cmd", "opt"], key: "a" },
+                Windows: { modifiers: ["ctrl", "shift"], key: "a" },
+              }}
+              onAction={() => addFavoritesToAnkiWithToast([favorite])}
+            />
+            <Action icon={Icon.PlusSquare} title="Add All to Anki" onAction={onAddAllToAnki} />
             {strokeOrderCharacters.length > 0 && (
               <Action.Push
                 title="Show Stroke Order"

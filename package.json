@@ -692,6 +692,23 @@
       "default": false
     },
     {
+      "title": "Anki",
+      "name": "enableAutomaticAddFavoriteToAnki",
+      "type": "checkbox",
+      "label": "Add Favorites to Anki Automatically",
+      "required": false,
+      "description": "When a word is added to Favorites, also add it to Anki through the AnkiConnect add-on. Removing a favorite does not delete its Anki card.",
+      "default": false
+    },
+    {
+      "title": "Anki Deck",
+      "name": "ankiDeckName",
+      "type": "textfield",
+      "required": true,
+      "default": "Easydict",
+      "description": "Deck used when adding favorites to Anki. It is created in Anki if it does not exist."
+    },
+    {
       "title": "Dictionary Services",
       "type": "checkbox",
       "name": "enableYoudaoDictionary",

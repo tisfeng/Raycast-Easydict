@@ -27,6 +27,7 @@ import {
 } from "@/providers/registry";
 import { buildFavoriteWord } from "@/types/favorite";
 import type { QueryInput, QueryWordInfo } from "@/types/query";
+import { addFavoritesToAnkiWithToast } from "@/utils/ankiToast";
 import { logError, logTrace } from "@/utils/logger";
 
 import { useFirstItemAnchor } from "./useFirstItemAnchor";
@@ -123,14 +124,20 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       return;
     }
 
-    await toggle(buildFavoriteWord(queryWordInfo, displaySections));
-    if (!isFavorite) {
-      await showToast({
-        style: Toast.Style.Success,
-        title: "Added to Favorites",
-        message: queryWordInfo.word,
-      });
+    const favorite = buildFavoriteWord(queryWordInfo, displaySections);
+    await toggle(favorite);
+    if (isFavorite) return;
+
+    // Removing a favorite never deletes its Anki card, which may already carry review history.
+    if (myPreferences.enableAutomaticAddFavoriteToAnki) {
+      await addFavoritesToAnkiWithToast([favorite], { justFavorited: true });
+      return;
     }
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Added to Favorites",
+      message: queryWordInfo.word,
+    });
   };
 
   /**

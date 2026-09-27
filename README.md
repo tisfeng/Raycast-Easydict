@@ -80,6 +80,7 @@ npm install && npm run dev
 - [x] Supports 48+ languages.
 - [x] 🆕 Supports saving completed results as Favorite Words for offline browsing and management.
 - [x] 🆕 Supports viewing stroke-order diagrams for Chinese characters from live and saved translation results.
+- [x] 🆕 Supports adding Favorite Words to Anki as flashcards via [AnkiConnect](https://ankiweb.net/shared/info/2055492159).
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
@@ -409,6 +410,14 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
 
 ## Integrations
+
+### Anki
+
+Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review. Install the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`) and keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu.
+
+To skip the extra step, enable **Add Favorites to Anki Automatically** in the extension preferences: every word you add to Favorites is then also added to Anki. Removing a favorite does not delete its Anki card, so review history is kept. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
+
+Cards are added to the deck set in the **Anki Deck** preference (default `Easydict`). The deck and an `Easydict` note type are created on first use. The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites.
 
 ### PopClip
 
