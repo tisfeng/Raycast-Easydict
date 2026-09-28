@@ -1,5 +1,11 @@
 # `Easydict` Changelog
 
+## [v3.3.1] - {PR_MERGE_DATE}
+
+### 🐞 Bug Fixes
+
+- Restored `Cmd+S` (`Ctrl+S` on Windows) for **Read Query Text**, which was bound to the same `Cmd+R` shortcut as **Requery All Services**. **Read Result Text** now uses `Cmd+Shift+S` (`Ctrl+Shift+S`).
+
 ## [v3.3.0] - 2026-09-19
 
 ### ✨ New Features

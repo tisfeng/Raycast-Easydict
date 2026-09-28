@@ -15,6 +15,7 @@ import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
 
 import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
+import { shortcuts } from "@/components/ui/ActionPanel";
 import { myPreferences } from "@/consts";
 import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLanguageItem } from "@/core/language/utils";
@@ -158,7 +159,7 @@ function FavoriteItem({
             <Action
               title="Read Word"
               icon={Icon.Play}
-              shortcut={Keyboard.Shortcut.Common.Refresh}
+              shortcut={shortcuts.readQueryText}
               onAction={() => playQueryWordAudio(audioInfo(favorite))}
             />
             <Action

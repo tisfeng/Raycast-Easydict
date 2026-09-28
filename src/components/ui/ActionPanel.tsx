@@ -56,12 +56,12 @@ interface WebQueryItem {
   title: string;
 }
 
-const shortcuts = {
+export const shortcuts = {
   showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
-  readQueryText: { macOS: { modifiers: ["cmd"], key: "r" }, Windows: { modifiers: ["ctrl"], key: "r" } },
+  readQueryText: { macOS: { modifiers: ["cmd"], key: "s" }, Windows: { modifiers: ["ctrl"], key: "s" } },
   readResultText: {
-    macOS: { modifiers: ["cmd", "shift"], key: "r" },
-    Windows: { modifiers: ["ctrl", "shift"], key: "r" },
+    macOS: { modifiers: ["cmd", "shift"], key: "s" },
+    Windows: { modifiers: ["ctrl", "shift"], key: "s" },
   },
   toggleFavorite: Keyboard.Shortcut.Common.Pin,
   openOnline: Keyboard.Shortcut.Common.Open,
