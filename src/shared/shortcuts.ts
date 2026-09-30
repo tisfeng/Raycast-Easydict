@@ -1,9 +1,19 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { Keyboard } from "@raycast/api";
+import { Keyboard } from "@raycast/api";
 
-/** Search's "Read Query Text" and favorites' "Read Word" play the same word audio. */
-export const readQueryTextShortcut = {
-  macOS: { modifiers: ["cmd"], key: "r" },
-  Windows: { modifiers: ["ctrl"], key: "r" },
-} satisfies Keyboard.Shortcut;
+/** Action panel keys live in one registry so sibling panels cannot drift into conflicting bindings. */
+export const shortcuts = {
+  showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
+  readQueryText: { macOS: { modifiers: ["cmd"], key: "r" }, Windows: { modifiers: ["ctrl"], key: "r" } },
+  requery: {
+    macOS: { modifiers: ["cmd", "opt"], key: "r" },
+    Windows: { modifiers: ["ctrl", "alt"], key: "r" },
+  },
+  readResultText: {
+    macOS: { modifiers: ["cmd", "shift"], key: "r" },
+    Windows: { modifiers: ["ctrl", "shift"], key: "r" },
+  },
+  toggleFavorite: Keyboard.Shortcut.Common.Pin,
+  openOnline: Keyboard.Shortcut.Common.Open,
+} satisfies Record<string, Keyboard.Shortcut>;

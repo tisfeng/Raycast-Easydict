@@ -20,7 +20,7 @@ import { playQueryWordAudio, playTTS } from "@/core/audio";
 import { getLangCode, lookupLanguageItem } from "@/core/language/utils";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { logError } from "@/shared/logger";
-import { readQueryTextShortcut } from "@/shared/shortcuts";
+import { shortcuts } from "@/shared/shortcuts";
 
 import { copyAllText } from "./copyFavorites";
 import { FavoriteStorageRecovery } from "./FavoriteStorageRecovery";
@@ -170,7 +170,7 @@ function FavoriteItem({
             <Action
               title="Read Word"
               icon={Icon.Play}
-              shortcut={readQueryTextShortcut}
+              shortcut={shortcuts.readQueryText}
               onAction={() => playQueryWordAudio(favorite.query)}
             />
             <Action

@@ -1,18 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { Image } from "@raycast/api";
-import {
-  Action,
-  ActionPanel,
-  Color,
-  Detail,
-  Icon,
-  Keyboard,
-  open,
-  openCommandPreferences,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { Action, ActionPanel, Color, Detail, Icon, open, openCommandPreferences, showToast, Toast } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 
 import StrokeOrderPage from "@/components/pages/StrokeOrderPage";
@@ -28,7 +17,7 @@ import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { webQueryServices } from "@/providers/web";
 import { logError, logTrace } from "@/shared/logger";
-import { readQueryTextShortcut } from "@/shared/shortcuts";
+import { shortcuts } from "@/shared/shortcuts";
 
 import ReleaseNotesPage from "./ReleaseNotePage";
 
@@ -55,21 +44,6 @@ interface WebQueryItem {
   icon: Image.ImageLike;
   title: string;
 }
-
-const shortcuts = {
-  showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
-  readQueryText: readQueryTextShortcut,
-  requery: {
-    macOS: { modifiers: ["cmd", "opt"], key: "r" },
-    Windows: { modifiers: ["ctrl", "alt"], key: "r" },
-  },
-  readResultText: {
-    macOS: { modifiers: ["cmd", "shift"], key: "r" },
-    Windows: { modifiers: ["ctrl", "shift"], key: "r" },
-  },
-  toggleFavorite: Keyboard.Shortcut.Common.Pin,
-  openOnline: Keyboard.Shortcut.Common.Open,
-} satisfies Record<string, Keyboard.Shortcut>;
 
 const queryWebItemTypes = webQueryServices.map((service) => service.type);
 
