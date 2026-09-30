@@ -38,25 +38,37 @@ function view(...services: ComposedService[]) {
 }
 
 describe("content rendering", () => {
-  it("keeps word and pronunciation together in an inline SVG with the direction outside the image", () => {
+  it("keeps word and pronunciation together in an inline SVG and shows the direction only in standalone details", () => {
     const info = { ...query, phonetic: "/ ˈtestɪmoʊni /" };
     const sections = view(dictionary([{ kind: "translation", text: "证词" }], info));
 
-    for (const markdown of [renderStandaloneRow(sections[0].items[0]), renderSavedView(info, sections)]) {
+    const standalone = renderStandaloneRow(sections[0].items[0]);
+    const saved = renderSavedView(info, sections);
+    for (const markdown of [standalone, saved]) {
       const encoded = markdown.match(/base64,([A-Za-z0-9+/=]+)/);
       expect(encoded).not.toBeNull();
       const svg = Buffer.from(encoded![1], "base64").toString("utf8");
       expect(svg).toContain("testimony<tspan");
       expect(svg).toContain("/ ˈtestɪmoʊni /</tspan>");
       expect(svg).not.toContain("English");
-      expect(markdown).toContain(")  \nEnglish → Chinese\\-Simplified");
       expect(svg).toContain('font-family="Georgia, Times New Roman, serif"');
       expect(markdown).toContain("**证词**");
       expect(markdown).not.toContain("## testimony");
     }
+    expect(standalone).toContain("  \nEnglish → Chinese\\-Simplified");
+    expect(saved).not.toContain("English → Chinese\\-Simplified");
   });
 
-  it("escapes short headwords in the shared SVG header and lets long headwords wrap as text", () => {
+  it("keeps the header image inline at a fixed height so Raycast does not center it", () => {
+    const info = { ...query, word: "good", phonetic: "/ɡʊd/" };
+    const sections = view(dictionary([{ kind: "translation", text: "好" }], info));
+    const markdown = renderStandaloneRow(sections[0].items[0]);
+    // Raycast centers a paragraph whose only content is an image; the trailing
+    // zero-width space keeps the header on the text baseline instead.
+    expect(markdown).toMatch(/raycast-height=34\)\u200B/);
+  });
+
+  it("escapes short headwords in the shared SVG header and lets very long headwords wrap as text", () => {
     const [section] = view(translation("One", ["translation"], { ...query, word: "<b>x" }));
     const markdown = renderStandaloneRow(section.items[0]);
     const encoded = markdown.match(/base64,([A-Za-z0-9+/=]+)/);
@@ -64,7 +76,7 @@ describe("content rendering", () => {
     const svg = Buffer.from(encoded![1], "base64").toString("utf8");
     expect(svg).toContain("&lt;b&gt;x");
     expect(svg).not.toContain("<b>");
-    const longWord = "W".repeat(18);
+    const longWord = "W".repeat(30);
     const [longSection] = view(translation("One", ["translation"], { ...query, word: longWord }));
     const longMarkdown = renderStandaloneRow(longSection.items[0]);
     expect(longMarkdown).toContain(`## ${longWord}`);
@@ -80,7 +92,7 @@ describe("content rendering", () => {
     const svg = Buffer.from(encoded![1], "base64").toString("utf8");
     expect(svg).toContain("good</text>");
     expect(svg).not.toContain(phonetic);
-    expect(markdown).toContain(`)  \n${phonetic}  \nEnglish → Chinese\\-Simplified`);
+    expect(markdown).toContain(`  \n${phonetic}  \nEnglish → Chinese\\-Simplified`);
   });
 
   it("compares visible profiles with the selected service first and marks differing language directions", () => {
@@ -89,7 +101,8 @@ describe("content rendering", () => {
       translation("Two", ["témoignage"], { ...query, toLanguage: "fr" }),
     );
     const markdown = renderSelectedRow(sections[1].items[0], sections);
-    expect(markdown).toContain("<th>Service</th>");
+    expect(markdown).toContain("<table>");
+    expect(markdown).not.toContain("<th>");
     expect(markdown).toContain("One · English → Chinese-Simplified");
     expect(markdown.indexOf("Two")).toBeLessThan(markdown.indexOf("One"));
     expect(markdown).not.toContain(query.word);
@@ -146,7 +159,7 @@ describe("content rendering", () => {
     );
     const saved = renderSavedView(query, sections);
     expect(saved.match(/<table>/g)).toHaveLength(1);
-    expect(saved).toContain("<th>Expression</th><th>Meaning</th>");
+    expect(saved).not.toContain("<th>");
     expect(saved).toContain("<td>next</td><td>meaning</td>");
     const long = "a".repeat(121);
     const longSections = view(
@@ -156,7 +169,7 @@ describe("content rendering", () => {
     expect(renderSavedView(query, longSections)).not.toContain("<table>");
   });
 
-  it("uses form headings for AI forms and honors an older saved section's table headings", () => {
+  it("renders AI forms and Linguee special forms as compact pair tables without column headers", () => {
     const forms = view(
       dictionary(
         [{ kind: "pairs", relation: "form", entries: [{ expression: "past tense", meaning: "ran" }] }],
@@ -165,7 +178,7 @@ describe("content rendering", () => {
       ),
     );
     expect(forms[0].items[0].copyText).toBe("past tense: ran");
-    expect(renderSavedView(query, forms)).toContain("<th>Form</th><th>Value</th>");
+    expect(renderSavedView(query, forms)).toContain("<td>past tense</td><td>ran</td>");
     const equivalents = view(
       dictionary(
         [
@@ -187,10 +200,9 @@ describe("content rendering", () => {
         DictionaryType.Linguee,
       ),
     );
-    expect(renderSavedView(query, equivalents)).toContain("<th>Expression</th><th>Meaning</th>");
-    expect(renderSavedView(query, [{ ...equivalents[0], pairHeadings: "forms" }])).toContain(
-      "<th>Form</th><th>Value</th>",
-    );
+    const saved = renderSavedView(query, equivalents);
+    expect(saved).toContain("<table>");
+    expect(saved).not.toContain("<th>");
   });
 
   it("keeps multiline source and translation paragraphs outside headings and comparison tables", () => {
@@ -203,7 +215,9 @@ describe("content rendering", () => {
     expect(standalone).not.toContain("##");
     expect(standalone).not.toContain("<table>");
     expect(renderSelectedRow(sections[0].items[0], sections)).not.toContain("First line");
-    expect(renderSavedView(sentence, sections)).toContain("First line");
+    const saved = renderSavedView(sentence, sections);
+    expect(saved).toContain("First line");
+    expect(saved).not.toContain("English →");
   });
 
   it("compacts adjacent translations without moving them across a dictionary and keeps different profiles", () => {

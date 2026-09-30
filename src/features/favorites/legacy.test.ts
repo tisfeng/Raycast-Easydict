@@ -201,7 +201,7 @@ describe("legacy favorite content", () => {
     expect(favoriteMarkdown(favorite)).not.toContain("query-only");
   });
 
-  it("preserves legacy Forms table headings and section-owned numbering", () => {
+  it("renders migrated Forms pairs without a header and preserves section-owned numbering", () => {
     const favorite = migrate([
       {
         type: "Forms",
@@ -220,7 +220,8 @@ describe("legacy favorite content", () => {
     ]);
     const restored = decodeFavoriteSnapshot(JSON.parse(JSON.stringify(favorite)));
     const markdown = favoriteMarkdown(restored);
-    expect(markdown).toContain("<th>Form</th><th>Value</th>");
+    expect(markdown).toContain("<td>hello</td><td>greeting</td>");
+    expect(markdown).not.toContain("<th>");
     expect(markdown).toContain("<small>1.</small> **你好**");
     expect(JSON.stringify(restored)).not.toContain("unused pair body");
   });

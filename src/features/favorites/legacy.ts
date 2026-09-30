@@ -27,7 +27,6 @@ export interface LegacySavedContent {
   readonly sections: readonly {
     readonly kind: DictionarySection["kind"];
     readonly title?: string;
-    readonly pairHeadings?: "forms" | "expressions";
     readonly rows: readonly LegacySavedRow[];
   }[];
 }
@@ -200,11 +199,6 @@ export function convertLegacyFavorite(favorite: LegacyFavorite): FavoriteWord {
         sections: sections.map((section) => ({
           kind: sectionKind(section),
           title: section.sectionTitle,
-          pairHeadings: section.items.every(isShortPair)
-            ? section.type === "Forms"
-              ? "forms"
-              : "expressions"
-            : undefined,
           rows: section.items.map((item) => convertRow(item, query)),
         })),
       },
