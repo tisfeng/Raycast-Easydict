@@ -10,8 +10,6 @@ import type { QueryResult } from "@/core/results/types";
 import { showErrorToast } from "@/shared/errors";
 import { logWarn } from "@/shared/logger";
 
-export type { QueryServiceSnapshot } from "@/core/query/QueryRunner";
-
 function projectResults(results: readonly QueryResult[]) {
   const composedContent = composeContent(results, myPreferences);
   const viewSections = buildContentView(composedContent, myPreferences.flagsAreNotLanguages);

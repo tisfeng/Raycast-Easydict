@@ -16,7 +16,7 @@ export interface AIModelOption {
   value: string;
 }
 
-export interface ResolvedAIModelCatalog {
+interface ResolvedAIModelCatalog {
   allowsCustomModel: boolean;
   key: string;
   canLoad: boolean;
