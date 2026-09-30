@@ -28,6 +28,7 @@ import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { webQueryServices } from "@/providers/web";
 import { logError, logTrace } from "@/shared/logger";
+import { readQueryTextShortcut } from "@/shared/shortcuts";
 
 import ReleaseNotesPage from "./ReleaseNotePage";
 
@@ -57,7 +58,7 @@ interface WebQueryItem {
 
 const shortcuts = {
   showDetail: { macOS: { modifiers: ["cmd"], key: "m" }, Windows: { modifiers: ["ctrl"], key: "m" } },
-  readQueryText: { macOS: { modifiers: ["cmd"], key: "r" }, Windows: { modifiers: ["ctrl"], key: "r" } },
+  readQueryText: readQueryTextShortcut,
   requery: {
     macOS: { modifiers: ["cmd", "opt"], key: "r" },
     Windows: { modifiers: ["ctrl", "alt"], key: "r" },
