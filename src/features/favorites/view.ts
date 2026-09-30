@@ -9,17 +9,16 @@ import type { ViewRow, ViewSection, ViewService } from "@/core/content/viewTypes
 import type { FavoriteWord } from "./model";
 
 /** Both fresh and migrated favorites render without recomposing against current provider preferences. */
-export function getFavoriteView(favorite: FavoriteWord, flagsAreNotLanguages = false): ViewSection[] {
+export function getFavoriteView(favorite: FavoriteWord): ViewSection[] {
   return favorite.services.flatMap((service): ViewSection[] => {
-    const { content, type, serviceId, serviceLabel, serviceOrder, serviceIcon } = service;
+    const { content, type, serviceId, serviceLabel, serviceIcon } = service;
     if (content.kind !== "legacy") {
-      return buildContentView({ services: [service as ComposedService], isShowDetail: false }, flagsAreNotLanguages);
+      return buildContentView({ services: [service as ComposedService], isShowDetail: false }, false);
     }
     const viewService: ViewService = {
       type,
       serviceId,
       serviceLabel,
-      serviceOrder,
       serviceIcon,
       kind: content.role,
       query: content.query,
