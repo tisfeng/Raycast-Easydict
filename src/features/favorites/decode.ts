@@ -103,11 +103,6 @@ function decodeLegacyContent(source: Record<string, unknown>, path: string): Leg
             `${path}.kind`,
           ),
           title: optional(section.title, text, `${path}.title`),
-          pairHeadings: optional(
-            section.pairHeadings,
-            (value, path) => member(value, ["forms", "expressions"], path),
-            `${path}.pairHeadings`,
-          ),
           rows: array(section.rows, decodeLegacyRow, `${path}.rows`),
         };
       },

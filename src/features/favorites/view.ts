@@ -27,7 +27,6 @@ export function getFavoriteView(favorite: FavoriteWord, flagsAreNotLanguages = f
     return content.sections.map((section) => ({
       kind: section.kind,
       title: section.title,
-      pairHeadings: section.pairHeadings,
       service: viewService,
       items: section.rows.map((row): ViewRow => {
         const view: ViewRow = {

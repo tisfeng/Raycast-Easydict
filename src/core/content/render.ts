@@ -12,6 +12,16 @@ function languageDirection(info: QueryWordInfo): string {
   return `${getLanguageEnglishName(info.fromLanguage)} → ${getLanguageEnglishName(info.toLanguage)}`;
 }
 
+/**
+ * Raycast centers a paragraph whose only content is an image, which used to
+ * leave short headwords floating in the middle of the pane. The header image
+ * carries a trailing zero-width space so it stays inline with the page text and
+ * is laid out from the left margin. A fixed image height keeps the word the
+ * same size on the narrow favorites pane and the full-width details page.
+ */
+const HEADER_IMAGE_HEIGHT = 34;
+const HEADER_INLINE_MARK = "\u200B";
+
 /** Conservative canvas bounds; SVG lays out the text and pronunciation itself. */
 function estimateTextWidth(text: string, fontSize: number): number {
   const widthAt32 = Array.from(text).reduce((width, character) => {
@@ -23,10 +33,14 @@ function estimateTextWidth(text: string, fontSize: number): number {
   return Math.ceil((widthAt32 * fontSize) / 32);
 }
 
-function resultHeader(info: QueryWordInfo): string {
+/**
+ * Standalone pages own the direction line; saved favorites show the language
+ * pair in the list, so their details omit it to avoid repeating the same data.
+ */
+function resultHeader(info: QueryWordInfo, showDirection = true): string {
   const source = plainText(info.word);
   const word = info.isWord === true && !info.word.includes("\n");
-  const direction = languageDirection(info);
+  const direction = showDirection ? plainText(languageDirection(info)) : "";
   if (word) {
     // The image contains only the word and pronunciation; the page lays out the direction separately.
     const wordWidth = estimateTextWidth(info.word, 32);
@@ -37,15 +51,16 @@ function resultHeader(info: QueryWordInfo): string {
       const width = wordWidth + (inlinePhonetic ? 16 + phoneticWidth : 0) + 8;
       const dark = isDarkAppearance();
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="44" viewBox="0 0 ${width} 44"><text x="0" y="30" font-family="Georgia, Times New Roman, serif" font-size="32" font-weight="700" fill="${dark ? "#f2f2f2" : "#202020"}">${escapeHtml(info.word)}${inlinePhonetic ? `<tspan dx="16" font-family="Arial, sans-serif" font-size="20" font-weight="400" fill="${dark ? "#aaaaaa" : "#777777"}">${escapeHtml(inlinePhonetic)}</tspan>` : ""}</text></svg>`;
-      const image = `![${plainText(`${info.word}${inlinePhonetic ? ` · ${inlinePhonetic}` : ""}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}?raycast-width=${Math.ceil((width * 34) / 44)}&raycast-height=34)`;
-      return [image, !inlinePhonetic && plainText(phonetic), plainText(direction)].filter(Boolean).join("  \n");
+      const image = `![${plainText(`${info.word}${inlinePhonetic ? ` · ${inlinePhonetic}` : ""}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}?raycast-width=${Math.ceil((width * HEADER_IMAGE_HEIGHT) / 44)}&raycast-height=${HEADER_IMAGE_HEIGHT})${HEADER_INLINE_MARK}`;
+      return [image, !inlinePhonetic && plainText(phonetic), direction].filter(Boolean).join("  \n");
     }
-    return `## ${source}${phonetic ? ` · ${plainText(phonetic)}` : ""}\n\n${plainText(direction)}`;
+    return [`## ${source}${phonetic ? ` · ${plainText(phonetic)}` : ""}`, direction].filter(Boolean).join("\n\n");
   }
-  return `${plainText(direction)}\n\n${source
+  const quote = source
     .split("\n")
     .map((line) => `> ${line}  `)
-    .join("\n")}`;
+    .join("\n");
+  return [direction, quote].filter(Boolean).join("\n\n");
 }
 
 interface TranslationEntry {
@@ -70,10 +85,7 @@ function translationBody(info: QueryWordInfo, results: readonly TranslationEntry
     entries.length > 1 &&
     entries.every((entry) => entry.text.length <= 120 && !entry.text.includes("\n"));
   return compact
-    ? table(
-        entries.map((entry) => [entry.label, entry.text]),
-        ["Service", "Translation"],
-      )
+    ? table(entries.map((entry) => [entry.label, entry.text]))
     : entries.map((entry) => `**${plainText(entry.label)}**\n\n${entry.text}`).join("\n\n");
 }
 
@@ -123,11 +135,11 @@ export function viewRowLabel(
   }
 }
 
-function table(rows: readonly (readonly string[])[], headings?: readonly string[]): string {
-  const header = headings
-    ? `<thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead>\n`
-    : "";
-  return `<table>\n${header}${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell).replace(/\n/g, "<br>")}</td>`).join("")}</tr>`).join("\n")}\n</table>`;
+// Bare rows keep tables compact; the surrounding section label already names the columns.
+function table(rows: readonly (readonly string[])[]): string {
+  return `<table>\n${rows
+    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell).replace(/\n/g, "<br>")}</td>`).join("")}</tr>`)
+    .join("\n")}\n</table>`;
 }
 
 function isPairedRow(row: ViewRow): boolean {
@@ -199,13 +211,7 @@ export function renderStandaloneRow(row: ViewRow): string {
 
 function sectionBody(section: ViewSection): string {
   if (section.items.length > 0 && section.items.every(isPairedRow)) {
-    const forms = section.pairHeadings
-      ? section.pairHeadings === "forms"
-      : section.items.every((row) => row.kind === "form");
-    return table(
-      section.items.map((row) => [row.title, row.subtitle ?? ""]),
-      forms ? ["Form", "Value"] : ["Expression", "Meaning"],
-    );
+    return table(section.items.map((row) => [row.title, row.subtitle ?? ""]));
   }
   if (section.kind === "definitions")
     return section.items.map((row, index) => `<small>${index + 1}.</small> ${row.renderBody()}`).join("\n\n");
@@ -260,7 +266,7 @@ export function renderSavedView(query: QueryWordInfo, sections: readonly ViewSec
     );
   }
   flushTranslations();
-  return [resultHeader({ ...query, phonetic: headerPhonetic }), content.join("\n\n---\n\n")]
+  return [resultHeader({ ...query, phonetic: headerPhonetic }, false), content.join("\n\n---\n\n")]
     .filter(Boolean)
     .join("\n\n");
 }

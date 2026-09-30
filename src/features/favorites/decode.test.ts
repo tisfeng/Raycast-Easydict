@@ -39,7 +39,7 @@ const legacyService = {
     kind: "legacy",
     role: "dictionary",
     query,
-    sections: [{ kind: "equivalents", title: "Forms", pairHeadings: "forms", rows: [legacyRow] }],
+    sections: [{ kind: "equivalents", title: "Forms", rows: [legacyRow] }],
   },
 };
 
@@ -109,18 +109,6 @@ describe("favorite snapshot decoding", () => {
           content: {
             ...legacyService.content,
             sections: [{ kind: "equivalents", rows: [{ ...legacyRow, bodyMarkdown: false }] }],
-          },
-        },
-      ],
-    },
-    {
-      ...favorite,
-      services: [
-        {
-          ...legacyService,
-          content: {
-            ...legacyService.content,
-            sections: [{ kind: "equivalents", pairHeadings: "other", rows: [legacyRow] }],
           },
         },
       ],

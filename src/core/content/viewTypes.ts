@@ -42,6 +42,5 @@ export interface ViewSection {
   readonly kind: DictionarySection["kind"];
   readonly service: ViewService;
   readonly title?: string;
-  readonly pairHeadings?: "forms" | "expressions";
   readonly items: readonly ViewRow[];
 }
