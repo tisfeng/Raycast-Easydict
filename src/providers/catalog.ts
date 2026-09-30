@@ -3,7 +3,7 @@
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import type { BooleanPreferenceKey } from "@/types/preferences";
 
-export type BuiltinProviderCategory = "dictionary" | "translation";
+type BuiltinProviderCategory = "dictionary" | "translation";
 
 export const defaultTypeOrder = [
   DictionaryType.Youdao,

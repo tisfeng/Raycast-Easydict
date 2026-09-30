@@ -29,7 +29,7 @@ export interface OpenAICompatibleRuntimeConfig extends AIProviderRuntimeBase {
 
 export type AIProviderRuntimeConfig = RaycastAIRuntimeConfig | OpenAICompatibleRuntimeConfig;
 
-export type AIProviderRuntimeResolution =
+type AIProviderRuntimeResolution =
   { kind: "ready"; config: AIProviderRuntimeConfig } | { kind: "issue"; message: string };
 
 export function resolveAIProviderRuntimeConfig(profile: AIProviderProfile): AIProviderRuntimeResolution {

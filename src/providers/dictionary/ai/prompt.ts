@@ -4,7 +4,7 @@ import type { Message } from "@xsai/shared-chat";
 
 import type { QueryInput } from "@/core/results/types";
 
-export interface AIDictionaryPromptSpec {
+interface AIDictionaryPromptSpec {
   source: string;
   fromLanguage: string;
   toLanguage: string;

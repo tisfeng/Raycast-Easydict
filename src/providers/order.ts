@@ -10,7 +10,7 @@ export interface ProviderOrderCandidate {
   profileOrder?: number;
 }
 
-export interface ProviderOrderService {
+interface ProviderOrderService {
   providerKey: string;
   type: string;
   order: number;
@@ -24,18 +24,15 @@ export function getAIProviderKey(profile: AIProviderProfile): string {
   return `ai:${profile.id}`;
 }
 
-export function getProviderOrderCandidates(
+function getProviderOrderCandidates(
   profiles: AIProviderProfile[],
   builtinCandidates: ProviderOrderCandidate[] = [],
 ): ProviderOrderCandidate[] {
   const candidates = [...builtinCandidates];
-  const staticKeys = new Set(candidates.map((candidate) => candidate.providerKey));
 
   for (const profile of profiles) {
-    const providerKey = getAIProviderKey(profile);
-    if (staticKeys.has(providerKey)) continue;
     candidates.push({
-      providerKey,
+      providerKey: getAIProviderKey(profile),
       type: profile.wordResultMode === "dictionary" ? DictionaryType.AI : TranslationType.OpenAI,
       serviceOrder: profile.order,
       profileOrder: profile.order,
@@ -45,14 +42,14 @@ export function getProviderOrderCandidates(
   return candidates;
 }
 
-export function getAvailableProviderKeys(
+function getAvailableProviderKeys(
   profiles: AIProviderProfile[],
   builtinCandidates: ProviderOrderCandidate[] = [],
 ): string[] {
   return getProviderOrderCandidates(profiles, builtinCandidates).map((candidate) => candidate.providerKey);
 }
 
-export function getLegacyServiceTypeOrder(servicesOrder: string[]): string[] {
+function getLegacyServiceTypeOrder(servicesOrder: string[]): string[] {
   const defaultOrders = defaultTypeOrder.map((type) => type.toLowerCase());
   const userOrder: string[] = [];
 

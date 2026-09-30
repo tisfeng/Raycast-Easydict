@@ -119,7 +119,7 @@ function enqueueProviderStateUpdate<Result>(update: () => Promise<Result>): Prom
   return pending;
 }
 
-export function isStoredAIProviderState(value: unknown): value is StoredAIProviderState {
+function isStoredAIProviderState(value: unknown): value is StoredAIProviderState {
   if (!isRecord(value) || value.version !== 2 || !isProviderStateBody(value)) return false;
   const migrated = value.migratedLegacyProviders;
   if (
