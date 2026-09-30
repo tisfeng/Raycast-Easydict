@@ -37,7 +37,7 @@ export class CancelledError extends Error {
 /**
  * Standardized error structure extracted from any unknown error payload.
  */
-export interface NormalizedError {
+interface NormalizedError {
   /** The error name, e.g. "FetchError", "AbortError", "TypeError" */
   name: string;
   /** The human-readable error message */
