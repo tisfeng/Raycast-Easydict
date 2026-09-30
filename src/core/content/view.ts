@@ -15,12 +15,11 @@ export function buildContentView(composed: ComposedContent, flagsAreNotLanguages
   const sections: ViewSection[] = [];
   let previousTranslation = false;
   for (const result of composed.services) {
-    const { content, serviceId, serviceLabel, serviceOrder, serviceIcon, fromCache, type } = result;
+    const { content, serviceId, serviceLabel, serviceIcon, fromCache, type } = result;
     const service: ViewService = {
       type,
       serviceId,
       serviceLabel,
-      serviceOrder,
       serviceIcon,
       fromCache,
       query: content.query,

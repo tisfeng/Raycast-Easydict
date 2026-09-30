@@ -4,7 +4,8 @@ import type { QueryType, QueryWordInfo, RuntimeServiceMetadata } from "@/core/re
 
 import type { ContentEquivalent, DictionarySection } from "./types";
 
-export interface ViewService extends RuntimeServiceMetadata {
+/** View layers keep service identity only; ordering is already owned upstream. */
+export interface ViewService extends Omit<RuntimeServiceMetadata, "serviceOrder"> {
   readonly type: QueryType;
   readonly query: QueryWordInfo;
   readonly kind: "translation" | "dictionary";
