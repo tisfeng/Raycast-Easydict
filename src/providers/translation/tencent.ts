@@ -8,9 +8,10 @@ import { tencentSign } from "@/providers/shared/tencent-sign";
 import { RequestError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
 import { logError, logWarn } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
-import { invalidResponse, isRecord } from "./response";
+import { invalidResponse } from "./response";
 
 /**
  * Tencent translate, use timedFetch with manual TC3-HMAC-SHA256 signing.

@@ -1,13 +1,11 @@
-/** Decode only the fields consumed by detection protocols. BaseDetectProvider normalizes failures. */
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+import { isRecord } from "@/shared/validation";
 
+/** Decode only the fields consumed by detection protocols. BaseDetectProvider normalizes failures. */
 export function detectionObject(
   value: unknown,
   message = "Invalid language detection response: expected an object.",
 ): Record<string, unknown> {
-  if (!isObject(value)) throw new Error(message);
+  if (!isRecord(value)) throw new Error(message);
   return value;
 }
 

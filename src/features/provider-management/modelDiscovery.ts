@@ -7,6 +7,7 @@ import { FetchError } from "ofetch";
 
 import { timedFetch } from "@/shared/http";
 import { logSummary, logTrace, logWarn } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 const modelCache = new Cache({ namespace: "ai-provider-models" });
 const LOG_LABEL = "AI Models";
@@ -138,8 +139,4 @@ function getSafeModelsURLForLog(endpoint: string): string {
 
 function getErrorType(error: unknown): string {
   return error instanceof Error ? error.name : typeof error;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

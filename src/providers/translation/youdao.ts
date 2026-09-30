@@ -11,9 +11,10 @@ import { md5 } from "@/shared/crypto";
 import { RequestError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
 import { logError, logWarn } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
-import { invalidResponse, isRecord } from "./response";
+import { invalidResponse } from "./response";
 
 interface TranslateParams {
   keyid: string;

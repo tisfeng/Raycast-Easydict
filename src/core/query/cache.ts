@@ -11,6 +11,7 @@ import { parseSourceLanguage } from "@/core/language/utils";
 import { DictionaryType, LanguageDetectType, TranslationType } from "@/core/results/kinds";
 import type { ProviderResult, QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { logWarn } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 const CACHE_FORMAT_VERSION = 1;
 const RESULT_FORMAT_VERSION = 2;
@@ -252,10 +253,6 @@ function isConservativeStandaloneWord(text: string): boolean {
   if (!word || word !== text || /\s/u.test(word)) return false;
   if (/\p{Script=Han}|\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Hangul}/u.test(word)) return false;
   return /^[\p{L}\p{M}\p{N}]+(?:[-'’][\p{L}\p{M}\p{N}]+)*$/u.test(word);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function decodeDetectedLanguage(value: unknown): DetectionDecision {

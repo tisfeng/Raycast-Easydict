@@ -4,6 +4,7 @@ import { LocalStorage } from "@raycast/api";
 
 import { PROVIDER_ICON_NAMES, type ProviderIconConfig } from "@/core/results/types";
 import { createTimer } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 import {
   type AIProviderProfile,
@@ -237,8 +238,4 @@ function isJSONOutputMode(value: unknown): value is JSONOutputMode {
 
 function isWordResultMode(value: unknown): value is WordResultMode {
   return value === "translation" || value === "dictionary";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

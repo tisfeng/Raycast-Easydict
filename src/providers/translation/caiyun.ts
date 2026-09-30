@@ -7,9 +7,10 @@ import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { ProviderConfig } from "@/providers/shared/config";
 import { timedFetch } from "@/shared/http";
 import { logTrace } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
-import { invalidResponse, isRecord } from "./response";
+import { invalidResponse } from "./response";
 
 /**
  * Caiyun translate API. Cost time: 0.2s
