@@ -14,7 +14,7 @@ import { assignGlobalServiceOrder, getAIProviderKey, getCombinedProviderOrder } 
 import { builtinTranslationServices as builtinTranslations, type TranslationServiceConfig } from "./translation";
 import { createAITranslationProvider } from "./translation/ai";
 
-export interface ProviderServiceSnapshot {
+interface ProviderServiceSnapshot {
   translationServices: TranslationServiceConfig[];
   dictionaryServices: DictionaryServiceConfig[];
 }

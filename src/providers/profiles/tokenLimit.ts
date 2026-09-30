@@ -2,7 +2,7 @@ import type { TokenLimitMode } from "./types";
 
 const OPENAI_COMPLETION_TOKEN_MODEL_PATTERN = /^(o1|o3|gpt-5)/i;
 
-export type TokenLimitParams = { max_tokens: number } | { max_completion_tokens: number };
+type TokenLimitParams = { max_tokens: number } | { max_completion_tokens: number };
 
 export function inferTokenLimitMode(endpoint: string, model: string): TokenLimitMode {
   try {
