@@ -49,7 +49,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 - [x] 支持划词自动查询（默认启用）。配合快捷键使用体验更佳。
 - [x] 支持 OCR 截图翻译。
 - [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上已安装）。
-- [x] 支持自动播放单词发音（使用 `Cmd + S` 手动播放）。
+- [x] 支持自动和手动播放单词发音。
 - [x] 支持有道文本合成语音（TTS）。
 - [x] 支持手动排序查询结果。
 - [x] 支持 [Arguments](https://developers.raycast.com/information/lifecycle/arguments)。
@@ -149,9 +149,30 @@ npm install && npm run dev
 
 ### 管理 Provider
 
-使用 **Manage Providers** 统一调整内置 Provider、已配置的旧版 Provider 和 AI Provider 的顺序。列表会标明 Provider 类型，并显示 Enabled/Disabled 状态（AI Provider 还可能显示 Invalid）；可在 macOS 上用 `Cmd+Shift+Up/Down`、Windows 上用 `Ctrl+Shift+Up/Down` 调整顺序。在此编辑、测试、启用、停用、复制或删除 AI Provider；内置 Provider 在 Extension Settings 中配置。AI Provider 可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
+使用 **Manage Providers** 命令管理 AI Provider，并设置所有 Provider 的查询顺序。
 
-可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。已配置的旧版 OpenAI 和 Gemini 设置可以单独或一起导入；导入后的 AI Provider 会显式替代对应旧版位置。删除替代项不会让旧版 Provider 自动恢复，必须由用户手动 Restore。新建 Provider 或修改连接相关配置后会默认提供 Test & Save，同时仍可选择 Save Without Testing。JSON 输出模式会根据预设选择默认值。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
+**Provider 与顺序**
+
+- 内置 Provider 在此仅参与排序，启用和配置请前往 Extension Settings。
+- 用 **Move Up**/**Move Down** 调整任意 Provider 的位置（macOS `Cmd+Option+Up/Down`，Windows `Ctrl+Alt+Up/Down`），内置和 AI Provider 共用同一顺序。
+
+**AI Provider**
+
+- AI Provider 可连接 **Raycast AI** 或任意 **OpenAI 兼容接口**。
+- 已为常见服务商内置预设：选中后填入 API Key、按需调整模型即可；如果没有你的服务商，欢迎[贡献](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md)。
+- **Word & Term Results** 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。词典模式会为单词和词组生成结构化词条（音标、义项、例句、词形变化），其他输入按普通翻译处理，由于需要生成结构化数据，生成速度会变慢，偶尔可能会失败。
+
+**旧设置迁移**
+
+- 带有 API key 的旧版 OpenAI、Gemini 设置会在下次打开 Search Word 或 Manage Providers 时自动迁移，保留连接设置、启用状态和顺序。
+- 旧设置仅保留为导入来源；**Add from Legacy OpenAI/Gemini Settings…** 可用其创建初始停用的新副本。
+- 迁移按设备进行（每台设备需具备旧 API key），失败时可在 Manage Providers 重试。
+
+### 收藏存储与恢复
+
+升级后，已有收藏仍可离线查看。首次新增、删除、清空或恢复时，会把完整集合保存为新格式；后续修改以该集合为准，空集合也会保留。旧快照继续保留，供恢复及旧版本读取。旧版本只能看到旧快照；之后在新旧版本中的修改不会在两种格式之间同步。
+
+如果收藏数据无法读取，「Favorite Words」会保留原始数据并阻止修改。可通过 **Export Original Data** 导出本地 JSON 备份，或通过 **Restore from Backup** 选择有效备份恢复；替换前会先备份当前数据。备份保存在扩展支持目录中，可通过 **Open Backup Folder** 打开所在文件夹。当前数据损坏时，还可通过 **Restore Previous-Version Favorites** 恢复保留的旧集合，恢复前会备份损坏数据。来自更新版本的数据格式保持只读：请先导出，并使用兼容的 Easydict 版本读取。
 
 ### 偏好语言
 
@@ -196,13 +217,19 @@ npm install && npm run dev
 <details> <summary> 查询单词后自动播放单词发音，默认开启。 </summary>
 
 <p>
-注意，当该选项开始时，仅当查询的内容被判定为 `is_Word` 且为英语时才会自动播放语音，例如 `good`, `look for` 等。其他查询内容，可通过快捷键 `Cmd + S` 播放语音。
+注意，当该选项开始时，仅当查询的内容被判定为 `is_Word` 且为英语时才会自动播放语音，例如 `good`, `look for` 等。其他查询内容，可通过 **Read Query Text** 手动播放语音。
 播放语音的内容：英语单词优先采用在线的有道词典发音，其他则使用有道翻译的 TTS 服务（若有有道 App Key）。长文本播放使用 say 命令。
 </p>
 
 </details>
 
-使用快捷键 `Cmd + S` 播放单词发音。
+查询结果页支持以下快捷键：
+
+| 操作 | macOS | Windows |
+| --- | --- | --- |
+| 朗读查询文本（Read Query Text） | `Cmd+R` | `Ctrl+R` |
+| 朗读结果文本（Read Result Text） | `Cmd+Shift+R` | `Ctrl+Shift+R` |
+| 重新查询所有服务（Requery All Services） | `Cmd+Option+R` | `Ctrl+Alt+R` |
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 

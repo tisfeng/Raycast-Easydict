@@ -69,7 +69,7 @@ npm install && npm run dev
 - [x] Automatically queries selected text (enabled by default).
 - [x] Supports screenshot OCR translation.
 - [x] Supports opening the [Eudic Dictionary](https://apps.apple.com/us/app/eudic-%E6%AC%A7%E8%B7%AF%E8%AF%8D%E5%85%B8/id434350458?l=zh&mt=12) for quick lookups (if installed on your Mac).
-- [x] Supports automatic audio playback of word pronunciations (use `Cmd + S` to play manually).
+- [x] Supports automatic and manual audio playback of word pronunciations.
 - [x] Supports Youdao Text-to-Speech (TTS).
 - [x] Supports manually sorting query results.
 - [x] Supports [Arguments](https://developers.raycast.com/information/lifecycle/arguments).
@@ -148,11 +148,30 @@ Easydict works well out of the box. The following options help you customize its
 
 ### Manage Providers
 
-Use **Manage Providers** to reorder built-in and AI providers. The list labels each provider type and shows Enabled/Disabled status (AI providers can also be Invalid); reorder with `Cmd+Shift+Up/Down` on macOS or `Ctrl+Shift+Up/Down` on Windows. Edit, test, enable, disable, duplicate, or delete AI providers there; configure built-in providers in Extension Settings. AI providers can use Raycast AI or custom OpenAI-compatible endpoints. Presets include OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, OpenCode Zen, and OpenCode Go.
+Use the **Manage Providers** command to manage AI providers and to set the order in which all providers are queried.
 
-Choose **Plain Translation** or **AI-Generated Dictionary Entry**. Models are discovered automatically when available; you can also enter a model name manually. New or connection-related provider changes offer Test & Save by default, with Save Without Testing still available. JSON output defaults are selected per preset. Some models may fail to return valid structured dictionary output and require a retry, and dictionary generation may take longer.
+**Providers and order**
 
-Legacy OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers. Migration preserves connection settings, enablement, and ordering; existing imported providers keep their edits. Manage the resulting providers only in **Manage Providers**: old Extension Settings are retained as import sources and no longer run separate providers. Deleting a provider does not import it again, and providers previously retired remain removed. **Add from Legacy OpenAI/Gemini Settings…** opens a prefilled form to create another copy, initially disabled. On another device, migration waits until that device has the legacy API key; it does not transfer provider profiles between devices. If configuration cannot be read or migrated, other built-in services remain available and Manage Providers offers a retry.
+- Built-in providers are listed here for ordering only; enable and configure them in Extension Settings.
+- Reorder any provider with **Move Up**/**Move Down** (`Cmd+Option+Up/Down` on macOS, `Ctrl+Alt+Up/Down` on Windows); built-in and AI providers share one order.
+
+**AI providers**
+
+- AI providers connect to **Raycast AI** or any **OpenAI-compatible endpoint**.
+- Built-in presets cover common providers: pick yours, add the API key, and adjust the model if needed. If yours is missing, [contributions are welcome](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md).
+- **Word & Term Results** chooses **Plain Translation** or **AI-Generated Dictionary Entry**. Dictionary mode builds a structured entry for words and terms — pronunciation, senses, examples, and word forms — while other input is translated normally; it can be slower and may need a retry.
+
+**Legacy migration**
+
+- OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers, preserving connection settings, enablement, and order.
+- The old settings remain import sources only; **Add from Legacy OpenAI/Gemini Settings…** copies them into a new provider, initially disabled.
+- Migration is per device (each device needs the legacy API key) and offers a retry if it fails.
+
+### Favorite Storage and Recovery
+
+Existing favorites remain available offline after upgrading. The first add, removal, clear, or restore saves the complete collection in the new format; later changes use that collection, including when it is empty. The previous snapshot is retained for recovery and older versions. Older versions see only that snapshot, and subsequent edits in either version do not sync between formats.
+
+If saved favorites cannot be read, Favorite Words keeps the original data and blocks changes. Use **Export Original Data** to save a local JSON backup, or **Restore from Backup** to select a valid backup; the current data is backed up before replacement. Backups are stored locally in the extension support directory, and **Open Backup Folder** reveals them. **Restore Previous-Version Favorites** can recover the retained collection when the current data is damaged, after backing up the damaged data. A format from a newer version stays read-only: export it and use a compatible Easydict version.
 
 ### Preferred Languages
 
@@ -198,7 +217,7 @@ In order to better match the automatic selected text feature, it is a good idea 
 
 <p>
 
-Note that when this option is started, the voice will be played only when the query is judged to be `is_Word` and in English, e.g. `good`, `look for`, etc. For other queries, the voice can be played with the shortcut `Cmd + S`.
+Note that when this option is started, the voice will be played only when the query is judged to be `is_Word` and in English, e.g. `good`, `look for`, etc. Use **Read Query Text** to play other queries manually.
 
 The content of playing voice: English words are pronounced by the online Youdao dictionary first, and other words are pronounced by the TTS service of Youdao translation. For long text playback, use the say command.
 
@@ -206,7 +225,13 @@ The content of playing voice: English words are pronounced by the online Youdao 
 
 </details>
 
-Use `Cmd + S` to play the pronunciation of words manually.
+Use these shortcuts from a query result:
+
+| Action | macOS | Windows |
+| --- | --- | --- |
+| Read Query Text | `Cmd+R` | `Ctrl+R` |
+| Read Result Text | `Cmd+Shift+R` | `Ctrl+Shift+R` |
+| Requery All Services | `Cmd+Option+R` | `Ctrl+Alt+R` |
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
