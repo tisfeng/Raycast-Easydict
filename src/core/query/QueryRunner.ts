@@ -1,4 +1,5 @@
 import { myPreferences } from "@/consts";
+import { config } from "@/core/config";
 import { detectLanguage } from "@/core/detect";
 import { englishLanguageItem } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
@@ -13,6 +14,7 @@ import type {
 import type { DictionaryServiceConfig } from "@/providers/dictionary";
 import type { TranslationServiceConfig } from "@/providers/translation";
 import { CancelledError, RequestError } from "@/shared/errors";
+import { logTrace } from "@/shared/logger";
 
 import {
   cacheLanguageDetection,
@@ -21,7 +23,6 @@ import {
   getCachedQueryResult,
   getQueryCacheGeneration,
 } from "./cache";
-import { getAutoSelectedTargetLanguageItem } from "./utils";
 
 export interface QueryServiceSnapshot {
   translationServices: TranslationServiceConfig[];
@@ -47,7 +48,7 @@ interface QuerySession {
   audioPlayed: boolean;
 }
 
-export interface QuerySnapshot {
+interface QuerySnapshot {
   readonly queryResults: readonly QueryResult[];
   queryGeneration: number;
   isLoading: boolean;
@@ -61,6 +62,15 @@ interface QueryEffects {
 
 function serviceMetadata(service: RuntimeServiceConfig) {
   return { serviceId: service.id, serviceLabel: service.label, serviceOrder: service.order, serviceIcon: service.icon };
+}
+
+/** Auto-select the preferred target language that differs from the detected source language. */
+function getAutoSelectedTargetLanguageItem(fromLangCode: string): LanguageItem {
+  const targetLanguageItem = config.preferredLanguages.find(
+    (languageItem) => languageItem.youdaoLangCode !== fromLangCode,
+  ) as LanguageItem;
+  logTrace("QueryRunner", `fromLangCode: ${fromLangCode}, auto selected target: ${targetLanguageItem.youdaoLangCode}`);
+  return targetLanguageItem;
 }
 
 /** Owns one command's active query and service requests; React only subscribes. */

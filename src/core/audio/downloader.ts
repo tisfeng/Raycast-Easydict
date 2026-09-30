@@ -22,7 +22,7 @@ function getAudioBasePath(url: string): string {
   return path.join(audioDirPath, hash);
 }
 
-export function getCachedAudioPath(url: string): string | undefined {
+function getCachedAudioPath(url: string): string | undefined {
   const basePath = getAudioBasePath(url);
   for (const ext of [".mp3", ".m4a", ".wav"]) {
     const fullPath = basePath + ext;
