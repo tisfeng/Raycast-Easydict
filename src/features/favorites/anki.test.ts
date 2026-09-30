@@ -38,10 +38,6 @@ function dictionaryService(sections: DictionaryContent["sections"]): ComposedSer
 }
 
 describe("normalizeAnkiUrl", () => {
-  it("falls back to the standard local endpoint for a blank value", () => {
-    expect(normalizeAnkiUrl("  ")).toBe("http://127.0.0.1:8765");
-  });
-
   it("assumes plain http for an address typed without a scheme", () => {
     expect(normalizeAnkiUrl("127.0.0.1:8766")).toBe("http://127.0.0.1:8766");
   });

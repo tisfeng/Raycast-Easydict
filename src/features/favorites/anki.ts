@@ -1,26 +1,22 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
+import { escapeHtml } from "@/core/content/markdown";
 import { timedFetch } from "@/shared/http";
 
 import { type FavoriteWord, resolveFavoriteTranslations } from "./model";
 import { getFavoriteView } from "./view";
 
 /**
- * AnkiConnect add-on endpoint (https://ankiweb.net/shared/info/2055492159).
- * It listens on localhost by default, on both macOS and Windows; its `webBindAddress`
- * and `webBindPort` config can move it, hence the URL preference.
+ * AnkiConnect listens on `127.0.0.1:8765` by default, and its `webBindPort` config can move it,
+ * so the address comes from the AnkiConnect URL preference. Accept hand-typed values without a scheme.
  */
-const DEFAULT_ANKI_CONNECT_URL = "http://127.0.0.1:8765";
-
-/** Accept hand-typed addresses without a scheme; a blank value means the standard endpoint. */
 export function normalizeAnkiUrl(value: string): string {
   const trimmed = value.trim().replace(/\/+$/, "");
-  if (!trimmed) return DEFAULT_ANKI_CONNECT_URL;
   return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
 }
 
 /** Note type created on first use; users may restyle its templates in Anki. */
-export const ANKI_MODEL_NAME = "Easydict";
+const ANKI_MODEL_NAME = "Easydict";
 const ANKI_MODEL_FIELDS = ["Word", "Phonetic", "Translation", "Explanation", "Audio"] as const;
 const ANKI_TEMPLATE_NAME = "Recognition";
 
@@ -39,7 +35,7 @@ const ANKI_BACK_TEMPLATE = `{{FrontSide}}
 <div class="translation">{{Translation}}</div>
 {{#Explanation}}<div class="explanation">{{Explanation}}</div>{{/Explanation}}`;
 
-export interface AnkiNote {
+interface AnkiNote {
   deckName: string;
   modelName: string;
   fields: Record<(typeof ANKI_MODEL_FIELDS)[number], string>;
@@ -49,14 +45,10 @@ export interface AnkiNote {
   options: { allowDuplicate: false; duplicateScope: "deck" };
 }
 
-export interface AddToAnkiResult {
+interface AddToAnkiResult {
   added: number;
   /** Words already in the deck, or repeated within the same batch. */
   skipped: number;
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 async function invokeAnki<T>(url: string, action: string, params: object = {}): Promise<T> {
