@@ -11,6 +11,7 @@ import {
   getCachedLanguageDetection,
   getCachedQueryResult,
   getQueryCacheGeneration,
+  hasEnabledQueryCache,
 } from "./cache";
 
 const testState = vi.hoisted(() => ({
@@ -298,6 +299,19 @@ describe("query cache", () => {
     expect(getCachedLanguageDetection("uncertain")).toBeUndefined();
     cacheLanguageDetection("unmapped", { type: LanguageDetectType.Bing, language: "auto", confirmed: false });
     expect(getCachedLanguageDetection("unmapped")).toBeUndefined();
+  });
+
+  it("reports an enabled cache only while at least one mode is not off", () => {
+    testState.preferences.queryCacheMode = "off";
+    testState.preferences.aiQueryCacheMode = "off";
+    expect(hasEnabledQueryCache()).toBe(false);
+
+    testState.preferences.queryCacheMode = "words";
+    expect(hasEnabledQueryCache()).toBe(true);
+
+    testState.preferences.queryCacheMode = "off";
+    testState.preferences.aiQueryCacheMode = "all";
+    expect(hasEnabledQueryCache()).toBe(true);
   });
 });
 

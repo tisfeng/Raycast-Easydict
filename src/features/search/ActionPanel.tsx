@@ -11,7 +11,7 @@ import { renderStandaloneRow } from "@/core/content/render";
 import type { ViewRow } from "@/core/content/viewTypes";
 import { languageItemList } from "@/core/language/consts";
 import type { LanguageItem } from "@/core/language/types";
-import { clearQueryCache } from "@/core/query/cache";
+import { clearQueryCache, hasEnabledQueryCache } from "@/core/query/cache";
 import { getQueryTypeIcon } from "@/core/results/icons";
 import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
@@ -273,14 +273,16 @@ function SettingsActions({ isShowingReleasePrompt }: { isShowingReleasePrompt: b
       />
       <Action icon={Icon.Gear} title="Preferences" onAction={openCommandPreferences} />
       <Action.OpenInBrowser icon={Icon.QuestionMark} title="Feedback" url={FEEDBACK_URL} />
-      <Action
-        icon={Icon.Trash}
-        title="Clear Query Cache"
-        onAction={() => {
-          clearQueryCache();
-          showToast({ style: Toast.Style.Success, title: "Query Cache Cleared" });
-        }}
-      />
+      {hasEnabledQueryCache() && (
+        <Action
+          icon={Icon.Trash}
+          title="Clear Query Cache"
+          onAction={() => {
+            clearQueryCache();
+            showToast({ style: Toast.Style.Success, title: "Query Cache Cleared" });
+          }}
+        />
+      )}
     </ActionPanel.Section>
   );
 }

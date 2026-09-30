@@ -48,6 +48,11 @@ function synchronizeDisabledCaches() {
   }
 }
 
+/** Whether either cache mode can still serve or store results. */
+export function hasEnabledQueryCache(): boolean {
+  return myPreferences.queryCacheMode !== "off" || myPreferences.aiQueryCacheMode !== "off";
+}
+
 function permitsInput(mode: QueryCacheMode, query: QueryInput, confirmedIsWord?: boolean): boolean {
   if (mode === "all") return true;
   if (mode !== "words" || query.isWord === false || confirmedIsWord === false) return false;
