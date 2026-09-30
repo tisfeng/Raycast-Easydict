@@ -8,9 +8,9 @@ import { getBingHost, requestBingConfig } from "@/providers/shared/bing-config";
 import { requestBing } from "@/providers/shared/bing-request";
 import { RequestError } from "@/shared/errors";
 import { logWarn } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 import { BaseNonStreamingTranslateProvider } from "./base";
-import { isRecord } from "./response";
 
 /**
  * Request Microsoft Bing Web Translator.

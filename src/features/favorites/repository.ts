@@ -8,6 +8,7 @@ import { environment, LocalStorage } from "@raycast/api";
 
 import type { QueryInput } from "@/core/results/types";
 import { normalizeError } from "@/shared/errors";
+import { isRecord } from "@/shared/validation";
 
 import { decodeFavoriteSnapshot, decodeLegacyFavorites } from "./decode";
 import { favoriteKeyOf, type FavoriteWord } from "./model";
@@ -25,10 +26,6 @@ export type FavoriteStorageState =
   | { kind: "ready"; favorites: FavoriteWord[]; source: FavoriteStorageSource }
   | { kind: "invalid" | "unsupported"; message: string; source: FavoriteStorageSource }
   | { kind: "error"; message: string };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function decodeContentEnvelope(value: unknown): FavoriteWord[] {
   if (!isRecord(value) || value.version !== 1 || !Array.isArray(value.favorites)) {
