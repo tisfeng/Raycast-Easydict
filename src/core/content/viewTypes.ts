@@ -12,7 +12,7 @@ export interface ViewService extends Omit<RuntimeServiceMetadata, "serviceOrder"
   readonly fromCache?: boolean;
 }
 
-export type ViewRowKind =
+type ViewRowKind =
   | "translation"
   | "definition"
   | "equivalent"

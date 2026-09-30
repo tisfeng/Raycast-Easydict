@@ -9,20 +9,13 @@ import type { ViewRow } from "@/core/content/viewTypes";
 import { DictionaryType } from "./kinds";
 import type { ProviderIconConfig, ProviderIconName, QueryType } from "./types";
 
-/**
- * Play sound icons with different tint colors.
- */
-export const playSoundIconBlack: Image.ImageLike = {
-  source: { light: "play.png", dark: "play.png" },
-  tintColor: { light: "black", dark: "lightgray" },
-};
-
+/** Play sound icon. */
 export const playSoundIconGray: Image.ImageLike = {
   source: { light: "play.png", dark: "play.png" },
   tintColor: { light: "gray", dark: "lightgray" },
 };
 
-export const raycastAIIcon: Image.ImageLike = {
+const raycastAIIcon: Image.ImageLike = {
   source: Icon.RaycastLogoNeg,
   tintColor: "#FF6363",
 };

@@ -3,7 +3,7 @@
 import type { LanguageCode } from "@/core/language/types";
 import type { LanguageDetectType } from "@/core/results/kinds";
 
-export interface LanguageCandidate {
+interface LanguageCandidate {
   readonly language: LanguageCode | undefined;
   readonly confidence: number;
 }
