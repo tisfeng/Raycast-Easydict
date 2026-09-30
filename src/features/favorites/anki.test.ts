@@ -7,7 +7,7 @@ import type { DictionaryContent } from "@/core/content/types";
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import type { QueryWordInfo } from "@/core/results/types";
 
-import { buildAnkiNote } from "./anki";
+import { buildAnkiNote, normalizeAnkiUrl } from "./anki";
 import { buildFavoriteWord } from "./model";
 
 // The Anki client reaches @/consts through the shared HTTP client; only the timeout is read.
@@ -36,6 +36,20 @@ function dictionaryService(sections: DictionaryContent["sections"]): ComposedSer
     serviceOrder: 1,
   };
 }
+
+describe("normalizeAnkiUrl", () => {
+  it("falls back to the standard local endpoint for a blank value", () => {
+    expect(normalizeAnkiUrl("  ")).toBe("http://127.0.0.1:8765");
+  });
+
+  it("assumes plain http for an address typed without a scheme", () => {
+    expect(normalizeAnkiUrl("127.0.0.1:8766")).toBe("http://127.0.0.1:8766");
+  });
+
+  it("keeps an explicit address and drops a trailing slash", () => {
+    expect(normalizeAnkiUrl("http://anki.local:8766/")).toBe("http://anki.local:8766");
+  });
+});
 
 describe("buildAnkiNote", () => {
   it("puts the saved phonetic, translations, and dictionary explanations on the card", () => {

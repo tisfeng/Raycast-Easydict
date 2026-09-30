@@ -7,9 +7,17 @@ import { getFavoriteView } from "./view";
 
 /**
  * AnkiConnect add-on endpoint (https://ankiweb.net/shared/info/2055492159).
- * It listens on localhost only, on both macOS and Windows.
+ * It listens on localhost by default, on both macOS and Windows; its `webBindAddress`
+ * and `webBindPort` config can move it, hence the URL preference.
  */
-const ANKI_CONNECT_URL = "http://127.0.0.1:8765";
+const DEFAULT_ANKI_CONNECT_URL = "http://127.0.0.1:8765";
+
+/** Accept hand-typed addresses without a scheme; a blank value means the standard endpoint. */
+export function normalizeAnkiUrl(value: string): string {
+  const trimmed = value.trim().replace(/\/+$/, "");
+  if (!trimmed) return DEFAULT_ANKI_CONNECT_URL;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
+}
 
 /** Note type created on first use; users may restyle its templates in Anki. */
 export const ANKI_MODEL_NAME = "Easydict";
@@ -51,26 +59,28 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-async function invokeAnki<T>(action: string, params: object = {}): Promise<T> {
+async function invokeAnki<T>(url: string, action: string, params: object = {}): Promise<T> {
   let response: { result: T; error: string | null };
   try {
-    response = await timedFetch(ANKI_CONNECT_URL, {
+    response = await timedFetch(url, {
       method: "POST",
       body: { action, version: 6, params },
       parseResponse: JSON.parse,
     });
   } catch {
-    throw new Error("Could not connect to Anki. Open Anki and make sure the AnkiConnect add-on is installed.");
+    throw new Error(
+      `Could not connect to Anki at ${url}. Open Anki and make sure the AnkiConnect add-on is installed.`,
+    );
   }
   if (response.error) throw new Error(`AnkiConnect: ${response.error}`);
   return response.result;
 }
 
-async function ensureDeckAndModel(deckName: string) {
-  await invokeAnki("createDeck", { deck: deckName });
-  const modelNames = await invokeAnki<string[]>("modelNames");
+async function ensureDeckAndModel(url: string, deckName: string) {
+  await invokeAnki(url, "createDeck", { deck: deckName });
+  const modelNames = await invokeAnki<string[]>(url, "modelNames");
   if (!modelNames.includes(ANKI_MODEL_NAME)) {
-    await invokeAnki("createModel", {
+    await invokeAnki(url, "createModel", {
       modelName: ANKI_MODEL_NAME,
       inOrderFields: ANKI_MODEL_FIELDS,
       css: ANKI_MODEL_CSS,
@@ -81,19 +91,19 @@ async function ensureDeckAndModel(deckName: string) {
   }
 
   // Note types created by an earlier version lack newer fields; add them and refresh the templates to show them.
-  const fieldNames = await invokeAnki<string[]>("modelFieldNames", { modelName: ANKI_MODEL_NAME });
+  const fieldNames = await invokeAnki<string[]>(url, "modelFieldNames", { modelName: ANKI_MODEL_NAME });
   const missingFields = ANKI_MODEL_FIELDS.filter((field) => !fieldNames.includes(field));
   if (!missingFields.length) return;
   for (const fieldName of missingFields) {
-    await invokeAnki("modelFieldAdd", { modelName: ANKI_MODEL_NAME, fieldName });
+    await invokeAnki(url, "modelFieldAdd", { modelName: ANKI_MODEL_NAME, fieldName });
   }
-  await invokeAnki("updateModelTemplates", {
+  await invokeAnki(url, "updateModelTemplates", {
     model: {
       name: ANKI_MODEL_NAME,
       templates: { [ANKI_TEMPLATE_NAME]: { Front: ANKI_FRONT_TEMPLATE, Back: ANKI_BACK_TEMPLATE } },
     },
   });
-  await invokeAnki("updateModelStyling", { model: { name: ANKI_MODEL_NAME, css: ANKI_MODEL_CSS } });
+  await invokeAnki(url, "updateModelStyling", { model: { name: ANKI_MODEL_NAME, css: ANKI_MODEL_CSS } });
 }
 
 /**
@@ -132,9 +142,10 @@ export function buildAnkiNote(favorite: FavoriteWord, deckName: string): AnkiNot
  */
 export async function addFavoritesToAnki(
   favorites: readonly FavoriteWord[],
-  deckName: string,
+  { deckName, url }: { deckName: string; url: string },
 ): Promise<AddToAnkiResult> {
-  await ensureDeckAndModel(deckName);
+  const endpoint = normalizeAnkiUrl(url);
+  await ensureDeckAndModel(endpoint, deckName);
 
   // The same word saved in several language directions maps to one Anki note.
   const seen = new Set<string>();
@@ -142,11 +153,13 @@ export async function addFavoritesToAnki(
     .map((favorite) => buildAnkiNote(favorite, deckName))
     .filter((note) => !seen.has(note.fields.Word) && seen.add(note.fields.Word));
 
-  const checks = await invokeAnki<{ canAdd: boolean; error?: string }[]>("canAddNotesWithErrorDetail", { notes });
+  const checks = await invokeAnki<{ canAdd: boolean; error?: string }[]>(endpoint, "canAddNotesWithErrorDetail", {
+    notes,
+  });
   const failure = checks.find((check) => !check.canAdd && !check.error?.includes("duplicate"));
   if (failure) throw new Error(`AnkiConnect: ${failure.error}`);
 
   const addable = notes.filter((_, index) => checks[index].canAdd);
-  if (addable.length) await invokeAnki("addNotes", { notes: addable });
+  if (addable.length) await invokeAnki(endpoint, "addNotes", { notes: addable });
   return { added: addable.length, skipped: favorites.length - addable.length };
 }

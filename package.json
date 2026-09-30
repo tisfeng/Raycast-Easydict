@@ -709,6 +709,14 @@
       "description": "Deck used when adding favorites to Anki. It is created in Anki if it does not exist."
     },
     {
+      "title": "AnkiConnect URL",
+      "name": "ankiConnectUrl",
+      "type": "textfield",
+      "required": true,
+      "default": "http://127.0.0.1:8765",
+      "description": "Address of the AnkiConnect add-on. Change it when AnkiConnect listens on a custom port or on another machine."
+    },
+    {
       "title": "Dictionary Services",
       "type": "checkbox",
       "name": "enableYoudaoDictionary",

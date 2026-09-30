@@ -6,7 +6,7 @@
 
 #### Add Favorite Words to Anki
 
-- Added **Add to Anki** (`Cmd + Option + A` on macOS, `Ctrl + Shift + A` on Windows) and **Add All to Anki** actions to Favorite Words. Cards are sent through the AnkiConnect add-on to the deck set in the new **Anki Deck** preference (default `Easydict`); the deck and an `Easydict` note type are created on first use, and words already in the deck are skipped. Cards include the word, phonetic, pronunciation audio, translations, and dictionary explanations.
+- Added **Add to Anki** (`Cmd + Option + A` on macOS, `Ctrl + Shift + A` on Windows) and **Add All to Anki** actions to Favorite Words. Cards are sent through the AnkiConnect add-on to the deck set in the new **Anki Deck** preference (default `Easydict`), using the address set in the new **AnkiConnect URL** preference (default `http://127.0.0.1:8765`); the deck and an `Easydict` note type are created on first use, and words already in the deck are skipped. Cards include the word, phonetic, pronunciation audio, translations, and dictionary explanations.
 - Added the **Add Favorites to Anki Automatically** preference (off by default). When enabled, adding a word to Favorites also adds it to Anki; removing a favorite does not delete its Anki card.
 
 ## [v3.3.0] - 2026-09-19

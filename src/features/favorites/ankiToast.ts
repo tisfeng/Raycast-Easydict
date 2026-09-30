@@ -21,7 +21,10 @@ export async function addFavoritesToAnkiWithToast(
   const deckName = myPreferences.ankiDeckName;
   const toast = await showToast({ style: Toast.Style.Animated, title: "Adding to Anki..." });
   try {
-    const { added, skipped } = await addFavoritesToAnki(favorites, deckName);
+    const { added, skipped } = await addFavoritesToAnki(favorites, {
+      deckName,
+      url: myPreferences.ankiConnectUrl,
+    });
     logTrace("Anki", `deck=${deckName}, added=${added}, skipped=${skipped}`);
     toast.style = Toast.Style.Success;
     if (justFavorited) {
