@@ -10,6 +10,5 @@ export const languageItemList: LanguageItem[] = sourceLanguages.map((code) => {
   return { youdaoLangCode: code, langEnglishName, langChineseName, emoji, voiceList };
 });
 
-export const autoDetectLanguageItem = languageItemList[0];
 export const chineseLanguageItem = languageItemList[1];
 export const englishLanguageItem = languageItemList[2];
