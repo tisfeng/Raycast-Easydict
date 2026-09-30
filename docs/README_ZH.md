@@ -148,11 +148,24 @@ npm install && npm run dev
 
 ### 管理 Provider
 
-使用 **Manage Providers** 统一调整内置 Provider 和 AI Provider 的顺序。列表会标明 Provider 类型，并显示 Enabled/Disabled 状态（AI Provider 还可能显示 Invalid）；可在 macOS 上用 `Cmd+Option+Up/Down`、Windows 上用 `Ctrl+Alt+Up/Down` 调整顺序。在此编辑、测试、启用、停用、复制或删除 AI Provider；内置 Provider 在 Extension Settings 中配置。AI Provider 可使用 Raycast AI 或自定义 OpenAI 兼容接口。预设包括 OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo、OpenCode Zen 和 OpenCode Go。
+使用 **Manage Providers** 命令管理 AI Provider，并设置所有 Provider 的查询顺序。
 
-可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。支持时会自动发现模型，也可以手动输入模型名称。新建 Provider 或修改连接相关配置后会默认提供 Test & Save，同时仍可选择 Save Without Testing。JSON 输出模式会根据预设选择默认值。部分模型可能无法返回有效的结构化词典结果而需要重试，生成词典内容也可能耗时更长。
+**Provider 与顺序**
 
-带有 API key 的旧版 OpenAI 和 Gemini 设置会在下次打开 Search Word 或 Manage Providers 时自动迁移，保留连接设置、启用状态和顺序；已导入 Provider 的编辑内容不会被覆盖。迁移后的 Provider 统一在 **Manage Providers** 管理，旧 Extension Settings 仅保留为导入来源，不再单独运行 Provider。删除后的 Provider 不会重新导入，此前已移除的旧 Provider 也不会恢复。**Add from Legacy OpenAI/Gemini Settings…** 会打开预填表单，用于创建初始停用的新副本。在其他设备上，迁移会等待该设备具备旧 API key，不会跨设备传输 Provider profiles。配置读取或迁移失败时，其他内置服务仍可使用，并可在 Manage Providers 重试。
+- 内置 Provider 在此仅参与排序，启用和配置请前往 Extension Settings。
+- 用 **Move Up**/**Move Down** 调整任意 Provider 的位置（macOS `Cmd+Option+Up/Down`，Windows `Ctrl+Alt+Up/Down`），内置和 AI Provider 共用同一顺序。
+
+**AI Provider**
+
+- AI Provider 可连接 **Raycast AI** 或任意 **OpenAI 兼容接口**。
+- 已为常见服务商内置预设：选中后填入 API Key、按需调整模型即可；如果没有你的服务商，欢迎[贡献](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md)。
+- **Word & Term Results** 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。词典模式会为单词和词组生成结构化词条（音标、义项、例句、词形变化），其他输入按普通翻译处理，由于需要生成结构化数据，生成速度会变慢，偶尔可能会失败。
+
+**旧设置迁移**
+
+- 带有 API key 的旧版 OpenAI、Gemini 设置会在下次打开 Search Word 或 Manage Providers 时自动迁移，保留连接设置、启用状态和顺序。
+- 旧设置仅保留为导入来源；**Add from Legacy OpenAI/Gemini Settings…** 可用其创建初始停用的新副本。
+- 迁移按设备进行（每台设备需具备旧 API key），失败时可在 Manage Providers 重试。
 
 ### 收藏存储与恢复
 
