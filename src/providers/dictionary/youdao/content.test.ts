@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { buildContentView } from "@/core/content/view";
 import { DictionaryType } from "@/core/results/kinds";
@@ -6,8 +6,6 @@ import type { QueryWordInfo } from "@/core/results/types";
 
 import { buildYoudaoContent } from "./content";
 import { decodeYoudaoResponse } from "./decode";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query: QueryWordInfo = { word: "行", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true };
 
@@ -87,7 +85,7 @@ describe("Youdao content reading contract", () => {
     const sections = renderYoudao(query, modernChineseResult);
 
     expect(sections.map((section) => section.kind)).toEqual(["translation", "chinese-entry"]);
-    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ xíng /" });
+    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/xíng/" });
     expect(sections[1]).toMatchObject({
       title: "Details",
       items: [
@@ -110,9 +108,9 @@ describe("Youdao content reading contract", () => {
   });
 
   it("preserves an existing phonetic instead of replacing it with Chinese pinyin", () => {
-    const sections = renderYoudao({ ...query, phonetic: "/ existing /" }, modernChineseResult);
+    const sections = renderYoudao({ ...query, phonetic: "/existing/" }, modernChineseResult);
 
-    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ existing /" });
+    expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/existing/" });
   });
 
   it.each([undefined, ""])(
@@ -126,7 +124,7 @@ describe("Youdao content reading contract", () => {
         },
       );
 
-      expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/ hàng /" });
+      expect(sections[0].items[0].accessory).toMatchObject({ phonetic: "/hàng/" });
       expect(sections[0].items[0].service.query.phonetic).toBe(phonetic);
       expect(sections[1].items).toHaveLength(2);
     },

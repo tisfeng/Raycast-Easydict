@@ -8,6 +8,21 @@
 
 - Added **Add to Anki** (`Cmd + Option + A` on macOS, `Ctrl + Shift + A` on Windows) and **Add All to Anki** actions to Favorite Words. Cards are sent through the AnkiConnect add-on to the deck set in the new **Anki Deck** preference (default `Easydict`), using the address set in the new **AnkiConnect URL** preference (default `http://127.0.0.1:8765`); the deck and an `Easydict` note type are created on first use, and words already in the deck are skipped. Cards include the word, phonetic, pronunciation audio, translations, and dictionary explanations.
 - Added the **Add Favorites to Anki Automatically** preference (off by default). When enabled, adding a word to Favorites also adds it to Anki; removing a favorite does not delete its Anki card.
+  - Thanks to [@cassieliang6709](https://github.com/cassieliang6709)
+
+### 💎 Improvements
+
+- Improved content page rendering: headwords and pronunciations use a text layout that wraps naturally instead of a fixed-size image; saved favorites no longer repeat the language direction.
+- **Clear Query Cache** is hidden while both Query Cache and AI Query Cache are Off, since there is nothing to clear.
+- Favorites with unreadable saved data can be recovered or exported instead of being discarded.
+
+### 🐞 Bug Fixes
+
+- Fixed the Requery All Services shortcut conflict: read actions keep `Cmd+R` / `Cmd+Shift+R`, and Requery All Services uses `Cmd+Option+R` (`Ctrl+Alt+R` on Windows).
+  - Thanks to [@qizidog](https://github.com/qizidog)
+- Resolve the Serbian preference alias (`sr` → `sr-Latn`) when reading language preferences.
+- Keep the active query running when an AI provider falls back from unsupported JSON output.
+- Preserve AI model loading when a provider's catalog refreshes.
 
 ## [v3.3.0] - 2026-09-19
 

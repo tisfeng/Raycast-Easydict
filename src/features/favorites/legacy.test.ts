@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { renderStandaloneRow } from "@/core/content/render";
 import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
@@ -6,8 +6,6 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
 import { decodeFavoriteSnapshot, decodeLegacyFavorites } from "./decode";
 import { resolveFavoriteTranslations } from "./model";
 import { favoriteMarkdown, getFavoriteView } from "./view";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 const oldRow = {
@@ -197,7 +195,7 @@ describe("legacy favorite content", () => {
     expect(rows[1].service.query.phonetic).toBeUndefined();
     expect(rows[1].service.query.examTypes).toBeUndefined();
     expect(renderStandaloneRow(rows[1])).toContain("English → French");
-    expect(favoriteMarkdown(favorite)).toContain("accessory\\-first");
+    expect(favoriteMarkdown(favorite)).toContain("\\text{accessory-first}");
     expect(favoriteMarkdown(favorite)).not.toContain("query-only");
   });
 
@@ -220,8 +218,8 @@ describe("legacy favorite content", () => {
     ]);
     const restored = decodeFavoriteSnapshot(JSON.parse(JSON.stringify(favorite)));
     const markdown = favoriteMarkdown(restored);
+    expect(markdown).toContain("<th>Form</th><th>Value</th>");
     expect(markdown).toContain("<td>hello</td><td>greeting</td>");
-    expect(markdown).not.toContain("<th>");
     expect(markdown).toContain("<small>1.</small> **你好**");
     expect(JSON.stringify(restored)).not.toContain("unused pair body");
   });

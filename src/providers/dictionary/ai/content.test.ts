@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { DictionaryContent } from "@/core/content/types";
 import { buildContentView } from "@/core/content/view";
@@ -6,8 +6,6 @@ import { DictionaryType } from "@/core/results/kinds";
 
 import { buildAIWordContent } from "./content";
 import type { AIWordResult } from "./types";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "run", fromLanguage: "en", toLanguage: "zh-CHS" };
 

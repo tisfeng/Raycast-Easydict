@@ -83,8 +83,6 @@ vi.mock("@raycast/api", () => ({
   },
 }));
 
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
-
 vi.mock("@/consts", () => ({
   myPreferences: {
     enableDeepLTranslate: false,
@@ -402,7 +400,6 @@ describe("useQueryEngine query generations", () => {
       expect(favoriteMarkdown(favorite)).toContain("**translated**");
       expect(resolveFavoriteTranslations(favorite)).toEqual(["translated"]);
       expect(JSON.stringify(favorite)).not.toContain("showMoreDetailsMarkdown");
-      expect(JSON.stringify(favorite)).not.toContain("data:image/svg+xml");
 
       act(() => result.current.queryTextWithTextInfo(query));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
