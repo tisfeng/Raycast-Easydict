@@ -1,61 +1,59 @@
+<p align="right">
+  中文 &nbsp;&nbsp;|&nbsp;&nbsp; <a href="./README.md">English</a>
+</p>
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="256">
-  <h1 align="center">Raycast Easydict</h1>
-  <h4 align="center"> Easy to look up words or translate text</p>
-<p align="center">🇨🇳 🇺🇸 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿 🇹🇷 🇱🇹 🇱🇻 🇺🇦 🇧🇬 🇮🇩 🇲🇾 🇸🇮 🇪🇪 🇻🇳 🇮🇷 🇵🇰 🇹🇱 🇹🇦 🇮🇳 🇵🇭 🇫🇮 🇰🇭 🇱🇦 🇧🇳 🇲🇲 🇳🇴 🇷🇸 🇭🇷 🇲🇳 🇮🇱 </p>
+  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" height="128">
+</p>
 
-_原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](https://github.com/maxchang3) 维护。_
+<h1 align="center">Raycast Easydict</h1>
 
+<p align="center">
+  Easy to look up words or translate text
 </p>
 
 <p align="center">
   <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
   </a>
-  <details>
-  <summary>💡 <b>寻找 macOS 原生应用？</b> 试试独立的 Easydict App！</summary>
-
-[Easydict](https://github.com/tisfeng/Easydict) 是一个简洁优雅的翻译词典 macOS App。开箱即用，支持离线 OCR 识别，支持有道词典，🍎 苹果系统翻译，DeepL，谷歌，百度和火山翻译。
-
-| 查单词 | 翻译文本 |
-| - | - |
-| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-03-17_18.01.22_11zon-1679056100.jpg) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-28_17.49.53-1674901731.png) |
-
-| OCR 截图翻译 | 自动划词查询 |
-| - | - |
-| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.26.25-1674185209.gif) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.01.35-1674183779.gif) |
-
-  </details>
 </p>
 
-## Raycast Easydict（易词典）
+<p align="right">
+  <sup>
+    <em>
+      原作者为 <a href="https://github.com/tisfeng">tisfeng</a>，目前由
+      <a href="https://github.com/maxchang3">maxchang3</a> 维护。
+    </em>
+  </sup>
+</p>
 
-**Raycast Easydict** 是一个简洁易用的词典与翻译工具，可轻松优雅地查找单词或翻译文本。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询。
+## 简介
 
-翻译支持 🍎**苹果系统翻译**、[DeepL](https://www.deepl.com/translator)、[谷歌](https://translate.google.com)、[Bing](https://www.bing.com/translator)、[百度](https://fanyi.baidu.com/)、[腾讯](https://fanyi.qq.com/)、[火山](https://www.volcengine.com/product/machine-translation)、[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)，还支持使用 Raycast AI 或自定义 OpenAI 兼容端点的 LLM 进行翻译与查词。
+**Raycast Easydict** 是一款简洁易用的 Raycast 词典与翻译扩展，支持快速查词和文本翻译。除了传统词典与翻译服务，还支持接入 AI 翻译与查词服务，包括 Raycast AI 和 OpenAI 兼容端点。
 
-除了快速查词，Easydict 也可以作为轻量的语言学习工具：把查询结果保存为收藏单词离线复习，查看汉字笔顺图，或导出到 [Anki](https://apps.ankiweb.net/) 用间隔重复巩固记忆。
+除了快速查词，Raycast Easydict 也可以作为一款轻量的语言学习工具：你可以将查询结果收藏，以便离线复习；查看汉字笔顺图；还可以导出到 [Anki](https://apps.ankiweb.net/)，通过间隔重复巩固记忆。
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
   <img src="https://github.com/user-attachments/assets/268ced8a-1ba8-47f4-bee5-bc3af4987c7a" width="49%" />
 </p>
 
+<sup>💡 <b>寻找 macOS 原生应用？</b> 试试独立的 [Easydict App](https://github.com/tisfeng/Easydict)</sup>
+
 ## 功能
 
 **查词与翻译**
 
-- 开箱即用：查单词、译文本，自动识别输入语言并查询偏好目标语言。
-- 自动查询最前应用的选中文本（默认开启），支持 OCR 截图翻译。
-- 丰富的查询结果：翻译、发音、考试词频、词性释义、时态词形、网络短语，以及汉字笔顺图。
-- 词典查询支持有道和 Linguee；翻译支持 🍎 苹果系统翻译、DeepL、谷歌、Bing、百度、腾讯、火山、有道和彩云。
-- 支持自动或手动播放单词发音，其他语言可使用有道 TTS。
-- 支持 Raycast AI 或任意 OpenAI 兼容端点的 AI 翻译与查词；词典模式可为单词和词组生成结构化词条。
+- 📦 **开箱即用**：快速查词、翻译文本，自动识别输入语言并使用偏好目标语言；自动查询选中文本（默认开启），支持 OCR 截图翻译（目前仅 macOS）。
+- 🎨 **丰富的查询结果**：提供翻译、发音、考试词频、词性释义、时态与词形、网络短语。
+- 🌐 **多种服务支持**：词典支持有道和 Linguee；翻译支持 🍎 苹果系统翻译、DeepL、谷歌、Bing、百度、腾讯、火山、有道和彩云；🤖 AI 翻译与查词支持 Raycast AI 或任意 OpenAI 兼容端点，词典模式可为单词和词组生成结构化词条。
+- 🔊 **自动播放发音**：查询单词时自动朗读，其他语言使用有道 TTS。
 
 **学习与复习**
 
-- 可将完整查询结果保存为收藏单词，离线浏览和管理。
-- 支持把收藏单词导出到 [Anki](https://apps.ankiweb.net/) 制作闪卡，用间隔重复复习。
+- ✍️ **汉字笔顺**：查看汉字笔顺图，辅助记忆与书写。
+- ⭐ **收藏单词**：可保存完整查询结果，支持离线浏览与管理。
+- 🧠 **Anki 复习**：支持将收藏单词导出到 [Anki](https://apps.ankiweb.net/)，通过间隔重复进行复习。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 
@@ -118,7 +116,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 ### 从 Raycast 商店安装
 
 <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
-          <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+  <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 
 ### 手动安装
@@ -472,3 +470,9 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 - 本项目的灵感源于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 和 [Bob](https://github.com/ripperhe/Bob)，其初始版本正是基于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 开发的。`Easydict` 在原项目的基础上，重新打磨了 UI 交互，新增了更多实用功能，精简了部分复杂且不必要的操作，并进行了深度的性能优化与改进。
 - OCR 截图翻译功能的实现参考了 [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/)。特别感谢 [aidevjoe](https://github.com/aidevjoe) 提交的 PR：[feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41)。
+
+<p align="center">
+  <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=tisfeng/Raycast-Easydict" alt="Contributors" />
+  </a>
+</p>
