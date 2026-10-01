@@ -44,7 +44,7 @@ export function buildYoudaoContent(query: QueryWordInfo, data: YoudaoDictionaryD
   if (data.baike) sections.push({ kind: "summary", source: "encyclopedia", entries: [data.baike] });
   if (data.wikipedia) sections.push({ kind: "summary", source: "wikipedia", entries: [data.wikipedia] });
 
-  const phonetic = data.phonetic ? `/ ${data.phonetic} /` : query.phonetic;
+  const phonetic = data.phonetic ? `/${data.phonetic}/` : query.phonetic;
   const languagePair =
     query.fromLanguage === "auto" && data.language
       ? data.guessedChinese
@@ -55,7 +55,7 @@ export function buildYoudaoContent(query: QueryWordInfo, data: YoudaoDictionaryD
   sections.unshift({
     kind: "translation",
     text: hasWebTranslation ? (firstWebEntry.values[0]?.split("; ")[0] ?? "") : "",
-    pronunciation: !phonetic && pronunciation ? `/ ${pronunciation} /` : undefined,
+    pronunciation: !phonetic && pronunciation ? `/${pronunciation}/` : undefined,
   });
   return {
     kind: "dictionary",

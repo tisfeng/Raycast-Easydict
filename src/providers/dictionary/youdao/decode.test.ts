@@ -50,7 +50,7 @@ describe("Youdao response decoder", () => {
         fromLanguage: "en",
         toLanguage: "zh-CHS",
         isWord: true,
-        phonetic: "/ ɡʊd /",
+        phonetic: "/ɡʊd/",
         speechUrl: "https://dict.youdao.com/dictvoice?audio=good&type=2",
         examTypes: ["C", "D", "E", "F", "G", "H"],
       },
@@ -91,7 +91,7 @@ describe("Youdao response decoder", () => {
     );
 
     expect(content.query).toMatchObject({
-      phonetic: "/ hǎo /",
+      phonetic: "/hǎo/",
       speechUrl: "https://dict.youdao.com/dictvoice?audio=good&type=2",
       examTypes: ["C", "D", "E", "F", "G", "H"],
     });
