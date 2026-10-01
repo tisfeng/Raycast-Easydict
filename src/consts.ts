@@ -26,6 +26,15 @@ export function getReleaseTagUrl(version: string): string {
 export const RELEASE_MARKDOWN = `
 ## [v${EASYDICT_VERSION}]
 
+### ✨ New Features
+
+#### Add Favorite Words to Anki
+
+- Added **Add to Anki** and **Add All to Anki** actions to Favorite Words, sending cards to Anki through the AnkiConnect add-on. Cards include the word, phonetic, pronunciation audio, translations, and dictionary explanations.
+- Added the **Add Favorites to Anki Automatically** preference (off by default). Removing a favorite does not delete its Anki card.
+
+Thanks to [@cassieliang6709](https://github.com/cassieliang6709) for contributing this feature!
+
 ### 💎 Improvements
 
 - Improved content page rendering: headwords and pronunciations use a text layout that wraps naturally instead of a fixed-size image; saved favorites no longer repeat the language direction.
@@ -68,6 +77,15 @@ export const RELEASE_MARKDOWN = `
 ---
 
 ## [v${EASYDICT_VERSION}]
+
+### ✨ 新特性
+
+#### 收藏单词添加到 Anki
+
+- 在收藏单词中新增 **Add to Anki** 和 **Add All to Anki** 操作，通过 AnkiConnect 插件把卡片发送到 Anki。卡片包含单词、音标、发音音频、翻译和词典释义。
+- 可以通过新增的 **Add Favorites to Anki Automatically** 设置自动同步收藏单词到 Anki（默认关闭）。删除收藏不会删除对应的 Anki 卡片。
+
+感谢 [@cassieliang6709](https://github.com/cassieliang6709) 贡献此功能。
 
 ### 💎 改进
 

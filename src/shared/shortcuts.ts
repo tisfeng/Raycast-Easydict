@@ -15,5 +15,6 @@ export const shortcuts = {
     Windows: { modifiers: ["ctrl", "shift"], key: "r" },
   },
   toggleFavorite: Keyboard.Shortcut.Common.Pin,
+  addToAnki: { macOS: { modifiers: ["cmd", "opt"], key: "a" }, Windows: { modifiers: ["ctrl", "shift"], key: "a" } },
   openOnline: Keyboard.Shortcut.Common.Open,
 } satisfies Record<string, Keyboard.Shortcut>;
