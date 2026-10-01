@@ -3,18 +3,18 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" height="128">
+  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" width="128">
 </p>
 
 <h1 align="center">Raycast Easydict</h1>
 
 <p align="center">
-  Easy to look up words or translate text
+  Easily look up words or translate text
 </p>
 
 <p align="center">
   <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
-    <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+    <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
   </a>
 </p>
 
