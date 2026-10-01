@@ -145,7 +145,7 @@ function commandCheck() {
   const untracked = status.filter((line) => line.startsWith("??"));
   const modified = status.filter((line) => !line.startsWith("??"));
   if (modified.length) warn(`The working tree has ${modified.length} uncommitted path(s)`);
-  if (untracked.length) warn(`${untracked.length} untracked path(s) will still be mirrored into the Store PR`);
+  if (untracked.length) warn(`${untracked.length} untracked path(s) will not be mirrored; commit them before syncing`);
   if (!modified.length && !untracked.length) ok("The working tree is clean");
 }
 
