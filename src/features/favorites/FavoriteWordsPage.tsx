@@ -22,6 +22,7 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order";
 import { logError } from "@/shared/logger";
 import { shortcuts } from "@/shared/shortcuts";
 
+import { addFavoritesToAnkiWithToast } from "./ankiToast";
 import { copyAllText } from "./copyFavorites";
 import { FavoriteStorageRecovery } from "./FavoriteStorageRecovery";
 import { favoriteKeyOf, type FavoriteWord, resolveFavoriteTranslations } from "./model";
@@ -84,6 +85,7 @@ export default function FavoriteWordsPage() {
               favorite={favorite}
               isSelected={selectedId === favoriteKeyOf(favorite.query)}
               copyAllContent={copyAllTextContent}
+              onAddAllToAnki={() => addFavoritesToAnkiWithToast(favorites)}
               onRemove={() => changeFavorites(() => remove(favorite.query))}
               onClear={() => changeFavorites(clear)}
             />
@@ -98,12 +100,14 @@ function FavoriteItem({
   favorite,
   isSelected,
   copyAllContent,
+  onAddAllToAnki,
   onRemove,
   onClear,
 }: {
   favorite: FavoriteWord;
   isSelected: boolean;
   copyAllContent: string;
+  onAddAllToAnki: () => void;
   onRemove: () => void;
   onClear: () => void;
 }) {
@@ -157,6 +161,13 @@ function FavoriteItem({
             <Action icon={Icon.MagnifyingGlass} title="Open in Easydict" onAction={openInEasydict} />
             <Action.CopyToClipboard title="Copy Translation" content={translation ?? favorite.query.word} />
             <Action.CopyToClipboard title="Copy All to Clipboard" icon={Icon.Clipboard} content={copyAllContent} />
+            <Action
+              icon={Icon.PlusCircle}
+              title="Add to Anki"
+              shortcut={shortcuts.addToAnki}
+              onAction={() => addFavoritesToAnkiWithToast([favorite])}
+            />
+            <Action icon={Icon.PlusSquare} title="Add All to Anki" onAction={onAddAllToAnki} />
             {strokeOrderCharacters.length > 0 && (
               <Action.Push
                 title="Show Stroke Order"

@@ -11,6 +11,7 @@ import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
+import { addFavoritesToAnkiWithToast } from "@/features/favorites/ankiToast";
 import { buildFavoriteWord } from "@/features/favorites/model";
 import { useFavoriteWords } from "@/features/favorites/useFavoriteWords";
 import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
@@ -116,14 +117,20 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     }
 
     try {
-      await toggle(buildFavoriteWord(queryWordInfo, composedContent.services));
-      if (!isFavorite) {
-        await showToast({
-          style: Toast.Style.Success,
-          title: "Added to Favorites",
-          message: queryWordInfo.word,
-        });
+      const favorite = buildFavoriteWord(queryWordInfo, composedContent.services);
+      await toggle(favorite);
+      if (isFavorite) return;
+
+      // Removing a favorite never deletes its Anki card, which may already carry review history.
+      if (myPreferences.enableAutomaticAddFavoriteToAnki) {
+        await addFavoritesToAnkiWithToast([favorite], { justFavorited: true });
+        return;
       }
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Added to Favorites",
+        message: queryWordInfo.word,
+      });
     } catch (error) {
       await showFailureToast(error, { title: "Failed to Update Favorites" });
     }

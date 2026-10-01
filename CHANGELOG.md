@@ -2,6 +2,15 @@
 
 ## [v3.4.0] - {PR_MERGE_DATE}
 
+### ✨ New Features
+
+#### Add Favorite Words to Anki
+
+- Added **Add to Anki** and **Add All to Anki** actions to Favorite Words, sending cards to Anki through the AnkiConnect add-on. Cards include the word, phonetic, pronunciation audio, translations, and dictionary explanations.
+- Added the **Add Favorites to Anki Automatically** preference (off by default). Removing a favorite does not delete its Anki card.
+
+Thanks to [@cassieliang6709](https://github.com/cassieliang6709) for contributing this feature!
+
 ### 💎 Improvements
 
 - Improved content page rendering: headwords and pronunciations use a text layout that wraps naturally instead of a fixed-size image; saved favorites no longer repeat the language direction.
