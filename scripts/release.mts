@@ -12,7 +12,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -162,39 +162,54 @@ function itemPath(line: string): string {
   return (space === -1 ? line : line.slice(space)).trim();
 }
 
-/** sync: mirror this repository into the Store checkout (dry run unless --apply). */
+/** sync: mirror the committed content of this repository into the Store checkout (dry run unless --apply). */
 function commandSync(checkoutArgument: string | undefined, apply: boolean) {
   const checkout = resolveCheckout(checkoutArgument);
   const target = path.join(checkout, extensionDir);
   const base = ["-a", "--delete", ...mirrorExcludes];
 
-  const listing = execFileSync("rsync", ["-n", "-i", ...base, `${repoRoot}/`, `${target}/`], { encoding: "utf8" })
-    .split("\n")
-    .filter(Boolean);
+  const status = git(repoRoot, ["status", "--porcelain"]);
+  if (status) warn("Uncommitted changes are not mirrored; only HEAD content is copied");
 
-  if (!listing.length) {
-    ok("The checkout already matches this repository");
-    return;
+  const stage = mkdtempSync(path.join(os.tmpdir(), "easydict-mirror-"));
+  const archive = `${stage}.tar`;
+  try {
+    execFileSync("git", ["-C", repoRoot, "archive", "--format=tar", "-o", archive, "HEAD"]);
+    execFileSync("tar", ["-xf", archive, "-C", stage]);
+
+    const listing = execFileSync("rsync", ["-n", "-c", "-i", ...base, `${stage}/`, `${target}/`], {
+      encoding: "utf8",
+    })
+      .split("\n")
+      .filter(Boolean);
+
+    if (!listing.length) {
+      ok("The checkout already matches HEAD");
+      return;
+    }
+
+    const leaked = listing.map(itemPath).filter((item) => ignoredPaths.test(item));
+    if (leaked.length) fail(`Ignored paths leaked through the filter:\n${leaked.join("\n")}`);
+
+    info(`Dry run: ${listing.length} changes (${summarizeMirror(listing)})`);
+    for (const line of listing.slice(0, 20)) info(`  ${line}`);
+    if (listing.length > 20) info(`  … ${listing.length - 20} more`);
+
+    if (!apply) {
+      info("\nPass --apply to mirror these changes into the checkout.");
+      return;
+    }
+
+    execFileSync("rsync", ["-c", ...base, `${stage}/`, `${target}/`], { stdio: "inherit" });
+    ok(`Mirrored HEAD into ${target}`);
+    const checkoutStatus = git(checkout, ["status", "--ignored", "--short"]);
+    info(checkoutStatus || "(the checkout is clean)");
+    const branch = git(checkout, ["branch", "--show-current"]);
+    info(branch ? `Checkout branch: ${branch}` : "(detached HEAD in the checkout)");
+  } finally {
+    rmSync(archive, { force: true });
+    rmSync(stage, { recursive: true, force: true });
   }
-
-  const leaked = listing.map(itemPath).filter((item) => ignoredPaths.test(item));
-  if (leaked.length) fail(`Ignored paths leaked through the filter:\n${leaked.join("\n")}`);
-
-  info(`Dry run: ${listing.length} changes (${summarizeMirror(listing)})`);
-  for (const line of listing.slice(0, 20)) info(`  ${line}`);
-  if (listing.length > 20) info(`  … ${listing.length - 20} more`);
-
-  if (!apply) {
-    info("\nPass --apply to mirror these changes into the checkout.");
-    return;
-  }
-
-  execFileSync("rsync", [...base, `${repoRoot}/`, `${target}/`], { stdio: "inherit" });
-  ok(`Mirrored into ${target}`);
-  const status = git(checkout, ["status", "--ignored", "--short"]);
-  info(status || "(the checkout is clean)");
-  const branch = git(checkout, ["branch", "--show-current"]);
-  info(branch ? `Checkout branch: ${branch}` : "(detached HEAD in the checkout)");
 }
 
 function treeBlobs(dir: string, revision: string): Map<string, string> {
@@ -359,7 +374,7 @@ function printUsage() {
 
 Commands:
   check                         Validate the release version trio on dev/release.
-  sync --checkout <path>        Mirror this repository into the Store checkout.
+  sync --checkout <path>        Mirror the committed content (HEAD) into the Store checkout.
        [--apply]                Write the changes; without it a dry run runs.
   backfill --checkout <path>    Report the files the merged Store copy changed.
            [--ref <git-ref>]    Revision to compare against (default: origin/main).
