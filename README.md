@@ -1,61 +1,59 @@
+<p align="right">
+  <a href="./README_ZH.md">中文</a> &nbsp;&nbsp;|&nbsp;&nbsp; English
+</p>
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Eudic-1671180098.png" height="256">
-  <h1 align="center">Raycast Easydict</h1>
-  <h4 align="center"> Easily look up words or translate text. </p>
-<p align="center">🇨🇳 🇺🇸 🇯🇵 🇰🇷 🇫🇷 🇪🇸 🇵🇹 🇮🇹 🇷🇺 🇩🇪 🇸🇦 🇸🇪 🇳🇱 🇷🇴 🇹🇭 🇸🇰 🇭🇺 🇬🇷 🇩🇰 🇫🇮 🇵🇱 🇨🇿 🇹🇷 🇱🇹 🇱🇻 🇺🇦 🇧🇬 🇮🇩 🇲🇾 🇸🇮 🇪🇪 🇻🇳 🇮🇷 🇵🇰 🇹🇱 🇹🇦 🇮🇳 🇵🇭 🇫🇮 🇰🇭 🇱🇦 🇧🇳 🇲🇲 🇳🇴 🇷🇸 🇭🇷 🇲🇳 🇮🇱 </p>
+  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" height="128">
+</p>
 
-_Originally developed by [tisfeng](https://github.com/tisfeng), currently maintained by [maxchang3](https://github.com/maxchang3)._
+<h1 align="center">Raycast Easydict</h1>
 
+<p align="center">
+  Easily look up words or translate text
 </p>
 
 <p align="center">
   <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
     <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
   </a>
-  <details>
-  <summary>💡 <b>Looking for the native macOS app?</b> Check out the standalone Easydict App!</summary>
-
-[Easydict](https://github.com/tisfeng/Easydict) is a concise and easy-to-use translation dictionary macOS App that allows you to easily and elegantly look up words or translate text, feel free to try it!
-
-| Look up word | Translate text |
-| - | - |
-| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-03-17_18.01.22_11zon-1679056100.jpg) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-28_17.49.53-1674901731.png) |
-
-| OCR screenshot translate | Auto select translate |
-| - | - |
-| ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.26.25-1674185209.gif) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/iShot_2023-01-20_11.01.35-1674183779.gif) |
-
-  </details>
 </p>
 
-## What is Raycast Easydict? [中文介绍](https://github.com/tisfeng/Raycast-Easydict/blob/main/README_ZH.md)
+<p align="right">
+  <sup>
+    <em>
+      Originally developed by <a href="https://github.com/tisfeng">tisfeng</a>, currently maintained by
+      <a href="https://github.com/maxchang3">maxchang3</a>.
+    </em>
+  </sup>
+</p>
 
-**Raycast Easydict** is a simple, easy-to-use dictionary and translation tool. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
+## What is Raycast Easydict?
 
-For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/). It also supports Raycast AI and custom OpenAI-compatible endpoints for translation and dictionary lookup.
+**Raycast Easydict** is a simple, easy-to-use dictionary and translation extension for Raycast, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
 
-Beyond quick lookups, Easydict also works as a lightweight language-learning companion: save results as Favorite Words for offline review, view Chinese character stroke-order diagrams, and export favorites to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
+Beyond quick lookups, Raycast Easydict also works as a lightweight language-learning tool: save results to review offline, view Chinese character stroke-order diagrams, and export them to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
   <img src="https://github.com/user-attachments/assets/268ced8a-1ba8-47f4-bee5-bc3af4987c7a" width="49%" />
 </p>
 
+<sup>💡 <b>Looking for the native macOS app?</b> Try the standalone [Easydict App](https://github.com/tisfeng/Easydict)</sup>
+
 ## Features
 
 **Look up and translate**
 
-- Works out of the box: look up words or translate text, with automatic language detection and a preferred target language.
-- Queries the selected text of the frontmost app automatically (on by default), and supports OCR screenshot translation.
-- Rich dictionary results: translations, pronunciations, exam coverage, parts of speech, tenses, web phrases, and stroke-order diagrams for Chinese characters.
-- Dictionary lookup with Youdao and Linguee; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun.
-- Plays word pronunciations automatically or on demand, including Youdao TTS for non-English words.
-- AI translation and word lookup with Raycast AI or any OpenAI-compatible endpoint; dictionary mode generates structured entries for words and terms.
+- 📦 **Out of the box**: look up words and translate text, with automatic language detection and a preferred target language; auto-queries selected text (on by default) and supports OCR screenshot translation (macOS only).
+- 🎨 **Rich results**: translations, pronunciations, exam coverage, parts of speech, tenses and word forms, web phrases.
+- 🌐 **Multiple services**: dictionary lookup with Youdao and Linguee; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun; 🤖 AI translation and lookup with Raycast AI or any OpenAI-compatible endpoint, including a dictionary mode that builds structured entries for words and terms.
+- 🔊 **Auto pronunciation**: plays the word audio automatically after a query, with Youdao TTS for other languages.
 
 **Learn and review**
 
-- Saves complete results as Favorite Words for offline browsing and management.
-- Exports favorites to [Anki](https://apps.ankiweb.net/) as flashcards for spaced-repetition review.
+- ✍️ **Stroke order**: view Chinese character stroke-order diagrams to help with memorization and writing.
+- ⭐ **Favorite Words**: save complete results for offline browsing and management.
+- 🧠 **Anki review**: export favorites to [Anki](https://apps.ankiweb.net/) for spaced-repetition review.
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
@@ -118,7 +116,8 @@ This is an extension of Raycast, so you need to install [Raycast](https://www.ra
 
 ### Install from Raycast Store
 
-<a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install"><img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+<a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
+  <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 
 ### Manually Install
@@ -461,3 +460,9 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 
 - This project was inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and its initial version was based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` improves upon the original project by refining the UI, adding practical new features, removing overly complex operations, and heavily optimizing performance.
 - The OCR Translate feature is based on [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/). Special thanks to [aidevjoe](https://github.com/aidevjoe) for the PR: [feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41).
+
+<p align="center">
+  <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=tisfeng/Raycast-Easydict" alt="Contributors" />
+  </a>
+</p>
