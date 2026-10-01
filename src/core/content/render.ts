@@ -13,16 +13,28 @@ function languageDirection(info: QueryWordInfo): string {
 }
 
 /**
- * Raycast centers a paragraph whose only content is an image, which used to
- * leave short headwords floating in the middle of the pane. The header image
- * carries a trailing zero-width space so it stays inline with the page text and
- * is laid out from the left margin. A fixed image height keeps the word the
- * same size on the narrow favorites pane and the full-width details page.
+ * Mathematical bold alphanumerics render as a Times-like serif through the
+ * system math font (STIX Two Math on macOS, Cambria Math on Windows), so the
+ * headword needs no image and wraps naturally. Non-ASCII words keep the native
+ * heading instead.
  */
-const HEADER_IMAGE_HEIGHT = 34;
-const HEADER_INLINE_MARK = "\u200B";
+function toMathBold(text: string): string {
+  return Array.from(text)
+    .map((character) => {
+      const code = character.codePointAt(0)!;
+      if (code >= 65 && code <= 90) return String.fromCodePoint(0x1d400 + code - 65);
+      if (code >= 97 && code <= 122) return String.fromCodePoint(0x1d41a + code - 97);
+      if (code >= 48 && code <= 57) return String.fromCodePoint(0x1d7ce + code - 48);
+      return character;
+    })
+    .join("");
+}
 
-/** Conservative canvas bounds; SVG lays out the text and pronunciation itself. */
+function canUseMathBold(word: string): boolean {
+  return /^[\x20-\x7e]+$/.test(word) && /[A-Za-z0-9]/.test(word);
+}
+
+/** Conservative width bound for the KaTeX pronunciation; over-estimating only falls back to plain text. */
 function estimateTextWidth(text: string, fontSize: number): number {
   const widthAt32 = Array.from(text).reduce((width, character) => {
     if (character.codePointAt(0)! > 127) return width + 48;
@@ -33,6 +45,12 @@ function estimateTextWidth(text: string, fontSize: number): number {
   return Math.ceil((widthAt32 * fontSize) / 32);
 }
 
+/** KaTeX treats these as control sequences; such pronunciations stay plain text instead. */
+const MATH_UNSUPPORTED = /[\\{}$&#_%^~]/;
+
+/** KaTeX cannot wrap; wider pronunciations fall back to plain text. The estimate over-states the bundled KaTeX font, so this budget still fits one line. */
+const PHONETIC_LINE_BUDGET = 800;
+
 /**
  * Standalone pages own the direction line; saved favorites show the language
  * pair in the list, so their details omit it to avoid repeating the same data.
@@ -42,17 +60,20 @@ function resultHeader(info: QueryWordInfo, showDirection = true): string {
   const word = info.isWord === true && !info.word.includes("\n");
   const direction = showDirection ? plainText(languageDirection(info)) : "";
   if (word) {
-    // The image contains only the word and pronunciation; the page lays out the direction separately.
-    const wordWidth = estimateTextWidth(info.word, 32);
     const phonetic = info.phonetic ?? "";
-    if (wordWidth + 8 <= 600) {
-      const phoneticWidth = estimateTextWidth(phonetic, 20);
-      const inlinePhonetic = wordWidth + 16 + phoneticWidth + 8 <= 600 ? phonetic : "";
-      const width = wordWidth + (inlinePhonetic ? 16 + phoneticWidth : 0) + 8;
-      const dark = isDarkAppearance();
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="44" viewBox="0 0 ${width} 44"><text x="0" y="30" font-family="Georgia, Times New Roman, serif" font-size="32" font-weight="700" fill="${dark ? "#f2f2f2" : "#202020"}">${escapeHtml(info.word)}${inlinePhonetic ? `<tspan dx="16" font-family="Arial, sans-serif" font-size="20" font-weight="400" fill="${dark ? "#aaaaaa" : "#777777"}">${escapeHtml(inlinePhonetic)}</tspan>` : ""}</text></svg>`;
-      const image = `![${plainText(`${info.word}${inlinePhonetic ? ` · ${inlinePhonetic}` : ""}`)}](data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}?raycast-width=${Math.ceil((width * HEADER_IMAGE_HEIGHT) / 44)}&raycast-height=${HEADER_IMAGE_HEIGHT})${HEADER_INLINE_MARK}`;
-      return [image, !inlinePhonetic && plainText(phonetic), direction].filter(Boolean).join("  \n");
+    if (canUseMathBold(info.word)) {
+      const katexPhonetic =
+        phonetic && !MATH_UNSUPPORTED.test(phonetic) && estimateTextWidth(phonetic, 20) + 8 <= PHONETIC_LINE_BUDGET
+          ? phonetic
+          : "";
+      const pronunciation = katexPhonetic ? ` \\({\\small\\textcolor{gray}{\\text{${katexPhonetic}}}}\\)` : "";
+      return [
+        `## ${plainText(toMathBold(info.word))}${pronunciation}`,
+        !katexPhonetic && plainText(phonetic),
+        direction,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
     }
     return [`## ${source}${phonetic ? ` · ${plainText(phonetic)}` : ""}`, direction].filter(Boolean).join("\n\n");
   }

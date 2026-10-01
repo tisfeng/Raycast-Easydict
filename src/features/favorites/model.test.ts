@@ -123,6 +123,6 @@ describe("favorite snapshots", () => {
     expect(favoriteKeyOf(query)).not.toBe(favoriteKeyOf({ ...query, toLanguage: "fr" }));
     const favorite = decodeFavoriteSnapshot({ query, services: [], createdAt: 1, legacyPreview: [] });
     expect(resolveFavoriteTranslations(favorite)).toBeUndefined();
-    expect(favoriteMarkdown(favorite)).toContain("good");
+    expect(favoriteMarkdown(favorite)).toContain("## 𝐠𝐨𝐨𝐝");
   });
 });
