@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { renderStandaloneRow } from "@/core/content/render";
 import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
@@ -6,8 +6,6 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
 import { decodeFavoriteSnapshot, decodeLegacyFavorites } from "./decode";
 import { resolveFavoriteTranslations } from "./model";
 import { favoriteMarkdown, getFavoriteView } from "./view";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "hello", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 const oldRow = {

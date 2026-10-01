@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { ComposedService } from "@/core/content/compose";
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
@@ -7,8 +7,6 @@ import { getStrokeOrderCharacters } from "@/core/stroke-order/characters";
 import { decodeFavoriteSnapshot } from "./decode";
 import { buildFavoriteWord, favoriteKeyOf, resolveFavoriteTranslations } from "./model";
 import { favoriteMarkdown, getFavoriteView } from "./view";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 const dictionary: ComposedService = {

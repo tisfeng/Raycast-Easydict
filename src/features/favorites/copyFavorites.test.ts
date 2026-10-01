@@ -1,11 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { TranslationType } from "@/core/results/kinds";
 
 import { copyAllText } from "./copyFavorites";
 import { buildFavoriteWord } from "./model";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 function favorite(word: string, paragraphs: string[]) {
   const query = { word, fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };

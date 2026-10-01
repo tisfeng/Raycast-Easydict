@@ -83,8 +83,6 @@ vi.mock("@raycast/api", () => ({
   },
 }));
 
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
-
 vi.mock("@/consts", () => ({
   myPreferences: {
     enableDeepLTranslate: false,

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
 import type { QueryWordInfo } from "@/core/results/types";
@@ -7,8 +7,6 @@ import type { ComposedService } from "./compose";
 import { renderSavedView, renderSelectedRow, renderStandaloneRow } from "./render";
 import type { DictionarySection } from "./types";
 import { buildContentView } from "./view";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query = { word: "testimony", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 function translation(serviceId: string, paragraphs: readonly string[], info: QueryWordInfo = query): ComposedService {
