@@ -107,8 +107,9 @@ export function buildAnkiNote(favorite: FavoriteWord, deckName: string): AnkiNot
   const phonetic = rows.find((row) => row.accessory?.phonetic)?.accessory?.phonetic ?? favorite.query.phonetic ?? "";
   const translations = resolveFavoriteTranslations(favorite) ?? [];
   const explanations = rows.filter((row) => row.kind === "definition").map((row) => row.copyText);
+  // Linguee stores an empty audio URL, so fall through to the first saved result that has one.
   const speechUrl =
-    favorite.query.speechUrl ?? rows.find((row) => row.service.query.speechUrl)?.service.query.speechUrl;
+    favorite.query.speechUrl || rows.find((row) => row.service.query.speechUrl)?.service.query.speechUrl;
   const audioName = favorite.query.word.replace(/[^\p{L}\p{N}]+/gu, "_");
   return {
     deckName,
@@ -152,6 +153,8 @@ export async function addFavoritesToAnki(
   if (failure) throw new Error(`AnkiConnect: ${failure.error}`);
 
   const addable = notes.filter((_, index) => checks[index].canAdd);
-  if (addable.length) await invokeAnki(endpoint, "addNotes", { notes: addable });
-  return { added: addable.length, skipped: favorites.length - addable.length };
+  const results = addable.length ? await invokeAnki<(number | null)[]>(endpoint, "addNotes", { notes: addable }) : [];
+  // addNotes reports a note that failed after the pre-check as null; do not count it as added.
+  const added = results.filter((id) => id !== null).length;
+  return { added, skipped: favorites.length - added };
 }
