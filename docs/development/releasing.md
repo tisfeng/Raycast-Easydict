@@ -41,7 +41,7 @@ git -C <checkout> fetch origin
 git -C <checkout> reset --hard
 git -C <checkout> checkout -b ext/easydict-vX.Y.Z origin/main   # upstream main, the PR's target base
 
-# From this repository: mirror the extension over
+# From this repository: mirror the committed content over (untracked files never ship)
 node scripts/release.mts sync --checkout <checkout>          # dry run
 node scripts/release.mts sync --checkout <checkout> --apply
 
@@ -67,7 +67,7 @@ The command reports the files that differ between the Store copy (`origin/main` 
 
 ## Notes
 
-- The mirror runs through `.gitignore` and excludes `.git/`, `.claude/`, and `.github/`; `--delete` makes it one-way, so sync onto a fresh branch (`git reset --hard` first if the checkout is dirty — the mirror is reproducible from this repository).
+- The mirror copies only committed content (`git archive HEAD`), so untracked files never reach the published copy; `.github/` and `.claude/` stay excluded. `--delete` makes it one-way, so sync onto a fresh branch (`git reset --hard` first if the checkout is dirty — the mirror is reproducible from this repository).
 - macOS ships openrsync: a dry run prints nothing without `-i`, which the sync script passes for you.
 - Commit only `extensions/easydict` in the checkout, and keep `{PR_MERGE_DATE}` here until the Store side replaces it with the real date and you sync that back.
 - Avoid `ray publish`: it re-clones the upstream repository and merges the published branch into the working directory. `npm run build` covers the same local validation.
