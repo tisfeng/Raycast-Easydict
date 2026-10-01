@@ -113,7 +113,7 @@
 ### 从 Raycast 商店安装
 
 <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
-  <img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+  <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
 </a>
 
 ### 手动安装
