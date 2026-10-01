@@ -54,7 +54,7 @@ Use these entry points when working on the corresponding area:
 
 ## Documentation and Releases
 
-- Update `README.md` and the corresponding maintained content in `docs/README_ZH.md` for user-facing features or breaking changes. Keep Features concise; put detailed setup, defaults, and retention behavior under Configuration.
+- Update `README.md` and the corresponding maintained content in `README_ZH.md` for user-facing features or breaking changes. Keep Features concise; put detailed setup, defaults, and retention behavior under Configuration.
 - Keep each Markdown paragraph or list item on one physical line; preserve structural line breaks in code blocks and tables.
 - Regenerate `<!-- automd -->` blocks with `npm run docs:gen`; do not edit their contents manually.
 - Use conventional commit and PR titles: `type(scope): summary`, with `feat`, `fix`, `docs`, `chore`, `refactor`, or `test`.
