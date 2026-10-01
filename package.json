@@ -3,7 +3,7 @@
   "name": "easydict",
   "title": "Easy Dictionary",
   "description": "Easily look up words or translate text, support 48+ languages, support Linguee and Youdao dictionary, support OpenAI, DeepL, Google, Bing, Apple, Baidu, Tencent, Volcano, Youdao and Caiyun translation.",
-  "icon": "Eudic.png",
+  "icon": "extension-icon.png",
   "author": "isfeng",
   "license": "MIT",
   "contributors": [
