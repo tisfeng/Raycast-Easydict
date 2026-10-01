@@ -68,10 +68,11 @@ Beyond quick lookups, Raycast Easydict also works as a lightweight language-lear
 </p>
 
 
-### Favorite Words
+### Favorite Words & Chinese Stroke Order
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/be9efa47-1a19-443e-ab49-b0813a830f26" width="49%" />
+  <img src="https://github.com/user-attachments/assets/f6a39ed5-d3ae-46e5-bb35-d0645c278e15" width="49%" />
+  <img src="https://github.com/user-attachments/assets/81b8154e-8d1b-4d2c-8665-92a3520f91da" width="49%" />
 </p>
 
 ### Dictionary Details
@@ -101,12 +102,9 @@ Beyond quick lookups, Raycast Easydict also works as a lightweight language-lear
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png" width="49%" />
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1663604086.png" width="49%" />
+  <img src="https://github.com/user-attachments/assets/94e8f82d-c7b9-456e-b01f-d291926cfcac" width="49%" />
 </p>
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1666538717.png" width="49%" />
-</p>
 
 ## Installation
 
