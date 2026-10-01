@@ -30,9 +30,11 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 ## Raycast Easydict（易词典）
 
-`Easydict` 是一个简洁易用的 Raycast 词典扩展，可轻松优雅地查找单词或翻译文本，特别针对英语和中文单词进行了优化。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询。
+**Raycast Easydict** 是一个简洁易用的词典与翻译工具，可轻松优雅地查找单词或翻译文本。开箱即用，能自动识别输入文本语言，目前支持 [Linguee](https://www.linguee.com/) 和[有道词典](https://www.youdao.com/)查询。
 
 翻译支持 🍎**苹果系统翻译**、[DeepL](https://www.deepl.com/translator)、[谷歌](https://translate.google.com)、[Bing](https://www.bing.com/translator)、[百度](https://fanyi.baidu.com/)、[腾讯](https://fanyi.qq.com/)、[火山](https://www.volcengine.com/product/machine-translation)、[有道](https://fanyi.youdao.com/)和[彩云翻译](https://fanyi.caiyunapp.com/#/)，还支持使用 Raycast AI 或自定义 OpenAI 兼容端点的 LLM 进行翻译与查词。
+
+除了快速查词，Easydict 也可以作为轻量的语言学习工具：把查询结果保存为收藏单词离线复习，查看汉字笔顺图，或导出到 [Anki](https://apps.ankiweb.net/) 用间隔重复巩固记忆。
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
@@ -41,26 +43,19 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 ## 功能
 
-- [x] 🆕 支持 Windows 版 Raycast（已适配绝大多数功能）。
-- [x] 🆕 支持接入 Raycast AI 或任意 OpenAI 兼容端点中的 LLM 进行翻译与查词。
-- [x] 开箱即用，便捷查找单词或翻译文本。
-- [x] 自动识别输入语言，并自动查询偏好目标语言。
-- [x] 提供丰富的单词查询信息，包括基本翻译、发音、考试词频、多种词性和释义、形式和时态、网络翻译和网络短语。
-- [x] 支持划词自动查询（默认启用）。配合快捷键使用体验更佳。
-- [x] 支持 OCR 截图翻译。
-- [x] 支持打开 [欧路词典](https://www.eudic.net/v4/en/app/eudic) 快速查词（若电脑上已安装）。
-- [x] 支持自动和手动播放单词发音。
-- [x] 支持有道文本合成语音（TTS）。
-- [x] 支持手动排序查询结果。
-- [x] 支持 [Arguments](https://developers.raycast.com/information/lifecycle/arguments)。
-- [x] 支持 [Fallback Commands](https://manual.raycast.com/settings#Fallback%20Commands)。
-- [x] 支持系统代理。
-- [x] 支持 Linguee 和有道词典查询。
-- [x] 支持 macOS 系统翻译。详情请看 [如何在 Easydict 中使用 🍎 macOS 系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)
-- [x] 🆕 支持将完整查询结果保存为收藏单词，离线浏览和管理。
-- [x] 🆕 支持从实时查询和收藏结果中查看汉字笔顺图。
-- [x] 🆕 支持通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 把收藏单词添加到 Anki，制作成闪卡。
-- [x] 支持 48+ 种语言。
+**查词与翻译**
+
+- 开箱即用：查单词、译文本，自动识别输入语言并查询偏好目标语言。
+- 自动查询最前应用的选中文本（默认开启），支持 OCR 截图翻译。
+- 丰富的查询结果：翻译、发音、考试词频、词性释义、时态词形、网络短语，以及汉字笔顺图。
+- 词典查询支持有道和 Linguee；翻译支持 🍎 苹果系统翻译、DeepL、谷歌、Bing、百度、腾讯、火山、有道和彩云。
+- 支持自动或手动播放单词发音，其他语言可使用有道 TTS。
+- 支持 Raycast AI 或任意 OpenAI 兼容端点的 AI 翻译与查词；词典模式可为单词和词组生成结构化词条。
+
+**学习与复习**
+
+- 可将完整查询结果保存为收藏单词，离线浏览和管理。
+- 支持把收藏单词导出到 [Anki](https://apps.ankiweb.net/) 制作闪卡，用间隔重复复习。
 
 **如果觉得这个扩展还不错，给个 [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️ 支持一下吧 (^-^)**
 
@@ -78,13 +73,6 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/be9efa47-1a19-443e-ab49-b0813a830f26" width="49%" />
-</p>
-
-### Arguments
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png" width="49%" />
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png" width="49%" />
 </p>
 
 ### 词典详情
@@ -123,7 +111,7 @@ _原作者为 [tisfeng](https://github.com/tisfeng)，目前由 [maxchang3](http
 
 ## 安装
 
-`Easydict` 是一个 Raycast extension，因此需要先安装 [Raycast](https://www.raycast.com/)。
+`Easydict` 是一个 Raycast extension，因此需要先安装 [Raycast](https://www.raycast.com/)。扩展同时支持 macOS 和 Windows。
 
 > [Raycast](https://www.raycast.com/) 是一款速度极快、完全可扩展的启动器。与 [Alfred](https://www.alfredapp.com/) 类似，但它完全免费！
 
@@ -154,7 +142,7 @@ npm install && npm run dev
 **Provider 与顺序**
 
 - 内置 Provider 在此仅参与排序，启用和配置请前往 Extension Settings。
-- 用 **Move Up**/**Move Down** 调整任意 Provider 的位置（macOS `Cmd+Option+Up/Down`，Windows `Ctrl+Alt+Up/Down`），内置和 AI Provider 共用同一顺序。
+- 用 **Move Up**/**Move Down** 调整任意 Provider 的位置（macOS `Cmd+Option+Up/Down`，Windows `Ctrl+Alt+Up/Down`）。
 
 **AI Provider**
 
@@ -167,12 +155,6 @@ npm install && npm run dev
 - 带有 API key 的旧版 OpenAI、Gemini 设置会在下次打开 Search Word 或 Manage Providers 时自动迁移，保留连接设置、启用状态和顺序。
 - 旧设置仅保留为导入来源；**Add from Legacy OpenAI/Gemini Settings…** 可用其创建初始停用的新副本。
 - 迁移按设备进行（每台设备需具备旧 API key），失败时可在 Manage Providers 重试。
-
-### 收藏存储与恢复
-
-升级后，已有收藏仍可离线查看。首次新增、删除、清空或恢复时，会把完整集合保存为新格式；后续修改以该集合为准，空集合也会保留。旧快照继续保留，供恢复及旧版本读取。旧版本只能看到旧快照；之后在新旧版本中的修改不会在两种格式之间同步。
-
-如果收藏数据无法读取，「Favorite Words」会保留原始数据并阻止修改。可通过 **Export Original Data** 导出本地 JSON 备份，或通过 **Restore from Backup** 选择有效备份恢复；替换前会先备份当前数据。备份保存在扩展支持目录中，可通过 **Open Backup Folder** 打开所在文件夹。当前数据损坏时，还可通过 **Restore Previous-Version Favorites** 恢复保留的旧集合，恢复前会备份损坏数据。来自更新版本的数据格式保持只读：请先导出，并使用兼容的 Easydict 版本读取。
 
 ### 偏好语言
 
@@ -195,6 +177,18 @@ npm install && npm run dev
 <p>
 
 例如，如果您任意输入一个句子，它将被翻译成第一种偏好语言。如果输入句子自动识别的语言与第一种偏好语言相同，它将自动翻译为第二种偏好语言。
+
+</p>
+
+</details>
+
+### 选择目标语言
+
+<details> <summary> 指定目标语言功能。默认关闭。 </summary>
+
+<p>
+
+默认情况下，扩展将自动选择偏好语言作为目标翻译语言。但有时如果您想手动指定某一种语言作为目标语言，您就可以在偏好设置中开启该选项，然后就能在操作面板中临时选择另一种目标语言。
 
 </p>
 
@@ -233,25 +227,67 @@ npm install && npm run dev
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
-### 选择目标语言
+### 查询缓存
 
-<details> <summary> 指定目标语言功能。默认关闭。 </summary>
+在查询结果的操作菜单中选择 **Preferences** 即可配置缓存。**Query Cache** 控制已完成的词典和机器翻译结果，**AI Query Cache** 控制已完成的 AI 翻译和词典词条，两者默认均为 **Off**。选择 **Words Only** 只缓存识别为单词或词组的输入，选择 **All Text** 还会缓存句子和更长文本。
 
-<p>
+内置词典结果最多保留 **7 天**，机器翻译和 AI 结果最多保留 **24 小时**。当任一缓存设置允许缓存该输入时，已确认的语言识别结果也会缓存最多 24 小时；语言识别没有独立开关，两个缓存设置都关闭时即不缓存。
 
-默认情况下，扩展将自动选择偏好语言作为目标翻译语言。但有时如果您想手动指定某一种语言作为目标语言，您就可以在偏好设置中开启该选项，然后就能在操作面板中临时选择另一种目标语言。
+缓存结果会显示时钟图标。可用以下操作管理：
 
-</p>
+- **Requery All Services**：以全新的语言识别重新查询已启用的服务，跳过缓存。
+- **Regenerate AI Result**：用所选 AI Provider 重新生成结果，不影响其他 Provider 的结果。AI 缓存关闭时同样可用。
+- **Clear Query Cache**：清除词典、翻译、AI 和语言识别的缓存结果。
 
-</details>
+重新查询或重新生成得到的新结果，会在对应缓存模式允许缓存该输入时替换缓存结果。
 
-### 苹果 🍎 系统翻译
+### 收藏存储与恢复
 
-`Easydict` 支持 macOS 系统翻译，需搭配快捷指令食用，详情请看 [如何在 Easydict 中使用 macOS 苹果系统翻译？](https://github.com/tisfeng/Raycast-Easydict/wiki/%E5%A6%82%E4%BD%95%E5%9C%A8-Easydict-%E4%B8%AD%E4%BD%BF%E7%94%A8-macOS-%F0%9F%8D%8E-%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91%EF%BC%9F)
+升级后收藏仍可离线查看。旧版本只能看到升级前的快照，在新旧版本中的修改不会同步。
+
+如果收藏数据无法读取，「Favorite Words」会保留原始数据并阻止修改。可通过 **Export Original Data** 导出本地 JSON 备份，或通过 **Restore from Backup** 选择有效备份恢复；**Restore Previous-Version Favorites** 可在当前数据损坏时恢复保留的旧集合。两种恢复都会先备份当前数据。备份保存在扩展支持目录中，可通过 **Open Backup Folder** 打开所在文件夹。来自更新版本的数据格式保持只读：请先导出，并使用兼容的 Easydict 版本读取。
+
+### Anki 设置
+
+以下设置控制收藏单词如何发送到 [Anki](#anki)。
+
+- **Add Favorites to Anki Automatically**：添加收藏时同时发送到 Anki（默认关闭）。
+- **Anki Deck**：接收卡片的牌组（默认 `Easydict`）；首次使用时会自动创建该牌组和一个 `Easydict` 笔记类型。
+- **AnkiConnect URL**：AnkiConnect 插件的地址（默认 `http://127.0.0.1:8765`）；AnkiConnect 使用自定义端口或运行在其他机器上时需修改。
 
 ### 系统代理
 
 `Easydict` 支持系统代理。在 Raycast 扩展设置中开启 `Use System Proxy Settings` 即可使用。开启后，所有网络请求将通过系统代理发送。适用于需要代理的服务（如国内使用 Google 翻译）或对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制）。**开启代理可能会使请求响应速度变慢，因此请仅在有需要时启用。**
+
+## 集成
+
+### Anki
+
+收藏单词可以通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。
+
+- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
+- **卡片内容**：正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。取消收藏不会删除 Anki 中的卡片，复习记录会保留。
+
+牌组、AnkiConnect 地址和自动添加等设置见 [Anki 设置](#anki-设置)。
+
+### PopClip
+
+你需要先安装 [PopClip](https://pilotmoon.com/popclip/)，然后为 `Easydict`添加一个快捷键，如 `Cmd + E`，那么你就可以通过 `PopClip` 快速打开 `Easydict` 啦！
+
+使用方法：选中以下代码块，`PopClip` 会显示 "安装 Easydict"，点击它即可。
+
+```
+  # popclip
+  name: Easydict
+  icon: search E
+  key combo: command E
+```
+
+> 参考：https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
+
+### 欧路词典
+
+如果电脑上安装了[欧路词典](https://www.eudic.net/v4/en/app/eudic)，查询结果的操作菜单中会出现 **Open in Eudic App**，点击即可在欧路词典中打开该词（macOS）。
 
 ## 支持的语言
 
@@ -345,6 +381,8 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 > 注意 ⚠️：Google 翻译中国站 (translate.google.cn) 目前已无法使用，只能使用国际版 (translate.google.com)，因此可能需要开启代理才能使用 Google 翻译。
 
+🍎 苹果系统翻译需要先在「快捷指令」中完成一次设置，详情请看[如何在 Easydict 中使用 macOS 苹果系统翻译？](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/%E5%A6%82%E4%BD%95%E5%9C%A8Easydict%E4%B8%AD%E4%BD%BF%E7%94%A8macOS%F0%9F%8D%8E%E7%B3%BB%E7%BB%9F%E7%BF%BB%E8%AF%91.md)。
+
 各项翻译服务支持的语言详情如下：
 
 <!-- automd:easydictTranslationTable locale="zh" -->
@@ -429,31 +467,6 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 - [DeepL](https://www.deepl.com/translator)
 
 ![A2ECFJ-1664270926](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
-
-## 集成
-
-### Anki
-
-收藏单词可以通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。
-
-- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。开启 **Add Favorites to Anki Automatically** 后，每次添加收藏也会同时发送到 Anki。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
-- **卡片内容**：正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。取消收藏不会删除 Anki 中的卡片，复习记录会保留。
-- **设置**：**Anki Deck** 指定牌组（默认 `Easydict`；首次使用时会自动创建该牌组和一个 `Easydict` 笔记类型）。**AnkiConnect URL** 指定地址（默认 `http://127.0.0.1:8765`；AnkiConnect 使用自定义端口或运行在其他机器上时需修改）。
-
-### PopClip
-
-你需要先安装 [PopClip](https://pilotmoon.com/popclip/)，然后为 `Easydict`添加一个快捷键，如 `Cmd + E`，那么你就可以通过 `PopClip` 快速打开 `Easydict` 啦！
-
-使用方法：选中以下代码块，`PopClip` 会显示 "安装 Easydict"，点击它即可。
-
-```
-  # popclip
-  name: Easydict
-  icon: search E
-  key combo: command E
-```
-
-> 参考：https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
 
 ## 致谢
 

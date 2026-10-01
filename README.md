@@ -28,59 +28,34 @@ _Originally developed by [tisfeng](https://github.com/tisfeng), currently mainta
   </details>
 </p>
 
-## What is Raycast Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/README_ZH.md)
+## What is Raycast Easydict? [中文介绍](https://github.com/tisfeng/Raycast-Easydict/blob/main/README_ZH.md)
 
-`Easydict` is a simple and easy-to-use dictionary app for looking up words and translating text. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
+**Raycast Easydict** is a simple, easy-to-use dictionary and translation tool. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
 
-For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/). You can also use LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
+For translation, it supports macOS System Translation, [DeepL](https://www.deepl.com/translator), [Google Translate](https://translate.google.com), [Bing Translator](https://www.bing.com/translator), [Baidu Translate](https://fanyi.baidu.com/), [Tencent Translate](https://fanyi.qq.com/), [Volcano Engine Translation](https://www.volcengine.com/product/machine-translation), [Youdao Translate](https://fanyi.youdao.com/), and [Caiyun Translate](https://fanyi.caiyunapp.com/#/). It also supports Raycast AI and custom OpenAI-compatible endpoints for translation and dictionary lookup.
+
+Beyond quick lookups, Easydict also works as a lightweight language-learning companion: save results as Favorite Words for offline review, view Chinese character stroke-order diagrams, and export favorites to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
   <img src="https://github.com/user-attachments/assets/268ced8a-1ba8-47f4-bee5-bc3af4987c7a" width="49%" />
 </p>
 
-## Installation
-
-This is an extension of Raycast, so you need to install [Raycast](https://www.raycast.com/) first.
-
-> [Raycast](https://www.raycast.com/) is a blazingly fast, totally extendable launcher. Similar to [Alfred](https://www.alfredapp.com/) but it's completely free!
-
-### Install from Raycast Store
-
-<a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install"><img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
-</a>
-
-### Manually Install
-
-```bash
-git clone https://github.com/tisfeng/Raycast-Easydict.git && cd Raycast-Easydict
-
-npm install && npm run dev
-```
-
 ## Features
 
-- [x] 🆕 Supports [optional local query caching](#query-cache), off by default.
-- [x] 🆕 Support Raycast for Windows (most features are adapted).
-- [x] 🆕 Supports using LLMs from Raycast AI or custom OpenAI-compatible endpoints for translation and word lookup.
-- [x] Works out of the box for easily looking up words or translating text.
-- [x] Automatically detects input languages and queries your preferred target language.
-- [x] Provides rich query information, including basic translations, pronunciations, exam coverage, parts of speech, tenses, and web phrases.
-- [x] Automatically queries selected text (enabled by default).
-- [x] Supports screenshot OCR translation.
-- [x] Supports opening the [Eudic Dictionary](https://apps.apple.com/us/app/eudic-%E6%AC%A7%E8%B7%AF%E8%AF%8D%E5%85%B8/id434350458?l=zh&mt=12) for quick lookups (if installed on your Mac).
-- [x] Supports automatic and manual audio playback of word pronunciations.
-- [x] Supports Youdao Text-to-Speech (TTS).
-- [x] Supports manually sorting query results.
-- [x] Supports [Arguments](https://developers.raycast.com/information/lifecycle/arguments).
-- [x] Supports [Fallback Commands](https://manual.raycast.com/settings#Fallback%20Commands).
-- [x] Supports system proxies.
-- [x] Supports Linguee and Youdao Dictionary.
-- [x] Supports macOS System Translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)_)
-- [x] Supports 48+ languages.
-- [x] 🆕 Supports saving completed results as Favorite Words for offline browsing and management.
-- [x] 🆕 Supports viewing stroke-order diagrams for Chinese characters from live and saved translation results.
-- [x] 🆕 Supports adding Favorite Words to Anki as flashcards via [AnkiConnect](https://ankiweb.net/shared/info/2055492159).
+**Look up and translate**
+
+- Works out of the box: look up words or translate text, with automatic language detection and a preferred target language.
+- Queries the selected text of the frontmost app automatically (on by default), and supports OCR screenshot translation.
+- Rich dictionary results: translations, pronunciations, exam coverage, parts of speech, tenses, web phrases, and stroke-order diagrams for Chinese characters.
+- Dictionary lookup with Youdao and Linguee; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun.
+- Plays word pronunciations automatically or on demand, including Youdao TTS for non-English words.
+- AI translation and word lookup with Raycast AI or any OpenAI-compatible endpoint; dictionary mode generates structured entries for words and terms.
+
+**Learn and review**
+
+- Saves complete results as Favorite Words for offline browsing and management.
+- Exports favorites to [Anki](https://apps.ankiweb.net/) as flashcards for spaced-repetition review.
 
 **_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
 
@@ -101,13 +76,6 @@ npm install && npm run dev
   <img src="https://github.com/user-attachments/assets/be9efa47-1a19-443e-ab49-b0813a830f26" width="49%" />
 </p>
 
-### Arguments
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/arguments-1666060638.png" width="49%" />
-  <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/hello-1666060655.png" width="49%" />
-</p>
-
 ### Dictionary Details
 
 **Youdao Modern Chinese Dict**
@@ -124,7 +92,7 @@ npm install && npm run dev
 | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1666538642.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png) |
 | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png) |
 
-### Show More Details（Shortcut `Cmd + M`）
+### Show More Details (Shortcut `Cmd + M`)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png" width="49%" />
@@ -142,6 +110,25 @@ npm install && npm run dev
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-6-1666538717.png" width="49%" />
 </p>
 
+## Installation
+
+This is an extension of Raycast, so you need to install [Raycast](https://www.raycast.com/) first. Easydict works on both macOS and Windows.
+
+> [Raycast](https://www.raycast.com/) is a blazingly fast, totally extendable launcher. Similar to [Alfred](https://www.alfredapp.com/) but it's completely free!
+
+### Install from Raycast Store
+
+<a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install"><img height="64" style="height: 64px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+</a>
+
+### Manually Install
+
+```bash
+git clone https://github.com/tisfeng/Raycast-Easydict.git && cd Raycast-Easydict
+
+npm install && npm run dev
+```
+
 ## Configuration
 
 Easydict works well out of the box. The following options help you customize its behavior.
@@ -153,8 +140,8 @@ Use the **Manage Providers** command to manage AI providers and to set the order
 **Providers and order**
 
 - Built-in providers are listed here for ordering only; enable and configure them in Extension Settings.
-- Reorder any provider with **Move Up**/**Move Down** (`Cmd+Option+Up/Down` on macOS, `Ctrl+Alt+Up/Down` on Windows); built-in and AI providers share one order.
-
+- Reorder any provider with **Move Up**/**Move Down** (`Cmd+Option+Up/Down` on macOS, `Ctrl+Alt+Up/Down` on Windows).
+- 
 **AI providers**
 
 - AI providers connect to **Raycast AI** or any **OpenAI-compatible endpoint**.
@@ -166,12 +153,6 @@ Use the **Manage Providers** command to manage AI providers and to set the order
 - OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers, preserving connection settings, enablement, and order.
 - The old settings remain import sources only; **Add from Legacy OpenAI/Gemini Settings…** copies them into a new provider, initially disabled.
 - Migration is per device (each device needs the legacy API key) and offers a retry if it fails.
-
-### Favorite Storage and Recovery
-
-Existing favorites remain available offline after upgrading. The first add, removal, clear, or restore saves the complete collection in the new format; later changes use that collection, including when it is empty. The previous snapshot is retained for recovery and older versions. Older versions see only that snapshot, and subsequent edits in either version do not sync between formats.
-
-If saved favorites cannot be read, Favorite Words keeps the original data and blocks changes. Use **Export Original Data** to save a local JSON backup, or **Restore from Backup** to select a valid backup; the current data is backed up before replacement. Backups are stored locally in the extension support directory, and **Open Backup Folder** reveals them. **Restore Previous-Version Favorites** can recover the retained collection when the current data is damaged, after backing up the damaged data. A format from a newer version stays read-only: export it and use a compatible Easydict version.
 
 ### Preferred Languages
 
@@ -194,6 +175,18 @@ Preference language will be given priority in order during automatic detection. 
 <p>
 
 For example, if you input a sentence arbitrarily, it will be translated into the first preferred language. If the automatically recognized language is the same as your first preferred language, it will be automatically translated into the second preferred language.
+
+</p>
+
+</details>
+
+### Select Target Language
+
+<details><summary> Specify the target language. This option is turned off by default. </summary>
+
+<p>
+
+By default, the extension will automatically select the preferred language as the target translation language. However, sometimes if you want to manually specify a language as the target language, you can turn on this option in the preferences and then you can temporarily select another target language in the action panel.
 
 </p>
 
@@ -235,18 +228,6 @@ Use these shortcuts from a query result:
 
 ![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
 
-### Select Target Language
-
-<details><summary> Specify the target language. This option is turned off by default. </summary>
-
-<p>
-
-By default, the extension will automatically select the preferred language as the target translation language. However, sometimes if you want to manually specify a language as the target language, you can turn on this option in the preferences and then you can temporarily select another target language in the action panel.
-
-</p>
-
-</details>
-
 ### Query Cache
 
 Open **Preferences** from a query result's action menu to configure caching. **Query Cache** controls completed dictionary and machine translation results; **AI Query Cache** controls completed AI translations and dictionary entries. Both default to **Off**. Choose **Words Only** to cache input recognized as a word or term, or **All Text** to also cache sentences and longer text.
@@ -261,13 +242,53 @@ Cached results show a clock indicator. Use these actions to manage them:
 
 Fresh results from requerying or regeneration replace the cached result when the corresponding cache mode allows caching that input.
 
-### 🍎 Apple Translate
+### Favorite Storage and Recovery
 
-`Easydict` support MacOS system translate, for more information, please see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md)
+Favorites remain available offline after upgrading. Older versions only see the snapshot from before the upgrade, and edits made in either version do not sync between formats.
+
+If saved favorites cannot be read, Favorite Words keeps the original data and blocks changes. Use **Export Original Data** to save a local JSON backup, or **Restore from Backup** to select a valid backup; **Restore Previous-Version Favorites** recovers the retained collection when the current data is damaged. The current data is backed up before either restore. Backups are stored locally in the extension support directory, and **Open Backup Folder** reveals them. Data from a newer version stays read-only: export it and open it with a compatible Easydict version.
+
+### Anki Preferences
+
+These preferences control how Favorite Words are sent to [Anki](#anki).
+
+- **Add Favorites to Anki Automatically**: also add each new favorite to Anki (off by default).
+- **Anki Deck**: the deck that receives the cards (default `Easydict`); the deck and an `Easydict` note type are created on first use.
+- **AnkiConnect URL**: the address of the AnkiConnect add-on (default `http://127.0.0.1:8765`); change it when AnkiConnect listens on a custom port or on another machine.
 
 ### System Proxy
 
 `Easydict` supports system proxy. To use it, turn on `Use System Proxy Settings` in the Raycast extension settings. When enabled, all network requests will be sent through the system proxy. This is useful for services that require a proxy (e.g., Google Translate in China) or for counter IP blocking (some services such as Linguee have frequency restrictions on IPs). **Enabling proxy may slow down response time, so please enable it only when needed.**
+
+## Integrations
+
+### Anki
+
+Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review through the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`).
+
+- **Add cards**: Keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
+- **Cards**: The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites. Removing a favorite does not delete its Anki card, so review history is kept.
+
+The deck, the AnkiConnect address, and automatic adding are configured in [Anki Preferences](#anki-preferences).
+
+### PopClip
+
+You need to install [PopClip](https://pilotmoon.com/popclip/) first, then add a shortcut key for `Easydict`, such as `Cmd + E`, then you can open `Easydict` quickly with `PopClip`!
+
+Usage: Select the following code block, `PopClip` will show "Install Easydict", just click it.
+
+```
+  # popclip
+  name: Easydict
+  icon: search E
+  key combo: command E
+```
+
+> Ref: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
+
+### Eudic
+
+If the [Eudic](https://www.eudic.net/v4/en/app/eudic) dictionary app is installed, **Open in Eudic App** opens the queried word in it (macOS).
 
 ## Supported Languages
 
@@ -359,6 +380,8 @@ Google and DeepL translations support system proxy. To enable proxy, turn on `Us
 
 > Note ⚠️: Google Translate China site (translate.google.cn) is currently unavailable. You can only use the international version (translate.google.com), so you may need to enable a proxy to use Google Translate.
 
+🍎 Apple System Translation requires a one-time setup with the Shortcuts app; see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md).
+
 Supported translation languages:
 
 <!-- automd:easydictTranslationTable locale="en" -->
@@ -433,31 +456,6 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 - [DeepL](https://www.deepl.com/translator)
 
 ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
-
-## Integrations
-
-### Anki
-
-Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review through the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`).
-
-- **Add cards**: Keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu. Enable **Add Favorites to Anki Automatically** to send every new favorite to Anki as well. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
-- **Cards**: The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites. Removing a favorite does not delete its Anki card, so review history is kept.
-- **Preferences**: **Anki Deck** sets the deck (default `Easydict`; the deck and an `Easydict` note type are created on first use). **AnkiConnect URL** sets the address (default `http://127.0.0.1:8765`; change it when AnkiConnect listens on a custom port or on another machine).
-
-### PopClip
-
-You need to install [PopClip](https://pilotmoon.com/popclip/) first, then add a shortcut key for `Easydict`, such as `Cmd + E`, then you can open `Easydict` quickly with `PopClip`!
-
-Usage: Select the following code block, `PopClip` will show "Install Easydict", just click it.
-
-```
-  # popclip
-  name: Easydict
-  icon: search E
-  key combo: command E
-```
-
-> Ref: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
 
 ## Acknowledgements
 
