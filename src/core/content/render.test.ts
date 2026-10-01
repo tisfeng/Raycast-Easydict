@@ -87,7 +87,7 @@ describe("content rendering", () => {
     );
     const markdown = renderSelectedRow(sections[1].items[0], sections);
     expect(markdown).toContain("<table>");
-    expect(markdown).not.toContain("<th>");
+    expect(markdown).toContain("<th>Service</th><th>Translation</th>");
     expect(markdown).toContain("One · English → Chinese-Simplified");
     expect(markdown.indexOf("Two")).toBeLessThan(markdown.indexOf("One"));
     expect(markdown).not.toContain(query.word);
@@ -145,7 +145,7 @@ describe("content rendering", () => {
     );
     const saved = renderSavedView(query, sections);
     expect(saved.match(/<table>/g)).toHaveLength(1);
-    expect(saved).not.toContain("<th>");
+    expect(saved).toContain("<th>Expression</th><th>Meaning</th>");
     expect(saved).toContain("<td>next</td><td>meaning</td>");
     const long = "a".repeat(121);
     const longSections = view(
@@ -155,7 +155,7 @@ describe("content rendering", () => {
     expect(renderSavedView(query, longSections)).not.toContain("<table>");
   });
 
-  it("renders AI forms and Linguee special forms as compact pair tables without column headers", () => {
+  it("renders AI forms and Linguee special forms as pair tables with form headers", () => {
     const forms = view(
       dictionary(
         [{ kind: "pairs", relation: "form", entries: [{ expression: "past tense", meaning: "ran" }] }],
@@ -164,6 +164,7 @@ describe("content rendering", () => {
       ),
     );
     expect(forms[0].items[0].copyText).toBe("past tense: ran");
+    expect(renderSavedView(query, forms)).toContain("<th>Form</th><th>Value</th>");
     expect(renderSavedView(query, forms)).toContain("<td>past tense</td><td>ran</td>");
     const equivalents = view(
       dictionary(
@@ -187,8 +188,7 @@ describe("content rendering", () => {
       ),
     );
     const saved = renderSavedView(query, equivalents);
-    expect(saved).toContain("<table>");
-    expect(saved).not.toContain("<th>");
+    expect(saved).toContain("<th>Form</th><th>Value</th>");
   });
 
   it("keeps multiline source and translation paragraphs outside headings and comparison tables", () => {

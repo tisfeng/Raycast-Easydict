@@ -106,7 +106,10 @@ function translationBody(info: QueryWordInfo, results: readonly TranslationEntry
     entries.length > 1 &&
     entries.every((entry) => entry.text.length <= 120 && !entry.text.includes("\n"));
   return compact
-    ? table(entries.map((entry) => [entry.label, entry.text]))
+    ? table(
+        entries.map((entry) => [entry.label, entry.text]),
+        ["Service", "Translation"],
+      )
     : entries.map((entry) => `**${plainText(entry.label)}**\n\n${entry.text}`).join("\n\n");
 }
 
@@ -156,9 +159,11 @@ export function viewRowLabel(
   }
 }
 
-// Bare rows keep tables compact; the surrounding section label already names the columns.
-function table(rows: readonly (readonly string[])[]): string {
-  return `<table>\n${rows
+function table(rows: readonly (readonly string[])[], headings?: readonly string[]): string {
+  const header = headings
+    ? `<thead><tr>${headings.map((heading) => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead>\n`
+    : "";
+  return `<table>\n${header}${rows
     .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell).replace(/\n/g, "<br>")}</td>`).join("")}</tr>`)
     .join("\n")}\n</table>`;
 }
@@ -232,7 +237,11 @@ export function renderStandaloneRow(row: ViewRow): string {
 
 function sectionBody(section: ViewSection): string {
   if (section.items.length > 0 && section.items.every(isPairedRow)) {
-    return table(section.items.map((row) => [row.title, row.subtitle ?? ""]));
+    const forms = section.items.every((row) => row.kind === "form" || row.frequency === "special-forms");
+    return table(
+      section.items.map((row) => [row.title, row.subtitle ?? ""]),
+      forms ? ["Form", "Value"] : ["Expression", "Meaning"],
+    );
   }
   if (section.kind === "definitions")
     return section.items.map((row, index) => `<small>${index + 1}.</small> ${row.renderBody()}`).join("\n\n");
