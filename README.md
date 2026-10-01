@@ -438,11 +438,11 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 
 ### Anki
 
-Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review. Install the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`) and keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu.
+Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review through the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`).
 
-To skip the extra step, enable **Add Favorites to Anki Automatically** in the extension preferences: every word you add to Favorites is then also added to Anki. Removing a favorite does not delete its Anki card, so review history is kept. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
-
-Cards are added to the deck set in the **Anki Deck** preference (default `Easydict`), through the address set in the **AnkiConnect URL** preference (default `http://127.0.0.1:8765`; change it when AnkiConnect listens on a custom port or on another machine). The deck and an `Easydict` note type are created on first use. The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites.
+- **Add cards**: Keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu. Enable **Add Favorites to Anki Automatically** to send every new favorite to Anki as well. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
+- **Cards**: The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites. Removing a favorite does not delete its Anki card, so review history is kept.
+- **Preferences**: **Anki Deck** sets the deck (default `Easydict`; the deck and an `Easydict` note type are created on first use). **AnkiConnect URL** sets the address (default `http://127.0.0.1:8765`; change it when AnkiConnect listens on a custom port or on another machine).
 
 ### PopClip
 

@@ -434,11 +434,11 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 ### Anki
 
-收藏单词可以发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。先安装 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）并保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。
+收藏单词可以通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。
 
-如果不想多操作一步，可以在扩展设置中开启 **Add Favorites to Anki Automatically**：之后每次添加收藏，都会同时添加到 Anki。取消收藏不会删除 Anki 中的卡片，复习记录会保留。如果 Anki 没有打开，单词仍会保存到收藏，之后可以用 **Add All to Anki** 补发。
-
-卡片会添加到 **Anki Deck** 设置所指定的牌组（默认 `Easydict`），并通过 **AnkiConnect URL** 设置所指定的地址（默认 `http://127.0.0.1:8765`，AnkiConnect 使用自定义端口或运行在其他机器上时需修改）连接 Anki。首次使用时会自动创建该牌组和一个 `Easydict` 笔记类型。卡片正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。
+- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。开启 **Add Favorites to Anki Automatically** 后，每次添加收藏也会同时发送到 Anki。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
+- **卡片内容**：正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。取消收藏不会删除 Anki 中的卡片，复习记录会保留。
+- **设置**：**Anki Deck** 指定牌组（默认 `Easydict`；首次使用时会自动创建该牌组和一个 `Easydict` 笔记类型）。**AnkiConnect URL** 指定地址（默认 `http://127.0.0.1:8765`；AnkiConnect 使用自定义端口或运行在其他机器上时需修改）。
 
 ### PopClip
 
