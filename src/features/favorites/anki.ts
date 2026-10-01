@@ -71,31 +71,14 @@ async function invokeAnki<T>(url: string, action: string, params: object = {}): 
 async function ensureDeckAndModel(url: string, deckName: string) {
   await invokeAnki(url, "createDeck", { deck: deckName });
   const modelNames = await invokeAnki<string[]>(url, "modelNames");
-  if (!modelNames.includes(ANKI_MODEL_NAME)) {
-    await invokeAnki(url, "createModel", {
-      modelName: ANKI_MODEL_NAME,
-      inOrderFields: ANKI_MODEL_FIELDS,
-      css: ANKI_MODEL_CSS,
-      isCloze: false,
-      cardTemplates: [{ Name: ANKI_TEMPLATE_NAME, Front: ANKI_FRONT_TEMPLATE, Back: ANKI_BACK_TEMPLATE }],
-    });
-    return;
-  }
-
-  // Note types created by an earlier version lack newer fields; add them and refresh the templates to show them.
-  const fieldNames = await invokeAnki<string[]>(url, "modelFieldNames", { modelName: ANKI_MODEL_NAME });
-  const missingFields = ANKI_MODEL_FIELDS.filter((field) => !fieldNames.includes(field));
-  if (!missingFields.length) return;
-  for (const fieldName of missingFields) {
-    await invokeAnki(url, "modelFieldAdd", { modelName: ANKI_MODEL_NAME, fieldName });
-  }
-  await invokeAnki(url, "updateModelTemplates", {
-    model: {
-      name: ANKI_MODEL_NAME,
-      templates: { [ANKI_TEMPLATE_NAME]: { Front: ANKI_FRONT_TEMPLATE, Back: ANKI_BACK_TEMPLATE } },
-    },
+  if (modelNames.includes(ANKI_MODEL_NAME)) return;
+  await invokeAnki(url, "createModel", {
+    modelName: ANKI_MODEL_NAME,
+    inOrderFields: ANKI_MODEL_FIELDS,
+    css: ANKI_MODEL_CSS,
+    isCloze: false,
+    cardTemplates: [{ Name: ANKI_TEMPLATE_NAME, Front: ANKI_FRONT_TEMPLATE, Back: ANKI_BACK_TEMPLATE }],
   });
-  await invokeAnki(url, "updateModelStyling", { model: { name: ANKI_MODEL_NAME, css: ANKI_MODEL_CSS } });
 }
 
 /**
