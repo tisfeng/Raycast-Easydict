@@ -28,7 +28,7 @@ _Originally developed by [tisfeng](https://github.com/tisfeng), currently mainta
   </details>
 </p>
 
-## What is Raycast Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/README_ZH.md)
+## What is Raycast Easydict? [【中文介绍】](https://github.com/tisfeng/Raycast-Easydict/blob/main/README_ZH.md)
 
 `Easydict` is a simple and easy-to-use dictionary app for looking up words and translating text. It works out of the box, automatically detects the input language, and supports [Linguee](https://www.linguee.com/) and [Youdao Dictionary](https://www.youdao.com/) for dictionary lookup.
 

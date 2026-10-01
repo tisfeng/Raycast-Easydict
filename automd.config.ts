@@ -158,7 +158,7 @@ const generateEasydictTranslationTable = ({ args }: GenerateContext) => {
 
 /** @type {import("automd").Config} */
 export default {
-  input: ["README.md", "docs/README_ZH.md"],
+  input: ["README.md", "README_ZH.md"],
   generators: {
     easydictLanguages: defineGenerator({
       name: "easydictLanguages",

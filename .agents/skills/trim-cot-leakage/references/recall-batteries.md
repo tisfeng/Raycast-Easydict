@@ -9,7 +9,7 @@ Run from the repository root. Replace the example `scope` with the user-authoriz
 This shell example works in the project's development environment; it is not extension runtime code. Keep exclusions after include globs, use `--hidden` for locally owned `.agents` files, and retain normal ignore rules. Add fixture or vendored paths if they occur in the chosen scope.
 
 ```zsh
-scope=(README.md docs/README_ZH.md docs/development src)
+scope=(README.md README_ZH.md docs/development src)
 prose_globs=(
   --glob '*.md' --glob '*.ts' --glob '*.tsx'
   --glob '!.git/**' --glob '!node_modules/**' --glob '!dist/**'
@@ -44,7 +44,7 @@ Check a new or modified probe against an obvious positive and a near-miss when i
 
 ## Language-specific inspection
 
-Read English and Chinese prose in their own context. The Chinese README is `docs/README_ZH.md`, not `*.zh.md`; other Chinese guides use Chinese filenames. Do not infer a document's language only from a filename suffix.
+Read English and Chinese prose in their own context. The Chinese README is `README_ZH.md`, not `*.zh.md`; other Chinese guides use Chinese filenames. Do not infer a document's language only from a filename suffix.
 
 If investigating mixed-language residue, narrow the search to the relevant English prose or comments. A broad search for Chinese characters is especially noisy in this dictionary and translation extension. Prompt examples, test inputs, dictionary payloads, language names, and quoted user text intentionally contain multiple languages.
 
