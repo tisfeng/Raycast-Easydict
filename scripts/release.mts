@@ -165,6 +165,9 @@ function itemPath(line: string): string {
 /** sync: mirror the committed content of this repository into the Store checkout (dry run unless --apply). */
 function commandSync(checkoutArgument: string | undefined, apply: boolean) {
   const checkout = resolveCheckout(checkoutArgument);
+  // This script mirrors the repository it lives in; the copy inside the Store checkout belongs to raycast/extensions.
+  const prefix = git(repoRoot, ["rev-parse", "--show-prefix"]);
+  if (prefix) fail("Run sync from the Easydict repository root, never from the copy inside the Store checkout.");
   const target = path.join(checkout, extensionDir);
   const base = ["-a", "--delete", ...mirrorExcludes];
 
