@@ -21,7 +21,6 @@ const runtime = vi.hoisted(() => ({
 }));
 vi.mock("@/consts", () => ({ networkTimeout: 3000, myPreferences: { flagsAreNotLanguages: true } }));
 vi.mock("@/core/audio", () => ({ playQueryWordAudio: runtime.read, playTTS: runtime.tts }));
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 vi.mock("@/components/pages/StrokeOrderPage", () => ({
   default: ({ characters }: { characters: string[] }) => <div>{characters.join("")}</div>,
 }));

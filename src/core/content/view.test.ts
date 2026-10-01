@@ -8,8 +8,6 @@ import { renderSelectedRow } from "./render";
 import type { DictionarySection } from "./types";
 import { buildContentView } from "./view";
 
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
-
 const query = { word: "word", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 function dictionary(sections: readonly DictionarySection[], type = DictionaryType.Linguee): ComposedService {
   return {

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { ContentEquivalent } from "@/core/content/types";
 import { buildContentView } from "@/core/content/view";
@@ -8,8 +8,6 @@ import type { QueryWordInfo } from "@/core/results/types";
 
 import { buildLingueeContent } from "./content";
 import type { LingueeDictionaryResult, LingueeWordItem } from "./types";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const queryWordInfo: QueryWordInfo = { word: "good", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true };
 

@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { getLanguageEnglishName } from "@/core/language/utils";
-import { isDarkAppearance } from "@/core/results/appearance";
 import { DictionaryType } from "@/core/results/kinds";
 import type { QueryWordInfo } from "@/core/results/types";
 

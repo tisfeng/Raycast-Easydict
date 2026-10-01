@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { buildContentView } from "@/core/content/view";
 import { DictionaryType } from "@/core/results/kinds";
@@ -6,8 +6,6 @@ import type { QueryWordInfo } from "@/core/results/types";
 
 import { buildYoudaoContent } from "./content";
 import { decodeYoudaoResponse } from "./decode";
-
-vi.mock("@/core/results/appearance", () => ({ isDarkAppearance: () => false }));
 
 const query: QueryWordInfo = { word: "行", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true };
 
