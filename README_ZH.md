@@ -29,7 +29,7 @@
 
 ## 简介
 
-**Raycast Easydict** 是一款简洁易用的 Raycast 词典与翻译扩展，支持快速查词和文本翻译。除了传统词典与翻译服务，还支持接入 AI 翻译与查词服务，包括 Raycast AI 和 OpenAI 兼容端点。
+**Raycast Easydict** 是一款简洁易用的跨平台 Raycast 词典与翻译扩展，支持快速查词和文本翻译。除了传统词典与翻译服务，还支持接入 AI 翻译与查词服务，包括 Raycast AI 和 OpenAI 兼容端点。
 
 除了快速查词，Raycast Easydict 也可以作为一款轻量的语言学习工具：你可以将查询结果收藏，以便离线复习；查看汉字笔顺图；还可以导出到 [Anki](https://apps.ankiweb.net/)，通过间隔重复巩固记忆。
 
@@ -44,7 +44,7 @@
 
 **查词与翻译**
 
-- 📦 **开箱即用**：快速查词、翻译文本，自动识别输入语言并使用偏好目标语言；自动查询选中文本（默认开启），支持 OCR 截图翻译（目前仅 macOS）。
+- 📦 **开箱即用**：快速查词、翻译文本，自动识别输入语言并使用偏好目标语言；自动查询选中文本（默认开启），支持 OCR 截图翻译。
 - 🎨 **丰富的查询结果**：提供翻译、发音、考试词频、词性释义、时态与词形、网络短语。
 - 🌐 **多种服务支持**：词典支持有道和 Linguee；翻译支持 🍎 苹果系统翻译、DeepL、谷歌、Bing、百度、腾讯、火山、有道和彩云；🤖 AI 翻译与查词支持 Raycast AI 或任意 OpenAI 兼容端点，词典模式可为单词和词组生成结构化词条。
 - 🔊 **自动播放发音**：查询单词时自动朗读，其他语言使用有道 TTS。
@@ -467,6 +467,7 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 - 本项目的灵感源于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 和 [Bob](https://github.com/ripperhe/Bob)，其初始版本正是基于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 开发的。`Easydict` 在原项目的基础上，重新打磨了 UI 交互，新增了更多实用功能，精简了部分复杂且不必要的操作，并进行了深度的性能优化与改进。
 - OCR 截图翻译功能的实现参考了 [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/)。特别感谢 [aidevjoe](https://github.com/aidevjoe) 提交的 PR：[feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41)。
+- Windows 版 OCR 改编自 [ScreenOCR for Windows](https://github.com/raycast/extensions/tree/main/extensions/screenocr)（MIT 协议），使用系统内置的 `Windows.Media.Ocr` 引擎，需要在 Windows 中安装对应的 OCR 语言包。
 
 <p align="center">
   <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">

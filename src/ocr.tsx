@@ -5,9 +5,11 @@ import { chmod } from "fs/promises";
 import { join } from "path";
 import { x } from "tinyexec";
 
+import { recognizeTextWindows } from "@/core/ocr/windows";
+import { CancelledError } from "@/shared/errors";
 import { logError, logTrace } from "@/shared/logger";
 
-const recognizeText = async () => {
+const recognizeTextMac = async () => {
   const command = join(environment.assetsPath, "recognizeText");
   await chmod(command, "755");
   const result = await x(command, [], {
@@ -17,14 +19,15 @@ const recognizeText = async () => {
 };
 
 export default async function command() {
-  if (process.platform !== "darwin") {
-    return await showHUD("❌ OCR feature is currently only supported on macOS.");
+  const platform = process.platform;
+  if (platform !== "darwin" && platform !== "win32") {
+    return await showHUD("❌ OCR feature is currently only supported on macOS and Windows.");
   }
 
   await closeMainWindow();
 
   try {
-    const recognizedText = await recognizeText();
+    const recognizedText = platform === "win32" ? await recognizeTextWindows() : await recognizeTextMac();
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
@@ -43,7 +46,12 @@ export default async function command() {
       await showHUD("⚠️ Failed to query Easy Dictionary");
     }
   } catch (e) {
+    if (e instanceof CancelledError) {
+      logTrace("OCR", "recognition cancelled");
+      return;
+    }
     logError("OCR", `recognize text error: ${e}`);
-    await showHUD("❌ Failed detecting text");
+    const message = platform === "win32" && e instanceof Error && e.message ? e.message : "Failed detecting text";
+    await showHUD(`❌ ${message}`);
   }
 }

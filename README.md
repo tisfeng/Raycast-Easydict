@@ -29,7 +29,8 @@
 
 ## What is Raycast Easydict?
 
-**Raycast Easydict** is a simple, easy-to-use dictionary and translation extension for Raycast, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
+**Raycast Easydict** is a simple, easy-to-use dictionary and translation **
+** raycast extension, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
 
 Beyond quick lookups, Raycast Easydict also works as a lightweight language-learning tool: save results to review offline, view Chinese character stroke-order diagrams, and export them to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
 
@@ -44,7 +45,7 @@ Beyond quick lookups, Raycast Easydict also works as a lightweight language-lear
 
 **Look up and translate**
 
-- 📦 **Out of the box**: look up words and translate text, with automatic language detection and a preferred target language; auto-queries selected text (on by default) and supports OCR screenshot translation (macOS only).
+- 📦 **Out of the box**: look up words and translate text, with automatic language detection and a preferred target language; auto-queries selected text (on by default) and supports OCR screenshot translation.
 - 🎨 **Rich results**: translations, pronunciations, exam coverage, parts of speech, tenses and word forms, web phrases.
 - 🌐 **Multiple services**: dictionary lookup with Youdao and Linguee; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun; 🤖 AI translation and lookup with Raycast AI or any OpenAI-compatible endpoint, including a dictionary mode that builds structured entries for words and terms.
 - 🔊 **Auto pronunciation**: plays the word audio automatically after a query, with Youdao TTS for other languages.
@@ -458,6 +459,7 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 
 - This project was inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and its initial version was based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` improves upon the original project by refining the UI, adding practical new features, removing overly complex operations, and heavily optimizing performance.
 - The OCR Translate feature is based on [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/). Special thanks to [aidevjoe](https://github.com/aidevjoe) for the PR: [feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41).
+- The Windows OCR support is adapted from [ScreenOCR for Windows](https://github.com/raycast/extensions/tree/main/extensions/screenocr) (MIT). It uses the built-in `Windows.Media.Ocr` engine and requires an OCR language pack installed in Windows.
 
 <p align="center">
   <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">
