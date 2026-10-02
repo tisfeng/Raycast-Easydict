@@ -1,5 +1,14 @@
 # `Easydict` Changelog
 
+## [v3.5.0] - {PR_MERGE_DATE}
+
+### ✨ New Features
+
+#### Windows OCR Screenshot Translation
+
+- **OCR Translate** now works on Windows: drag-select a screen area, recognize the text locally with the built-in Windows OCR engine, and query it in Easydict. Install an OCR language pack in Windows Settings to recognize languages other than your Windows display language.
+- Added the **Select OCR Language** command to pin an installed Windows OCR language; the default **Automatic (Windows profile)** uses the OCR languages from your Windows language settings.
+
 ## [v3.4.0] - 2026-10-01
 
 ### ✨ New Features
