@@ -617,7 +617,7 @@
       "title": "Query Cache",
       "name": "queryCacheMode",
       "type": "dropdown",
-      "required": true,
+      "required": false,
       "default": "off",
       "description": "Store completed dictionary and machine translation results locally. Cached words expire after up to 7 days; translations expire after 24 hours.",
       "data": [
@@ -639,7 +639,7 @@
       "title": "AI Query Cache",
       "name": "aiQueryCacheMode",
       "type": "dropdown",
-      "required": true,
+      "required": false,
       "default": "off",
       "description": "Reuse completed AI translations and dictionary entries. Off by default because regenerating the same input can produce a different result.",
       "data": [
@@ -713,7 +713,7 @@
       "title": "Anki Deck",
       "name": "ankiDeckName",
       "type": "textfield",
-      "required": true,
+      "required": false,
       "default": "Easydict",
       "description": "Deck used when adding favorites to Anki. It is created in Anki if it does not exist."
     },
@@ -721,7 +721,7 @@
       "title": "AnkiConnect URL",
       "name": "ankiConnectUrl",
       "type": "textfield",
-      "required": true,
+      "required": false,
       "default": "http://127.0.0.1:8765",
       "description": "Address of the AnkiConnect add-on. Change it when AnkiConnect listens on a custom port or on another machine."
     },
