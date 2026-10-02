@@ -110,7 +110,7 @@ function New-OcrEngine {
     # TryCreateFromLanguage uses Windows language matching and may otherwise
     # resolve a removed regional pack to a related installed language.
     $engine = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($available[0])
-    if (-not $engine -or $engine.RecognizerLanguage.LanguageTag -ine $available[0].LanguageTag) { return $null }
+    if (-not $engine -or $engine.RecognizerLanguage.LanguageTag -ne $available[0].LanguageTag) { return $null }
     return $engine
 }
 
