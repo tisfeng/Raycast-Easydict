@@ -29,8 +29,7 @@
 
 ## What is Raycast Easydict?
 
-**Raycast Easydict** is a simple, easy-to-use dictionary and translation **
-** raycast extension, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
+**Raycast Easydict** is a simple, easy-to-use, **cross-platform** dictionary and translation extension for Raycast, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
 
 Beyond quick lookups, Raycast Easydict also works as a lightweight language-learning tool: save results to review offline, view Chinese character stroke-order diagrams, and export them to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
 
