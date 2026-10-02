@@ -43,6 +43,14 @@
       "mode": "no-view"
     },
     {
+      "name": "ocr-language",
+      "title": "Select OCR Language",
+      "subtitle": "Easydict",
+      "icon": "ocr.png",
+      "description": "Choose the installed Windows OCR language used by OCR Translate (Windows only).",
+      "mode": "view"
+    },
+    {
       "name": "favorites",
       "title": "Favorite Words",
       "subtitle": "Easydict",
@@ -115,7 +123,8 @@
     "eslint": "eslint src/ --fix",
     "docs:gen": "automd",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",

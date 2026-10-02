@@ -4,16 +4,22 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CancelledError } from "@/shared/errors";
-import { logError } from "@/shared/logger";
+import {
+  getAvailableWindowsLanguages,
+  getWindowsRecognitionLanguage,
+  recognizeWindows,
+  setWindowsRecognitionLanguage,
+} from "./windows";
 
-import { recognizeTextWindows } from "./windows";
+const { execFileMock, storageMock } = vi.hoisted(() => ({
+  execFileMock: vi.fn(),
+  storageMock: { getItem: vi.fn(), setItem: vi.fn() },
+}));
 
-const { execFileMock } = vi.hoisted(() => ({ execFileMock: vi.fn() }));
-
-vi.mock("@raycast/api", () => ({ environment: { assetsPath: "/assets" } }));
-vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
-vi.mock("@/shared/logger", () => ({ logError: vi.fn() }));
+vi.mock("@raycast/api", () => ({
+  environment: { assetsPath: "/assets" },
+  LocalStorage: storageMock,
+}));
 vi.mock("node:child_process", () => ({ execFile: execFileMock }));
 
 interface FakeExecError extends Error {
@@ -35,12 +41,23 @@ function mockExecution(handler: (args: string[], options: unknown, callback: Exe
   });
 }
 
+function recognizedPayload(text: string): string {
+  return JSON.stringify({ status: "recognized", text });
+}
+
+function exitError(code: number | string, extra?: Partial<FakeExecError>): FakeExecError {
+  return Object.assign(new Error(`exit ${code}`), { code, ...extra });
+}
+
 beforeEach(() => {
   execFileMock.mockReset();
+  storageMock.getItem.mockReset().mockResolvedValue(undefined);
+  storageMock.setItem.mockReset().mockResolvedValue(undefined);
 });
 
-describe("recognizeTextWindows", () => {
-  it("runs the bundled PowerShell helper and returns the recognized text", async () => {
+describe("recognizeWindows", () => {
+  it("recognizes text through the bundled helper with the saved language", async () => {
+    storageMock.getItem.mockResolvedValue("zh-Hans-CN");
     mockExecution((args, options, callback) => {
       expect(args).toEqual([
         "-NoLogo",
@@ -51,54 +68,222 @@ describe("recognizeTextWindows", () => {
         "Bypass",
         "-File",
         scriptPath,
+        "-Mode",
+        "area",
+        "-Language",
+        "zh-Hans-CN",
       ]);
       expect(options).toMatchObject({ encoding: "utf8", windowsHide: true, timeout: 300_000 });
-      callback(null, "Hello world", "");
+      callback(null, recognizedPayload("你好 world"), "");
     });
 
-    await expect(recognizeTextWindows()).resolves.toBe("Hello world");
+    await expect(recognizeWindows("area")).resolves.toEqual({ status: "recognized", text: "你好 world" });
   });
 
-  it("normalizes CRLF line endings and trims surrounding whitespace", async () => {
-    mockExecution((_args, _options, callback) => callback(null, "第一行\r\n第二行\r\n", ""));
+  it("defaults to auto and reports no text", async () => {
+    mockExecution((args, _options, callback) => {
+      expect(args).toContain("auto");
+      callback(null, JSON.stringify({ status: "no-text" }), "");
+    });
 
-    await expect(recognizeTextWindows()).resolves.toBe("第一行\n第二行");
+    await expect(recognizeWindows("area")).resolves.toEqual({ status: "no-text" });
+  });
+
+  it("uses the default timeout for non-area modes", async () => {
+    mockExecution((args, options, callback) => {
+      expect(args.slice(-4)).toEqual(["-Mode", "fullscreen", "-Language", "auto"]);
+      expect(options).toMatchObject({ timeout: 90_000 });
+      callback(null, recognizedPayload("fullscreen text"), "");
+    });
+
+    await expect(recognizeWindows("fullscreen")).resolves.toEqual({
+      status: "recognized",
+      text: "fullscreen text",
+    });
   });
 
   it("reports cancellation when the user closes the selection overlay", async () => {
-    mockExecution((_args, _options, callback) => callback(Object.assign(new Error("cancelled"), { code: 2 }), "", ""));
+    mockExecution((_args, _options, callback) => callback(exitError(2), "", ""));
 
-    await expect(recognizeTextWindows()).rejects.toBeInstanceOf(CancelledError);
+    await expect(recognizeWindows("area")).resolves.toEqual({ status: "cancelled" });
   });
 
-  it("explains how to fix a missing OCR language pack", async () => {
-    mockExecution((_args, _options, callback) => callback(Object.assign(new Error("exit 3"), { code: 3 }), "", ""));
+  it("explains a missing auto OCR engine", async () => {
+    mockExecution((_args, _options, callback) => callback(exitError(3), "", ""));
 
-    await expect(recognizeTextWindows()).rejects.toThrow(/language pack/i);
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/profile languages/),
+    });
   });
 
-  it("reports a failed PowerShell start", async () => {
+  it("explains a missing pinned OCR language pack", async () => {
+    storageMock.getItem.mockResolvedValue("ja-JP");
+    mockExecution((_args, _options, callback) => callback(exitError(3), "", ""));
+
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/ja-JP is not installed/),
+    });
+  });
+
+  it("rejects an invalid saved language before starting PowerShell", async () => {
+    storageMock.getItem.mockResolvedValue("not a tag!");
+
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/invalid/i),
+    });
+    expect(execFileMock).not.toHaveBeenCalled();
+  });
+
+  it("maps clipboard error payloads from the helper", async () => {
     mockExecution((_args, _options, callback) =>
-      callback(Object.assign(new Error("spawn failed"), { code: "ENOENT" }), "", ""),
+      callback(exitError(4), JSON.stringify({ status: "error", code: "clipboard-empty" }), ""),
     );
 
-    await expect(recognizeTextWindows()).rejects.toThrow(/PowerShell could not be started/);
+    await expect(recognizeWindows("clipboard")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/does not contain an image/),
+    });
   });
 
-  it("reports a timeout when the helper is killed", async () => {
-    mockExecution((_args, _options, callback) =>
-      callback(Object.assign(new Error("timeout"), { killed: true }), "", ""),
-    );
+  it("reports a capture that is already in progress", async () => {
+    mockExecution((_args, _options, callback) => callback(exitError(6), "", ""));
 
-    await expect(recognizeTextWindows()).rejects.toThrow(/timed out/);
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/already in progress/),
+    });
   });
 
-  it("reports unexpected failures and logs the helper output", async () => {
-    mockExecution((_args, _options, callback) =>
-      callback(Object.assign(new Error("exit 5"), { code: 5, stderr: "boom" }), "", "boom"),
-    );
+  it("rejects a helper response that is not JSON", async () => {
+    mockExecution((_args, _options, callback) => callback(null, "not json", ""));
 
-    await expect(recognizeTextWindows()).rejects.toThrow("Failed to recognize text on Windows.");
-    expect(logError).toHaveBeenCalledWith("OCR", expect.stringContaining("boom"));
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/invalid response/),
+    });
+  });
+
+  it("rejects a recognized payload without text", async () => {
+    mockExecution((_args, _options, callback) => callback(null, JSON.stringify({ status: "recognized" }), ""));
+
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      status: "error",
+      message: expect.stringMatching(/invalid result/),
+    });
+  });
+
+  it("maps process failures to user-facing errors", async () => {
+    mockExecution((_args, _options, callback) => callback(exitError("ENOENT"), "", ""));
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      message: expect.stringMatching(/PowerShell 5\.1 could not be started/),
+    });
+
+    execFileMock.mockReset();
+    mockExecution((_args, _options, callback) => callback(exitError("ETIMEDOUT", { killed: true }), "", ""));
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      message: expect.stringMatching(/timed out/),
+    });
+
+    execFileMock.mockReset();
+    mockExecution((_args, _options, callback) => callback(exitError("ERR_CHILD_PROCESS_STDIO_MAXBUFFER"), "", ""));
+    await expect(recognizeWindows("area")).resolves.toMatchObject({
+      message: expect.stringMatching(/size limit/),
+    });
+  });
+});
+
+describe("Windows OCR language storage", () => {
+  it("defaults to auto when nothing is saved", async () => {
+    await expect(getWindowsRecognitionLanguage()).resolves.toBe("auto");
+  });
+
+  it("returns the saved language", async () => {
+    storageMock.getItem.mockResolvedValue("ko-KR");
+
+    await expect(getWindowsRecognitionLanguage()).resolves.toBe("ko-KR");
+  });
+
+  it("validates the language tag before saving", async () => {
+    await expect(setWindowsRecognitionLanguage("bad tag!")).rejects.toThrow(/invalid/i);
+    expect(storageMock.setItem).not.toHaveBeenCalled();
+
+    await setWindowsRecognitionLanguage("en-GB");
+    expect(storageMock.setItem).toHaveBeenCalledWith("WindowsRecognitionLanguage", "en-GB");
+  });
+});
+
+describe("getAvailableWindowsLanguages", () => {
+  it("parses the installed OCR language inventory", async () => {
+    mockExecution((args, options, callback) => {
+      expect(args.at(-1)).toBe("-ListLanguages");
+      expect(options).toMatchObject({ timeout: 15_000 });
+      callback(
+        null,
+        JSON.stringify({
+          status: "languages",
+          languages: [
+            { tag: "zh-Hans-CN", displayName: "中文 (简体)" },
+            { tag: "en-US", displayName: "English (United States)" },
+          ],
+        }),
+        "",
+      );
+    });
+
+    await expect(getAvailableWindowsLanguages()).resolves.toEqual([
+      { tag: "zh-Hans-CN", displayName: "中文 (简体)" },
+      { tag: "en-US", displayName: "English (United States)" },
+    ]);
+  });
+
+  it("rejects duplicate or malformed language entries", async () => {
+    const cases = [
+      {
+        tagA: "en-US",
+        tagB: "EN-us",
+        displayName: "English (United States)",
+      },
+      {
+        tagA: "en-US",
+        tagB: "not a tag",
+        displayName: "English (United States)",
+      },
+      {
+        tagA: "en-US",
+        tagB: "ja-JP",
+        displayName: " ",
+      },
+    ];
+
+    for (const { tagA, tagB, displayName } of cases) {
+      execFileMock.mockReset();
+      mockExecution((_args, _options, callback) =>
+        callback(
+          null,
+          JSON.stringify({
+            status: "languages",
+            languages: [
+              { tag: tagA, displayName },
+              { tag: tagB, displayName },
+            ],
+          }),
+          "",
+        ),
+      );
+
+      await expect(getAvailableWindowsLanguages()).rejects.toThrow(/invalid language list/);
+    }
+  });
+
+  it("maps helper failures and invalid payloads to load errors", async () => {
+    mockExecution((_args, _options, callback) => callback(exitError(3), "", ""));
+    await expect(getAvailableWindowsLanguages()).rejects.toThrow(/profile languages/);
+
+    execFileMock.mockReset();
+    mockExecution((_args, _options, callback) => callback(null, "not json", ""));
+    await expect(getAvailableWindowsLanguages()).rejects.toThrow(/invalid response/);
   });
 });

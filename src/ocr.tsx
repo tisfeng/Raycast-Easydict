@@ -5,8 +5,7 @@ import { chmod } from "fs/promises";
 import { join } from "path";
 import { x } from "tinyexec";
 
-import { recognizeTextWindows } from "@/core/ocr/windows";
-import { CancelledError } from "@/shared/errors";
+import { recognizeWindows } from "@/core/ocr/windows";
 import { logError, logTrace } from "@/shared/logger";
 
 const recognizeTextMac = async () => {
@@ -16,6 +15,19 @@ const recognizeTextMac = async () => {
     throwOnError: true,
   });
   return result.stdout.trim();
+};
+
+/** Returns the recognized text, an empty string when nothing was found, or null when the user cancelled. */
+const recognizeTextWindows = async (): Promise<string | null> => {
+  const outcome = await recognizeWindows("area");
+  if (outcome.status === "cancelled") {
+    logTrace("OCR", "recognition cancelled");
+    return null;
+  }
+  if (outcome.status === "error") {
+    throw new Error(outcome.message);
+  }
+  return outcome.status === "recognized" ? outcome.text : "";
 };
 
 export default async function command() {
@@ -28,6 +40,9 @@ export default async function command() {
 
   try {
     const recognizedText = platform === "win32" ? await recognizeTextWindows() : await recognizeTextMac();
+    if (recognizedText === null) {
+      return;
+    }
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
@@ -46,10 +61,6 @@ export default async function command() {
       await showHUD("⚠️ Failed to query Easy Dictionary");
     }
   } catch (e) {
-    if (e instanceof CancelledError) {
-      logTrace("OCR", "recognition cancelled");
-      return;
-    }
     logError("OCR", `recognize text error: ${e}`);
     const message = platform === "win32" && e instanceof Error && e.message ? e.message : "Failed detecting text";
     await showHUD(`❌ ${message}`);

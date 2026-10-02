@@ -258,6 +258,10 @@ These preferences control how Favorite Words are sent to [Anki](#anki).
 
 `Easydict` supports system proxy. To use it, turn on `Use System Proxy Settings` in the Raycast extension settings. When enabled, all network requests will be sent through the system proxy. This is useful for services that require a proxy (e.g., Google Translate in China) or for counter IP blocking (some services such as Linguee have frequency restrictions on IPs). **Enabling proxy may slow down response time, so please enable it only when needed.**
 
+### Windows OCR Language
+
+On Windows, **OCR Translate** recognizes text with the built-in Windows OCR engine and the OCR language packs installed in Windows. Run **Select OCR Language** to see the installed languages and pin one; the default **Automatic (Windows profile)** creates the engine from the first OCR-capable language in your Windows language settings. Install more language packs under Windows Settings → Time & Language → Language & Region. This command does not affect macOS, where recognition uses Apple Vision and detects the language automatically.
+
 ## Integrations
 
 ### Anki
@@ -458,8 +462,9 @@ The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/serv
 ## Acknowledgements
 
 - This project was inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and its initial version was based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` improves upon the original project by refining the UI, adding practical new features, removing overly complex operations, and heavily optimizing performance.
-- The OCR Translate feature is based on [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/). Special thanks to [aidevjoe](https://github.com/aidevjoe) for the PR: [feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41).
-- The Windows OCR support is adapted from [ScreenOCR for Windows](https://github.com/raycast/extensions/tree/main/extensions/screenocr) (MIT). It uses the built-in `Windows.Media.Ocr` engine and requires an OCR language pack installed in Windows.
+- The OCR Translate feature is based on [ScreenOCR](https://github.com/raycast/extensions/tree/main/extensions/screenocr).
+  - Special thanks to [@aidevjoe](https://github.com/aidevjoe) for the PR: [feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41), the original macOS implementation.
+  - Special thanks to [@duckieeeduck](https://github.com/duckieeeduck) for the original Windows implementation ([raycast/extensions#30884](https://github.com/raycast/extensions/pull/30884)).
 
 <p align="center">
   <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">

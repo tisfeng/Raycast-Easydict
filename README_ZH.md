@@ -254,6 +254,10 @@ npm install && npm run dev
 
 `Easydict` 支持系统代理。在 Raycast 扩展设置中开启 `Use System Proxy Settings` 即可使用。开启后，所有网络请求将通过系统代理发送。适用于需要代理的服务（如国内使用 Google 翻译）或对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制）。**开启代理可能会使请求响应速度变慢，因此请仅在有需要时启用。**
 
+### Windows OCR 语言
+
+在 Windows 上，**OCR Translate** 使用系统内置的 Windows OCR 引擎，并依赖 Windows 中安装的 OCR 语言包。运行 **Select OCR Language** 可查看本机已安装的 OCR 语言并固定其一；默认的 **Automatic (Windows profile)** 会使用 Windows 语言设置中第一个支持 OCR 的语言创建引擎。更多语言包可在 Windows 设置 → 时间和语言 → 语言和区域中安装。该命令不影响 macOS：macOS 使用 Apple Vision，并自动检测识别语言。
+
 ## 集成
 
 ### Anki
@@ -466,8 +470,9 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 ## 致谢
 
 - 本项目的灵感源于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 和 [Bob](https://github.com/ripperhe/Bob)，其初始版本正是基于 [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) 开发的。`Easydict` 在原项目的基础上，重新打磨了 UI 交互，新增了更多实用功能，精简了部分复杂且不必要的操作，并进行了深度的性能优化与改进。
-- OCR 截图翻译功能的实现参考了 [ScreenOCR](https://github.com/raycast/extensions/tree/d0cb79de95d41891d8ca0568a60db67aefa5806b/extensions/screenocr/)。特别感谢 [aidevjoe](https://github.com/aidevjoe) 提交的 PR：[feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41)。
-- Windows 版 OCR 改编自 [ScreenOCR for Windows](https://github.com/raycast/extensions/tree/main/extensions/screenocr)（MIT 协议），使用系统内置的 `Windows.Media.Ocr` 引擎，需要在 Windows 中安装对应的 OCR 语言包。
+- OCR 截图翻译功能的实现参考了 [ScreenOCR](https://github.com/raycast/extensions/tree/main/extensions/screenocr)。
+  - 特别感谢 [@aidevjoe](https://github.com/aidevjoe) 的 PR：[feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41)（macOS 版原始实现）。
+  - 特别感谢 [@duckieeeduck](https://github.com/duckieeeduck) 的 Windows 版原始实现（[raycast/extensions#30884](https://github.com/raycast/extensions/pull/30884)）。
 
 <p align="center">
   <a href="https://github.com/tisfeng/Raycast-Easydict/graphs/contributors">
