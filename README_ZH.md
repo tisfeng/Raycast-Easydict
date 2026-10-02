@@ -29,7 +29,7 @@
 
 ## 简介
 
-**Raycast Easydict** 是一款简洁易用的跨平台 Raycast 词典与翻译扩展，支持快速查词和文本翻译。除了传统词典与翻译服务，还支持接入 AI 翻译与查词服务，包括 Raycast AI 和 OpenAI 兼容端点。
+**Raycast Easydict** 是一款简洁易用的**跨平台** Raycast 词典与翻译扩展，支持快速查词和文本翻译。除了传统词典与翻译服务，还支持接入 AI 翻译与查词服务，包括 Raycast AI 和 OpenAI 兼容端点。
 
 除了快速查词，Raycast Easydict 也可以作为一款轻量的语言学习工具：你可以将查询结果收藏，以便离线复习；查看汉字笔顺图；还可以导出到 [Anki](https://apps.ankiweb.net/)，通过间隔重复巩固记忆。
 
