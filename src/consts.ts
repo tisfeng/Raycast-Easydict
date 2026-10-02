@@ -33,6 +33,8 @@ export const RELEASE_MARKDOWN = `
 - **OCR Translate** now works on Windows: drag-select a screen area, recognize the text locally with the built-in Windows OCR engine, and query it in Easydict. Install an OCR language pack in Windows Settings to recognize languages other than your Windows display language.
 - Added the **Select OCR Language** command to pin an installed Windows OCR language; the default **Automatic (Windows profile)** uses the OCR languages from your Windows language settings.
 
+Thanks to [@duckieeeduck](https://github.com/duckieeeduck) for the original Windows implementation ([raycast/extensions#30884](https://github.com/raycast/extensions/pull/30884))!
+
 ### 🐞 Bug Fixes
 
 - Query Cache, AI Query Cache, AnkiConnect URL, and Anki Deck no longer appear in the first-run preferences form. These are optional settings, and leaving them empty falls back to their defaults.
@@ -77,6 +79,8 @@ Thanks to [@cassieliang6709](https://github.com/cassieliang6709) for contributin
 
 - **OCR Translate** 现已支持 Windows：框选屏幕区域，使用系统内置的 Windows OCR 引擎在本地识别文字，并在 Easydict 中查询。如需识别 Windows 显示语言以外的语言，请在 Windows 设置中安装对应的 OCR 语言包。
 - 新增 **Select OCR Language** 命令，可将某个已安装的 Windows OCR 语言固定为使用语言；默认的 **Automatic (Windows profile)** 会使用 Windows 语言设置中的 OCR 语言。
+
+感谢 [@duckieeeduck](https://github.com/duckieeeduck) 提供 Windows 版原始实现（[raycast/extensions#30884](https://github.com/raycast/extensions/pull/30884)）。
 
 ### 🐞 修复
 
