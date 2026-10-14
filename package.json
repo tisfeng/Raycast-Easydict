@@ -28,9 +28,23 @@
       ]
     },
     {
+      "name": "capture-to-anki",
+      "title": "Capture to Anki",
+      "subtitle": "Easydict",
+      "description": "Capture selected text and manually add context and images to an Anki note.",
+      "mode": "view"
+    },
+    {
+      "name": "anki-settings",
+      "title": "Anki Settings",
+      "subtitle": "Easydict",
+      "description": "Configure AnkiConnect, language profiles, decks, note types, and field mapping.",
+      "mode": "view"
+    },
+    {
       "name": "manage-providers",
       "title": "Manage Providers",
-      "subtitle": "Easydict",
+      "subtitle": "Easydict · Advanced",
       "description": "Order built-in providers and configure AI providers.",
       "mode": "view"
     },
@@ -38,14 +52,14 @@
       "name": "ocr",
       "title": "OCR Translate",
       "icon": "ocr.png",
-      "subtitle": "Query text from image",
+      "subtitle": "Easydict · Advanced",
       "description": "Screenshot OCR, and query text from image.",
       "mode": "no-view"
     },
     {
       "name": "ocr-language",
       "title": "Select OCR Language",
-      "subtitle": "Easydict",
+      "subtitle": "Easydict · Advanced",
       "icon": "ocr.png",
       "description": "Choose the installed Windows OCR language used by OCR Translate (Windows only).",
       "mode": "view"
@@ -137,6 +151,15 @@
     ]
   },
   "preferences": [
+    {
+      "name": "enableAIProviders",
+      "title": "Advanced: AI Providers",
+      "type": "checkbox",
+      "label": "Enable AI providers in search",
+      "required": false,
+      "default": false,
+      "description": "Opt in to configured AI providers. Disabled by default; saved provider settings are preserved."
+    },
     {
       "title": "First Language",
       "name": "language1",

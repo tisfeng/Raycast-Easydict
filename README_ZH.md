@@ -8,6 +8,26 @@
 
 <h1 align="center">Raycast Easydict</h1>
 
+## Anki 采集分支：快速开始
+
+本 fork 新增直接采集到 Anki 的流程。下方 Raycast Store 按钮安装的是上游版本，不包含本分支的新采集功能。运行本分支需要 Node.js 22.22.2 或更新版本，在本仓库运行 `npm ci` 和 `npm run dev`，然后自行给 **Search Word** 设置 Raycast 全局快捷键。由于保留了扩展 ID，开发注册可能替换已安装的 Easydict 扩展；原有收藏和 Provider 配置会保留。
+
+1. 在 Anki 安装 AnkiConnect，并保持 Anki 开启。运行 **Anki Settings**，编辑 English → Chinese profile，填写 URL（默认 `http://127.0.0.1:8765`）和可选 API Key，从 Actions 执行 **Connect / Refresh Anki**。
+2. 选择已有 Deck、Note Type，将 **Term／Meaning／Example／Context** 映射到字段；只有 Term 必须映射。默认字段名是 `English／Chinese／Example／Context`。其他字段会在采集表单中提供手动输入。如果需要新建四字段模板，显式执行 **Create Four-Field Note Type**，再保存配置。新牌组请在 Anki 中创建。
+3. 在支持选词的应用里选中单词，调用 **Search Word**，选择词典释义，再执行 **Add to Anki**（macOS 为 `Cmd+Option+A`，Windows 为 `Ctrl+Shift+A`）。检查预填释义和已有词典例句，手动粘贴原句到 Context，可补充来源并选择本地图片，最后提交 **Add to Anki**。扩展不会替你设置全局快捷键。
+4. 不需要查词时，直接运行 **Capture to Anki**；无法读取选区时可手动输入。Search Word 无查询结果时同样可以打开添加表单。不会自动读取剪贴板或页面周围内容；图片来自手动选择的文件，不会自动截屏。
+
+**配置与多语言。** 在 Anki Settings 添加具名 profile，分别保存语言方向、Deck、Note Type、字段映射和 tags。词典结果优先匹配语言方向，直接采集使用默认 profile。表单切换 profile 时保留词语、释义、例句、Context 和图片；额外自定义字段属于原 Note Type，切换时清空。Profile 不会自动重新翻译文本。在采集表单中打开设置并修改后，返回执行 **Reload Settings**。连接配置对所有采集 profile 生效，保存在 Raycast 加密 LocalStorage。旧的 Favorites 导出仍独立使用 Extension Preferences。
+
+**重复词。** 在精确选中的牌组和 Note Type 中，根据去除 HTML 后的词语文本进行不区分大小写的比较，不包含子牌组。遇到重复可取消、选择具体笔记仅追加 Context，或作为新义项另建。追加前重新读取笔记，保留原有 HTML 和图片，不更新释义、例句、tags 或复习历史。普通新增还会执行 Anki 自身的重复和字段检查；Cloze 类型需要手动填写 `{{c1::...}}`，不会用 AI 自动生成挖空或例句。
+
+**草稿与错误处理。** 编辑内容按最初的词语和语言方向保存为本地草稿，重新打开对应采集入口会恢复；空词语手动入口有独立草稿。成功提交后清除该草稿。草稿保存图片路径，提交前请保留原文件。图片支持 PNG、JPEG、GIF、WebP，最多 10 张，每张不超过 10 MB；通过 AnkiConnect 以内容哈希命名上传，并引用到 Context。图片上传失败不会继续建笔记，已上传的文件不会自动删除。写入超时应先检查 Anki，写入可能已成功；系统不会自动重试。重复检查会分批读取选定牌组，大牌组可能较慢。AnkiConnect 不支持事务性的条件追加，提交期间请避免同时编辑目标笔记。
+
+**精简默认体验。** 默认查询只用传统词典和翻译服务。已有 AI 配置保留，但只有开启 **Advanced: AI Providers → Enable AI providers in search** 后才参与查询。Provider 管理和 OCR 命令标记为 Advanced，次要查词操作收进 Advanced 菜单；主流程关闭自动版本宣传。原有收藏、发音、OCR 和翻译底层功能保留。
+
+**验证范围。** 自动化测试模拟 Raycast 与 AnkiConnect 边界，覆盖映射、草稿、图片、重复处理、错误和防重复提交。检查命令为 `npm run lint`、`npm test`、`npm run build`。真实桌面选词、快捷键、图片显示和 Anki 写入仍需获得同意后进行实机验证，不能由模拟测试推定已经通过。
+
+
 <p align="center">
   Easily look up words or translate text
 </p>

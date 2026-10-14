@@ -8,7 +8,12 @@ import type { OpenAICompatibleProfile } from "@/providers/profiles/types";
 
 import { builtinProviderCatalog, getBuiltinProviderPreferenceStatus } from "./catalog";
 import { getCombinedAvailableProviderKeys, getCombinedProviderOrder } from "./order";
-import { builtinDictionaryProviderServices, builtinTranslationServices, resolveProviderServices } from "./registry";
+import {
+  builtinDictionaryProviderServices,
+  builtinTranslationServices,
+  resolveProviderServices,
+  resolveSearchProviderServices,
+} from "./registry";
 
 vi.mock("@raycast/api", () => ({
   AI: { Model: {} },
@@ -217,4 +222,24 @@ describe("combined provider registry", () => {
     expect(after.translationServices.map((service) => service.type)).not.toContain(TranslationType.Gemini);
     expect(after.dictionaryServices.map((service) => service.type)).not.toContain(DictionaryType.AI);
   });
+});
+
+it("keeps configured AI providers out of search until explicitly enabled", () => {
+  const state = { version: 2 as const, profiles: [createProfile("saved", "dictionary")], migratedLegacyProviders: [] };
+  const previous = myPreferences.enableAIProviders;
+  try {
+    myPreferences.enableAIProviders = false;
+    const off = resolveSearchProviderServices(state);
+    expect(
+      [...off.dictionaryServices, ...off.translationServices].some((service) => service.id?.startsWith("profile:")),
+    ).toBe(false);
+    myPreferences.enableAIProviders = true;
+    const on = resolveSearchProviderServices(state);
+    expect(
+      [...on.dictionaryServices, ...on.translationServices].some((service) => service.id?.startsWith("profile:")),
+    ).toBe(true);
+    expect(state.profiles[0].enabled).toBe(true);
+  } finally {
+    myPreferences.enableAIProviders = previous;
+  }
 });

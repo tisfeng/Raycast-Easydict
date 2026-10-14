@@ -8,6 +8,26 @@
 
 <h1 align="center">Raycast Easydict</h1>
 
+## Anki capture fork — quick start
+
+This fork adds direct capture to Anki. The Raycast Store button below installs the upstream extension, which does not include this fork's capture workflow. To run this fork, use Node.js 22.22.2 or newer, run `npm ci` and `npm run dev` in this checkout, then assign a Raycast hotkey to **Search Word**. Development registration may replace the installed Easydict extension because the extension ID is retained; existing favorites and provider settings are kept.
+
+1. Install AnkiConnect in Anki and keep Anki open. Run **Anki Settings**, edit the English → Chinese profile, set the URL (default `http://127.0.0.1:8765`) and optional API key, then choose **Connect / Refresh Anki** from Actions.
+2. Select an existing Deck and Note Type. Map **Term**, **Meaning**, **Example**, and **Context** to its fields; only Term must be mapped. The default names are `English`, `Chinese`, `Example`, and `Context`. Other note fields appear as editable inputs when capturing. For a new four-field note type, explicitly choose **Create Four-Field Note Type**, then save the profile. Create decks in Anki itself.
+3. Select a word in any supported app, invoke **Search Word**, select a dictionary definition, and choose **Add to Anki** (`Cmd+Option+A` on macOS; `Ctrl+Shift+A` on Windows). Review the prefilled meaning and available dictionary example, paste the original sentence into Context, optionally enter a source and select local image files, then submit **Add to Anki**. A Raycast global hotkey is assigned by you; the extension does not set one.
+4. For manual capture without a dictionary request, use **Capture to Anki**. If selected text cannot be read, type it manually. Search Word also offers Add to Anki when there are no results. Clipboard contents and surrounding pages are never read automatically. Images are selected files, not automatic screenshots.
+
+**Profiles and settings.** Add named profiles in Anki Settings for other language directions, decks, note types, mappings, and tags. Search results select a profile matching their language direction; direct capture uses the default profile. Switch profiles in the capture form without losing semantic text or images; arbitrary extra fields are cleared because they belong to the previous note type. Profiles do not automatically retranslate edited text. After editing settings from a capture form, return and choose **Reload Settings**. Connection settings apply to all capture profiles and are stored in Raycast's encrypted LocalStorage. The old Favorites export remains separate and uses the legacy Extension Preferences.
+
+**Duplicates.** Capture compares decoded term text, case-insensitively, among notes with a card in the exact selected deck and note type. Child decks are excluded. Existing notes appear for explicit selection: cancel, append only Context to the selected note, or add a new sense. Appending re-reads the note, preserves old HTML/images, and does not update meaning, example, tags, or review history. Anki's own duplicate/required-field checks also apply to ordinary additions; for cloze note types, enter `{{c1::...}}` syntax yourself. No AI generates clozes or examples.
+
+**Drafts and failures.** Edits persist locally per initial word and language direction and restore when that capture is reopened; the manual empty-word entry has its own draft. Successful submissions clear their draft. Image paths are retained, so keep the files available until submission. Images must be PNG, JPEG, GIF, or WebP, with at most 10 files of 10 MB each. They upload through AnkiConnect under content-hash filenames and are referenced in Context. A failed upload prevents note creation; files already uploaded are not automatically removed. If a write times out, check Anki before retrying because it may have succeeded. Writes are never automatically retried. Duplicate checks read the selected deck in batches and can take longer for large decks. AnkiConnect does not provide transactional compare-and-set for appends; avoid concurrent edits to that note while submitting.
+
+**Simpler defaults.** Search uses traditional dictionaries/translators. Saved AI providers remain available but search ignores them unless **Advanced: AI Providers → Enable AI providers in search** is enabled. Provider management and OCR commands are labeled Advanced; secondary search actions are grouped under Advanced. Automatic release announcements are disabled in the search flow. Existing favorites, audio, OCR and translation implementations remain available.
+
+**Verification.** Automated coverage uses mocked Raycast and AnkiConnect boundaries and checks mapping, drafts, media, duplicate decisions, errors, and submission locking. Run `npm run lint`, `npm test`, and `npm run build`. Real desktop capture, hotkeys, image rendering, and Anki writes still require an authorized native smoke test; automated tests do not establish native behavior.
+
+
 <p align="center">
   Easily look up words or translate text
 </p>

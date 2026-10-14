@@ -89,3 +89,14 @@ function resolveAIProviderIcon(profile: AIProviderProfile): ProviderIconConfig {
   }
   return { kind: "favicon", website: profile.website ?? profile.endpoint };
 }
+
+/** The capture-focused search stays on traditional providers until AI is explicitly enabled. */
+export function resolveSearchProviderServices(
+  state: StoredAIProviderState,
+  onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
+): ProviderServiceSnapshot {
+  return resolveProviderServices(
+    myPreferences.enableAIProviders ? state : { ...state, profiles: [] },
+    onNativeJSONUnsupported,
+  );
+}

@@ -7,8 +7,8 @@ import { type AIProviderConfigurationLoadResult, loadAIProviderConfiguration } f
 import { updateAIProviderState } from "./repository";
 import type { StoredAIProviderState } from "./types";
 
-export function useAIProviderProfiles() {
-  const { data, isLoading, mutate, revalidate } = usePromise(loadAIProviderConfiguration, []);
+export function useAIProviderProfiles(execute = true) {
+  const { data, isLoading, mutate, revalidate } = usePromise(loadAIProviderConfiguration, [], { execute });
   const state: { kind: "loading" } | AIProviderConfigurationLoadResult =
     data ??
     (isLoading ? { kind: "loading" } : { kind: "error", error: new Error("Failed to load AI provider profiles.") });

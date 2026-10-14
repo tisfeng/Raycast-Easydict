@@ -15,6 +15,9 @@ import { clearQueryCache, hasEnabledQueryCache } from "@/core/query/cache";
 import { getQueryTypeIcon } from "@/core/results/icons";
 import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
+import CaptureForm from "@/features/anki/CaptureForm";
+import type { CaptureDraft } from "@/features/anki/model";
+import AnkiSettingsPage from "@/features/anki/Settings";
 import { webQueryServices } from "@/providers/web";
 import { logError, logTrace } from "@/shared/logger";
 import { shortcuts } from "@/shared/shortcuts";
@@ -27,6 +30,7 @@ function ResultDetails({ item, actions }: { item: ViewRow; actions: Detail.Props
 }
 
 interface ActionListPanelProps {
+  captureDraft: CaptureDraft;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -101,7 +105,9 @@ function PrimaryActions({
   onHideReleasePrompt,
   onRequery,
   onRegenerate,
+  captureDraft,
 }: {
+  captureDraft: CaptureDraft;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -143,6 +149,13 @@ function PrimaryActions({
         title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
         shortcut={shortcuts.toggleFavorite}
         onAction={onToggleFavorite}
+      />
+
+      <Action.Push
+        title="Add to Anki"
+        icon={Icon.Plus}
+        shortcut={shortcuts.addToAnki}
+        target={<CaptureForm initial={captureDraft} direction={`${fromLanguage}:${toLanguage}`} />}
       />
 
       {!showEudic && isInstalledEudic && (
@@ -306,6 +319,7 @@ export function ListActionPanel(props: ActionListPanelProps) {
   return (
     <ActionPanel>
       <PrimaryActions
+        captureDraft={props.captureDraft}
         displayItem={displayItem}
         isInstalledEudic={isInstalledEudic}
         isShowingReleasePrompt={isShowingReleasePrompt}
@@ -315,10 +329,19 @@ export function ListActionPanel(props: ActionListPanelProps) {
         onRequery={onRequery}
         onRegenerate={onRegenerate}
       />
-      <OtherWebQuerySection queryType={queryType} queryWordInfo={queryWordInfo} />
-      <AudioActions queryWordInfo={queryWordInfo} copyText={copyText} toLanguage={toLanguage} />
-      <TargetLanguageSection fromLanguage={fromLanguage} toLanguage={toLanguage} onLanguageUpdate={onLanguageUpdate} />
-      <SettingsActions isShowingReleasePrompt={isShowingReleasePrompt} />
+      <ActionPanel.Section>
+        <Action.Push title="Anki Settings" icon={Icon.Gear} target={<AnkiSettingsPage />} />
+      </ActionPanel.Section>
+      <ActionPanel.Submenu title="Advanced" icon={Icon.Ellipsis}>
+        <OtherWebQuerySection queryType={queryType} queryWordInfo={queryWordInfo} />
+        <AudioActions queryWordInfo={queryWordInfo} copyText={copyText} toLanguage={toLanguage} />
+        <TargetLanguageSection
+          fromLanguage={fromLanguage}
+          toLanguage={toLanguage}
+          onLanguageUpdate={onLanguageUpdate}
+        />
+        <SettingsActions isShowingReleasePrompt={isShowingReleasePrompt} />
+      </ActionPanel.Submenu>
     </ActionPanel>
   );
 }
