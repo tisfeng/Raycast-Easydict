@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 
 import type { AnkiClient } from "./client";
+import { referencedImages } from "./context";
 import { type AnkiProfile, buildFields, type CaptureDraft, contextHtml, normalizedTerm, textHtml } from "./model";
 
 export interface ExistingNote {
@@ -83,11 +84,11 @@ export async function saveCapture(
   }
   if (
     choice.kind === "append" &&
-    (!profile.mapping.context || (!draft.context.trim() && !draft.source.trim() && !draft.images.length))
+    (!profile.mapping.context || (!draft.context.trim() && !referencedImages(draft).length))
   ) {
     throw new Error("Enter context or attach an image, and map Context before appending.");
   }
-  const images = await loadImages(draft.images);
+  const images = await loadImages(referencedImages(draft));
   const note = {
     deckName: profile.deck,
     modelName: profile.model,

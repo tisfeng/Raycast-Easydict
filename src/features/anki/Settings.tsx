@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { Action, ActionPanel, Form, Icon, List, showToast, Toast, useNavigation } from "@raycast/api";
 import { showFailureToast, usePromise } from "@raycast/utils";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AnkiClient, endpoint } from "./client";
 import { type AnkiProfile, type AnkiSettings, defaultProfile, slots, validateProfile } from "./model";
@@ -77,6 +77,11 @@ function ProfileForm({
   const [catalog, setCatalog] = useState<{ decks: string[]; models: string[] }>();
   const [fields, setFields] = useState<string[]>();
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "connecting" | "connected" | "error">("idle");
+  const [connectionError, setConnectionError] = useState("");
+  const [fieldError, setFieldError] = useState("");
+  const [fieldLoading, setFieldLoading] = useState(false);
+  const [connectedClient, setConnectedClient] = useState<AnkiClient>();
   const busy = useRef(false);
   const generation = useRef(0);
   const client = () => new AnkiClient({ url, apiKey });
@@ -96,42 +101,92 @@ function ProfileForm({
   }
   async function connect() {
     const token = ++generation.current;
-    const connection = client();
-    const result = await connection.catalog();
-    const nextFields =
-      profile.model && result.models.includes(profile.model) ? await connection.fields(profile.model) : undefined;
-    if (token !== generation.current) return;
-    setCatalog(result);
-    setFields(nextFields);
-    await showToast({ style: Toast.Style.Success, title: "Connected to Anki" });
-  }
-  async function selectModel(model: string) {
-    const token = ++generation.current;
-    update({ model });
-    setFields(undefined);
-    try {
-      const result = await client().fields(model);
-      if (token === generation.current) setFields(result);
-    } catch (error) {
-      if (token === generation.current) await showFailureToast(error, { title: "Could Not Read Fields" });
-    }
-  }
-  function invalidateConnection() {
-    generation.current++;
+    setStatus("connecting");
+    setConnectionError("");
     setCatalog(undefined);
     setFields(undefined);
+    setFieldError("");
+    const connection = client();
+    try {
+      const result = await connection.catalog();
+      if (token !== generation.current) return;
+      setCatalog(result);
+      setConnectedClient(connection);
+      setStatus("connected");
+    } catch (error) {
+      if (token !== generation.current) return;
+      setStatus("error");
+      setConnectionError(error instanceof Error ? error.message : "Connection failed.");
+    }
   }
+  useEffect(() => {
+    void connect();
+    return () => {
+      generation.current++;
+    };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    setFields(undefined);
+    setFieldError("");
+    if (!catalog || !connectedClient || !profile.model || !catalog.models.includes(profile.model)) {
+      setFieldLoading(false);
+      return;
+    }
+    setFieldLoading(true);
+    connectedClient
+      .fields(profile.model)
+      .then((value) => {
+        if (active) setFields(value);
+      })
+      .catch((error) => {
+        if (active) setFieldError(error instanceof Error ? error.message : "Could not read fields.");
+      })
+      .finally(() => {
+        if (active) setFieldLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [catalog, connectedClient, profile.model]);
+  function invalidateConnection() {
+    generation.current++;
+    setStatus("idle");
+    setCatalog(undefined);
+    setFields(undefined);
+    setFieldError("");
+    setConnectionError("");
+  }
+  const missing = catalog
+    ? [
+        profile.deck && !catalog.decks.includes(profile.deck)
+          ? `Selected deck "${profile.deck}" no longer exists. Choose a deck.`
+          : "",
+        profile.model && !catalog.models.includes(profile.model)
+          ? `Selected note type "${profile.model}" no longer exists. Choose a note type.`
+          : "",
+        fields && slots.some((slot) => profile.mapping[slot] && !fields.includes(profile.mapping[slot]))
+          ? "Mapped fields no longer exist. Update the field mapping."
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+  const connectionAction = <Action title="Test Connection / Retry" icon={Icon.ArrowClockwise} onAction={connect} />;
   return (
     <Form
-      isLoading={loading}
+      isLoading={loading || status === "connecting" || fieldLoading}
       navigationTitle="Anki Profile"
       actions={
         <ActionPanel>
+          {(status !== "connected" || !!fieldError) && connectionAction}
           <Action.SubmitForm
             title="Save Profile"
             onSubmit={() =>
               operation(async () => {
-                if (!catalog || !fields) throw new Error("Connect to Anki and select a note type first.");
+                if (missing) throw new Error(missing);
+                if (!catalog || !fields || status !== "connected")
+                  throw new Error("Connect to Anki and select a note type first.");
                 const next = { ...profile, name: profile.name.trim(), tags: tags.split(/\s+/).filter(Boolean) };
                 validateProfile(next, fields);
                 if (!catalog.decks.includes(next.deck) || !catalog.models.includes(next.model))
@@ -147,7 +202,7 @@ function ProfileForm({
               })
             }
           />
-          <Action title="Connect / Refresh Anki" icon={Icon.ArrowClockwise} onAction={() => operation(connect)} />
+          {status === "connected" && !fieldError && connectionAction}
           <Action
             title="Create Four-Field Note Type"
             icon={Icon.Plus}
@@ -157,10 +212,10 @@ function ProfileForm({
                 const connection = client();
                 const model = await connection.createTemplate();
                 const nextCatalog = await connection.catalog();
-                const nextFields = await connection.fields(model);
                 if (token !== generation.current) return;
+                setConnectedClient(connection);
+                setStatus("connected");
                 setCatalog(nextCatalog);
-                setFields(nextFields);
                 update({ model, mapping: defaultProfile().mapping });
                 await showToast({ style: Toast.Style.Success, title: "Created Easydict Capture" });
               })
@@ -169,10 +224,26 @@ function ProfileForm({
         </ActionPanel>
       }
     >
-      <Form.Description text="Connect / Refresh Anki (Actions) loads your decks and note types. Connection settings apply to all capture profiles. Legacy Favorites export still uses Extension Preferences." />
+      <Form.Description
+        title="Connection"
+        text={
+          status === "connected"
+            ? `Connected · ${catalog?.decks.length ?? 0} decks · ${catalog?.models.length ?? 0} note types`
+            : status === "connecting"
+              ? "Connecting to Anki…"
+              : status === "error"
+                ? connectionError
+                : "Connection settings changed. Leave the field to reconnect, or use Test Connection / Retry."
+        }
+      />
+      {!!missing && <Form.Description title="Update Selection" text={missing} />}
+      {!!fieldError && <Form.Description title="Could Not Read Fields" text={fieldError} />}
       <Form.TextField
         id="url"
         title="AnkiConnect URL"
+        onBlur={() => {
+          if (status === "idle") void connect();
+        }}
         value={url}
         onChange={(value) => {
           setUrl(value);
@@ -182,6 +253,9 @@ function ProfileForm({
       <Form.PasswordField
         id="apiKey"
         title="API Key (Optional)"
+        onBlur={() => {
+          if (status === "idle") void connect();
+        }}
         value={apiKey}
         onChange={(value) => {
           setApiKey(value);
@@ -215,7 +289,7 @@ function ProfileForm({
         title="Note Type"
         value={profile.model}
         onChange={(value) => {
-          if (value && value !== profile.model) void selectModel(value);
+          if (value !== profile.model) update({ model: value });
         }}
       >
         <Form.Dropdown.Item value="" title="Choose a note type" />

@@ -7,13 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DictionaryType } from "@/core/results/kinds";
 
 import { AnkiClient, endpoint } from "./client";
+import { imageToken } from "./context";
 import { buildFields, defaultProfile, emptyDraft, normalizedTerm, seedFromRow, switchDraftProfile } from "./model";
 import { findDuplicates, imageExtension, saveCapture } from "./service";
 
 const rpc = vi.hoisted(() => vi.fn());
 vi.mock("ofetch", () => ({ ofetch: rpc }));
 const profile = { ...defaultProfile(), deck: "English", model: "Vocabulary" };
-const draft = { ...emptyDraft("charge"), meaning: "收费", context: "They charged us $20.", source: "Lesson 1" };
+const draft = { ...emptyDraft("charge"), meaning: "收费", context: "They charged us $20.\n\nSource: Lesson 1" };
 const client = new AnkiClient({ url: "http://127.0.0.1:8765", apiKey: "test-only" });
 const fields = ["English", "Chinese", "Example", "Context", "Extra"];
 const existing = {
@@ -114,7 +115,11 @@ describe("Anki capture contract", () => {
     temporary = await mkdtemp(join(tmpdir(), "easydict-test-"));
     const path = join(temporary, "screenshot.png");
     await writeFile(path, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0]));
-    await saveCapture(client, profile, { ...draft, images: [path] });
+    await saveCapture(client, profile, {
+      ...draft,
+      context: `${draft.context}\n\n${imageToken(path)}`,
+      images: [path],
+    });
     expect(params("storeMediaFile").filename).toMatch(/^easydict-[a-f0-9]{64}\.png$/);
     expect(params("storeMediaFile").data).toBeTruthy();
     expect(params("addNote").note.fields.Context).toContain('<img src="stored.png">');
@@ -128,7 +133,9 @@ describe("Anki capture contract", () => {
     rpc.mockImplementation(async (url, options) =>
       options.body.action === "storeMediaFile" ? { result: null, error: "disk full" } : normal(url, options),
     );
-    await expect(saveCapture(client, profile, { ...draft, images: [path] })).rejects.toThrow("disk full");
+    await expect(
+      saveCapture(client, profile, { ...draft, context: `${draft.context}\n\n${imageToken(path)}`, images: [path] }),
+    ).rejects.toThrow("disk full");
     expect(actions()).not.toContain("addNote");
   });
   it("reports Anki validation errors without writing", async () => {
@@ -145,7 +152,7 @@ describe("Anki capture contract", () => {
     rpc.mockRejectedValue(new Error("timeout"));
     await expect(client.call("addNote", {}, true)).rejects.toThrow("Check Anki before retrying");
     expect(rpc).toHaveBeenCalledTimes(1);
-    await expect(client.call("modelNames")).rejects.toThrow("Cannot reach AnkiConnect");
+    await expect(client.call("modelNames")).rejects.toThrow("timed out");
   });
   it("does not modify an existing four-field note type", async () => {
     rpc.mockResolvedValue({ result: ["Easydict Capture"], error: null });

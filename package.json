@@ -138,7 +138,9 @@
     "docs:gen": "automd",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr"
+    "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr",
+    "build:clipboard": "node scripts/build-clipboard.mjs",
+    "test:clipboard": "node tests/clipboard-native.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",

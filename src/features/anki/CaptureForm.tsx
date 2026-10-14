@@ -1,8 +1,12 @@
-import { Action, ActionPanel, Form, Icon, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Detail, Form, Icon, showToast, Toast } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useEffect, useRef, useState } from "react";
 
+import { shortcuts } from "@/shared/shortcuts";
+
 import { AnkiClient } from "./client";
+import { pasteContext } from "./clipboard";
+import { contextPreview, referencedImages } from "./context";
 import { type AnkiSettings, type CaptureDraft, emptyDraft, slots, switchDraftProfile } from "./model";
 import { type ExistingNote, saveCapture, type SaveChoice } from "./service";
 import AnkiSettingsPage from "./Settings";
@@ -26,6 +30,13 @@ export default function CaptureForm({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const busy = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const [duplicates, setDuplicates] = useState<ExistingNote[]>();
   const [selectedNote, setSelectedNote] = useState("");
   const [savedId, setSavedId] = useState<number>();
@@ -87,6 +98,7 @@ export default function CaptureForm({
   function change(patch: Partial<CaptureDraft>) {
     if (!ready || busy.current) return;
     const next = { ...draftRef.current, ...patch };
+    next.images = referencedImages(next);
     draftRef.current = next;
     setDraft(next);
     setDuplicates(undefined);
@@ -133,7 +145,14 @@ export default function CaptureForm({
       isLoading={loading || saving}
       actions={
         <ActionPanel>
-          {!savedId && <Action.SubmitForm title="Add to Anki" icon={Icon.Plus} onSubmit={() => submit()} />}
+          {!savedId && (
+            <Action.SubmitForm
+              title="Add to Anki"
+              icon={Icon.Plus}
+              shortcut={shortcuts.addToAnki}
+              onSubmit={() => submit()}
+            />
+          )}
           {duplicates && (
             <>
               <Action
@@ -168,6 +187,37 @@ export default function CaptureForm({
                 change({ ...emptyDraft(), profileId: draft.profileId });
               }}
             />
+          )}
+          {!savedId && (
+            <>
+              <Action
+                title="Paste into Context"
+                icon={Icon.Clipboard}
+                shortcut={shortcuts.pasteContext}
+                onAction={async () => {
+                  if (busy.current || !ready) return;
+                  busy.current = true;
+                  setSaving(true);
+                  const current = draftRef.current;
+                  try {
+                    const patch = await pasteContext(current);
+                    if (!mounted.current) return;
+                    busy.current = false;
+                    change(patch);
+                  } catch (cause) {
+                    if (mounted.current) await showFailureToast(cause, { title: "Could Not Paste Context" });
+                  } finally {
+                    busy.current = false;
+                    if (mounted.current) setSaving(false);
+                  }
+                }}
+              />
+              <Action.Push
+                title="Preview Context"
+                icon={Icon.Eye}
+                target={<Detail markdown={contextPreview(draft) || "No context yet."} />}
+              />
+            </>
           )}
           <Action.Push title="Anki Settings" icon={Icon.Gear} target={<AnkiSettingsPage />} />
           <Action
@@ -243,23 +293,7 @@ export default function CaptureForm({
             onChange={(context) => change({ context })}
             placeholder="Paste the original sentence or your notes"
           />
-          <Form.TextField
-            id="source"
-            title="Source (Optional)"
-            value={draft.source}
-            onChange={(source) => change({ source })}
-            placeholder="Page title, URL, book, or lesson"
-          />
-          <Form.FilePicker
-            id="images"
-            title="Context Images"
-            value={draft.images}
-            onChange={(images) => change({ images })}
-            allowMultipleSelection
-            canChooseDirectories={false}
-            canChooseFiles
-            info="PNG, JPEG, GIF, WebP; up to 10 images, 10 MB each."
-          />
+          <Form.Description text="Paste text here normally. Use Paste into Context for copied images or text. Delete an [[image:…]] marker to remove its image; Preview Context shows the result. Write sources directly in Context." />
           {fields
             ?.filter((field) => !slots.some((slot) => profile?.mapping[slot] === field))
             .map((field) => (

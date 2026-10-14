@@ -3,6 +3,11 @@ import { parse } from "node-html-parser";
 import { escapeHtml } from "@/core/content/markdown";
 import type { ViewRow } from "@/core/content/viewTypes";
 
+import { referencedImages, renderContext } from "./context";
+import { exampleHtml, textHtml } from "./html";
+
+export { textHtml } from "./html";
+
 export const slots = ["term", "meaning", "example", "context"] as const;
 export type Slot = (typeof slots)[number];
 export interface AnkiProfile {
@@ -28,7 +33,6 @@ export interface CaptureDraft {
   meaning: string;
   example: string;
   context: string;
-  source: string;
   images: string[];
   extra: Record<string, string>;
 }
@@ -45,13 +49,13 @@ export function defaultProfile(): AnkiProfile {
   };
 }
 export function emptyDraft(term = ""): CaptureDraft {
-  return { profileId: "en-zh", term, meaning: "", example: "", context: "", source: "", images: [], extra: {} };
+  return { profileId: "en-zh", term, meaning: "", example: "", context: "", images: [], extra: {} };
 }
 export function seedFromRow(row: ViewRow, example = ""): CaptureDraft {
   return {
     ...emptyDraft(row.service.query.word),
     meaning: row.kind === "example" ? "" : row.copyText,
-    example: row.kind === "example" ? row.copyText : example,
+    example: row.exampleSentence ?? (row.kind === "example" ? row.title : example),
   };
 }
 export function validateProfile(profile: AnkiProfile, fields: string[]) {
@@ -65,30 +69,29 @@ export function validateProfile(profile: AnkiProfile, fields: string[]) {
   const missing = mapped.filter((field) => !fields.includes(field));
   if (missing.length) throw new Error(`Fields no longer exist: ${missing.join(", ")}. Update Anki Settings.`);
 }
-export function textHtml(text: string): string {
-  return escapeHtml(text.trim()).replace(/\r?\n/g, "<br>");
-}
 export function contextHtml(draft: CaptureDraft, filenames: string[]): string {
-  return [
-    textHtml(draft.context),
-    draft.source.trim() ? `Source: ${textHtml(draft.source)}` : "",
-    ...filenames.map((name) => `<img src="${escapeHtml(name)}">`),
-  ]
-    .filter(Boolean)
-    .join("<br><br>");
+  return renderContext(draft.context.trim(), referencedImages(draft), (_, index) =>
+    filenames[index] ? `<img src="${escapeHtml(filenames[index])}">` : "[Context image]",
+  );
 }
 export function buildFields(profile: AnkiProfile, draft: CaptureDraft, fields: string[], filenames: string[] = []) {
   validateProfile(profile, fields);
   if (!draft.term.trim()) throw new Error("Enter a word or phrase.");
-  if (!profile.mapping.context && (draft.context.trim() || draft.source.trim() || draft.images.length)) {
+  if (!profile.mapping.context && (draft.context.trim() || referencedImages(draft).length)) {
     throw new Error("Map Context before adding context, sources, or images.");
   }
   const result: Record<string, string> = Object.fromEntries(
-    fields.map((field) => [field, textHtml(draft.extra[field] ?? "")]),
+    fields.map((field) => [field, textHtml((draft.extra[field] ?? "").trim())]),
   );
   for (const slot of slots) {
     const field = profile.mapping[slot];
-    if (field) result[field] = slot === "context" ? contextHtml(draft, filenames) : textHtml(draft[slot]);
+    if (field)
+      result[field] =
+        slot === "context"
+          ? contextHtml(draft, filenames)
+          : slot === "example"
+            ? exampleHtml(draft.example, draft.term)
+            : textHtml(draft[slot].trim());
   }
   return result;
 }

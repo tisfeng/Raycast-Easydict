@@ -168,6 +168,7 @@ function dictionarySection(
               kind: "definition",
               title: text,
               subtitle: entry.explanation ?? entry.examples[0]?.sentence,
+              exampleSentence: entry.examples[0]?.sentence,
               copyText: [text, entry.explanation, ...entry.examples.map(exampleText)].filter(Boolean).join("\n"),
             },
             () =>
@@ -222,7 +223,13 @@ function dictionarySection(
       title = "Examples:";
       for (const entry of section.entries) {
         const subtitle = `${entry.partOfSpeech ? `${entry.partOfSpeech}.  ` : ""}—  ${entry.translation ?? ""}`;
-        add({ kind: "example", title: entry.sentence, subtitle, copyText: `${entry.sentence} ${subtitle}` });
+        add({
+          kind: "example",
+          title: entry.sentence,
+          exampleSentence: entry.sentence,
+          subtitle,
+          copyText: `${entry.sentence} ${subtitle}`,
+        });
       }
       break;
     }

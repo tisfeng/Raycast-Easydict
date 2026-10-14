@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { imageToken } from "./context";
 import { defaultProfile, emptyDraft } from "./model";
 import {
   clearDraft,
@@ -67,4 +68,25 @@ describe("isolated capture persistence", () => {
     expect(() => decodeDraft(JSON.stringify({ ...emptyDraft(), extra: { bad: 123 } }))).toThrow("preserved");
     expect(() => decodeSettings(JSON.stringify({ version: 1, profiles: [] }))).toThrow();
   });
+});
+
+it("migrates legacy source and image paths into Context without modifying storage on read", async () => {
+  const key = draftKey("grouper", "");
+  const legacy = {
+    ...emptyDraft("grouper"),
+    source: "PADI lesson",
+    context: "Original sentence",
+    images: ["/old.png"],
+  };
+  const raw = JSON.stringify(legacy);
+  data.set(key, raw);
+  const result = await loadDraft(key);
+  expect(result?.context).toBe(`Original sentence\n\nSource: PADI lesson\n\n${imageToken("/old.png")}`);
+  expect(result).not.toHaveProperty("source");
+  expect(data.get(key)).toBe(raw);
+  await saveDraft(key, result!);
+  expect(await loadDraft(key)).toEqual(result);
+});
+it("rejects future draft envelopes without discarding their content", () => {
+  expect(() => decodeDraft(JSON.stringify({ version: 3, draft: emptyDraft() }))).toThrow("preserved");
 });

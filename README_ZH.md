@@ -10,23 +10,24 @@
 
 ## Anki 采集分支：快速开始
 
-本 fork 新增直接采集到 Anki 的流程。下方 Raycast Store 按钮安装的是上游版本，不包含本分支的新采集功能。运行本分支需要 Node.js 22.22.2 或更新版本，在本仓库运行 `npm ci` 和 `npm run dev`，然后自行给 **Search Word** 设置 Raycast 全局快捷键。由于保留了扩展 ID，开发注册可能替换已安装的 Easydict 扩展；原有收藏和 Provider 配置会保留。
+本 fork 新增直接采集到 Anki 的流程，下方 Raycast Store 按钮安装的是上游版本。运行本分支需要 Node.js 22.22.2 或更新版本，在仓库运行 `npm ci`、`npm run dev`，再自行给 **Search Word** 设置全局快捷键。开发注册保留扩展 ID，可能替换已安装的 Easydict；原有收藏和 Provider 配置保留。macOS 剪贴板助手已打包 Apple Silicon 和 Intel 双架构版本，修改 Swift 源码后通过 `npm run build:clipboard` 重新编译。
 
-1. 在 Anki 安装 AnkiConnect，并保持 Anki 开启。运行 **Anki Settings**，编辑 English → Chinese profile，填写 URL（默认 `http://127.0.0.1:8765`）和可选 API Key，从 Actions 执行 **Connect / Refresh Anki**。
-2. 选择已有 Deck、Note Type，将 **Term／Meaning／Example／Context** 映射到字段；只有 Term 必须映射。默认字段名是 `English／Chinese／Example／Context`。其他字段会在采集表单中提供手动输入。如果需要新建四字段模板，显式执行 **Create Four-Field Note Type**，再保存配置。新牌组请在 Anki 中创建。
-3. 在支持选词的应用里选中单词，调用 **Search Word**，选择词典释义，再执行 **Add to Anki**（macOS 为 `Cmd+Option+A`，Windows 为 `Ctrl+Shift+A`）。检查预填释义和已有词典例句，手动粘贴原句到 Context，可补充来源并选择本地图片，最后提交 **Add to Anki**。扩展不会替你设置全局快捷键。
-4. 不需要查词时，直接运行 **Capture to Anki**；无法读取选区时可手动输入。Search Word 无查询结果时同样可以打开添加表单。不会自动读取剪贴板或页面周围内容；图片来自手动选择的文件，不会自动截屏。
+1. 安装 AnkiConnect，保持 Anki 开启。运行 **Anki Settings**，编辑 English → Chinese profile，页面会自动测试连接，显示状态以及 Deck、Note Type 数量；失败时 **Test Connection / Retry** 成为首要操作。修改 URL 或可选 API Key 后，离开输入框就会重新连接。页面分别提示认证错误、超时、无法连接、返回异常；测试连接不会自动保存配置。
+2. 选择已有 Deck、Note Type，映射 **Term／Meaning／Example／Context**；只有 Term 必须映射，默认字段名为 `English／Chinese／Example／Context`，额外字段可在采集时手填。已删除的选择或字段会明确提示。可显式创建四字段的 **Easydict Capture** 模板，再保存 profile；新牌组请在 Anki 中创建。
+3. 在支持选词的应用里选词，调用 **Search Word**，选择释义后按 **Option+A** 打开添加表单，表单内同样用 **Option+A** 提交（Windows 保留 `Ctrl+Shift+A`）。**Capture to Anki** 提供手动入口，选词失败或词典无结果时仍可填写。
+4. 在唯一的 **Context** 编辑区填写原文和来源。普通粘贴用于文字；复制截图、图片或文字后执行 **Paste into Context**：macOS 为 **Cmd+Shift+V**，Windows 为 `Ctrl+Shift+V`。只有触发该操作才读取当前剪贴板，不清空剪贴板、不自动截屏。图片以可删除的 `[[image:…]]` 标记出现，使用 **Preview Context** 查看图片，删除标记即可取消该附件。无需选文件或使用第三方图床；Raycast 原生文本框不支持通过普通 Cmd+V 显示内嵌图片。
 
-**配置与多语言。** 在 Anki Settings 添加具名 profile，分别保存语言方向、Deck、Note Type、字段映射和 tags。词典结果优先匹配语言方向，直接采集使用默认 profile。表单切换 profile 时保留词语、释义、例句、Context 和图片；额外自定义字段属于原 Note Type，切换时清空。Profile 不会自动重新翻译文本。在采集表单中打开设置并修改后，返回执行 **Reload Settings**。连接配置对所有采集 profile 生效，保存在 Raycast 加密 LocalStorage。旧的 Favorites 导出仍独立使用 Extension Preferences。
+**例句。** 优先使用词典原始句子，不附带界面上的中文翻译。没有例句时留空手填。保存时自动标记完整匹配的词或词组，例如 `A large <b class="target">grouper</b> hovered beside the reef.`；保留大小写，不猜词形变化，不重复嵌套已有标签。也可以手动填写同样的目标标签，其他 HTML 按文字处理，不增加 AI 请求。
 
-**重复词。** 在精确选中的牌组和 Note Type 中，根据去除 HTML 后的词语文本进行不区分大小写的比较，不包含子牌组。遇到重复可取消、选择具体笔记仅追加 Context，或作为新义项另建。追加前重新读取笔记，保留原有 HTML 和图片，不更新释义、例句、tags 或复习历史。普通新增还会执行 Anki 自身的重复和字段检查；Cloze 类型需要手动填写 `{{c1::...}}`，不会用 AI 自动生成挖空或例句。
+**Profile。** 可以分别保存语言方向、Deck、Note Type、映射和默认 tags。查词按语言方向匹配，直接采集使用默认 profile。切换时保留语义内容与 Context 图片，清空属于前一 Note Type 的额外字段，不重新翻译文本。在采集表单里修改设置后，返回执行 **Reload Settings**。连接配置保存在 Raycast 加密 LocalStorage，对采集 profile 生效；旧 Favorites 导出仍使用 Extension Preferences。
 
-**草稿与错误处理。** 编辑内容按最初的词语和语言方向保存为本地草稿，重新打开对应采集入口会恢复；空词语手动入口有独立草稿。成功提交后清除该草稿。草稿保存图片路径，提交前请保留原文件。图片支持 PNG、JPEG、GIF、WebP，最多 10 张，每张不超过 10 MB；通过 AnkiConnect 以内容哈希命名上传，并引用到 Context。图片上传失败不会继续建笔记，已上传的文件不会自动删除。写入超时应先检查 Anki，写入可能已成功；系统不会自动重试。重复检查会分批读取选定牌组，大牌组可能较慢。AnkiConnect 不支持事务性的条件追加，提交期间请避免同时编辑目标笔记。
+**重复词。** 在精确选定的牌组、Note Type 中，按去除 HTML 后的 Term 文本进行不区分大小写的比较，不包含子牌组。可取消、向指定笔记追加 Context，或明确选择新建义项。追加前重新读取笔记，只修改 Context，保留已有 HTML、图片与复习历史。普通新增仍执行 Anki 字段和重复检查，Cloze 语法手动填写。AnkiConnect 无法保证条件追加的事务性，提交时请避免同时编辑目标笔记。
 
-**精简默认体验。** 默认查询只用传统词典和翻译服务。已有 AI 配置保留，但只有开启 **Advanced: AI Providers → Enable AI providers in search** 后才参与查询。Provider 管理和 OCR 命令标记为 Advanced，次要查词操作收进 Advanced 菜单；主流程关闭自动版本宣传。原有收藏、发音、OCR 和翻译底层功能保留。
+**草稿与图片。** 草稿按初始词语和语言方向恢复，成功提交后清除。粘贴的图片会以 PNG 快照保存在扩展本地目录，之后可以更换剪贴板内容。Context 最多支持 10 张图片，每张不超过 10 MB。提交时通过 AnkiConnect 自动保存到 Anki 本地媒体目录，并引用到 Context，之后跟随正常媒体同步。删除标记的图片不再提交；本地快照与已传入 Anki 的媒体不会自动删除。旧草稿保留文字，将 Source 并入 Context，并为原图片增加标记；这些旧图片的原文件仍需保留到提交。无法识别的未来格式或损坏草稿不会被覆盖。写入超时应先检查 Anki，可能已成功；不会自动重试。重复检查会分批读取牌组，大牌组可能较慢。
 
-**验证范围。** 自动化测试模拟 Raycast 与 AnkiConnect 边界，覆盖映射、草稿、图片、重复处理、错误和防重复提交。检查命令为 `npm run lint`、`npm test`、`npm run build`。真实桌面选词、快捷键、图片显示和 Anki 写入仍需获得同意后进行实机验证，不能由模拟测试推定已经通过。
+**精简体验。** 默认使用传统词典和翻译服务。已有 AI 配置保留，只有启用 **Advanced: AI Providers → Enable AI providers in search** 后才参与查询。Provider 管理和 OCR 标为 Advanced，次要查词操作收进 Advanced，查询流程关闭自动版本宣传。
 
+**验证。** 检查命令为 `npm run lint`、`npm test`、`npm run build`、`npm run test:clipboard`（macOS／Windows）。测试覆盖自动连接、本地模拟 Anki HTTP 服务、例句标签、草稿、图片引用和重复处理。原生助手用生成的 PNG 测试转换，并拒绝无效图片，不读取桌面剪贴板。真实快捷键、剪贴板格式、图片显示和 Anki 写入仍需要获准后的实机测试；macOS 上未验证 Windows 实际运行行为。
 
 <p align="center">
   Easily look up words or translate text
@@ -284,7 +285,7 @@ npm install && npm run dev
 
 收藏单词可以通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。
 
-- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
+- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
 - **卡片内容**：正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。取消收藏不会删除 Anki 中的卡片，复习记录会保留。
 
 牌组、AnkiConnect 地址和自动添加等设置见 [Anki 设置](#anki-设置)。

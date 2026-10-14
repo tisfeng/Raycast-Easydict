@@ -14,16 +14,27 @@ const mock = vi.hoisted(() => ({
   failure: vi.fn(),
   toast: vi.fn(),
   selected: vi.fn(),
+  paste: vi.fn(),
 }));
 vi.mock("ofetch", () => ({ ofetch: mock.rpc }));
 vi.mock("@/consts", () => ({ myPreferences: { ankiConnectUrl: "http://localhost:8765" } }));
+vi.mock("./clipboard", () => ({ pasteContext: mock.paste }));
 vi.mock("./Settings", () => ({ default: () => null }));
 vi.mock("@raycast/utils", () => ({ showFailureToast: mock.failure }));
 vi.mock("@raycast/api", async () => {
   const { createElement: h } = await import("react");
   const group = ({ children }: { children?: ReactNode }) => h("div", null, children);
-  const action = ({ title, onAction, onSubmit }: { title: string; onAction?: () => void; onSubmit?: () => void }) =>
-    h("button", { onClick: onAction ?? onSubmit }, title);
+  const action = ({
+    title,
+    onAction,
+    onSubmit,
+    shortcut,
+  }: {
+    title: string;
+    onAction?: () => void;
+    onSubmit?: () => void;
+    shortcut?: object;
+  }) => h("button", { onClick: onAction ?? onSubmit, "data-shortcut": JSON.stringify(shortcut) }, title);
   const input = ({ title, value, onChange }: { title: string; value: string; onChange: (value: string) => void }) =>
     h("input", {
       "aria-label": title,
@@ -63,6 +74,8 @@ vi.mock("@raycast/api", async () => {
       },
     ),
     Icon: {},
+    Detail: () => null,
+    Keyboard: { Shortcut: { Common: { Pin: {}, Open: {} } } },
     Toast: { Style: { Failure: "failure", Success: "success" } },
     showToast: mock.toast,
     getSelectedText: mock.selected,
@@ -212,5 +225,50 @@ describe("capture form", () => {
     fireEvent.change(screen.getByLabelText("Term → English"), { target: { value: "manual" } });
     expect((screen.getByLabelText("Term → English") as HTMLInputElement).value).toBe("manual");
     expect(mock.toast).toHaveBeenCalledWith(expect.objectContaining({ title: "Enter a Word Manually" }));
+  });
+});
+
+it("pastes only when explicitly invoked and keeps images inside Context", async () => {
+  const { imageToken } = await import("./context");
+  const token = imageToken("/copied.png");
+  mock.paste.mockResolvedValue({ context: `Source: reef\n${token}`, images: ["/copied.png"] });
+  render(<CaptureForm initial={emptyDraft("grouper")} />);
+  await loaded();
+  expect(mock.paste).not.toHaveBeenCalled();
+  expect(screen.queryByLabelText("Source (Optional)")).toBeNull();
+  expect(screen.queryByLabelText("Context Images")).toBeNull();
+  expect(screen.getByText("Add to Anki").getAttribute("data-shortcut")).toContain('"modifiers":["opt"]');
+  fireEvent.click(screen.getByText("Paste into Context"));
+  await waitFor(() => expect((screen.getByLabelText("Context → Context") as HTMLInputElement).value).toContain(token));
+  fireEvent.change(screen.getByLabelText("Context → Context"), { target: { value: "Source: reef" } });
+  await waitFor(() => {
+    const raw = [...mock.data.entries()].find(([key]) => key.startsWith("anki-capture-draft"))?.[1];
+    expect(JSON.parse(raw!).draft.images).toEqual([]);
+  });
+});
+
+it("does not overwrite a reopened draft when an earlier paste finishes after closing", async () => {
+  let finish: ((value: { context: string }) => void) | undefined;
+  mock.paste.mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const initial = emptyDraft("grouper");
+  const view = render(<CaptureForm initial={initial} />);
+  await loaded();
+  fireEvent.click(screen.getByText("Paste into Context"));
+  view.unmount();
+  render(<CaptureForm initial={initial} />);
+  await loaded();
+  fireEvent.change(screen.getByLabelText("Context → Context"), { target: { value: "New draft" } });
+  await act(async () => {
+    finish?.({ context: "Old paste" });
+  });
+  expect((screen.getByLabelText("Context → Context") as HTMLInputElement).value).toBe("New draft");
+  await waitFor(() => {
+    const raw = [...mock.data.entries()].find(([key]) => key.startsWith("anki-capture-draft"))?.[1];
+    expect(JSON.parse(raw!).draft.context).toBe("New draft");
   });
 });

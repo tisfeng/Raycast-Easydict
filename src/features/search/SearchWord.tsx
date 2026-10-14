@@ -24,6 +24,7 @@ import {
   resolveSearchProviderServices,
 } from "@/providers/registry";
 import { logError, logTrace } from "@/shared/logger";
+import { shortcuts } from "@/shared/shortcuts";
 
 import { ListActionPanel } from "./ActionPanel";
 import { handleNativeJSONFallback } from "./nativeJSONFallback";
@@ -288,7 +289,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       onSelectionChange={onSelectionChange}
       actions={
         <ActionPanel>
-          <Action.Push title="Add to Anki" target={<CaptureForm initial={emptyDraft(inputText)} />} />
+          <Action.Push
+            title="Add to Anki"
+            shortcut={shortcuts.addToAnki}
+            target={<CaptureForm initial={emptyDraft(inputText)} />}
+          />
         </ActionPanel>
       }
     >
@@ -318,7 +323,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                         viewSections
                           .flatMap((section) => section.items)
                           .find((row) => row.kind === "example" && row.service.serviceId === item.service.serviceId)
-                          ?.copyText ?? "",
+                          ?.exampleSentence ?? "",
                       )}
                       isShowingReleasePrompt={isShowingReleasePrompt}
                       onHideReleasePrompt={hideReleasePrompt}

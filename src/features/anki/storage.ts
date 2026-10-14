@@ -4,6 +4,7 @@ import { LocalStorage } from "@raycast/api";
 
 import { myPreferences } from "@/consts";
 
+import { imageToken } from "./context";
 import { type AnkiProfile, type AnkiSettings, type CaptureDraft, defaultProfile, slots } from "./model";
 
 const SETTINGS_KEY = "anki-capture-settings-v1";
@@ -25,7 +26,7 @@ function isProfile(p: unknown): p is AnkiProfile {
 function isDraft(value: unknown): value is CaptureDraft {
   return (
     record(value) &&
-    ["profileId", ...slots, "source"].every((key) => typeof value[key] === "string") &&
+    ["profileId", ...slots].every((key) => typeof value[key] === "string") &&
     strings(value.images) &&
     record(value.extra) &&
     Object.values(value.extra).every((v) => typeof v === "string")
@@ -87,17 +88,29 @@ export function draftKey(term: string, direction: string) {
 }
 export function decodeDraft(raw: string): CaptureDraft {
   const value: unknown = JSON.parse(raw);
-  if (!isDraft(value)) {
-    throw new Error("Cannot read saved capture draft. Original draft is preserved.");
+  if (record(value) && "version" in value) {
+    if (value.version !== 2 || !isDraft(value.draft))
+      throw new Error("Cannot read saved capture draft. Original draft is preserved.");
+    return value.draft;
   }
-  return value;
+  if (!isDraft(value) || !("source" in value) || typeof value.source !== "string")
+    throw new Error("Cannot read saved capture draft. Original draft is preserved.");
+  const context = [
+    value.context,
+    value.source.trim() ? `Source: ${value.source.trim()}` : "",
+    ...value.images.filter((path) => !value.context.includes(imageToken(path))).map(imageToken),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const { profileId, term, meaning, example, images, extra } = value;
+  return { profileId, term, meaning, example, context, images, extra };
 }
 export async function loadDraft(key: string) {
   const raw = await LocalStorage.getItem<string>(key);
   return raw === undefined ? undefined : decodeDraft(raw);
 }
 export function saveDraft(key: string, draft: CaptureDraft) {
-  return serialize(() => LocalStorage.setItem(key, JSON.stringify(draft)));
+  return serialize(() => LocalStorage.setItem(key, JSON.stringify({ version: 2, draft })));
 }
 export function clearDraft(key: string) {
   return serialize(() => LocalStorage.removeItem(key));
