@@ -98,6 +98,7 @@ const configured = { ...defaultProfile(), model: "Vocabulary", deck: "English" }
 const fields = ["English", "Chinese", "Example", "Context", "Custom"];
 beforeEach(() => {
   vi.clearAllMocks();
+  mock.selected.mockResolvedValue("Other selected text");
   mock.data.clear();
   mock.data.set(
     "anki-capture-settings-v1",
@@ -339,5 +340,46 @@ it("resumes an untouched seeded card after its original command is closed", asyn
 it("offers a new capture when no unsent card exists", async () => {
   render(<ResumeAnkiDraft />);
   await screen.findByText(/No unsent Anki draft/);
+  expect(mock.selected).not.toHaveBeenCalled();
+});
+
+it("keeps dictionary handoff fields and language profile without rereading system selection", async () => {
+  const captureDraft = { ...emptyDraft("魚"), meaning: "鱼", context: "Original source", extra: { Custom: "Kept" } };
+  render(<CaptureToAnki launchContext={{ captureDraft, captureDirection: "ja:zh-CHS" }} />);
+  await loaded();
+  expect((screen.getByLabelText("Term → English") as HTMLInputElement).value).toBe("魚");
+  expect((screen.getByLabelText("Meaning → Chinese") as HTMLInputElement).value).toBe("鱼");
+  expect((screen.getByLabelText("Context → Context") as HTMLInputElement).value).toBe("Original source");
+  expect((screen.getByLabelText("Custom") as HTMLInputElement).value).toBe("Kept");
+  expect((screen.getByLabelText("Profile") as HTMLSelectElement).value).toBe("ja");
+  expect(mock.selected).not.toHaveBeenCalled();
+  expect(mock.rpc.mock.calls.every(([, options]) => options.body.action === "modelFieldNames")).toBe(true);
+});
+
+it("restores the existing word and direction draft when promoting capture into its own command", async () => {
+  const { draftKey, saveDraft } = await import("./storage");
+  const edited = { ...emptyDraft("bearing"), meaning: "Edited meaning", context: "Already copied" };
+  await saveDraft(draftKey("bearing", "en:zh-CHS"), edited);
+  render(
+    <CaptureToAnki
+      launchContext={{ captureDraft: { ...emptyDraft("bearing"), meaning: "轴承" }, captureDirection: "en:zh-CHS" }}
+    />,
+  );
+  await loaded();
+  expect((screen.getByLabelText("Meaning → Chinese") as HTMLInputElement).value).toBe("Edited meaning");
+  expect((screen.getByLabelText("Context → Context") as HTMLInputElement).value).toBe("Already copied");
+  expect(mock.selected).not.toHaveBeenCalled();
+});
+
+it("rejects malformed capture handoffs without changing drafts or reading selection", async () => {
+  const before = [...mock.data];
+  render(
+    <CaptureToAnki
+      launchContext={{ captureDraft: { ...emptyDraft("bearing"), meaning: 42 }, captureDirection: "en:zh-CHS" }}
+    />,
+  );
+  expect(await screen.findByText(/Invalid capture handoff/)).toBeTruthy();
+  expect([...mock.data]).toEqual(before);
+  expect(mock.rpc).not.toHaveBeenCalled();
   expect(mock.selected).not.toHaveBeenCalled();
 });

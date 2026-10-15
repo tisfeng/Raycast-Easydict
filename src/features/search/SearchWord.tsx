@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Action, ActionPanel, Icon, List, showToast, Toast } from "@raycast/api";
+import { ActionPanel, Icon, List, showToast, Toast } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -11,7 +11,7 @@ import type { LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
-import CaptureForm from "@/features/anki/CaptureForm";
+import CaptureAction from "@/features/anki/CaptureAction";
 import { emptyDraft, seedFromRow } from "@/features/anki/model";
 import { addFavoritesToAnkiWithToast } from "@/features/favorites/ankiToast";
 import { buildFavoriteWord } from "@/features/favorites/model";
@@ -23,7 +23,6 @@ import {
   builtinTranslationServices,
   resolveSearchProviderServices,
 } from "@/providers/registry";
-import { shortcuts } from "@/shared/shortcuts";
 
 import { ListActionPanel } from "./ActionPanel";
 import { handleNativeJSONFallback } from "./nativeJSONFallback";
@@ -39,8 +38,6 @@ interface SearchWordProps {
 
 export default function SearchWord({ initialQueryText }: SearchWordProps) {
   const trimQueryText = initialQueryText?.trim();
-  // Late lookup results must not replace the native List underneath a pushed form.
-  const [captureListEpoch, setCaptureListEpoch] = useState<number>();
 
   const isShowingReleasePrompt = false;
   const hideReleasePrompt = () => undefined;
@@ -258,7 +255,7 @@ export default function SearchWord({ initialQueryText }: SearchWordProps) {
 
   return (
     <List
-      key={captureListEpoch ?? listEpoch}
+      key={listEpoch}
       isLoading={listIsLoading}
       isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
@@ -268,13 +265,7 @@ export default function SearchWord({ initialQueryText }: SearchWordProps) {
       onSelectionChange={onSelectionChange}
       actions={
         <ActionPanel>
-          <Action.Push
-            title="Add to Anki"
-            shortcut={shortcuts.addToAnki}
-            target={<CaptureForm initial={emptyDraft(inputText)} />}
-            onPush={() => setCaptureListEpoch(listEpoch)}
-            onPop={() => setCaptureListEpoch(undefined)}
-          />
+          <CaptureAction initial={emptyDraft(inputText)} />
         </ActionPanel>
       }
     >
@@ -300,8 +291,6 @@ export default function SearchWord({ initialQueryText }: SearchWordProps) {
                     <ListActionPanel
                       displayItem={item}
                       captureDraft={seedFromRow(item)}
-                      onCapturePush={() => setCaptureListEpoch(listEpoch)}
-                      onCapturePop={() => setCaptureListEpoch(undefined)}
                       isShowingReleasePrompt={isShowingReleasePrompt}
                       onHideReleasePrompt={hideReleasePrompt}
                       isInstalledEudic={isInstalledEudic}

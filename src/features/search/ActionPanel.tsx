@@ -15,7 +15,7 @@ import { clearQueryCache, hasEnabledQueryCache } from "@/core/query/cache";
 import { getQueryTypeIcon } from "@/core/results/icons";
 import type { QueryType, QueryWordInfo } from "@/core/results/types";
 import { getStrokeOrderCharacters } from "@/core/stroke-order";
-import CaptureForm from "@/features/anki/CaptureForm";
+import CaptureAction from "@/features/anki/CaptureAction";
 import type { CaptureDraft } from "@/features/anki/model";
 import AnkiSettingsPage from "@/features/anki/Settings";
 import { webQueryServices } from "@/providers/web";
@@ -31,8 +31,6 @@ function ResultDetails({ item, actions }: { item: ViewRow; actions: Detail.Props
 
 interface ActionListPanelProps {
   captureDraft: CaptureDraft;
-  onCapturePush: () => void;
-  onCapturePop: () => void;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -108,12 +106,8 @@ function PrimaryActions({
   onRequery,
   onRegenerate,
   captureDraft,
-  onCapturePush,
-  onCapturePop,
 }: {
   captureDraft: CaptureDraft;
-  onCapturePush: () => void;
-  onCapturePop: () => void;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -157,14 +151,7 @@ function PrimaryActions({
         onAction={onToggleFavorite}
       />
 
-      <Action.Push
-        title="Add to Anki"
-        icon={Icon.Plus}
-        shortcut={shortcuts.addToAnki}
-        target={<CaptureForm initial={captureDraft} direction={`${fromLanguage}:${toLanguage}`} />}
-        onPush={onCapturePush}
-        onPop={onCapturePop}
-      />
+      <CaptureAction initial={captureDraft} direction={`${fromLanguage}:${toLanguage}`} />
 
       {!showEudic && isInstalledEudic && (
         <Action icon={Icon.MagnifyingGlass} title="Open in Eudic App" onAction={() => openInEudic(word)} />
@@ -328,8 +315,6 @@ export function ListActionPanel(props: ActionListPanelProps) {
     <ActionPanel>
       <PrimaryActions
         captureDraft={props.captureDraft}
-        onCapturePush={props.onCapturePush}
-        onCapturePop={props.onCapturePop}
         displayItem={displayItem}
         isInstalledEudic={isInstalledEudic}
         isShowingReleasePrompt={isShowingReleasePrompt}

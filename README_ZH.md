@@ -23,7 +23,7 @@
 
 **Profile。** 可以分别保存语言方向、Deck、Note Type、映射和默认 tags。查词按语言方向匹配，直接采集使用默认 profile。切换时保留语义内容与 Context 图片，清空属于前一 Note Type 的额外字段，不重新翻译文本。在采集表单里修改设置后，返回执行 **Reload Settings**。连接配置保存在 Raycast 加密 LocalStorage，对采集 profile 生效；旧 Favorites 导出仍使用 Extension Preferences。
 
-**出去复制后继续填写。** 在采集表单执行 **Hide and Keep Draft**（macOS 为 `Cmd+Shift+H`，Windows 为 `Ctrl+Shift+H`），会先保存当前卡片，再隐藏 Raycast，并临时暂停返回首页。复制完成后用 Raycast 的主唤起快捷键回来，再粘贴到 Context。如果页面被重置或 Raycast 重启，运行 **Resume Anki Draft** 即可继续最近一张未提交的卡，不会重新读取选中文字。刚打开、尚未编辑的词典预填内容也会保存；修改词语后仍沿用原草稿标识，提交后只清除这张卡。不修改 Raycast 全局设置，空白新卡也不会替换已有可恢复草稿。 编辑会自动保存，保存草稿不要求按隐藏快捷键。直接点击其他应用时，窗口保留由 Raycast 自身管理。快捷键入口会先完成系统选词，再打开可交互的查词页；等待时可用 Enter Word Manually 直接手动输入。添加表单打开期间，晚到的查询结果不会再替换底层列表。这些保护不会改写 Raycast 全局唤起或返回首页的行为，快捷键启动后的页面保留仍需实机确认。
+**出去复制后继续填写。** Add to Anki 会将当前词语、释义和语言方向传给独立的 **Capture to Anki** 命令，使采集成为普通命令，而不是由快捷键启动的查词页中的子页面。当前安装的 Raycast v2 在使用主快捷键唤回时会重置此前由命令快捷键打开的页面，不受普通 Pop to Root Search 等待时间控制。草稿会自动保存；可直接点击其他应用复制，再在设置的保留时间内用 Raycast 主唤起快捷键返回。再次按 Search Word 专用快捷键会执行查词。**Hide and Keep Draft**（macOS 为 `Cmd+Shift+H`，Windows 为 `Ctrl+Shift+H`）仍是可选操作，会先保存再隐藏，并暂停普通重置计时。如果 Raycast 重置或重启，使用 **Resume Anki Draft** 恢复最近未提交的卡片，不会重新读取选词。命令之间的传递保留原来的词语／语言草稿标识及已编辑内容，不更改全局设置。
 
 **重复词。** 在精确选定的牌组、Note Type 中，按去除 HTML 后的 Term 文本进行不区分大小写的比较，不包含子牌组。可取消、向指定笔记追加 Context，或明确选择新建义项。追加前重新读取笔记，只修改 Context，保留已有 HTML、图片与复习历史。普通新增仍执行 Anki 字段和重复检查，Cloze 语法手动填写。AnkiConnect 无法保证条件追加的事务性，提交时请避免同时编辑目标笔记。
 

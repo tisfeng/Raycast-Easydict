@@ -294,7 +294,7 @@ export default function CaptureForm({
         />
       ) : (
         <>
-          <Form.Description text="Need to copy from another app? Use Hide and Keep Draft, then reopen Raycast with its main launcher hotkey. Resume Anki Draft also restores your most recent unsent card." />
+          <Form.Description text="Your draft saves automatically. Click another app to copy, then return with Raycast’s main launcher hotkey. Resume Anki Draft restores the card if Raycast resets. Hide and Keep Draft can also suspend the normal reset timer." />
           {restoredDraft && (
             <Form.Description text="Restored your unsent draft for this word. Edit it before adding." />
           )}
