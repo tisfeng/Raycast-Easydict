@@ -4,7 +4,7 @@ import { escapeHtml } from "@/core/content/markdown";
 import type { ViewRow } from "@/core/content/viewTypes";
 
 import { referencedImages, renderContext } from "./context";
-import { exampleHtml, textHtml } from "./html";
+import { exampleHtml, targetMarkup, textHtml } from "./html";
 
 export { textHtml } from "./html";
 
@@ -19,6 +19,8 @@ export interface AnkiProfile {
   model: string;
   mapping: Record<Slot, string>;
   tags: string[];
+  /** Undefined auto-detects ID, an empty string disables generation, otherwise names a field. */
+  idField?: string;
 }
 export interface AnkiSettings {
   version: 1;
@@ -49,13 +51,12 @@ export function defaultProfile(): AnkiProfile {
   };
 }
 export function emptyDraft(term = ""): CaptureDraft {
-  return { profileId: "en-zh", term, meaning: "", example: "", context: "", images: [], extra: {} };
+  return { profileId: "en-zh", term, meaning: "", example: targetMarkup(term), context: "", images: [], extra: {} };
 }
-export function seedFromRow(row: ViewRow, example = ""): CaptureDraft {
+export function seedFromRow(row: ViewRow): CaptureDraft {
   return {
     ...emptyDraft(row.service.query.word),
     meaning: row.kind === "example" ? "" : row.copyText,
-    example: row.exampleSentence ?? (row.kind === "example" ? row.title : example),
   };
 }
 export function validateProfile(profile: AnkiProfile, fields: string[]) {
@@ -66,6 +67,11 @@ export function validateProfile(profile: AnkiProfile, fields: string[]) {
   if (!profile.mapping.term) throw new Error("Map the Term field.");
   const mapped = slots.map((slot) => profile.mapping[slot]).filter(Boolean);
   if (new Set(mapped).size !== mapped.length) throw new Error("Each source must map to a different Anki field.");
+  if (profile.idField) {
+    if (!fields.includes(profile.idField))
+      throw new Error(`ID field no longer exists: ${profile.idField}. Update Anki Settings.`);
+    if (mapped.includes(profile.idField)) throw new Error("The ID field cannot also be used by another mapping.");
+  }
   const missing = mapped.filter((field) => !fields.includes(field));
   if (missing.length) throw new Error(`Fields no longer exist: ${missing.join(", ")}. Update Anki Settings.`);
 }

@@ -30,8 +30,6 @@ export interface ViewRow {
   readonly title: string;
   readonly subtitle?: string;
   readonly copyText: string;
-  /** Original sentence for capture; excludes translated subtitles and display punctuation. */
-  readonly exampleSentence?: string;
   readonly tooltip?: string;
   readonly accessory?: { readonly phonetic?: string; readonly examTypes?: readonly string[] };
   readonly frequency?: ContentEquivalent["frequency"];

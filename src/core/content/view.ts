@@ -168,7 +168,6 @@ function dictionarySection(
               kind: "definition",
               title: text,
               subtitle: entry.explanation ?? entry.examples[0]?.sentence,
-              exampleSentence: entry.examples[0]?.sentence,
               copyText: [text, entry.explanation, ...entry.examples.map(exampleText)].filter(Boolean).join("\n"),
             },
             () =>
@@ -226,7 +225,6 @@ function dictionarySection(
         add({
           kind: "example",
           title: entry.sentence,
-          exampleSentence: entry.sentence,
           subtitle,
           copyText: `${entry.sentence} ${subtitle}`,
         });

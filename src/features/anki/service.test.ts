@@ -186,25 +186,27 @@ describe("capture mapping", () => {
       profileId: "ja",
     });
   });
-  it("prefills the selected definition and dictionary example without AI", () => {
-    const result = seedFromRow(
-      {
-        kind: "definition",
-        title: "charge",
-        copyText: "收费",
-        service: {
-          kind: "dictionary",
-          query: { word: "charge", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
-          serviceId: "youdao",
-          serviceLabel: "Youdao",
-          type: DictionaryType.Youdao,
-          serviceIcon: { kind: "initials" },
-        },
-        renderBody: () => "",
+  it("prefills the selected definition and a target placeholder without AI", () => {
+    const result = seedFromRow({
+      kind: "definition",
+      title: "charge",
+      copyText: "收费",
+      service: {
+        kind: "dictionary",
+        query: { word: "charge", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true },
+        serviceId: "youdao",
+        serviceLabel: "Youdao",
+        type: DictionaryType.Youdao,
+        serviceIcon: { kind: "initials" },
       },
-      "They charged us $20.",
-    );
-    expect(result).toMatchObject({ term: "charge", meaning: "收费", example: "They charged us $20.", context: "" });
+      renderBody: () => "",
+    });
+    expect(result).toMatchObject({
+      term: "charge",
+      meaning: "收费",
+      example: '<b class="target">charge</b>',
+      context: "",
+    });
   });
   it("validates endpoints and rejects active-content files", () => {
     expect(endpoint("localhost:8765")).toBe("http://localhost:8765/");

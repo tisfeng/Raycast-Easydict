@@ -3,35 +3,31 @@ import { describe, expect, it } from "vitest";
 import { DictionaryType } from "@/core/results/kinds";
 
 import { contextPreview, imageToken } from "./context";
-import { exampleHtml } from "./html";
+import { exampleHtml, targetMarkup } from "./html";
 import { buildFields, defaultProfile, emptyDraft, seedFromRow } from "./model";
 
-describe("target examples", () => {
-  it("wraps the exact target word in the requested HTML", () => {
-    expect(exampleHtml("A large grouper hovered beside the reef.", "grouper")).toBe(
-      'A large <b class="target">grouper</b> hovered beside the reef.',
-    );
+describe("target placeholders", () => {
+  it("defaults to only the requested target word, with no example sentence", () => {
+    expect(emptyDraft("grouper").example).toBe('<b class="target">grouper</b>');
+    expect(exampleHtml("", "bearing")).toBe('<b class="target">bearing</b>');
+    expect(targetMarkup("neutral buoyancy")).toBe('<b class="target">neutral buoyancy</b>');
+    expect(targetMarkup("")).toBe("");
   });
-  it("matches phrases and repeated words while preserving case and boundaries", () => {
-    expect(exampleHtml("Grouper, grouper, groupers, agrouper", "grouper")).toBe(
-      '<b class="target">Grouper</b>, <b class="target">grouper</b>, groupers, agrouper',
-    );
-    expect(exampleHtml("Maintain neutral buoyancy.", "neutral buoyancy")).toBe(
-      'Maintain <b class="target">neutral buoyancy</b>.',
-    );
-    expect(exampleHtml("C++ is a language", "C++")).toBe('<b class="target">C++</b> is a language');
-    expect(exampleHtml("They charged us.", "charge")).toBe("They charged us.");
-  });
-  it("keeps existing target tags without nesting and treats other HTML as text", () => {
+  it("preserves manual target tags without adding tags to other words", () => {
     const input = 'A <b class="target">grouper</b> and grouper.';
-    const expected = 'A <b class="target">grouper</b> and <b class="target">grouper</b>.';
-    expect(exampleHtml(input, "grouper")).toBe(expected);
-    expect(exampleHtml(expected, "grouper")).toBe(expected);
+    expect(exampleHtml(input, "grouper")).toBe(input);
+    expect(exampleHtml("They charged us.", "charge")).toBe("They charged us.");
     expect(exampleHtml("<img src=x onerror=alert(1)>grouper", "grouper")).toBe(
-      '&lt;img src=x onerror=alert(1)&gt;<b class="target">grouper</b>',
+      "&lt;img src=x onerror=alert(1)&gt;grouper",
     );
   });
-  it("extracts only original example sentences and prefers an attached sense example", () => {
+  it("does not double-escape generated placeholders or interpret nested HTML", () => {
+    const marker = targetMarkup("rock & roll");
+    expect(marker).toBe('<b class="target">rock &amp; roll</b>');
+    expect(exampleHtml(marker, "rock & roll")).toBe(marker);
+    expect(exampleHtml('<b class="target"><img src=x></b>', "x")).toBe('<b class="target">&lt;img src=x&gt;</b>');
+  });
+  it("ignores dictionary sentences when seeding capture", () => {
     const row = {
       kind: "example" as const,
       title: "A grouper hovered.",
@@ -45,10 +41,7 @@ describe("target examples", () => {
         serviceLabel: "Youdao",
       },
     };
-    expect(seedFromRow(row).example).toBe("A grouper hovered.");
-    expect(
-      seedFromRow({ ...row, kind: "definition", exampleSentence: "Sense example." }, "Other example").example,
-    ).toBe("Sense example.");
+    expect(seedFromRow(row).example).toBe('<b class="target">grouper</b>');
   });
 });
 describe("unified context", () => {
@@ -63,7 +56,7 @@ describe("unified context", () => {
     };
     const result = buildFields(profile, draft, fields, ["anki.png"]);
     expect(result.Context).toBe('Before<br><img src="anki.png"><br>Source: reef');
-    expect(result.Example).toBe('A <b class="target">grouper</b> hovered.');
+    expect(result.Example).toBe("A grouper hovered.");
   });
   it("does not render removed attachments or arbitrary local/remote image references", () => {
     const draft = { ...emptyDraft(), context: "Source", images: ["/removed.png"] };

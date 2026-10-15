@@ -272,3 +272,28 @@ it("does not overwrite a reopened draft when an earlier paste finishes after clo
     expect(JSON.parse(raw!).draft.context).toBe("New draft");
   });
 });
+
+it("updates the default placeholder with the term but preserves a manually edited Example", async () => {
+  render(<CaptureForm initial={emptyDraft("bearing")} />);
+  await loaded();
+  expect((screen.getByLabelText("Example → Example") as HTMLInputElement).value).toBe('<b class="target">bearing</b>');
+  fireEvent.change(screen.getByLabelText("Term → English"), { target: { value: "grouper" } });
+  expect((screen.getByLabelText("Example → Example") as HTMLInputElement).value).toBe('<b class="target">grouper</b>');
+  fireEvent.change(screen.getByLabelText("Example → Example"), {
+    target: { value: 'Manual <b class="target">grouper</b>' },
+  });
+  fireEvent.change(screen.getByLabelText("Term → English"), { target: { value: "reef" } });
+  expect((screen.getByLabelText("Example → Example") as HTMLInputElement).value).toBe(
+    'Manual <b class="target">grouper</b>',
+  );
+});
+it("automatically recognizes ID and hides it from manual extra fields", async () => {
+  const normal = mock.rpc.getMockImplementation()!;
+  mock.rpc.mockImplementation(async (url, options) =>
+    options.body.action === "modelFieldNames" ? { result: ["ID", ...fields], error: null } : normal(url, options),
+  );
+  render(<CaptureForm initial={emptyDraft("bearing")} />);
+  await loaded();
+  expect(screen.queryByLabelText("ID")).toBeNull();
+  expect(screen.getByText(/Assigned automatically/)).toBeTruthy();
+});

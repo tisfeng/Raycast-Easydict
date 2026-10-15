@@ -20,7 +20,8 @@ function isProfile(p: unknown): p is AnkiProfile {
   return (
     ["id", "name", "fromLanguage", "toLanguage", "deck", "model"].every((key) => typeof p[key] === "string") &&
     slots.every((slot) => typeof mapping[slot] === "string") &&
-    strings(p.tags)
+    strings(p.tags) &&
+    (p.idField === undefined || typeof p.idField === "string")
   );
 }
 function isDraft(value: unknown): value is CaptureDraft {

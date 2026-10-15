@@ -13,11 +13,13 @@
 本 fork 新增直接采集到 Anki 的流程，下方 Raycast Store 按钮安装的是上游版本。运行本分支需要 Node.js 22.22.2 或更新版本，在仓库运行 `npm ci`、`npm run dev`，再自行给 **Search Word** 设置全局快捷键。开发注册保留扩展 ID，可能替换已安装的 Easydict；原有收藏和 Provider 配置保留。macOS 剪贴板助手已打包 Apple Silicon 和 Intel 双架构版本，修改 Swift 源码后通过 `npm run build:clipboard` 重新编译。
 
 1. 安装 AnkiConnect，保持 Anki 开启。运行 **Anki Settings**，编辑 English → Chinese profile，页面会自动测试连接，显示状态以及 Deck、Note Type 数量；失败时 **Test Connection / Retry** 成为首要操作。修改 URL 或可选 API Key 后，离开输入框就会重新连接。页面分别提示认证错误、超时、无法连接、返回异常；测试连接不会自动保存配置。
-2. 选择已有 Deck、Note Type，映射 **Term／Meaning／Example／Context**；只有 Term 必须映射，默认字段名为 `English／Chinese／Example／Context`，额外字段可在采集时手填。已删除的选择或字段会明确提示。可显式创建四字段的 **Easydict Capture** 模板，再保存 profile；新牌组请在 Anki 中创建。
+2. 选择已有 Deck、Note Type，映射 **Term／Meaning／Example／Context**；只有 Term 必须映射，默认字段名为 `English／Chinese／Example／Context`，额外字段可在采集时手填。已删除的选择或字段会明确提示。可显式创建带 ID 的 **Easydict Capture** 模板，再保存 profile；新牌组请在 Anki 中创建。
 3. 在支持选词的应用里选词，调用 **Search Word**，选择释义后按 **Option+A** 打开添加表单，表单内同样用 **Option+A** 提交（Windows 保留 `Ctrl+Shift+A`）。**Capture to Anki** 提供手动入口，选词失败或词典无结果时仍可填写。
 4. 在唯一的 **Context** 编辑区填写原文和来源。普通粘贴用于文字；复制截图、图片或文字后执行 **Paste into Context**：macOS 为 **Cmd+Shift+V**，Windows 为 `Ctrl+Shift+V`。只有触发该操作才读取当前剪贴板，不清空剪贴板、不自动截屏。图片以可删除的 `[[image:…]]` 标记出现，使用 **Preview Context** 查看图片，删除标记即可取消该附件。无需选文件或使用第三方图床；Raycast 原生文本框不支持通过普通 Cmd+V 显示内嵌图片。
 
-**例句。** 优先使用词典原始句子，不附带界面上的中文翻译。没有例句时留空手填。保存时自动标记完整匹配的词或词组，例如 `A large <b class="target">grouper</b> hovered beside the reef.`；保留大小写，不猜词形变化，不重复嵌套已有标签。也可以手动填写同样的目标标签，其他 HTML 按文字处理，不增加 AI 请求。
+**Example 占位。** 新采集只预填 `<b class="target">bearing</b>`，其中 `bearing` 替换为当前词语，不再放词典例句或生成例句。修改 Term 时，未改动的默认标签会同步更新；手动修改过的 Example 和恢复的草稿会保留，之后可在 Anki 中补成句子。已有目标标签保留，其他 HTML 按文字处理。
+
+**自动 ID。** 自动识别名为 `ID` 的字段（不区分大小写）；Anki Settings 的 **Automatic ID Field** 可选择其他字段或关闭生成。新建时读取所选 Note Type 在所有牌组中的已有 ID，取匹配前缀的最大序号加一：已有 `en.bearing.01`、`en.bearing.02` 就生成 `en.bearing.03`。前缀使用 profile 的源语言和小写词语，词组用连字符连接；新词从 `01` 开始，不复用中间缺号，并保留已有的补零宽度。成功后显示分配的 ID，新义项继续递增；追加 Context 保留原 ID。没有 ID 字段的 Note Type 仍可使用。显式 **Create Capture Note Type** 现在创建四个采集字段加 `ID`，不会修改现有 Note Type。
 
 **Profile。** 可以分别保存语言方向、Deck、Note Type、映射和默认 tags。查词按语言方向匹配，直接采集使用默认 profile。切换时保留语义内容与 Context 图片，清空属于前一 Note Type 的额外字段，不重新翻译文本。在采集表单里修改设置后，返回执行 **Reload Settings**。连接配置保存在 Raycast 加密 LocalStorage，对采集 profile 生效；旧 Favorites 导出仍使用 Extension Preferences。
 

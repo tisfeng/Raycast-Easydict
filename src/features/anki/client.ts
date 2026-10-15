@@ -84,7 +84,7 @@ export class AnkiClient {
       "createModel",
       {
         modelName,
-        inOrderFields: ["English", "Chinese", "Example", "Context"],
+        inOrderFields: ["English", "Chinese", "Example", "Context", "ID"],
         isCloze: false,
         css: ".card { font-family: sans-serif; font-size: 22px; line-height: 1.6; } img { max-width: 100%; } b.target { font-weight: 700; }",
         cardTemplates: [

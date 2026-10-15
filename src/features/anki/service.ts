@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 
 import type { AnkiClient } from "./client";
 import { referencedImages } from "./context";
+import { generateIdentifier, resolveIdField } from "./identifier";
 import { type AnkiProfile, buildFields, type CaptureDraft, contextHtml, normalizedTerm, textHtml } from "./model";
 
 export interface ExistingNote {
@@ -11,7 +12,8 @@ export interface ExistingNote {
   fields: Record<string, { value: string; order: number }>;
 }
 export type SaveChoice = { kind: "add" } | { kind: "new-sense" } | { kind: "append"; noteId: number };
-export type SaveResult = { kind: "duplicates"; notes: ExistingNote[] } | { kind: "added" | "appended"; noteId: number };
+export type SaveResult =
+  { kind: "duplicates"; notes: ExistingNote[] } | { kind: "added" | "appended"; noteId: number; generatedId?: string };
 function quoted(value: string) {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
@@ -101,6 +103,12 @@ export async function saveCapture(
     tags: profile.tags,
     options: { allowDuplicate: choice.kind === "new-sense", duplicateScope: "deck" },
   };
+  const idField = resolveIdField(profile, fields);
+  let generatedId: string | undefined;
+  if (choice.kind !== "append" && idField) {
+    generatedId = await generateIdentifier(client, profile, draft.term, idField);
+    note.fields[idField] = generatedId;
+  }
   if (choice.kind !== "append") {
     const checks = await client.call<{ canAdd: boolean; error?: string }[]>("canAddNotesWithErrorDetail", {
       notes: [note],
@@ -138,8 +146,13 @@ export async function saveCapture(
     return { kind: "appended", noteId: choice.noteId };
   }
   note.fields = buildFields(profile, draft, fields, filenames);
+  if (idField && generatedId) {
+    // Media writes may take time; refresh against current notes before adding.
+    if (images.length) generatedId = await generateIdentifier(client, profile, draft.term, idField);
+    note.fields[idField] = generatedId;
+  }
   const noteId = await client.call<number>("addNote", { note }, true);
   if (!Number.isSafeInteger(noteId) || noteId <= 0)
     throw new Error("Anki did not return a note ID. Check Anki before retrying.");
-  return { kind: "added", noteId };
+  return { kind: "added", noteId, ...(generatedId ? { generatedId } : {}) };
 }

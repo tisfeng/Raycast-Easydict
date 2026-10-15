@@ -165,7 +165,9 @@ function ProfileForm({
         profile.model && !catalog.models.includes(profile.model)
           ? `Selected note type "${profile.model}" no longer exists. Choose a note type.`
           : "",
-        fields && slots.some((slot) => profile.mapping[slot] && !fields.includes(profile.mapping[slot]))
+        fields &&
+        (slots.some((slot) => profile.mapping[slot] && !fields.includes(profile.mapping[slot])) ||
+          (!!profile.idField && !fields.includes(profile.idField)))
           ? "Mapped fields no longer exist. Update the field mapping."
           : "",
       ]
@@ -204,7 +206,7 @@ function ProfileForm({
           />
           {status === "connected" && !fieldError && connectionAction}
           <Action
-            title="Create Four-Field Note Type"
+            title="Create Capture Note Type"
             icon={Icon.Plus}
             onAction={() =>
               operation(async () => {
@@ -311,6 +313,19 @@ function ProfileForm({
           ))}
         </Form.Dropdown>
       ))}
+      <Form.Dropdown
+        id="idField"
+        title="Automatic ID Field"
+        value={profile.idField === undefined ? "auto" : profile.idField ? `field:${profile.idField}` : "off"}
+        onChange={(value) => update({ idField: value === "auto" ? undefined : value === "off" ? "" : value.slice(6) })}
+        info="Auto-detect uses a field named ID (case-insensitive). IDs are assigned on submission, e.g. en.bearing.03."
+      >
+        <Form.Dropdown.Item value="auto" title="Auto-detect ID" />
+        <Form.Dropdown.Item value="off" title="Disabled" />
+        {[...new Set([...(fields ?? []), ...(profile.idField ? [profile.idField] : [])])].map((field) => (
+          <Form.Dropdown.Item key={field} value={`field:${field}`} title={field} />
+        ))}
+      </Form.Dropdown>
       <Form.TextField
         id="tags"
         title="Default Tags"

@@ -7,6 +7,8 @@ import { shortcuts } from "@/shared/shortcuts";
 import { AnkiClient } from "./client";
 import { pasteContext } from "./clipboard";
 import { contextPreview, referencedImages } from "./context";
+import { targetMarkup } from "./html";
+import { resolveIdField } from "./identifier";
 import { type AnkiSettings, type CaptureDraft, emptyDraft, slots, switchDraftProfile } from "./model";
 import { type ExistingNote, saveCapture, type SaveChoice } from "./service";
 import AnkiSettingsPage from "./Settings";
@@ -39,9 +41,11 @@ export default function CaptureForm({
   }, []);
   const [duplicates, setDuplicates] = useState<ExistingNote[]>();
   const [selectedNote, setSelectedNote] = useState("");
+  const [savedIdentifier, setSavedIdentifier] = useState<string>();
   const [savedId, setSavedId] = useState<number>();
   const [refresh, setRefresh] = useState(0);
   const profile = settings?.profiles.find((p) => p.id === draft.profileId);
+  const idField = profile && fields ? resolveIdField(profile, fields) : undefined;
 
   useEffect(() => {
     let active = true;
@@ -98,6 +102,13 @@ export default function CaptureForm({
   function change(patch: Partial<CaptureDraft>) {
     if (!ready || busy.current) return;
     const next = { ...draftRef.current, ...patch };
+    if (
+      patch.term !== undefined &&
+      patch.example === undefined &&
+      (!draftRef.current.example.trim() || draftRef.current.example === targetMarkup(draftRef.current.term))
+    ) {
+      next.example = targetMarkup(patch.term);
+    }
     next.images = referencedImages(next);
     draftRef.current = next;
     setDraft(next);
@@ -124,12 +135,13 @@ export default function CaptureForm({
       } else {
         // Mark successful before clearing local state: a storage failure must never encourage a second write.
         setSavedId(result.noteId);
+        setSavedIdentifier(result.generatedId);
         setDuplicates(undefined);
         await clearDraft(key);
         await showToast({
           style: Toast.Style.Success,
           title: result.kind === "added" ? "Added to Anki" : "Context Appended",
-          message: `Note ${result.noteId}`,
+          message: result.generatedId ? `${result.generatedId} · Note ${result.noteId}` : `Note ${result.noteId}`,
         });
       }
     } catch (cause) {
@@ -183,6 +195,7 @@ export default function CaptureForm({
               icon={Icon.Plus}
               onAction={() => {
                 setSavedId(undefined);
+                setSavedIdentifier(undefined);
                 setRestoredDraft(false);
                 change({ ...emptyDraft(), profileId: draft.profileId });
               }}
@@ -240,7 +253,7 @@ export default function CaptureForm({
       {savedId ? (
         <Form.Description
           title="Saved to Anki"
-          text={`Note ${savedId}. Go back to look up another word, or use New Capture.`}
+          text={`${savedIdentifier ? `${savedIdentifier} · ` : ""}Note ${savedId}. Go back to look up another word, or use New Capture.`}
         />
       ) : (
         <>
@@ -266,6 +279,12 @@ export default function CaptureForm({
           {profile && (
             <Form.Description
               text={`${profile.deck || "No deck"} · ${profile.model || "No note type"} · Tags: ${profile.tags.join(" ")}`}
+            />
+          )}
+          {idField && (
+            <Form.Description
+              title={`ID → ${idField}`}
+              text="Assigned automatically when adding, e.g. en.bearing.03. Appending Context keeps the existing ID."
             />
           )}
           <Form.TextField
@@ -295,7 +314,7 @@ export default function CaptureForm({
           />
           <Form.Description text="Paste text here normally. Use Paste into Context for copied images or text. Delete an [[image:…]] marker to remove its image; Preview Context shows the result. Write sources directly in Context." />
           {fields
-            ?.filter((field) => !slots.some((slot) => profile?.mapping[slot] === field))
+            ?.filter((field) => field !== idField && !slots.some((slot) => profile?.mapping[slot] === field))
             .map((field) => (
               <Form.TextArea
                 key={field}
@@ -318,7 +337,7 @@ export default function CaptureForm({
                   <Form.Dropdown.Item
                     key={note.noteId}
                     value={String(note.noteId)}
-                    title={`#${note.noteId} · ${note.fields[profile?.mapping.meaning ?? ""]?.value.slice(0, 100) || note.modelName}`}
+                    title={`${(idField && note.fields[idField]?.value) || `#${note.noteId}`} · ${note.fields[profile?.mapping.meaning ?? ""]?.value.slice(0, 100) || note.modelName}`}
                   />
                 ))}
               </Form.Dropdown>

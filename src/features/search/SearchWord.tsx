@@ -318,13 +318,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                   actions={
                     <ListActionPanel
                       displayItem={item}
-                      captureDraft={seedFromRow(
-                        item,
-                        viewSections
-                          .flatMap((section) => section.items)
-                          .find((row) => row.kind === "example" && row.service.serviceId === item.service.serviceId)
-                          ?.exampleSentence ?? "",
-                      )}
+                      captureDraft={seedFromRow(item)}
                       isShowingReleasePrompt={isShowingReleasePrompt}
                       onHideReleasePrompt={hideReleasePrompt}
                       isInstalledEudic={isInstalledEudic}
