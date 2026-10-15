@@ -119,3 +119,12 @@ function deferredRead() {
   });
   return { promise, resolve };
 }
+
+it("does not read or migrate saved AI profiles while AI search is disabled", async () => {
+  renderHook(() => useAIProviderProfiles(false));
+  await act(async () => {
+    await Promise.resolve();
+  });
+  expect(host.getItem).not.toHaveBeenCalled();
+  expect(host.storage.get(AI_PROVIDER_STORAGE_KEY)).toBe(JSON.stringify(state));
+});

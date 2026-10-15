@@ -8,6 +8,31 @@
 
 <h1 align="center">Raycast Easydict</h1>
 
+## Anki 采集分支：快速开始
+
+本 fork 新增直接采集到 Anki 的流程，下方 Raycast Store 按钮安装的是上游版本。运行本分支需要 Node.js 22.22.2 或更新版本，在仓库运行 `npm ci`、`npm run dev`，再自行给 **Search Word** 设置全局快捷键。开发注册保留扩展 ID，可能替换已安装的 Easydict；原有收藏和 Provider 配置保留。macOS 剪贴板助手已打包 Apple Silicon 和 Intel 双架构版本，修改 Swift 源码后通过 `npm run build:clipboard` 重新编译。
+
+1. 安装 AnkiConnect，保持 Anki 开启。运行 **Anki Settings**，编辑 English → Chinese profile，页面会自动测试连接，显示状态以及 Deck、Note Type 数量；失败时 **Test Connection / Retry** 成为首要操作。修改 URL 或可选 API Key 后，离开输入框就会重新连接。页面分别提示认证错误、超时、无法连接、返回异常；测试连接不会自动保存配置。
+2. 选择已有 Deck、Note Type，映射 **Term／Meaning／Example／Context**；只有 Term 必须映射，默认字段名为 `English／Chinese／Example／Context`，额外字段可在采集时手填。已删除的选择或字段会明确提示。可显式创建带 ID 的 **Easydict Capture** 模板，再保存 profile；新牌组请在 Anki 中创建。
+3. 在支持选词的应用里选词，调用 **Search Word**，选择释义后按 **Option+A** 打开添加表单，表单内同样用 **Option+A** 提交（Windows 保留 `Ctrl+Shift+A`）。**Capture to Anki** 提供手动入口，选词失败或词典无结果时仍可填写。
+4. 在唯一的 **Context** 编辑区填写原文和来源。普通粘贴用于文字；复制截图、图片或文字后执行 **Paste into Context**：macOS 为 **Cmd+Shift+V**，Windows 为 `Ctrl+Shift+V`。只有触发该操作才读取当前剪贴板，不清空剪贴板、不自动截屏。图片以可删除的 `[[image:…]]` 标记出现，使用 **Preview Context** 查看图片，删除标记即可取消该附件。无需选文件或使用第三方图床；Raycast 原生文本框不支持通过普通 Cmd+V 显示内嵌图片。
+
+**Example 占位。** 新采集只预填 `<b class="target">bearing</b>`，其中 `bearing` 替换为当前词语，不再放词典例句或生成例句。修改 Term 时，未改动的默认标签会同步更新；手动修改过的 Example 和恢复的草稿会保留，之后可在 Anki 中补成句子。已有目标标签保留，其他 HTML 按文字处理。
+
+**自动 ID。** 自动识别名为 `ID` 的字段（不区分大小写）；Anki Settings 的 **Automatic ID Field** 可选择其他字段或关闭生成。新建时读取所选 Note Type 在所有牌组中的已有 ID，取匹配前缀的最大序号加一：已有 `en.bearing.01`、`en.bearing.02` 就生成 `en.bearing.03`。前缀使用 profile 的源语言和小写词语，词组用连字符连接；新词从 `01` 开始，不复用中间缺号，并保留已有的补零宽度。成功后显示分配的 ID，新义项继续递增；追加 Context 保留原 ID。没有 ID 字段的 Note Type 仍可使用。显式 **Create Capture Note Type** 现在创建四个采集字段加 `ID`，不会修改现有 Note Type。
+
+**Profile。** 可以分别保存语言方向、Deck、Note Type、映射和默认 tags。查词按语言方向匹配，直接采集使用默认 profile。切换时保留语义内容与 Context 图片，清空属于前一 Note Type 的额外字段，不重新翻译文本。在采集表单里修改设置后，返回执行 **Reload Settings**。连接配置保存在 Raycast 加密 LocalStorage，对采集 profile 生效；旧 Favorites 导出仍使用 Extension Preferences。
+
+**出去复制后继续填写。** Add to Anki 会将当前词语、释义和语言方向传给独立的 **Capture to Anki** 命令，使采集成为普通命令，而不是由快捷键启动的查词页中的子页面。当前安装的 Raycast v2 在使用主快捷键唤回时会重置此前由命令快捷键打开的页面，不受普通 Pop to Root Search 等待时间控制。草稿会自动保存；可直接点击其他应用复制，再在设置的保留时间内用 Raycast 主唤起快捷键返回。再次按 Search Word 专用快捷键会执行查词。**Hide and Keep Draft**（macOS 为 `Cmd+Shift+H`，Windows 为 `Ctrl+Shift+H`）仍是可选操作，会先保存再隐藏，并暂停普通重置计时。如果 Raycast 重置或重启，使用 **Resume Anki Draft** 恢复最近未提交的卡片，不会重新读取选词。命令之间的传递保留原来的词语／语言草稿标识及已编辑内容，不更改全局设置。
+
+**重复词。** 在精确选定的牌组、Note Type 中，按去除 HTML 后的 Term 文本进行不区分大小写的比较，不包含子牌组。可取消、向指定笔记追加 Context，或明确选择新建义项。追加前重新读取笔记，只修改 Context，保留已有 HTML、图片与复习历史。普通新增仍执行 Anki 字段和重复检查，Cloze 语法手动填写。AnkiConnect 无法保证条件追加的事务性，提交时请避免同时编辑目标笔记。
+
+**草稿与图片。** 草稿按初始词语和语言方向恢复，成功提交后清除。粘贴的图片会以 PNG 快照保存在扩展本地目录，之后可以更换剪贴板内容。Context 最多支持 10 张图片，每张不超过 10 MB。提交时通过 AnkiConnect 自动保存到 Anki 本地媒体目录，并引用到 Context，之后跟随正常媒体同步。删除标记的图片不再提交；本地快照与已传入 Anki 的媒体不会自动删除。旧草稿保留文字，将 Source 并入 Context，并为原图片增加标记；这些旧图片的原文件仍需保留到提交。无法识别的未来格式或损坏草稿不会被覆盖。写入超时应先检查 Anki，可能已成功；不会自动重试。重复检查会分批读取牌组，大牌组可能较慢。
+
+**精简体验。** 默认使用传统词典和翻译服务。已有 AI 配置保留，只有启用 **Advanced: AI Providers → Enable AI providers in search** 后才参与查询。Provider 管理和 OCR 标为 Advanced，次要查词操作收进 Advanced，查询流程关闭自动版本宣传。
+
+**验证。** 检查命令为 `npm run lint`、`npm test`、`npm run build`、`npm run test:clipboard`（macOS／Windows）。测试覆盖自动连接、本地模拟 Anki HTTP 服务、例句标签、草稿、图片引用和重复处理。原生助手用生成的 PNG 测试转换，并拒绝无效图片，不读取桌面剪贴板。真实快捷键、剪贴板格式、图片显示和 Anki 写入仍需要获准后的实机测试；macOS 上未验证 Windows 实际运行行为。
+
 <p align="center">
   Easily look up words or translate text
 </p>
@@ -254,6 +279,14 @@ npm install && npm run dev
 
 `Easydict` 支持系统代理。在 Raycast 扩展设置中开启 `Use System Proxy Settings` 即可使用。开启后，所有网络请求将通过系统代理发送。适用于需要代理的服务（如国内使用 Google 翻译）或对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制）。**开启代理可能会使请求响应速度变慢，因此请仅在有需要时启用。**
 
+### macOS OCR 加速
+
+OCR 原本就使用苹果本地 Vision 框架。在扩展偏好设置中选择 **macOS OCR Mode → Fast English**，会使用 Vision 的英文快速识别，关闭额外语言纠错。默认仍为 **Accurate — Multiple Languages**，适合中英混排、小字和较高精度需求。快速模式会牺牲部分准确性和语言覆盖范围；没有识别到文字时，会对同一张图片自动回退到高精度识别，再决定是否提示没有文字。两种模式都允许识别大范围框选中的小字。回退全程在本地完成，不会再次截图或读取剪贴板，但会比快速模式直接成功多花一些时间。
+
+截图通过私有临时文件传递，不再写入或读取剪贴板；删除临时文件前会完成图片像素解码，保证后续识别仍能读取图像。取消框选不会重新识别旧剪贴板图片。快速识别成功时的英文结果，或高精度识别（包括自动回退）时较长且置信度足够的本地语言识别结果，会直接传给查词页，省掉一次联网语言检测。含义不明确的短词仍走原检测逻辑。释义和翻译继续使用已配置的服务；Apple Translate 目前仍通过已有的 `Easydict-Translate-V1.2.0` 快捷指令运行，并未改为直接调用 Translation 框架。
+
+`npm run build:swift` 构建 arm64／x86_64 识别助手。`npm run test:ocr` 生成中英文、小号斜体、大范围框选中的小字、深色背景、紧贴文字的裁剪、空白和无效图片进行测试，不截取桌面、不访问剪贴板。所有测试图片都会经过与截图相同的临时文件流程，在识别前删除临时副本，覆盖延迟解码导致空结果的回归问题。在开发机器上，同一英文测试图热启动后的 Vision 识别耗时约为：高精度 121–134 毫秒，英文快速 39–44 毫秒；不包含人工框选、进程启动、语言检测或翻译时间。真实截图及翻译延迟仍需单独进行实机验证。
+
 ### Windows OCR 语言
 
 在 Windows 上，**OCR Translate** 使用系统内置的 Windows OCR 引擎，并依赖 Windows 中安装的 OCR 语言包。运行 **Select OCR Language** 可查看本机已安装的 OCR 语言并固定其一；默认的 **Automatic (Windows profile)** 会使用 Windows 语言设置中第一个支持 OCR 的语言创建引擎。更多语言包可在 Windows 设置 → 时间和语言 → 语言和区域中安装。该命令不影响 macOS：macOS 使用 Apple Vision，并自动检测识别语言。
@@ -264,7 +297,7 @@ npm install && npm run dev
 
 收藏单词可以通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 插件（代码 `2055492159`）发送到 [Anki](https://apps.ankiweb.net/)，用间隔重复的方式复习。
 
-- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Cmd + Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
+- **添加卡片**：保持 Anki 打开，然后在收藏单词的操作菜单中选择 **Add to Anki**（`Option + A`，Windows 上为 `Ctrl + Shift + A`）或 **Add All to Anki**。如果 Anki 没有打开，单词仍会保存到收藏，之后可用 **Add All to Anki** 补发。
 - **卡片内容**：正面是单词、音标和发音（收藏中保存的发音会下载到 Anki 并自动播放），背面是翻译和词典释义。牌组中已有的单词会被跳过，因此保存新的收藏后可以再次运行 **Add All to Anki**。取消收藏不会删除 Anki 中的卡片，复习记录会保留。
 
 牌组、AnkiConnect 地址和自动添加等设置见 [Anki 设置](#anki-设置)。

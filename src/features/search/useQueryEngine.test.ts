@@ -143,6 +143,22 @@ const dictionaryRequests: DictionaryRequest[] = [];
 const translationRequests: QueryInput[] = [];
 const deferredTranslationRequests: TranslationRequest[] = [];
 
+it("uses an explicit OCR source language without a remote detection request and updates the displayed source", () => {
+  const { result, unmount } = renderHook(() =>
+    useQueryEngine(englishLanguageItem, { dictionaryServices: [], translationServices: [] }),
+  );
+  act(() =>
+    result.current.queryTextWithTextInfo({
+      word: "苹果系统可以识别中文和英文",
+      fromLanguage: "zh-CHS",
+      toLanguage: "en",
+    }),
+  );
+  expect(result.current.currentFromLanguageItem.youdaoLangCode).toBe("zh-CHS");
+  expect(testDoubles.detectLanguage).not.toHaveBeenCalled();
+  unmount();
+});
+
 class DeferredDictionaryProvider extends BaseDictionaryProvider {
   constructor(public type = DictionaryType.Linguee) {
     super();

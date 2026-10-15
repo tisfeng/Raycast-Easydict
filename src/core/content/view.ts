@@ -222,7 +222,12 @@ function dictionarySection(
       title = "Examples:";
       for (const entry of section.entries) {
         const subtitle = `${entry.partOfSpeech ? `${entry.partOfSpeech}.  ` : ""}—  ${entry.translation ?? ""}`;
-        add({ kind: "example", title: entry.sentence, subtitle, copyText: `${entry.sentence} ${subtitle}` });
+        add({
+          kind: "example",
+          title: entry.sentence,
+          subtitle,
+          copyText: `${entry.sentence} ${subtitle}`,
+        });
       }
       break;
     }

@@ -1,14 +1,20 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import type { LaunchProps } from "@raycast/api";
+import { Action, ActionPanel, getSelectedText, type LaunchProps, List } from "@raycast/api";
+import { useEffect, useState } from "react";
 
+import { myPreferences } from "@/consts";
+import type { LanguageCode } from "@/core/language/types";
+import { isLanguageCode } from "@/core/language/utils";
 import { checkIfPreferredLanguagesConflict } from "@/features/search/LanguageConflictError";
 import SearchWord from "@/features/search/SearchWord";
-import { logTrace } from "@/shared/logger";
+import { logError, logTrace } from "@/shared/logger";
 
 logTrace("Easydict", "module loaded");
 
-export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) {
+export default function (
+  props: LaunchProps<{ arguments: Arguments.Easydict; launchContext: { ocrSourceLanguage?: unknown } }>,
+) {
   const isConflict = checkIfPreferredLanguagesConflict();
   if (isConflict) {
     return isConflict;
@@ -16,5 +22,63 @@ export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) 
 
   const { queryText: initialQueryText } = props.arguments;
 
-  return <SearchWord initialQueryText={initialQueryText} fallbackText={props.fallbackText} />;
+  const source = props.launchContext?.ocrSourceLanguage;
+  return (
+    <InitialSearch
+      initialQueryText={initialQueryText}
+      fallbackText={props.fallbackText}
+      initialSourceLanguage={initialQueryText?.trim() && isLanguageCode(source) ? source : undefined}
+    />
+  );
+}
+
+function InitialSearch({
+  initialQueryText,
+  fallbackText,
+  initialSourceLanguage,
+}: {
+  initialQueryText?: string;
+  fallbackText?: string;
+  initialSourceLanguage?: LanguageCode;
+}) {
+  const explicitText = (initialQueryText || fallbackText)?.trim();
+  const [selectedText, setSelectedText] = useState<string>();
+  const needsSelection = !explicitText && myPreferences.enableAutomaticQuerySelectedText;
+
+  useEffect(() => {
+    if (!needsSelection) return;
+    let active = true;
+    getSelectedText()
+      .then((text) => {
+        if (active) setSelectedText((current) => current ?? text.trim());
+      })
+      .catch((error) => {
+        if (!active) return;
+        logError("Easydict", "Could not read selected text", error);
+        setSelectedText((current) => current ?? "");
+      });
+    return () => {
+      active = false;
+    };
+  }, [needsSelection]);
+
+  // Resolve system selection before mounting the interactive page. A late
+  // selection must not replace a manual lookup or an open capture form.
+  if (needsSelection && selectedText === undefined) {
+    return (
+      <List
+        isLoading
+        actions={
+          <ActionPanel>
+            <Action title="Enter Word Manually" onAction={() => setSelectedText("")} />
+          </ActionPanel>
+        }
+      >
+        <List.EmptyView title="Reading Selected Text…" />
+      </List>
+    );
+  }
+  return (
+    <SearchWord initialQueryText={explicitText || selectedText || ""} initialSourceLanguage={initialSourceLanguage} />
+  );
 }

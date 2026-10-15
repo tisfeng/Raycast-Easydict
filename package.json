@@ -28,9 +28,30 @@
       ]
     },
     {
+      "name": "capture-to-anki",
+      "title": "Capture to Anki",
+      "subtitle": "Easydict",
+      "description": "Capture selected text and manually add context and images to an Anki note.",
+      "mode": "view"
+    },
+    {
+      "name": "resume-anki-draft",
+      "title": "Resume Anki Draft",
+      "subtitle": "Easydict",
+      "description": "Continue your most recent unsent Anki card after leaving to copy text or images.",
+      "mode": "view"
+    },
+    {
+      "name": "anki-settings",
+      "title": "Anki Settings",
+      "subtitle": "Easydict",
+      "description": "Configure AnkiConnect, language profiles, decks, note types, and field mapping.",
+      "mode": "view"
+    },
+    {
       "name": "manage-providers",
       "title": "Manage Providers",
-      "subtitle": "Easydict",
+      "subtitle": "Easydict · Advanced",
       "description": "Order built-in providers and configure AI providers.",
       "mode": "view"
     },
@@ -38,14 +59,14 @@
       "name": "ocr",
       "title": "OCR Translate",
       "icon": "ocr.png",
-      "subtitle": "Query text from image",
+      "subtitle": "Easydict · Advanced",
       "description": "Screenshot OCR, and query text from image.",
       "mode": "no-view"
     },
     {
       "name": "ocr-language",
       "title": "Select OCR Language",
-      "subtitle": "Easydict",
+      "subtitle": "Easydict · Advanced",
       "icon": "ocr.png",
       "description": "Choose the installed Windows OCR language used by OCR Translate (Windows only).",
       "mode": "view"
@@ -124,7 +145,10 @@
     "docs:gen": "automd",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr"
+    "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr",
+    "build:clipboard": "node scripts/build-clipboard.mjs",
+    "test:clipboard": "node tests/clipboard-native.mjs",
+    "test:ocr": "node tests/ocr-native.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",
@@ -137,6 +161,15 @@
     ]
   },
   "preferences": [
+    {
+      "name": "enableAIProviders",
+      "title": "Advanced: AI Providers",
+      "type": "checkbox",
+      "label": "Enable AI providers in search",
+      "required": false,
+      "default": false,
+      "description": "Opt in to configured AI providers. Disabled by default; saved provider settings are preserved."
+    },
     {
       "title": "First Language",
       "name": "language1",
@@ -681,6 +714,24 @@
       "required": false,
       "description": "Turn on/off Volcano Language Detect.",
       "default": false
+    },
+    {
+      "title": "macOS OCR Mode",
+      "name": "ocrRecognitionMode",
+      "type": "dropdown",
+      "required": false,
+      "default": "accurate",
+      "description": "Accurate supports multiple languages. Fast English uses Apple Vision’s faster English recognizer with less correction. Windows OCR is unchanged.",
+      "data": [
+        {
+          "title": "Accurate — Multiple Languages",
+          "value": "accurate"
+        },
+        {
+          "title": "Fast English",
+          "value": "fast"
+        }
+      ]
     },
     {
       "title": "Apple System Features",

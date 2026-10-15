@@ -155,6 +155,7 @@ export class QueryRunner {
         toLanguage: getLanguageItem(input.toLanguage).youdaoLangCode,
       };
       session.phase = { kind: "ready", input: query };
+      this.snapshot = { ...this.snapshot, currentFromLanguageItem: getLanguageItem(query.fromLanguage) };
       this.runAll(session, query, options?.bypassCache === true);
     } catch (error) {
       this.failQuery(session, error);

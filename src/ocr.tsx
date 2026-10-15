@@ -1,21 +1,10 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { closeMainWindow, environment, launchCommand, LaunchType, showHUD } from "@raycast/api";
-import { chmod } from "fs/promises";
-import { join } from "path";
-import { x } from "tinyexec";
+import { closeMainWindow, getPreferenceValues, launchCommand, LaunchType, showHUD } from "@raycast/api";
 
+import { ocrSourceLanguage, recognizeMac } from "@/core/ocr/mac";
 import { recognizeWindows } from "@/core/ocr/windows";
-import { logError, logTrace } from "@/shared/logger";
-
-const recognizeTextMac = async () => {
-  const command = join(environment.assetsPath, "recognizeText");
-  await chmod(command, "755");
-  const result = await x(command, [], {
-    throwOnError: true,
-  });
-  return result.stdout.trim();
-};
+import { logError, logSummary, logTrace } from "@/shared/logger";
 
 /** Returns the recognized text, an empty string when nothing was found, or null when the user cancelled. */
 const recognizeTextWindows = async (): Promise<string | null> => {
@@ -39,14 +28,26 @@ export default async function command() {
   await closeMainWindow();
 
   try {
-    const recognizedText = platform === "win32" ? await recognizeTextWindows() : await recognizeTextMac();
+    let sourceLanguage: string | undefined;
+    let recognizedText: string | null;
+    if (platform === "darwin") {
+      const preferences = getPreferenceValues<Preferences>();
+      const result = await recognizeMac(preferences.ocrRecognitionMode);
+      sourceLanguage = ocrSourceLanguage(result, preferences.ocrRecognitionMode);
+      recognizedText = result.status === "recognized" ? result.text : result.status === "cancelled" ? null : "";
+      logSummary(
+        "OCR",
+        `capture ${result.captureMs.toFixed(0)}ms (includes area selection), recognition ${result.recognitionMs.toFixed(0)}ms; source ${sourceLanguage ?? "needs detection"}`,
+      );
+    } else {
+      recognizedText = await recognizeTextWindows();
+    }
     if (recognizedText === null) {
       return;
     }
     if (!recognizedText) {
       return await showHUD("❌ No text detected!");
     }
-    logTrace("OCR", `recognized text: ${recognizedText}`);
 
     try {
       await launchCommand({
@@ -55,6 +56,7 @@ export default async function command() {
         arguments: {
           queryText: recognizedText,
         },
+        ...(sourceLanguage ? { context: { ocrSourceLanguage: sourceLanguage } } : {}),
       });
     } catch (error) {
       logError("OCR", `launch easydict error: ${error}`);
@@ -62,7 +64,7 @@ export default async function command() {
     }
   } catch (e) {
     logError("OCR", `recognize text error: ${e}`);
-    const message = platform === "win32" && e instanceof Error && e.message ? e.message : "Failed detecting text";
+    const message = e instanceof Error && e.message ? e.message : "Failed detecting text";
     await showHUD(`❌ ${message}`);
   }
 }

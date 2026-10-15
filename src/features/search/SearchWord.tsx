@@ -1,16 +1,18 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
+import { ActionPanel, Icon, List, showToast, Toast } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import { renderSelectedRow } from "@/core/content/render";
-import type { LanguageItem } from "@/core/language/types";
+import type { LanguageCode, LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
+import CaptureAction from "@/features/anki/CaptureAction";
+import { emptyDraft, seedFromRow } from "@/features/anki/model";
 import { addFavoritesToAnkiWithToast } from "@/features/favorites/ankiToast";
 import { buildFavoriteWord } from "@/features/favorites/model";
 import { useFavoriteWords } from "@/features/favorites/useFavoriteWords";
@@ -19,9 +21,8 @@ import { useAIProviderProfiles } from "@/providers/profiles/useAIProviderProfile
 import {
   builtinDictionaryProviderServices,
   builtinTranslationServices,
-  resolveProviderServices,
+  resolveSearchProviderServices,
 } from "@/providers/registry";
-import { logError, logTrace } from "@/shared/logger";
 
 import { ListActionPanel } from "./ActionPanel";
 import { handleNativeJSONFallback } from "./nativeJSONFallback";
@@ -29,21 +30,21 @@ import { useDebouncedQuery } from "./useDebouncedQuery";
 import { useFirstItemAnchor } from "./useFirstItemAnchor";
 import { useInstalledEudic } from "./useInstalledEudic";
 import { useQueryEngine } from "./useQueryEngine";
-import { useReleasePrompt } from "./useReleasePrompt";
 import { getWordAccessories } from "./WordAccessories";
 
 interface SearchWordProps {
   initialQueryText?: string;
-  fallbackText?: string;
+  initialSourceLanguage?: LanguageCode;
 }
 
-export default function SearchWord({ initialQueryText, fallbackText }: SearchWordProps) {
-  const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
+export default function SearchWord({ initialQueryText, initialSourceLanguage }: SearchWordProps) {
+  const trimQueryText = initialQueryText?.trim();
 
-  const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
+  const isShowingReleasePrompt = false;
+  const hideReleasePrompt = () => undefined;
   const { isInstalledEudic } = useInstalledEudic();
   const { has, toggle } = useFavoriteWords();
-  const aiProviderProfiles = useAIProviderProfiles();
+  const aiProviderProfiles = useAIProviderProfiles(myPreferences.enableAIProviders);
   const handleNativeJSONUnsupported = useCallback(
     (fallbackProfile: Pick<OpenAICompatibleProfile, "id" | "name">, signal?: AbortSignal) =>
       handleNativeJSONFallback(fallbackProfile, aiProviderProfiles.revalidate, signal),
@@ -51,7 +52,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
   );
   const resolvedServiceSnapshot = useMemo(() => {
     if (aiProviderProfiles.storedState) {
-      return resolveProviderServices(aiProviderProfiles.storedState, handleNativeJSONUnsupported);
+      return resolveSearchProviderServices(aiProviderProfiles.storedState, handleNativeJSONUnsupported);
     }
     return {
       translationServices: builtinTranslationServices,
@@ -83,7 +84,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       ),
     [displaySectionIds, viewSections],
   );
-  const listIsLoading = isLoading || aiProviderProfiles.isLoading;
+  const listIsLoading = isLoading || (myPreferences.enableAIProviders && aiProviderProfiles.isLoading);
   const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, queryGeneration);
 
   const debouncedQuery = useDebouncedQuery(queryText);
@@ -168,29 +169,20 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     const userInputText = trimQueryText;
 
     if (userInputText?.length) {
-      updateInputTextAndQueryText(userInputText, false);
-    } else if (myPreferences.enableAutomaticQuerySelectedText) {
-      querySelectedText();
+      if (initialSourceLanguage) {
+        const text = userInputText.replace(/\r?\n/g, " ");
+        const target =
+          config.preferredLanguage2.youdaoLangCode === initialSourceLanguage
+            ? (config.preferredLanguages.find((item) => item.youdaoLangCode !== initialSourceLanguage) ??
+              config.preferredLanguage2)
+            : config.preferredLanguage2;
+        setInputText(text);
+        setSearchText(text);
+        queryTextWithTextInfo({ word: text, fromLanguage: initialSourceLanguage, toLanguage: target.youdaoLangCode });
+      } else {
+        updateInputTextAndQueryText(userInputText, false);
+      }
     }
-  }
-
-  /**
-   * Try to detect the selected text, if detect success, then query the selected text.
-   */
-  function querySelectedText(): Promise<void> {
-    return new Promise((resolve) => {
-      getSelectedText()
-        .then((selectedText) => {
-          selectedText = selectedText.trim();
-          logTrace("SearchWord", `selected text: ${selectedText}`);
-          updateInputTextAndQueryText(selectedText, false);
-          resolve();
-        })
-        .catch((error) => {
-          logError("SearchWord", `getSelectedText error: ${error}`);
-          resolve();
-        });
-    });
   }
 
   /**
@@ -249,8 +241,9 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     updateInputTextAndQueryText(text, true);
   }
 
-  const profileLoadError =
-    aiProviderProfiles.state.kind === "invalid"
+  const profileLoadError = !myPreferences.enableAIProviders
+    ? undefined
+    : aiProviderProfiles.state.kind === "invalid"
       ? aiProviderProfiles.state.message
       : aiProviderProfiles.state.kind === "unsupported"
         ? `Unsupported AI provider configuration version: ${String(aiProviderProfiles.state.version)}`
@@ -283,7 +276,11 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
       onSearchTextChange={onInputChange}
       selectedItemId={selectedItemId}
       onSelectionChange={onSelectionChange}
-      actions={null}
+      actions={
+        <ActionPanel>
+          <CaptureAction initial={emptyDraft(inputText)} />
+        </ActionPanel>
+      }
     >
       {viewSections.map((resultItem, sectionIndex) => {
         const sectionId = displaySectionIds[sectionIndex];
@@ -306,6 +303,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                   actions={
                     <ListActionPanel
                       displayItem={item}
+                      captureDraft={seedFromRow(item)}
                       isShowingReleasePrompt={isShowingReleasePrompt}
                       onHideReleasePrompt={hideReleasePrompt}
                       isInstalledEudic={isInstalledEudic}
