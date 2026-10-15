@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import CaptureToAnki from "@/capture-to-anki";
+import ResumeAnkiDraft from "@/resume-anki-draft";
 
 import CaptureForm from "./CaptureForm";
 import { defaultProfile, emptyDraft } from "./model";
@@ -15,6 +16,7 @@ const mock = vi.hoisted(() => ({
   toast: vi.fn(),
   selected: vi.fn(),
   paste: vi.fn(),
+  close: vi.fn(),
 }));
 vi.mock("ofetch", () => ({ ofetch: mock.rpc }));
 vi.mock("@/consts", () => ({ myPreferences: { ankiConnectUrl: "http://localhost:8765" } }));
@@ -74,7 +76,9 @@ vi.mock("@raycast/api", async () => {
       },
     ),
     Icon: {},
-    Detail: () => null,
+    Detail: ({ markdown, actions }: { markdown: string; actions?: ReactNode }) => h("div", null, markdown, actions),
+    closeMainWindow: mock.close,
+    PopToRootType: { Suspended: "suspended" },
     Keyboard: { Shortcut: { Common: { Pin: {}, Open: {} } } },
     Toast: { Style: { Failure: "failure", Success: "success" } },
     showToast: mock.toast,
@@ -296,4 +300,44 @@ it("automatically recognizes ID and hides it from manual extra fields", async ()
   await loaded();
   expect(screen.queryByLabelText("ID")).toBeNull();
   expect(screen.getByText(/Assigned automatically/)).toBeTruthy();
+});
+
+it("saves a freshly opened card before hiding and suspends the return to root search", async () => {
+  const initial = { ...emptyDraft("bearing"), meaning: "轴承" };
+  render(<CaptureForm initial={initial} />);
+  await loaded();
+  mock.close.mockImplementation(async () => {
+    const { loadRecentDraft } = await import("./storage");
+    expect((await loadRecentDraft())?.draft).toEqual(initial);
+  });
+  fireEvent.click(screen.getByText("Hide and Keep Draft"));
+  await waitFor(() => expect(mock.close).toHaveBeenCalledWith({ popToRootType: "suspended" }));
+});
+it("resumes the original storage key even when the word changed, without reading selected text", async () => {
+  const { draftKey, saveDraft, loadRecentDraft } = await import("./storage");
+  const original = draftKey("bearing", "en:zh-CHS");
+  await saveDraft(original, { ...emptyDraft("grouper"), context: "Already copied" });
+  render(<ResumeAnkiDraft />);
+  await loaded();
+  expect((screen.getByLabelText("Term → English") as HTMLInputElement).value).toBe("grouper");
+  expect((screen.getByLabelText("Context → Context") as HTMLInputElement).value).toBe("Already copied");
+  expect(mock.selected).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText("Context → Context"), { target: { value: "More copied text" } });
+  await waitFor(async () =>
+    expect(await loadRecentDraft()).toMatchObject({ key: original, draft: { context: "More copied text" } }),
+  );
+});
+it("resumes an untouched seeded card after its original command is closed", async () => {
+  const initial = { ...emptyDraft("bearing"), meaning: "轴承" };
+  const view = render(<CaptureForm initial={initial} direction="en:zh-CHS" />);
+  await loaded();
+  view.unmount();
+  render(<ResumeAnkiDraft />);
+  await loaded();
+  expect((screen.getByLabelText("Meaning → Chinese") as HTMLInputElement).value).toBe("轴承");
+});
+it("offers a new capture when no unsent card exists", async () => {
+  render(<ResumeAnkiDraft />);
+  await screen.findByText(/No unsent Anki draft/);
+  expect(mock.selected).not.toHaveBeenCalled();
 });

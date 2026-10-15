@@ -8,6 +8,7 @@ import { imageToken } from "./context";
 import { type AnkiProfile, type AnkiSettings, type CaptureDraft, defaultProfile, slots } from "./model";
 
 const SETTINGS_KEY = "anki-capture-settings-v1";
+const RECENT_DRAFT_KEY = "anki-capture-recent-draft-v1";
 function record(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -111,8 +112,30 @@ export async function loadDraft(key: string) {
   return raw === undefined ? undefined : decodeDraft(raw);
 }
 export function saveDraft(key: string, draft: CaptureDraft) {
-  return serialize(() => LocalStorage.setItem(key, JSON.stringify({ version: 2, draft })));
+  return serialize(async () => {
+    await LocalStorage.setItem(key, JSON.stringify({ version: 2, draft }));
+    const hasContent =
+      [draft.term, draft.meaning, draft.example, draft.context, ...Object.values(draft.extra)].some((value) =>
+        value.trim(),
+      ) || draft.images.length > 0;
+    if (hasContent) await LocalStorage.setItem(RECENT_DRAFT_KEY, key);
+    else if ((await LocalStorage.getItem<string>(RECENT_DRAFT_KEY)) === key)
+      await LocalStorage.removeItem(RECENT_DRAFT_KEY);
+  });
 }
 export function clearDraft(key: string) {
-  return serialize(() => LocalStorage.removeItem(key));
+  return serialize(async () => {
+    await LocalStorage.removeItem(key);
+    if ((await LocalStorage.getItem<string>(RECENT_DRAFT_KEY)) === key) await LocalStorage.removeItem(RECENT_DRAFT_KEY);
+  });
+}
+
+export async function loadRecentDraft(): Promise<{ key: string; draft: CaptureDraft } | undefined> {
+  const key = await LocalStorage.getItem<string>(RECENT_DRAFT_KEY);
+  if (key === undefined) return undefined;
+  if (typeof key !== "string" || !/^anki-capture-draft-v1:[a-f0-9]{64}$/.test(key)) {
+    throw new Error("Cannot read the recent draft reference. Original data is preserved.");
+  }
+  const draft = await loadDraft(key);
+  return draft ? { key, draft } : undefined;
 }

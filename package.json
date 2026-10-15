@@ -35,6 +35,13 @@
       "mode": "view"
     },
     {
+      "name": "resume-anki-draft",
+      "title": "Resume Anki Draft",
+      "subtitle": "Easydict",
+      "description": "Continue your most recent unsent Anki card after leaving to copy text or images.",
+      "mode": "view"
+    },
+    {
       "name": "anki-settings",
       "title": "Anki Settings",
       "subtitle": "Easydict",

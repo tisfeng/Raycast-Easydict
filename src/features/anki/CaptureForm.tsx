@@ -1,4 +1,14 @@
-import { Action, ActionPanel, Detail, Form, Icon, showToast, Toast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  closeMainWindow,
+  Detail,
+  Form,
+  Icon,
+  PopToRootType,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useEffect, useRef, useState } from "react";
 
@@ -17,11 +27,13 @@ import { clearDraft, draftKey, loadDraft, loadSettings, saveDraft } from "./stor
 export default function CaptureForm({
   initial = emptyDraft(),
   direction = "",
+  resumeKey,
 }: {
   initial?: CaptureDraft;
   direction?: string;
+  resumeKey?: string;
 }) {
-  const [key] = useState(() => draftKey(initial.term, direction));
+  const [key] = useState(() => resumeKey ?? draftKey(initial.term, direction));
   const [settings, setSettings] = useState<AnkiSettings>();
   const [draft, setDraft] = useState(initial);
   const draftRef = useRef(initial);
@@ -50,10 +62,14 @@ export default function CaptureForm({
   useEffect(() => {
     let active = true;
     Promise.all([loadSettings(), loadDraft(key)])
-      .then(([config, restored]) => {
+      .then(async ([config, restored]) => {
         if (!active) return;
+        if (resumeKey && !restored)
+          throw new Error("This draft was already submitted or removed. Start a new capture.");
         const matched = config.profiles.find((p) => `${p.fromLanguage}:${p.toLanguage}` === direction);
         const next = restored ?? { ...initial, profileId: matched?.id ?? config.activeProfileId };
+        await saveDraft(key, next);
+        if (!active) return;
         setSettings(config);
         setRestoredDraft(!!restored);
         setDraft(next);
@@ -232,6 +248,27 @@ export default function CaptureForm({
               />
             </>
           )}
+          {!savedId && (
+            <Action
+              title="Hide and Keep Draft"
+              icon={Icon.EyeDisabled}
+              shortcut={shortcuts.hideAnkiDraft}
+              onAction={async () => {
+                if (busy.current || !ready) return;
+                busy.current = true;
+                setSaving(true);
+                try {
+                  await saveDraft(key, draftRef.current);
+                  await closeMainWindow({ popToRootType: PopToRootType.Suspended });
+                } catch (cause) {
+                  if (mounted.current) await showFailureToast(cause, { title: "Could Not Keep Draft" });
+                } finally {
+                  busy.current = false;
+                  if (mounted.current) setSaving(false);
+                }
+              }}
+            />
+          )}
           <Action.Push title="Anki Settings" icon={Icon.Gear} target={<AnkiSettingsPage />} />
           <Action
             title="Reload Settings"
@@ -257,6 +294,7 @@ export default function CaptureForm({
         />
       ) : (
         <>
+          <Form.Description text="Need to copy from another app? Use Hide and Keep Draft, then reopen Raycast with its main launcher hotkey. Resume Anki Draft also restores your most recent unsent card." />
           {restoredDraft && (
             <Form.Description text="Restored your unsent draft for this word. Edit it before adding." />
           )}

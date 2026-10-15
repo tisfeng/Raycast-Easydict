@@ -8,6 +8,7 @@ import {
   decodeSettings,
   draftKey,
   loadDraft,
+  loadRecentDraft,
   loadSettings,
   saveDraft,
   saveSettings,
@@ -89,4 +90,30 @@ it("migrates legacy source and image paths into Context without modifying storag
 });
 it("rejects future draft envelopes without discarding their content", () => {
   expect(() => decodeDraft(JSON.stringify({ version: 3, draft: emptyDraft() }))).toThrow("preserved");
+});
+
+it("finds the most recent unsent card without needing its original term or language", async () => {
+  const key = draftKey("bearing", "en:zh-CHS");
+  const draft = { ...emptyDraft("grouper"), context: "Copied after renaming the term" };
+  await saveDraft(key, draft);
+  expect(await loadRecentDraft()).toEqual({ key, draft });
+  await clearDraft(key);
+  expect(await loadRecentDraft()).toBeUndefined();
+});
+it("does not clear a newer draft when a different card is submitted", async () => {
+  const first = draftKey("first", ""),
+    second = draftKey("second", "");
+  await saveDraft(first, emptyDraft("first"));
+  await saveDraft(second, emptyDraft("second"));
+  await clearDraft(first);
+  expect((await loadRecentDraft())?.key).toBe(second);
+  await saveDraft(draftKey("", ""), emptyDraft());
+  expect((await loadRecentDraft())?.key).toBe(second);
+});
+it("preserves damaged recent draft data and reports it instead of opening a blank card", async () => {
+  const key = draftKey("bearing", "");
+  await saveDraft(key, emptyDraft("bearing"));
+  data.set(key, '{"version":99,"untouched":true}');
+  await expect(loadRecentDraft()).rejects.toThrow("preserved");
+  expect(data.get(key)).toBe('{"version":99,"untouched":true}');
 });

@@ -20,5 +20,9 @@ export const shortcuts = {
     macOS: { modifiers: ["cmd", "shift"], key: "v" },
     Windows: { modifiers: ["ctrl", "shift"], key: "v" },
   },
+  hideAnkiDraft: {
+    macOS: { modifiers: ["cmd", "shift"], key: "h" },
+    Windows: { modifiers: ["ctrl", "shift"], key: "h" },
+  },
   openOnline: Keyboard.Shortcut.Common.Open,
 } satisfies Record<string, Keyboard.Shortcut>;
