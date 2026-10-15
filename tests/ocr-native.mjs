@@ -1,4 +1,6 @@
 // Generated fixtures only: never captures the desktop or reads/writes the clipboard.
+// The helper stages each fixture in a temporary PNG and deletes it before Vision runs,
+// matching capture()'s lifetime. Lazy URL decoding would make these assertions fail.
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -85,6 +87,7 @@ for (name, text, width, height, size) in [("english", "A large grouper hovered b
         results,
         chinese: chinese.text,
         regressions: "small italic, small word, dark, tight crop, blank",
+        temporaryFileLifetime: "fixture PNG decoded before capture cleanup, then recognized after deletion",
       },
       null,
       2,

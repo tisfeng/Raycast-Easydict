@@ -36,18 +36,24 @@ func failure(_ message: String) -> NSError {
 }
 func milliseconds(_ start: Date) -> Double { Date().timeIntervalSince(start) * 1000 }
 func loadImage(_ url: URL) throws -> CGImage {
+    // ImageIO otherwise decodes lazily, after capture() has deleted its temporary PNG.
+    let options = [kCGImageSourceShouldCacheImmediately: true] as CFDictionary
     guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
-          let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw failure("Could not read the captured image.") }
+          let image = CGImageSourceCreateImageAtIndex(source, 0, options) else { throw failure("Could not read the captured image.") }
     return image
 }
 
 // Fixture mode never invokes screencapture or opens the desktop pasteboard.
 func capture(_ options: Options) throws -> (CGImage?, Double) {
-    if let fixture = options.fixture { return (try loadImage(URL(fileURLWithPath: fixture)), 0) }
     let folder = FileManager.default.temporaryDirectory.appendingPathComponent("easydict-ocr-\(UUID().uuidString)")
     try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
     defer { try? FileManager.default.removeItem(at: folder) }
     let file = folder.appendingPathComponent("capture.png")
+    // Exercise the same temporary-file lifetime as screenshots, without desktop access.
+    if let fixture = options.fixture {
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: fixture), to: file)
+        return (try loadImage(file), 0)
+    }
     let task = Process()
     task.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
     task.arguments = ["-i", "-s", "-x", "-T0", "-t", "png", file.path]
