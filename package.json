@@ -147,7 +147,8 @@
     "test:watch": "vitest",
     "test:windows": "powershell.exe -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File tests/windows-native.ps1 -RequireOcr",
     "build:clipboard": "node scripts/build-clipboard.mjs",
-    "test:clipboard": "node tests/clipboard-native.mjs"
+    "test:clipboard": "node tests/clipboard-native.mjs",
+    "test:ocr": "node tests/ocr-native.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged",
@@ -713,6 +714,24 @@
       "required": false,
       "description": "Turn on/off Volcano Language Detect.",
       "default": false
+    },
+    {
+      "title": "macOS OCR Mode",
+      "name": "ocrRecognitionMode",
+      "type": "dropdown",
+      "required": false,
+      "default": "accurate",
+      "description": "Accurate supports multiple languages. Fast English uses Apple Vision’s faster English recognizer with less correction. Windows OCR is unchanged.",
+      "data": [
+        {
+          "title": "Accurate — Multiple Languages",
+          "value": "accurate"
+        },
+        {
+          "title": "Fast English",
+          "value": "fast"
+        }
+      ]
     },
     {
       "title": "Apple System Features",

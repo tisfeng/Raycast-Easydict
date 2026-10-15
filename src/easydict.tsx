@@ -4,13 +4,17 @@ import { Action, ActionPanel, getSelectedText, type LaunchProps, List } from "@r
 import { useEffect, useState } from "react";
 
 import { myPreferences } from "@/consts";
+import type { LanguageCode } from "@/core/language/types";
+import { isLanguageCode } from "@/core/language/utils";
 import { checkIfPreferredLanguagesConflict } from "@/features/search/LanguageConflictError";
 import SearchWord from "@/features/search/SearchWord";
 import { logError, logTrace } from "@/shared/logger";
 
 logTrace("Easydict", "module loaded");
 
-export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) {
+export default function (
+  props: LaunchProps<{ arguments: Arguments.Easydict; launchContext: { ocrSourceLanguage?: unknown } }>,
+) {
   const isConflict = checkIfPreferredLanguagesConflict();
   if (isConflict) {
     return isConflict;
@@ -18,10 +22,25 @@ export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) 
 
   const { queryText: initialQueryText } = props.arguments;
 
-  return <InitialSearch initialQueryText={initialQueryText} fallbackText={props.fallbackText} />;
+  const source = props.launchContext?.ocrSourceLanguage;
+  return (
+    <InitialSearch
+      initialQueryText={initialQueryText}
+      fallbackText={props.fallbackText}
+      initialSourceLanguage={initialQueryText?.trim() && isLanguageCode(source) ? source : undefined}
+    />
+  );
 }
 
-function InitialSearch({ initialQueryText, fallbackText }: { initialQueryText?: string; fallbackText?: string }) {
+function InitialSearch({
+  initialQueryText,
+  fallbackText,
+  initialSourceLanguage,
+}: {
+  initialQueryText?: string;
+  fallbackText?: string;
+  initialSourceLanguage?: LanguageCode;
+}) {
   const explicitText = (initialQueryText || fallbackText)?.trim();
   const [selectedText, setSelectedText] = useState<string>();
   const needsSelection = !explicitText && myPreferences.enableAutomaticQuerySelectedText;
@@ -59,5 +78,7 @@ function InitialSearch({ initialQueryText, fallbackText }: { initialQueryText?: 
       </List>
     );
   }
-  return <SearchWord initialQueryText={explicitText || selectedText || ""} />;
+  return (
+    <SearchWord initialQueryText={explicitText || selectedText || ""} initialSourceLanguage={initialSourceLanguage} />
+  );
 }

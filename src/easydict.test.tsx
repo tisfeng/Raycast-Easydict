@@ -19,7 +19,17 @@ vi.mock("@/features/search/LanguageConflictError", () => ({
   checkIfPreferredLanguagesConflict: () => (mock.conflict ? <div>Language conflict</div> : null),
 }));
 vi.mock("@/features/search/SearchWord", () => ({
-  default: ({ initialQueryText }: { initialQueryText?: string }) => <div data-testid="lookup">{initialQueryText}</div>,
+  default: ({
+    initialQueryText,
+    initialSourceLanguage,
+  }: {
+    initialQueryText?: string;
+    initialSourceLanguage?: string;
+  }) => (
+    <div data-testid="lookup" data-source={initialSourceLanguage}>
+      {initialQueryText}
+    </div>
+  ),
 }));
 vi.mock("@raycast/api", () => ({
   getSelectedText: mock.selected,
@@ -119,4 +129,27 @@ it("does not read selection before the user resolves a language configuration co
   render(<Easydict {...launch} />);
   expect(screen.getByText("Language conflict")).toBeTruthy();
   expect(mock.selected).not.toHaveBeenCalled();
+});
+
+it("passes a valid OCR source hint into lookup without reading system selection", () => {
+  render(
+    <Easydict
+      {...launch}
+      arguments={{ queryText: "A large grouper hovered." }}
+      launchContext={{ ocrSourceLanguage: "en" }}
+    />,
+  );
+  expect(screen.getByTestId("lookup").getAttribute("data-source")).toBe("en");
+  expect(mock.selected).not.toHaveBeenCalled();
+});
+
+it("ignores an unsupported OCR source and leaves normal language detection available", () => {
+  render(
+    <Easydict
+      {...launch}
+      arguments={{ queryText: "A large grouper hovered." }}
+      launchContext={{ ocrSourceLanguage: "unknown" }}
+    />,
+  );
+  expect(screen.getByTestId("lookup").hasAttribute("data-source")).toBe(false);
 });

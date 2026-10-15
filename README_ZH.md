@@ -279,6 +279,14 @@ npm install && npm run dev
 
 `Easydict` 支持系统代理。在 Raycast 扩展设置中开启 `Use System Proxy Settings` 即可使用。开启后，所有网络请求将通过系统代理发送。适用于需要代理的服务（如国内使用 Google 翻译）或对抗 IP 封锁（某些服务如 Linguee 对 IP 有频率限制）。**开启代理可能会使请求响应速度变慢，因此请仅在有需要时启用。**
 
+### macOS OCR 加速
+
+OCR 原本就使用苹果本地 Vision 框架。在扩展偏好设置中选择 **macOS OCR Mode → Fast English**，会使用 Vision 的英文快速识别，关闭额外语言纠错。默认仍为 **Accurate — Multiple Languages**，适合中英混排、小字和较高精度需求。快速模式会牺牲部分准确性和语言覆盖范围，不调用 AI 或云端 OCR。
+
+截图通过私有临时文件传递，不再写入或读取剪贴板；取消框选不会重新识别旧剪贴板图片。英文快速模式的英文结果，或高精度模式下较长且置信度足够的本地语言识别结果，会直接传给查词页，省掉一次联网语言检测。含义不明确的短词仍走原检测逻辑。释义和翻译继续使用已配置的服务；Apple Translate 目前仍通过已有的 `Easydict-Translate-V1.2.0` 快捷指令运行，并未改为直接调用 Translation 框架。
+
+`npm run build:swift` 构建 arm64／x86_64 识别助手。`npm run test:ocr` 生成中英文、空白和无效图片进行测试，不截取桌面、不访问剪贴板。在开发机器上，同一英文测试图热启动后的 Vision 识别耗时约为：高精度 121–134 毫秒，英文快速 39–44 毫秒；不包含人工框选、进程启动、语言检测或翻译时间。真实截图及翻译延迟仍需单独进行实机验证。
+
 ### Windows OCR 语言
 
 在 Windows 上，**OCR Translate** 使用系统内置的 Windows OCR 引擎，并依赖 Windows 中安装的 OCR 语言包。运行 **Select OCR Language** 可查看本机已安装的 OCR 语言并固定其一；默认的 **Automatic (Windows profile)** 会使用 Windows 语言设置中第一个支持 OCR 的语言创建引擎。更多语言包可在 Windows 设置 → 时间和语言 → 语言和区域中安装。该命令不影响 macOS：macOS 使用 Apple Vision，并自动检测识别语言。

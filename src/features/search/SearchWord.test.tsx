@@ -7,10 +7,20 @@ import type { ViewSection } from "@/core/content/viewTypes";
 
 import SearchWord from "./SearchWord";
 
-const mock = vi.hoisted(() => ({ epoch: 0, sections: [] as ViewSection[], launch: vi.fn() }));
+const mock = vi.hoisted(() => ({
+  epoch: 0,
+  sections: [] as ViewSection[],
+  launch: vi.fn(),
+  query: vi.fn(),
+  knownQuery: vi.fn(),
+}));
 vi.mock("@/consts", () => ({ myPreferences: { enableAIProviders: false } }));
 vi.mock("@/core/config", () => ({
-  config: { preferredLanguage1: { youdaoLangCode: "en" }, preferredLanguage2: { youdaoLangCode: "zh-CHS" } },
+  config: {
+    preferredLanguage1: { youdaoLangCode: "en" },
+    preferredLanguage2: { youdaoLangCode: "zh-CHS" },
+    preferredLanguages: [{ youdaoLangCode: "en" }, { youdaoLangCode: "zh-CHS" }],
+  },
 }));
 vi.mock("@/core/content/render", () => ({ renderSelectedRow: () => "" }));
 vi.mock("@/core/results/icons", () => ({ getListItemIcon: () => undefined }));
@@ -39,8 +49,8 @@ vi.mock("./useQueryEngine", () => ({
     isLoading: false,
     isShowDetail: false,
     currentFromLanguageItem: { youdaoLangCode: "en" },
-    queryText: vi.fn(),
-    queryTextWithTextInfo: vi.fn(),
+    queryText: mock.query,
+    queryTextWithTextInfo: mock.knownQuery,
     regenerateService: vi.fn(),
     clearQueryResult: vi.fn(),
   }),
@@ -112,4 +122,24 @@ it("keeps normal list resets for new results when no capture form is open", () =
   mock.epoch = 1;
   view.rerender(<SearchWord initialQueryText="bearing" />);
   expect(screen.getByTestId("lookup-list")).not.toBe(originalList);
+});
+
+it("uses the trusted OCR source directly and keeps the configured translation direction", () => {
+  render(<SearchWord initialQueryText={"A large grouper hovered.\nBeside the reef."} initialSourceLanguage="en" />);
+  expect(mock.query).not.toHaveBeenCalled();
+  expect(mock.knownQuery).toHaveBeenCalledWith({
+    word: "A large grouper hovered. Beside the reef.",
+    fromLanguage: "en",
+    toLanguage: "zh-CHS",
+  });
+});
+
+it("switches the target to the other preferred language when OCR recognizes the configured target", () => {
+  render(<SearchWord initialQueryText="苹果系统可以识别中文和英文" initialSourceLanguage="zh-CHS" />);
+  expect(mock.knownQuery).toHaveBeenCalledWith({
+    word: "苹果系统可以识别中文和英文",
+    fromLanguage: "zh-CHS",
+    toLanguage: "en",
+  });
+  expect(mock.query).not.toHaveBeenCalled();
 });

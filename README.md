@@ -282,6 +282,14 @@ These preferences control how Favorite Words are sent to [Anki](#anki).
 
 `Easydict` supports system proxy. To use it, turn on `Use System Proxy Settings` in the Raycast extension settings. When enabled, all network requests will be sent through the system proxy. This is useful for services that require a proxy (e.g., Google Translate in China) or for counter IP blocking (some services such as Linguee have frequency restrictions on IPs). **Enabling proxy may slow down response time, so please enable it only when needed.**
 
+### macOS OCR Speed
+
+OCR already uses Apple's on-device Vision framework. In extension preferences, **macOS OCR Mode → Fast English** uses Vision's fast English recognizer without language correction. **Accurate — Multiple Languages** remains the default for mixed-language screenshots, small text, and higher accuracy. Fast mode trades accuracy and language coverage for speed; it does not use AI or a cloud OCR service.
+
+Screenshots pass through a private temporary file instead of the clipboard, and cancellation never reprocesses an older clipboard image. Recognized English in Fast English mode, or a sufficiently long, confident on-device language result in Accurate mode, is passed directly to lookup, avoiding a separate network language-detection request. Ambiguous short words keep the normal detection path. Existing dictionary and translation providers still supply results; Apple Translate currently runs through the existing `Easydict-Translate-V1.2.0` Shortcut, not a direct Translation-framework call.
+
+`npm run build:swift` rebuilds the arm64/x86_64 helper. `npm run test:ocr` generates English, Chinese, blank, and invalid image fixtures without capturing the desktop or accessing the clipboard. On the development Mac, the English fixture's warm Vision recognition took about 121–134 ms in Accurate mode and 39–44 ms in Fast English mode; this excludes area selection, process startup, language detection, and translation. Real screenshots and translation latency still require separate native verification.
+
 ### Windows OCR Language
 
 On Windows, **OCR Translate** recognizes text with the built-in Windows OCR engine and the OCR language packs installed in Windows. Run **Select OCR Language** to see the installed languages and pin one; the default **Automatic (Windows profile)** creates the engine from the first OCR-capable language in your Windows language settings. Install more language packs under Windows Settings → Time & Language → Language & Region. This command does not affect macOS, where recognition uses Apple Vision and detects the language automatically.

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import { renderSelectedRow } from "@/core/content/render";
-import type { LanguageItem } from "@/core/language/types";
+import type { LanguageCode, LanguageItem } from "@/core/language/types";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
@@ -34,9 +34,10 @@ import { getWordAccessories } from "./WordAccessories";
 
 interface SearchWordProps {
   initialQueryText?: string;
+  initialSourceLanguage?: LanguageCode;
 }
 
-export default function SearchWord({ initialQueryText }: SearchWordProps) {
+export default function SearchWord({ initialQueryText, initialSourceLanguage }: SearchWordProps) {
   const trimQueryText = initialQueryText?.trim();
 
   const isShowingReleasePrompt = false;
@@ -168,7 +169,19 @@ export default function SearchWord({ initialQueryText }: SearchWordProps) {
     const userInputText = trimQueryText;
 
     if (userInputText?.length) {
-      updateInputTextAndQueryText(userInputText, false);
+      if (initialSourceLanguage) {
+        const text = userInputText.replace(/\r?\n/g, " ");
+        const target =
+          config.preferredLanguage2.youdaoLangCode === initialSourceLanguage
+            ? (config.preferredLanguages.find((item) => item.youdaoLangCode !== initialSourceLanguage) ??
+              config.preferredLanguage2)
+            : config.preferredLanguage2;
+        setInputText(text);
+        setSearchText(text);
+        queryTextWithTextInfo({ word: text, fromLanguage: initialSourceLanguage, toLanguage: target.youdaoLangCode });
+      } else {
+        updateInputTextAndQueryText(userInputText, false);
+      }
     }
   }
 
