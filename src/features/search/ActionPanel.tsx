@@ -31,6 +31,8 @@ function ResultDetails({ item, actions }: { item: ViewRow; actions: Detail.Props
 
 interface ActionListPanelProps {
   captureDraft: CaptureDraft;
+  onCapturePush: () => void;
+  onCapturePop: () => void;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -106,8 +108,12 @@ function PrimaryActions({
   onRequery,
   onRegenerate,
   captureDraft,
+  onCapturePush,
+  onCapturePop,
 }: {
   captureDraft: CaptureDraft;
+  onCapturePush: () => void;
+  onCapturePop: () => void;
   displayItem: ViewRow;
   isInstalledEudic: boolean;
   isShowingReleasePrompt: boolean;
@@ -156,6 +162,8 @@ function PrimaryActions({
         icon={Icon.Plus}
         shortcut={shortcuts.addToAnki}
         target={<CaptureForm initial={captureDraft} direction={`${fromLanguage}:${toLanguage}`} />}
+        onPush={onCapturePush}
+        onPop={onCapturePop}
       />
 
       {!showEudic && isInstalledEudic && (
@@ -320,6 +328,8 @@ export function ListActionPanel(props: ActionListPanelProps) {
     <ActionPanel>
       <PrimaryActions
         captureDraft={props.captureDraft}
+        onCapturePush={props.onCapturePush}
+        onCapturePop={props.onCapturePop}
         displayItem={displayItem}
         isInstalledEudic={isInstalledEudic}
         isShowingReleasePrompt={isShowingReleasePrompt}

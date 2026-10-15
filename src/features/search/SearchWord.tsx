@@ -1,6 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { Action, ActionPanel, getSelectedText, Icon, List, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Icon, List, showToast, Toast } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -23,7 +23,6 @@ import {
   builtinTranslationServices,
   resolveSearchProviderServices,
 } from "@/providers/registry";
-import { logError, logTrace } from "@/shared/logger";
 import { shortcuts } from "@/shared/shortcuts";
 
 import { ListActionPanel } from "./ActionPanel";
@@ -36,11 +35,12 @@ import { getWordAccessories } from "./WordAccessories";
 
 interface SearchWordProps {
   initialQueryText?: string;
-  fallbackText?: string;
 }
 
-export default function SearchWord({ initialQueryText, fallbackText }: SearchWordProps) {
-  const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
+export default function SearchWord({ initialQueryText }: SearchWordProps) {
+  const trimQueryText = initialQueryText?.trim();
+  // Late lookup results must not replace the native List underneath a pushed form.
+  const [captureListEpoch, setCaptureListEpoch] = useState<number>();
 
   const isShowingReleasePrompt = false;
   const hideReleasePrompt = () => undefined;
@@ -172,28 +172,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
     if (userInputText?.length) {
       updateInputTextAndQueryText(userInputText, false);
-    } else if (myPreferences.enableAutomaticQuerySelectedText) {
-      querySelectedText();
     }
-  }
-
-  /**
-   * Try to detect the selected text, if detect success, then query the selected text.
-   */
-  function querySelectedText(): Promise<void> {
-    return new Promise((resolve) => {
-      getSelectedText()
-        .then((selectedText) => {
-          selectedText = selectedText.trim();
-          logTrace("SearchWord", `selected text: ${selectedText}`);
-          updateInputTextAndQueryText(selectedText, false);
-          resolve();
-        })
-        .catch((error) => {
-          logError("SearchWord", `getSelectedText error: ${error}`);
-          resolve();
-        });
-    });
   }
 
   /**
@@ -279,7 +258,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
   return (
     <List
-      key={listEpoch}
+      key={captureListEpoch ?? listEpoch}
       isLoading={listIsLoading}
       isShowingDetail={isShowDetail}
       searchBarPlaceholder={"Search word or translate text..."}
@@ -293,6 +272,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
             title="Add to Anki"
             shortcut={shortcuts.addToAnki}
             target={<CaptureForm initial={emptyDraft(inputText)} />}
+            onPush={() => setCaptureListEpoch(listEpoch)}
+            onPop={() => setCaptureListEpoch(undefined)}
           />
         </ActionPanel>
       }
@@ -319,6 +300,8 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
                     <ListActionPanel
                       displayItem={item}
                       captureDraft={seedFromRow(item)}
+                      onCapturePush={() => setCaptureListEpoch(listEpoch)}
+                      onCapturePop={() => setCaptureListEpoch(undefined)}
                       isShowingReleasePrompt={isShowingReleasePrompt}
                       onHideReleasePrompt={hideReleasePrompt}
                       isInstalledEudic={isInstalledEudic}
