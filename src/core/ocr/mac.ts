@@ -16,6 +16,7 @@ export type MacOcrResult =
       text: string;
       language?: string;
       confidence?: number;
+      recognitionMode?: OcrMode;
       captureMs: number;
       recognitionMs: number;
     };
@@ -54,14 +55,23 @@ export function decodeMacOcr(raw: string): MacOcrResult {
     value.confidence <= 1
       ? value.confidence
       : undefined;
-  return { status: "recognized", text: value.text.trim(), language, confidence, ...timing };
+  const recognitionMode =
+    "recognitionMode" in value && (value.recognitionMode === "fast" || value.recognitionMode === "accurate")
+      ? value.recognitionMode
+      : undefined;
+  return { status: "recognized", text: value.text.trim(), language, confidence, recognitionMode, ...timing };
 }
 
 /** Only bypass network detection when the native result is sufficiently informative. */
 export function ocrSourceLanguage(result: MacOcrResult, mode: OcrMode): LanguageCode | undefined {
   if (result.status !== "recognized") return undefined;
   const letters = result.text.match(/\p{L}/gu) ?? [];
-  if (mode === "fast" && letters.length > 0 && letters.every((letter) => /^[A-Za-z]$/.test(letter))) return "en";
+  if (
+    (result.recognitionMode ?? mode) === "fast" &&
+    letters.length > 0 &&
+    letters.every((letter) => /^[A-Za-z]$/.test(letter))
+  )
+    return "en";
   if ((result.confidence ?? 0) < 0.85 || letters.length < 12) return undefined;
   const language =
     result.language === "zh-Hans" ? "zh-CHS" : result.language === "zh-Hant" ? "zh-CHT" : result.language;

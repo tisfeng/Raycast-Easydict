@@ -55,4 +55,11 @@ describe("macOS OCR protocol and language handoff", () => {
       expect(ocrSourceLanguage(decodeMacOcr(JSON.stringify({ ...payload, text, confidence: 0.2 })), "fast")).toBe("en");
     },
   );
+  it("does not force English after the native fast recognizer falls back to accurate mode", () => {
+    const result = decodeMacOcr(
+      JSON.stringify({ ...payload, text: "bonjour", recognitionMode: "accurate", language: "fr" }),
+    );
+    expect(result).toHaveProperty("recognitionMode", "accurate");
+    expect(ocrSourceLanguage(result, "fast")).toBeUndefined();
+  });
 });

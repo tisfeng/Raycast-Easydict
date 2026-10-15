@@ -11,6 +11,7 @@ struct Payload: Encodable {
     var confidence: Double? = nil
     var captureMs: Double = 0
     var recognitionMs: Double = 0
+    var recognitionMode: String? = nil
 }
 
 struct Options {
@@ -64,13 +65,13 @@ func capture(_ options: Options) throws -> (CGImage?, Double) {
     return (try loadImage(file), milliseconds(start))
 }
 
-func recognize(_ options: Options) throws -> Payload {
-    let (image, captureMs) = try capture(options)
-    guard let image = image else { return Payload(status: "cancelled", captureMs: captureMs) }
+func recognizeImage(_ image: CGImage, mode: String) throws -> String {
     let request = VNRecognizeTextRequest()
-    request.recognitionLevel = options.mode == "fast" ? .fast : .accurate
-    request.usesLanguageCorrection = options.mode == "accurate"
-    let requested = options.mode == "accurate"
+    request.recognitionLevel = mode == "fast" ? .fast : .accurate
+    request.usesLanguageCorrection = mode == "accurate"
+    // A region may contain a single small word with a large surrounding margin.
+    request.minimumTextHeight = 0
+    let requested = mode == "accurate"
         ? ["zh-Hans", "zh-Hant", "en-US", "ja-JP", "fr-FR", "de-DE", "es-ES", "pt-BR", "it-IT", "ko-KR", "ru-RU", "uk-UA"]
         : ["en-US"]
     let supported: [String]
@@ -81,11 +82,23 @@ func recognize(_ options: Options) throws -> Payload {
     }
     let languages = requested.filter { supported.contains($0) }
     request.recognitionLanguages = languages.isEmpty ? supported : languages
-    if #available(macOS 13.0, *) { request.automaticallyDetectsLanguage = options.mode == "accurate" || languages.isEmpty }
-    let start = Date()
+    if #available(macOS 13.0, *) { request.automaticallyDetectsLanguage = mode == "accurate" || languages.isEmpty }
     try VNImageRequestHandler(cgImage: image, options: [:]).perform([request])
-    let text = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-    var result = Payload(status: text.isEmpty ? "no-text" : "recognized", text: text.isEmpty ? nil : text, captureMs: captureMs, recognitionMs: milliseconds(start))
+    return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
+func recognize(_ options: Options) throws -> Payload {
+    let (image, captureMs) = try capture(options)
+    guard let image = image else { return Payload(status: "cancelled", captureMs: captureMs) }
+    let start = Date()
+    var mode = options.mode
+    var text = try recognizeImage(image, mode: mode)
+    // Retry the same image locally; never ask for a second capture or read the clipboard.
+    if text.isEmpty && mode == "fast" {
+        mode = "accurate"
+        text = try recognizeImage(image, mode: mode)
+    }
+    var result = Payload(status: text.isEmpty ? "no-text" : "recognized", text: text.isEmpty ? nil : text, captureMs: captureMs, recognitionMs: milliseconds(start), recognitionMode: mode)
     if !text.isEmpty {
         let detector = NLLanguageRecognizer()
         detector.processString(text)

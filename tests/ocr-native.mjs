@@ -17,13 +17,14 @@ try {
     `
 import AppKit
 let folder = CommandLine.arguments[1]
-for (name, text) in [("english", "A large grouper hovered beside the reef."), ("chinese", "苹果系统可以识别中文和英文"), ("blank", "")] {
-    let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 1100, pixelsHigh: 180, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+for (name, text, width, height, size) in [("english", "A large grouper hovered beside the reef.", 1100, 180, 38.0), ("chinese", "苹果系统可以识别中文和英文", 1100, 180, 38.0), ("blank", "", 1100, 180, 38.0), ("italic-small", "grouper", 1000, 800, 12.0), ("small-word", "grouper", 1000, 800, 12.0), ("dark", "grouper", 1000, 800, 24.0), ("tight", "grouper", 160, 30, 14.0)] {
+    let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
-    NSColor.white.setFill()
-    NSRect(x: 0, y: 0, width: 1100, height: 180).fill()
-    (text as NSString).draw(at: NSPoint(x: 30, y: 65), withAttributes: [.font: NSFont.systemFont(ofSize: 38), .foregroundColor: NSColor.black])
+    (name == "dark" ? NSColor.black : NSColor.white).setFill()
+    NSRect(x: 0, y: 0, width: width, height: height).fill()
+    let font = name == "italic-small" ? NSFont(name: "TimesNewRomanPS-ItalicMT", size: size)! : NSFont.systemFont(ofSize: size)
+    (text as NSString).draw(at: NSPoint(x: 20, y: height == 30 ? 5 : height / 2), withAttributes: [.font: font, .foregroundColor: name == "dark" ? NSColor.white : NSColor.black])
     NSGraphicsContext.restoreGraphicsState()
     try bitmap.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: folder + "/" + name + ".png"))
 }
@@ -53,17 +54,38 @@ for (name, text) in [("english", "A large grouper hovered beside the reef."), ("
   );
   assert.equal(chinese.status, "recognized");
   assert.match(chinese.text, /苹果系统/);
-  const blank = JSON.parse(
-    execFileSync(helper, ["--fixture-image", join(folder, "blank.png")], { encoding: "utf8", timeout: 30_000 }),
-  );
-  assert.equal(blank.status, "no-text");
+  for (const mode of ["fast", "accurate"]) {
+    for (const fixture of ["italic-small", "small-word", "dark", "tight"]) {
+      const payload = JSON.parse(
+        execFileSync(helper, ["--fixture-image", join(folder, `${fixture}.png`), "--mode", mode], {
+          encoding: "utf8",
+          timeout: 30_000,
+        }),
+      );
+      assert.equal(payload.status, "recognized", `${mode}: ${fixture} should not be reported as no text`);
+      assert.match(payload.text, /grouper/i, `${mode}: ${fixture}`);
+      if (mode === "fast" && fixture === "italic-small") assert.equal(payload.recognitionMode, "accurate");
+    }
+    const blank = JSON.parse(
+      execFileSync(helper, ["--fixture-image", join(folder, "blank.png"), "--mode", mode], {
+        encoding: "utf8",
+        timeout: 30_000,
+      }),
+    );
+    assert.equal(blank.status, "no-text");
+  }
   const invalid = join(folder, "invalid.png");
   writeFileSync(invalid, "not an image");
   assert.notEqual(spawnSync(helper, ["--fixture-image", invalid], { timeout: 10_000 }).status, 0);
   assert.notEqual(spawnSync(helper, ["--mode", "invalid"], { timeout: 10_000 }).status, 0);
   console.log(
     JSON.stringify(
-      { fixture: "English sentence, 1100×180 pixels", results, chinese: chinese.text, blank: blank.status },
+      {
+        fixture: "English sentence, 1100×180 pixels",
+        results,
+        chinese: chinese.text,
+        regressions: "small italic, small word, dark, tight crop, blank",
+      },
       null,
       2,
     ),
