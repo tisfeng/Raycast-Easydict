@@ -111,6 +111,39 @@ describe("content view", () => {
     expect(content).toEqual(original);
   });
 
+  it("shows the first example inline and every example in the detail of an equivalent", () => {
+    const [section] = buildContentView(
+      compose(
+        dictionary([
+          {
+            kind: "equivalents",
+            headword: { word: "hyggelig", partOfSpeech: "adjective" },
+            entries: [
+              {
+                text: "cozy",
+                partOfSpeech: "adj",
+                prominent: true,
+                frequency: "common",
+                firstExampleTranslation: "Et hyggeligt hus.",
+                examples: [
+                  { sentence: "Et hyggeligt hus.", translation: "A cozy house." },
+                  { sentence: "Hyggelig aften (i går)." },
+                ],
+              },
+            ],
+          },
+        ]),
+      ),
+      true,
+    );
+    expect(section.items[0].subtitle).toBe("adj.       Et hyggeligt hus.");
+    expect(section.items[0].renderBody()).toBe(
+      ["**cozy**  adj.", "- **Et hyggeligt hus\\.**  \n  A cozy house\\.\n\n- **Hyggelig aften (i går)\\.**"].join(
+        "\n\n",
+      ),
+    );
+  });
+
   it("uses the supplement as the full body when the first dictionary row has an empty subtitle", () => {
     const source = dictionary([
       { kind: "summary", source: "wikipedia", entries: [{ subject: "term", text: "original body" }] },
@@ -132,6 +165,38 @@ describe("content view", () => {
     );
     expect(sections[0].items).toEqual([]);
     expect(sections[1].items[0]).toMatchObject({ title: "original", accessory: undefined });
+  });
+
+  it("shows Wiktionary pronunciation on the first fallback definition only", () => {
+    const service: ComposedService = {
+      type: DictionaryType.Wiktionary,
+      serviceId: "wiktionary",
+      serviceLabel: "Wiktionary",
+      serviceOrder: 0,
+      content: {
+        kind: "dictionary",
+        query: { ...query, word: "hus", fromLanguage: "da", phonetic: "[ˈhuˀs]" },
+        sourceUrl: "https://en.wiktionary.org/wiki/hus#Danish",
+        sections: [
+          {
+            kind: "definitions",
+            entries: [
+              { kind: "structured", meanings: ["house"], explanation: "English definition", examples: [] },
+              { kind: "structured", meanings: ["building"], explanation: "English definition", examples: [] },
+            ],
+          },
+        ],
+      },
+    };
+
+    const [section] = buildContentView(compose(service), true);
+    expect(section.service.sourceUrl).toBe("https://en.wiktionary.org/wiki/hus#Danish");
+    expect(section.items[0]).toMatchObject({
+      kind: "definition",
+      subtitle: "English definition",
+      accessory: { phonetic: "[ˈhuˀs]" },
+    });
+    expect(section.items[1].accessory).toBeUndefined();
   });
 
   it.each([

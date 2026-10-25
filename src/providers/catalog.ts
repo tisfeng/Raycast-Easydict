@@ -8,6 +8,7 @@ type BuiltinProviderCategory = "dictionary" | "translation";
 export const defaultTypeOrder = [
   DictionaryType.Youdao,
   DictionaryType.Linguee,
+  DictionaryType.Wiktionary,
   DictionaryType.AI,
   TranslationType.OpenAI,
   TranslationType.Gemini,
@@ -30,6 +31,7 @@ export function getBuiltinProviderKey(category: BuiltinProviderCategory, type: s
 const definitions = [
   { category: "dictionary", type: DictionaryType.Youdao, preference: "enableYoudaoDictionary" },
   { category: "dictionary", type: DictionaryType.Linguee, preference: "enableLingueeDictionary" },
+  { category: "dictionary", type: DictionaryType.Wiktionary, preference: "enableWiktionaryDictionary" },
   { category: "translation", type: TranslationType.Bing, preference: "enableBingTranslate" },
   { category: "translation", type: TranslationType.Baidu, preference: "enableBaiduTranslate" },
   { category: "translation", type: TranslationType.Tencent, preference: "enableTencentTranslate" },
