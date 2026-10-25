@@ -24,6 +24,7 @@ vi.mock("@raycast/api", () => ({
     servicesOrder: "",
     enableLingueeDictionary: true,
     enableYoudaoDictionary: true,
+    enableWiktionaryDictionary: true,
     enableDeepLTranslate: false,
     enableYoudaoTranslate: false,
     deepLAuthKey: "deepl-placeholder",
@@ -41,6 +42,7 @@ vi.mock("@raycast/api", () => ({
 const defaultOrder = [
   "builtin:dictionary:Youdao Dictionary",
   "builtin:dictionary:Linguee Dictionary",
+  "builtin:dictionary:Wiktionary Dictionary",
   "builtin:translation:DeepL Translate",
   "builtin:translation:DeepLX Translate",
   "builtin:translation:Google Translate",
@@ -79,7 +81,7 @@ describe("combined provider registry", () => {
     expect(services.sort((left, right) => left.order - right.order).map((service) => service.providerKey)).toEqual(
       defaultOrder,
     );
-    expect(services.map((service) => service.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(services.map((service) => service.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     for (const service of services) {
       expect(service.id).toBe(`static:${service.type}`);
       expect(service.createProvider().type).toBe(service.type);
@@ -159,6 +161,14 @@ describe("combined provider registry", () => {
     }
     expect(deepLService.enabled({ ...wordQuery, toLanguage: "ko" })).toBe(false);
     expect(youdaoService.enabled({ ...wordQuery, fromLanguage: "de" })).toBe(false);
+  });
+
+  it("queries Wiktionary for words, including Chinese source words", () => {
+    const wiktionary = builtinDictionaryProviderServices.find((service) => service.type === DictionaryType.Wiktionary)!;
+    expect(wiktionary.enabled(wordQuery)).toBe(true);
+    expect(wiktionary.enabled({ ...wordQuery, isWord: false })).toBe(false);
+    expect(wiktionary.enabled({ word: "你好", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true })).toBe(true);
+    expect(wiktionary.enabled({ word: "你好", fromLanguage: "zh-CHT", toLanguage: "en", isWord: true })).toBe(true);
   });
 
   it("keeps disabled profiles registered without enabling either service", () => {

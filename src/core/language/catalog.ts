@@ -37,6 +37,7 @@ export const languageCatalog = {
       baiduLangCode: "zh",
       caiyunLangCode: "zh",
     },
+    wiktionary: { names: ["Chinese"], codes: ["cmn", "zh"] },
   },
   en: {
     langEnglishName: "English",
@@ -77,6 +78,7 @@ export const languageCatalog = {
       tencentLangCode: "zh-TW",
       baiduLangCode: "cht",
     },
+    wiktionary: { names: ["Chinese"], codes: ["cmn", "zh"] },
   },
   ja: {
     langEnglishName: "Japanese",
@@ -565,6 +567,7 @@ export const languageCatalog = {
       francLangCode: "slv",
       baiduLangCode: "slv",
     },
+    wiktionary: { names: ["Slovene"], codes: ["sl"] },
   },
   et: {
     langEnglishName: "Estonian",
@@ -766,6 +769,7 @@ export const languageCatalog = {
       francLangCode: "nor",
       baiduLangCode: "nor",
     },
+    wiktionary: { names: ["Norwegian Bokmål", "Norwegian Nynorsk", "Norwegian"], codes: ["nb", "nn", "no"] },
   },
   ka: {
     langEnglishName: "Georgian",
@@ -793,6 +797,7 @@ export const languageCatalog = {
       francLangCode: "srp",
       baiduLangCode: "srp",
     },
+    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"], latinOnly: true },
   },
   hr: {
     langEnglishName: "Croatian",
@@ -808,6 +813,7 @@ export const languageCatalog = {
       francLangCode: "hrv",
       baiduLangCode: "hrv",
     },
+    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"], latinOnly: true },
   },
   mn: {
     langEnglishName: "Mongolian",

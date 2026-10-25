@@ -46,7 +46,7 @@ Beyond quick lookups, Raycast Easydict also works as a lightweight language-lear
 
 - 📦 **Out of the box**: look up words and translate text, with automatic language detection and a preferred target language; auto-queries selected text (on by default) and supports OCR screenshot translation.
 - 🎨 **Rich results**: translations, pronunciations, exam coverage, parts of speech, tenses and word forms, web phrases.
-- 🌐 **Multiple services**: dictionary lookup with Youdao and Linguee; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun; 🤖 AI translation and lookup with Raycast AI or any OpenAI-compatible endpoint, including a dictionary mode that builds structured entries for words and terms.
+- 🌐 **Multiple services**: dictionary lookup with Youdao, Linguee, and Wiktionary; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Tencent, Volcano, Youdao, and Caiyun; 🤖 AI translation and lookup with Raycast AI or any OpenAI-compatible endpoint, including a dictionary mode that builds structured entries for words and terms.
 - 🔊 **Auto pronunciation**: plays the word audio automatically after a query, with Youdao TTS for other languages.
 
 **Learn and review**
@@ -372,6 +372,10 @@ Support 5 languages, (Chinese), English, French, Japanese, Korean.
 #### Linguee Dictionary
 
 Support 19 languages, (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+
+#### Wiktionary Dictionary
+
+This free dictionary uses [English Wiktionary](https://en.wiktionary.org/) and requires no API key. It shows English definitions for words in other languages and available translations into your target language for English words. Results can include parts of speech, IPA pronunciation, recorded audio, word forms, and usage examples. It covers language pairs without a reviewed Linguee dictionary, such as English ↔ Danish.
 
 ### Translation
 

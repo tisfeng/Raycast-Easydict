@@ -20,14 +20,23 @@ export interface ProviderLanguageCodes {
   caiyunLangCode?: string;
 }
 
+/** English Wiktionary language headings and translation-table codes, eg. `Norwegian Bokmål` and `nb`. */
+export interface WiktionaryLanguage {
+  names: readonly string[];
+  codes: readonly string[];
+  latinOnly?: boolean;
+}
+
 export interface LanguageDefinition {
   langEnglishName: string;
   langChineseName: string;
   emoji: string;
   voiceList?: { macOS?: readonly string[]; Windows?: readonly string[] };
   codes: ProviderLanguageCodes;
+  /** Only where Wiktionary differs from `langEnglishName` and the internal code. */
+  wiktionary?: WiktionaryLanguage;
 }
 
-export interface LanguageItem extends Omit<LanguageDefinition, "codes"> {
+export interface LanguageItem extends Omit<LanguageDefinition, "codes" | "wiktionary"> {
   youdaoLangCode: SourceLanguage;
 }
