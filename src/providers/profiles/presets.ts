@@ -104,6 +104,15 @@ export const OPENAI_COMPATIBLE_PRESETS = {
     tokenLimitMode: "max-tokens",
     jsonOutputMode: "json-object",
   },
+  atlascloud: {
+    name: "Atlas Cloud",
+    endpoint: "https://api.atlascloud.ai/v1",
+    website: "https://www.atlascloud.ai",
+    model: "deepseek-ai/deepseek-v4-flash",
+    icon: { kind: "favicon", website: "https://www.atlascloud.ai" },
+    tokenLimitMode: "max-tokens",
+    jsonOutputMode: "prompt",
+  },
   opencodeZen: {
     name: "OpenCode Zen",
     endpoint: "https://opencode.ai/zen/v1",

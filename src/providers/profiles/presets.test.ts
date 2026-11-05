@@ -20,6 +20,18 @@ describe("OpenAI-compatible presets", () => {
     });
   });
 
+  it("keeps the Atlas Cloud gateway contract", () => {
+    expect(presets.atlascloud).toMatchObject({
+      name: "Atlas Cloud",
+      endpoint: "https://api.atlascloud.ai/v1",
+      website: "https://www.atlascloud.ai",
+      model: "deepseek-ai/deepseek-v4-flash",
+      icon: { kind: "favicon", website: "https://www.atlascloud.ai" },
+      tokenLimitMode: "max-tokens",
+      jsonOutputMode: "prompt",
+    });
+  });
+
   it("enables native JSON only for presets with documented support", () => {
     expect(
       Object.entries(presets)
