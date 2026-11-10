@@ -177,6 +177,14 @@ describe("Wiktionary dictionary", () => {
     });
   });
 
+  it("uses the original file of an MP3 recording, which Commons does not transcode", () => {
+    const wikitext = "==Hausa==\n* {{audio|ha|Karai-Karai pronunciation.mp3}}\n";
+
+    expect(parseWiktionaryPronunciation(wikitext, "Hausa", ["ha"]).audioUrl).toBe(
+      "https://upload.wikimedia.org/wikipedia/commons/7/73/Karai-Karai_pronunciation.mp3",
+    );
+  });
+
   it("retries a capitalized word in lowercase", async () => {
     const result = await new WiktionaryDictionaryProvider().request({
       word: "Hus",

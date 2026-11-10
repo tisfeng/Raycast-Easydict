@@ -4,6 +4,7 @@ import type { DictionaryContent } from "@/core/content/types";
 import { DictionaryType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
+import { RequestError } from "@/shared/errors";
 import { timedFetch } from "@/shared/http";
 import { logTrace } from "@/shared/logger";
 
@@ -118,7 +119,8 @@ export class WiktionaryDictionaryProvider extends BaseDictionaryProvider {
       ...(body && { method: "POST", body }),
     });
     if (response.status === 404) return undefined;
-    if (!response.ok) throw new Error(`Wiktionary request failed: ${response.status}`);
+    if (!response.ok)
+      throw new RequestError(this.type, `Wiktionary request failed: ${response.status}`, String(response.status));
     return response._data;
   }
 }

@@ -1,10 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { createHash } from "node:crypto";
-
 import { parse } from "node-html-parser";
 
 import type { ContentExample } from "@/core/content/types";
+import { md5 } from "@/shared/crypto";
 
 export interface WiktionarySense {
   gloss: string;
@@ -126,15 +125,19 @@ export function getWiktionaryHeadwordWikitext(wikitext: string, languageName: st
 
 /**
  * Commons serves an MP3 transcode for each recording, which plays on both macOS and Windows.
+ * MP3 uploads have no transcode, so their original file is used.
  *
  * eg. `Da-kat.ogg` → https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Da-kat.ogg/Da-kat.ogg.mp3
  */
 function getCommonsMP3URL(file: string): string {
   const name = file.trim().replace(/ /g, "_");
   const title = name.charAt(0).toUpperCase() + name.slice(1);
-  const hash = createHash("md5").update(title).digest("hex");
+  const hash = md5(title);
   const encoded = encodeURIComponent(title);
-  return `https://upload.wikimedia.org/wikipedia/commons/transcoded/${hash[0]}/${hash.slice(0, 2)}/${encoded}/${encoded}.mp3`;
+  const path = `${hash[0]}/${hash.slice(0, 2)}/${encoded}`;
+  return /.mp3$/i.test(title)
+    ? `https://upload.wikimedia.org/wikipedia/commons/${path}`
+    : `https://upload.wikimedia.org/wikipedia/commons/transcoded/${path}/${encoded}.mp3`;
 }
 
 export function parseWiktionaryPronunciation(
