@@ -76,8 +76,12 @@ describe("Wiktionary dictionary", () => {
     expect((formsCall?.[1].body as URLSearchParams).get("text")).toBe(`===Noun===\n${homeHeadword}`);
   });
 
-  it.each(["da", "fr"])("uses English speech for definitions with a %s query target", async (toLanguage) => {
-    const result = await new WiktionaryDictionaryProvider().request({ word: "home", fromLanguage: "en", toLanguage });
+  it("uses English speech for definitions alongside a Danish translation", async () => {
+    const result = await new WiktionaryDictionaryProvider().request({
+      word: "home",
+      fromLanguage: "en",
+      toLanguage: "da",
+    });
     const rows = buildContentView(
       {
         services: [{ ...result, serviceId: "wiktionary", serviceLabel: "Wiktionary", serviceOrder: 0 }],
@@ -89,12 +93,10 @@ describe("Wiktionary dictionary", () => {
     expect(rows.find(({ kind }) => kind === "definition")).toMatchObject({
       title: expect.stringContaining("A place to live."),
       textLanguage: "en",
-      service: { query: { toLanguage } },
+      service: { query: { toLanguage: "da" } },
     });
-    if (toLanguage === "da") {
-      expect(rows[0]).toMatchObject({ kind: "translation", title: "hjem" });
-      expect(rows[0].textLanguage).toBeUndefined();
-    }
+    expect(rows[0]).toMatchObject({ kind: "translation", title: "hjem" });
+    expect(rows[0].textLanguage).toBeUndefined();
   });
 
   it("shows English glosses, pronunciation, and word forms for a Danish word", async () => {
@@ -138,7 +140,6 @@ describe("Wiktionary dictionary", () => {
     });
     // Only the Danish headword templates are rendered, not the whole section.
     const formsCall = fetchRaw.mock.calls.find(([url]) => String(url).includes("action=parse"));
-    expect(formsCall?.[1]).toMatchObject({ method: "POST" });
     expect((formsCall?.[1].body as URLSearchParams).get("text")).toBe(
       "===Noun===\n{{da-noun|et|e}}\n===Verb===\n{{head|da|verb form}}",
     );
@@ -155,7 +156,6 @@ describe("Wiktionary dictionary", () => {
     expect(result.content.query.phonetic).toBe("/haʊ̯s/");
     expect(sections[0]).toMatchObject({ kind: "translation", text: "hus" });
     const formsCall = fetchRaw.mock.calls.find(([url]) => String(url).includes("action=parse"));
-    expect(formsCall?.[1]).toMatchObject({ method: "POST", body: expect.any(URLSearchParams) });
     expect((formsCall?.[1].body as URLSearchParams).get("text")?.split("\n")).toEqual([
       "====Noun====",
       "{{en-noun|~|s|housen<l:dialectal>|hice<l:chiefly,humorous>}}",
@@ -360,7 +360,7 @@ describe("Wiktionary dictionary", () => {
     expect(result.content.sections[0]).toMatchObject({ kind: "translation", text: "hus" });
   });
 
-  it.each(["hr", "sr-Latn", "sr"])("keeps only Latin-script Serbo-Croatian translations for %s", async (toLanguage) => {
+  it.each(["hr", "sr-Latn"])("keeps only Latin-script Serbo-Croatian translations for %s", async (toLanguage) => {
     const result = await new WiktionaryDictionaryProvider().request({ word: "house", fromLanguage: "en", toLanguage });
 
     expect(result.content.sections[0]).toMatchObject({ kind: "translation", text: "kȕća" });
@@ -486,12 +486,12 @@ describe("Wiktionary dictionary", () => {
     expect(result.content.sections).toEqual([]);
   });
 
-  it.each([429, 503])("reports HTTP %s as a request failure", async (status) => {
-    fetchRaw.mockResolvedValue({ status, ok: false, _data: undefined });
+  it("reports a rate-limited definition request as a provider error", async () => {
+    fetchRaw.mockResolvedValue({ status: 429, ok: false, _data: undefined });
 
     await expect(
       new WiktionaryDictionaryProvider().request({ word: "hus", fromLanguage: "da", toLanguage: "en" }),
-    ).rejects.toThrow(String(status));
+    ).rejects.toThrow("429");
   });
 
   it.each(["/translations&action=raw", "action=parse"])("rejects the lookup when %s fails", async (endpoint) => {

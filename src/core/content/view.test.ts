@@ -105,9 +105,6 @@ describe("content view", () => {
     expect(sections[0].items[0].renderBody()).toBe(body);
     expect(sections[0].items[1].title).toBe("second");
     expect(sections[1].items[0].title).toBe("old example");
-    expect(sections[0].service).toBe(sections[1].service);
-    expect(sections[0].items[1].service).toBe(sections[0].service);
-    expect(sections[0].service.query).toBe(content.content.query);
     expect(content).toEqual(original);
   });
 

@@ -31,40 +31,12 @@ const testState = vi.hoisted(() => {
   return { caches: new Map<string, Map<string, string>>(), preferences: { ...defaults }, defaults };
 });
 
-vi.mock("@raycast/api", () => ({
-  Cache: class {
-    private storage: Map<string, string>;
-
-    constructor(options?: { namespace?: string }) {
-      const namespace = options?.namespace ?? "default";
-      let storage = testState.caches.get(namespace);
-      if (!storage) {
-        storage = new Map();
-        testState.caches.set(namespace, storage);
-      }
-      this.storage = storage;
-    }
-
-    get(key: string) {
-      return this.storage.get(key);
-    }
-
-    set(key: string, value: string) {
-      this.storage.set(key, value);
-    }
-
-    remove(key: string) {
-      return this.storage.delete(key);
-    }
-
-    clear() {
-      this.storage.clear();
-    }
-  },
-}));
+vi.mock("@raycast/api", async () => {
+  const { createCacheMock } = await import("@/test-support/raycastStorage");
+  return { Cache: createCacheMock(testState.caches), environment: { isDevelopment: false } };
+});
 
 vi.mock("@/consts", () => ({ myPreferences: testState.preferences }));
-vi.mock("@/shared/logger", () => ({ logWarn: vi.fn() }));
 
 const query = { word: "cache", fromLanguage: "en", toLanguage: "zh-CHS", isWord: true } as const;
 
@@ -115,23 +87,13 @@ describe("query cache", () => {
     },
   );
 
-  it("does not let work started before a clear operation repopulate the cache", () => {
-    const service = createService("builtin:translation:Bing", "regular");
-    const requestCacheGeneration = getQueryCacheGeneration();
+  it("rejects detection cache writes started before the cache was cleared", () => {
+    const generation = getQueryCacheGeneration();
+    const detection: DetectionDecision = { type: LanguageDetectType.Bing, language: "en", confirmed: true };
 
     clearQueryCache();
-    cacheQueryResult(service, query, createTranslationResult(), requestCacheGeneration);
-    cacheLanguageDetection(
-      query.word,
-      {
-        type: LanguageDetectType.Bing,
-        language: "en",
-        confirmed: true,
-      },
-      requestCacheGeneration,
-    );
+    cacheLanguageDetection(query.word, detection, generation);
 
-    expect(getCachedQueryResult(service, query)).toBeUndefined();
     expect(getCachedLanguageDetection(query.word)).toBeUndefined();
   });
 

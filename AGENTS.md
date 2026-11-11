@@ -18,7 +18,9 @@ npm run build
 
 For command launch, search input, list selection, or shortcut bugs in Raycast, see [Debugging Raycast behavior](docs/development/debugging-raycast.md).
 
-Add tests for observable behavior, external contracts, real regressions, or important invariants. For regression fixes, demonstrate failure before the fix and success afterward. Test real parsing, caching, and migration logic; mock the Raycast runtime or network boundary instead of reimplementing business rules in mocks. Test names should state the scenario and expected outcome; avoid duplicate or implementation-only coverage.
+A test should protect observable behavior, an external contract, or a meaningful invariant. Choose assertions that would fail if that guarantee broke and still pass after a refactor that preserves it. Name each test for the scenario and expected outcome. Avoid duplicate coverage. For regression fixes, demonstrate failure before the fix and success afterward.
+
+Exercise the real parsing, caching, and migration logic. Keep test doubles at the Raycast runtime or network boundary so the test runs the production business rules.
 
 ## Architecture and Invariants
 
