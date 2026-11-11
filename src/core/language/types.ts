@@ -14,8 +14,6 @@ export interface ProviderLanguageCodes {
   deepLSourceId?: string;
   deepLTargetId?: string;
   francLangCode?: string;
-  tencentDetectCode?: string;
-  tencentLangCode?: string;
   baiduLangCode?: string;
   caiyunLangCode?: string;
 }
