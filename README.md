@@ -375,9 +375,7 @@ Support 19 languages, (Chinese, Japanese, Russian), English, French, Spanish, Po
 
 #### Wiktionary Dictionary
 
-Free and keyless, using [English Wiktionary](https://en.wiktionary.org/). It provides English definitions and, for English words, translations into your target language when available. Results can include parts of speech, IPA pronunciation, recorded audio, word forms, and usage examples. It fills gaps such as English ↔ Danish. Coverage varies by word, including for Chinese lookups.
-
-During setup, Raycast shows **Youdao Dictionary**, **Linguee Dictionary**, and **Enable Wiktionary Dictionary** together. Youdao and Linguee start on, and Wiktionary starts off. Select **Continue** to save your choices. You can change them later in the Raycast extension settings.
+This free dictionary uses [English Wiktionary](https://en.wiktionary.org/) and requires no API key. It shows English definitions for words in other languages and available translations into your target language for English words. Results can include parts of speech, IPA pronunciation, recorded audio, word forms, and usage examples. It covers language pairs without a reviewed Linguee dictionary, such as English ↔ Danish.
 
 ### Translation
 
