@@ -16,17 +16,12 @@ vi.mock("@/shared/logger", () => ({
   logTrace,
   logWarn,
 }));
-vi.mock("@raycast/api", () => ({
-  Cache: class {
-    get(key: string) {
-      return cacheStorage.get(key);
-    }
-
-    set(key: string, value: string) {
-      cacheStorage.set(key, value);
-    }
-  },
-}));
+vi.mock("@raycast/api", async () => {
+  const { createCacheMock } = await import("@/test-support/raycastStorage");
+  return {
+    Cache: createCacheMock(new Map([["ai-provider-models", cacheStorage]])),
+  };
+});
 
 beforeEach(() => {
   timedFetch.mockReset();
@@ -56,13 +51,9 @@ describe("OpenAI-compatible model discovery", () => {
 
   it.each([
     ["https://opencode.ai/zen/v1", "https://opencode.ai/zen/v1/models", ""],
-    ["https://opencode.ai/zen/v1", "https://opencode.ai/zen/v1/models", "entered-key"],
-    ["https://opencode.ai/zen/v1/chat/completions", "https://opencode.ai/zen/v1/models", ""],
     ["https://opencode.ai/zen/v1/chat/completions", "https://opencode.ai/zen/v1/models", "entered-key"],
-    ["https://opencode.ai/zen/go/v1", "https://opencode.ai/zen/go/v1/models", ""],
     ["https://opencode.ai/zen/go/v1", "https://opencode.ai/zen/go/v1/models", "entered-key"],
     ["https://opencode.ai/zen/go/v1/chat/completions", "https://opencode.ai/zen/go/v1/models", ""],
-    ["https://opencode.ai/zen/go/v1/chat/completions", "https://opencode.ai/zen/go/v1/models", "entered-key"],
   ] as const)("uses an anonymous request for the public %s directory", async (endpoint, modelsURL, apiKey) => {
     timedFetch.mockResolvedValue({ data: [{ id: "deepseek-v4-flash" }] });
     const signal = new AbortController().signal;

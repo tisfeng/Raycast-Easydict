@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LanguageDetectType } from "@/core/results/kinds";
 import { BaseDetectProvider, type DetectOptions } from "@/providers/detect/base";
 import { CancelledError } from "@/shared/errors";
+import { createDeferred } from "@/test-support/deferred";
 
 import { detectLanguage } from "./index";
 import type { DetectionObservation } from "./types";
@@ -45,14 +46,6 @@ function service(
 
 function observed(type: LanguageDetectType, language: "en" | "ja" | "fr" | undefined): DetectionObservation {
   return Object.freeze({ kind: "single", type, language });
-}
-
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => {
-    resolve = done;
-  });
-  return { promise, resolve };
 }
 
 beforeEach(() => {
@@ -106,8 +99,8 @@ describe("detection policy and ownership", () => {
   });
 
   it("keeps each overlapping detection's detector count and language preferences", async () => {
-    const first = deferred<DetectionObservation>();
-    const second = deferred<DetectionObservation>();
+    const first = createDeferred<DetectionObservation>();
+    const second = createDeferred<DetectionObservation>();
     doubles.services.push(
       service(LanguageDetectType.Bing, () => first.promise),
       service(LanguageDetectType.Volcano, () => second.promise),
@@ -135,7 +128,7 @@ describe("detection policy and ownership", () => {
   });
 
   it("keeps the initial preferred languages while local detection is pending", async () => {
-    const local = deferred<DetectionObservation>();
+    const local = createDeferred<DetectionObservation>();
     doubles.services.push(service(LanguageDetectType.Franc, () => local.promise, true));
     const result = detectLanguage("a sentence");
     doubles.settings.preferredLanguages = [{ youdaoLangCode: "fr" }];
@@ -152,7 +145,7 @@ describe("detection policy and ownership", () => {
 
   it("accepts the first preferred remote language when speed-first is enabled", async () => {
     doubles.settings.enableDetectLanguageSpeedFirst = true;
-    const pending = deferred<DetectionObservation>();
+    const pending = createDeferred<DetectionObservation>();
     doubles.services.push(
       service(LanguageDetectType.Bing, async () => observed(LanguageDetectType.Bing, "en")),
       service(LanguageDetectType.Volcano, () => pending.promise),
@@ -231,7 +224,7 @@ describe("detection policy and ownership", () => {
   });
 
   it("does not run local fallback after the caller cancels remote detection", async () => {
-    const remote = deferred<DetectionObservation>();
+    const remote = createDeferred<DetectionObservation>();
     const local = vi.fn(async (): Promise<DetectionObservation> => ({
       kind: "ranked",
       type: LanguageDetectType.Franc,
