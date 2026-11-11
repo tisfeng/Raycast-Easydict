@@ -30,7 +30,7 @@ describe("Wiktionary definition text", () => {
           definitions: [
             {
               definition:
-                "<style>.hidden{display:none}</style><b>caf&eacute;</b>&nbsp;&amp; &#x68;&#111;me<!-- hidden -->",
+                "<style>.hidden{display:none}</style><b>touch&eacute;</b>&nbsp;&amp; &#x68;&#111;me<!-- hidden -->",
               parsedExamples: [
                 { example: "<script>hidden()</script>A &lt;home&gt;.", translation: "<style>.hidden{}</style>家" },
               ],
@@ -43,7 +43,7 @@ describe("Wiktionary definition text", () => {
     expect(parseWiktionaryDefinitions(payload, ["English"])).toEqual([
       {
         partOfSpeech: "Noun",
-        senses: [{ gloss: "café & home", examples: [{ sentence: "A <home>.", translation: "家" }], formOf: false }],
+        senses: [{ gloss: "touché & home", examples: [{ sentence: "A <home>.", translation: "家" }], formOf: false }],
       },
     ]);
   });
@@ -100,11 +100,11 @@ describe("Wiktionary headword forms", () => {
 
   it("decodes form text and excludes style and script contents", () => {
     const html = `<h3>Verb</h3><p><span class="headword-line">
-      <i>past&nbsp;participle<style>.hidden{}</style><script>hidden()</script></i> <b>caf&eacute;</b>
+      <i>past&nbsp;participle<style>.hidden{}</style><script>hidden()</script></i> <b>touch&eacute;</b>
     </span></p>`;
 
     expect(parseWiktionaryForms(html)).toEqual([
-      { partOfSpeech: "Verb", forms: [{ label: "past participle", value: "café" }] },
+      { partOfSpeech: "Verb", forms: [{ label: "past participle", value: "touché" }] },
     ]);
   });
 });
