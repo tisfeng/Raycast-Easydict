@@ -25,14 +25,22 @@ const builtinProviderClasses = {
   [DictionaryType.Wiktionary]: WiktionaryDictionaryProvider,
 } satisfies Record<(typeof builtinDictionaryProviders)[number]["type"], new () => BaseDictionaryProvider>;
 
+function supportsQuery(type: DictionaryType, query: QueryInput): boolean {
+  switch (type) {
+    case DictionaryType.Youdao:
+      return getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query);
+    case DictionaryType.Wiktionary:
+      // Its definitions API omits Chinese entries, which use a `Definitions` heading instead of parts of speech.
+      return checkIsWord(query) && !query.fromLanguage.startsWith("zh");
+    default:
+      return true;
+  }
+}
+
 export const builtinDictionaryServices: DictionaryServiceConfig[] = builtinDictionaryProviders.map((service) => ({
   ...service,
   cacheIdentity: service.type,
-  enabled: (query) =>
-    myPreferences[service.preference] &&
-    (service.type === DictionaryType.Youdao
-      ? getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query)
-      : service.type !== DictionaryType.Wiktionary || checkIsWord(query)),
+  enabled: (query) => myPreferences[service.preference] && supportsQuery(service.type, query),
   createProvider: () => new builtinProviderClasses[service.type](),
   canTriggerAutomaticAudio: true,
 }));

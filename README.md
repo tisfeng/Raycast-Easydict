@@ -375,7 +375,7 @@ Support 19 languages, (Chinese, Japanese, Russian), English, French, Spanish, Po
 
 #### Wiktionary Dictionary
 
-Free and keyless, using [English Wiktionary](https://en.wiktionary.org/). Words in other languages show their English glosses, and English words show translations into your target language. Results include parts of speech, IPA pronunciation, recorded audio where available, word forms, and usage examples. Useful for languages Linguee has no reviewed dictionary for, such as English <--> Danish.
+Free and keyless, using [English Wiktionary](https://en.wiktionary.org/). Words in other languages show their English glosses, and English words show translations into your target language. Results include parts of speech, IPA pronunciation, recorded audio where available, word forms, and usage examples. Useful for languages Linguee has no reviewed dictionary for, such as English <--> Danish. Chinese words are not looked up, because Wiktionary's definition API does not include them; English words still show Chinese translations.
 
 ### Translation
 

@@ -145,6 +145,12 @@ describe("Wiktionary dictionary", () => {
     });
 
     expect(result.content.query.phonetic).toBe("/hʉːs/");
+    // Bokmål and Nynorsk share the meaning "a house"; it is shown once.
+    expect(result.content.sections[0]).toMatchObject({ kind: "translation", text: "a house" });
+    const glosses = result.content.sections.flatMap((section) =>
+      section.kind === "equivalents" ? section.entries.map((entry) => entry.text) : [],
+    );
+    expect(glosses.filter((gloss) => gloss === "a house")).toHaveLength(1);
     expect(result.content.sections).toContainEqual(
       expect.objectContaining({
         kind: "equivalents",
