@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import type { DictionaryContent } from "@/core/content/types";
+import { getWiktionaryLanguage } from "@/core/language/utils";
 import { DictionaryType } from "@/core/results/kinds";
 import type { QueryInput, RequestOptions } from "@/core/results/types";
 import { BaseDictionaryProvider } from "@/providers/dictionary/base";
@@ -19,7 +20,7 @@ import {
   type WiktionaryHeadwordForms,
   type WiktionaryTranslationGroup,
 } from "./parse";
-import { getWiktionaryLanguageCodes, getWiktionaryLanguageName, getWiktionaryTitle } from "./url";
+import { getWiktionaryTitle } from "./url";
 
 /** Wikimedia asks API clients to identify themselves. */
 const headers = { "User-Agent": "Raycast-Easydict (https://github.com/tisfeng/Raycast-Easydict)" };
@@ -44,26 +45,22 @@ export class WiktionaryDictionaryProvider extends BaseDictionaryProvider {
     for (const candidate of candidates) {
       const query = { ...queryWordInfo, word: candidate };
       const title = getWiktionaryTitle(candidate);
-      const languageName = getWiktionaryLanguageName(query.fromLanguage);
+      const source = getWiktionaryLanguage(query.fromLanguage);
       const [definitionPayload, wikitext] = await Promise.all([
         this.fetchPage(`${baseURL}/api/rest_v1/page/definition/${title}`, "json", signal),
         this.fetchPage(`${baseURL}/w/index.php?title=${title}&action=raw`, "text", signal),
       ]);
-      const definitions = parseWiktionaryDefinitions(definitionPayload, languageName);
+      const definitions = parseWiktionaryDefinitions(definitionPayload, source.names);
       if (typeof wikitext !== "string" && !definitions.length) continue;
 
       const page = typeof wikitext === "string" ? wikitext : "";
       const [translations, forms] = await Promise.all([
         query.fromLanguage === "en" && query.toLanguage !== "en"
-          ? this.fetchTranslations(title, page, getWiktionaryLanguageCodes(query.toLanguage), signal)
+          ? this.fetchTranslations(title, page, getWiktionaryLanguage(query.toLanguage).codes, signal)
           : [],
-        this.fetchForms(title, getWiktionaryHeadwordWikitext(page, languageName), signal),
+        this.fetchForms(title, getWiktionaryHeadwordWikitext(page, source.names), signal),
       ]);
-      const pronunciation = parseWiktionaryPronunciation(
-        page,
-        languageName,
-        getWiktionaryLanguageCodes(query.fromLanguage),
-      );
+      const pronunciation = parseWiktionaryPronunciation(page, source.names, source.codes);
       const content = buildWiktionaryContent(query, { definitions, translations, pronunciation, forms });
       if (content.sections.length) return content;
     }
@@ -73,7 +70,7 @@ export class WiktionaryDictionaryProvider extends BaseDictionaryProvider {
   private async fetchTranslations(
     title: string,
     wikitext: string,
-    languageCodes: string[],
+    languageCodes: readonly string[],
     signal?: AbortSignal,
   ): Promise<WiktionaryTranslationGroup[]> {
     const subpage = hasWiktionaryTranslationSubpage(wikitext)

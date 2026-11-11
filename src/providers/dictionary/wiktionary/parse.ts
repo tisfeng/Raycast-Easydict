@@ -63,13 +63,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  *
  * eg. https://en.wiktionary.org/api/rest_v1/page/definition/hus
  */
-export function parseWiktionaryDefinitions(payload: unknown, languageName: string): WiktionaryDefinitionEntry[] {
+export function parseWiktionaryDefinitions(
+  payload: unknown,
+  languageNames: readonly string[],
+): WiktionaryDefinitionEntry[] {
   if (!isRecord(payload)) return [];
   const entries: WiktionaryDefinitionEntry[] = [];
   for (const languageEntries of Object.values(payload)) {
     if (!Array.isArray(languageEntries)) continue;
     for (const entry of languageEntries) {
-      if (!isRecord(entry) || entry.language !== languageName || !Array.isArray(entry.definitions)) continue;
+      if (!isRecord(entry) || !Array.isArray(entry.definitions)) continue;
+      if (typeof entry.language !== "string" || !languageNames.includes(entry.language)) continue;
       const senses: WiktionarySense[] = [];
       for (const definition of entry.definitions.filter(isRecord)) {
         const html = typeof definition.definition === "string" ? definition.definition : "";
@@ -98,7 +102,12 @@ function parseExample(example: Record<string, unknown>): ContentExample[] {
 
 const headingPattern = /^(=+)\s*([^=]+?)\s*\1\s*$/;
 
-function getLanguageSection(wikitext: string, languageName: string): string {
+/** The level-2 sections of these languages, eg. both `Norwegian Bokmål` and `Norwegian Nynorsk`. */
+function getLanguageSection(wikitext: string, languageNames: readonly string[]): string {
+  return languageNames.map((languageName) => getSingleLanguageSection(wikitext, languageName)).join("\n");
+}
+
+function getSingleLanguageSection(wikitext: string, languageName: string): string {
   const name = languageName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return wikitext.split(new RegExp(`^==\\s*${name}\\s*==\\s*$`, "m"))[1]?.split(/^==[^=].*==\s*$/m)[0] ?? "";
 }
@@ -107,17 +116,24 @@ function getLanguageSection(wikitext: string, languageName: string): string {
  * Part-of-speech headings with the headword template under each, eg. `===Noun===\n{{da-noun|et|e}}`.
  *
  * Rendering only these takes about a second; the whole section of a long page such as `house` takes several.
+ * Templates between the heading and the first definition are kept; illustrations such as `[[File:…]]` are skipped.
  */
-export function getWiktionaryHeadwordWikitext(wikitext: string, languageName: string): string {
+export function getWiktionaryHeadwordWikitext(wikitext: string, languageNames: readonly string[]): string {
   const lines: string[] = [];
   let heading: string | undefined;
-  for (const line of getLanguageSection(wikitext, languageName).split("\n")) {
+  let headingAdded = false;
+  for (const line of getLanguageSection(wikitext, languageNames).split("\n")) {
     const match = line.match(headingPattern);
+    const text = line.trim();
     if (match) {
-      heading = partsOfSpeech.has(match[2]) ? line.trim() : undefined;
-    } else if (heading && line.trim()) {
-      if (line.trimStart().startsWith("{{")) lines.push(heading, line.trim());
+      heading = partsOfSpeech.has(match[2]) ? text : undefined;
+      headingAdded = false;
+    } else if (heading && text.startsWith("#")) {
       heading = undefined;
+    } else if (heading && text.startsWith("{{")) {
+      if (!headingAdded) lines.push(heading);
+      headingAdded = true;
+      lines.push(text);
     }
   }
   return lines.join("\n");
@@ -142,10 +158,10 @@ function getCommonsMP3URL(file: string): string {
 
 export function parseWiktionaryPronunciation(
   wikitext: string,
-  languageName: string,
-  languageCodes: string[],
+  languageNames: readonly string[],
+  languageCodes: readonly string[],
 ): WiktionaryPronunciation {
-  const section = getLanguageSection(wikitext, languageName);
+  const section = getLanguageSection(wikitext, languageNames);
   const templates = (name: string) =>
     [...section.matchAll(new RegExp(`\\{\\{${name}\\|([^}]*)\\}\\}`, "g"))]
       .map(([, body]) => templateArguments(body).map((argument) => argument.trim()))
@@ -239,8 +255,11 @@ export function hasWiktionaryTranslationSubpage(wikitext: string): boolean {
  *
  * @param languageCodes Wiktionary language codes of the target language, eg. `["da"]`.
  */
-export function parseWiktionaryTranslations(wikitext: string, languageCodes: string[]): WiktionaryTranslationGroup[] {
-  const englishSection = getLanguageSection(wikitext, "English");
+export function parseWiktionaryTranslations(
+  wikitext: string,
+  languageCodes: readonly string[],
+): WiktionaryTranslationGroup[] {
+  const englishSection = getLanguageSection(wikitext, ["English"]);
   const groups: WiktionaryTranslationGroup[] = [];
   let partOfSpeech: string | undefined;
   let current: WiktionaryTranslationGroup | undefined;

@@ -111,6 +111,18 @@ describe("Wiktionary dictionary", () => {
         entries: [expect.objectContaining({ text: "indhuse", partOfSpeech: "v" })],
       }),
     );
+    // Illustrations before `{{en-noun}}` must not hide the headword template from the rendered fragment.
+    const formsCall = fetchRaw.mock.calls.find(([url]) => String(url).includes("action=parse"));
+    expect((formsCall?.[1].body as URLSearchParams).get("text")).toBe(
+      [
+        "====Noun====",
+        "{{en-noun|~|s|housen<l:dialectal>|hice<l:chiefly,humorous>}}",
+        "====Verb====",
+        "{{en-verb}}",
+        "====Noun====",
+        "{{en-noun|-}}",
+      ].join("\n"),
+    );
     expect(sections.map((section) => section.kind)).not.toContain("examples");
     expect(sections.at(-1)).toMatchObject({
       kind: "definitions",
@@ -123,6 +135,38 @@ describe("Wiktionary dictionary", () => {
         },
       ]),
     });
+  });
+
+  it("shows Bokmål and Nynorsk entries for a Norwegian word", async () => {
+    const result = await new WiktionaryDictionaryProvider().request({
+      word: "hus",
+      fromLanguage: "no",
+      toLanguage: "en",
+    });
+
+    expect(result.content.query.phonetic).toBe("/hʉːs/");
+    expect(result.content.sections).toContainEqual(
+      expect.objectContaining({
+        kind: "equivalents",
+        headword: { word: "hus", partOfSpeech: "noun" },
+        entries: expect.arrayContaining([expect.objectContaining({ text: "a house" })]),
+      }),
+    );
+    const formsCall = fetchRaw.mock.calls.find(([url]) => String(url).includes("action=parse"));
+    const fragment = (formsCall?.[1].body as URLSearchParams).get("text");
+    expect(fragment).toContain("{{nb-noun-n1}}");
+    expect(fragment).toContain("{{nn-noun-n1}}");
+  });
+
+  it.each(["sr-Latn", "hr"])("shows Serbo-Croatian translations for %s", async (toLanguage) => {
+    const result = await new WiktionaryDictionaryProvider().request({ word: "house", fromLanguage: "en", toLanguage });
+
+    expect(result.content.sections).toContainEqual(
+      expect.objectContaining({
+        headword: expect.objectContaining({ qualifier: "(human abode)" }),
+        entries: expect.arrayContaining([expect.objectContaining({ text: "kȕća" })]),
+      }),
+    );
   });
 
   it("puts each meaning's first example inline, strips embedded styles, and keeps long definitions out of the first row", async () => {
@@ -171,7 +215,7 @@ describe("Wiktionary dictionary", () => {
     const wikitext =
       "==English==\n{{audio|en|en-us-cat.ogg}}\n==Danish==\n* {{IPA|da|[kʰæd]}}\n* {{audio|da|Da-kat.ogg}}\n";
 
-    expect(parseWiktionaryPronunciation(wikitext, "Danish", ["da"])).toEqual({
+    expect(parseWiktionaryPronunciation(wikitext, ["Danish"], ["da"])).toEqual({
       ipa: "[kʰæd]",
       audioUrl: "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/35/Da-kat.ogg/Da-kat.ogg.mp3",
     });
@@ -180,7 +224,7 @@ describe("Wiktionary dictionary", () => {
   it("uses the original file of an MP3 recording, which Commons does not transcode", () => {
     const wikitext = "==Hausa==\n* {{audio|ha|Karai-Karai pronunciation.mp3}}\n";
 
-    expect(parseWiktionaryPronunciation(wikitext, "Hausa", ["ha"]).audioUrl).toBe(
+    expect(parseWiktionaryPronunciation(wikitext, ["Hausa"], ["ha"]).audioUrl).toBe(
       "https://upload.wikimedia.org/wikipedia/commons/7/73/Karai-Karai_pronunciation.mp3",
     );
   });
