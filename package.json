@@ -730,7 +730,7 @@
       "type": "checkbox",
       "name": "enableYoudaoDictionary",
       "label": "Youdao Dictionary",
-      "required": false,
+      "required": true,
       "description": "Support 5 languages: (Chinese), English, French, Japanese, Korean.",
       "default": true
     },
@@ -738,17 +738,17 @@
       "type": "checkbox",
       "name": "enableLingueeDictionary",
       "label": "Linguee Dictionary",
-      "required": false,
+      "required": true,
       "description": "Support 19 languages: (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.",
       "default": true
     },
     {
       "type": "checkbox",
       "name": "enableWiktionaryDictionary",
-      "label": "Wiktionary Dictionary",
-      "required": false,
-      "description": "Free community dictionary for thousands of languages, eg. Danish, Norwegian, Swedish. Shows English glosses, and translations when looking up English words.",
-      "default": true
+      "label": "Enable Wiktionary Dictionary",
+      "required": true,
+      "description": "Free dictionary with English definitions and available translations for English words. Useful for language pairs such as English and Danish. No API key required.",
+      "default": false
     },
     {
       "title": "Translation Services",

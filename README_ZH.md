@@ -374,7 +374,9 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 #### Wiktionary 词典
 
-免费且无需 API Key，基于 [英文维基词典](https://en.wiktionary.org/)。查询其他语言的单词时显示英文释义，查询英语单词时显示目标语言的译文。结果包含词性、IPA 音标、可用的真人发音、词形变化和例句。适合 Linguee 没有审校词典的语言，例如英语 <--> 丹麦语。中文单词不会查询 Wiktionary，因为其释义 API 不包含中文词条；查询英语单词时仍会显示中文译文。
+免费且无需 API Key，基于[英文维基词典](https://en.wiktionary.org/)。查词时可显示英文释义，查询英语单词时也会提供可用的目标语言译词。词条可包含词性、IPA 音标、真人发音、词形变化和例句，适合查询英语与丹麦语等语言对。中文等语言也可以查询，结果取决于具体词条。
+
+配置时，Raycast 会同时显示 **Youdao Dictionary**、**Linguee Dictionary** 和 **Enable Wiktionary Dictionary**。有道和 Linguee 默认开启，Wiktionary 默认关闭。选择 **Continue** 保存，之后可随时在 Raycast 扩展设置中修改。
 
 ### 翻译服务
 

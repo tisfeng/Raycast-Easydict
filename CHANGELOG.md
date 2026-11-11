@@ -4,7 +4,7 @@
 
 ### ✨ New Features
 
-- Added **Wiktionary Dictionary**, a free dictionary that needs no API key and covers thousands of languages. Words in other languages show English meanings; English words show translations into your target language. Results include parts of speech, IPA pronunciation, recorded audio where available, word forms, and usage examples. It fills gaps where Linguee has no reviewed dictionary, such as English ↔ Danish. Turn it off with the **Wiktionary Dictionary** preference.
+- Added **Wiktionary Dictionary**, a free dictionary that fills gaps such as English ↔ Danish. It shows available target-language translations for English words and labels English definitions when they serve as a fallback. Results can include IPA pronunciation, recorded audio, word forms, and usage examples. Raycast shows all three built-in dictionary switches together during setup. Wiktionary starts off, and you can change your choices later in the extension settings.
 
 ## [v3.5.0] - 2026-10-02
 
