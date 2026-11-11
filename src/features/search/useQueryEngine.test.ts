@@ -95,12 +95,9 @@ vi.mock("@/consts", () => ({
     language2: "en",
     enableDetectLanguageSpeedFirst: true,
     enableBaiduLanguageDetect: true,
-    enableTencentLanguageDetect: false,
     enableVolcanoLanguageDetect: false,
     baiduAppId: undefined,
     baiduAppSecret: undefined,
-    tencentSecretId: "",
-    tencentSecretKey: undefined,
     volcanoAccessKeyId: "",
     volcanoAccessKeySecret: undefined,
     get queryCacheMode() {

@@ -2,14 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LanguageDetectType } from "@/core/results/kinds";
 import { BaseDetectProvider, type DetectOptions } from "@/providers/detect/base";
-import type { DetectServiceConfig } from "@/providers/detect/registry";
 import { CancelledError } from "@/shared/errors";
 
 import { detectLanguage } from "./index";
 import type { DetectionObservation } from "./types";
 
 const doubles = vi.hoisted(() => ({
-  services: [] as DetectServiceConfig[],
+  services: [] as (new () => BaseDetectProvider)[],
   settings: {
     enableDetectLanguageSpeedFirst: false,
     preferredLanguages: [{ youdaoLangCode: "en" }, { youdaoLangCode: "zh-CHS" }],
@@ -17,10 +16,11 @@ const doubles = vi.hoisted(() => ({
   logError: vi.fn(),
   timerFail: vi.fn(),
 }));
-vi.mock("@raycast/api", () => ({ getPreferenceValues: () => ({}) }));
 vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
 vi.mock("@/core/config", () => ({ config: doubles.settings }));
-vi.mock("@/providers/detect/registry", () => ({ detectServices: doubles.services }));
+vi.mock("@/providers/detect/registry", () => ({
+  createEnabledDetectors: () => doubles.services.map((Provider) => new Provider()),
+}));
 vi.mock("@/shared/logger", () => ({
   createTimer: () => ({ done: vi.fn(), fail: doubles.timerFail }),
   logError: doubles.logError,
@@ -32,19 +32,14 @@ function service(
   type: LanguageDetectType,
   request: (text: string, options?: DetectOptions) => Promise<DetectionObservation>,
   local = false,
-): DetectServiceConfig {
-  return {
-    type,
-    provider: class extends BaseDetectProvider {
-      type = type;
-      isLocal = local;
-      isEnabled() {
-        return true;
-      }
-      protected doDetect(text: string, options?: DetectOptions) {
-        return request(text, options);
-      }
-    },
+): new () => BaseDetectProvider {
+  return class extends BaseDetectProvider {
+    type = type;
+    isLocal = local;
+
+    protected doDetect(text: string, options?: DetectOptions) {
+      return request(text, options);
+    }
   };
 }
 
@@ -70,11 +65,11 @@ beforeEach(() => {
 describe("detection policy and ownership", () => {
   it("confirms agreeing detectors, cancels unfinished work, and does not mutate observations", async () => {
     const first = observed(LanguageDetectType.Baidu, "en");
-    const second = observed(LanguageDetectType.Tencent, "en");
+    const second = observed(LanguageDetectType.Volcano, "en");
     const aborted = vi.fn();
     doubles.services.push(
       service(LanguageDetectType.Baidu, async () => first),
-      service(LanguageDetectType.Tencent, async () => second),
+      service(LanguageDetectType.Volcano, async () => second),
       service(
         LanguageDetectType.Bing,
         (_text, options) =>
@@ -91,7 +86,7 @@ describe("detection policy and ownership", () => {
       ),
     );
     expect(await detectLanguage("Testimony")).toEqual({
-      type: LanguageDetectType.Tencent,
+      type: LanguageDetectType.Volcano,
       language: "en",
       confirmed: true,
     });
@@ -102,10 +97,8 @@ describe("detection policy and ownership", () => {
   });
 
   it("does not construct detectors for an already cancelled query", async () => {
-    const provider = vi.fn(
-      service(LanguageDetectType.Bing, async () => observed(LanguageDetectType.Bing, "en")).provider,
-    );
-    doubles.services.push({ type: LanguageDetectType.Bing, provider });
+    const provider = vi.fn(service(LanguageDetectType.Bing, async () => observed(LanguageDetectType.Bing, "en")));
+    doubles.services.push(provider);
     const controller = new AbortController();
     controller.abort();
     await expect(detectLanguage("test", controller.signal)).rejects.toBeInstanceOf(CancelledError);
@@ -117,7 +110,7 @@ describe("detection policy and ownership", () => {
     const second = deferred<DetectionObservation>();
     doubles.services.push(
       service(LanguageDetectType.Bing, () => first.promise),
-      service(LanguageDetectType.Tencent, () => second.promise),
+      service(LanguageDetectType.Volcano, () => second.promise),
     );
     let settled = false;
     const oldQuery = detectLanguage("older").then((value) => {
@@ -137,7 +130,7 @@ describe("detection policy and ownership", () => {
     first.resolve(observed(LanguageDetectType.Bing, "en"));
     await new Promise((resolve) => setImmediate(resolve));
     expect(settled).toBe(false);
-    second.resolve(observed(LanguageDetectType.Tencent, "ja"));
+    second.resolve(observed(LanguageDetectType.Volcano, "ja"));
     expect(await oldQuery).toEqual({ type: LanguageDetectType.Bing, language: "en", confirmed: false });
   });
 
@@ -162,10 +155,10 @@ describe("detection policy and ownership", () => {
     const pending = deferred<DetectionObservation>();
     doubles.services.push(
       service(LanguageDetectType.Bing, async () => observed(LanguageDetectType.Bing, "en")),
-      service(LanguageDetectType.Tencent, () => pending.promise),
+      service(LanguageDetectType.Volcano, () => pending.promise),
     );
     expect(await detectLanguage("english")).toEqual({ type: LanguageDetectType.Bing, language: "en", confirmed: true });
-    pending.resolve(observed(LanguageDetectType.Tencent, "ja"));
+    pending.resolve(observed(LanguageDetectType.Volcano, "ja"));
   });
 
   it("preserves provider confidence when conflicting remote results fall back to the first mapped observation", async () => {
@@ -176,7 +169,7 @@ describe("detection policy and ownership", () => {
         language: "fr",
         confidence: 0.7,
       })),
-      service(LanguageDetectType.Tencent, async () => observed(LanguageDetectType.Tencent, "ja")),
+      service(LanguageDetectType.Bing, async () => observed(LanguageDetectType.Bing, "ja")),
     );
     expect(await detectLanguage("bonjour")).toEqual({
       type: LanguageDetectType.Volcano,

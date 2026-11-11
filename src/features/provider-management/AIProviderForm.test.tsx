@@ -118,6 +118,28 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+it("saves the Tencent TokenHub preset with its translation model and a TokenHub API key", async () => {
+  const onSave = vi.fn();
+  render(<AIProviderForm profile={createProfile("", "")} onSave={onSave} isNewProvider showPresetSelector />);
+  expect(screen.getByRole("option", { name: "Tencent TokenHub" }).getAttribute("value")).toBe("tokenHub");
+  fireEvent.change(screen.getByLabelText("Preset"), { target: { value: "tokenHub" } });
+  fireEvent.change(screen.getByLabelText("API Key"), { target: { value: "tokenhub-key" } });
+  await act(async () => fireEvent.click(screen.getByRole("button", { name: "Save Without Testing" })));
+
+  expect(onSave).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({
+      adapter: "openai-compatible",
+      name: "Tencent TokenHub",
+      endpoint: "https://tokenhub.tencentmaas.com/v1",
+      model: "hy-mt2-lite",
+      apiKey: "tokenhub-key",
+      wordResultMode: "translation",
+      tokenLimitMode: "max-tokens",
+      jsonOutputMode: "prompt",
+    }),
+  );
+});
+
 describe("AI provider form model discovery", () => {
   it.each(["https://opencode.ai/zen/v1", "https://opencode.ai/zen/go/v1/chat/completions"])(
     "keeps the loaded public catalog when credentials change for %s",

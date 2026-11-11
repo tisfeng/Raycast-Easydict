@@ -14,19 +14,22 @@ import {
   hasEnabledQueryCache,
 } from "./cache";
 
-const testState = vi.hoisted(() => ({
-  caches: new Map<string, Map<string, string>>(),
-  preferences: {
+const testState = vi.hoisted(() => {
+  const defaults = {
     queryCacheMode: "words",
     aiQueryCacheMode: "off",
     language1: "zh-CHS",
     language2: "en",
     enableDetectLanguageSpeedFirst: true,
     enableBaiduLanguageDetect: true,
-    enableTencentLanguageDetect: false,
     enableVolcanoLanguageDetect: false,
-  },
-}));
+    baiduAppId: "baidu-id",
+    baiduAppSecret: "baidu-secret",
+    volcanoAccessKeyId: "volcano-id",
+    volcanoAccessKeySecret: "volcano-secret",
+  };
+  return { caches: new Map<string, Map<string, string>>(), preferences: { ...defaults }, defaults };
+});
 
 vi.mock("@raycast/api", () => ({
   Cache: class {
@@ -67,8 +70,7 @@ const query = { word: "cache", fromLanguage: "en", toLanguage: "zh-CHS", isWord:
 
 beforeEach(() => {
   vi.useRealTimers();
-  testState.preferences.queryCacheMode = "words";
-  testState.preferences.aiQueryCacheMode = "off";
+  Object.assign(testState.preferences, testState.defaults);
   clearQueryCache();
 });
 
@@ -299,6 +301,27 @@ describe("query cache", () => {
     expect(getCachedLanguageDetection("uncertain")).toBeUndefined();
     cacheLanguageDetection("unmapped", { type: LanguageDetectType.Bing, language: "auto", confirmed: false });
     expect(getCachedLanguageDetection("unmapped")).toBeUndefined();
+  });
+
+  it("keeps cached detection after Baidu translation credentials rotate", () => {
+    const detection: DetectionDecision = { type: LanguageDetectType.Baidu, language: "en", confirmed: true };
+    cacheLanguageDetection(query.word, detection);
+    testState.preferences.baiduAppId = "new-baidu-id";
+    testState.preferences.baiduAppSecret = "new-baidu-secret";
+
+    expect(getCachedLanguageDetection(query.word)).toEqual(detection);
+  });
+
+  it("invalidates cached detection when the detector toggle or Volcano credentials change", () => {
+    const detection: DetectionDecision = { type: LanguageDetectType.Volcano, language: "en", confirmed: true };
+    testState.preferences.enableVolcanoLanguageDetect = true;
+    cacheLanguageDetection(query.word, detection);
+    testState.preferences.enableVolcanoLanguageDetect = false;
+    expect(getCachedLanguageDetection(query.word)).toBeUndefined();
+
+    testState.preferences.enableVolcanoLanguageDetect = true;
+    testState.preferences.volcanoAccessKeySecret = "new-volcano-secret";
+    expect(getCachedLanguageDetection(query.word)).toBeUndefined();
   });
 
   it("reports an enabled cache only while at least one mode is not off", () => {

@@ -49,7 +49,6 @@ const defaultOrder = [
   "builtin:translation:Bing Translate",
   "builtin:translation:Apple Translate",
   "builtin:translation:Baidu Translate",
-  "builtin:translation:Tencent Translate",
   "builtin:translation:Volcano Translate",
   "builtin:translation:Youdao Translate",
   "builtin:translation:Caiyun Translate",
@@ -81,7 +80,7 @@ describe("combined provider registry", () => {
     expect(services.sort((left, right) => left.order - right.order).map((service) => service.providerKey)).toEqual(
       defaultOrder,
     );
-    expect(services.map((service) => service.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(services.map((service) => service.order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     for (const service of services) {
       expect(service.id).toBe(`static:${service.type}`);
       expect(service.createProvider().type).toBe(service.type);
@@ -97,6 +96,7 @@ describe("combined provider registry", () => {
       providerOrder: [
         "ai:translation",
         "builtin:dictionary:Youdao Dictionary",
+        "builtin:translation:Tencent Translate",
         "ai:dictionary",
         "builtin:translation:Google Translate",
         "ai:translation",
