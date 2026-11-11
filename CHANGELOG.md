@@ -4,7 +4,7 @@
 
 ### ✨ New Features
 
-- Added **Wiktionary Dictionary**, a free dictionary that fills gaps such as English ↔ Danish. It shows available target-language translations for English words and labels English definitions when they serve as a fallback. Results can include IPA pronunciation, recorded audio, word forms, and usage examples. Raycast shows all three built-in dictionary switches together during setup. Wiktionary starts off, and you can change your choices later in the extension settings.
+- Added **Wiktionary Dictionary**, a free dictionary that fills gaps such as English ↔ Danish. It shows available target-language translations for English words and labels English definitions when they serve as a fallback. Results can include IPA pronunciation, recorded audio, word forms, and usage examples. Now we shows all three built-in dictionary switches together during setup. Wiktionary starts off, and you can change your choices later in the extension settings.
 
 ## [v3.5.0] - 2026-10-02
 
