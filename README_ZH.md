@@ -145,7 +145,7 @@ npm install && npm run dev
 - 已为常见服务商内置预设：选中后填入 API Key、按需调整模型即可；如果没有你的服务商，欢迎[贡献](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md)。
 - **Word & Term Results** 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。词典模式会为单词和词组生成结构化词条（音标、义项、例句、词形变化），其他输入按普通翻译处理，由于需要生成结构化数据，生成速度会变慢，偶尔可能会失败。
 
-**腾讯 TokenHub**
+**Tencent TokenHub**
 
 - 在 **Manage Providers** 中选择 **Add OpenAI-Compatible Provider**，选中 **Tencent TokenHub** 预设并填写 [TokenHub API Key](https://cloud.tencent.com/document/product/1823/130078)。预设使用广州站点，默认模型为 `hy-mt2-lite`。如果使用其他地域的密钥，请将 API Base URL 改为该地域的地址。
 - 旧版腾讯云机器翻译（TMT）的文本翻译和语种识别选项已移除。TokenHub 使用独立的 API Key。此前保存的腾讯翻译结果仍可在 Favorite Words 中查看。
@@ -383,7 +383,7 @@ Linguee 支持系统代理，需在 Raycast 扩展设置中开启 `Use System Pr
 
 ### 翻译服务
 
-Easydict 支持 DeepL、DeepLX、Google、Bing、🍎 苹果系统翻译、百度、火山、有道和彩云。可在 **Manage Providers** 中添加 OpenAI、Gemini、腾讯 TokenHub 等 AI 翻译服务。
+Easydict 支持 DeepL、DeepLX、Google、Bing、🍎 苹果系统翻译、百度、火山、有道和彩云。可在 **Manage Providers** 中添加 OpenAI、Gemini、Tencent TokenHub 等 AI 翻译服务。
 
 其中 Google 和 DeepL 翻译支持系统代理，需在 Raycast 扩展设置中开启 `Use System Proxy Settings`（DeepL 不走代理也能用，但有时会请求超时）。
 

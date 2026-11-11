@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { Action, Form } from "@raycast/api";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -88,11 +88,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-it("saves the Tencent TokenHub preset with its translation model and a TokenHub API key", async () => {
+it("saves the Tencent TokenHub preset with its translation model, API key, and bundled icon", async () => {
   const onSave = vi.fn();
   render(<AIProviderForm profile={createProfile("", "")} onSave={onSave} isNewProvider showPresetSelector />);
-  expect(screen.getByRole("option", { name: "Tencent TokenHub" }).getAttribute("value")).toBe("tokenHub");
-  fireEvent.change(screen.getByLabelText("Preset"), { target: { value: "tokenHub" } });
+  const preset = screen.getByLabelText("Preset");
+  const tokenHub = within(preset).getByRole<HTMLOptionElement>("option", { name: "Tencent TokenHub" });
+  fireEvent.change(preset, { target: { value: tokenHub.value } });
+  expect(screen.getByLabelText("Icon")).toHaveProperty("value", "tokenhub");
   fireEvent.change(screen.getByLabelText("API Key"), { target: { value: " tokenhub-key " } });
   await act(async () => fireEvent.click(screen.getByRole("button", { name: "Save Without Testing" })));
 
@@ -103,6 +105,7 @@ it("saves the Tencent TokenHub preset with its translation model and a TokenHub 
       endpoint: "https://tokenhub.tencentmaas.com/v1",
       model: "hy-mt2-lite",
       apiKey: "tokenhub-key",
+      icon: { kind: "preset", name: "tokenhub" },
       wordResultMode: "translation",
       tokenLimitMode: "max-tokens",
       jsonOutputMode: "prompt",

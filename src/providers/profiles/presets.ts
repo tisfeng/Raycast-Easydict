@@ -73,7 +73,7 @@ export const OPENAI_COMPATIBLE_PRESETS = {
     endpoint: "https://tokenhub.tencentmaas.com/v1",
     website: "https://cloud.tencent.com/document/product/1823/130078",
     model: "hy-mt2-lite",
-    icon: { kind: "initials" },
+    icon: { kind: "preset", name: "tokenhub" },
     tokenLimitMode: "max-tokens",
     jsonOutputMode: "prompt",
   },
