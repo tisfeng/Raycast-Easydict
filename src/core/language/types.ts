@@ -24,6 +24,7 @@ export interface ProviderLanguageCodes {
 export interface WiktionaryLanguage {
   names: readonly string[];
   codes: readonly string[];
+  latinOnly?: boolean;
 }
 
 export interface LanguageDefinition {

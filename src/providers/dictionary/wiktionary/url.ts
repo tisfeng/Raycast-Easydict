@@ -8,8 +8,13 @@ export function getWiktionaryTitle(word: string): string {
   return encodeURIComponent(word.trim().replace(/ /g, "_"));
 }
 
+export function getWiktionaryEntryURL(word: string, heading?: string): string {
+  const page = `https://en.wiktionary.org/wiki/${getWiktionaryTitle(word)}`;
+  return heading ? `${page}#${encodeURIComponent(heading.replace(/ /g, "_"))}` : page;
+}
+
 export function getWiktionaryWebURL(queryWordInfo: QueryInput): string | undefined {
   if (!checkIsWord(queryWordInfo)) return undefined;
-  const anchor = getWiktionaryLanguage(queryWordInfo.fromLanguage).names[0].replace(/ /g, "_");
-  return `https://en.wiktionary.org/wiki/${getWiktionaryTitle(queryWordInfo.word)}#${anchor}`;
+  const { names } = getWiktionaryLanguage(queryWordInfo.fromLanguage);
+  return getWiktionaryEntryURL(queryWordInfo.word, names.length === 1 ? names[0] : undefined);
 }

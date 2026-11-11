@@ -30,8 +30,7 @@ function supportsQuery(type: DictionaryType, query: QueryInput): boolean {
     case DictionaryType.Youdao:
       return getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query);
     case DictionaryType.Wiktionary:
-      // Its definitions API omits Chinese entries, which use a `Definitions` heading instead of parts of speech.
-      return checkIsWord(query) && !query.fromLanguage.startsWith("zh");
+      return checkIsWord(query);
     default:
       return true;
   }

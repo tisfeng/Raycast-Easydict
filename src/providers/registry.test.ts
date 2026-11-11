@@ -163,12 +163,12 @@ describe("combined provider registry", () => {
     expect(youdaoService.enabled({ ...wordQuery, fromLanguage: "de" })).toBe(false);
   });
 
-  it("queries Wiktionary for words but not Chinese source words, which its definitions API omits", () => {
+  it("queries Wiktionary for words, including Chinese source words", () => {
     const wiktionary = builtinDictionaryProviderServices.find((service) => service.type === DictionaryType.Wiktionary)!;
     expect(wiktionary.enabled(wordQuery)).toBe(true);
     expect(wiktionary.enabled({ ...wordQuery, isWord: false })).toBe(false);
-    expect(wiktionary.enabled({ word: "水", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true })).toBe(false);
-    expect(wiktionary.enabled({ word: "水", fromLanguage: "zh-CHT", toLanguage: "en", isWord: true })).toBe(false);
+    expect(wiktionary.enabled({ word: "你好", fromLanguage: "zh-CHS", toLanguage: "en", isWord: true })).toBe(true);
+    expect(wiktionary.enabled({ word: "你好", fromLanguage: "zh-CHT", toLanguage: "en", isWord: true })).toBe(true);
   });
 
   it("keeps disabled profiles registered without enabling either service", () => {

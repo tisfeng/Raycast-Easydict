@@ -1,8 +1,9 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { parse } from "node-html-parser";
+import { type HTMLElement, parse } from "node-html-parser";
 
 import type { ContentExample } from "@/core/content/types";
+import type { WiktionaryLanguage } from "@/core/language/types";
 import { md5 } from "@/shared/crypto";
 
 export interface WiktionarySense {
@@ -35,23 +36,10 @@ export interface WiktionaryHeadwordForms {
   forms: { label: string; value: string }[];
 }
 
-const htmlEntities: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
-
-function htmlToText(html: string): string {
-  return (
-    html
-      // Template styles are embedded in definitions, eg. `<style>.mw-parser-output .defdate{…}</style>`.
-      .replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&(#\d+|#x[\da-f]+|\w+);/gi, (match, entity: string) => {
-        if (entity.startsWith("#x") || entity.startsWith("#X"))
-          return String.fromCodePoint(parseInt(entity.slice(2), 16));
-        if (entity.startsWith("#")) return String.fromCodePoint(parseInt(entity.slice(1), 10));
-        return htmlEntities[entity.toLowerCase()] ?? match;
-      })
-      .replace(/\s+/g, " ")
-      .trim()
-  );
+function htmlToText(html: string | HTMLElement): string {
+  const root = typeof html === "string" ? parse(html) : html;
+  for (const node of root.querySelectorAll("style, script")) node.remove();
+  return root.structuredText.replace(/\s+/g, " ").trim();
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -119,24 +107,46 @@ function getSingleLanguageSection(wikitext: string, languageName: string): strin
  * Templates between the heading and the first definition are kept; illustrations such as `[[File:…]]` are skipped.
  */
 export function getWiktionaryHeadwordWikitext(wikitext: string, languageNames: readonly string[]): string {
+  const page = wikitext.replace(/<!--[\s\S]*?-->/g, "");
+  return languageNames.flatMap((name) => getHeadwordTemplates(getSingleLanguageSection(page, name))).join("\n");
+}
+
+function getHeadwordTemplates(section: string): string[] {
   const lines: string[] = [];
   let heading: string | undefined;
   let headingAdded = false;
-  for (const line of getLanguageSection(wikitext, languageNames).split("\n")) {
-    const match = line.match(headingPattern);
+  let templateLines: string[] = [];
+  let openBraces = 0;
+
+  for (const line of section.split("\n")) {
     const text = line.trim();
+    const match = text.match(headingPattern);
     if (match) {
       heading = partsOfSpeech.has(match[2]) ? text : undefined;
       headingAdded = false;
-    } else if (heading && text.startsWith("#")) {
+      templateLines = [];
+      openBraces = 0;
+      continue;
+    }
+    if (!heading) continue;
+    if (!openBraces && text.startsWith("#")) {
       heading = undefined;
-    } else if (heading && text.startsWith("{{")) {
+      continue;
+    }
+    if (!openBraces && !text.startsWith("{{")) continue;
+
+    templateLines.push(line);
+    for (const [braces] of line.matchAll(/\{\{+|\}\}+/g)) {
+      openBraces = Math.max(0, openBraces + (braces[0] === "{" ? braces.length : -braces.length));
+    }
+    if (!openBraces) {
       if (!headingAdded) lines.push(heading);
       headingAdded = true;
-      lines.push(text);
+      lines.push(templateLines.join("\n").trim());
+      templateLines = [];
     }
   }
-  return lines.join("\n");
+  return lines;
 }
 
 /**
@@ -180,23 +190,22 @@ export function parseWiktionaryPronunciation(
 export function parseWiktionaryForms(html: string): WiktionaryHeadwordForms[] {
   const results: WiktionaryHeadwordForms[] = [];
   let partOfSpeech = "";
-  const tokens = html.matchAll(/<h[3-5][^>]*>(.*?)<\/h[3-5]>|<span class="headword-line">([\s\S]*?)<\/p>/g);
+  const root = parse(html);
 
-  for (const [, heading, headwordLine] of tokens) {
-    if (heading !== undefined) {
-      const text = htmlToText(heading);
+  for (const element of root.querySelectorAll("h3, h4, h5, .headword-line")) {
+    if (element.matches("h3, h4, h5")) {
+      const text = htmlToText(element);
       if (partsOfSpeech.has(text)) partOfSpeech = text;
       continue;
     }
 
-    const root = parse(headwordLine);
     const forms: WiktionaryHeadwordForms["forms"] = [];
-    const gender = root.querySelector(".gender abbr")?.getAttribute("title");
+    const gender = element.querySelector(".gender abbr")?.getAttribute("title");
     if (gender) forms.push({ label: "gender", value: gender.replace(/ gender$/, "") });
 
     let label = "";
-    for (const node of root.querySelectorAll("i, b")) {
-      const text = htmlToText(node.innerHTML);
+    for (const node of element.querySelectorAll("i, b")) {
+      const text = htmlToText(node);
       if (node.tagName === "I") {
         label = text;
       } else if (label === "or") {
@@ -252,12 +261,10 @@ export function hasWiktionaryTranslationSubpage(wikitext: string): boolean {
 /**
  * Parse translation tables (`{{trans-top|gloss}} ... {{t|da|word}} ... {{trans-bottom}}`)
  * from the English section of an English Wiktionary page.
- *
- * @param languageCodes Wiktionary language codes of the target language, eg. `["da"]`.
  */
 export function parseWiktionaryTranslations(
   wikitext: string,
-  languageCodes: readonly string[],
+  { codes, latinOnly }: Pick<WiktionaryLanguage, "codes" | "latinOnly">,
 ): WiktionaryTranslationGroup[] {
   const englishSection = getLanguageSection(wikitext, ["English"]);
   const groups: WiktionaryTranslationGroup[] = [];
@@ -285,10 +292,10 @@ export function parseWiktionaryTranslations(
 
     for (const [, body] of line.matchAll(/\{\{tt?\+?\|([^}]*)\}\}/g)) {
       const [code, word] = templateArguments(body);
-      if (code && word && languageCodes.includes(code.trim())) {
-        const text = cleanWikiText(word);
-        if (text && !current.words.includes(text)) current.words.push(text);
-      }
+      if (!code || !word || !codes.includes(code.trim())) continue;
+      const text = cleanWikiText(word);
+      if (latinOnly && /\p{Script=Cyrillic}/u.test(text)) continue;
+      if (text && !current.words.includes(text)) current.words.push(text);
     }
   }
   return groups;

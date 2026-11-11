@@ -797,7 +797,7 @@ export const languageCatalog = {
       francLangCode: "srp",
       baiduLangCode: "srp",
     },
-    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"] },
+    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"], latinOnly: true },
   },
   hr: {
     langEnglishName: "Croatian",
@@ -813,7 +813,7 @@ export const languageCatalog = {
       francLangCode: "hrv",
       baiduLangCode: "hrv",
     },
-    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"] },
+    wiktionary: { names: ["Serbo-Croatian"], codes: ["sh"], latinOnly: true },
   },
   mn: {
     langEnglishName: "Mongolian",

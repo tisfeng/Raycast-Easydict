@@ -24,6 +24,7 @@ export function buildContentView(composed: ComposedContent, flagsAreNotLanguages
       fromCache,
       query: content.query,
       kind: content.kind,
+      ...(content.kind === "dictionary" && content.sourceUrl ? { sourceUrl: content.sourceUrl } : {}),
     };
     const direction = languageTitle(content.query, composed.isShowDetail, flagsAreNotLanguages);
     if (content.kind === "translation") {
@@ -40,7 +41,16 @@ export function buildContentView(composed: ComposedContent, flagsAreNotLanguages
       continue;
     }
     for (const [index, section] of content.sections.entries()) {
-      const view = dictionarySection(service, section, index === 0 ? result.primarySupplement : undefined);
+      const primarySupplement = index === 0 ? result.primarySupplement : undefined;
+      const phonetic =
+        index === 0 && type === DictionaryType.Wiktionary && section.kind === "definitions"
+          ? content.query.phonetic
+          : undefined;
+      const view = dictionarySection(
+        service,
+        section,
+        phonetic ? { phonetic, ...primarySupplement } : primarySupplement,
+      );
       sections.push({
         ...view,
         title:
@@ -170,11 +180,13 @@ function dictionarySection(
     }
     case "definitions": {
       title = service.type === DictionaryType.AI ? "Definitions" : undefined;
+      const textLanguage = section.textLanguage ?? (service.type === DictionaryType.Wiktionary ? "en" : undefined);
       for (const entry of section.entries) {
         if (entry.kind === "plain") {
           const subtitle = entry.note ? ` ${entry.note}` : "";
-          add({ kind: "definition", title: entry.text, subtitle, copyText: `${entry.text}${subtitle}` }, () =>
-            youdaoBody(entry.text, subtitle),
+          add(
+            { kind: "definition", title: entry.text, subtitle, textLanguage, copyText: `${entry.text}${subtitle}` },
+            () => youdaoBody(entry.text, subtitle),
           );
         } else {
           const text = `${entry.partOfSpeech ? `[${entry.partOfSpeech}] ` : ""}${entry.meanings.join("; ")}`;
@@ -182,6 +194,7 @@ function dictionarySection(
             {
               kind: "definition",
               title: text,
+              textLanguage,
               subtitle: entry.explanation ?? entry.examples[0]?.sentence,
               copyText: [text, entry.explanation, ...entry.examples.map(exampleText)].filter(Boolean).join("\n"),
             },

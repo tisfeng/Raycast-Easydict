@@ -167,6 +167,38 @@ describe("content view", () => {
     expect(sections[1].items[0]).toMatchObject({ title: "original", accessory: undefined });
   });
 
+  it("shows Wiktionary pronunciation on the first fallback definition only", () => {
+    const service: ComposedService = {
+      type: DictionaryType.Wiktionary,
+      serviceId: "wiktionary",
+      serviceLabel: "Wiktionary",
+      serviceOrder: 0,
+      content: {
+        kind: "dictionary",
+        query: { ...query, word: "hus", fromLanguage: "da", phonetic: "[ˈhuˀs]" },
+        sourceUrl: "https://en.wiktionary.org/wiki/hus#Danish",
+        sections: [
+          {
+            kind: "definitions",
+            entries: [
+              { kind: "structured", meanings: ["house"], explanation: "English definition", examples: [] },
+              { kind: "structured", meanings: ["building"], explanation: "English definition", examples: [] },
+            ],
+          },
+        ],
+      },
+    };
+
+    const [section] = buildContentView(compose(service), true);
+    expect(section.service.sourceUrl).toBe("https://en.wiktionary.org/wiki/hus#Danish");
+    expect(section.items[0]).toMatchObject({
+      kind: "definition",
+      subtitle: "English definition",
+      accessory: { phonetic: "[ˈhuˀs]" },
+    });
+    expect(section.items[1].accessory).toBeUndefined();
+  });
+
   it.each([
     { phonetic: "new", examTypes: undefined },
     { phonetic: undefined, examTypes: ["CET4"] },

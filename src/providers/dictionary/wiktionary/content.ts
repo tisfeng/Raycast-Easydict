@@ -79,6 +79,16 @@ function senseEquivalents(senses: WiktionarySense[], partOfSpeech: string): Cont
   ];
 }
 
+/** Bokmål and Nynorsk can share glosses. Keep the first occurrence of each gloss per part of speech. */
+function uniqueDefinitions(definitions: WiktionaryDefinitionEntry[]): WiktionaryDefinitionEntry[] {
+  const shown = new Set<string>();
+  return definitions.flatMap(({ partOfSpeech, senses }) => {
+    const uniqueSenses = senses.filter(({ gloss }) => !shown.has(`${partOfSpeech}\n${gloss}`));
+    for (const { gloss } of uniqueSenses) shown.add(`${partOfSpeech}\n${gloss}`);
+    return uniqueSenses.length ? [{ partOfSpeech, senses: uniqueSenses }] : [];
+  });
+}
+
 /**
  * Translation tables are preferred when looking up an English word in another language;
  * otherwise the source-language definitions, whose glosses are written in English, are shown.
@@ -88,13 +98,26 @@ export function buildWiktionaryContent(
   { definitions, translations, pronunciation, forms }: WiktionaryLookup,
 ): DictionaryContent {
   const sections: DictionarySection[] = [];
-  const meanings = definitions.flatMap(({ senses }) => senses.filter((sense) => !sense.formOf));
+  const glossesAreTranslations = query.fromLanguage !== "en" && query.toLanguage === "en";
+  const distinctDefinitions = uniqueDefinitions(definitions);
+  const meanings = distinctDefinitions.flatMap(({ senses }) => senses.filter((sense) => !sense.formOf));
 
   if (translations.length) {
     sections.push({ kind: "translation", text: primaryText(translations[0].words, ", "), lemma: query.word });
-  } else if (definitions.length) {
-    const glosses = (meanings.length ? meanings : definitions[0].senses).map((sense) => sense.gloss);
+  } else if (distinctDefinitions.length && glossesAreTranslations) {
+    const glosses = (meanings.length ? meanings : distinctDefinitions[0].senses).map((sense) => sense.gloss);
     sections.push({ kind: "translation", text: primaryText([...new Set(glosses)], "; "), lemma: query.word });
+  } else {
+    const entries = distinctDefinitions.slice(0, maxGroups).flatMap(({ partOfSpeech, senses }) =>
+      senses.slice(0, maxSenses).map(({ gloss, examples }) => ({
+        kind: "structured" as const,
+        meanings: [gloss],
+        partOfSpeech: abbreviate(partOfSpeech),
+        explanation: "English definition",
+        examples,
+      })),
+    );
+    if (entries.length) sections.push({ kind: "definitions", textLanguage: "en", entries });
   }
   if (!sections.length) return { kind: "dictionary", query, sections };
 
@@ -133,18 +156,14 @@ export function buildWiktionaryContent(
           examples,
         })),
     );
-    if (entries.length) sections.push({ kind: "definitions", entries: entries.slice(0, maxDefinitions) });
-  } else {
-    // Varieties such as Norwegian Bokmål and Nynorsk often share meanings; each is shown once per part of speech.
-    const shown = new Set<string>();
-    for (const { partOfSpeech, senses } of definitions.slice(0, maxGroups)) {
-      const unique = senses.filter(({ gloss }) => !shown.has(`${partOfSpeech}\n${gloss}`));
-      if (!unique.length) continue;
-      for (const { gloss } of unique) shown.add(`${partOfSpeech}\n${gloss}`);
+    if (entries.length)
+      sections.push({ kind: "definitions", textLanguage: "en", entries: entries.slice(0, maxDefinitions) });
+  } else if (glossesAreTranslations) {
+    for (const { partOfSpeech, senses } of distinctDefinitions.slice(0, maxGroups)) {
       sections.push({
         kind: "equivalents",
         headword: { word: query.word, partOfSpeech: partOfSpeech.toLowerCase() },
-        entries: senseEquivalents(unique, partOfSpeech),
+        entries: senseEquivalents(senses, partOfSpeech),
       });
     }
   }

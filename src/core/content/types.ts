@@ -11,6 +11,7 @@ export interface TranslationContent {
 export interface DictionaryContent {
   readonly kind: "dictionary";
   readonly query: QueryWordInfo;
+  readonly sourceUrl?: string;
   readonly sections: readonly DictionarySection[];
 }
 
@@ -60,7 +61,11 @@ export type DictionarySection =
       };
       readonly entries: readonly ContentEquivalent[];
     }
-  | { readonly kind: "definitions"; readonly entries: readonly ContentDefinition[] }
+  | {
+      readonly kind: "definitions";
+      readonly textLanguage?: string;
+      readonly entries: readonly ContentDefinition[];
+    }
   | {
       readonly kind: "pairs";
       readonly relation: "form" | "phrase" | "related" | "web-translation";
