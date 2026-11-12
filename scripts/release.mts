@@ -21,11 +21,21 @@ import process from "node:process";
 const repoRoot = path.resolve(import.meta.dirname, "..");
 const extensionDir = "extensions/easydict";
 const checkoutEnvVar = "RAYCAST_EXTENSIONS_CHECKOUT";
-/** Paths the mirror never copies; the Store target ignores them too. */
-const excludedPrefixes = [".github/", ".claude/"];
+/** Repository-only paths relative to the extension root. */
+const storeExcludedPaths = [
+  ".agents/",
+  ".claude/",
+  ".github/",
+  ".greptile/",
+  "AGENTS.md",
+  "docs/development/",
+  "greptile.json",
+  "raycast-env.d.ts",
+  "scripts/release.mts",
+];
 const mirrorExcludes = [
   "--exclude=.git/",
-  ...excludedPrefixes.map((prefix) => `--exclude=${prefix}`),
+  ...storeExcludedPaths.map((file) => `--exclude=/${file}`),
   "--filter=:- .gitignore",
 ];
 /** Paths that must never reach the mirror, matched against the path part of an rsync item. */
@@ -330,7 +340,9 @@ function commandBackfill(checkoutArgument: string | undefined, ref = "origin/mai
     if (match) local.set(match[2], match[1]);
   }
 
-  const skipped = (file: string) => ignored.has(file) || excludedPrefixes.some((prefix) => file.startsWith(prefix));
+  const skipped = (file: string) =>
+    ignored.has(file) ||
+    storeExcludedPaths.some((excluded) => (excluded.endsWith("/") ? file.startsWith(excluded) : file === excluded));
 
   const differences: string[] = [];
   for (const [file, blob] of [...local].sort()) {
