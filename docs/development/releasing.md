@@ -59,6 +59,10 @@ The `pr` command reads `.github/pull_request_template.md` from `origin/main`, fi
 
 Confirm the checklist claims before opening — the distribution build must have been tested in Raycast. The checkout path can also come from `RAYCAST_EXTENSIONS_CHECKOUT` instead of `--checkout`.
 
+Review the Store PR diff against its target branch. For manifest changes, check whether command IDs, saved preferences, defaults, or shortcuts affect existing users and document intentional breaking changes in the release entry. For UI changes, check platform support and whether the Store screenshots still show the affected flow. See [Raycast's review rules](https://github.com/raycast/extensions/blob/main/.greptile/config.json).
+
+The mirror and backfill skip repository-only files such as agent guidance, review bot configuration, development guides, and the release script. The mirror leaves copies already present in the Store checkout in place. When updating an open Store PR that already changed these paths, restore them to the PR base and remove any of these paths added by the PR.
+
 ## Sync back
 
 ```bash
@@ -69,7 +73,7 @@ The command reports the files that differ between the Store copy (`origin/main` 
 
 ## Notes
 
-- The mirror copies only committed content (`git archive HEAD`), so untracked files never reach the published copy; `.github/` and `.claude/` stay excluded. `--delete` makes it one-way, so sync onto a fresh branch (`git reset --hard` first if the checkout is dirty — the mirror is reproducible from this repository).
+- The mirror copies committed content (`git archive HEAD`). It uses `--delete` for files it mirrors, so start from a clean checkout on a fresh branch.
 - macOS ships openrsync: a dry run prints nothing without `-i`, which the sync script passes for you.
 - Between releases, the top `CHANGELOG.md` entry can name an unreleased version while `EASYDICT_VERSION` still names the last release; CI accepts this with `node scripts/release.mts check --development`, while the strict `check` is for release preparation.
 - Commit only `extensions/easydict` in the checkout, and keep `{PR_MERGE_DATE}` here until the Store side replaces it with the real date and you sync that back.
