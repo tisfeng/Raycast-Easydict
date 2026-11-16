@@ -8,7 +8,9 @@ import { logTrace } from "@/shared/logger";
 
 logTrace("Easydict", "module loaded");
 
-export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) {
+export default function (
+  props: LaunchProps<{ arguments: Arguments.Easydict; launchContext?: { selectedTextChecked?: boolean } }>,
+) {
   const isConflict = checkIfPreferredLanguagesConflict();
   if (isConflict) {
     return isConflict;
@@ -16,5 +18,12 @@ export default function (props: LaunchProps<{ arguments: Arguments.Easydict }>) 
 
   const { queryText: initialQueryText } = props.arguments;
 
-  return <SearchWord initialQueryText={initialQueryText} fallbackText={props.fallbackText} />;
+  return (
+    <SearchWord
+      initialQueryText={initialQueryText}
+      fallbackText={props.fallbackText}
+      // Search Selected Text has already read the selection.
+      skipSelectedText={props.launchContext?.selectedTextChecked === true}
+    />
+  );
 }

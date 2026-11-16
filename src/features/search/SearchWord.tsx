@@ -24,6 +24,7 @@ import {
 import { logError, logTrace } from "@/shared/logger";
 
 import { ListActionPanel } from "./ActionPanel";
+import { setLastQuery } from "./lastQuery";
 import { handleNativeJSONFallback } from "./nativeJSONFallback";
 import { useDebouncedQuery } from "./useDebouncedQuery";
 import { useFirstItemAnchor } from "./useFirstItemAnchor";
@@ -35,9 +36,10 @@ import { getWordAccessories } from "./WordAccessories";
 interface SearchWordProps {
   initialQueryText?: string;
   fallbackText?: string;
+  skipSelectedText?: boolean;
 }
 
-export default function SearchWord({ initialQueryText, fallbackText }: SearchWordProps) {
+export default function SearchWord({ initialQueryText, fallbackText, skipSelectedText }: SearchWordProps) {
   const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
 
   const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
@@ -169,7 +171,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
 
     if (userInputText?.length) {
       updateInputTextAndQueryText(userInputText, false);
-    } else if (myPreferences.enableAutomaticQuerySelectedText) {
+    } else if (myPreferences.enableAutomaticQuerySelectedText && !skipSelectedText) {
       querySelectedText();
     }
   }
@@ -225,6 +227,7 @@ export default function SearchWord({ initialQueryText, fallbackText }: SearchWor
     setInputText(normalizedText);
     const trimText = normalizedText.trim();
     setSearchText(trimText);
+    setLastQuery(trimText);
 
     if (trimText.length === 0) {
       debouncedQuery.cancel();
