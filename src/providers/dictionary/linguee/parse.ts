@@ -1,7 +1,6 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
-import { parse } from "node-html-parser";
-import type { default as HtmlNode } from "node-html-parser/dist/nodes/html";
+import { type HTMLElement as HtmlNode, parse } from "node-html-parser";
 
 import type { ContentEquivalent, ContentExample } from "@/core/content/types";
 import { getLanguageItemFromDeepLSourceCode } from "@/core/language/utils";
