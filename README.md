@@ -145,11 +145,6 @@ Use the **Manage Providers** command to manage AI providers and to set the order
 - Built-in presets cover common providers: pick yours, add the API key, and adjust the model if needed. If yours is missing, [contributions are welcome](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md).
 - **Word & Term Results** chooses **Plain Translation** or **AI-Generated Dictionary Entry**. Dictionary mode builds a structured entry for words and terms — pronunciation, senses, examples, and word forms — while other input is translated normally; it can be slower and may need a retry.
 
-**Tencent TokenHub**
-
-- In **Manage Providers**, choose **Add OpenAI-Compatible Provider**, select the **Tencent TokenHub** preset, and enter a [TokenHub API key](https://cloud.tencent.com/document/product/1823/130078). The preset uses the Guangzhou endpoint and defaults to `hy-mt2-lite`. If your key is from another region, set the API Base URL for that region.
-- The retired Tencent Cloud TMT translation and language detection options have been removed. TokenHub uses its own API key. Saved Tencent translations remain available in Favorite Words.
-
 **Legacy migration**
 
 - OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers, preserving connection settings, enablement, and order.

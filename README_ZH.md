@@ -145,11 +145,6 @@ npm install && npm run dev
 - 已为常见服务商内置预设：选中后填入 API Key、按需调整模型即可；如果没有你的服务商，欢迎[贡献](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md)。
 - **Word & Term Results** 可选择 **Plain Translation** 或 **AI-Generated Dictionary Entry**。词典模式会为单词和词组生成结构化词条（音标、义项、例句、词形变化），其他输入按普通翻译处理，由于需要生成结构化数据，生成速度会变慢，偶尔可能会失败。
 
-**Tencent TokenHub**
-
-- 在 **Manage Providers** 中选择 **Add OpenAI-Compatible Provider**，选中 **Tencent TokenHub** 预设并填写 [TokenHub API Key](https://cloud.tencent.com/document/product/1823/130078)。预设使用广州站点，默认模型为 `hy-mt2-lite`。如果使用其他地域的密钥，请将 API Base URL 改为该地域的地址。
-- 旧版腾讯云机器翻译（TMT）的文本翻译和语种识别选项已移除。TokenHub 使用独立的 API Key。此前保存的腾讯翻译结果仍可在 Favorite Words 中查看。
-
 **旧设置迁移**
 
 - 带有 API key 的旧版 OpenAI、Gemini 设置会在下次打开 Search Word 或 Manage Providers 时自动迁移，保留连接设置、启用状态和顺序。
