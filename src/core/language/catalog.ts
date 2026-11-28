@@ -291,7 +291,7 @@ export const languageCatalog = {
       bingLangCode: "sk",
       deepLSourceId: "SK",
       francLangCode: "slk",
-      baiduLangCode: "slo",
+      baiduLangCode: "sk",
     },
   },
   nl: {
@@ -519,7 +519,7 @@ export const languageCatalog = {
       volcanoLangCode: "ms",
       bingLangCode: "ms",
       francLangCode: "msa",
-      baiduLangCode: "msa",
+      baiduLangCode: "may",
     },
   },
   sl: {
@@ -535,7 +535,7 @@ export const languageCatalog = {
       bingLangCode: "sl",
       deepLSourceId: "SL",
       francLangCode: "slv",
-      baiduLangCode: "slv",
+      baiduLangCode: "slo",
     },
     wiktionary: { names: ["Slovene"], codes: ["sl"] },
   },
@@ -599,7 +599,7 @@ export const languageCatalog = {
       volcanoLangCode: "hi",
       bingLangCode: "hi",
       francLangCode: "hin",
-      baiduLangCode: "hin",
+      baiduLangCode: "hi",
     },
   },
   te: {
@@ -674,7 +674,7 @@ export const languageCatalog = {
       volcanoLangCode: "km",
       bingLangCode: "km",
       francLangCode: "khm",
-      baiduLangCode: "khm",
+      baiduLangCode: "hkm",
     },
   },
   lo: {
@@ -689,7 +689,7 @@ export const languageCatalog = {
       volcanoLangCode: "lo",
       bingLangCode: "lo",
       francLangCode: "lao",
-      baiduLangCode: "lo",
+      baiduLangCode: "lao",
     },
   },
   bn: {
@@ -795,7 +795,6 @@ export const languageCatalog = {
       volcanoLangCode: "mn",
       bingLangCode: "mn-Cyrl",
       francLangCode: "mon",
-      baiduLangCode: "mon",
     },
   },
   he: {

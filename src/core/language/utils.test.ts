@@ -35,6 +35,16 @@ describe("language boundaries", () => {
     expect(getLanguageFromProviderCode("zh", "baiduLangCode")).toBe("zh-CHS");
   });
 
+  it("maps Baidu detection codes that differ from ISO codes", () => {
+    expect(getLanguageFromProviderCode("sk", "baiduLangCode")).toBe("sk");
+    expect(getLanguageFromProviderCode("slo", "baiduLangCode")).toBe("sl");
+    expect(getLanguageFromProviderCode("may", "baiduLangCode")).toBe("ms");
+    expect(getLanguageFromProviderCode("hkm", "baiduLangCode")).toBe("km");
+    expect(getLanguageFromProviderCode("lao", "baiduLangCode")).toBe("lo");
+    expect(getLanguageFromProviderCode("hi", "baiduLangCode")).toBe("hi");
+    expect(getLanguageFromProviderCode("mon", "baiduLangCode")).toBeUndefined();
+  });
+
   it.each([
     { alias: "fil", canonical: "tl" },
     { alias: "sr", canonical: "sr-Latn" },
