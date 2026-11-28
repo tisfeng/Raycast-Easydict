@@ -212,15 +212,36 @@ export class QueryRunner {
     const session = this.session;
     if (session?.phase.kind !== "ready" || !this.isCurrent(session)) return;
     const { input } = session.phase;
-    const previousIds = new Set(
-      [...previous.dictionaryServices, ...previous.translationServices].map((service) => service.id),
-    );
+    const previousServices = [...previous.dictionaryServices, ...previous.translationServices];
+    const nextServices = [...services.dictionaryServices, ...services.translationServices];
+    const nextById = new Map(nextServices.map((service) => [service.id, service]));
+    let removedResult = false;
+    for (const previousService of previousServices) {
+      const nextService = nextById.get(previousService.id);
+      if (previousService.enabled(input) && !(nextService?.enabled(input) ?? false)) {
+        session.requests.get(previousService.id)?.controller.abort();
+        session.requests.delete(previousService.id);
+        const withoutService = this.snapshot.queryResults.filter((entry) => entry.serviceId !== previousService.id);
+        if (withoutService.length !== this.snapshot.queryResults.length) {
+          this.snapshot = { ...this.snapshot, queryResults: withoutService };
+          removedResult = true;
+        }
+      }
+    }
+    const previousById = new Map(previousServices.map((service) => [service.id, service]));
     for (const service of services.dictionaryServices) {
-      if (!previousIds.has(service.id)) void this.runDictionary(service, session, input, false);
+      const previousService = previousById.get(service.id);
+      if (!(previousService?.enabled(input) ?? false) && service.enabled(input)) {
+        void this.runDictionary(service, session, input, false);
+      }
     }
     for (const service of services.translationServices) {
-      if (!previousIds.has(service.id)) void this.runTranslation(service, session, input, false);
+      const previousService = previousById.get(service.id);
+      if (!(previousService?.enabled(input) ?? false) && service.enabled(input)) {
+        void this.runTranslation(service, session, input, false);
+      }
     }
+    if (removedResult) this.publish();
   };
 
   regenerateService = (serviceId: string) => {

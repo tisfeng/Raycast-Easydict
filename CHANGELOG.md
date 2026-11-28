@@ -5,6 +5,7 @@
 ### ✨ New Features
 
 - Added **Search Selected Text**, which reads the selection before Raycast opens and then starts a fresh search. Pressing its hotkey on a new selection replaces a search that is still open, where re-invoking **Search Word** only brings the previous search back. With nothing selected, it reopens the last search and restores any manually chosen target language.
+- In **Manage Providers**, built-in dictionary and translation providers can be enabled or disabled. That choice overrides the Extension Settings checkbox for queries; API keys and other options stay in Extension Settings. **Follow Extension Settings** clears an override.
 
 ## [v3.6.0] - 2026-11-24
 

@@ -1,6 +1,7 @@
 /* Copyright (c) 2022~present by tisfeng, maxchang3, All Rights Reserved. */
 
 import { DictionaryType, TranslationType } from "@/core/results/kinds";
+import type { BuiltinEnabledOverrides } from "@/providers/profiles/types";
 import type { BooleanPreferenceKey } from "@/types/preferences";
 
 type BuiltinProviderCategory = "dictionary" | "translation";
@@ -62,14 +63,58 @@ export const builtinTranslationProviders = builtinProviderCatalog.filter(
   (provider) => provider.category === "translation",
 );
 
-export function getBuiltinProviderPreferenceStatus(provider: BuiltinProvider, preferences: Preferences) {
-  return {
-    enabledInPreferences: preferences[provider.preference],
-    implicitlyEnabledBy:
-      provider.type === TranslationType.DeepL && preferences.enableLingueeDictionary && preferences.deepLAuthKey
-        ? "Linguee"
-        : provider.type === TranslationType.Youdao && preferences.enableYoudaoDictionary
-          ? "Youdao Dictionary"
-          : undefined,
-  };
+export function getEffectiveBuiltinPreference(
+  provider: BuiltinProvider,
+  preferences: Preferences,
+  overrides?: BuiltinEnabledOverrides,
+): boolean {
+  const override = overrides?.[provider.providerKey];
+  if (override !== undefined) return override;
+  return preferences[provider.preference];
+}
+
+export function getBuiltinProviderPreferenceStatus(
+  provider: BuiltinProvider,
+  preferences: Preferences,
+  overrides?: BuiltinEnabledOverrides,
+) {
+  const override = overrides?.[provider.providerKey];
+  if (override !== undefined) {
+    return { enabledInPreferences: override, implicitlyEnabledBy: undefined as string | undefined, hasOverride: true };
+  }
+
+  const enabledInPreferences = preferences[provider.preference];
+  if (enabledInPreferences) {
+    return { enabledInPreferences: true, implicitlyEnabledBy: undefined, hasOverride: false };
+  }
+
+  if (provider.type === TranslationType.DeepL) {
+    const linguee = builtinProviderCatalog.find((candidate) => candidate.type === DictionaryType.Linguee);
+    if (linguee && getEffectiveBuiltinPreference(linguee, preferences, overrides) && preferences.deepLAuthKey) {
+      return { enabledInPreferences: false, implicitlyEnabledBy: "Linguee", hasOverride: false };
+    }
+  }
+
+  if (provider.type === TranslationType.Youdao) {
+    const youdaoDictionary = builtinProviderCatalog.find((candidate) => candidate.type === DictionaryType.Youdao);
+    if (youdaoDictionary && getEffectiveBuiltinPreference(youdaoDictionary, preferences, overrides)) {
+      return { enabledInPreferences: false, implicitlyEnabledBy: "Youdao Dictionary", hasOverride: false };
+    }
+  }
+
+  return { enabledInPreferences: false, implicitlyEnabledBy: undefined, hasOverride: false };
+}
+
+export function withBuiltinEnabledOverride(
+  overrides: BuiltinEnabledOverrides | undefined,
+  providerKey: string,
+  enabled: boolean | undefined,
+): BuiltinEnabledOverrides | undefined {
+  const next = { ...overrides };
+  if (enabled === undefined) {
+    delete next[providerKey];
+  } else {
+    next[providerKey] = enabled;
+  }
+  return Object.keys(next).length > 0 ? next : undefined;
 }

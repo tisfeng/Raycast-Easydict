@@ -148,10 +148,12 @@ describe("combined provider registry", () => {
     expect(getBuiltinProviderPreferenceStatus(deepL, myPreferences)).toEqual({
       enabledInPreferences: false,
       implicitlyEnabledBy: "Linguee",
+      hasOverride: false,
     });
     expect(getBuiltinProviderPreferenceStatus(youdao, myPreferences)).toEqual({
       enabledInPreferences: false,
       implicitlyEnabledBy: "Youdao Dictionary",
+      hasOverride: false,
     });
     const deepLService = builtinTranslationServices.find((service) => service.type === TranslationType.DeepL)!;
     const youdaoService = builtinTranslationServices.find((service) => service.type === TranslationType.Youdao)!;
@@ -161,6 +163,115 @@ describe("combined provider registry", () => {
     }
     expect(deepLService.enabled({ ...wordQuery, toLanguage: "ko" })).toBe(false);
     expect(youdaoService.enabled({ ...wordQuery, fromLanguage: "de" })).toBe(false);
+  });
+
+  it("lets Manage Providers overrides disable implicit Youdao Translate and DeepL", () => {
+    const youdaoTranslateKey = "builtin:translation:Youdao Translate";
+    const deepLKey = "builtin:translation:DeepL Translate";
+    const youdaoDictionaryKey = "builtin:dictionary:Youdao Dictionary";
+    const lingueeKey = "builtin:dictionary:Linguee Dictionary";
+
+    const disableTargets = resolveProviderServices({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: [],
+      builtinEnabled: { [youdaoTranslateKey]: false, [deepLKey]: false },
+    });
+    expect(
+      disableTargets.translationServices
+        .find((service) => service.providerKey === youdaoTranslateKey)
+        ?.enabled(wordQuery),
+    ).toBe(false);
+    expect(
+      disableTargets.translationServices.find((service) => service.providerKey === deepLKey)?.enabled(wordQuery),
+    ).toBe(false);
+
+    const disableSources = resolveProviderServices({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: [],
+      builtinEnabled: { [youdaoDictionaryKey]: false, [lingueeKey]: false },
+    });
+    expect(
+      disableSources.translationServices
+        .find((service) => service.providerKey === youdaoTranslateKey)
+        ?.enabled(wordQuery),
+    ).toBe(false);
+    expect(
+      disableSources.translationServices.find((service) => service.providerKey === deepLKey)?.enabled(wordQuery),
+    ).toBe(false);
+    expect(
+      disableSources.dictionaryServices
+        .find((service) => service.providerKey === youdaoDictionaryKey)
+        ?.enabled(wordQuery),
+    ).toBe(false);
+    expect(
+      disableSources.dictionaryServices.find((service) => service.providerKey === lingueeKey)?.enabled(wordQuery),
+    ).toBe(false);
+  });
+
+  it("applies a single builtinEnabled override without changing unrelated catalog services", () => {
+    const baseline = resolveProviderServices({ version: 2, profiles: [], migratedLegacyProviders: [] });
+    const baselineEnabled = new Map(
+      [...baseline.dictionaryServices, ...baseline.translationServices].map((service) => [
+        service.providerKey,
+        service.enabled(wordQuery),
+      ]),
+    );
+    const implicitDependents = new Map([
+      ["builtin:dictionary:Youdao Dictionary", "builtin:translation:Youdao Translate"],
+      ["builtin:dictionary:Linguee Dictionary", "builtin:translation:DeepL Translate"],
+    ]);
+
+    for (const provider of builtinProviderCatalog) {
+      const snapshot = resolveProviderServices({
+        version: 2,
+        profiles: [],
+        migratedLegacyProviders: [],
+        builtinEnabled: { [provider.providerKey]: false },
+      });
+      const services = [...snapshot.dictionaryServices, ...snapshot.translationServices];
+      expect(services.find((service) => service.providerKey === provider.providerKey)?.enabled(wordQuery)).toBe(false);
+      const dependentKey = implicitDependents.get(provider.providerKey);
+      for (const service of services) {
+        if (service.providerKey === provider.providerKey) continue;
+        if (service.providerKey === dependentKey) {
+          expect(service.enabled(wordQuery)).toBe(false);
+          continue;
+        }
+        expect(service.enabled(wordQuery)).toBe(baselineEnabled.get(service.providerKey));
+      }
+    }
+  });
+
+  it("treats an explicit enable like the Extension Settings checkbox while keeping dictionary query limits", () => {
+    const googleKey = "builtin:translation:Google Translate";
+    const youdaoDictionaryKey = "builtin:dictionary:Youdao Dictionary";
+    const wiktionaryKey = "builtin:dictionary:Wiktionary Dictionary";
+    const snapshot = resolveProviderServices({
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: [],
+      builtinEnabled: {
+        [googleKey]: true,
+        [youdaoDictionaryKey]: true,
+        [wiktionaryKey]: true,
+      },
+    });
+
+    expect(snapshot.translationServices.find((service) => service.providerKey === googleKey)?.enabled(wordQuery)).toBe(
+      true,
+    );
+
+    const youdaoDictionary = snapshot.dictionaryServices.find(
+      (service) => service.providerKey === youdaoDictionaryKey,
+    )!;
+    expect(youdaoDictionary.enabled(wordQuery)).toBe(true);
+    expect(youdaoDictionary.enabled({ ...wordQuery, fromLanguage: "de" })).toBe(false);
+
+    const wiktionary = snapshot.dictionaryServices.find((service) => service.providerKey === wiktionaryKey)!;
+    expect(wiktionary.enabled(wordQuery)).toBe(true);
+    expect(wiktionary.enabled({ ...wordQuery, isWord: false })).toBe(false);
   });
 
   it("queries Wiktionary for words, including Chinese source words", () => {

@@ -44,10 +44,18 @@ export interface StoredAIProviderStateV1 {
   legacyProviderAssignments?: Partial<Record<LegacyAIProviderName, LegacyAIProviderAssignment>>;
 }
 
+/** Manage Providers overrides for built-in dictionary and translation checkboxes. */
+export type BuiltinEnabledOverrides = Partial<Record<string, boolean>>;
+
 export interface StoredAIProviderState {
   version: 2;
   profiles: AIProviderProfile[];
   providerOrder?: string[];
+  /**
+   * When set for a built-in provider key, Manage Providers enable/disable overrides the
+   * matching Extension Settings checkbox for queries. Absent keys follow Extension Settings.
+   */
+  builtinEnabled?: BuiltinEnabledOverrides;
   /** Completed legacy imports, including providers the user has since deleted. */
   migratedLegacyProviders: LegacyAIProviderName[];
   /** Source identities retained only while another legacy provider is still pending import. */

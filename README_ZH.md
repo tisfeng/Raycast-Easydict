@@ -198,7 +198,7 @@ Easydict 开箱即用，以下设置可按需在扩展设置（Extension Setting
 
 运行 **Manage Providers** 命令，即可统一管理 AI Provider 以及所有内置服务的展示顺序：
 
-- **服务排序**：内置词典与翻译服务在此仅控制顺序（启用与密钥配置请前往扩展设置），使用 **Move Up** / **Move Down** 调整位置。
+- **服务排序与启用**：内置词典与翻译服务可在此启用或停用；该选择会覆盖扩展设置中对应的开关，用于查询。API Key 及其他选项仍在扩展设置。用 **Follow Extension Settings** 可清除覆盖。使用 **Move Up** / **Move Down** 调整位置。
 - **连接 AI 服务**：支持 **Raycast AI** 与任意 **OpenAI 兼容接口**。扩展已内置常见服务商预设（OpenAI、Gemini、DeepSeek、OpenRouter、SiliconFlow、Zhipu GLM、Kimi、MiniMax、Xiaomi MiMo 等），选中后填入 API Key 并按需调整模型即可；如需补充其他预设，欢迎参考[贡献指南](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md)。
 - **AI 词典模式**：在 **Word & Term Results** 中可选择 **Plain Translation**（纯翻译）或 **AI-Generated Dictionary Entry**（AI 词典词条）。开启词典模式后，查询单词和词组会生成包含音标、释义、例句和词形变化的结构化词条，其余长文本仍按普通翻译处理。由于需要生成结构化数据，响应速度会相对较慢，偶发格式异常时可能需要重试。
 

@@ -6,6 +6,7 @@ import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
 import { builtinTranslationProviders, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
 import { getLingueeWebDictionaryURL } from "@/providers/dictionary/linguee/url";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
+import type { BuiltinEnabledOverrides } from "@/providers/profiles/types";
 import { checkIsWord } from "@/providers/shared/utils";
 
 import { AppleTranslateProvider } from "./apple";
@@ -58,23 +59,28 @@ const builtinProviderClasses = {
   [TranslationType.Youdao]: YoudaoTranslateProvider,
 } satisfies Record<(typeof builtinTranslationProviders)[number]["type"], new () => BaseTranslateProvider>;
 
-export const builtinTranslationServices: TranslationServiceConfig[] = builtinTranslationProviders.map((service) => {
-  const status = getBuiltinProviderPreferenceStatus(service, myPreferences);
-  return {
-    ...service,
-    cacheIdentity: getBuiltinTranslationCacheIdentity(service.type),
-    enabled: (query) => {
-      if (status.enabledInPreferences) return true;
-      if (service.type === TranslationType.DeepL) {
-        return Boolean(status.implicitlyEnabledBy) && getLingueeWebDictionaryURL(query) !== undefined;
-      }
-      if (service.type === TranslationType.Youdao) {
-        return (
-          Boolean(status.implicitlyEnabledBy) && getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query)
-        );
-      }
-      return false;
-    },
-    createProvider: () => new builtinProviderClasses[service.type](),
-  };
-});
+export function isBuiltinTranslationEnabled(
+  service: { providerKey: string; type: TranslationType },
+  query: QueryInput,
+  preferences: Preferences,
+  overrides?: BuiltinEnabledOverrides,
+): boolean {
+  const provider = builtinTranslationProviders.find((candidate) => candidate.providerKey === service.providerKey);
+  if (!provider) return false;
+  const status = getBuiltinProviderPreferenceStatus(provider, preferences, overrides);
+  if (status.enabledInPreferences) return true;
+  if (service.type === TranslationType.DeepL) {
+    return Boolean(status.implicitlyEnabledBy) && getLingueeWebDictionaryURL(query) !== undefined;
+  }
+  if (service.type === TranslationType.Youdao) {
+    return Boolean(status.implicitlyEnabledBy) && getYoudaoWebDictionaryURL(query) !== undefined && checkIsWord(query);
+  }
+  return false;
+}
+
+export const builtinTranslationServices: TranslationServiceConfig[] = builtinTranslationProviders.map((service) => ({
+  ...service,
+  cacheIdentity: getBuiltinTranslationCacheIdentity(service.type),
+  enabled: (query) => isBuiltinTranslationEnabled(service, query, myPreferences),
+  createProvider: () => new builtinProviderClasses[service.type](),
+}));
