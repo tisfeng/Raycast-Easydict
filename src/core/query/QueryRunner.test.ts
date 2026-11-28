@@ -381,6 +381,34 @@ describe("query results and services", () => {
     expect(onAudio).toHaveBeenCalledOnce();
   });
 
+  it("drops results and aborts when a same-ID service becomes disabled after overrides load", async () => {
+    runner.queryTextWithTextInfo(createQueryInput("override"));
+    await resolveDictionary(0);
+    expect(runner.getSnapshot().queryResults).toHaveLength(1);
+
+    runner.setServices({
+      dictionaryServices: [{ ...dictionary, enabled: () => false }],
+      translationServices: [],
+    });
+
+    expect(providers.dictionaryRequests[0].signal?.aborted).toBe(true);
+    expect(runner.getSnapshot()).toMatchObject({ queryResults: [], isLoading: false });
+  });
+
+  it("starts a same-ID service that becomes enabled after overrides load", async () => {
+    runner.setServices({
+      dictionaryServices: [{ ...dictionary, enabled: () => false }],
+      translationServices: [],
+    });
+    runner.queryTextWithTextInfo(createQueryInput("override"));
+    expect(providers.dictionaryRequests).toHaveLength(0);
+
+    runner.setServices({ dictionaryServices: [dictionary], translationServices: [] });
+    expect(providers.dictionaryRequests).toHaveLength(1);
+    await resolveDictionary(0);
+    expect(runner.getSnapshot().queryResults).toHaveLength(1);
+  });
+
   it("uses a reloaded same-ID configuration for regeneration and the next query without restarting current requests", async () => {
     const originalFactory = vi.fn(dictionary.createProvider);
     const updatedFactory = vi.fn(dictionary.createProvider);

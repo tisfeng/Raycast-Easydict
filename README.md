@@ -198,7 +198,7 @@ Extension Settings provides two language preferences—**First Language** (defau
 
 Run **Manage Providers** to configure AI providers and control the display order of every service:
 
-- **Ordering services**: Built-in dictionary and translation services are only ordered here (enable them and enter API keys in Extension Settings). Use **Move Up** / **Move Down** to reorder any provider.
+- **Ordering and enabling services**: Built-in dictionary and translation services can be enabled or disabled here; that choice overrides the matching Extension Settings checkbox for queries. API keys and other options stay in Extension Settings. Use **Follow Extension Settings** to clear an override. Use **Move Up** / **Move Down** to reorder any provider.
 - **Connecting AI providers**: Supports **Raycast AI** and any **OpenAI-compatible endpoint**. Built-in presets cover popular providers (OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, and more)—pick a preset, add your API key, and adjust the model if needed. Missing your provider? See the [contribution guide](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md).
 - **AI dictionary mode**: Set **Word & Term Results** to either **Plain Translation** or **AI-Generated Dictionary Entry**. Dictionary mode builds a structured entry for words and terms (phonetics, definitions, examples, and word forms) while translating longer text normally. Because it produces structured output, responses can be slower and may occasionally require a retry.
 

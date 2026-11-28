@@ -144,10 +144,12 @@ export function migrateLegacyAIProviderState(
   });
   const providerOrder = getProviderOrder(profiles, migratedOrder, servicesOrder, builtinCandidates);
   const migratedLegacyProviders = LEGACY_AI_PROVIDER_NAMES.filter((provider) => migrated.has(provider));
+  const builtinEnabled = state.version === 2 ? state.builtinEnabled : undefined;
   return {
     version: 2,
     profiles: syncAIProviderOrders(profiles, providerOrder),
     ...(providerOrder.length > 0 ? { providerOrder } : {}),
+    ...(builtinEnabled && Object.keys(builtinEnabled).length > 0 ? { builtinEnabled } : {}),
     migratedLegacyProviders,
     ...(migratedLegacyProviders.length < LEGACY_AI_PROVIDER_NAMES.length && Object.keys(assignments).length > 0
       ? { legacyProviderAssignments: assignments }

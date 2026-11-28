@@ -8,10 +8,14 @@ import { isAIDictionaryCandidate } from "@/providers/profiles/dictionaryCandidat
 import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { AIProviderProfile, StoredAIProviderState } from "@/providers/profiles/types";
 
-import { builtinDictionaryServices, type DictionaryServiceConfig } from "./dictionary";
+import { builtinDictionaryServices, type DictionaryServiceConfig, isBuiltinDictionaryEnabled } from "./dictionary";
 import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./dictionary/ai";
 import { assignGlobalServiceOrder, getAIProviderKey, getCombinedProviderOrder } from "./order";
-import { builtinTranslationServices as builtinTranslations, type TranslationServiceConfig } from "./translation";
+import {
+  builtinTranslationServices as builtinTranslations,
+  isBuiltinTranslationEnabled,
+  type TranslationServiceConfig,
+} from "./translation";
 import { createAITranslationProvider } from "./translation/ai";
 
 interface ProviderServiceSnapshot {
@@ -30,14 +34,20 @@ export function resolveProviderServices(
   state: StoredAIProviderState,
   onNativeJSONUnsupported?: NativeJSONUnsupportedHandler,
 ): ProviderServiceSnapshot {
-  const { profiles, providerOrder: savedOrder } = state;
+  const { profiles, providerOrder: savedOrder, builtinEnabled } = state;
   const providerOrder = getCombinedProviderOrder(
     profiles,
     savedOrder,
     myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [],
   );
-  const translationServices = [...builtinTranslations];
-  const dictionaryServices = [...builtinDictionaryServices];
+  const translationServices: TranslationServiceConfig[] = builtinTranslations.map((service) => ({
+    ...service,
+    enabled: (query) => isBuiltinTranslationEnabled(service, query, myPreferences, builtinEnabled),
+  }));
+  const dictionaryServices: DictionaryServiceConfig[] = builtinDictionaryServices.map((service) => ({
+    ...service,
+    enabled: (query) => isBuiltinDictionaryEnabled(service, query, myPreferences, builtinEnabled),
+  }));
   for (const profile of profiles) {
     const runtime = resolveAIProviderRuntimeConfig(profile);
     const getConfig = () => {

@@ -20,7 +20,12 @@ import { Fragment, useState } from "react";
 
 import { myPreferences } from "@/consts";
 import { getProviderIcon, getQueryTypeIcon } from "@/core/results/icons";
-import { type BuiltinProvider, builtinProviderCatalog, getBuiltinProviderPreferenceStatus } from "@/providers/catalog";
+import {
+  type BuiltinProvider,
+  builtinProviderCatalog,
+  getBuiltinProviderPreferenceStatus,
+  withBuiltinEnabledOverride,
+} from "@/providers/catalog";
 import {
   getAIProviderKey,
   getCombinedAvailableProviderKeys,
@@ -36,6 +41,7 @@ import { OPENAI_COMPATIBLE_PRESETS, type OpenAICompatiblePresetName } from "@/pr
 import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type {
   AIProviderProfile,
+  BuiltinEnabledOverrides,
   LegacyAIProviderName,
   OpenAICompatibleProfile,
   RaycastAIProfile,
@@ -52,6 +58,7 @@ type ProviderRow = { kind: "builtin"; service: BuiltinProvider } | { kind: "ai";
 export default function ProviderManagementPage({ controller }: { controller: AIProvidersController }) {
   const [selectedProviderKey, setSelectedProviderKey] = useState<string>();
   const profiles = controller.profiles ?? [];
+  const builtinEnabled = controller.storedState?.builtinEnabled;
   const legacyConfiguration = getLegacyAIProviderConfiguration();
   const legacySources = LEGACY_AI_PROVIDER_NAMES.filter((provider) => legacyConfiguration[provider].apiKey);
   const servicesOrder = myPreferences.servicesOrder ? myPreferences.servicesOrder.split(",") : [];
@@ -96,6 +103,19 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
         title: "Multiple Raycast AI providers enabled",
         message: "Extension AI requests are rate-limited; rapid queries may fail.",
       });
+    }
+  }
+
+  async function setBuiltinEnabledOverride(providerKey: string, enabled: boolean | undefined) {
+    try {
+      await controller.update((storedState) => {
+        const nextOverrides = withBuiltinEnabledOverride(storedState.builtinEnabled, providerKey, enabled);
+        const nextState = { ...storedState, builtinEnabled: nextOverrides };
+        if (!nextOverrides) delete nextState.builtinEnabled;
+        return nextState;
+      });
+    } catch (error) {
+      await showFailureToast(error, { title: "Failed to Update Provider" });
     }
   }
 
@@ -243,16 +263,31 @@ export default function ProviderManagementPage({ controller }: { controller: AIP
       {rows.map((row) => {
         if (row.kind === "builtin") {
           const { service } = row;
+          const status = getBuiltinProviderPreferenceStatus(service, myPreferences, builtinEnabled);
+          const listedAsEnabled = status.enabledInPreferences || Boolean(status.implicitlyEnabledBy);
+          const hasOverride = status.hasOverride;
           return (
             <List.Item
               key={service.providerKey}
               id={service.providerKey}
               icon={getQueryTypeIcon(service.type)}
               title={service.label}
-              accessories={[{ tag: "Built-in" }, { tag: getBuiltinPreferenceStatusTag(service) }]}
+              accessories={[{ tag: "Built-in" }, { tag: getBuiltinPreferenceStatusTag(service, builtinEnabled) }]}
               actions={
                 <ActionPanel>
+                  <Action
+                    title={listedAsEnabled ? "Disable Provider" : "Enable Provider"}
+                    icon={listedAsEnabled ? Icon.Pause : Icon.Play}
+                    onAction={() => setBuiltinEnabledOverride(service.providerKey, !listedAsEnabled)}
+                  />
                   <Action title="Open Extension Settings" icon={Icon.Gear} onAction={openExtensionPreferences} />
+                  {hasOverride ? (
+                    <Action
+                      title="Follow Extension Settings"
+                      icon={Icon.ArrowClockwise}
+                      onAction={() => setBuiltinEnabledOverride(service.providerKey, undefined)}
+                    />
+                  ) : null}
                   {moveActions(service.providerKey)}
                   {addProviderSection()}
                 </ActionPanel>
@@ -348,8 +383,17 @@ function getAIProviderAccessories(profile: AIProviderProfile, runnable: boolean)
   return [{ tag: "AI Provider" }, { tag: getAIProviderStatusTag(profile, runnable) }];
 }
 
-function getBuiltinPreferenceStatusTag(service: BuiltinProvider) {
-  const { enabledInPreferences, implicitlyEnabledBy } = getBuiltinProviderPreferenceStatus(service, myPreferences);
+function getBuiltinPreferenceStatusTag(service: BuiltinProvider, overrides?: BuiltinEnabledOverrides) {
+  const { enabledInPreferences, implicitlyEnabledBy, hasOverride } = getBuiltinProviderPreferenceStatus(
+    service,
+    myPreferences,
+    overrides,
+  );
+  if (hasOverride) {
+    return enabledInPreferences
+      ? { value: "Enabled", color: Color.Green }
+      : { value: "Disabled", color: Color.SecondaryText };
+  }
   if (!enabledInPreferences && implicitlyEnabledBy) {
     return { value: `Enabled via ${implicitlyEnabledBy}`, color: Color.Green };
   }

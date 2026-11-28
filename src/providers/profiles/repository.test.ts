@@ -170,6 +170,45 @@ describe("AI provider repository", () => {
     ).rejects.toThrow("invalid");
   });
 
+  it("accepts omitted or valid builtinEnabled overrides and rejects unknown keys", async () => {
+    const profile = createProfile();
+    const withOverrides: StoredAIProviderState = {
+      version: 2,
+      migratedLegacyProviders: [],
+      profiles: [profile],
+      builtinEnabled: {
+        "builtin:dictionary:Youdao Dictionary": false,
+        "builtin:translation:Bing Translate": true,
+      },
+    };
+    await saveAIProviderState(withOverrides);
+    expect(await loadAIProviderState()).toEqual({ kind: "ready", state: withOverrides });
+
+    await saveAIProviderState({ version: 2, migratedLegacyProviders: [], profiles: [profile] });
+    expect(await loadAIProviderState()).toEqual({
+      kind: "ready",
+      state: { version: 2, migratedLegacyProviders: [], profiles: [profile] },
+    });
+
+    await expect(
+      saveAIProviderState({
+        version: 2,
+        migratedLegacyProviders: [],
+        profiles: [profile],
+        builtinEnabled: { "builtin:translation:Unknown": true },
+      }),
+    ).rejects.toThrow("invalid");
+
+    const nonBooleanOverride = JSON.stringify({
+      version: 2,
+      migratedLegacyProviders: [],
+      profiles: [profile],
+      builtinEnabled: { "builtin:dictionary:Youdao Dictionary": "yes" },
+    });
+    storage.set(AI_PROVIDER_STORAGE_KEY, nonBooleanOverride);
+    expect(await loadAIProviderState()).toMatchObject({ kind: "invalid", rawValue: nonBooleanOverride });
+  });
+
   it("validates old assignments before migration, accepting deleted profiles but rejecting duplicate assignments", () => {
     expect(
       isStoredAIProviderStateV1({

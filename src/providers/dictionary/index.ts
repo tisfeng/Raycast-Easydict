@@ -3,8 +3,9 @@
 import { myPreferences } from "@/consts";
 import { DictionaryType } from "@/core/results/kinds";
 import type { QueryInput, RuntimeServiceConfig } from "@/core/results/types";
-import { builtinDictionaryProviders } from "@/providers/catalog";
+import { builtinDictionaryProviders, getEffectiveBuiltinPreference } from "@/providers/catalog";
 import { getYoudaoWebDictionaryURL } from "@/providers/dictionary/youdao/utils";
+import type { BuiltinEnabledOverrides } from "@/providers/profiles/types";
 import { checkIsWord } from "@/providers/shared/utils";
 
 import type { BaseDictionaryProvider } from "./base";
@@ -36,10 +37,21 @@ function supportsQuery(type: DictionaryType, query: QueryInput): boolean {
   }
 }
 
+export function isBuiltinDictionaryEnabled(
+  service: { providerKey: string; type: DictionaryType },
+  query: QueryInput,
+  preferences: Preferences,
+  overrides?: BuiltinEnabledOverrides,
+): boolean {
+  const provider = builtinDictionaryProviders.find((candidate) => candidate.providerKey === service.providerKey);
+  if (!provider) return false;
+  return getEffectiveBuiltinPreference(provider, preferences, overrides) && supportsQuery(service.type, query);
+}
+
 export const builtinDictionaryServices: DictionaryServiceConfig[] = builtinDictionaryProviders.map((service) => ({
   ...service,
   cacheIdentity: service.type,
-  enabled: (query) => myPreferences[service.preference] && supportsQuery(service.type, query),
+  enabled: (query) => isBuiltinDictionaryEnabled(service, query, myPreferences),
   createProvider: () => new builtinProviderClasses[service.type](),
   canTriggerAutomaticAudio: true,
 }));

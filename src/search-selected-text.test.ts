@@ -20,14 +20,30 @@ vi.mock("@/providers/registry", async () => {
   const { createQueryProviders } = await import("@/test-support/queryProviders");
   const providers = createQueryProviders();
   provider.requests = providers.translationRequests;
+  const translationServices = [providers.translationService()];
   return {
     builtinDictionaryProviderServices: [],
-    builtinTranslationServices: [providers.translationService()],
+    builtinTranslationServices: translationServices,
+    resolveProviderServices: () => ({
+      dictionaryServices: [],
+      translationServices,
+    }),
   };
 });
 
 vi.mock("@/core/detect", () => ({
   detectLanguage: async () => ({ type: LanguageDetectType.Bing, language: "en", confirmed: true }),
+}));
+
+vi.mock("@/providers/profiles/useAIProviderProfiles", () => ({
+  useAIProviderProfiles: () => ({
+    state: { kind: "missing", state: { version: 2, profiles: [], migratedLegacyProviders: [] } },
+    isLoading: false,
+    profiles: [],
+    storedState: { version: 2, profiles: [], migratedLegacyProviders: [] },
+    update: vi.fn(),
+    revalidate: vi.fn(),
+  }),
 }));
 
 vi.mock("@raycast/utils", () => {

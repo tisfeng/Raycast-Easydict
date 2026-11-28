@@ -133,6 +133,20 @@ describe("one-time legacy AI provider migration", () => {
     expect(migrateLegacyAIProviderState(second, legacy, builtins)).toBe(second);
   });
 
+  it("keeps Manage Providers builtinEnabled overrides when a later legacy import rebuilds state", () => {
+    const withOverrides: StoredAIProviderState = {
+      version: 2,
+      profiles: [],
+      migratedLegacyProviders: ["openai"],
+      builtinEnabled: { "builtin:dictionary:Youdao Dictionary": false },
+      legacyProviderAssignments: { openai: { kind: "retired" } },
+    };
+    const migrated = migrateLegacyAIProviderState(withOverrides, legacy, builtins);
+    expect(migrated.builtinEnabled).toEqual({ "builtin:dictionary:Youdao Dictionary": false });
+    expect(migrated.profiles).toHaveLength(1);
+    expect(migrated.migratedLegacyProviders).toEqual(["openai", "gemini"]);
+  });
+
   it.each([
     {
       firstProvider: "openai" as const,

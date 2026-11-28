@@ -84,7 +84,8 @@ export default function SearchWord({ initialQueryText, initialTargetLanguage }: 
       ),
     [displaySectionIds, viewSections],
   );
-  const listIsLoading = isLoading || aiProviderProfiles.isLoading;
+  const providersReady = aiProviderProfiles.state.kind !== "loading";
+  const listIsLoading = isLoading || !providersReady;
   const { selectedItemId, onSelectionChange } = useFirstItemAnchor(itemIds, queryGeneration);
 
   const debouncedQuery = useDebouncedQuery(queryText);
@@ -151,23 +152,19 @@ export default function SearchWord({ initialQueryText, initialTargetLanguage }: 
 
   const setupCalled = useRef(false);
   const shownProfileLoadErrorRef = useRef<string | undefined>(undefined);
+  // Wait for provider LocalStorage (including builtinEnabled overrides) before the first query.
   useEffect(() => {
-    if (!setupCalled.current) {
-      setupCalled.current = true;
-      setup();
-    }
-  }, []);
-
-  /**
-   * Do something setup when the extension is activated. Only run once.
-   */
-  function setup() {
-    if (initialQueryText) {
+    if (!providersReady || setupCalled.current) return;
+    setupCalled.current = true;
+    const typed = searchText.trim();
+    if (typed.length > 0) {
+      queryText(typed, targetLanguage);
+    } else if (initialQueryText) {
       updateInputTextAndQueryText(initialQueryText, false);
     } else if (initialQueryText === undefined && myPreferences.enableAutomaticQuerySelectedText) {
-      querySelectedText();
+      void querySelectedText();
     }
-  }
+  }, [providersReady]);
 
   /**
    * Try to detect the selected text, if detect success, then query the selected text.
@@ -207,7 +204,7 @@ export default function SearchWord({ initialQueryText, initialTargetLanguage }: 
     };
 
     debouncedQuery.cancel();
-    queryTextWithTextInfo(queryWordInfo);
+    if (providersReady && searchText.trim()) queryTextWithTextInfo(queryWordInfo);
   };
 
   /**
@@ -227,6 +224,9 @@ export default function SearchWord({ initialQueryText, initialTargetLanguage }: 
       clearQueryResult();
       return;
     }
+
+    // Hold queries until provider configuration (and builtinEnabled overrides) has loaded.
+    if (!providersReady) return;
 
     // Only different input text, then clear old results before new input text query.
     if (trimText !== searchText) {

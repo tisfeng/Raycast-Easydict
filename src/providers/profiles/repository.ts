@@ -3,11 +3,13 @@
 import { LocalStorage } from "@raycast/api";
 
 import { PROVIDER_ICON_NAMES, type ProviderIconConfig } from "@/core/results/types";
+import { builtinProviderCatalog } from "@/providers/catalog";
 import { createTimer } from "@/shared/logger";
 import { isRecord } from "@/shared/validation";
 
 import {
   type AIProviderProfile,
+  type BuiltinEnabledOverrides,
   type JSONOutputMode,
   type LegacyAIProviderAssignment,
   type StoredAIProviderState,
@@ -15,6 +17,8 @@ import {
   type TokenLimitMode,
   type WordResultMode,
 } from "./types";
+
+const builtinProviderKeys = new Set(builtinProviderCatalog.map((provider) => provider.providerKey));
 
 export const AI_PROVIDER_STORAGE_KEY = "ai-provider-profiles";
 const LOG_LABEL = "AI Providers";
@@ -129,9 +133,15 @@ function isStoredAIProviderState(value: unknown): value is StoredAIProviderState
   ) {
     return false;
   }
+  if (value.builtinEnabled !== undefined && !isBuiltinEnabledOverrides(value.builtinEnabled)) return false;
   if (value.legacyProviderAssignments === undefined) return true;
   if (!isLegacyProviderAssignments(value.legacyProviderAssignments)) return false;
   return Object.keys(value.legacyProviderAssignments).every((provider) => migrated.includes(provider));
+}
+
+function isBuiltinEnabledOverrides(value: unknown): value is BuiltinEnabledOverrides {
+  if (!isRecord(value)) return false;
+  return Object.entries(value).every(([key, enabled]) => builtinProviderKeys.has(key) && typeof enabled === "boolean");
 }
 
 export function isStoredAIProviderStateV1(value: unknown): value is StoredAIProviderStateV1 {
