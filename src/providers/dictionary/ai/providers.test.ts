@@ -4,6 +4,7 @@ import { EASYDICT_VERSION } from "@/consts";
 import { resolveAIProviderRuntimeConfig } from "@/providers/profiles/runtime";
 import type { OpenAICompatibleProfile, RaycastAIProfile } from "@/providers/profiles/types";
 import { CancelledError } from "@/shared/errors";
+import { createDeferred } from "@/test-support/deferred";
 
 import { createAIDictionaryProvider, type NativeJSONUnsupportedHandler } from "./index";
 
@@ -123,11 +124,8 @@ describe("AI dictionary provider adapters", () => {
   });
 
   it("does not start a prompt retry when cancelled while saving the native JSON fallback", async () => {
-    let finishNotification!: () => void;
-    const notification = new Promise<void>((resolve) => {
-      finishNotification = resolve;
-    });
-    const onNativeJSONUnsupported = vi.fn(() => notification);
+    const notification = createDeferred<void>();
+    const onNativeJSONUnsupported = vi.fn(() => notification.promise);
     testDoubles.streamText
       .mockReturnValueOnce({
         textStream: createFailingTextStream(new Error("response_format json_object is not supported")),
@@ -140,7 +138,7 @@ describe("AI dictionary provider adapters", () => {
     });
     await vi.waitFor(() => expect(onNativeJSONUnsupported).toHaveBeenCalledOnce());
     controller.abort();
-    finishNotification();
+    notification.resolve();
     await expect(pending).rejects.toBeInstanceOf(CancelledError);
     expect(onNativeJSONUnsupported).toHaveBeenCalledWith({ id: profile.id, name: profile.name }, controller.signal);
     expect(testDoubles.streamText).toHaveBeenCalledTimes(1);

@@ -10,10 +10,13 @@ import type { QueryWordInfo } from "@/core/results/types";
 import { addFavoritesToAnki, buildAnkiNote, normalizeAnkiUrl, resolveAnkiDeckName } from "./anki";
 import { buildFavoriteWord, type FavoriteWord } from "./model";
 
+type AnkiRequestBody =
+  | { action: "createDeck"; params: { deck: string } }
+  | { action: "modelNames" }
+  | { action: "canAddNotesWithErrorDetail" | "addNotes"; params: { notes: ReturnType<typeof buildAnkiNote>[] } };
+
 const timedFetch = vi.hoisted(() => vi.fn());
 
-// The Anki client reaches @/consts through the shared HTTP client; only the timeout is read.
-vi.mock("@/consts", () => ({ networkTimeout: 1000 }));
 vi.mock("@/shared/http", () => ({ timedFetch }));
 // Saved content resolves SVG text colors against Raycast's appearance.
 vi.mock("@raycast/api", () => ({ environment: { appearance: "light" } }));
@@ -129,24 +132,26 @@ describe("addFavoritesToAnki", () => {
   const url = "127.0.0.1:8765";
   const favorite = (word: string): FavoriteWord =>
     buildFavoriteWord({ ...query, word }, [translationService(["短暂的"])]);
-  let addNotesResult: (number | null)[];
+  let failedWord: string | undefined;
 
   beforeEach(() => {
-    addNotesResult = [1, 2];
+    failedWord = undefined;
     timedFetch.mockReset();
-    timedFetch.mockImplementation(async (_url: string, options: { body: { action: string } }) => {
-      switch (options.body.action) {
+    timedFetch.mockImplementation(async (_url: string, { body }: { body: AnkiRequestBody }) => {
+      switch (body.action) {
         case "createDeck":
           return { result: null, error: null };
         case "modelNames":
           return { result: ["Easydict"], error: null };
         case "canAddNotesWithErrorDetail":
-          return { result: [{ canAdd: true }, { canAdd: true }], error: null };
+          return { result: body.params.notes.map(() => ({ canAdd: true })), error: null };
         case "addNotes":
-          return { result: addNotesResult, error: null };
-        default:
-          throw new Error(`Unexpected AnkiConnect action: ${options.body.action}`);
+          return {
+            result: body.params.notes.map((note, index) => (note.fields.Word === failedWord ? null : index + 1)),
+            error: null,
+          };
       }
+      throw new Error("Unexpected AnkiConnect action");
     });
   });
 
@@ -157,16 +162,41 @@ describe("addFavoritesToAnki", () => {
   });
 
   it("reports a note that AnkiConnect fails to add as failed, not skipped", async () => {
-    addNotesResult = [1, null];
+    failedWord = "two";
     await expect(
       addFavoritesToAnki([favorite("one"), favorite("two")], { deckName: "Easydict", url }),
     ).resolves.toEqual({ added: 1, skipped: 0, failed: 1 });
   });
 
-  it("uses the default endpoint and deck when the preferences are empty", async () => {
-    await addFavoritesToAnki([favorite("one")], { deckName: "", url: "" });
+  it("submits one note to the default endpoint and deck and reports one addition", async () => {
+    await expect(addFavoritesToAnki([favorite("one")], { deckName: "", url: "" })).resolves.toEqual({
+      added: 1,
+      skipped: 0,
+      failed: 0,
+    });
 
-    expect(timedFetch.mock.calls[0][0]).toBe("http://127.0.0.1:8765");
-    expect(timedFetch.mock.calls[0][1].body.params).toEqual({ deck: "Easydict" });
+    const endpoint = "http://127.0.0.1:8765";
+    expect(timedFetch).toHaveBeenCalledWith(
+      endpoint,
+      expect.objectContaining({
+        body: expect.objectContaining({ action: "createDeck", params: { deck: "Easydict" } }),
+      }),
+    );
+    expect(timedFetch).toHaveBeenCalledWith(
+      endpoint,
+      expect.objectContaining({
+        body: expect.objectContaining({
+          action: "addNotes",
+          params: {
+            notes: [
+              expect.objectContaining({
+                deckName: "Easydict",
+                fields: expect.objectContaining({ Word: "one", Translation: "短暂的" }),
+              }),
+            ],
+          },
+        }),
+      }),
+    );
   });
 });

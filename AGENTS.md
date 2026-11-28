@@ -7,7 +7,7 @@ Support macOS and Windows. Guard platform-specific APIs, paths, and shells. Chec
 - For code changes, run `npm run lint`, `npm test`, and `npm run build` on the final implementation. The build includes type checking.
 - For UI, shortcut, or lifecycle changes, use `npm run dev` to verify the affected flow in Raycast on relevant platforms. Report native checks you could not run. For launch, input, selection, or shortcut bugs, see [Debugging Raycast behavior](docs/development/debugging-raycast.md).
 - For docs-only changes, check formatting, links, and `git diff --check`. Report skipped code checks.
-- Test observable behavior and invariants through the affected entry point, such as a Raycast command or repository method. Name tests for the scenario and expected outcome. Mock only the Raycast runtime or network so tests exercise real parsing, caching, and migration. Demonstrate regression tests fail before the fix and pass afterward.
+- Test observable behavior and invariants through the affected entry point, such as a Raycast command or repository method. Name tests for the scenario and expected outcome. Prefer mocking external boundaries such as Raycast APIs, network requests, and OS processes. Exercise the real parsing, caching, and migration code when testing those behaviors. Demonstrate regression tests fail before the fix and pass afterward.
 
 ## Code conventions
 

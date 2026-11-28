@@ -3,39 +3,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadStrokeOrderEntries } from "./data";
 
 const testDoubles = vi.hoisted(() => ({
-  cache: new Map<string, string>(),
+  caches: new Map<string, Map<string, string>>(),
   fetchRaw: vi.fn(),
-  logError: vi.fn(),
 }));
 
-vi.mock("@raycast/api", () => ({
-  Cache: class {
-    get(key: string) {
-      return testDoubles.cache.get(key);
-    }
-
-    set(key: string, value: string) {
-      testDoubles.cache.set(key, value);
-    }
-
-    remove(key: string) {
-      testDoubles.cache.delete(key);
-    }
-  },
-}));
+vi.mock("@raycast/api", async () => {
+  const { createCacheMock } = await import("@/test-support/raycastStorage");
+  return { Cache: createCacheMock(testDoubles.caches), environment: { isDevelopment: false } };
+});
 
 vi.mock("@/shared/http", () => ({
   timedFetch: { raw: testDoubles.fetchRaw },
 }));
 
-vi.mock("@/shared/logger", () => ({
-  logError: testDoubles.logError,
-}));
-
 beforeEach(() => {
-  testDoubles.cache.clear();
+  for (const entries of testDoubles.caches.values()) entries.clear();
   testDoubles.fetchRaw.mockReset();
-  testDoubles.logError.mockReset();
 });
 
 describe("loadStrokeOrderEntries", () => {

@@ -8,18 +8,14 @@ import { timedFetch } from "@/shared/http";
 
 const storage = vi.hoisted(() => new Map<string, string>());
 
-vi.mock("@raycast/api", () => ({
-  getPreferenceValues: () => ({ bingHost: "www.bing.com" }),
-  environment: { isDevelopment: false },
-  Cache: class {
-    get(key: string) {
-      return storage.get(key);
-    }
-    set(key: string, value: string) {
-      storage.set(key, value);
-    }
-  },
-}));
+vi.mock("@raycast/api", async () => {
+  const { createCacheMock } = await import("@/test-support/raycastStorage");
+  return {
+    getPreferenceValues: () => ({ bingHost: "www.bing.com" }),
+    environment: { isDevelopment: false },
+    Cache: createCacheMock(new Map([["", storage]])),
+  };
+});
 
 vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
 vi.mock("@/shared/http", () => ({ timedFetch: { raw: vi.fn() } }));

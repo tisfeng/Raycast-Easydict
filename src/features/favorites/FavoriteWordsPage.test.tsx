@@ -22,7 +22,7 @@ const runtime = vi.hoisted(() => ({
 vi.mock("@/consts", () => ({ networkTimeout: 3000, myPreferences: { flagsAreNotLanguages: true } }));
 vi.mock("@/core/audio", () => ({ playQueryWordAudio: runtime.read, playTTS: runtime.tts }));
 vi.mock("@/components/pages/StrokeOrderPage", () => ({
-  default: ({ characters }: { characters: string[] }) => <div>{characters.join("")}</div>,
+  default: ({ characters }: { characters: string[] }) => <div data-testid="stroke-order">{characters.join("")}</div>,
 }));
 vi.mock("@raycast/utils", () => ({ showFailureToast: vi.fn() }));
 vi.mock("./useFavoriteWords", () => ({
@@ -86,10 +86,11 @@ vi.mock("@raycast/api", async () => {
 });
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.clearAllMocks();
 });
 
-function fresh(word: string, translation: string) {
+function roundTripFavorite(word: string, translation: string) {
   const query = {
     word,
     fromLanguage: "en",
@@ -115,15 +116,27 @@ function fresh(word: string, translation: string) {
 }
 
 describe("favorite page content consumers", () => {
-  it("renders only the selected snapshot and keeps copy, audio, stroke order and launch inputs after round-trip", async () => {
-    runtime.favorites = [fresh("garden", "花园"), fresh("bird", "鸟")];
+  it("renders Markdown only for the current selection", () => {
+    runtime.favorites = [roundTripFavorite("garden", "花园"), roundTripFavorite("bird", "鸟")];
     const markdown = vi.spyOn(view, "favoriteMarkdown");
     render(<FavoriteWordsPage />);
-    expect(markdown).toHaveBeenCalledTimes(1);
     const garden = within(screen.getByRole("article", { name: "garden" }));
     const bird = within(screen.getByRole("article", { name: "bird" }));
+    expect(markdown).toHaveBeenCalledExactlyOnceWith(runtime.favorites[0]);
     expect(garden.getByTestId("detail").textContent).toContain("花园");
     expect(bird.getByTestId("detail").textContent).toBe("");
+
+    fireEvent.click(bird.getByRole("button", { name: "bird" }));
+    expect(markdown).toHaveBeenCalledTimes(2);
+    expect(markdown).toHaveBeenLastCalledWith(runtime.favorites[1]);
+    expect(garden.getByTestId("detail").textContent).toBe("");
+    expect(bird.getByTestId("detail").textContent).toContain("鸟");
+  });
+
+  it("preserves copy, audio, stroke order, and launch inputs after a snapshot round-trip", async () => {
+    runtime.favorites = [roundTripFavorite("garden", "花园"), roundTripFavorite("bird", "鸟")];
+    render(<FavoriteWordsPage />);
+    const garden = within(screen.getByRole("article", { name: "garden" }));
     fireEvent.click(garden.getByRole("button", { name: "Copy Translation" }));
     expect(runtime.copy).toHaveBeenLastCalledWith("花园");
     fireEvent.click(garden.getByRole("button", { name: "Copy All to Clipboard" }));
@@ -133,7 +146,7 @@ describe("favorite page content consumers", () => {
     fireEvent.click(garden.getByRole("button", { name: "Read Translation" }));
     expect(runtime.tts).toHaveBeenLastCalledWith("花园", "zh-CHS");
     fireEvent.click(garden.getByRole("button", { name: "Show Stroke Order" }));
-    expect(garden.getByText("花园")).toBeTruthy();
+    expect(garden.getByTestId("stroke-order").textContent).toBe("花园");
     fireEvent.click(garden.getByRole("button", { name: "Open in Easydict" }));
     await waitFor(() =>
       expect(runtime.launch).toHaveBeenCalledWith({
@@ -142,11 +155,6 @@ describe("favorite page content consumers", () => {
         arguments: { queryText: "garden" },
       }),
     );
-    fireEvent.click(bird.getByRole("button", { name: "bird" }));
-    expect(markdown).toHaveBeenCalledTimes(2);
-    expect(garden.getByTestId("detail").textContent).toBe("");
-    expect(bird.getByTestId("detail").textContent).toContain("鸟");
-    markdown.mockRestore();
   });
 
   it("keeps the copy and TTS preview of a migrated favorite that has no saved sections", () => {
