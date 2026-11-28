@@ -2,28 +2,36 @@
 
 import type { LaunchProps } from "@raycast/api";
 
+import { isLanguageCode } from "@/core/language/utils";
 import { checkIfPreferredLanguagesConflict } from "@/features/search/LanguageConflictError";
 import SearchWord from "@/features/search/SearchWord";
 import { logTrace } from "@/shared/logger";
+import { isRecord } from "@/shared/validation";
 
 logTrace("Easydict", "module loaded");
 
 export default function (
-  props: LaunchProps<{ arguments: Arguments.Easydict; launchContext?: { selectedTextChecked?: boolean } }>,
+  props: LaunchProps<{
+    arguments: Arguments.Easydict;
+    launchContext?: { selection?: unknown };
+  }>,
 ) {
   const isConflict = checkIfPreferredLanguagesConflict();
   if (isConflict) {
     return isConflict;
   }
 
-  const { queryText: initialQueryText } = props.arguments;
+  const selection = props.launchContext?.selection;
+  if (isRecord(selection) && typeof selection.text === "string") {
+    const { text, manualTargetLanguage } = selection;
+    return (
+      <SearchWord
+        initialQueryText={text.trim()}
+        initialTargetLanguage={isLanguageCode(manualTargetLanguage) ? manualTargetLanguage : undefined}
+      />
+    );
+  }
 
-  return (
-    <SearchWord
-      initialQueryText={initialQueryText}
-      fallbackText={props.fallbackText}
-      // Search Selected Text has already read the selection.
-      skipSelectedText={props.launchContext?.selectedTextChecked === true}
-    />
-  );
+  const queryText = (props.arguments.queryText || props.fallbackText)?.trim();
+  return <SearchWord initialQueryText={queryText || undefined} />;
 }

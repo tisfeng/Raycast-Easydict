@@ -2,15 +2,36 @@
 
 import { Cache } from "@raycast/api";
 
-const cache = new Cache({ namespace: "search-word" });
-const key = "last-query";
+import type { LanguageCode } from "@/core/language/types";
+import { isLanguageCode } from "@/core/language/utils";
+import { isRecord } from "@/shared/validation";
 
-/** The text in the Search Word bar, so Search Selected Text can reopen it when nothing new is selected. */
-export function getLastQuery(): string {
-  return cache.get(key) ?? "";
+const cache = new Cache({ namespace: "search-word" });
+const key = "last-query-state";
+
+interface LastQuery {
+  text: string;
+  manualTargetLanguage?: LanguageCode;
 }
 
-export function setLastQuery(text: string) {
-  if (text) cache.set(key, text);
-  else cache.remove(key);
+export function getLastQuery(): LastQuery | undefined {
+  const stored = cache.get(key);
+  if (stored === undefined) return undefined;
+
+  try {
+    const entry: unknown = JSON.parse(stored);
+    if (!isRecord(entry) || typeof entry.text !== "string" || !entry.text) return undefined;
+    const { text, manualTargetLanguage } = entry;
+    return isLanguageCode(manualTargetLanguage) ? { text, manualTargetLanguage } : { text };
+  } catch {
+    return undefined;
+  }
+}
+
+export function setLastQuery(text: string, manualTargetLanguage?: LanguageCode) {
+  if (text) {
+    cache.set(key, JSON.stringify({ text, manualTargetLanguage }));
+  } else {
+    cache.remove(key);
+  }
 }

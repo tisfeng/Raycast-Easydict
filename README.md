@@ -202,7 +202,7 @@ By default, the extension will automatically select the preferred language as th
 
 In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydict`, such as `Cmd` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant.
 
-To look up one selection after another while the window is still open, set the hotkey on **Search Selected Text** instead. It reads the selection before Raycast takes focus and always starts a new search, while invoking `Easydict` again may only bring back the previous search. With nothing selected, it reopens your last search.
+To look up one selection after another while the window is still open, set the hotkey on **Search Selected Text** instead. It reads the selection before Raycast takes focus and always starts a new search, while invoking `Easydict` again may only bring back the previous search. With nothing selected, it reopens your last search and restores any target language you chose manually.
 
 </p>
 

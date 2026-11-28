@@ -21,11 +21,11 @@ export default async function command() {
   logTrace("SearchSelectedText", `selected text length: ${selectedText.length}`);
 
   try {
+    const selection = selectedText ? { text: selectedText } : (getLastQuery() ?? { text: "" });
     await launchCommand({
       name: "easydict",
       type: LaunchType.UserInitiated,
-      arguments: { queryText: selectedText || getLastQuery() },
-      context: { selectedTextChecked: true },
+      context: { selection },
     });
   } catch (error) {
     logError("SearchSelectedText", `launch easydict error: ${error}`);

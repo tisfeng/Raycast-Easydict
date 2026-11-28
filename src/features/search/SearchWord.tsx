@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { myPreferences } from "@/consts";
 import { config } from "@/core/config";
 import { renderSelectedRow } from "@/core/content/render";
-import type { LanguageItem } from "@/core/language/types";
+import type { LanguageCode, LanguageItem } from "@/core/language/types";
+import { isLanguageCode } from "@/core/language/utils";
 import { getDisplaySectionIds, getListItemId } from "@/core/query/displayIdentities";
 import { getListItemIcon } from "@/core/results/icons";
 import type { QueryInput, QueryWordInfo } from "@/core/results/types";
@@ -34,14 +35,12 @@ import { useReleasePrompt } from "./useReleasePrompt";
 import { getWordAccessories } from "./WordAccessories";
 
 interface SearchWordProps {
+  /** An empty string opens a blank search. An omitted query allows automatic selection. */
   initialQueryText?: string;
-  fallbackText?: string;
-  skipSelectedText?: boolean;
+  initialTargetLanguage?: LanguageCode;
 }
 
-export default function SearchWord({ initialQueryText, fallbackText, skipSelectedText }: SearchWordProps) {
-  const trimQueryText = initialQueryText ? initialQueryText.trim() : fallbackText?.trim();
-
+export default function SearchWord({ initialQueryText, initialTargetLanguage }: SearchWordProps) {
   const { isShowingReleasePrompt, hideReleasePrompt } = useReleasePrompt();
   const { isInstalledEudic } = useInstalledEudic();
   const { has, toggle } = useFavoriteWords();
@@ -141,18 +140,14 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
   /**
    * Use to display input text.
    */
-  const [inputText, setInputText] = useState<string>(trimQueryText || "");
+  const [inputText, setInputText] = useState(initialQueryText ?? "");
   /**
    * searchText = inputText.trim(), avoid frequent request API with blank input.
    */
   const [searchText, setSearchText] = useState<string>("");
 
-  /**
-   * The user's target language starts with their second preferred language and can be changed manually.
-   */
-  const [userSelectedTargetLanguageItem, setUserSelectedTargetLanguageItem] = useState<LanguageItem>(
-    config.preferredLanguage2,
-  );
+  const [manualTargetLanguage, setManualTargetLanguage] = useState(initialTargetLanguage);
+  const targetLanguage = manualTargetLanguage ?? config.preferredLanguage2.youdaoLangCode;
 
   const setupCalled = useRef(false);
   const shownProfileLoadErrorRef = useRef<string | undefined>(undefined);
@@ -167,11 +162,9 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
    * Do something setup when the extension is activated. Only run once.
    */
   function setup() {
-    const userInputText = trimQueryText;
-
-    if (userInputText?.length) {
-      updateInputTextAndQueryText(userInputText, false);
-    } else if (myPreferences.enableAutomaticQuerySelectedText && !skipSelectedText) {
+    if (initialQueryText) {
+      updateInputTextAndQueryText(initialQueryText, false);
+    } else if (initialQueryText === undefined && myPreferences.enableAutomaticQuerySelectedText) {
       querySelectedText();
     }
   }
@@ -200,20 +193,20 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
    *
    */
   const updateSelectedTargetLanguageItem = (selectedLanguageItem: LanguageItem) => {
-    if (selectedLanguageItem.youdaoLangCode === userSelectedTargetLanguageItem.youdaoLangCode) {
-      return;
-    }
+    const selectedTarget = selectedLanguageItem.youdaoLangCode;
+    if (!isLanguageCode(selectedTarget) || selectedTarget === manualTargetLanguage) return;
 
-    setUserSelectedTargetLanguageItem(selectedLanguageItem);
+    setManualTargetLanguage(selectedTarget);
+    setLastQuery(searchText, selectedTarget);
+    if (selectedTarget === targetLanguage) return;
 
     const queryWordInfo: QueryInput = {
       word: searchText,
       fromLanguage: currentFromLanguageItem.youdaoLangCode,
-      toLanguage: selectedLanguageItem.youdaoLangCode,
+      toLanguage: selectedTarget,
     };
 
-    // Clean up previous query results immediately before new query.
-    clearQueryResult();
+    debouncedQuery.cancel();
     queryTextWithTextInfo(queryWordInfo);
   };
 
@@ -227,7 +220,7 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
     setInputText(normalizedText);
     const trimText = normalizedText.trim();
     setSearchText(trimText);
-    setLastQuery(trimText);
+    setLastQuery(trimText, manualTargetLanguage);
 
     if (trimText.length === 0) {
       debouncedQuery.cancel();
@@ -238,12 +231,11 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
     // Only different input text, then clear old results before new input text query.
     if (trimText !== searchText) {
       debouncedQuery.cancel();
-      clearQueryResult();
-      const toLanguage = userSelectedTargetLanguageItem.youdaoLangCode;
       if (isDelay) {
-        debouncedQuery(trimText, toLanguage);
+        clearQueryResult();
+        debouncedQuery(trimText, targetLanguage);
       } else {
-        queryText(trimText, toLanguage);
+        queryText(trimText, targetLanguage);
       }
     }
   }
@@ -315,9 +307,7 @@ export default function SearchWord({ initialQueryText, fallbackText, skipSelecte
                       isFavorite={isFavorite}
                       onToggleFavorite={onToggleFavorite}
                       onLanguageUpdate={updateSelectedTargetLanguageItem}
-                      onRequery={() =>
-                        queryText(searchText, userSelectedTargetLanguageItem.youdaoLangCode, { bypassCache: true })
-                      }
+                      onRequery={() => queryText(searchText, targetLanguage, { bypassCache: true })}
                       onRegenerate={
                         item.service.serviceId.startsWith("profile:")
                           ? () => regenerateService(item.service.serviceId)
