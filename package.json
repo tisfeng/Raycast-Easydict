@@ -28,6 +28,13 @@
       ]
     },
     {
+      "name": "search-selected-text",
+      "title": "Search Selected Text",
+      "subtitle": "Easydict",
+      "description": "Query the selected text, replacing any search that is still open. Assign it a hotkey for looking up one word after another.",
+      "mode": "no-view"
+    },
+    {
       "name": "manage-providers",
       "title": "Manage Providers",
       "subtitle": "Easydict",
