@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" width="128">
+  <img src="https://raw.githubusercontent.com/tisfeng/Raycast-Easydict/main/assets/extension-icon.png" width="128" alt="Raycast Easydict icon" />
 </p>
 
 <h1 align="center">Raycast Easydict</h1>
@@ -14,7 +14,7 @@
 
 <p align="center">
   <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
-    <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+    <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png" alt="Install Easy Dictionary Raycast Extension" />
   </a>
 </p>
 
@@ -27,57 +27,68 @@
   </sup>
 </p>
 
-## What is Raycast Easydict?
+<p align="center">
+  <a href="#features">Features</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#configuration">Configuration</a> ·
+  <a href="#integrations">Integrations</a> ·
+  <a href="#supported-languages-and-services">Languages</a>
+</p>
 
-**Raycast Easydict** is a simple, easy-to-use, **cross-platform** dictionary and translation extension for Raycast, supporting quick word lookups and text translation. In addition to traditional dictionary and translation services, it also supports AI-powered translation and lookup, including Raycast AI and OpenAI-compatible endpoints.
+## Overview
 
-Beyond quick lookups, Raycast Easydict also works as a lightweight language-learning tool: save results to review offline, view Chinese character stroke-order diagrams, and export them to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
+**Raycast Easydict** is a clean, easy-to-use, **cross-platform dictionary and translation extension for Raycast** (supporting both macOS and Windows). It brings together traditional dictionaries, multi-engine machine translation, and AI-powered lookups and translation (via Raycast AI or any OpenAI-compatible endpoint) for fast everyday word lookups and text translation.
+
+Beyond quick lookups, Raycast Easydict also doubles as a lightweight language-learning companion: save complete lookup results to favorites for review, inspect Chinese character stroke-order diagrams, or export your favorites to [Anki](https://apps.ankiweb.net/) for spaced-repetition practice.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-1-1671806758.png" width="49%" />
   <img src="https://github.com/user-attachments/assets/268ced8a-1ba8-47f4-bee5-bc3af4987c7a" width="49%" />
 </p>
 
-<sup>💡 <b>Looking for the native macOS app?</b> Try the standalone [Easydict App](https://github.com/tisfeng/Easydict)</sup>
+<p>
+  <sup>💡 <b>Looking for a native macOS app?</b> Try the standalone <a href="https://github.com/tisfeng/Easydict">Easydict App</a></sup>
+</p>
 
 ## Features
 
 **Look up and translate**
 
-- 📦 **Out of the box**: look up words and translate text, with automatic language detection and a preferred target language; auto-queries selected text (on by default) and supports OCR screenshot translation.
-- 🎨 **Rich results**: translations, pronunciations, exam coverage, parts of speech, tenses and word forms, web phrases.
-- 🌐 **Multiple services**: dictionary lookup with Youdao, Linguee, and Wiktionary; translation with 🍎 Apple System Translation, DeepL, Google, Bing, Baidu, Volcano, Youdao, and Caiyun; 🤖 AI translation and lookup with Raycast AI or any OpenAI-compatible endpoint, including a dictionary mode that builds structured entries for words and terms.
-- 🔊 **Auto pronunciation**: plays the word audio automatically after a query, with Youdao TTS for other languages.
+- 📦 **Out of the box**: Automatically detects input language and selects your preferred target language; supports automatic selected-text lookup (enabled by default) and cross-platform OCR screenshot translation.
+- 🎨 **Rich dictionary results**: Displays translations, phonetics and audio pronunciation, exam tags, parts of speech, tenses and word forms, web phrases, and more.
+- 🌐 **Multiple services in one place**:
+  - **Dictionaries**: Built-in Youdao, Linguee, and Wiktionary dictionaries.
+  - **Machine translation**: Supports DeepLX, Bing, DeepL, Google, Baidu, Volcano, Youdao, Caiyun, and 🍎 Apple System Translation (macOS only).
+  - **🤖 AI lookup and translation**: Works with Raycast AI or any OpenAI-compatible endpoint; dictionary mode generates structured entries for words and terms.
+- 🔊 **Auto pronunciation**: Automatically plays audio when looking up English words, preferring audio bundled with the result and falling back to Youdao pronunciation or system TTS.
 
 **Learn and review**
 
-- ✍️ **Stroke order**: view Chinese character stroke-order diagrams to help with memorization and writing.
-- ⭐ **Favorite Words**: save complete results for offline browsing and management.
-- 🧠 **Anki review**: export favorites to [Anki](https://apps.ankiweb.net/) for spaced-repetition review.
+- ✍️ **Stroke order**: View Chinese character stroke-order diagrams to aid memorization and writing.
+- ⭐ **Favorite Words**: Save full snapshots of query results for offline browsing and management.
+- 🧠 **Anki integration**: Export saved favorites to [Anki](https://apps.ankiweb.net/) via AnkiConnect for spaced-repetition review.
 
-**_If you like this extension, please give it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️, thanks!_**
+<details>
+<summary><b>Screenshots</b></summary>
 
-## Screenshots
-
-
-### Manage Providers
+**Manage Providers**
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/bace6248-bf41-4561-88c8-b6ba7e2b7ee2" width="49%" />
   <img src="https://github.com/user-attachments/assets/bb908545-5a5c-45f7-8712-4e3943dfa243" width="49%" />
 </p>
 
-
-### Favorite Words & Chinese Stroke Order
+**Favorite Words & Chinese Stroke Order**
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/f6a39ed5-d3ae-46e5-bb35-d0645c278e15" width="49%" />
   <img src="https://github.com/user-attachments/assets/81b8154e-8d1b-4d2c-8665-92a3520f91da" width="49%" />
 </p>
 
-### Dictionary Details
+**Dictionary Details**
 
-**Youdao Modern Chinese Dict**
+**Youdao Modern Chinese Dictionary**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/xiaxi-1665674049.png" width="49%" />
@@ -86,214 +97,229 @@ Beyond quick lookups, Raycast Easydict also works as a lightweight language-lear
 
 **[Linguee Dictionary](https://www.linguee.com/)**
 
-| English <--> Chinese | English <--> French |
-| - | - |
+| English ↔ Chinese | English ↔ French |
+| --- | --- |
 | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1666538642.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-3-1660916319.png) |
 | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822170315915-1661158995.png) | ![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20220822163332948-1661157213.png) |
 
-### Show More Details (Shortcut `Cmd + M`)
+**Show More Details (macOS `Cmd+M` / Windows `Ctrl+M`)**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/showMore-1664440735.png" width="49%" />
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/uk-1666538447.png" width="49%" />
 </p>
 
-### Translation Results
+**Text Translation**
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/easydict-5-1663604001.png" width="49%" />
   <img src="https://github.com/user-attachments/assets/94e8f82d-c7b9-456e-b01f-d291926cfcac" width="49%" />
 </p>
 
+</details>
+
+> If you find this extension helpful, please consider giving it a [Star](https://github.com/tisfeng/Raycast-Easydict) ⭐️!
 
 ## Installation
 
-This is an extension of Raycast, so you need to install [Raycast](https://www.raycast.com/) first. Easydict works on both macOS and Windows.
+Easydict is an extension for [Raycast](https://www.raycast.com/), so you will need to install Raycast first (available on both macOS and Windows).
 
-> [Raycast](https://www.raycast.com/) is a blazingly fast, totally extendable launcher. Similar to [Alfred](https://www.alfredapp.com/) but it's completely free!
+> [Raycast](https://www.raycast.com/) is a blazingly fast, totally extendable launcher. Like [Alfred](https://www.alfredapp.com/), its core features are completely free.
 
-### Install from Raycast Store
+### Install from the Raycast Store
 
 <a title="Install Easy Dictionary Raycast Extension" href="https://www.raycast.com/isfeng/easydict#install">
-  <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png">
+  <img width="256" style="width: 256px" src="https://assets.raycast.com/isfeng/easydict/install_button@2x.png" alt="Install Easy Dictionary Raycast Extension" />
 </a>
 
-### Manually Install
+### Build from Source
+
+Requires Node.js 22.22.2 or later:
 
 ```bash
-git clone https://github.com/tisfeng/Raycast-Easydict.git && cd Raycast-Easydict
+git clone https://github.com/tisfeng/Raycast-Easydict.git
+cd Raycast-Easydict
 
-npm install && npm run dev
+npm install
+npm run dev
 ```
+
+## Quick Start
+
+### Commands
+
+Once installed, the extension provides 6 commands in Raycast:
+
+| Command | Description | Platform |
+| --- | --- | --- |
+| **Search Word** | Main dictionary and translation view; type directly or auto-query selected text | macOS / Windows |
+| **Search Selected Text** | Hotkey-oriented command for back-to-back selection lookups; always starts a fresh query | macOS / Windows |
+| **OCR Translate** | Capture a screen region, recognize text locally with OCR, and translate it | macOS / Windows |
+| **Select OCR Language** | Choose an installed Windows OCR language for OCR Translate | Windows only |
+| **Favorite Words** | Browse and manage saved words offline, and export them to Anki | macOS / Windows |
+| **Manage Providers** | Configure AI providers and reorder all services | macOS / Windows |
+
+### Query Selected Text
+
+**Query Selected Text Automatically** is enabled by default—opening **Search Word** automatically queries whatever text is selected in the frontmost app.
+
+Depending on your workflow, assign a global hotkey (such as `Cmd+E`) to either command:
+
+- **Assign to Search Word**: Select text and press your hotkey to look it up—great for occasional single lookups.
+- **Assign to Search Selected Text** *(recommended for consecutive lookups)*: Reads the selection before Raycast takes focus and always replaces any search that is still open, whereas re-invoking **Search Word** while it is open may simply return to the previous search. If nothing is selected, it reopens the last query and restores any manually chosen target language.
+
+### Shortcuts
+
+| Action | View | macOS | Windows |
+| --- | --- | --- | --- |
+| Add / Remove from Favorites | Search Word | `Cmd+.` | `Ctrl+.` |
+| Show More Details | Search Word | `Cmd+M` | `Ctrl+M` |
+| Open Current Service in Browser (`Open in …`) | Search Word | `Cmd+O` | `Ctrl+O` |
+| Read Query Text / Read Word | Search Word / Favorite Words | `Cmd+R` | `Ctrl+R` |
+| Read Result Text | Search Word | `Cmd+Shift+R` | `Ctrl+Shift+R` |
+| Requery All Services | Search Word | `Cmd+Option+R` | `Ctrl+Alt+R` |
+| Add to Anki | Favorite Words | `Cmd+Option+A` | `Ctrl+Shift+A` |
+| Move Up / Move Down | Manage Providers | `Cmd+Option+Up/Down` | `Ctrl+Alt+Up/Down` |
 
 ## Configuration
 
-Easydict works well out of the box. The following options help you customize its behavior.
+Easydict works out of the box. You can customize the following options in **Extension Settings** or **Manage Providers** as needed.
 
-### Manage Providers
+### Preferred Languages and Target Language
 
-Use the **Manage Providers** command to manage AI providers and to set the order in which all providers are queried.
+Extension Settings provides two language preferences—**First Language** (defaults to Simplified Chinese) and **Second Language** (defaults to English)—which must be set to different languages. Together, they control:
 
-**Providers and order**
+- **More accurate language detection**: During automatic detection, First Language and Second Language are prioritized together as a pair over other languages, without strictly ranking First ahead of Second. For example, the English word `heel` is sometimes misidentified as Dutch; if English is one of your preferred languages, it will be recognized as English instead.
+- **Automatic target language selection**: **Second Language** is used as the default target language; if the detected source language is your Second Language, **First Language** is used instead.
+  - With the default settings (Simplified Chinese / English): Chinese → English, English → Simplified Chinese, and other languages such as Japanese or French → English.
+- **Manual target language override**: Enable **Show Select Target Language** (off by default) in Extension Settings to temporarily pick another target language from the action panel.
 
-- Built-in providers are listed here for ordering only; enable and configure them in Extension Settings.
-- Reorder any provider with **Move Up**/**Move Down** (`Cmd+Option+Up/Down` on macOS, `Ctrl+Alt+Up/Down` on Windows).
+### Providers and AI Services
 
-**AI providers**
+Run **Manage Providers** to configure AI providers and control the display order of every service:
 
-- AI providers connect to **Raycast AI** or any **OpenAI-compatible endpoint**.
-- Built-in presets cover common providers: pick yours, add the API key, and adjust the model if needed. If yours is missing, [contributions are welcome](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md).
-- **Word & Term Results** chooses **Plain Translation** or **AI-Generated Dictionary Entry**. Dictionary mode builds a structured entry for words and terms — pronunciation, senses, examples, and word forms — while other input is translated normally; it can be slower and may need a retry.
+- **Ordering services**: Built-in dictionary and translation services are only ordered here (enable them and enter API keys in Extension Settings). Use **Move Up** / **Move Down** to reorder any provider.
+- **Connecting AI providers**: Supports **Raycast AI** and any **OpenAI-compatible endpoint**. Built-in presets cover popular providers (OpenAI, Gemini, DeepSeek, OpenRouter, SiliconFlow, Zhipu GLM, Kimi, MiniMax, Xiaomi MiMo, and more)—pick a preset, add your API key, and adjust the model if needed. Missing your provider? See the [contribution guide](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/development/adding-ai-provider.md).
+- **AI dictionary mode**: Set **Word & Term Results** to either **Plain Translation** or **AI-Generated Dictionary Entry**. Dictionary mode builds a structured entry for words and terms (phonetics, definitions, examples, and word forms) while translating longer text normally. Because it produces structured output, responses can be slower and may occasionally require a retry.
 
-**Legacy migration**
+<details>
+<summary><b>Legacy settings migration (versions prior to v3.2.0)</b></summary>
 
-- OpenAI and Gemini settings with an API key migrate automatically the next time you open Search Word or Manage Providers, preserving connection settings, enablement, and order.
-- The old settings remain import sources only; **Add from Legacy OpenAI/Gemini Settings…** copies them into a new provider, initially disabled.
-- Migration is per device (each device needs the legacy API key) and offers a retry if it fails.
-
-### Preferred Languages
-
-The default preferred languages are simplified Chinese and English. You can change them according to your preferences.
-
-Preference language has two main functions:
-
-<details><summary> First, it improves the accuracy of automatic detection of input text language. </summary>
-
-<p>
-
-Preference language will be given priority in order during automatic detection. This is because some words may represent multiple languages at the same time, and the automatic detection program cannot work as expected. In most cases, the automatic detection of input text is very useful, except for very few special cases. For example, the English word `heel` will be automatically recognized into Dutch by Youdao translation, and then the translation results are not what we expect. At this time, if your `Easydict` preferred language contains English, it will be recognized into English first and translated correctly.
-
-</p>
+- OpenAI and Gemini fields labeled **Legacy** in Extension Settings are retained only for migration or manual import and are no longer queried directly.
+- Legacy settings with an API key migrate automatically the next time you open **Search Word**, **Search Selected Text**, **OCR Translate**, or **Manage Providers**, preserving connection settings, enabled state, and provider order.
+- Choosing **Add from Legacy OpenAI/Gemini Settings…** in **Manage Providers** creates a separate AI provider copy from the old fields (initially disabled—enable it after saving). Editing or deleting it does not modify the legacy settings.
 
 </details>
 
-<details><summary> Second, it is used to confirm your target translation language.  </summary>
+### Built-in Service Setup
 
-<p>
+Here is an overview of the default state and API key requirements for all built-in services:
 
-For example, if you input a sentence arbitrarily, it will be translated into the first preferred language. If the automatically recognized language is the same as your first preferred language, it will be automatically translated into the second preferred language.
+| Service | Type | Enabled by Default | API Key | Notes |
+| --- | --- | --- | --- | --- |
+| Youdao Dictionary | Dictionary | ✅ | Not required | Simplified Chinese ↔ English, French, Japanese, Korean |
+| Linguee Dictionary | Dictionary | ✅ | Not required | Bilingual definitions and examples across 19 languages |
+| Wiktionary Dictionary | Dictionary | ❌ | Not required | Powered by English Wiktionary; great for less common pairs |
+| DeepLX | Translation | ✅ | Not required | Free DeepL translation endpoint |
+| Bing Translate | Translation | ✅ | Not required | Supports switching **Bing Host** in Extension Settings |
+| Google Translate | Translation | ❌ | Not required | Requires a system proxy in mainland China |
+| Youdao Translate | Translation | ❌ | Not required | Web endpoint; Simplified Chinese ↔ selected languages only |
+| 🍎 Apple System Translation | Translation | ❌ | Not required | macOS only; requires a one-time Shortcuts setup |
+| Caiyun Translate | Translation | ❌ | Optional (built-in test token) | Ready to try; [apply for your own token](https://bobtranslate.com/service/translate/caiyun.html) for regular use |
+| DeepL | Translation | ❌ | Required | [Apply for a DeepL API Key](https://www.deepl.com/pro-api); supports custom **DeepL API URL** |
+| Baidu Translate | Translation | ❌ | Required | [Apply for App ID and App Secret](https://bobtranslate.com/service/translate/baidu.html) |
+| Volcano Translate | Translation / Detection | ❌ | Required | [Apply for Access Key](https://bobtranslate.com/service/translate/volcengine.html) |
 
-</p>
+> **Tip**: Caiyun Translate's built-in official test token is shared and rate-limited, so it may slow down or fail under heavy use. If you rely on it regularly, apply for your own key and set it in Extension Settings. Check each provider's website for current free-tier quotas.
 
-</details>
+### Auto-Play Word Pronunciation
 
-### Select Target Language
+**Play Word Pronunciation Automatically** is enabled by default and works as follows:
 
-<details><summary> Specify the target language. This option is turned off by default. </summary>
-
-<p>
-
-By default, the extension will automatically select the preferred language as the target translation language. However, sometimes if you want to manually specify a language as the target language, you can turn on this option in the preferences and then you can temporarily select another target language in the action panel.
-
-</p>
-
-</details>
-
-### Automatic Query Selected Text
-
-<details><summary> Automatic query selected text of the frontmost application, this option is turned on by default. </summary>
-
-<p>
-
-In order to better match the automatic selected text feature, it is a good idea to set a hotkey for `Easydict`, such as `Cmd` + `E`, so that after selected the text, you can directly query words through the hotkey, which is very smooth and elegant.
-
-To look up one selection after another while the window is still open, set the hotkey on **Search Selected Text** instead. It reads the selection before Raycast takes focus and always starts a new search, while invoking `Easydict` again may only bring back the previous search. With nothing selected, it reopens your last search and restores any target language you chose manually.
-
-</p>
-
-</details>
-
-### Automatic Play Query Word Pronunciation
-
-<details><summary> Automatically play the word audio after querying the word, turned on by default. </summary>
-
-<p>
-
-Note that when this option is started, the voice will be played only when the query is judged to be `is_Word` and in English, e.g. `good`, `look for`, etc. Use **Read Query Text** to play other queries manually.
-
-The content of playing voice: English words are pronounced by the online Youdao dictionary first, and other words are pronounced by the TTS service of Youdao translation. For long text playback, use the say command.
-
-</p>
-
-</details>
-
-Use these shortcuts from a query result:
-
-| Action | macOS | Windows |
-| --- | --- | --- |
-| Read Query Text | `Cmd+R` | `Ctrl+R` |
-| Read Result Text | `Cmd+Shift+R` | `Ctrl+Shift+R` |
-| Requery All Services | `Cmd+Option+R` | `Ctrl+Alt+R` |
-
-![beauty](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/beauty-1660917383.png)
+- Audio plays automatically only when the query is recognized as an English word or phrase (such as `good` or `look for`). Use **Read Query Text** to manually read any other input.
+- **Audio fallback chain**: Prefers audio returned with the lookup result (from Youdao, Linguee, or Wiktionary); falls back to Youdao dictionary audio for English words without bundled audio, and to system TTS (macOS `say` / Windows Speech Synthesis) for other languages.
+- When reading long text with system TTS, speech is truncated to the first 40 characters.
 
 ### Query Cache
 
-Open **Preferences** from a query result's action menu to configure caching. **Query Cache** controls completed dictionary and machine translation results; **AI Query Cache** controls completed AI translations and dictionary entries. Both default to **Off**. Choose **Words Only** to cache input recognized as a word or term, or **All Text** to also cache sentences and longer text.
+Two independent local cache settings are available, both set to **Off** by default:
 
-Built-in dictionary results are retained for up to **7 days**; machine translations and AI results for up to **24 hours**. Confirmed language-detection results are also cached for up to 24 hours when either setting permits caching the input. There is no separate language-detection cache setting; it is disabled when both settings are Off.
+- **Query Cache**: Controls caching for built-in dictionary and machine translation results.
+- **AI Query Cache**: Controls caching for AI translations and AI-generated dictionary entries.
 
-Cached results show a clock indicator. Use these actions to manage them:
+**Modes and retention**
 
-- **Requery All Services**: Query the enabled services again with fresh language detection, bypassing the cache.
-- **Regenerate AI Result**: Generate a fresh result from the selected AI provider, leaving other providers' results in place. This also works when AI caching is Off.
-- **Clear Query Cache**: Remove cached dictionary, translation, AI, and language-detection results.
+- **Off**: Do not cache results.
+- **Words Only**: Cache only inputs identified as words or phrases.
+- **All Text**: Cache all inputs, including sentences and longer text.
+- **Expiration**: Built-in dictionary results are kept for up to **7 days**; machine translations, AI results, and confirmed language detection results are kept for up to **24 hours**.
+- Language detection does not have a separate switch: confirmed detection results are cached whenever either cache setting permits caching the current input, and are not cached when both are **Off**.
 
-Fresh results from requerying or regeneration replace the cached result when the corresponding cache mode allows caching that input.
+**Managing cached results**
 
-### Favorite Storage and Recovery
+Cached results display a clock icon and can be controlled from the action panel:
 
-Favorites remain available offline after upgrading. Older versions only see the snapshot from before the upgrade, and edits made in either version do not sync between formats.
+- **Requery All Services**: Bypass existing cache, run fresh language detection, and query all enabled services.
+- **Regenerate AI Result**: Regenerate output for the currently selected AI provider without affecting other services.
+- **Clear Query Cache**: Clear cached dictionary, translation, AI, and language detection entries (shown only when at least one cache setting is enabled).
 
-If saved favorites cannot be read, Favorite Words keeps the original data and blocks changes. Use **Export Original Data** to save a local JSON backup, or **Restore from Backup** to select a valid backup; **Restore Previous-Version Favorites** recovers the retained collection when the current data is damaged. The current data is backed up before either restore. Backups are stored locally in the extension support directory, and **Open Backup Folder** reveals them. Data from a newer version stays read-only: export it and open it with a compatible Easydict version.
-
-### Anki Preferences
-
-These preferences control how Favorite Words are sent to [Anki](#anki).
-
-- **Add Favorites to Anki Automatically**: also add each new favorite to Anki (off by default).
-- **Anki Deck**: the deck that receives the cards (default `Easydict`); the deck and an `Easydict` note type are created on first use.
-- **AnkiConnect URL**: the address of the AnkiConnect add-on (default `http://127.0.0.1:8765`); change it when AnkiConnect listens on a custom port or on another machine.
+Fresh results obtained via requery or regeneration automatically replace cached entries when permitted by the active cache mode.
 
 ### System Proxy
 
-`Easydict` supports system proxy. To use it, turn on `Use System Proxy Settings` in the Raycast extension settings. When enabled, all network requests will be sent through the system proxy. This is useful for services that require a proxy (e.g., Google Translate in China) or for counter IP blocking (some services such as Linguee have frequency restrictions on IPs). **Enabling proxy may slow down response time, so please enable it only when needed.**
+Easydict does not have its own proxy toggle—all network requests follow Raycast's global proxy setting.
+
+To route traffic through your system proxy, open **Raycast → Settings → Advanced → Connection** and enable **Use System Proxy Settings**. This is useful for accessing Google Translate in mainland China or working around IP rate limits on services like Linguee.
+
+> Enabling a proxy can add network latency, so turn it on only when needed.
 
 ### Windows OCR Language
 
-On Windows, **OCR Translate** recognizes text with the built-in Windows OCR engine and the OCR language packs installed in Windows. Run **Select OCR Language** to see the installed languages and pin one; the default **Automatic (Windows profile)** creates the engine from the first OCR-capable language in your Windows language settings. Install more language packs under Windows Settings → Time & Language → Language & Region. This command does not affect macOS, where recognition uses Apple Vision and detects the language automatically.
+On Windows, **OCR Translate** uses the built-in Windows OCR engine and relies on OCR language packs installed on your system:
+
+- Run **Select OCR Language** to inspect installed OCR languages and pin a specific language.
+- The default **Automatic (Windows profile)** option initializes the engine with the first OCR-capable language in your Windows language list.
+- To recognize additional languages, install the corresponding language packs in **Windows Settings → Time & language → Language & region**.
+
+This command applies to Windows only and does not affect macOS (macOS uses the Apple Vision framework with automatic language detection).
 
 ## Integrations
 
 ### Anki
 
-Favorite Words can be sent to [Anki](https://apps.ankiweb.net/) for spaced-repetition review through the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`).
+Export saved favorites to [Anki](https://apps.ankiweb.net/) via the [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on (code `2055492159`) for spaced-repetition review.
 
-- **Add cards**: Keep Anki open, then use **Add to Anki** (`Cmd + Option + A`, `Ctrl + Shift + A` on Windows) or **Add All to Anki** from a favorite's action menu. If Anki is not running, the word is still saved to Favorites and can be sent later with **Add All to Anki**.
-- **Cards**: The front shows the word, phonetic, and pronunciation (the saved audio is downloaded into Anki and plays automatically); the back shows translations and dictionary explanations. Words already in the deck are skipped, so **Add All to Anki** can be run again after saving new favorites. Removing a favorite does not delete its Anki card, so review history is kept.
+- **Adding cards**: Keep Anki open, then select **Add to Anki** (macOS `Cmd+Option+A` / Windows `Ctrl+Shift+A`) or **Add All to Anki** from the action menu in **Favorite Words**. If Anki is closed, words are still saved to Favorites and can be sent later with **Add All to Anki**.
+- **Card fields**: The front contains the word, phonetics, and audio (saved pronunciation is downloaded into Anki and auto-plays); the back contains translations and dictionary definitions. Words already in the deck are skipped automatically, and removing a favorite never deletes its Anki card so your review history stays intact.
 
-The deck, the AnkiConnect address, and automatic adding are configured in [Anki Preferences](#anki-preferences).
+**Anki settings**
 
-### PopClip
+- **Add Favorites to Anki Automatically**: Automatically send words to Anki when favorited (off by default).
+- **Anki Deck**: Destination deck name (defaults to `Easydict`); created automatically along with an `Easydict` note type on first use.
+- **AnkiConnect URL**: Endpoint for the AnkiConnect add-on (defaults to `http://127.0.0.1:8765`); update this if AnkiConnect uses a custom port or runs on another machine.
 
-You need to install [PopClip](https://pilotmoon.com/popclip/) first, then add a shortcut key for `Easydict`, such as `Cmd + E`, then you can open `Easydict` quickly with `PopClip`!
+### PopClip (macOS only)
 
-Usage: Select the following code block, `PopClip` will show "Install Easydict", just click it.
+Install [PopClip](https://pilotmoon.com/popclip/) and assign a hotkey (for example `Cmd+E`) to **Search Word** (or **Search Selected Text**) to trigger Easydict directly from the PopClip popup.
 
+Select the snippet below and click **Install "Easydict"** in PopClip:
+
+```yaml
+# popclip
+name: Easydict
+icon: search E
+key combo: command E
 ```
-  # popclip
-  name: Easydict
-  icon: search E
-  key combo: command E
-```
 
-> Ref: https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples
+> Reference: [PopClip Extension Snippets Examples](https://github.com/pilotmoon/PopClip-Extensions#extension-snippets-examples)
 
 ### Eudic
 
-If the [Eudic](https://www.eudic.net/v4/en/app/eudic) dictionary app is installed, **Open in Eudic App** opens the queried word in it (macOS).
+If [Eudic](https://www.eudic.net/v4/en/app/eudic) is installed on your computer, an **Open in Eudic App** action appears in the result action menu to open the current word in Eudic (supported on macOS and Windows; Windows requires Eudic to register the `eudic://` URL protocol).
 
-## Supported Languages
+To make it the primary action instead of **Copy Text**, enable **Show Open in Eudic First** in Extension Settings.
+
+## Supported Languages and Services
 
 <!-- automd:easydictLanguages locale="en" -->
 
@@ -303,11 +329,13 @@ Currently we support 49 languages: **Simplified Chinese, Traditional Chinese, En
 
 ### Language Detection
 
-Easydict uses three remote language detection services: Bing, Baidu, and Volcano. Franc provides the local fallback.
+Easydict uses Bing, Baidu, and Volcano for remote language detection, with Franc as a local fallback:
 
-Bing and Baidu language detection are enabled by default. Volcano can be enabled in preferences and requires its own credentials. In general, enabling more detection services can improve accuracy and response time.
+- **Bing** and **Baidu** are enabled by default; **Volcano** can be enabled in Extension Settings (requires an Access Key).
+- **Detect Language Speed First** is enabled by default and returns early as soon as a preferred language is matched. Turning it off waits for cross-checks across more services for higher accuracy, at the cost of extra latency.
 
-Details of the languages supported by each language detection service are as follows:
+<details>
+<summary>Show language detection support matrix (49 languages)</summary>
 
 <!-- automd:easydictDetectionTable locale="en" -->
 
@@ -360,114 +388,99 @@ Details of the languages supported by each language detection service are as fol
 | Georgian | ✅ | ✅ | ✅ |
 | Serbian | ✅ | ✅ | ✅ |
 | Croatian | ✅ | ✅ | ✅ |
-| Mongolian | ✅ | ✅ | ✅ |
+| Mongolian | ✅ | ❌ | ✅ |
 | Hebrew | ✅ | ✅ | ✅ |
 
 <!-- /automd -->
 
-### Dictionary
+</details>
 
-#### Youdao Dictionary
+### Dictionaries
 
-Support 5 languages, (Chinese), English, French, Japanese, Korean.
+- **Youdao Dictionary**: Supports Simplified Chinese ↔ English, French, Japanese, and Korean. Does not support Traditional Chinese or direct lookups between non-Chinese languages.
+- **Linguee Dictionary**: Supports 19 languages—Chinese, Japanese, and Russian pair only with English, while the remaining 16 languages (English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, and Czech) can be looked up freely between one another.
+- **Wiktionary Dictionary**: Free, keyless dictionary backed by [English Wiktionary](https://en.wiktionary.org/) (off by default; enable it in Extension Settings). Displays English definitions for non-English words and target-language translations for English words, including parts of speech, IPA pronunciation, recorded audio, word forms, and examples—handy for language pairs not covered by Linguee.
 
-#### Linguee Dictionary
+### Translation Services
 
-Support 19 languages, (Chinese, Japanese, Russian), English, French, Spanish, Portuguese, Italian, German, Swedish, Romanian, Slovak, Dutch, Hungarian, Greek, Danish, Finnish, Polish, Czech.
+Easydict includes DeepLX, Bing, DeepL, Google, Baidu, Volcano, Youdao, Caiyun, and macOS-only 🍎 Apple System Translation, and lets you add AI services such as Raycast AI, OpenAI, Gemini, and DeepSeek in **Manage Providers**.
 
-#### Wiktionary Dictionary
+See [Built-in Service Setup](#built-in-service-setup) for API keys and defaults, and [System Proxy](#system-proxy) for proxy configuration.
 
-This free dictionary uses [English Wiktionary](https://en.wiktionary.org/) and requires no API key. It shows English definitions for words in other languages and available translations into your target language for English words. Results can include parts of speech, IPA pronunciation, recorded audio, word forms, and usage examples. It covers language pairs without a reviewed Linguee dictionary, such as English ↔ Danish.
+> **Google Translate**: The China site (`translate.google.cn`) is no longer available and requests now use the international endpoint (`translate.google.com`), which requires a system proxy in mainland China.
+>
+> **🍎 Apple System Translation**: macOS only; requires a one-time setup in the Shortcuts app. See [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md).
 
-### Translation
-
-Easydict supports DeepL, DeepLX, Google, Bing, 🍎 Apple System Translation, Baidu, Volcano, Youdao, and Caiyun. Add AI translation providers such as OpenAI, Gemini, and Tencent TokenHub in **Manage Providers**.
-
-Google and DeepL translations support system proxy. To enable proxy, turn on `Use System Proxy Settings` in the Raycast extension settings. (DeepL works without a proxy, but sometimes requests time out)
-
-> Note ⚠️: Google Translate China site (translate.google.cn) is currently unavailable. You can only use the international version (translate.google.com), so you may need to enable a proxy to use Google Translate.
-
-🍎 Apple System Translation requires a one-time setup with the Shortcuts app; see [How to use macOS Apple System Translation in Easydict?](https://github.com/tisfeng/Raycast-Easydict/blob/main/docs/How-to-use-macOS%F0%9F%8D%8Esystem-translation-in-Easydict.md).
-
-Supported translation languages:
+<details>
+<summary>Show translation service support matrix (49 languages)</summary>
 
 <!-- automd:easydictTranslationTable locale="en" -->
 
-| Languages | Youdao | DeepL | Google | Bing | 🍎 Apple | Baidu | Volcano | Caiyun |
-| - | - | - | - | - | - | - | - | - |
-| Simplified Chinese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Traditional Chinese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| English | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Japanese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Korean | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| French | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Spanish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Portuguese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Italian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| German | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Russian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Arabic | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Swedish | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Romanian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Thai | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Slovak | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Dutch | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Hungarian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Greek | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Danish | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Finnish | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Polish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Czech | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Turkish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Lithuanian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Latvian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Ukrainian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Bulgarian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Indonesian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Malay | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Slovenian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Estonian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Vietnamese | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Persian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Hindi | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Telugu | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Tamil | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Urdu | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Filipino | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Khmer | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Lao | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Bangla | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Burmese | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Norwegian | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Georgian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Serbian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Croatian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Mongolian | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Hebrew | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Languages | Youdao | DeepL | DeepLX | Google | Bing | 🍎 Apple | Baidu | Volcano | Caiyun |
+| - | - | - | - | - | - | - | - | - | - |
+| Simplified Chinese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Traditional Chinese | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| English | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Japanese | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Korean | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| French | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Spanish | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Portuguese | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Italian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| German | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Russian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Arabic | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Swedish | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Romanian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Thai | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Slovak | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Dutch | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Hungarian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Greek | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Danish | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Finnish | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Polish | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Czech | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Turkish | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Lithuanian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Latvian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Ukrainian | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Bulgarian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Indonesian | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Malay | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Slovenian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Estonian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Vietnamese | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Persian | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Hindi | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Telugu | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Tamil | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Urdu | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Filipino | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Khmer | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Lao | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Bangla | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Burmese | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Norwegian | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Georgian | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Serbian | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Croatian | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Mongolian | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Hebrew | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
 
 <!-- /automd -->
 
-## Translation Services Setup
+</details>
 
-For ease of use, we provide built-in API credentials (AppID and AppKey) for translation services. However, these shared services have rate limits. If too many users access them simultaneously, responses may slow down or fail. Therefore, for the best experience, we highly recommend applying for your own dedicated API credentials and updating them in the Preferences page.
-
-Don't worry, these services offer generous free tiers that are more than enough for personal use.
-
-The following tutorial (from [`Bob`](https://bobtranslate.com/guide/advance/service.html)) will guide you through the application process step by step.
-
-- [Youdao Translate](https://bobtranslate.com/service/translate/youdao.html)： Select `text translation` and `speech synthesis`. (You will receive ¥50 experience fund)
-- [Baidu Translate](https://bobtranslate.com/service/translate/baidu.html)
-- [Volcano Translate](https://bobtranslate.com/service/translate/volcengine.html)
-- [Caiyun Translate](https://bobtranslate.com/service/translate/caiyun.html)
-- [DeepL](https://www.deepl.com/translator)
-
-![](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/A2ECFJ-1664270926.png)
+> **Youdao Translate**: Supports Simplified Chinese ↔ English, Japanese, Korean, French, German, Russian, Spanish, Italian, Arabic, Dutch, and Thai only; Traditional Chinese is not supported.
+>
+> **Baidu Translate**: Some less common languages require an enterprise-verified premium plan. If a request fails, check the [official Baidu language list](https://ai.baidu.com/ai-doc/MT/4kqryjku9).
 
 ## Acknowledgements
 
-- This project was inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), and its initial version was based on [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). `Easydict` improves upon the original project by refining the UI, adding practical new features, removing overly complex operations, and heavily optimizing performance.
-- The OCR Translate feature is based on [ScreenOCR](https://github.com/raycast/extensions/tree/main/extensions/screenocr).
-  - Special thanks to [@aidevjoe](https://github.com/aidevjoe) for the PR: [feat: add OCR recognition](https://github.com/tisfeng/Raycast-Easydict/pull/41), the original macOS implementation.
+- Inspired by [raycast-Parrot](https://github.com/Haojen/raycast-Parrot) and [Bob](https://github.com/ripperhe/Bob), with its initial version built on top of [raycast-Parrot](https://github.com/Haojen/raycast-Parrot). Easydict refines the UI, adds practical features, removes unnecessary complexity, and heavily optimizes performance.
+- OCR Translate draws inspiration from [ScreenOCR](https://github.com/raycast/extensions/tree/main/extensions/screenocr):
+  - Special thanks to [@aidevjoe](https://github.com/aidevjoe) for the original macOS implementation ([#41](https://github.com/tisfeng/Raycast-Easydict/pull/41)).
   - Special thanks to [@duckieeeduck](https://github.com/duckieeeduck) for the original Windows implementation ([raycast/extensions#30884](https://github.com/raycast/extensions/pull/30884)).
 
 <p align="center">

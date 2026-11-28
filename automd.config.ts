@@ -97,7 +97,11 @@ interface ProviderColumn {
   en: string;
   zh: string;
   code: keyof ProviderLanguageCodes | "youdaoLangCode";
+  supports?: (lang: LanguageItem) => boolean;
 }
+
+/** Keep in sync with the valid languages in `src/providers/translation/youdao.ts`. */
+const youdaoTranslateLanguages = new Set(["zh-CHS", "en", "ja", "ko", "fr", "de", "ru", "es", "it", "ar", "nl", "th"]);
 
 const detectionColumns: ProviderColumn[] = [
   { en: "Bing", zh: "Bing", code: "bingLangCode" },
@@ -106,8 +110,14 @@ const detectionColumns: ProviderColumn[] = [
 ];
 
 const translationColumns: ProviderColumn[] = [
-  { en: "Youdao", zh: "有道翻译", code: "youdaoLangCode" },
+  {
+    en: "Youdao",
+    zh: "有道翻译",
+    code: "youdaoLangCode",
+    supports: (lang) => youdaoTranslateLanguages.has(lang.youdaoLangCode),
+  },
   { en: "DeepL", zh: "DeepL", code: "deepLSourceId" },
+  { en: "DeepLX", zh: "DeepLX", code: "deepLSourceId" },
   { en: "Google", zh: "Google 翻译", code: "googleLangCode" },
   { en: "Bing", zh: "Bing 翻译", code: "bingLangCode" },
   { en: "🍎 Apple", zh: "🍎 系统翻译", code: "appleLangCode" },
@@ -121,7 +131,10 @@ function generateProviderTable({ args }: GenerateContext, columns: ProviderColum
   const headers = [locale === "zh" ? "语言" : "Languages", ...columns.map((column) => column[locale])];
   const rows = getFilteredLangs().map((lang) => {
     const codes = { ...codesOf(lang), youdaoLangCode: lang.youdaoLangCode };
-    return [getLangName(lang, locale), ...columns.map(({ code }) => getYesNo(codes[code]))];
+    return [
+      getLangName(lang, locale),
+      ...columns.map(({ code, supports }) => getYesNo((!supports || supports(lang)) && codes[code])),
+    ];
   });
 
   return { contents: buildMarkdownTable(headers, rows) };
